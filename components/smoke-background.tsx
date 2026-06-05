@@ -33,7 +33,6 @@ void main(){
 
   col=mix(col, u_color, dot(col,vec3(.21,.71,.07)));
 
-  col=mix(vec3(.08),col,min(time*.1,1.));
   col=clamp(col,.08,1.);
   O=vec4(col,1);
 }`
@@ -170,11 +169,12 @@ export const SmokeBackground: React.FC<SmokeBackgroundProps> = ({ smokeColor = '
     window.addEventListener('resize', handleResize)
 
     let animationFrameId: number
+    const startTime = performance.now()
     const loop = (now: number) => {
-      renderer.render(now)
+      renderer.render(now - startTime)
       animationFrameId = requestAnimationFrame(loop)
     }
-    loop(0)
+    animationFrameId = requestAnimationFrame(loop)
 
     return () => {
       window.removeEventListener('resize', handleResize)
