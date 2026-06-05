@@ -182,7 +182,6 @@ export default function Home() {
               style={{
                 height: '1px',
                 background: 'linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent)',
-                margin: '80px 0',
                 maxWidth: '400px',
                 margin: '80px auto',
               }}
