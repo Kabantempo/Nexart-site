@@ -146,3 +146,82 @@ export function useReviews(userId: string) {
 
   return { reviews, loading, error }
 }
+
+export function useEvent(id: string) {
+  const [event, setEvent] = useState<Event | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+
+    const fetchEvent = async () => {
+      try {
+        const { data, error: err } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', id)
+          .single()
+
+        if (err) throw err
+        setEvent(data)
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error'))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchEvent()
+  }, [id])
+
+  return { event, loading, error }
+}
+
+export function useApplication(eventId: string, creatorId?: string) {
+  const [application, setApplication] = useState<Application | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [applying, setApplying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    if (!eventId || !creatorId) return
+
+    const check = async () => {
+      setLoading(true)
+      const { data } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('event_id', eventId)
+        .eq('creator_id', creatorId)
+        .single()
+      setApplication(data || null)
+      setLoading(false)
+    }
+
+    check()
+  }, [eventId, creatorId])
+
+  const apply = async (message?: string) => {
+    if (!creatorId) return
+    setApplying(true)
+    setError(null)
+
+    const { data, error: err } = await supabase
+      .from('applications')
+      .insert({ event_id: eventId, creator_id: creatorId, message, status: 'pending' })
+      .select()
+      .single()
+
+    if (err) {
+      setError(err.message)
+    } else {
+      setApplication(data)
+      setSuccess(true)
+    }
+    setApplying(false)
+  }
+
+  return { application, loading, applying, error, success, apply }
+}

@@ -4,18 +4,68 @@ import { useCreators } from '@/lib/hooks'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Users, ArrowRight, Search } from 'lucide-react'
-import { useState } from 'react'
+import { MapPin, Users, ArrowRight, Search, Filter, X } from 'lucide-react'
+import { useState, useMemo } from 'react'
+
+const DISCIPLINES = [
+  'Tatouage', 'Céramique', 'Gravure', 'Joaillerie', 'Bijoux', 'Illustration',
+  'Textile', 'Maroquinerie', 'Sculpture', 'Photographie', 'Peinture', 'Poterie',
+  'Broderie', 'Lutherie', 'Verrerie', 'Reliure', 'Cosmétique naturelle',
+  'Savonnerie', 'Coutellerie', 'Bougies', 'Macramé', 'Origami', 'Calligraphie', 'Sérigraphie',
+]
+
+const TRAVEL_RADIUS = [
+  { value: '', label: 'Tout rayon' },
+  { value: '5', label: '5 km' },
+  { value: '10', label: '10 km' },
+  { value: '25', label: '25 km' },
+  { value: 'national', label: 'National' },
+]
 
 export default function CreatorsPage() {
   const { creators, loading, error } = useCreators()
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedDiscipline, setSelectedDiscipline] = useState('')
+  const [selectedRegion, setSelectedRegion] = useState('')
+  const [selectedRadius, setSelectedRadius] = useState('')
 
-  const filteredCreators = creators.filter(
-    (creator) =>
-      creator.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      creator.bio?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const regions = useMemo(() => {
+    const all = creators.map((c) => (c as { region?: string }).region).filter(Boolean) as string[]
+    return Array.from(new Set(all)).sort()
+  }, [creators])
+
+  const filtered = useMemo(() => {
+    return creators.filter((creator) => {
+      const matchSearch =
+        !searchTerm ||
+        creator.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        creator.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        creator.city?.toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchDiscipline =
+        !selectedDiscipline ||
+        creator.disciplines?.some((d: string) => d.toLowerCase() === selectedDiscipline.toLowerCase())
+
+      const matchRegion =
+        !selectedRegion ||
+        (creator as { region?: string }).region === selectedRegion
+
+      const matchRadius =
+        !selectedRadius ||
+        creator.travel_radius === selectedRadius
+
+      return matchSearch && matchDiscipline && matchRegion && matchRadius
+    })
+  }, [creators, searchTerm, selectedDiscipline, selectedRegion, selectedRadius])
+
+  const hasFilters = searchTerm || selectedDiscipline || selectedRegion || selectedRadius
+
+  const clearFilters = () => {
+    setSearchTerm('')
+    setSelectedDiscipline('')
+    setSelectedRegion('')
+    setSelectedRadius('')
+  }
 
   if (loading) {
     return (
@@ -35,7 +85,6 @@ export default function CreatorsPage() {
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
-      {/* Hero Section */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -46,21 +95,18 @@ export default function CreatorsPage() {
             Créateurs & Artisans
           </h1>
           <p style={{ fontSize: '18px', color: '#888888', marginBottom: '32px', lineHeight: '1.6' }}>
-            Découvrez {filteredCreators.length} créateurs talentueux à travers la France
+            {filtered.length} créateur{filtered.length !== 1 ? 's' : ''} talentueux à travers la France
           </p>
         </motion.div>
 
-        {/* Search Bar */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '40px' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <Search
-              size={20}
-              color="#888888"
-              style={{ position: 'absolute', left: '12px', top: '12px' }}
-            />
+        {/* Filters */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '40px', alignItems: 'center' }}>
+          {/* Search */}
+          <div style={{ flex: '1 1 280px', position: 'relative' }}>
+            <Search size={20} color="#888888" style={{ position: 'absolute', left: '12px', top: '12px' }} />
             <input
               type="text"
-              placeholder="Rechercher un créateur..."
+              placeholder="Rechercher un créateur ou une ville..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -69,31 +115,122 @@ export default function CreatorsPage() {
                 borderRadius: '8px',
                 border: '1px solid #E5E7EB',
                 backgroundColor: '#FFFFFF',
-                fontSize: '16px',
+                fontSize: '15px',
                 color: '#1A1A1A',
+                boxSizing: 'border-box',
                 transition: 'all 300ms ease',
               }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#6366F1'
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)'
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#E5E7EB'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
             />
           </div>
+
+          {/* Discipline filter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Filter size={16} color="#888888" />
+            <select
+              value={selectedDiscipline}
+              onChange={(e) => setSelectedDiscipline(e.target.value)}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: '1px solid #E5E7EB',
+                backgroundColor: selectedDiscipline ? '#F0F0FF' : '#FFFFFF',
+                color: selectedDiscipline ? '#6366F1' : '#888888',
+                fontSize: '15px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 300ms ease',
+              }}
+            >
+              <option value="">Toutes disciplines</option>
+              {DISCIPLINES.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Region filter */}
+          {regions.length > 0 && (
+            <select
+              value={selectedRegion}
+              onChange={(e) => setSelectedRegion(e.target.value)}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: '1px solid #E5E7EB',
+                backgroundColor: selectedRegion ? '#F0F0FF' : '#FFFFFF',
+                color: selectedRegion ? '#6366F1' : '#888888',
+                fontSize: '15px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 300ms ease',
+              }}
+            >
+              <option value="">Toutes les régions</option>
+              {regions.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          )}
+
+          {/* Radius filter */}
+          <select
+            value={selectedRadius}
+            onChange={(e) => setSelectedRadius(e.target.value)}
+            style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: '1px solid #E5E7EB',
+              backgroundColor: selectedRadius ? '#F0F0FF' : '#FFFFFF',
+              color: selectedRadius ? '#6366F1' : '#888888',
+              fontSize: '15px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              transition: 'all 300ms ease',
+            }}
+          >
+            {TRAVEL_RADIUS.map((r) => (
+              <option key={r.value} value={r.value}>{r.label}</option>
+            ))}
+          </select>
+
+          {/* Clear */}
+          {hasFilters && (
+            <button
+              onClick={clearFilters}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: '1px solid #E5E7EB',
+                backgroundColor: '#FFFFFF',
+                color: '#888888',
+                fontSize: '14px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                transition: 'all 300ms ease',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#888888' }}
+            >
+              <X size={14} />
+              Effacer
+            </button>
+          )}
         </div>
 
         {/* Creators Grid */}
-        {filteredCreators.length > 0 ? (
+        {filtered.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-            {filteredCreators.map((creator, idx) => (
+            {filtered.map((creator, idx) => (
               <motion.div
                 key={creator.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ delay: Math.min(idx * 0.05, 0.4) }}
               >
                 <Link
                   href={`/creators/${creator.id}`}
@@ -108,44 +245,18 @@ export default function CreatorsPage() {
                     height: '100%',
                     cursor: 'pointer',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#6366F1'
-                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#E5E7EB'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.1)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
                 >
                   {/* Avatar */}
-                  <div
-                    style={{
-                      width: '100%',
-                      aspectRatio: '1',
-                      backgroundColor: '#F5F5F7',
-                      overflow: 'hidden',
-                      position: 'relative',
-                    }}
-                  >
+                  <div style={{ width: '100%', height: '200px', backgroundColor: '#F5F5F7', overflow: 'hidden', position: 'relative' }}>
                     {creator.avatar_url ? (
-                      <Image
-                        src={creator.avatar_url}
-                        alt={creator.full_name}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
+                      <Image src={creator.avatar_url} alt={creator.full_name} fill style={{ objectFit: 'cover' }} />
                     ) : (
-                      <div
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
-                        }}
-                      >
-                        <Users size={48} color="#FFFFFF" />
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)' }}>
+                        <span style={{ fontSize: '48px', color: '#FFFFFF', fontWeight: '700' }}>
+                          {creator.full_name?.charAt(0) || '?'}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -158,33 +269,36 @@ export default function CreatorsPage() {
 
                     {creator.bio && (
                       <p style={{ fontSize: '14px', color: '#888888', lineHeight: '1.5', marginBottom: '12px' }}>
-                        {creator.bio.substring(0, 80)}...
+                        {creator.bio.substring(0, 80)}{creator.bio.length > 80 ? '...' : ''}
                       </p>
                     )}
 
-                    {/* Location & Badge */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                      {creator.city && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <MapPin size={14} color="#6366F1" />
-                          <span style={{ fontSize: '12px', color: '#888888' }}>
-                            {creator.city}
+                    {/* Disciplines */}
+                    {creator.disciplines?.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                        {creator.disciplines.slice(0, 3).map((d: string) => (
+                          <span key={d} style={{ padding: '2px 10px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: '#6366F1', fontSize: '12px', fontWeight: '500' }}>
+                            {d}
                           </span>
-                        </div>
-                      )}
-                    </div>
+                        ))}
+                        {creator.disciplines.length > 3 && (
+                          <span style={{ padding: '2px 10px', borderRadius: '9999px', backgroundColor: '#F5F5F7', color: '#888888', fontSize: '12px' }}>
+                            +{creator.disciplines.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
-                    {/* CTA */}
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        color: '#6366F1',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                      }}
-                    >
+                    {creator.city && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '12px' }}>
+                        <MapPin size={14} color="#6366F1" />
+                        <span style={{ fontSize: '13px', color: '#888888' }}>
+                          {creator.city}{(creator as { region?: string }).region ? ` · ${(creator as { region?: string }).region}` : ''}
+                        </span>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>
                       Voir le profil <ArrowRight size={16} />
                     </div>
                   </div>
@@ -193,8 +307,17 @@ export default function CreatorsPage() {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <p style={{ fontSize: '16px', color: '#888888' }}>Aucun créateur trouvé</p>
+          <div style={{ textAlign: 'center', padding: '60px 40px' }}>
+            <Users size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
+            <p style={{ fontSize: '18px', color: '#888888', marginBottom: '8px' }}>Aucun créateur trouvé</p>
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                style={{ marginTop: '16px', padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                Effacer les filtres
+              </button>
+            )}
           </div>
         )}
       </div>
