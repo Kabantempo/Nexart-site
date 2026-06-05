@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { Application, Event } from '@/lib/types'
-import { Calendar, Users, CheckCircle, Clock, X, ArrowRight, LogOut } from 'lucide-react'
+import { Calendar, Users, CheckCircle, Clock, X, ArrowRight, LogOut, MessageSquare } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   pending: { label: 'En attente', color: '#FF9800', bg: '#FFF8E1', icon: <Clock size={14} /> },
@@ -159,6 +159,34 @@ export default function DashboardPage() {
               <div>
                 <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>Mon profil</div>
                 <div style={{ fontSize: '13px', color: '#888888' }}>Voir ma fiche</div>
+              </div>
+            </Link>
+            <Link
+              href="/messages"
+              style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', textDecoration: 'none', backgroundColor: '#FFFFFF', transition: 'all 300ms ease', display: 'flex', alignItems: 'center', gap: '16px' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99,102,241,0.1)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '10px', backgroundColor: '#F0F0FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MessageSquare size={24} color="#6366F1" />
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>Messages</div>
+                <div style={{ fontSize: '13px', color: '#888888' }}>Vos conversations</div>
+              </div>
+            </Link>
+            <Link
+              href="/account"
+              style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', textDecoration: 'none', backgroundColor: '#FFFFFF', transition: 'all 300ms ease', display: 'flex', alignItems: 'center', gap: '16px' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99,102,241,0.1)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+            >
+              <div style={{ width: '48px', height: '48px', borderRadius: '10px', backgroundColor: '#F0F0FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '22px', color: '#6366F1' }}>⚙️</span>
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>Mon compte</div>
+                <div style={{ fontSize: '13px', color: '#888888' }}>Éditer le profil</div>
               </div>
             </Link>
           </div>

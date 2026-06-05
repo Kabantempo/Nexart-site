@@ -208,7 +208,15 @@ export default function LoginPage() {
         <div style={{ marginTop: '32px', borderTop: '1px solid #E5E7EB' }} />
 
         <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'center' }}>
-          <p style={{ fontSize: '14px', color: '#888888', margin: 0 }}>
+          <Link
+            href="/forgot-password"
+            style={{ fontSize: '14px', color: '#888888', textDecoration: 'none', textAlign: 'center', display: 'block' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#888888' }}
+          >
+            Mot de passe oublié ?
+          </Link>
+          <p style={{ fontSize: '14px', color: '#888888', margin: 0, textAlign: 'center' }}>
             Pas encore de compte ?{' '}
             <Link
               href="/register"

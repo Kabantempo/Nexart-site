@@ -15,8 +15,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexart — Marketplace créateurs & marchés",
-  description: "Connectez créateurs, artisans et marchés artisanaux en France",
+  title: "Nexart — Marketplace créateurs & marchés artisanaux",
+  description: "Nexart connecte créateurs, artisans et organisateurs de marchés artisanaux en France. Trouvez des événements, postulez à des stands, rencontrez des talents.",
+  keywords: "artisanat, marché artisanal, créateurs, artisans, événements, France, stands, marketplace",
+  openGraph: {
+    title: "Nexart — Marketplace créateurs & marchés artisanaux",
+    description: "Connectez créateurs, artisans et marchés artisanaux en France",
+    siteName: "Nexart",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nexart — Marketplace créateurs & marchés",
+    description: "Connectez créateurs, artisans et marchés artisanaux en France",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

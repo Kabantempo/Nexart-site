@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronDown, Grid2x2Plus, Menu, X, LogOut, LayoutDashboard } from 'lucide-react'
+import { ChevronDown, Grid2x2Plus, Menu, X, LogOut, LayoutDashboard, Search } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
@@ -134,6 +134,17 @@ export function NavbarFull() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Search link */}
+          <Link
+            href="/search"
+            style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#888888', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'all 200ms ease' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1'; e.currentTarget.style.backgroundColor = '#F5F5F7' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#888888'; e.currentTarget.style.backgroundColor = 'transparent' }}
+          >
+            <Search size={16} />
+            Rechercher
+          </Link>
 
           {/* Ressources Dropdown */}
           <div style={{ position: 'relative' }}>
