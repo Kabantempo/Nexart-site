@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Users, MapPin, MessageSquare, Award, Zap, Heart } from 'lucide-react'
 import { SmokeBackground } from '@/components/smoke-background'
-import { ImageTestimonialGrid } from '@/components/image-testimonial-grid'
+import { DynamicEventsGrid, DynamicCreatorsGrid } from '@/components/dynamic-grid'
 import { useAuthStore } from '@/lib/store'
 
 export default function Home() {
@@ -364,53 +364,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <ImageTestimonialGrid
-            items={[
-              {
-                name: 'Salon d\'Automne Créateurs',
-                title: 'Paris • 15-17 Nov 2024',
-                image: 'https://images.unsplash.com/photo-1469749292166-56156c16147f?w=500&h=700&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=10',
-                size: 'large',
-              },
-              {
-                name: 'Pop-up Marché Artisan',
-                title: 'Lyon • 1-3 Décembre',
-                image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=11',
-                size: 'medium',
-              },
-              {
-                name: 'Marché Permanent Bastille',
-                title: 'Paris • Chaque weekend',
-                image: 'https://images.unsplash.com/photo-1495576066350-f5f7ab7da3f8?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=12',
-                size: 'small',
-              },
-              {
-                name: 'Foire Métiers d\'Art',
-                title: 'Bordeaux • 5-8 Décembre',
-                image: 'https://images.unsplash.com/photo-1519167758993-c74ba48f8a84?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=13',
-                size: 'small',
-              },
-              {
-                name: 'Marché de Noel Premium',
-                title: 'Marseille • 1 Nov - 31 Dec',
-                image: 'https://images.unsplash.com/photo-1502882657612-449c28e3e055?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=14',
-                size: 'medium',
-              },
-              {
-                name: 'Festival des Créateurs',
-                title: 'Toulouse • 20-22 Octobre',
-                image: 'https://images.unsplash.com/photo-1479237916879-f9b06251a113?w=500&h=500&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=15',
-                size: 'large',
-              },
-            ]}
-            columns={3}
-          />
+          <DynamicEventsGrid />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -476,53 +430,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <ImageTestimonialGrid
-            items={[
-              {
-                name: 'Marie Dubois',
-                title: 'Céramiste & Sculptrice',
-                image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500&h=700&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=1',
-                size: 'large',
-              },
-              {
-                name: 'Thomas Martin',
-                title: 'Tatoueur & Designer',
-                image: 'https://images.unsplash.com/photo-1578814050033-9c499bb9a3a7?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=2',
-                size: 'medium',
-              },
-              {
-                name: 'Sophie Laurent',
-                title: 'Joaillière',
-                image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=3',
-                size: 'small',
-              },
-              {
-                name: 'Julien Beaumont',
-                title: 'Graveur & Artisan',
-                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=4',
-                size: 'small',
-              },
-              {
-                name: 'Elena Rodriguez',
-                title: 'Textile & Mode',
-                image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=5',
-                size: 'medium',
-              },
-              {
-                name: 'Marc Leclerc',
-                title: 'Bois & Menuiserie',
-                image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=6',
-                size: 'large',
-              },
-            ]}
-            columns={3}
-          />
+          <DynamicCreatorsGrid />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
