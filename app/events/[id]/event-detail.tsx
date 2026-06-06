@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock } from 'lucide-react'
+import { trackApplicationSubmit } from '@/lib/analytics'
 
 interface Props {
   id: string
@@ -54,6 +55,7 @@ export function EventDetailClient({ id }: Props) {
 
   const handleApply = async () => {
     await apply(message)
+    trackApplicationSubmit(id, user?.id)
     setShowForm(false)
   }
 
