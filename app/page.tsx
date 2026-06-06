@@ -564,46 +564,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section
-        style={{
-          padding: '64px 16px',
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #E5E7EB',
-        }}
-      >
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '32px',
-            }}
-          >
-            {[
-              { value: '500+', label: 'Créateurs & Artisans' },
-              { value: '100+', label: 'Marchés & Événements' },
-              { value: '2000+', label: 'Candidatures/Mois' },
-              { value: '45k+', label: 'Visiteurs/Mois' },
-            ].map((stat, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                viewport={{ once: true }}
-                style={{ textAlign: 'center' }}
-              >
-                <p style={{ fontSize: '48px', fontWeight: '700', marginBottom: '8px', color: '#6366F1' }}>
-                  {stat.value}
-                </p>
-                <p style={{ fontSize: '16px', color: '#888888' }}>{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
       <section
         style={{
