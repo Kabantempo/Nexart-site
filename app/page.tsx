@@ -225,7 +225,7 @@ export default function Home() {
                     backgroundClip: 'text',
                   }}
                 >
-                  Télécharger Nexart
+                  Télécharger l'app
                 </p>
                 <p
                   style={{
@@ -235,7 +235,7 @@ export default function Home() {
                     marginTop: '8px',
                   }}
                 >
-                  Disponible sur iOS et Android
+                  Version Android bêta
                 </p>
               </motion.div>
 
@@ -243,94 +243,35 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.7 }}
-                style={{
-                  display: 'flex',
-                  gap: '28px',
-                  justifyContent: 'center',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                }}
               >
-                {/* App Store Button */}
                 <a
-                  href="https://apps.apple.com/app/nexart/id6736595834"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/Nexart.apk"
+                  download="Nexart.apk"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '16px 32px',
+                    borderRadius: '8px',
+                    backgroundColor: '#FFFFFF',
+                    color: '#6366F1',
+                    textDecoration: 'none',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    transition: 'all 300ms ease',
                     cursor: 'pointer',
-                    transition: 'transform 300ms ease',
-                    minWidth: '180px',
-                    minHeight: '60px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
                   }}
                   onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-8px)'
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.3)'
                   }}
                   onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
+                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)'
                   }}
                 >
-                  <img
-                    src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1234567890"
-                    alt="Télécharger sur l'App Store"
-                    loading="lazy"
-                    style={{
-                      height: '60px',
-                      width: 'auto',
-                      display: 'block',
-                      filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))',
-                      transition: 'filter 300ms ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4))'
-                    }}
-                    onMouseLeave={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))'
-                    }}
-                  />
-                </a>
-
-                {/* Google Play Button */}
-                <a
-                  href="https://play.google.com/store/apps/details?id=com.nexart.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'transform 300ms ease',
-                    minWidth: '180px',
-                    minHeight: '80px',
-                  }}
-                  onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-8px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
-                  }}
-                >
-                  <img
-                    src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-                    alt="Télécharger sur Google Play"
-                    loading="lazy"
-                    style={{
-                      height: '80px',
-                      width: 'auto',
-                      display: 'block',
-                      filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))',
-                      transition: 'filter 300ms ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4))'
-                    }}
-                    onMouseLeave={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))'
-                    }}
-                  />
+                  ⬇️ Télécharger APK
                 </a>
               </motion.div>
             </motion.div>
