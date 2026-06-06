@@ -41,11 +41,35 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Nexart',
+    description: 'Marketplace connectant créateurs, artisans et organisateurs de marchés artisanaux en France',
+    url: 'https://nexart.fr',
+    logo: 'https://nexart.fr/logo.png',
+    sameAs: [
+      'https://instagram.com/nexart.fr',
+      'https://facebook.com/nexart.fr',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Customer Support',
+      email: 'contact@nexart.fr',
+    },
+  }
+
   return (
     <html
       lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+      </head>
       <body
         className="flex min-h-screen flex-col"
         style={{
