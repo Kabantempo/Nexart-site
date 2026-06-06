@@ -203,9 +203,9 @@ export function Footer() {
           </p>
           <nav style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {[
+              { label: 'Mentions légales', href: '/legal' },
               { label: 'Confidentialité', href: '/legal/privacy' },
               { label: 'Conditions', href: '/legal/terms' },
-              { label: 'Cookies', href: '/legal/cookies' },
               { label: 'Contact', href: '/contact' },
             ].map((link) => (
               <Link
