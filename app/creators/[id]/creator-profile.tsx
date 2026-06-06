@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Instagram } from 'lucide-react'
+import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2 } from 'lucide-react'
 
 interface Props {
   id: string
@@ -221,7 +221,7 @@ export function CreatorProfileClient({ id }: Props) {
                 {creator.instagram && (
                   <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
                     style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px' }}>
-                    <Instagram size={16} />
+                    <Link2 size={16} />
                     @{creator.instagram.replace('@', '')}
                   </a>
                 )}

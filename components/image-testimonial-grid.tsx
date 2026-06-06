@@ -98,6 +98,7 @@ export function ImageTestimonialGrid({
             <img
               src={item.image}
               alt={item.name}
+              loading="lazy"
               style={{
                 width: '100%',
                 height: '100%',
@@ -135,6 +136,7 @@ export function ImageTestimonialGrid({
                 <img
                   src={item.avatar}
                   alt={item.name}
+                  loading="lazy"
                   style={{
                     width: '40px',
                     height: '40px',

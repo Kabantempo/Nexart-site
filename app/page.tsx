@@ -1,12 +1,20 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Users, MapPin, MessageSquare, Award, Zap, Heart } from 'lucide-react'
 import { SmokeBackground } from '@/components/smoke-background'
 import { ImageTestimonialGrid } from '@/components/image-testimonial-grid'
+import { useAuthStore } from '@/lib/store'
 
 export default function Home() {
+  const user = useAuthStore((s) => s.user)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
   return (
     <div style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
       {/* Hero Section with Smoke Background */}
@@ -144,7 +152,7 @@ export default function Home() {
                   <ArrowRight size={20} />
                 </Link>
                 <Link
-                  href="/register"
+                  href={isClient && user ? '/dashboard' : '/register'}
                   style={{
                     padding: '16px 32px',
                     borderRadius: '8px',
@@ -169,7 +177,7 @@ export default function Home() {
                     e.currentTarget.style.backgroundColor = '#FFFFFF'
                   }}
                 >
-                  Créer un profil
+                  {isClient && user ? 'Mon Dashboard' : 'Créer un profil'}
                 </Link>
               </div>
             </motion.div>
@@ -267,6 +275,7 @@ export default function Home() {
                   <img
                     src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1234567890"
                     alt="Télécharger sur l'App Store"
+                    loading="lazy"
                     style={{
                       height: '60px',
                       width: 'auto',
@@ -307,6 +316,7 @@ export default function Home() {
                   <img
                     src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
                     alt="Télécharger sur Google Play"
+                    loading="lazy"
                     style={{
                       height: '80px',
                       width: 'auto',
