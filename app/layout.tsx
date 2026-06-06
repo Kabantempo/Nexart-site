@@ -4,6 +4,7 @@ import "./globals.css";
 import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@/components/analytics";
+import { CookieBanner } from "@/components/cookie-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,6 +83,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <Analytics />
+        <CookieBanner />
       </body>
     </html>
   );

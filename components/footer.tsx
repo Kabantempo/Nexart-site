@@ -206,7 +206,7 @@ export function Footer() {
               { label: 'Mentions légales', href: '/legal' },
               { label: 'Confidentialité', href: '/legal/privacy' },
               { label: 'Conditions', href: '/legal/terms' },
-              { label: 'Contact', href: '/contact' },
+              { label: 'Nous contacter', href: '/contact' },
             ].map((link) => (
               <Link
                 key={link.href}
