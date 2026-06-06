@@ -532,12 +532,81 @@ export default function Home() {
           <h2 style={{ fontSize: '48px', fontWeight: '700', marginBottom: '24px', color: '#FFFFFF' }}>
             Prêt à commencer votre aventure ?
           </h2>
-          <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)', marginBottom: '48px' }}>
+          <p style={{ fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)', marginBottom: '64px' }}>
             Rejoignez des centaines de créateurs et organisateurs qui font confiance à Nexart.
           </p>
+
+          {/* App Download Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            style={{
+              borderRadius: '16px',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              padding: '48px 32px',
+              marginBottom: '48px',
+              transition: 'all 300ms ease',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+            }}
+          >
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📱</div>
+              <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#FFFFFF', marginBottom: '8px' }}>
+                Nexart Mobile
+              </h3>
+              <p style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '32px' }}>
+                L'app pour créateurs et organisateurs en déplacement
+              </p>
+              <a
+                href="/Nexart.apk"
+                download="Nexart.apk"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '14px 28px',
+                  borderRadius: '10px',
+                  backgroundColor: '#FFFFFF',
+                  color: '#6366F1',
+                  textDecoration: 'none',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  transition: 'all 300ms ease',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.2)'
+                }}
+              >
+                ⬇️ Télécharger (Android Beta)
+              </a>
+              <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', marginTop: '16px' }}>
+                iOS bientôt disponible
+              </p>
+            </div>
+          </motion.div>
+
+          {/* CTA Buttons */}
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
-              href="/register"
+              href={isClient && user ? '/dashboard' : '/register'}
               style={{
                 padding: '16px 32px',
                 borderRadius: '8px',
@@ -556,7 +625,7 @@ export default function Home() {
                 e.currentTarget.style.transform = 'scale(1)'
               }}
             >
-              Créer mon profil
+              {isClient && user ? 'Mon Dashboard' : 'Créer mon profil'}
             </Link>
             <Link
               href="/events"
