@@ -1,3 +1,5 @@
+'use client'
+
 export default function PrivacyPage() {
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>

@@ -451,7 +451,7 @@ export default function Home() {
               },
               {
                 icon: MapPin,
-                title: '100+ marchés en France',
+                title: 'Des marchés partout en France',
                 description: 'Découvrez des pop-ups, salons, foires et marchés permanents près de chez vous.',
               },
               {

@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, Grid2x2Plus, Menu, X, LogOut, LayoutDashboard, Search } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 
@@ -49,9 +48,23 @@ export function NavbarFull() {
     router.push('/')
   }
 
-  const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name)
-  }
+  const dropdownStyle = (name: string): React.CSSProperties => ({
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    marginTop: '8px',
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #E5E7EB',
+    borderRadius: '12px',
+    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+    minWidth: name === 'discover' ? '320px' : '280px',
+    zIndex: 100,
+    padding: '8px',
+    opacity: openDropdown === name ? 1 : 0,
+    visibility: openDropdown === name ? 'visible' : 'hidden',
+    transform: openDropdown === name ? 'translateY(0)' : 'translateY(-8px)',
+    transition: 'opacity 200ms ease, transform 200ms ease, visibility 200ms ease',
+  })
 
   return (
     <header
@@ -65,6 +78,24 @@ export function NavbarFull() {
         borderBottom: '1px solid #E5E7EB',
       }}
     >
+      <style>{`
+        @media (min-width: 1024px) {
+          .desktop-nav { display: flex !important; }
+          .desktop-cta { display: flex !important; }
+          .mobile-menu-btn { display: none !important; }
+          .mobile-menu { display: none !important; }
+        }
+        @media (max-width: 1023px) {
+          .desktop-nav { display: none !important; }
+          .desktop-cta { display: none !important; }
+          .mobile-menu { display: block !important; }
+        }
+        .nav-link:hover { color: #6366F1 !important; background-color: #F5F5F7 !important; }
+        .nav-dropdown-link:hover { background-color: #F5F5F7 !important; }
+        .nav-btn-outline:hover { border-color: #6366F1 !important; color: #6366F1 !important; }
+        .nav-btn-primary:hover { background-color: #4F46E5 !important; }
+        .nav-logout:hover { background-color: #FEF2F2 !important; color: #E05A5A !important; }
+      `}</style>
       <div
         style={{
           maxWidth: '100%',
@@ -92,105 +123,80 @@ export function NavbarFull() {
           className="desktop-nav"
         >
           {/* Découvrir Dropdown */}
-          <div style={{ position: 'relative' }}>
+          <div
+            style={{ position: 'relative' }}
+            onMouseEnter={() => setOpenDropdown('discover')}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
             <button
-              onClick={() => toggleDropdown('discover')}
+              onClick={() => setOpenDropdown(openDropdown === 'discover' ? null : 'discover')}
               style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease' }}
-              onMouseEnter={() => setOpenDropdown('discover')}
-              onMouseLeave={() => setOpenDropdown(null)}
             >
               Découvrir
               <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
             </button>
 
-            <AnimatePresence>
-              {openDropdown === 'discover' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)', minWidth: '320px', zIndex: 100, padding: '8px' }}
-                  onMouseEnter={() => setOpenDropdown('discover')}
-                  onMouseLeave={() => setOpenDropdown(null)}
+            <div style={dropdownStyle('discover')}>
+              {[
+                { title: 'Marchés & Événements', href: '/events', desc: 'Trouvez votre prochain marché' },
+                { title: 'Créateurs & Artisans', href: '/creators', desc: 'Découvrez les artisans' },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpenDropdown(null)}
+                  className="nav-dropdown-link"
+                  style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', borderRadius: '8px', transition: 'background-color 150ms ease' }}
                 >
-                  {[
-                    { title: 'Marchés & Événements', href: '/events', desc: '100+ événements en France' },
-                    { title: 'Créateurs & Artisans', href: '/creators', desc: '500+ talents connectés' },
-                  ].map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setOpenDropdown(null)}
-                      style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', borderRadius: '8px', transition: 'background-color 150ms ease' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
-                    >
-                      <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.title}</span>
-                      <span style={{ fontSize: '12px', color: '#888888' }}>{item.desc}</span>
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.title}</span>
+                  <span style={{ fontSize: '12px', color: '#888888' }}>{item.desc}</span>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Search link */}
           <Link
             href="/search"
+            className="nav-link"
             style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#888888', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'all 200ms ease' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1'; e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#888888'; e.currentTarget.style.backgroundColor = 'transparent' }}
           >
             <Search size={16} />
             Rechercher
           </Link>
 
           {/* Ressources Dropdown */}
-          <div style={{ position: 'relative' }}>
+          <div
+            style={{ position: 'relative' }}
+            onMouseEnter={() => setOpenDropdown('resources')}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
             <button
-              onClick={() => toggleDropdown('resources')}
+              onClick={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
               style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease' }}
-              onMouseEnter={() => setOpenDropdown('resources')}
-              onMouseLeave={() => setOpenDropdown(null)}
             >
               Ressources
               <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
             </button>
 
-            <AnimatePresence>
-              {openDropdown === 'resources' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)', minWidth: '280px', zIndex: 100, padding: '8px' }}
-                  onMouseEnter={() => setOpenDropdown('resources')}
-                  onMouseLeave={() => setOpenDropdown(null)}
+            <div style={dropdownStyle('resources')}>
+              {[
+                { title: 'À propos', href: '/about' },
+                { title: 'Blog', href: '/blog' },
+                { title: 'Nous contacter', href: '/contact' },
+                { title: 'Centre d\'aide', href: '#' },
+              ].map((item, idx) => (
+                <Link
+                  key={`resource-${idx}`}
+                  href={item.href}
+                  onClick={() => setOpenDropdown(null)}
+                  className="nav-dropdown-link"
+                  style={{ display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease' }}
                 >
-                  {[
-                    { title: 'À propos', href: '/about' },
-                    { title: 'Centre d\'aide', href: '#' },
-                    { title: 'Confidentialité', href: '#' },
-                    { title: 'Blog', href: '#' },
-                    { title: 'Partenariats', href: '#' },
-                    { title: 'Nous contacter', href: '#' },
-                  ].map((item, idx) => (
-                    <Link
-                      key={`resource-${idx}`}
-                      href={item.href}
-                      onClick={() => setOpenDropdown(null)}
-                      style={{ display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
-                    >
-                      {item.title}
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {item.title}
+                </Link>
+              ))}
+            </div>
           </div>
         </nav>
 
@@ -200,18 +206,16 @@ export function NavbarFull() {
             <>
               <Link
                 href="/dashboard"
+                className="nav-btn-outline"
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#1A1A1A', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1' }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#1A1A1A' }}
               >
                 <LayoutDashboard size={16} />
                 {user.full_name?.split(' ')[0]}
               </Link>
               <button
                 onClick={handleLogout}
+                className="nav-logout"
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#F5F5F7', color: '#888888', fontSize: '14px', cursor: 'pointer', transition: 'all 200ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#FEF2F2'; e.currentTarget.style.color = '#E05A5A' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7'; e.currentTarget.style.color = '#888888' }}
               >
                 <LogOut size={16} />
               </button>
@@ -220,17 +224,15 @@ export function NavbarFull() {
             <>
               <Link
                 href="/login"
+                className="nav-link"
                 style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
               >
                 Se connecter
               </Link>
               <Link
                 href="/register"
+                className="nav-btn-primary"
                 style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#4F46E5' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1' }}
               >
                 S'inscrire
               </Link>
@@ -249,137 +251,108 @@ export function NavbarFull() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ borderTop: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'none', overflow: 'hidden' }}
-            className="mobile-menu"
-          >
-            <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {/* Discover */}
-              <div>
-                <button
-                  onClick={() => toggleDropdown('discover')}
-                  style={{ width: '100%', padding: '12px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+      <div
+        className="mobile-menu"
+        style={{
+          borderTop: '1px solid #E5E7EB',
+          backgroundColor: '#FFFFFF',
+          display: 'none',
+          overflow: 'hidden',
+          maxHeight: isMobileOpen ? '600px' : '0',
+          transition: 'max-height 300ms ease',
+        }}
+      >
+        <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div>
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'discover' ? null : 'discover')}
+              style={{ width: '100%', padding: '12px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              Découvrir
+              <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
+            </button>
+            <div style={{ overflow: 'hidden', maxHeight: openDropdown === 'discover' ? '200px' : '0', transition: 'max-height 200ms ease' }}>
+              {[
+                { title: 'Marchés & Événements', href: '/events', desc: 'Trouvez votre prochain marché' },
+                { title: 'Créateurs & Artisans', href: '/creators', desc: 'Découvrez les artisans' },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
+                  style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', borderRadius: '8px', backgroundColor: '#F5F5F7', marginTop: '8px' }}
                 >
-                  Découvrir
-                  <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-                </button>
-                <AnimatePresence>
-                  {openDropdown === 'discover' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} style={{ overflow: 'hidden' }}>
-                      {[
-                        { title: 'Marchés & Événements', href: '/events', desc: '100+ événements' },
-                        { title: 'Créateurs & Artisans', href: '/creators', desc: '500+ talents' },
-                      ].map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
-                          style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', borderRadius: '8px', backgroundColor: '#F5F5F7', marginTop: '8px' }}
-                        >
-                          <span style={{ fontSize: '13px', fontWeight: '600' }}>{item.title}</span>
-                          <span style={{ fontSize: '11px', color: '#888888' }}>{item.desc}</span>
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Resources */}
-              <div>
-                <button
-                  onClick={() => toggleDropdown('resources')}
-                  style={{ width: '100%', padding: '12px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
-                >
-                  Ressources
-                  <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-                </button>
-                <AnimatePresence>
-                  {openDropdown === 'resources' && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }} style={{ overflow: 'hidden' }}>
-                      {[
-                        { title: 'À propos', href: '/about' },
-                        { title: 'Centre d\'aide', href: '#' },
-                        { title: 'Confidentialité', href: '#' },
-                        { title: 'Blog', href: '#' },
-                        { title: 'Partenariats', href: '#' },
-                        { title: 'Nous contacter', href: '#' },
-                      ].map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
-                          style={{ display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '13px', borderRadius: '8px', backgroundColor: '#F5F5F7', marginTop: '8px' }}
-                        >
-                          {item.title}
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Mobile CTA */}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                {user ? (
-                  <>
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setIsMobileOpen(false)}
-                      style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}
-                    >
-                      Mon espace
-                    </Link>
-                    <button
-                      onClick={() => { setIsMobileOpen(false); handleLogout() }}
-                      style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#F5F5F7', color: '#888888', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
-                    >
-                      Déconnexion
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      onClick={() => setIsMobileOpen(false)}
-                      style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}
-                    >
-                      Se connecter
-                    </Link>
-                    <Link
-                      href="/register"
-                      onClick={() => setIsMobileOpen(false)}
-                      style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}
-                    >
-                      S'inscrire
-                    </Link>
-                  </>
-                )}
-              </div>
+                  <span style={{ fontSize: '13px', fontWeight: '600' }}>{item.title}</span>
+                  <span style={{ fontSize: '11px', color: '#888888' }}>{item.desc}</span>
+                </Link>
+              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
 
-      <style jsx>{`
-        @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; }
-          .desktop-cta { display: flex !important; }
-          .mobile-menu-btn { display: none !important; }
-          .mobile-menu { display: none !important; }
-        }
-        @media (max-width: 1023px) {
-          .desktop-nav { display: none !important; }
-          .desktop-cta { display: none !important; }
-          .mobile-menu { display: block !important; }
-        }
-      `}</style>
+          <div>
+            <button
+              onClick={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
+              style={{ width: '100%', padding: '12px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              Ressources
+              <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
+            </button>
+            <div style={{ overflow: 'hidden', maxHeight: openDropdown === 'resources' ? '200px' : '0', transition: 'max-height 200ms ease' }}>
+              {[
+                { title: 'À propos', href: '/about' },
+                { title: 'Blog', href: '/blog' },
+                { title: 'Nous contacter', href: '/contact' },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
+                  style={{ display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '13px', borderRadius: '8px', backgroundColor: '#F5F5F7', marginTop: '8px' }}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsMobileOpen(false)}
+                  style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}
+                >
+                  Mon espace
+                </Link>
+                <button
+                  onClick={() => { setIsMobileOpen(false); handleLogout() }}
+                  style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#F5F5F7', color: '#888888', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  Déconnexion
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setIsMobileOpen(false)}
+                  style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}
+                >
+                  Se connecter
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setIsMobileOpen(false)}
+                  style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}
+                >
+                  S'inscrire
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </header>
   )
 }

@@ -100,10 +100,10 @@ export default function AboutPage() {
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                500+
+                🚀
               </div>
               <p style={{ fontSize: '16px', color: '#888888', marginTop: '8px' }}>
-                Créateurs & Artisans connectés
+                Plateforme en lancement — Rejoignez les premiers !
               </p>
             </div>
           </div>
