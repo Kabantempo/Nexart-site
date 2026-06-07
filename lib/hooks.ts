@@ -119,6 +119,74 @@ export function useApplications(userId?: string) {
   return { applications, loading, error }
 }
 
+export function useEvent(id: string) {
+  const [event, setEvent] = useState<Event | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+    const fetchEvent = async () => {
+      try {
+        const { data, error: err } = await supabase
+          .from('events')
+          .select('*')
+          .eq('id', id)
+          .single()
+        if (err) throw err
+        setEvent(data)
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error'))
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchEvent()
+  }, [id])
+
+  return { event, loading, error }
+}
+
+export function useApplication(eventId: string, userId?: string) {
+  const [application, setApplication] = useState<Application | null>(null)
+  const [applying, setApplying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  useEffect(() => {
+    if (!userId || !eventId) return
+    supabase
+      .from('applications')
+      .select('*')
+      .eq('event_id', eventId)
+      .eq('creator_id', userId)
+      .maybeSingle()
+      .then(({ data }) => { if (data) setApplication(data) })
+  }, [eventId, userId])
+
+  const apply = async (message: string) => {
+    if (!userId) return
+    setApplying(true)
+    setError(null)
+    try {
+      const { error: err } = await supabase.from('applications').insert({
+        event_id: eventId,
+        creator_id: userId,
+        message,
+        status: 'pending',
+      })
+      if (err) throw err
+      setSuccess(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la candidature')
+    } finally {
+      setApplying(false)
+    }
+  }
+
+  return { application, applying, error, success, apply }
+}
+
 export function useReviews(userId: string) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
