@@ -86,24 +86,15 @@ export default function AboutPage() {
               style={{
                 padding: '40px',
                 borderRadius: '12px',
-                backgroundColor: '#F5F5F7',
-                border: '1px solid #E5E7EB',
+                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                color: '#FFF',
               }}
             >
-              <div
-                style={{
-                  fontSize: '48px',
-                  fontWeight: '700',
-                  background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                🚀
-              </div>
-              <p style={{ fontSize: '16px', color: '#888888', marginTop: '8px' }}>
-                Plateforme en lancement — Rejoignez les premiers !
+              <p style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 12px' }}>
+                Disponible sur iOS & Android
+              </p>
+              <p style={{ fontSize: '14px', opacity: 0.85, lineHeight: '1.6', margin: 0 }}>
+                Téléchargez l&apos;application Nexart et gérez vos candidatures, marchés et messages où que vous soyez.
               </p>
             </div>
           </div>

@@ -4,54 +4,44 @@ import { useEvents } from '@/lib/hooks'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Calendar, ArrowRight, Search, Filter, X } from 'lucide-react'
-import { useState, useMemo } from 'react'
-
-const EVENT_TYPES = [
-  { value: '', label: 'Tous les types' },
-  { value: 'permanent', label: 'Permanent' },
-  { value: 'seasonal', label: 'Saisonnier' },
-  { value: 'popup', label: 'Pop-up' },
-  { value: 'salon', label: 'Salon' },
-  { value: 'fair', label: 'Foire' },
-]
+import { MapPin, Calendar, ArrowRight, Search } from 'lucide-react'
+import { useState } from 'react'
 
 export default function EventsPage() {
   const { events, loading, error } = useEvents()
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedType, setSelectedType] = useState('')
-  const [selectedRegion, setSelectedRegion] = useState('')
 
-  const regions = useMemo(() => {
-    const all = events.map((e) => e.region).filter(Boolean)
-    return ['', ...Array.from(new Set(all)).sort()]
-  }, [events])
-
-  const filtered = useMemo(() => {
-    return events.filter((event) => {
-      const matchSearch =
-        !searchTerm ||
-        event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.city?.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchType = !selectedType || event.event_type === selectedType
-      const matchRegion = !selectedRegion || event.region === selectedRegion
-      return matchSearch && matchType && matchRegion
-    })
-  }, [events, searchTerm, selectedType, selectedRegion])
-
-  const hasFilters = searchTerm || selectedType || selectedRegion
-
-  const clearFilters = () => {
-    setSearchTerm('')
-    setSelectedType('')
-    setSelectedRegion('')
-  }
+  const filteredEvents = events.filter(
+    (event) =>
+      event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#888888', fontSize: '16px' }}>Chargement des événements...</p>
+      <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
+          {/* Hero skeleton */}
+          <div style={{ width: '42%', height: '52px', backgroundColor: '#F3F4F6', borderRadius: '10px', marginBottom: '16px', animation: 'pulse 1.6s ease-in-out infinite' }} />
+          <div style={{ width: '55%', height: '22px', backgroundColor: '#F3F4F6', borderRadius: '8px', marginBottom: '32px', animation: 'pulse 1.6s ease-in-out infinite' }} />
+          <div style={{ height: '48px', backgroundColor: '#F3F4F6', borderRadius: '8px', marginBottom: '40px', animation: 'pulse 1.6s ease-in-out infinite' }} />
+          {/* Cards skeleton */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} style={{ borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden', animation: 'pulse 1.6s ease-in-out infinite', animationDelay: `${i * 0.1}s` }}>
+                <div style={{ height: '200px', backgroundColor: '#F3F4F6' }} />
+                <div style={{ padding: '20px' }}>
+                  <div style={{ height: '20px', backgroundColor: '#F3F4F6', borderRadius: '6px', marginBottom: '12px' }} />
+                  <div style={{ height: '14px', backgroundColor: '#F3F4F6', borderRadius: '6px', width: '65%', marginBottom: '8px' }} />
+                  <div style={{ height: '14px', backgroundColor: '#F3F4F6', borderRadius: '6px', width: '45%', marginBottom: '16px' }} />
+                  <div style={{ height: '14px', backgroundColor: '#F3F4F6', borderRadius: '6px', width: '80%', marginBottom: '6px' }} />
+                  <div style={{ height: '14px', backgroundColor: '#F3F4F6', borderRadius: '6px', width: '60%' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }`}</style>
       </div>
     )
   }
@@ -59,13 +49,15 @@ export default function EventsPage() {
   if (error) {
     return (
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#E05A5A', fontSize: '16px' }}>Erreur : {error.message}</p>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+        <p style={{ color: '#E05A5A', fontSize: '16px' }}>Une erreur est survenue. Réessayez dans quelques instants.</p>
       </div>
     )
   }
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+      {/* Hero Section */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -76,18 +68,21 @@ export default function EventsPage() {
             Événements & Marchés
           </h1>
           <p style={{ fontSize: '18px', color: '#888888', marginBottom: '32px', lineHeight: '1.6' }}>
-            {filtered.length} événement{filtered.length !== 1 ? 's' : ''} artisanaux en France
+            Découvrez {filteredEvents.length} événements artisanaux en France
           </p>
         </motion.div>
 
-        {/* Filters */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '40px', alignItems: 'center' }}>
-          {/* Search */}
-          <div style={{ flex: '1 1 280px', position: 'relative' }}>
-            <Search size={20} color="#888888" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+        {/* Search Bar */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '40px' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <Search
+              size={20}
+              color="#888888"
+              style={{ position: 'absolute', left: '12px', top: '12px' }}
+            />
             <input
               type="text"
-              placeholder="Rechercher un événement ou une ville..."
+              placeholder="Rechercher un événement..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -96,100 +91,31 @@ export default function EventsPage() {
                 borderRadius: '8px',
                 border: '1px solid #E5E7EB',
                 backgroundColor: '#FFFFFF',
-                fontSize: '15px',
+                fontSize: '16px',
                 color: '#1A1A1A',
-                boxSizing: 'border-box',
                 transition: 'all 300ms ease',
               }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#6366F1'
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)'
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#E5E7EB'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
             />
           </div>
-
-          {/* Type filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Filter size={16} color="#888888" />
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: '1px solid #E5E7EB',
-                backgroundColor: selectedType ? '#F0F0FF' : '#FFFFFF',
-                color: selectedType ? '#6366F1' : '#888888',
-                fontSize: '15px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 300ms ease',
-              }}
-            >
-              {EVENT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Region filter */}
-          {regions.length > 1 && (
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: '1px solid #E5E7EB',
-                backgroundColor: selectedRegion ? '#F0F0FF' : '#FFFFFF',
-                color: selectedRegion ? '#6366F1' : '#888888',
-                fontSize: '15px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 300ms ease',
-              }}
-            >
-              <option value="">Toutes les régions</option>
-              {regions.filter(Boolean).map((r) => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          )}
-
-          {/* Clear filters */}
-          {hasFilters && (
-            <button
-              onClick={clearFilters}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: '1px solid #E5E7EB',
-                backgroundColor: '#FFFFFF',
-                color: '#888888',
-                fontSize: '14px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'all 300ms ease',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1' }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#888888' }}
-            >
-              <X size={14} />
-              Effacer
-            </button>
-          )}
         </div>
 
         {/* Events Grid */}
-        {filtered.length > 0 ? (
+        {filteredEvents.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-            {filtered.map((event, idx) => (
+            {filteredEvents.map((event, idx) => (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(idx * 0.05, 0.4) }}
+                transition={{ delay: idx * 0.1 }}
               >
                 <Link
                   href={`/events/${event.id}`}
@@ -204,33 +130,44 @@ export default function EventsPage() {
                     height: '100%',
                     cursor: 'pointer',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.1)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#6366F1'
+                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.1)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#E5E7EB'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
                 >
                   {/* Cover Image */}
-                  <div style={{ width: '100%', height: '200px', backgroundColor: '#F5F5F7', overflow: 'hidden', position: 'relative' }}>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '200px',
+                      backgroundColor: '#F5F5F7',
+                      overflow: 'hidden',
+                      position: 'relative',
+                    }}
+                  >
                     {event.cover_image ? (
-                      <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
+                      <Image
+                        src={event.cover_image}
+                        alt={event.title}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                      />
                     ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)' }}>
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
+                        }}
+                      >
                         <Calendar size={48} color="#FFFFFF" />
-                      </div>
-                    )}
-                    {/* Type badge */}
-                    {event.event_type && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        left: '12px',
-                        padding: '4px 10px',
-                        borderRadius: '9999px',
-                        backgroundColor: 'rgba(99, 102, 241, 0.9)',
-                        color: '#FFFFFF',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        textTransform: 'capitalize',
-                      }}>
-                        {event.event_type}
                       </div>
                     )}
                   </div>
@@ -241,36 +178,43 @@ export default function EventsPage() {
                       {event.title}
                     </h3>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                    {/* Date & Location */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                       {event.start_date && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Calendar size={14} color="#6366F1" />
-                          <span style={{ fontSize: '13px', color: '#888888' }}>
-                            {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          <Calendar size={16} color="#6366F1" />
+                          <span style={{ fontSize: '14px', color: '#888888' }}>
+                            {new Date(event.start_date).toLocaleDateString('fr-FR')}
                           </span>
                         </div>
                       )}
                       {event.location && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <MapPin size={14} color="#6366F1" />
-                          <span style={{ fontSize: '13px', color: '#888888' }}>{event.city || event.location}</span>
+                          <MapPin size={16} color="#6366F1" />
+                          <span style={{ fontSize: '14px', color: '#888888' }}>
+                            {event.location}
+                          </span>
                         </div>
                       )}
                     </div>
 
                     {event.description && (
                       <p style={{ fontSize: '14px', color: '#888888', lineHeight: '1.5', marginBottom: '16px' }}>
-                        {event.description.substring(0, 90)}{event.description.length > 90 ? '...' : ''}
+                        {event.description.substring(0, 100)}...
                       </p>
                     )}
 
-                    {event.stand_price > 0 && (
-                      <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', marginBottom: '12px' }}>
-                        Stand à partir de {event.stand_price}€
-                      </p>
-                    )}
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>
+                    {/* CTA */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: '#6366F1',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                      }}
+                    >
                       Voir plus <ArrowRight size={16} />
                     </div>
                   </div>
@@ -279,17 +223,47 @@ export default function EventsPage() {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '60px 40px' }}>
-            <p style={{ fontSize: '18px', color: '#888888', marginBottom: '8px' }}>Aucun événement trouvé</p>
-            {hasFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ textAlign: 'center', padding: '80px 24px' }}
+          >
+            <div style={{ fontSize: '56px', marginBottom: '20px', lineHeight: 1 }}>
+              {searchTerm ? '🔍' : '📅'}
+            </div>
+            <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>
+              {searchTerm ? 'Aucun résultat' : 'Aucun événement pour le moment'}
+            </h3>
+            <p style={{ fontSize: '15px', color: '#888888', lineHeight: '1.6', maxWidth: '380px', margin: '0 auto 28px' }}>
+              {searchTerm
+                ? `Aucun événement ne correspond à « ${searchTerm} ». Essayez d'autres mots-clés.`
+                : 'Les premiers marchés et salons arrivent bientôt. Inscrivez-vous pour être parmi les premiers notifiés.'}
+            </p>
+            {searchTerm ? (
               <button
-                onClick={clearFilters}
-                style={{ marginTop: '16px', padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+                onClick={() => setSearchTerm('')}
+                style={{
+                  padding: '10px 24px', borderRadius: '8px', border: '1px solid #6366F1',
+                  backgroundColor: 'transparent', color: '#6366F1', fontSize: '14px',
+                  fontWeight: '600', cursor: 'pointer',
+                }}
               >
-                Effacer les filtres
+                Effacer la recherche
               </button>
+            ) : (
+              <Link
+                href="/register"
+                style={{
+                  display: 'inline-block', padding: '12px 28px', borderRadius: '8px',
+                  backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none',
+                  fontSize: '14px', fontWeight: '600',
+                }}
+              >
+                Créer un compte gratuit
+              </Link>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

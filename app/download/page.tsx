@@ -209,12 +209,12 @@ export default function DownloadPage() {
                 display: 'inline-block',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#5B5BD6'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'
+                e.style.backgroundColor = '#5B5BD6'
+                e.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#6366F1'
-                e.currentTarget.style.boxShadow = 'none'
+                e.style.backgroundColor = '#6366F1'
+                e.style.boxShadow = 'none'
               }}
             >
               App Store
@@ -234,12 +234,12 @@ export default function DownloadPage() {
                 display: 'inline-block',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#5B5BD6'
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'
+                e.style.backgroundColor = '#5B5BD6'
+                e.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#6366F1'
-                e.currentTarget.style.boxShadow = 'none'
+                e.style.backgroundColor = '#6366F1'
+                e.style.boxShadow = 'none'
               }}
             >
               Google Play
