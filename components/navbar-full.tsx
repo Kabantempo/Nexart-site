@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { ChevronDown, Grid2x2Plus, Menu, X, LogOut, Search, MessageCircle, Heart, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
+import { NotificationBell } from '@/components/ui/notification-bell'
 
 export function NavbarFull() {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
@@ -264,6 +265,9 @@ export function NavbarFull() {
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
                 <Heart size={18} color="#1A1A1A" />
               </Link>
+
+              {/* Notifications */}
+              <NotificationBell userId={user.id} />
 
               {/* Profil dropdown */}
               <div style={{ position: 'relative' }}
