@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { Suspense, useState, useMemo, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useEvents, useCreators } from '@/lib/hooks'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -9,11 +10,21 @@ import { Search, Calendar, MapPin, Users, ArrowRight } from 'lucide-react'
 
 type Tab = 'all' | 'events' | 'creators'
 
-export default function SearchPage() {
+function SearchContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { events } = useEvents()
   const { creators } = useCreators()
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [tab, setTab] = useState<Tab>('all')
+
+  // Keep URL in sync with query
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (query.trim()) params.set('q', query.trim())
+    const qs = params.toString()
+    router.replace(qs ? `/search?${qs}` : '/search', { scroll: false })
+  }, [query, router])
 
   const q = query.toLowerCase()
 
@@ -229,5 +240,18 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   )
 }
