@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/store'
 import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
-  LogOut, MessageSquare, User, Heart,
+  LogOut, MessageSquare, User, Heart, List, CalendarDays,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [applications, setApplications] = useState<(Application & { event?: Event })[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -122,9 +123,21 @@ export default function DashboardPage() {
           </div>
         ) : user.role === 'creator' ? (
           <div>
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '20px' }}>
-              Mes candidatures ({applications.length})
-            </h2>
+            {/* Header + toggle */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+              <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A' }}>
+                Mes candidatures ({applications.length})
+              </h2>
+              <div style={{ display: 'flex', backgroundColor: '#F5F5F7', borderRadius: '8px', padding: '3px', gap: '2px' }}>
+                <button onClick={() => setCreatorView('list')} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 14px', borderRadius: '6px', border: 'none', backgroundColor: creatorView === 'list' ? '#FFFFFF' : 'transparent', color: creatorView === 'list' ? '#6366F1' : '#888888', fontSize: '13px', fontWeight: '600', cursor: 'pointer', boxShadow: creatorView === 'list' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
+                  <List size={14} /> Liste
+                </button>
+                <button onClick={() => setCreatorView('calendar')} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 14px', borderRadius: '6px', border: 'none', backgroundColor: creatorView === 'calendar' ? '#FFFFFF' : 'transparent', color: creatorView === 'calendar' ? '#6366F1' : '#888888', fontSize: '13px', fontWeight: '600', cursor: 'pointer', boxShadow: creatorView === 'calendar' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
+                  <CalendarDays size={14} /> Calendrier
+                </button>
+              </div>
+            </div>
+
             {applications.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
                 <Calendar size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
@@ -134,7 +147,7 @@ export default function DashboardPage() {
                   Voir les événements <ArrowRight size={16} />
                 </Link>
               </div>
-            ) : (
+            ) : creatorView === 'list' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {applications.map((app) => {
                   const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
@@ -167,6 +180,67 @@ export default function DashboardPage() {
                   )
                 })}
               </div>
+            ) : (
+              /* Calendar view — timeline grouped by month */
+              (() => {
+                // Build sorted upcoming events + past grouped by month
+                const sorted = [...applications]
+                  .filter(a => a.event?.start_date)
+                  .sort((a, b) => new Date(a.event!.start_date).getTime() - new Date(b.event!.start_date).getTime())
+
+                const grouped: Record<string, typeof sorted> = {}
+                sorted.forEach(a => {
+                  const key = new Date(a.event!.start_date).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                  if (!grouped[key]) grouped[key] = []
+                  grouped[key].push(a)
+                })
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {Object.entries(grouped).map(([month, apps]) => (
+                      <div key={month}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                          <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'capitalize', whiteSpace: 'nowrap', padding: '4px 12px', borderRadius: '9999px', backgroundColor: '#F5F5F7' }}>
+                            {month}
+                          </span>
+                          <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '12px', borderLeft: '2px solid #E5E7EB' }}>
+                          {apps.map(app => {
+                            const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
+                            const d = new Date(app.event!.start_date)
+                            return (
+                              <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', gap: '14px', alignItems: 'center', padding: '14px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', transition: 'all 150ms' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A5B4FC'; e.currentTarget.style.backgroundColor = '#FAFBFF' }}
+                                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
+                                {/* Day block */}
+                                <div style={{ width: '44px', flexShrink: 0, textAlign: 'center', backgroundColor: '#EEF2FF', borderRadius: '8px', padding: '6px 0' }}>
+                                  <div style={{ fontSize: '20px', fontWeight: '800', color: '#6366F1', lineHeight: 1 }}>{d.getDate()}</div>
+                                  <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: '600', textTransform: 'capitalize' }}>
+                                    {d.toLocaleDateString('fr-FR', { weekday: 'short' })}
+                                  </div>
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {app.event?.title}
+                                  </p>
+                                  {app.event?.city && (
+                                    <p style={{ fontSize: '12px', color: '#9CA3AF' }}>{app.event.city}</p>
+                                  )}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color, fontSize: '12px', fontWeight: '700', flexShrink: 0 }}>
+                                  {sc.icon} {sc.label}
+                                </div>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()
             )}
           </div>
         ) : (
