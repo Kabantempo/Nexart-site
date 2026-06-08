@@ -6,7 +6,9 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, ChevronRight } from 'lucide-react'
+import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, ChevronRight, QrCode } from 'lucide-react'
+import { ShareButtons } from '@/components/ui/share-buttons'
+import { QRCodeSVG } from 'qrcode.react'
 
 interface Props {
   id: string
@@ -36,6 +38,31 @@ const RADIUS_LABELS: Record<string, string> = {
   '10': '10 km',
   '25': '25 km',
   national: 'National',
+}
+
+function QRCodeBlock({ creatorId, name }: { creatorId: string; name: string }) {
+  const [open, setOpen] = useState(false)
+  const url = typeof window !== 'undefined' ? `${window.location.origin}/creators/${creatorId}` : `https://nexart.fr/creators/${creatorId}`
+
+  return (
+    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #F3F4F6' }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', fontWeight: '600', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        <QrCode size={15} color="#6366F1" />
+        {open ? 'Masquer le QR code' : 'QR code pour salons'}
+      </button>
+      {open && (
+        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '16px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+          <QRCodeSVG value={url} size={140} level="M" style={{ borderRadius: '8px' }} />
+          <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', lineHeight: 1.5 }}>
+            Scannez pour voir le profil de {name}
+          </p>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export function CreatorProfileClient({ id }: Props) {
@@ -278,6 +305,15 @@ export function CreatorProfileClient({ id }: Props) {
                   Membre depuis {new Date(creator.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
                 </p>
               )}
+
+              {/* Share */}
+              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #F3F4F6' }}>
+                <p style={{ fontSize: '12px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager ce profil</p>
+                <ShareButtons url={`/creators/${id}`} title={`${creator.full_name} — Créateur sur Nexart`} />
+              </div>
+
+              {/* QR Code */}
+              <QRCodeBlock creatorId={id} name={creator.full_name} />
             </motion.div>
           </div>
         </div>
