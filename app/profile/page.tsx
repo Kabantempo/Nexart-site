@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import {
@@ -9,7 +10,7 @@ import {
   Star, CheckCircle, Calendar, LogOut, Upload, ExternalLink,
   Shield, FileText, XCircle, Trash2, Eye, EyeOff,
   TrendingUp, Users, BarChart2, MessageSquare, Package, CreditCard, ArrowUpRight,
-  Send, Search, CheckCheck, Clock,
+  Send, Search, CheckCheck, Clock, Settings,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
@@ -454,10 +455,16 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-              style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <LogOut size={15} /> Déconnexion
-            </button>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <Link href="/account"
+                style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+                <Settings size={15} /> Mon profil
+              </Link>
+              <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
+                style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <LogOut size={15} /> Déconnexion
+              </button>
+            </div>
           </div>
 
           {/* ── Stats ── */}

@@ -2,15 +2,16 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Users, MapPin, MessageSquare, Award, Zap, Heart } from 'lucide-react'
-import { SmokeBackground } from '@/components/smoke-background'
-import { ImageTestimonialGrid } from '@/components/image-testimonial-grid'
+import { ArrowRight, Users, MapPin, MessageSquare, Award, Zap } from 'lucide-react'
+import { DynamicCreatorsSection, DynamicEventsSection } from '@/components/dynamic-grid'
 
 export default function Home() {
   return (
     <div style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
-      {/* Hero Section with Smoke Background */}
+
+      {/* Hero Section */}
       <section
+        className="hero-bg"
         style={{
           position: 'relative',
           overflow: 'hidden',
@@ -20,10 +21,9 @@ export default function Home() {
           justifyContent: 'center',
         }}
       >
-        {/* Smoke Background */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}>
-          <SmokeBackground smokeColor="#6366F1" />
-        </div>
+        <div className="hero-orb-1" />
+        <div className="hero-orb-2" />
+        <div className="hero-orb-3" />
 
         {/* Content */}
         <section
@@ -244,85 +244,54 @@ export default function Home() {
                   alignItems: 'center',
                 }}
               >
-                {/* App Store Button */}
+                {/* APK Button */}
                 <a
-                  href="https://apps.apple.com/app/nexart/id6736595834"
+                  href="https://expo.dev/accounts/kaban13/projects/nexart/builds/604eb84c-7009-4d6f-94e0-740580f17b24"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    gap: '10px',
                     cursor: 'pointer',
-                    transition: 'transform 300ms ease',
-                    minWidth: '180px',
-                    minHeight: '60px',
+                    transition: 'transform 300ms ease, background 300ms ease',
+                    padding: '14px 28px',
+                    borderRadius: '12px',
+                    backgroundColor: '#6366F1',
+                    color: '#FFFFFF',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    textDecoration: 'none',
+                    filter: 'drop-shadow(0 8px 16px rgba(99, 102, 241, 0.4))',
                   }}
                   onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-8px)'
+                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-4px)'
+                    ;(e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#4F46E5'
                   }}
                   onMouseLeave={(e) => {
                     ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
+                    ;(e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#6366F1'
                   }}
                 >
-                  <img
-                    src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1234567890"
-                    alt="Télécharger sur l'App Store"
-                    style={{
-                      height: '60px',
-                      width: 'auto',
-                      display: 'block',
-                      filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))',
-                      transition: 'filter 300ms ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4))'
-                    }}
-                    onMouseLeave={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))'
-                    }}
-                  />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V3m0 12l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"/></svg>
+                  Télécharger l'APK
                 </a>
 
-                {/* Google Play Button */}
-                <a
-                  href="https://play.google.com/store/apps/details?id=com.nexart.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'transform 300ms ease',
-                    minWidth: '180px',
-                    minHeight: '80px',
-                  }}
-                  onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-8px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
-                  }}
-                >
-                  <img
-                    src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-                    alt="Télécharger sur Google Play"
-                    style={{
-                      height: '80px',
-                      width: 'auto',
-                      display: 'block',
-                      filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))',
-                      transition: 'filter 300ms ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.4))'
-                    }}
-                    onMouseLeave={(e) => {
-                      ;(e.target as HTMLImageElement).style.filter = 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3))'
-                    }}
-                  />
-                </a>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '10px 20px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'default',
+                }}>
+                  Google Play — bientôt
+                </span>
               </motion.div>
             </motion.div>
 
@@ -331,229 +300,8 @@ export default function Home() {
       </section>
       </section>
 
-      {/* Best Markets Section */}
-      <section
-        style={{
-          padding: '80px 16px',
-          backgroundColor: '#FFFFFF',
-          borderTop: '1px solid #E5E7EB',
-        }}
-      >
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            style={{ textAlign: 'center', marginBottom: '64px' }}
-          >
-            <h2 style={{ fontSize: '48px', fontWeight: '700', marginBottom: '16px', color: '#1A1A1A' }}>
-              Marchés & Événements à ne pas rater
-            </h2>
-            <p style={{ fontSize: '18px', color: '#888888', maxWidth: '600px', margin: '0 auto' }}>
-              Les meilleurs rendez-vous artisanaux en France cette année
-            </p>
-          </motion.div>
-
-          <ImageTestimonialGrid
-            items={[
-              {
-                name: 'Salon d\'Automne Créateurs',
-                title: 'Paris • 15-17 Nov 2024',
-                image: 'https://images.unsplash.com/photo-1469749292166-56156c16147f?w=500&h=700&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=10',
-                size: 'large',
-              },
-              {
-                name: 'Pop-up Marché Artisan',
-                title: 'Lyon • 1-3 Décembre',
-                image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=11',
-                size: 'medium',
-              },
-              {
-                name: 'Marché Permanent Bastille',
-                title: 'Paris • Chaque weekend',
-                image: 'https://images.unsplash.com/photo-1495576066350-f5f7ab7da3f8?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=12',
-                size: 'small',
-              },
-              {
-                name: 'Foire Métiers d\'Art',
-                title: 'Bordeaux • 5-8 Décembre',
-                image: 'https://images.unsplash.com/photo-1519167758993-c74ba48f8a84?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=13',
-                size: 'small',
-              },
-              {
-                name: 'Marché de Noel Premium',
-                title: 'Marseille • 1 Nov - 31 Dec',
-                image: 'https://images.unsplash.com/photo-1502882657612-449c28e3e055?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=14',
-                size: 'medium',
-              },
-              {
-                name: 'Festival des Créateurs',
-                title: 'Toulouse • 20-22 Octobre',
-                image: 'https://images.unsplash.com/photo-1479237916879-f9b06251a113?w=500&h=500&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=15',
-                size: 'large',
-              },
-            ]}
-            columns={3}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            style={{ textAlign: 'center', marginTop: '64px' }}
-          >
-            <Link
-              href="/events"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '16px 32px',
-                borderRadius: '8px',
-                border: '2px solid #6366F1',
-                backgroundColor: 'transparent',
-                color: '#6366F1',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '600',
-                transition: 'all 300ms ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#6366F1'
-                ;(e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'transparent'
-                ;(e.currentTarget as HTMLAnchorElement).style.color = '#6366F1'
-              }}
-            >
-              Découvrir tous les événements
-              <ArrowRight size={20} />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Best Creators Section */}
-      <section
-        style={{
-          padding: '80px 16px',
-          backgroundColor: '#F9F9FB',
-          borderTop: '1px solid #E5E7EB',
-        }}
-      >
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            style={{ textAlign: 'center', marginBottom: '64px' }}
-          >
-            <h2 style={{ fontSize: '48px', fontWeight: '700', marginBottom: '16px', color: '#1A1A1A' }}>
-              Découvrez nos meilleurs créateurs
-            </h2>
-            <p style={{ fontSize: '18px', color: '#888888', maxWidth: '600px', margin: '0 auto' }}>
-              Les talents les plus en vue de la plateforme Nexart
-            </p>
-          </motion.div>
-
-          <ImageTestimonialGrid
-            items={[
-              {
-                name: 'Marie Dubois',
-                title: 'Céramiste & Sculptrice',
-                image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500&h=700&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=1',
-                size: 'large',
-              },
-              {
-                name: 'Thomas Martin',
-                title: 'Tatoueur & Designer',
-                image: 'https://images.unsplash.com/photo-1578814050033-9c499bb9a3a7?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=2',
-                size: 'medium',
-              },
-              {
-                name: 'Sophie Laurent',
-                title: 'Joaillière',
-                image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=3',
-                size: 'small',
-              },
-              {
-                name: 'Julien Beaumont',
-                title: 'Graveur & Artisan',
-                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=4',
-                size: 'small',
-              },
-              {
-                name: 'Elena Rodriguez',
-                title: 'Textile & Mode',
-                image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=5',
-                size: 'medium',
-              },
-              {
-                name: 'Marc Leclerc',
-                title: 'Bois & Menuiserie',
-                image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop',
-                avatar: 'https://i.pravatar.cc/150?img=6',
-                size: 'large',
-              },
-            ]}
-            columns={3}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            style={{ textAlign: 'center', marginTop: '64px' }}
-          >
-            <Link
-              href="/creators"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '16px 32px',
-                borderRadius: '8px',
-                border: '2px solid #6366F1',
-                backgroundColor: 'transparent',
-                color: '#6366F1',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '600',
-                transition: 'all 300ms ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#6366F1'
-                ;(e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'transparent'
-                ;(e.currentTarget as HTMLAnchorElement).style.color = '#6366F1'
-              }}
-            >
-              Découvrir tous les créateurs
-              <ArrowRight size={20} />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      <DynamicEventsSection />
+      <DynamicCreatorsSection />
 
       {/* Features Section */}
       <section

@@ -65,11 +65,13 @@ function Hero() {
             </p>
           </div>
           <div className="flex flex-row gap-3">
-            <Button size="lg" className="gap-4" variant="outline">
-              App Store <Download className="w-4 h-4" />
+            <Button size="lg" className="gap-4" asChild>
+              <a href="https://expo.dev/accounts/kaban13/projects/nexart/builds/604eb84c-7009-4d6f-94e0-740580f17b24" target="_blank" rel="noopener noreferrer">
+                Télécharger l'APK <Download className="w-4 h-4" />
+              </a>
             </Button>
-            <Button size="lg" className="gap-4">
-              Google Play <Download className="w-4 h-4" />
+            <Button size="lg" className="gap-4" variant="outline" disabled>
+              Google Play — bientôt
             </Button>
           </div>
         </div>
