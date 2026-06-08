@@ -214,3 +214,57 @@ export function useReviews(userId: string) {
 
   return { reviews, loading, error }
 }
+
+export function useCreator(id: string) {
+  const [creator, setCreator] = useState<CreatorProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+    const fetchCreator = async () => {
+      try {
+        const { data: profile, error: err1 } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', id)
+          .single()
+        if (err1) throw err1
+
+        const { data: creatorData } = await supabase
+          .from('creator_profiles')
+          .select('*')
+          .eq('user_id', id)
+          .maybeSingle()
+
+        setCreator({
+          id: profile.id,
+          full_name: profile.full_name || '',
+          avatar_url: profile.avatar_url,
+          bio: profile.bio,
+          role: 'creator' as const,
+          created_at: profile.created_at,
+          disciplines: creatorData?.disciplines || [],
+          city: creatorData?.city || '',
+          region: creatorData?.region || '',
+          department: creatorData?.department || '',
+          travel_radius: creatorData?.travel_radius || '5',
+          portfolio_images: creatorData?.portfolio_images || [],
+          website: creatorData?.website,
+          instagram: creatorData?.instagram,
+          etsy: creatorData?.etsy,
+          siret_verified: creatorData?.siret_verified || false,
+          insurance_verified: creatorData?.insurance_verified || false,
+          availability: creatorData?.availability || {},
+        })
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error'))
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCreator()
+  }, [id])
+
+  return { creator, loading, error }
+}

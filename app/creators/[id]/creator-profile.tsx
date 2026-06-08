@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2 } from 'lucide-react'
+import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, ChevronRight } from 'lucide-react'
 
 interface Props {
   id: string
@@ -92,7 +92,27 @@ export function CreatorProfileClient({ id }: Props) {
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '40px 16px' }}>
+      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '24px 16px 40px' }}>
+
+        {/* Breadcrumb */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <Link href="/" style={{ color: '#9CA3AF', textDecoration: 'none' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
+            Accueil
+          </Link>
+          <ChevronRight size={13} color="#D1D5DB" />
+          <Link href="/creators" style={{ color: '#9CA3AF', textDecoration: 'none' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
+            Créateurs
+          </Link>
+          <ChevronRight size={13} color="#D1D5DB" />
+          <span style={{ color: '#1A1A1A', fontWeight: '600', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {creator.full_name}
+          </span>
+        </nav>
+
         <Link
           href="/creators"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { ChevronDown, Grid2x2Plus, Menu, X, LogOut, Search, MessageCircle, Heart, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
@@ -13,10 +13,22 @@ export function NavbarFull() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const scheduleClose = () => {
+    closeTimer.current = setTimeout(() => setOpenDropdown(null), 200)
+  }
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+  }
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const router = useRouter()
+  const pathname = usePathname()
   const firstName = user?.full_name?.split(' ')[0] ?? null
+
+  const isDiscoverActive = pathname.startsWith('/events') || pathname.startsWith('/creators')
+  const isResourcesActive = pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact')
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -102,7 +114,7 @@ export function NavbarFull() {
           .mobile-menu { display: block !important; }
         }
         .nav-link:hover { color: #6366F1 !important; background-color: #F5F5F7 !important; }
-        .nav-dropdown-link:hover { background-color: #F5F5F7 !important; }
+        .nav-dropdown-link:hover { background-color: #EEF2FF !important; }
         .nav-btn-outline:hover { border-color: #6366F1 !important; color: #6366F1 !important; }
         .nav-btn-primary:hover { background-color: #4F46E5 !important; }
         .nav-logout:hover { background-color: #FEF2F2 !important; color: #E05A5A !important; }
@@ -136,12 +148,18 @@ export function NavbarFull() {
           {/* Découvrir Dropdown */}
           <div
             style={{ position: 'relative' }}
-            onMouseEnter={() => setOpenDropdown('discover')}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => { cancelClose(); setOpenDropdown('discover') }}
+            onMouseLeave={scheduleClose}
           >
             <button
               onClick={() => setOpenDropdown(openDropdown === 'discover' ? null : 'discover')}
-              style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease' }}
+              style={{
+                padding: '8px 16px', borderRadius: '8px', border: 'none',
+                backgroundColor: isDiscoverActive ? '#EEF2FF' : 'transparent',
+                color: isDiscoverActive ? '#6366F1' : '#1A1A1A',
+                fontSize: '15px', fontWeight: isDiscoverActive ? '600' : '500',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease',
+              }}
             >
               Découvrir
               <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
@@ -151,40 +169,46 @@ export function NavbarFull() {
               {[
                 { title: 'Marchés & Événements', href: '/events', desc: 'Trouvez votre prochain marché' },
                 { title: 'Créateurs & Artisans', href: '/creators', desc: 'Découvrez les artisans' },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpenDropdown(null)}
-                  className="nav-dropdown-link"
-                  style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', borderRadius: '8px', transition: 'background-color 150ms ease' }}
-                >
-                  <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.title}</span>
-                  <span style={{ fontSize: '12px', color: '#888888' }}>{item.desc}</span>
-                </Link>
-              ))}
+              ].map((item) => {
+                const active = pathname === item.href || pathname.startsWith(item.href + '/')
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpenDropdown(null)}
+                    className="nav-dropdown-link"
+                    style={{
+                      display: 'flex', flexDirection: 'column', padding: '12px 16px',
+                      textDecoration: 'none',
+                      color: active ? '#6366F1' : '#1A1A1A',
+                      borderRadius: '8px', transition: 'background-color 150ms ease',
+                      backgroundColor: active ? '#EEF2FF' : 'transparent',
+                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
+                    }}
+                  >
+                    <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.title}</span>
+                    <span style={{ fontSize: '12px', color: active ? '#818CF8' : '#888888' }}>{item.desc}</span>
+                  </Link>
+                )
+              })}
             </div>
           </div>
-
-          {/* Search link */}
-          <Link
-            href="/search"
-            className="nav-link"
-            style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#888888', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none', transition: 'all 200ms ease' }}
-          >
-            <Search size={16} />
-            Rechercher
-          </Link>
 
           {/* Ressources Dropdown */}
           <div
             style={{ position: 'relative' }}
-            onMouseEnter={() => setOpenDropdown('resources')}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => { cancelClose(); setOpenDropdown('resources') }}
+            onMouseLeave={scheduleClose}
           >
             <button
               onClick={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
-              style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '15px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease' }}
+              style={{
+                padding: '8px 16px', borderRadius: '8px', border: 'none',
+                backgroundColor: isResourcesActive ? '#EEF2FF' : 'transparent',
+                color: isResourcesActive ? '#6366F1' : '#1A1A1A',
+                fontSize: '15px', fontWeight: isResourcesActive ? '600' : '500',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease',
+              }}
             >
               Ressources
               <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
@@ -196,17 +220,27 @@ export function NavbarFull() {
                 { title: 'Blog', href: '/blog' },
                 { title: 'Nous contacter', href: '/contact' },
                 { title: 'Centre d\'aide', href: '#' },
-              ].map((item, idx) => (
-                <Link
-                  key={`resource-${idx}`}
-                  href={item.href}
-                  onClick={() => setOpenDropdown(null)}
-                  className="nav-dropdown-link"
-                  style={{ display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease' }}
-                >
-                  {item.title}
-                </Link>
-              ))}
+              ].map((item, idx) => {
+                const active = item.href !== '#' && (pathname === item.href || pathname.startsWith(item.href + '/'))
+                return (
+                  <Link
+                    key={`resource-${idx}`}
+                    href={item.href}
+                    onClick={() => setOpenDropdown(null)}
+                    className="nav-dropdown-link"
+                    style={{
+                      display: 'block', padding: '12px 16px', textDecoration: 'none',
+                      color: active ? '#6366F1' : '#1A1A1A',
+                      fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease',
+                      backgroundColor: active ? '#EEF2FF' : 'transparent',
+                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
+                      fontWeight: active ? '600' : '400',
+                    }}
+                  >
+                    {item.title}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </nav>
@@ -233,9 +267,10 @@ export function NavbarFull() {
 
               {/* Profil dropdown */}
               <div style={{ position: 'relative' }}
-                onMouseLeave={() => setOpenDropdown(null)}>
+                onMouseEnter={cancelClose}
+                onMouseLeave={scheduleClose}>
                 <button onClick={() => setOpenDropdown(openDropdown === 'profile' ? null : 'profile')}
-                  onMouseEnter={() => setOpenDropdown('profile')}
+                  onMouseEnter={() => { cancelClose(); setOpenDropdown('profile') }}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '20px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', cursor: 'pointer', transition: 'background-color 150ms ease' }}>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {user.avatar_url
@@ -336,35 +371,63 @@ export function NavbarFull() {
           <div>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'discover' ? null : 'discover')}
-              style={{ width: '100%', padding: '12px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              style={{
+                width: '100%', padding: '12px 0',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
+                color: isDiscoverActive ? '#6366F1' : '#1A1A1A',
+                fontSize: '14px', fontWeight: '600', cursor: 'pointer',
+              }}
             >
-              Découvrir
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                Découvrir
+                {isDiscoverActive && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0 }} />}
+              </span>
               <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
             </button>
             <div style={{ overflow: 'hidden', maxHeight: openDropdown === 'discover' ? '200px' : '0', transition: 'max-height 200ms ease' }}>
               {[
                 { title: 'Marchés & Événements', href: '/events', desc: 'Trouvez votre prochain marché' },
                 { title: 'Créateurs & Artisans', href: '/creators', desc: 'Découvrez les artisans' },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
-                  style={{ display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', borderRadius: '8px', backgroundColor: '#F5F5F7', marginTop: '8px' }}
-                >
-                  <span style={{ fontSize: '13px', fontWeight: '600' }}>{item.title}</span>
-                  <span style={{ fontSize: '11px', color: '#888888' }}>{item.desc}</span>
-                </Link>
-              ))}
+              ].map((item) => {
+                const active = pathname === item.href || pathname.startsWith(item.href + '/')
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
+                    style={{
+                      display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none',
+                      color: active ? '#6366F1' : '#1A1A1A',
+                      borderRadius: '8px',
+                      backgroundColor: active ? '#EEF2FF' : '#F5F5F7',
+                      marginTop: '8px',
+                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
+                    }}
+                  >
+                    <span style={{ fontSize: '13px', fontWeight: '600' }}>{item.title}</span>
+                    <span style={{ fontSize: '11px', color: active ? '#818CF8' : '#888888' }}>{item.desc}</span>
+                  </Link>
+                )
+              })}
             </div>
           </div>
 
           <div>
             <button
               onClick={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
-              style={{ width: '100%', padding: '12px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              style={{
+                width: '100%', padding: '12px 0',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
+                color: isResourcesActive ? '#6366F1' : '#1A1A1A',
+                fontSize: '14px', fontWeight: '600', cursor: 'pointer',
+              }}
             >
-              Ressources
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                Ressources
+                {isResourcesActive && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0 }} />}
+              </span>
               <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
             </button>
             <div style={{ overflow: 'hidden', maxHeight: openDropdown === 'resources' ? '200px' : '0', transition: 'max-height 200ms ease' }}>
@@ -372,16 +435,27 @@ export function NavbarFull() {
                 { title: 'À propos', href: '/about' },
                 { title: 'Blog', href: '/blog' },
                 { title: 'Nous contacter', href: '/contact' },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
-                  style={{ display: 'block', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '13px', borderRadius: '8px', backgroundColor: '#F5F5F7', marginTop: '8px' }}
-                >
-                  {item.title}
-                </Link>
-              ))}
+              ].map((item) => {
+                const active = pathname === item.href || pathname.startsWith(item.href + '/')
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
+                    style={{
+                      display: 'block', padding: '12px 16px', textDecoration: 'none',
+                      color: active ? '#6366F1' : '#1A1A1A',
+                      fontSize: '13px', borderRadius: '8px',
+                      backgroundColor: active ? '#EEF2FF' : '#F5F5F7',
+                      marginTop: '8px',
+                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
+                      fontWeight: active ? '600' : '400',
+                    }}
+                  >
+                    {item.title}
+                  </Link>
+                )
+              })}
             </div>
           </div>
 

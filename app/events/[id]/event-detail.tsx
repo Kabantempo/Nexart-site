@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 
 interface Props {
@@ -83,7 +83,27 @@ export function EventDetailClient({ id }: Props) {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '32px 16px' }}>
+      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '24px 16px 32px' }}>
+
+        {/* Breadcrumb */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <Link href="/" style={{ color: '#9CA3AF', textDecoration: 'none' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
+            Accueil
+          </Link>
+          <ChevronRight size={13} color="#D1D5DB" />
+          <Link href="/events" style={{ color: '#9CA3AF', textDecoration: 'none' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
+            Événements
+          </Link>
+          <ChevronRight size={13} color="#D1D5DB" />
+          <span style={{ color: '#1A1A1A', fontWeight: '600', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {event.title}
+          </span>
+        </nav>
+
         <Link
           href="/events"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
