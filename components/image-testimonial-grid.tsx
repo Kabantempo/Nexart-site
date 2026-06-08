@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 interface GridItem {
@@ -95,19 +96,13 @@ export function ImageTestimonialGrid({
               ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
             }}
           >
-            <img
+            <Image
               src={item.image}
               alt={item.name}
-              loading="lazy"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-              onError={(e) => {
-                ;(e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&fit=crop'
-              }}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              style={{ objectFit: 'cover' }}
+              unoptimized={item.image.startsWith('https://i.pravatar')}
             />
 
             {/* Gradient Overlay */}
@@ -133,21 +128,16 @@ export function ImageTestimonialGrid({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <img
-                  src={item.avatar}
-                  alt={item.name}
-                  loading="lazy"
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    border: '2px solid #FFFFFF',
-                    objectFit: 'cover',
-                  }}
-                  onError={(e) => {
-                    ;(e.target as HTMLImageElement).src = 'https://i.pravatar.cc/150?img=0'
-                  }}
-                />
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #FFFFFF', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                  <Image
+                    src={item.avatar}
+                    alt={item.name}
+                    fill
+                    sizes="40px"
+                    style={{ objectFit: 'cover' }}
+                    unoptimized
+                  />
+                </div>
                 <div>
                   <p style={{ fontSize: '16px', fontWeight: '600', margin: 0, lineHeight: '1.2' }}>
                     {item.name}

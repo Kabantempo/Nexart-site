@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Clock, ArrowRight, BookOpen, Tag } from 'lucide-react'
 import { ARTICLES, type Article } from '@/lib/blog-data'
+import { useToast } from '@/components/ui/toast-provider'
 
 const CATEGORIES = [
   { key: 'all', label: 'Tous les articles' },
@@ -116,8 +117,9 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
 export default function BlogPage() {
   const [activeCategory, setActiveCategory] = useState<string>('all')
   const [email, setEmail] = useState('')
-  const [newsletterState, setNewsletterState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [newsletterMsg, setNewsletterMsg] = useState('')
+  const [newsletterLoading, setNewsletterLoading] = useState(false)
+  const [newsletterDone, setNewsletterDone] = useState(false)
+  const { success: toastSuccess, error: toastError } = useToast()
 
   const filtered = activeCategory === 'all'
     ? ARTICLES
@@ -128,7 +130,7 @@ export default function BlogPage() {
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
-    setNewsletterState('loading')
+    setNewsletterLoading(true)
     try {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
@@ -137,16 +139,16 @@ export default function BlogPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        setNewsletterState('success')
-        setNewsletterMsg(data.message || 'Inscription confirmée !')
+        toastSuccess(data.message || 'Inscription confirmée ! Bienvenue dans la communauté Nexart.')
         setEmail('')
+        setNewsletterDone(true)
       } else {
-        setNewsletterState('error')
-        setNewsletterMsg(data.error || 'Une erreur est survenue')
+        toastError(data.error || 'Une erreur est survenue, réessayez.')
       }
     } catch {
-      setNewsletterState('error')
-      setNewsletterMsg('Erreur de connexion, réessayez.')
+      toastError('Erreur de connexion, réessayez.')
+    } finally {
+      setNewsletterLoading(false)
     }
   }
 
@@ -312,14 +314,14 @@ export default function BlogPage() {
             Nouveaux guides, sélections de marchés et actualités Nexart — une fois par mois, pas plus.
           </p>
 
-          {newsletterState === 'success' ? (
+          {newsletterDone ? (
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '14px 24px', borderRadius: '12px',
               backgroundColor: 'rgba(255,255,255,0.2)', color: '#FFF',
               fontSize: '15px', fontWeight: '600',
             }}>
-              ✓ {newsletterMsg}
+              ✓ Vous êtes inscrit !
             </div>
           ) : (
             <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -329,7 +331,7 @@ export default function BlogPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={newsletterState === 'loading'}
+                disabled={newsletterLoading}
                 style={{
                   padding: '12px 20px',
                   borderRadius: '10px',
@@ -338,35 +340,29 @@ export default function BlogPage() {
                   width: '280px',
                   maxWidth: '100%',
                   outline: 'none',
-                  opacity: newsletterState === 'loading' ? 0.7 : 1,
+                  opacity: newsletterLoading ? 0.7 : 1,
                 }}
               />
               <button
                 type="submit"
-                disabled={newsletterState === 'loading'}
+                disabled={newsletterLoading}
                 style={{
                   padding: '12px 24px',
                   borderRadius: '10px',
                   border: 'none',
-                  backgroundColor: newsletterState === 'loading' ? '#555' : '#1A1A1A',
+                  backgroundColor: newsletterLoading ? '#555' : '#1A1A1A',
                   color: '#FFF',
                   fontSize: '14px',
                   fontWeight: '700',
-                  cursor: newsletterState === 'loading' ? 'not-allowed' : 'pointer',
+                  cursor: newsletterLoading ? 'not-allowed' : 'pointer',
                   whiteSpace: 'nowrap',
                   fontFamily: 'inherit',
                   transition: 'background-color 200ms ease',
                 }}
               >
-                {newsletterState === 'loading' ? 'Inscription…' : 'Je m\'inscris'}
+                {newsletterLoading ? 'Inscription…' : "Je m'inscris"}
               </button>
             </form>
-          )}
-
-          {newsletterState === 'error' && (
-            <p style={{ fontSize: '13px', color: 'rgba(255,200,200,0.9)', margin: '10px 0 0' }}>
-              {newsletterMsg}
-            </p>
           )}
 
           <p style={{ fontSize: '12px', opacity: 0.6, margin: '14px 0 0' }}>

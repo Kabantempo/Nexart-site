@@ -64,7 +64,7 @@ class Renderer {
   }
 
   updateScale() {
-    const dpr = Math.max(1, window.devicePixelRatio)
+    const dpr = Math.min(1.5, Math.max(1, window.devicePixelRatio))
     const { innerWidth: width, innerHeight: height } = window
     this.canvas.width = width * dpr
     this.canvas.height = height * dpr
@@ -169,16 +169,24 @@ export const SmokeBackground: React.FC<SmokeBackgroundProps> = ({ smokeColor = '
     window.addEventListener('resize', handleResize)
 
     let animationFrameId: number
+    let isVisible = true
     const startTime = performance.now()
     const loop = (now: number) => {
-      renderer.render(now - startTime)
+      if (isVisible) renderer.render(now - startTime)
       animationFrameId = requestAnimationFrame(loop)
     }
     animationFrameId = requestAnimationFrame(loop)
 
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisible = entry.isIntersecting },
+      { threshold: 0 }
+    )
+    observer.observe(canvas)
+
     return () => {
       window.removeEventListener('resize', handleResize)
       cancelAnimationFrame(animationFrameId)
+      observer.disconnect()
       renderer.reset()
     }
   }, [])
