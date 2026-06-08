@@ -5,9 +5,11 @@ import { useAuthStore } from '@/lib/store'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
+import { useToast } from '@/components/ui/toast-provider'
+import { ShareButtons } from '@/components/ui/share-buttons'
 
 interface Props {
   id: string
@@ -30,9 +32,18 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
 export function EventDetailClient({ id }: Props) {
   const { event, loading, error } = useEvent(id)
   const user = useAuthStore((s) => s.user)
-  const { application, applying, error: applyError, success, apply } = useApplication(id, user?.id)
+  const { application, applying, error: applyError, success, apply, acceptedCount } = useApplication(id, user?.id)
   const [message, setMessage] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const { success: toastSuccess, error: toastError } = useToast()
+
+  useEffect(() => {
+    if (success) toastSuccess('Candidature envoyée ! L\'organisateur vous répondra bientôt.')
+  }, [success]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (applyError) toastError(applyError)
+  }, [applyError]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -170,6 +181,12 @@ export function EventDetailClient({ id }: Props) {
                 )}
               </div>
 
+              {/* Share */}
+              <div style={{ marginBottom: '28px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
+                <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
+              </div>
+
               {/* Description */}
               {event.description && (
                 <div style={{ marginBottom: '32px' }}>
@@ -223,7 +240,7 @@ export function EventDetailClient({ id }: Props) {
 
               {/* Stand price */}
               {event.stand_price > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', padding: '12px', borderRadius: '8px', backgroundColor: '#F9F9FF' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '12px', borderRadius: '8px', backgroundColor: '#F9F9FF' }}>
                   <Euro size={20} color="#6366F1" />
                   <div>
                     <div style={{ fontSize: '12px', color: '#888888' }}>Prix du stand</div>
@@ -231,6 +248,33 @@ export function EventDetailClient({ id }: Props) {
                   </div>
                 </div>
               )}
+
+              {/* Stands occupancy */}
+              {event.stand_count > 0 && acceptedCount !== null && (() => {
+                const remaining = event.stand_count - acceptedCount
+                const pct = Math.min(100, Math.round((acceptedCount / event.stand_count) * 100))
+                const full = remaining <= 0
+                return (
+                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? '#FEF2F2' : '#F9FAFB', border: `1px solid ${full ? '#FCA5A5' : '#E5E7EB'}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280' }}>
+                        {full ? 'Complet' : `${remaining} stand${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
+                      </span>
+                      <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                        {acceptedCount}/{event.stand_count}
+                      </span>
+                    </div>
+                    <div style={{ height: '6px', borderRadius: '3px', backgroundColor: '#E5E7EB', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', borderRadius: '3px',
+                        width: `${pct}%`,
+                        backgroundColor: pct >= 90 ? '#E05A5A' : pct >= 60 ? '#F59E0B' : '#10B981',
+                        transition: 'width 0.6s ease',
+                      }} />
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* Already applied */}
               {application ? (

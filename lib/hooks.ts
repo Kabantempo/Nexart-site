@@ -152,6 +152,18 @@ export function useApplication(eventId: string, userId?: string) {
   const [applying, setApplying] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [acceptedCount, setAcceptedCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!eventId) return
+    // Count accepted applications for occupancy display
+    supabase
+      .from('applications')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', eventId)
+      .eq('status', 'accepted')
+      .then(({ count }) => { if (count !== null) setAcceptedCount(count) })
+  }, [eventId])
 
   useEffect(() => {
     if (!userId || !eventId) return
@@ -184,7 +196,7 @@ export function useApplication(eventId: string, userId?: string) {
     }
   }
 
-  return { application, applying, error, success, apply }
+  return { application, applying, error, success, apply, acceptedCount }
 }
 
 export function useReviews(userId: string) {
