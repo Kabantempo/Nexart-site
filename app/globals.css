@@ -25,19 +25,19 @@ p {
 }
 
 a {
-  color: #6366F1;
+  color: #4F46E5;
   text-decoration: none;
   transition: color 200ms ease;
 }
 
 a:hover {
-  color: #5B5BD6;
+  color: #4340C9;
 }
 
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid #6366F1;
+  outline: 2px solid #4F46E5;
   outline-offset: 2px;
   border-radius: 4px;
 }

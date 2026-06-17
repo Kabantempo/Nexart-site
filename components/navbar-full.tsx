@@ -114,9 +114,9 @@ export function NavbarFull() {
           .desktop-cta { display: none !important; }
           .mobile-menu { display: block !important; }
         }
-        .nav-link:hover { color: #6366F1 !important; background-color: #F5F5F7 !important; }
+        .nav-link:hover { color: #4F46E5 !important; background-color: #F5F5F7 !important; }
         .nav-dropdown-link:hover { background-color: #EEF2FF !important; }
-        .nav-btn-outline:hover { border-color: #6366F1 !important; color: #6366F1 !important; }
+        .nav-btn-outline:hover { border-color: #4F46E5 !important; color: #4F46E5 !important; }
         .nav-btn-primary:hover { background-color: #4F46E5 !important; }
         .nav-logout:hover { background-color: #FEF2F2 !important; color: #E05A5A !important; }
       `}</style>
@@ -157,7 +157,7 @@ export function NavbarFull() {
               style={{
                 padding: '8px 16px', borderRadius: '8px', border: 'none',
                 backgroundColor: isDiscoverActive ? '#EEF2FF' : 'transparent',
-                color: isDiscoverActive ? '#6366F1' : '#1A1A1A',
+                color: isDiscoverActive ? '#4F46E5' : '#1A1A1A',
                 fontSize: '15px', fontWeight: isDiscoverActive ? '600' : '500',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease',
               }}
@@ -318,11 +318,11 @@ export function NavbarFull() {
           ) : (
             <>
               <Link href="/login" className="nav-link"
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
+                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#4F46E5', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
                 Se connecter
               </Link>
               <Link href="/register" className="nav-btn-primary"
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
+                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#4F46E5', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
                 S'inscrire
               </Link>
             </>
@@ -383,7 +383,7 @@ export function NavbarFull() {
                 width: '100%', padding: '12px 0',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
-                color: isDiscoverActive ? '#6366F1' : '#1A1A1A',
+                color: isDiscoverActive ? '#4F46E5' : '#1A1A1A',
                 fontSize: '14px', fontWeight: '600', cursor: 'pointer',
               }}
             >
