@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { trackFormSubmit } from '@/lib/analytics'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
@@ -39,12 +38,6 @@ export default function ContactPage() {
         })
 
       if (dbErr) throw dbErr
-
-      trackFormSubmit('contact', {
-        email: formData.email,
-        subject: formData.subject,
-      })
-
       setSubmitted(true)
       setFormData({ name: '', email: '', subject: '', message: '' })
       setTimeout(() => setSubmitted(false), 5000)
