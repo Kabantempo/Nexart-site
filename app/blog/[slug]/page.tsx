@@ -20,6 +20,8 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
       description: article.excerpt,
       type: 'article',
       publishedTime: article.date,
+      url: `https://nexart.fr/blog/${article.slug}`,
+      images: article.image ? [{ url: article.image, width: 1200, height: 630 }] : [],
     },
   }
 }

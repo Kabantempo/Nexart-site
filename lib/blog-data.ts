@@ -10,6 +10,7 @@ export type Article = {
   icon: string
   tags: string[]
   content: string
+  image?: string
 }
 
 export const ARTICLES: Article[] = [
@@ -24,6 +25,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
     icon: '🏕️',
     tags: ['Stand', 'Merchandising', 'Conseils'],
+    image: 'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=1200&h=630&fit=crop',
     content: `
 <p>La préparation d'un stand de marché artisanal va bien au-delà de disposer ses créations sur une table. C'est une véritable mise en scène qui influence directement vos ventes et l'image que vous renvoyez. Voici une méthode complète pour arriver le jour J avec un stand impeccable.</p>
 
@@ -79,6 +81,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #C9A84C 0%, #E8C56A 100%)',
     icon: '💰',
     tags: ['Tarification', 'Gestion', 'Business'],
+    image: 'https://images.unsplash.com/photo-1526628652108-aa545b6c60f0?w=1200&h=630&fit=crop',
     content: `
 <p>Fixer ses prix est l'une des étapes les plus délicates pour un artisan. Trop bas, vous dévaluez votre savoir-faire et travaillez à perte. Trop haut sans justification visible, vous perdez des ventes. Voici une méthode structurée pour trouver le juste équilibre.</p>
 
@@ -131,6 +134,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #7A9E87 0%, #5A8E75 100%)',
     icon: '📸',
     tags: ['Photographie', 'Portfolio', 'Candidature'],
+    image: 'https://images.unsplash.com/photo-1600080869266-f12707903a0f?w=1200&h=630&fit=crop',
     content: `
 <p>Dans un dossier de candidature à un marché, vos photos parlent avant vous. Un organisateur qui reçoit 50 demandes pour 10 stands sélectionne d'abord visuellement. Voici comment produire des images qui font la différence.</p>
 
@@ -184,6 +188,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #EF4444 0%, #F97316 100%)',
     icon: '🗺️',
     tags: ['Sélection', 'France', '2026'],
+    image: 'https://images.unsplash.com/photo-1552668473-d5b604d0c90d?w=1200&h=630&fit=crop',
     content: `
 <p>La France compte plusieurs centaines de marchés artisanaux chaque année. Parmi eux, certains se distinguent par leur sélectivité, leur fréquentation et les opportunités qu'ils représentent pour les créateurs. Voici notre sélection 2026.</p>
 
@@ -236,6 +241,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #06B6D4 0%, #0E7490 100%)',
     icon: '🎯',
     tags: ['Recrutement', 'Communication', 'Fiche marché'],
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=630&fit=crop',
     content: `
 <p>Un marché artisanal réussi se construit d'abord sur la qualité des créateurs sélectionnés. Mais pour attirer les meilleurs — ceux qui ont le choix — votre événement doit se distinguer dès la fiche de présentation. Voici comment rendre votre marché irrésistible.</p>
 
@@ -297,6 +303,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
     icon: '📋',
     tags: ['Candidatures', 'Process', 'Relation artisans'],
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=630&fit=crop',
     content: `
 <p>Recevoir des candidatures, c'est la bonne nouvelle. Les gérer mal, c'est gâcher l'opportunité et entacher votre réputation d'organisateur. Voici un guide pratique pour traiter les dossiers efficacement et maintenir de bonnes relations avec les artisans.</p>
 
@@ -356,6 +363,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
     icon: '✨',
     tags: ['Scénographie', 'Expérience', 'Événementiel'],
+    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=630&fit=crop',
     content: `
 <p>Les marchés artisanaux qui fidélisent leur public et font parler d'eux ont un point commun : ils ne sont pas juste un alignement de stands. Ce sont des expériences. Voici comment créer une ambiance mémorable qui donne envie de revenir — et de partager.</p>
 
@@ -421,6 +429,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
     icon: '🛡️',
     tags: ['Plateforme', 'Vérification', 'Confiance'],
+    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b83ad45?w=1200&h=630&fit=crop',
     content: `
 <p>Dès ce mois de juin 2026, Nexart introduit un système de badges de vérification pour les créateurs inscrits sur la plateforme. Voici ce que ça change concrètement pour vous.</p>
 
@@ -461,6 +470,7 @@ export const ARTICLES: Article[] = [
     gradient: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
     icon: '📈',
     tags: ['Tendances', 'Marché', '2026'],
+    image: 'https://images.unsplash.com/photo-1579783902614-e3fb5141b0cb?w=1200&h=630&fit=crop',
     content: `
 <p>Chaque année, les goûts du public évoluent. Pour un artisan ou un organisateur, comprendre ces tendances permet d'anticiper la demande, d'affiner son offre et de sélectionner les créateurs qui vont faire briller un marché. Voici ce qui cartonne en 2026.</p>
 
