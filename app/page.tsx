@@ -1,9 +1,12 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Users, MapPin, MessageSquare, Award, Zap } from 'lucide-react'
-import { DynamicCreatorsSection, DynamicEventsSection } from '@/components/dynamic-grid'
+
+const DynamicCreatorsSection = dynamic(() => import('@/components/dynamic-grid').then(m => ({ default: m.DynamicCreatorsSection })), { ssr: true })
+const DynamicEventsSection = dynamic(() => import('@/components/dynamic-grid').then(m => ({ default: m.DynamicEventsSection })), { ssr: true })
 
 export default function Home() {
   return (
