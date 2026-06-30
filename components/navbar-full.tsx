@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, Grid2x2Plus, Menu, X, LogOut, Search, MessageCircle, Heart, User } from 'lucide-react'
+import { ChevronDown, Menu, X, LogOut, Search, MessageCircle, Heart, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
@@ -69,7 +70,7 @@ export function NavbarFull() {
   const closeSearch = () => { setSearchOpen(false); setSearchValue('') }
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchValue.trim()) { router.push(`/events?q=${encodeURIComponent(searchValue.trim())}`); closeSearch() }
+    if (searchValue.trim()) { router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`); closeSearch() }
   }
 
   const dropdownStyle = (name: string): React.CSSProperties => ({
@@ -135,9 +136,7 @@ export function NavbarFull() {
           href="/"
           style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', flexShrink: 0 }}
         >
-          <div style={{ width: '40px', height: '40px', backgroundColor: '#6366F1', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
-            <Grid2x2Plus size={24} />
-          </div>
+          <Image src="/logo-mark.png" alt="Nexart" width={40} height={40} style={{ borderRadius: '8px' }} priority />
           <span style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Nexart</span>
         </Link>
 
@@ -332,7 +331,7 @@ export function NavbarFull() {
               <form onSubmit={submitSearch}
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#F5F5F7', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '0 10px', height: '36px', width: '220px', transition: 'width 200ms ease' }}>
                 <Search size={15} color="#888888" style={{ flexShrink: 0 }} />
-                <input ref={searchRef} value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder="Ville, marché…"
+                <input ref={searchRef} value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder="Ville, marché, créateur…"
                   style={{ flex: 1, border: 'none', backgroundColor: 'transparent', fontSize: '14px', color: '#1A1A1A', outline: 'none', minWidth: 0 }} />
                 <button type="button" onClick={closeSearch} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0 }}>
                   <X size={14} color="#888888" />
