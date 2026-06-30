@@ -115,9 +115,9 @@ export function NavbarFull() {
           .desktop-cta { display: none !important; }
           .mobile-menu { display: block !important; }
         }
-        .nav-link:hover { color: #6366F1 !important; background-color: #F5F5F7 !important; }
+        .nav-link:hover { color: #4F46E5 !important; background-color: #F5F5F7 !important; }
         .nav-dropdown-link:hover { background-color: #EEF2FF !important; }
-        .nav-btn-outline:hover { border-color: #6366F1 !important; color: #6366F1 !important; }
+        .nav-btn-outline:hover { border-color: #4F46E5 !important; color: #4F46E5 !important; }
         .nav-btn-primary:hover { background-color: #4F46E5 !important; }
         .nav-logout:hover { background-color: #FEF2F2 !important; color: #E05A5A !important; }
       `}</style>
@@ -156,7 +156,7 @@ export function NavbarFull() {
               style={{
                 padding: '8px 16px', borderRadius: '8px', border: 'none',
                 backgroundColor: isDiscoverActive ? '#EEF2FF' : 'transparent',
-                color: isDiscoverActive ? '#6366F1' : '#1A1A1A',
+                color: isDiscoverActive ? '#4F46E5' : '#1A1A1A',
                 fontSize: '15px', fontWeight: isDiscoverActive ? '600' : '500',
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease',
               }}
@@ -250,7 +250,7 @@ export function NavbarFull() {
           {user ? (
             <>
               {/* Messages */}
-              <Link href="/messages" title="Messages"
+              <Link href="/messages" title="Messages" aria-label="Accéder à vos messages"
                 style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', textDecoration: 'none', transition: 'background-color 150ms ease' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
@@ -258,7 +258,7 @@ export function NavbarFull() {
               </Link>
 
               {/* Favoris */}
-              <Link href="/favorites" title="Favoris"
+              <Link href="/favorites" title="Favoris" aria-label="Accéder à vos favoris"
                 style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', textDecoration: 'none', transition: 'background-color 150ms ease' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
@@ -274,6 +274,8 @@ export function NavbarFull() {
                 onMouseLeave={scheduleClose}>
                 <button onClick={() => setOpenDropdown(openDropdown === 'profile' ? null : 'profile')}
                   onMouseEnter={() => { cancelClose(); setOpenDropdown('profile') }}
+                  aria-label={`Menu profil de ${firstName || 'l\'utilisateur'}`}
+                  aria-expanded={openDropdown === 'profile'}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '20px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', cursor: 'pointer', transition: 'background-color 150ms ease' }}>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {user.avatar_url
@@ -315,11 +317,11 @@ export function NavbarFull() {
           ) : (
             <>
               <Link href="/login" className="nav-link"
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
+                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#4F46E5', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
                 Se connecter
               </Link>
               <Link href="/register" className="nav-btn-primary"
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
+                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#4F46E5', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
                 S'inscrire
               </Link>
             </>
@@ -333,12 +335,12 @@ export function NavbarFull() {
                 <Search size={15} color="#888888" style={{ flexShrink: 0 }} />
                 <input ref={searchRef} value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder="Ville, marché, créateur…"
                   style={{ flex: 1, border: 'none', backgroundColor: 'transparent', fontSize: '14px', color: '#1A1A1A', outline: 'none', minWidth: 0 }} />
-                <button type="button" onClick={closeSearch} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0 }}>
+                <button type="button" onClick={closeSearch} aria-label="Fermer la recherche" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0 }}>
                   <X size={14} color="#888888" />
                 </button>
               </form>
             ) : (
-              <button onClick={openSearch}
+              <button onClick={openSearch} aria-label="Rechercher des marchés ou créateurs"
                 style={{ width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 150ms ease' }}
                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}>
@@ -351,6 +353,8 @@ export function NavbarFull() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
+          aria-label={isMobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-expanded={isMobileOpen}
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '8px', border: 'none', backgroundColor: '#F5F5F7', color: '#1A1A1A', cursor: 'pointer', fontSize: '18px' }}
           className="mobile-menu-btn"
         >
@@ -378,7 +382,7 @@ export function NavbarFull() {
                 width: '100%', padding: '12px 0',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
-                color: isDiscoverActive ? '#6366F1' : '#1A1A1A',
+                color: isDiscoverActive ? '#4F46E5' : '#1A1A1A',
                 fontSize: '14px', fontWeight: '600', cursor: 'pointer',
               }}
             >

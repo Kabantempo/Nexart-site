@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Script from 'next/script'
 import { supabase } from '@/lib/supabase'
 import { CreatorProfileClient } from './creator-profile'
 
@@ -37,5 +38,36 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
 
 export default async function CreatorPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
-  return <CreatorProfileClient id={params.id} />
+
+  // Fetch creator data for JSON-LD
+  let creator = null
+  try {
+    const { data } = await supabase.from('profiles').select('*').eq('id', params.id).single()
+    creator = data
+  } catch (error) {
+    console.error('Error fetching creator:', error)
+  }
+
+  const jsonLd = creator ? {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: creator.full_name,
+    description: creator.bio,
+    image: creator.avatar_url,
+    url: `https://nexart.fr/creators/${creator.id}`,
+    jobTitle: 'Artisan créateur',
+  } : null
+
+  return (
+    <>
+      {jsonLd && (
+        <Script
+          id="creator-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <CreatorProfileClient id={params.id} />
+    </>
+  )
 }
