@@ -1,12 +1,12 @@
 'use client'
 
-import { useEvent, useApplication } from '@/lib/hooks'
+import { useEvent, useApplication, useFavorites } from '@/lib/hooks'
 import { useAuthStore } from '@/lib/store'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
@@ -33,6 +33,7 @@ export function EventDetailClient({ id }: Props) {
   const { event, loading, error } = useEvent(id)
   const user = useAuthStore((s) => s.user)
   const { application, applying, error: applyError, success, apply, acceptedCount } = useApplication(id, user?.id)
+  const { favEventIds, toggleEventFav } = useFavorites(user?.id)
   const [message, setMessage] = useState('')
   const [showForm, setShowForm] = useState(false)
   const { success: toastSuccess, error: toastError } = useToast()
@@ -181,10 +182,30 @@ export function EventDetailClient({ id }: Props) {
                 )}
               </div>
 
-              {/* Share */}
-              <div style={{ marginBottom: '28px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
-                <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
+              {/* Share + Favori */}
+              <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
+                  <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
+                </div>
+                {user && (
+                  <button
+                    onClick={() => toggleEventFav(id)}
+                    title={favEventIds.has(id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '10px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                      backgroundColor: favEventIds.has(id) ? '#FFF1F2' : '#F8FAFC',
+                      color: favEventIds.has(id) ? '#BE123C' : '#64748B',
+                      fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
+                      border: `1.5px solid ${favEventIds.has(id) ? '#FECDD3' : '#E2E8F0'}`,
+                      marginTop: '28px',
+                    }}
+                  >
+                    <Heart size={16} fill={favEventIds.has(id) ? '#E05A5A' : 'none'} color={favEventIds.has(id) ? '#E05A5A' : '#94A3B8'} />
+                    {favEventIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
+                  </button>
+                )}
               </div>
 
               {/* Description */}

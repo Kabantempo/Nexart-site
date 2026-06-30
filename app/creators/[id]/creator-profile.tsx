@@ -6,9 +6,10 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, ChevronRight, QrCode } from 'lucide-react'
+import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, ChevronRight, QrCode, Heart } from 'lucide-react'
 import { ShareButtons } from '@/components/ui/share-buttons'
 import { QRCodeSVG } from 'qrcode.react'
+import { useFavorites } from '@/lib/hooks'
 
 interface Props {
   id: string
@@ -70,6 +71,7 @@ export function CreatorProfileClient({ id }: Props) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const user = useAuthStore((s) => s.user)
+  const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
 
   useEffect(() => {
     const fetch = async () => {
@@ -306,10 +308,28 @@ export function CreatorProfileClient({ id }: Props) {
                 </p>
               )}
 
-              {/* Share */}
+              {/* Share + Favori */}
               <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #F3F4F6' }}>
                 <p style={{ fontSize: '12px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager ce profil</p>
                 <ShareButtons url={`/creators/${id}`} title={`${creator.full_name} — Créateur sur Nexart`} />
+                {user && user.id !== id && (
+                  <button
+                    onClick={() => toggleCreatorFav(id)}
+                    title={favCreatorIds.has(id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
+                      backgroundColor: favCreatorIds.has(id) ? '#FFF1F2' : '#F8FAFC',
+                      color: favCreatorIds.has(id) ? '#BE123C' : '#64748B',
+                      fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
+                      border: `1.5px solid ${favCreatorIds.has(id) ? '#FECDD3' : '#E2E8F0'}`,
+                      marginTop: '12px', width: '100%', justifyContent: 'center',
+                    }}
+                  >
+                    <Heart size={16} fill={favCreatorIds.has(id) ? '#E05A5A' : 'none'} color={favCreatorIds.has(id) ? '#E05A5A' : '#94A3B8'} />
+                    {favCreatorIds.has(id) ? 'Sauvegardé dans mes favoris' : 'Ajouter aux favoris'}
+                  </button>
+                )}
               </div>
 
               {/* QR Code */}

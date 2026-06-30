@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Users, MapPin, MessageSquare, Award, Zap } from 'lucide-react'
 import { DynamicCreatorsSection, DynamicEventsSection } from '@/components/dynamic-grid'
+import { useAuthStore } from '@/lib/store'
 
 export default function Home() {
+  const user = useAuthStore((s) => s.user)
   return (
     <div style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
 
@@ -144,33 +146,64 @@ export default function Home() {
                   <ArrowRight size={20} />
                 </Link>
                 <Link
-                  href="/register"
+                  href="/creators"
                   style={{
                     padding: '16px 32px',
                     borderRadius: '8px',
                     fontWeight: '600',
                     fontSize: '18px',
-                    backgroundColor: '#FFFFFF',
-                    color: '#6366F1',
-                    border: '2px solid #6366F1',
+                    backgroundColor: '#6366F1',
+                    color: '#FFFFFF',
                     textDecoration: 'none',
                     transition: 'all 300ms ease',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
+                    boxShadow: '0 10px 25px rgba(99, 102, 241, 0.2)',
                     cursor: 'pointer',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'scale(1.05)'
-                    e.currentTarget.style.backgroundColor = '#F0F4FF'
+                    e.currentTarget.style.boxShadow = '0 15px 35px rgba(99, 102, 241, 0.3)'
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'scale(1)'
-                    e.currentTarget.style.backgroundColor = '#FFFFFF'
+                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.2)'
                   }}
                 >
-                  Créer un profil
+                  Voir les créateurs
+                  <ArrowRight size={20} />
                 </Link>
+                {!user && (
+                  <Link
+                    href="/register"
+                    style={{
+                      padding: '16px 32px',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      fontSize: '18px',
+                      backgroundColor: '#FFFFFF',
+                      color: '#6366F1',
+                      border: '2px solid #6366F1',
+                      textDecoration: 'none',
+                      transition: 'all 300ms ease',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)'
+                      e.currentTarget.style.backgroundColor = '#F0F4FF'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)'
+                      e.currentTarget.style.backgroundColor = '#FFFFFF'
+                    }}
+                  >
+                    Créer un profil
+                  </Link>
+                )}
               </div>
             </motion.div>
 
@@ -426,28 +459,30 @@ export default function Home() {
             Rejoignez des centaines de créateurs et organisateurs qui font confiance à Nexart.
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link
-              href="/register"
-              style={{
-                padding: '16px 32px',
-                borderRadius: '8px',
-                fontWeight: '600',
-                fontSize: '18px',
-                backgroundColor: '#FFFFFF',
-                color: '#6366F1',
-                textDecoration: 'none',
-                transition: 'all 300ms ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)'
-              }}
-            >
-              Créer mon profil
-            </Link>
+            {!user && (
+              <Link
+                href="/register"
+                style={{
+                  padding: '16px 32px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '18px',
+                  backgroundColor: '#FFFFFF',
+                  color: '#6366F1',
+                  textDecoration: 'none',
+                  transition: 'all 300ms ease',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+              >
+                Créer mon profil
+              </Link>
+            )}
             <Link
               href="/events"
               style={{

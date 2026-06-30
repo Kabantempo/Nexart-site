@@ -23,7 +23,10 @@ const NAV_CARDS = (userId: string, role: string) => [
   { href: '/profile',          icon: <User size={24} color="#6366F1" />,     label: 'Mon profil',  sub: 'Éditer mon profil' },
   { href: '/messages',         icon: <MessageSquare size={24} color="#6366F1" />, label: 'Messages', sub: 'Vos conversations' },
   { href: '/favorites',        icon: <Heart size={24} color="#6366F1" />,    label: 'Favoris',     sub: 'Vos coups de cœur' },
-  ...(role === 'organizer' ? [{ href: `/creators/${userId}`, icon: <User size={24} color="#6366F1" />, label: 'Ma fiche',  sub: 'Vue publique' }] : []),
+  ...(role === 'organizer' ? [
+    { href: '/events/create',  icon: <CalendarDays size={24} color="#6366F1" />, label: 'Créer un événement', sub: 'Nouveau marché' },
+    { href: `/creators/${userId}`, icon: <User size={24} color="#6366F1" />, label: 'Ma fiche', sub: 'Vue publique' },
+  ] : []),
 ]
 
 export default function DashboardPage() {
@@ -252,7 +255,11 @@ export default function DashboardPage() {
               <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
                 <Calendar size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
                 <p style={{ fontSize: '16px', color: '#888888', marginBottom: '4px' }}>Aucun événement créé</p>
-                <p style={{ fontSize: '14px', color: '#9CA3AF' }}>Créez vos événements depuis l&apos;application mobile</p>
+                <p style={{ fontSize: '14px', color: '#9CA3AF', marginBottom: '20px' }}>Créez votre premier marché et trouvez des artisans</p>
+                <Link href="/events/create"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>
+                  Créer un événement <ArrowRight size={16} />
+                </Link>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

@@ -232,7 +232,7 @@ function SearchContent() {
           </div>
         )}
 
-        {!q && (
+        {!q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
             <p style={{ fontSize: '18px', color: '#888888' }}>Commencez à taper pour rechercher</p>
