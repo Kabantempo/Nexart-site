@@ -4,6 +4,7 @@ import "./globals.css";
 import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
+import { CookieBanner } from "@/components/ui/cookie-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default function RootLayout({
           <NavbarFull />
           <main className="flex-1">{children}</main>
           <Footer />
+          <CookieBanner />
         </Providers>
       </body>
     </html>
