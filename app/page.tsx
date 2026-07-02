@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform, useInView, animate } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Users, Calendar, CheckCircle, ChevronRight, Zap, Target, Bell, Shield, BadgeCheck, MapPin, Search } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
@@ -231,6 +231,115 @@ const STATS = [
   { value: 94,   suffix: ' %', label: 'Taux de satisfaction' },
 ]
 
+// ── 3 Faces section ────────────────────────────────────────────────────
+const FACES = [
+  {
+    key: 'createurs',
+    label: 'Créateurs',
+    color: 'indigo',
+    accent: 'text-indigo-400',
+    border: 'border-indigo-500/30',
+    bg: 'bg-indigo-500/8',
+    activeBg: 'bg-indigo-500/15 border-indigo-500/40',
+    tagline: 'Exposez sans galère.',
+    desc: 'Un profil, toutes les opportunités. Candidatez en 2 minutes, suivez vos réponses en temps réel.',
+    features: [
+      { Icon: Zap,       label: 'Candidature en 2 min', desc: 'Aucun email, aucun formulaire à rallonge.' },
+      { Icon: Target,    label: 'Matching intelligent',  desc: 'Les événements qui vous correspondent remontent en priorité.' },
+      { Icon: Bell,      label: 'Suivi en temps réel',   desc: 'Notifications et timeline de statut instantanés.' },
+      { Icon: BadgeCheck,label: 'Profil vérifiable',     desc: 'SIRET, portfolio, avis — tout en un seul endroit.' },
+    ],
+  },
+  {
+    key: 'organisateurs',
+    label: 'Organisateurs',
+    color: 'violet',
+    accent: 'text-violet-400',
+    border: 'border-violet-500/30',
+    bg: 'bg-violet-500/8',
+    activeBg: 'bg-violet-500/15 border-violet-500/40',
+    tagline: 'Remplissez vos stands.',
+    desc: 'Publiez votre événement, recevez des candidatures qualifiées et gérez tout depuis votre tableau de bord.',
+    features: [
+      { Icon: Calendar,  label: 'Publication en 5 min',  desc: 'Dates, stands, critères — votre événement est en ligne immédiatement.' },
+      { Icon: Users,     label: 'Candidatures triées',    desc: 'Filtrez par discipline, ville, profil vérifié.' },
+      { Icon: Shield,    label: 'Événement validé',       desc: "Notre équipe vérifie chaque publication. Zéro arnaque." },
+      { Icon: Zap,       label: 'Gestion centralisée',    desc: 'Acceptez, refusez, communiquez — tout depuis un seul dashboard.' },
+    ],
+  },
+  {
+    key: 'visiteurs',
+    label: 'Visiteurs',
+    color: 'emerald',
+    accent: 'text-emerald-400',
+    border: 'border-emerald-500/30',
+    bg: 'bg-emerald-500/8',
+    activeBg: 'bg-emerald-500/15 border-emerald-500/40',
+    tagline: 'Découvrez. Réservez. Soutenez.',
+    desc: 'Trouvez les marchés et événements artisanaux près de chez vous, réservez votre place et explorez les créateurs.',
+    features: [
+      { Icon: MapPin,    label: 'Événements près de toi', desc: 'Géolocalisation et filtres par type, date, distance.' },
+      { Icon: Users,     label: 'Portfolios créateurs',   desc: 'Parcourez les artisans inscrits avant même le jour J.' },
+      { Icon: CheckCircle, label: 'Réservation de place', desc: 'Réservez votre entrée en quelques secondes.' },
+      { Icon: Bell,      label: 'Alertes personnalisées', desc: 'Notifié dès qu\'un événement correspond à vos intérêts.' },
+    ],
+  },
+]
+
+function FacesSection() {
+  return (
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-32">
+      <FadeUp className="mb-16">
+        <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-5">Créateurs · Organisateurs · Visiteurs</p>
+        <h2 className="text-[clamp(2.2rem,4.5vw,3.8rem)] font-black tracking-tight leading-[0.95] text-white max-w-2xl">
+          Pour qui est{' '}
+          <span className="text-white/30">Nexart ?</span>
+        </h2>
+      </FadeUp>
+
+      <div className="grid md:grid-cols-3 gap-5">
+        {FACES.map(({ key, label, accent, border, bg, tagline, desc, features }, i) => (
+          <motion.div key={key}
+            initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className={`flex flex-col p-7 rounded-3xl border ${border} ${bg} hover:brightness-110 transition-all duration-300`}
+          >
+            {/* Header */}
+            <p className={`text-[11px] font-black tracking-widest uppercase mb-4 ${accent}`}>{label}</p>
+            <h3 className="text-2xl font-black text-white leading-tight mb-3">{tagline}</h3>
+            <p className="text-white/40 text-sm leading-relaxed mb-8">{desc}</p>
+
+            {/* Features */}
+            <ul className="flex flex-col gap-3 flex-1">
+              {features.map(({ Icon, label: fl, desc: fd }) => (
+                <li key={fl} className="flex items-start gap-3">
+                  <div className={`w-7 h-7 rounded-lg ${bg} border ${border} flex items-center justify-center shrink-0 mt-0.5`}>
+                    <Icon size={13} className={accent} />
+                  </div>
+                  <div>
+                    <p className="text-[12px] font-semibold text-white leading-tight">{fl}</p>
+                    <p className="text-[11px] text-white/30 leading-relaxed">{fd}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <Link
+              href={key === 'visiteurs' ? '/events' : '/register'}
+              className={`mt-8 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white border ${border} hover:opacity-80 transition-opacity`}
+            >
+              {key === 'visiteurs' ? 'Explorer les événements' : key === 'organisateurs' ? 'Publier un événement' : 'Créer mon profil'}
+              <ArrowRight size={13} />
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 // ── Page ───────────────────────────────────────────────────────────────
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -345,48 +454,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══ BENTO FEATURES ═════════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-32">
-        <FadeUp className="mb-16">
-          <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-5">Pourquoi Nexart</p>
-          <h2 className="text-[clamp(2.2rem,4.5vw,3.8rem)] font-black tracking-tight leading-[0.95] text-white max-w-xl">
-            Tout ce qu'il vous faut.{' '}
-            <span className="text-white/30">Rien de superflu.</span>
-          </h2>
-        </FadeUp>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[
-            { span: 'md:col-span-2', bg: 'bg-white/[0.03] hover:border-indigo-500/30 hover:bg-white/[0.06]', glow: 'from-indigo-600/8', Icon: Zap,    iconBg: 'bg-indigo-500/12 border-indigo-500/20', iconColor: 'text-indigo-400', title: 'Candidature en 2 min',    desc: "Postulez à n'importe quel événement depuis votre profil — aucun email, aucun formulaire à rallonge.", extra: null },
-            { span: '',              bg: 'bg-gradient-to-br from-indigo-900/30 to-transparent hover:border-indigo-500/30', glow: null, Icon: Target, iconBg: 'bg-indigo-500/12 border-indigo-500/20', iconColor: 'text-indigo-400', title: 'Matching intelligent',   desc: 'Les organisateurs voient en priorité les créateurs qui correspondent à leur événement.', extra: null },
-            { span: '',              bg: 'bg-white/[0.03] hover:border-violet-500/25 hover:bg-white/[0.06]',              glow: 'from-violet-600/6',  Icon: Bell,   iconBg: 'bg-violet-500/12 border-violet-500/20', iconColor: 'text-violet-400',  title: 'Suivi en temps réel',    desc: 'Timeline de statut et notifications instantanées.', extra: null },
-            { span: 'md:col-span-2', bg: 'bg-gradient-to-br from-emerald-900/20 to-transparent hover:border-emerald-500/25', glow: null, Icon: Shield, iconBg: 'bg-emerald-500/10 border-emerald-500/18', iconColor: 'text-emerald-400', title: 'Organisateurs vérifiés', desc: "Chaque événement est validé par notre équipe. Zéro arnaque, zéro surprise.", extra: (
-              <div className="shrink-0 hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 text-emerald-400 text-xs font-bold whitespace-nowrap">
-                <BadgeCheck size={13} /> Événement vérifié
-              </div>
-            )},
-          ].map(({ span, bg, glow, Icon, iconBg, iconColor, title, desc, extra }, i) => (
-            <motion.div key={i}
-              initial={{ opacity: 0, y: 48, scale: 0.96 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className={`${span} group relative p-8 rounded-3xl border border-white/6 ${bg} transition-all duration-300 overflow-hidden cursor-default min-h-[200px] flex flex-col ${extra ? 'justify-between' : 'justify-between'}`}
-            >
-              {glow && <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${glow} via-transparent to-transparent pointer-events-none`} />}
-              <div className={`w-12 h-12 rounded-2xl ${iconBg} border flex items-center justify-center mb-6 shrink-0`}>
-                <Icon size={22} className={iconColor} />
-              </div>
-              <div className={`flex items-end ${extra ? 'justify-between gap-4' : ''}`}>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed max-w-sm">{desc}</p>
-                </div>
-                {extra}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      {/* ══ 3 FACES ════════════════════════════════════════════════════ */}
+      <FacesSection />
 
       {/* ══ TESTIMONIALS ═══════════════════════════════════════════════ */}
       <section className="border-t border-white/6 bg-white/[0.015]">
@@ -440,43 +509,49 @@ export default function Home() {
               Pour qui est Nexart ?
             </h2>
           </FadeUp>
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-3 gap-5">
             {[
               { delay: 0, glow: 'bg-indigo-600/15 group-hover:bg-indigo-600/28', bg: 'from-indigo-600/18 to-indigo-950/30', border: 'border-indigo-500/18',
-                badgeBg: 'bg-indigo-500/12 border-indigo-500/22 text-indigo-300', badgeIcon: <Users size={11} />, badgeLabel: 'Pour les créateurs',
+                badgeBg: 'bg-indigo-500/12 border-indigo-500/22 text-indigo-300', badgeIcon: <Users size={11} />, badgeLabel: 'Créateurs',
                 title: 'Trouvez vos prochains événements',
                 desc: "Candidatez aux marchés, pop-ups et salons qui correspondent à votre univers créatif.",
                 items: ['Profil créateur en 10 min', 'Candidature en 2 clics', 'Suivi en temps réel'],
                 checkClass: 'text-indigo-400', ctaHref: '/register?role=creator', ctaLabel: 'Créer mon profil', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
-              { delay: 0.12, glow: 'bg-violet-600/12 group-hover:bg-violet-600/22', bg: 'from-violet-600/14 to-violet-950/25', border: 'border-violet-500/14',
-                badgeBg: 'bg-violet-500/10 border-violet-500/18 text-violet-300', badgeIcon: <Calendar size={11} />, badgeLabel: 'Pour les organisateurs',
+              { delay: 0.1, glow: 'bg-violet-600/12 group-hover:bg-violet-600/22', bg: 'from-violet-600/14 to-violet-950/25', border: 'border-violet-500/14',
+                badgeBg: 'bg-violet-500/10 border-violet-500/18 text-violet-300', badgeIcon: <Calendar size={11} />, badgeLabel: 'Organisateurs',
                 title: 'Remplissez vos événements',
                 desc: "Publiez votre événement et recevez des candidatures qualifiées en quelques heures.",
                 items: ["Publication en 5 min", 'Candidatures qualifiées auto', 'Gestion des stands simplifiée'],
                 checkClass: 'text-violet-400', ctaHref: '/register?role=organizer', ctaLabel: 'Publier un événement', ctaClass: 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/25' },
+              { delay: 0.2, glow: 'bg-emerald-600/12 group-hover:bg-emerald-600/22', bg: 'from-emerald-600/14 to-emerald-950/25', border: 'border-emerald-500/14',
+                badgeBg: 'bg-emerald-500/10 border-emerald-500/18 text-emerald-300', badgeIcon: <MapPin size={11} />, badgeLabel: 'Visiteurs',
+                title: 'Découvrez les marchés près de toi',
+                desc: "Trouvez les événements artisanaux autour de vous, réservez votre place et explorez les créateurs.",
+                items: ['Événements géolocalisés', 'Portfolios créateurs', 'Réservation en 2 clics'],
+                checkClass: 'text-emerald-400', ctaHref: '/events', ctaLabel: 'Explorer les événements', ctaClass: 'bg-emerald-700 hover:bg-emerald-600 shadow-emerald-500/25' },
             ].map(({ delay, glow, bg, border, badgeBg, badgeIcon, badgeLabel, title, desc, items, checkClass, ctaHref, ctaLabel, ctaClass }) => (
               <motion.div key={title}
                 initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -6, transition: { duration: 0.22 } }}
-                className={`group relative p-10 rounded-3xl bg-gradient-to-br ${bg} border ${border} overflow-hidden`}
+                className={`group relative p-8 rounded-3xl bg-gradient-to-br ${bg} border ${border} overflow-hidden flex flex-col`}
               >
                 <div className={`absolute -top-24 -right-24 w-80 h-80 rounded-full ${glow} blur-[100px] transition-all duration-700 pointer-events-none`} />
-                <div className="relative z-10">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badgeBg} text-xs font-semibold mb-7`}>
+                <div className="relative z-10 flex flex-col flex-1">
+                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badgeBg} text-xs font-semibold mb-7 w-fit`}>
                     {badgeIcon} {badgeLabel}
                   </div>
-                  <h3 className="text-[1.75rem] font-black text-white tracking-tight leading-tight mb-4">{title}</h3>
-                  <p className="text-white/42 text-sm leading-relaxed mb-9">{desc}</p>
-                  <ul className="space-y-3 mb-9">
+                  <h3 className="text-[1.4rem] font-black text-white tracking-tight leading-tight mb-4">{title}</h3>
+                  <p className="text-white/42 text-sm leading-relaxed mb-7">{desc}</p>
+                  <ul className="space-y-3 mb-8 flex-1">
                     {items.map((item) => (
                       <li key={item} className="flex items-center gap-3 text-sm text-white/52">
-                        <CheckCircle size={15} className={`${checkClass} shrink-0`} /> {item}
+                        <CheckCircle size={14} className={`${checkClass} shrink-0`} /> {item}
                       </li>
                     ))}
                   </ul>
-                  <Link href={ctaHref} className={`group/btn inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl ${ctaClass} text-white font-bold text-sm transition-all duration-200 shadow-xl hover:scale-[1.03] active:scale-[0.97]`}>
-                    {ctaLabel} <ArrowRight size={15} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                  <Link href={ctaHref} className={`group/btn inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl ${ctaClass} text-white font-bold text-sm transition-all duration-200 shadow-xl hover:scale-[1.03] active:scale-[0.97]`}>
+                    {ctaLabel} <ArrowRight size={14} className="group-hover/btn:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
               </motion.div>

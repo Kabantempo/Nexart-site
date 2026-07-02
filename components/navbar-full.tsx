@@ -102,15 +102,19 @@ export function NavbarFull() {
   return (
     <>
       {/* ── Bar ── */}
-      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/75 backdrop-blur-2xl border-b border-black/[0.06] shadow-sm'
-          : dark
+      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+        !scrolled
+          ? dark
             ? 'bg-[#06060f] border-b border-white/6'
             : 'bg-white/90 backdrop-blur-xl border-b border-gray-100'
+          : 'pointer-events-none'
       }`}>
-        <div className={`pointer-events-auto`}>
-        <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8`}>
+        <div className={`transition-all duration-500 ${scrolled ? 'pointer-events-auto mx-3 sm:mx-6 mt-3' : ''}`}>
+        <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
+          scrolled
+            ? 'bg-white/90 backdrop-blur-2xl rounded-2xl border border-gray-200/70 shadow-xl shadow-black/[0.10]'
+            : ''
+        }`}>
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">

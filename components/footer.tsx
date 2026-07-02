@@ -12,10 +12,16 @@ const NAV = {
     { label: 'FAQ',                      href: '/faq' },
   ],
   'Pour organisateurs': [
-    { label: 'Créer un événement',  href: '/events' },
+    { label: 'Créer un événement',    href: '/events' },
     { label: 'Trouver des créateurs', href: '/creators' },
-    { label: "S'inscrire",          href: '/register' },
-    { label: 'Ressources',          href: '/about' },
+    { label: "S'inscrire",            href: '/register' },
+    { label: 'Ressources',            href: '/about' },
+  ],
+  'Pour visiteurs': [
+    { label: 'Événements près de moi', href: '/events' },
+    { label: 'Découvrir les créateurs', href: '/creators' },
+    { label: 'Réserver une place',     href: '/events' },
+    { label: "S'inscrire",             href: '/register' },
   ],
 }
 
@@ -38,7 +44,7 @@ export function Footer() {
     <footer className="bg-[#06060f] border-t border-white/6 text-white">
       {/* Top section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-6">
 
           {/* Brand */}
           <div className="lg:col-span-1">
