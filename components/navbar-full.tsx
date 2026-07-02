@@ -104,12 +104,12 @@ export function NavbarFull() {
       {/* ── Bar ── */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled ? 'px-4 pt-3 pb-0' : 'px-0 pt-0 pb-0'
+          scrolled ? 'lg:px-4 lg:pt-3' : ''
         }`}
       >
         <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
           scrolled
-            ? 'bg-white/80 backdrop-blur-2xl rounded-2xl border border-gray-200/50 shadow-md shadow-black/[0.07]'
+            ? 'bg-white/90 backdrop-blur-xl border-b border-gray-100 lg:rounded-2xl lg:border lg:border-gray-200/50 lg:shadow-md lg:shadow-black/[0.07] lg:bg-white/80 lg:backdrop-blur-2xl'
             : dark
               ? 'bg-[#06060f] border-b border-white/6'
               : 'bg-white/90 backdrop-blur-xl border-b border-gray-100'
