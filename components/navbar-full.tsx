@@ -109,7 +109,7 @@ export function NavbarFull() {
       >
         <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
           scrolled
-            ? 'bg-white/50 backdrop-blur-2xl rounded-2xl border border-white/30 shadow-sm shadow-black/[0.04]'
+            ? 'bg-white/80 backdrop-blur-2xl rounded-2xl border border-gray-200/50 shadow-md shadow-black/[0.07]'
             : dark
               ? 'bg-[#06060f] border-b border-white/6'
               : 'bg-white/90 backdrop-blur-xl border-b border-gray-100'
