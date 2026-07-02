@@ -2,515 +2,340 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, Menu, X, LogOut, Search, MessageCircle, Heart, User } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
 
 export function NavbarFull() {
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
-  const [searchOpen, setSearchOpen] = useState(false)
+  const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [dropdown,    setDropdown]    = useState<string | null>(null)
+  const [searchOpen,  setSearchOpen]  = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const searchRef = useRef<HTMLInputElement>(null)
+  const [scrolled,    setScrolled]    = useState(false)
+  const searchRef  = useRef<HTMLInputElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const scheduleClose = () => {
-    closeTimer.current = setTimeout(() => setOpenDropdown(null), 200)
-  }
-  const cancelClose = () => {
-    if (closeTimer.current) clearTimeout(closeTimer.current)
-  }
-  const user = useAuthStore((s) => s.user)
-  const setUser = useAuthStore((s) => s.setUser)
-  const router = useRouter()
-  const pathname = usePathname()
+  const user      = useAuthStore((s) => s.user)
+  const setUser   = useAuthStore((s) => s.setUser)
+  const router    = useRouter()
+  const pathname  = usePathname()
   const firstName = user?.full_name?.split(' ')[0] ?? null
+  const isHero    = pathname === '/'
+  const dark      = isHero && !scrolled
 
-  const isDiscoverActive = pathname.startsWith('/events') || pathname.startsWith('/creators')
-  const isResourcesActive = pathname.startsWith('/about') || pathname.startsWith('/blog') || pathname.startsWith('/contact')
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 24)
+    fn()
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [pathname])
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user && !user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-
-        if (profile) {
-          setUser({
-            id: profile.id,
-            email: session.user.email || '',
-            role: profile.role,
-            full_name: profile.full_name,
-            avatar_url: profile.avatar_url,
-          })
-        }
+        const { data: p } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        if (p) setUser({ id: p.id, email: session.user.email || '', role: p.role, full_name: p.full_name, avatar_url: p.avatar_url })
       }
     })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) setUser(null)
-    })
-
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => { if (!s) setUser(null) })
     return () => subscription.unsubscribe()
   }, [setUser, user])
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    router.push('/')
-  }
+  useEffect(() => { setMobileOpen(false); setDropdown(null) }, [pathname])
 
-  const openSearch = () => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50) }
-  const closeSearch = () => { setSearchOpen(false); setSearchValue('') }
+  const go = (ms = 200) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
+  const stay = () => { if (closeTimer.current) clearTimeout(closeTimer.current) }
+
+  const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); router.push('/') }
+  const openSearch   = () => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50) }
+  const closeSearch  = () => { setSearchOpen(false); setSearchValue('') }
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchValue.trim()) { router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`); closeSearch() }
   }
 
-  const dropdownStyle = (name: string): React.CSSProperties => ({
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    marginTop: '8px',
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #E5E7EB',
-    borderRadius: '12px',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-    minWidth: name === 'discover' ? '320px' : '280px',
-    zIndex: 100,
-    padding: '8px',
-    opacity: openDropdown === name ? 1 : 0,
-    visibility: openDropdown === name ? 'visible' : 'hidden',
-    transform: openDropdown === name ? 'translateY(0)' : 'translateY(-8px)',
-    transition: 'opacity 200ms ease, transform 200ms ease, visibility 200ms ease',
-  })
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
+
+  // ── Dropdown panel ────────────────────────────────────────────────
+  const Panel = ({ id, children, align = 'left', width = 'w-52' }: { id: string; children: React.ReactNode; align?: 'left' | 'right' | 'center'; width?: string }) => (
+    <AnimatePresence>
+      {dropdown === id && (
+        <motion.div
+          initial={{ opacity: 0, y: 6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 4, scale: 0.98 }}
+          transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+          onMouseEnter={stay}
+          onMouseLeave={() => go()}
+          className={`absolute top-full mt-2.5 ${width} bg-white border border-gray-100 rounded-2xl shadow-2xl shadow-black/[0.08] p-1.5 origin-top z-50 ${
+            align === 'right'  ? 'right-0' :
+            align === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0'
+          }`}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+
+  // ── Nav trigger ───────────────────────────────────────────────────
+  const Trigger = ({ id, label, active }: { id: string; label: string; active: boolean }) => (
+    <button
+      onMouseEnter={() => { stay(); setDropdown(id) }}
+      onMouseLeave={() => go()}
+      onClick={() => setDropdown(d => d === id ? null : id)}
+      className={`flex items-center gap-1 text-[13.5px] font-medium px-3 py-2 transition-colors duration-150 select-none ${
+        active
+          ? dark ? 'text-white' : 'text-gray-900'
+          : dark ? 'text-white/75 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+      }`}
+    >
+      {label}
+      <ChevronDown size={12} className={`transition-transform duration-200 opacity-50 ${dropdown === id ? 'rotate-180' : ''}`} />
+    </button>
+  )
 
   return (
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid #E5E7EB',
-      }}
-    >
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-nav { display: flex !important; }
-          .desktop-cta { display: flex !important; }
-          .mobile-menu-btn { display: none !important; }
-          .mobile-menu { display: none !important; }
-        }
-        @media (max-width: 1023px) {
-          .desktop-nav { display: none !important; }
-          .desktop-cta { display: none !important; }
-          .mobile-menu { display: block !important; }
-        }
-        .nav-link:hover { color: #4F46E5 !important; background-color: #F5F5F7 !important; }
-        .nav-dropdown-link:hover { background-color: #EEF2FF !important; }
-        .nav-btn-outline:hover { border-color: #4F46E5 !important; color: #4F46E5 !important; }
-        .nav-btn-primary:hover { background-color: #4F46E5 !important; }
-        .nav-logout:hover { background-color: #FEF2F2 !important; color: #E05A5A !important; }
-      `}</style>
-      <div
-        style={{
-          maxWidth: '100%',
-          margin: '0 auto',
-          padding: '16px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
+    <>
+      {/* ── Bar ── */}
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled ? 'px-4 pt-3 pb-0' : 'px-0 pt-0 pb-0'
+        }`}
       >
-        {/* Logo */}
-        <Link
-          href="/"
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', flexShrink: 0 }}
-        >
-          <Image src="/logo-mark.png" alt="Nexart" width={40} height={40} style={{ borderRadius: '8px' }} priority />
-          <span style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Nexart</span>
-        </Link>
+        <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
+          scrolled
+            ? 'bg-white/50 backdrop-blur-2xl rounded-2xl border border-white/30 shadow-sm shadow-black/[0.04]'
+            : dark
+              ? 'bg-[#06060f] border-b border-white/6'
+              : 'bg-white/90 backdrop-blur-xl border-b border-gray-100'
+        }`}>
 
-        {/* Desktop Menu */}
-        <nav
-          style={{ display: 'none', gap: '8px', alignItems: 'center', flex: 1, marginLeft: '48px' }}
-          className="desktop-nav"
-        >
-          {/* Découvrir Dropdown */}
-          <div
-            style={{ position: 'relative' }}
-            onMouseEnter={() => { cancelClose(); setOpenDropdown('discover') }}
-            onMouseLeave={scheduleClose}
-          >
-            <button
-              onClick={() => setOpenDropdown(openDropdown === 'discover' ? null : 'discover')}
-              style={{
-                padding: '8px 16px', borderRadius: '8px', border: 'none',
-                backgroundColor: isDiscoverActive ? '#EEF2FF' : 'transparent',
-                color: isDiscoverActive ? '#4F46E5' : '#1A1A1A',
-                fontSize: '15px', fontWeight: isDiscoverActive ? '600' : '500',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease',
-              }}
-            >
-              Découvrir
-              <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-            </button>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <Image src="/logo-mark.png" alt="Nexart" width={26} height={26} className="rounded-lg" priority />
+            <span className={`text-[15px] font-semibold tracking-tight transition-colors duration-300 ${dark ? 'text-white' : 'text-gray-900'}`}>
+              Nexart
+            </span>
+          </Link>
 
-            <div style={dropdownStyle('discover')}>
-              {[
-                { title: 'Marchés & Événements', href: '/events', desc: 'Trouvez votre prochain marché' },
-                { title: 'Créateurs & Artisans', href: '/creators', desc: 'Découvrez les artisans' },
-              ].map((item) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + '/')
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpenDropdown(null)}
-                    className="nav-dropdown-link"
-                    style={{
-                      display: 'flex', flexDirection: 'column', padding: '12px 16px',
-                      textDecoration: 'none',
-                      color: active ? '#6366F1' : '#1A1A1A',
-                      borderRadius: '8px', transition: 'background-color 150ms ease',
-                      backgroundColor: active ? '#EEF2FF' : 'transparent',
-                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
-                    }}
+          {/* Desktop nav */}
+          <nav className="hidden lg:flex items-center gap-0 flex-1">
+
+            {/* Découvrir */}
+            <div className="relative" onMouseEnter={() => { stay(); setDropdown('discover') }} onMouseLeave={() => go()}>
+              <Trigger id="discover" label="Découvrir" active={isActive('/events') || isActive('/creators')} />
+              <Panel id="discover" width="w-[300px]">
+                {[
+                  { href: '/events',   label: 'Événements artisanaux', desc: 'Marchés, pop-ups, salons, festivals' },
+                  { href: '/creators', label: 'Créateurs & Artisans',  desc: 'Parcourez les artisans inscrits' },
+                ].map(({ href, label, desc }) => (
+                  <Link key={href} href={href} onClick={() => setDropdown(null)}
+                    className={`group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-colors ${isActive(href) ? 'bg-gray-50' : 'hover:bg-gray-50/70'}`}
                   >
-                    <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.title}</span>
-                    <span style={{ fontSize: '12px', color: active ? '#818CF8' : '#888888' }}>{item.desc}</span>
+                    <div className="flex-1 min-w-0 pt-0.5">
+                      <p className={`text-[13px] font-semibold leading-none mb-1 ${isActive(href) ? 'text-indigo-600' : 'text-gray-800'}`}>{label}</p>
+                      <p className="text-[12px] text-gray-400">{desc}</p>
+                    </div>
+                    <ArrowUpRight size={13} className="text-gray-300 group-hover:text-gray-500 mt-0.5 transition-colors shrink-0" />
                   </Link>
-                )
-              })}
+                ))}
+              </Panel>
             </div>
-          </div>
 
-          {/* Ressources Dropdown */}
-          <div
-            style={{ position: 'relative' }}
-            onMouseEnter={() => { cancelClose(); setOpenDropdown('resources') }}
-            onMouseLeave={scheduleClose}
-          >
-            <button
-              onClick={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
-              style={{
-                padding: '8px 16px', borderRadius: '8px', border: 'none',
-                backgroundColor: isResourcesActive ? '#EEF2FF' : 'transparent',
-                color: isResourcesActive ? '#6366F1' : '#1A1A1A',
-                fontSize: '15px', fontWeight: isResourcesActive ? '600' : '500',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 200ms ease',
-              }}
-            >
-              Ressources
-              <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-            </button>
-
-            <div style={dropdownStyle('resources')}>
-              {[
-                { title: 'À propos', href: '/about' },
-                { title: 'Blog', href: '/blog' },
-                { title: 'Nous contacter', href: '/contact' },
-                { title: 'Centre d\'aide', href: '#' },
-              ].map((item, idx) => {
-                const active = item.href !== '#' && (pathname === item.href || pathname.startsWith(item.href + '/'))
-                return (
-                  <Link
-                    key={`resource-${idx}`}
-                    href={item.href}
-                    onClick={() => setOpenDropdown(null)}
-                    className="nav-dropdown-link"
-                    style={{
-                      display: 'block', padding: '12px 16px', textDecoration: 'none',
-                      color: active ? '#6366F1' : '#1A1A1A',
-                      fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease',
-                      backgroundColor: active ? '#EEF2FF' : 'transparent',
-                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
-                      fontWeight: active ? '600' : '400',
-                    }}
+            {/* Ressources */}
+            <div className="relative" onMouseEnter={() => { stay(); setDropdown('resources') }} onMouseLeave={() => go()}>
+              <Trigger id="resources" label="Ressources" active={isActive('/about') || isActive('/blog') || isActive('/contact')} />
+              <Panel id="resources">
+                {[
+                  { href: '/about',   label: 'À propos' },
+                  { href: '/blog',    label: 'Blog' },
+                  { href: '/contact', label: 'Contact' },
+                ].map(({ href, label }) => (
+                  <Link key={href} href={href} onClick={() => setDropdown(null)}
+                    className={`block px-3.5 py-2.5 rounded-xl text-[13px] transition-colors ${isActive(href) ? 'text-indigo-600 bg-indigo-50/60 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}
                   >
-                    {item.title}
+                    {label}
                   </Link>
-                )
-              })}
+                ))}
+              </Panel>
             </div>
-          </div>
-        </nav>
+          </nav>
 
-        {/* Desktop CTA */}
-        <div style={{ display: 'none', gap: '12px', alignItems: 'center' }} className="desktop-cta">
-          {user ? (
-            <>
-              {/* Messages */}
-              <Link href="/messages" title="Messages" aria-label="Accéder à vos messages"
-                style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', textDecoration: 'none', transition: 'background-color 150ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
-                <MessageCircle size={18} color="#1A1A1A" />
-              </Link>
+          {/* Desktop right */}
+          <div className="hidden lg:flex items-center gap-1 ml-auto">
 
-              {/* Favoris */}
-              <Link href="/favorites" title="Favoris" aria-label="Accéder à vos favoris"
-                style={{ width: '38px', height: '38px', borderRadius: '50%', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', textDecoration: 'none', transition: 'background-color 150ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
-                <Heart size={18} color="#1A1A1A" />
-              </Link>
-
-              {/* Notifications */}
-              <NotificationBell userId={user.id} />
-
-              {/* Profil dropdown */}
-              <div style={{ position: 'relative' }}
-                onMouseEnter={cancelClose}
-                onMouseLeave={scheduleClose}>
-                <button onClick={() => setOpenDropdown(openDropdown === 'profile' ? null : 'profile')}
-                  onMouseEnter={() => { cancelClose(); setOpenDropdown('profile') }}
-                  aria-label={`Menu profil de ${firstName || 'l\'utilisateur'}`}
-                  aria-expanded={openDropdown === 'profile'}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '20px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', cursor: 'pointer', transition: 'background-color 150ms ease' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                    {user.avatar_url
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span style={{ fontSize: '13px', fontWeight: '700', color: '#FFFFFF' }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
-                    }
-                  </div>
-                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>{firstName ?? 'Moi'}</span>
-                  <ChevronDown size={14} color="#888888" style={{ transform: openDropdown === 'profile' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-                </button>
-                <div style={{
-                  position: 'absolute', top: '110%', right: 0, backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7EB', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                  minWidth: '180px', zIndex: 100, overflow: 'hidden', padding: '4px',
-                  opacity: openDropdown === 'profile' ? 1 : 0,
-                  visibility: openDropdown === 'profile' ? 'visible' : 'hidden',
-                  transform: openDropdown === 'profile' ? 'translateY(0)' : 'translateY(-8px)',
-                  transition: 'opacity 200ms ease, transform 200ms ease, visibility 200ms ease',
-                }}>
-                  <Link href="/profile" onClick={() => setOpenDropdown(null)}
-                    className="nav-dropdown-link"
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease' }}>
-                    <User size={15} color="#888888" /> Mon profil
-                  </Link>
-                  <Link href="/messages" onClick={() => setOpenDropdown(null)}
-                    className="nav-dropdown-link"
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', textDecoration: 'none', color: '#1A1A1A', fontSize: '14px', borderRadius: '8px', transition: 'background-color 150ms ease' }}>
-                    <MessageCircle size={15} color="#888888" /> Messages
-                  </Link>
-                  <div style={{ height: '1px', backgroundColor: '#E5E7EB', margin: '4px 0' }} />
-                  <button onClick={handleLogout} className="nav-logout"
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', border: 'none', backgroundColor: 'transparent', color: '#E05A5A', fontSize: '14px', cursor: 'pointer', textAlign: 'left', borderRadius: '8px' }}>
-                    <LogOut size={15} color="#E05A5A" /> Déconnexion
+            {/* Search */}
+            <AnimatePresence mode="wait">
+              {searchOpen ? (
+                <motion.form key="open"
+                  initial={{ width: 32, opacity: 0 }} animate={{ width: 200, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  onSubmit={submitSearch}
+                  className={`flex items-center gap-2 h-8 px-3 rounded-lg border overflow-hidden ${dark ? 'bg-white/8 border-white/12' : 'bg-gray-100 border-transparent'}`}
+                >
+                  <Search size={12} className={dark ? 'text-white/40 shrink-0' : 'text-gray-400 shrink-0'} />
+                  <input ref={searchRef} value={searchValue} onChange={e => setSearchValue(e.target.value)}
+                    placeholder="Rechercher…"
+                    className={`flex-1 bg-transparent text-[13px] outline-none min-w-0 ${dark ? 'text-white placeholder:text-white/30' : 'text-gray-900 placeholder:text-gray-400'}`}
+                  />
+                  <button type="button" onClick={closeSearch}>
+                    <X size={12} className={dark ? 'text-white/30 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'} />
                   </button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="nav-link"
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: 'transparent', color: '#4F46E5', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
-                Se connecter
-              </Link>
-              <Link href="/register" className="nav-btn-primary"
-                style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', backgroundColor: '#4F46E5', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', transition: 'all 200ms ease' }}>
-                S'inscrire
-              </Link>
-            </>
-          )}
+                </motion.form>
+              ) : (
+                <motion.button key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  onClick={openSearch}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
+                >
+                  <Search size={15} />
+                </motion.button>
+              )}
+            </AnimatePresence>
 
-          {/* Search */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            {searchOpen ? (
-              <form onSubmit={submitSearch}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#F5F5F7', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '0 10px', height: '36px', width: '220px', transition: 'width 200ms ease' }}>
-                <Search size={15} color="#888888" style={{ flexShrink: 0 }} />
-                <input ref={searchRef} value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder="Ville, marché, créateur…"
-                  style={{ flex: 1, border: 'none', backgroundColor: 'transparent', fontSize: '14px', color: '#1A1A1A', outline: 'none', minWidth: 0 }} />
-                <button type="button" onClick={closeSearch} aria-label="Fermer la recherche" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', flexShrink: 0 }}>
-                  <X size={14} color="#888888" />
-                </button>
-              </form>
+            {user ? (
+              <>
+                <NotificationBell userId={user.id} />
+                <Link href="/messages" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
+                  <MessageCircle size={16} />
+                </Link>
+
+                {/* Profile */}
+                <div className="relative ml-1" onMouseEnter={() => { stay(); setDropdown('profile') }} onMouseLeave={() => go()}>
+                  <button onClick={() => setDropdown(d => d === 'profile' ? null : 'profile')}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-xl transition-colors ${dark ? 'hover:bg-white/8' : 'hover:bg-gray-100'}`}
+                  >
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden">
+                      {user.avatar_url
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                        : <span className="text-[9px] font-black text-white">{firstName?.[0]?.toUpperCase() ?? '?'}</span>
+                      }
+                    </div>
+                    <span className={`text-[13px] font-medium transition-colors ${dark ? 'text-white/70' : 'text-gray-600'}`}>{firstName ?? 'Moi'}</span>
+                    <ChevronDown size={11} className={`opacity-40 transition-transform ${dropdown === 'profile' ? 'rotate-180' : ''}`} />
+                  </button>
+                  <Panel id="profile" align="right" width="w-[190px]">
+                    <div className="px-3.5 py-2.5 mb-1 border-b border-gray-100">
+                      <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
+                      <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
+                    </div>
+                    <Link href="/profile" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                      <User size={13} className="text-gray-400" /> Mon profil
+                    </Link>
+                    <Link href="/messages" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                      <MessageCircle size={13} className="text-gray-400" /> Messages
+                    </Link>
+                    <div className="h-px bg-gray-100 my-1" />
+                    <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-red-500 hover:bg-red-50 transition-colors text-left">
+                      <LogOut size={13} /> Déconnexion
+                    </button>
+                  </Panel>
+                </div>
+              </>
             ) : (
-              <button onClick={openSearch} aria-label="Rechercher des marchés ou créateurs"
-                style={{ width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 150ms ease' }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}>
-                <Search size={16} color="#1A1A1A" />
-              </button>
+              <div className="flex items-center gap-1 ml-1">
+                <Link href="/login"
+                  className={`px-3.5 py-2 text-[13px] font-medium transition-colors duration-150 ${dark ? 'text-white/75 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                >
+                  Connexion
+                </Link>
+                <Link href="/register"
+                  className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-150 ${
+                    dark
+                      ? 'bg-white text-gray-900 hover:bg-white/90'
+                      : 'bg-gray-900 text-white hover:bg-gray-700'
+                  }`}
+                >
+                  Commencer
+                </Link>
+              </div>
             )}
           </div>
+
+          {/* Mobile burger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Menu"
+            className={`lg:hidden ml-auto flex flex-col gap-[5px] justify-center w-8 h-8 transition-opacity ${dark ? 'opacity-70 hover:opacity-100' : 'opacity-50 hover:opacity-80'}`}
+          >
+            <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[1.5px] w-5 rounded-full ${dark ? 'bg-white' : 'bg-gray-900'}`} />
+            <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }} className={`block h-[1.5px] w-5 rounded-full ${dark ? 'bg-white' : 'bg-gray-900'}`} />
+            <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[1.5px] w-5 rounded-full ${dark ? 'bg-white' : 'bg-gray-900'}`} />
+          </button>
         </div>
+      </header>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          aria-label={isMobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-          aria-expanded={isMobileOpen}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '8px', border: 'none', backgroundColor: '#F5F5F7', color: '#1A1A1A', cursor: 'pointer', fontSize: '18px' }}
-          className="mobile-menu-btn"
-        >
-          {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Menu */}
-      <div
-        className="mobile-menu"
-        style={{
-          borderTop: '1px solid #E5E7EB',
-          backgroundColor: '#FFFFFF',
-          display: 'none',
-          overflow: 'hidden',
-          maxHeight: isMobileOpen ? '600px' : '0',
-          transition: 'max-height 300ms ease',
-        }}
-      >
-        <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div>
-            <button
-              onClick={() => setOpenDropdown(openDropdown === 'discover' ? null : 'discover')}
-              style={{
-                width: '100%', padding: '12px 0',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
-                color: isDiscoverActive ? '#4F46E5' : '#1A1A1A',
-                fontSize: '14px', fontWeight: '600', cursor: 'pointer',
-              }}
+      {/* ── Mobile overlay ── */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-[#06060f]/96 backdrop-blur-2xl lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.nav
+              initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-x-0 top-[58px] z-40 lg:hidden flex flex-col px-5 pt-8 pb-10 gap-1"
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Découvrir
-                {isDiscoverActive && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0 }} />}
-              </span>
-              <ChevronDown size={18} style={{ transform: openDropdown === 'discover' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-            </button>
-            <div style={{ overflow: 'hidden', maxHeight: openDropdown === 'discover' ? '200px' : '0', transition: 'max-height 200ms ease' }}>
               {[
-                { title: 'Marchés & Événements', href: '/events', desc: 'Trouvez votre prochain marché' },
-                { title: 'Créateurs & Artisans', href: '/creators', desc: 'Découvrez les artisans' },
-              ].map((item) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + '/')
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
-                    style={{
-                      display: 'flex', flexDirection: 'column', padding: '12px 16px', textDecoration: 'none',
-                      color: active ? '#6366F1' : '#1A1A1A',
-                      borderRadius: '8px',
-                      backgroundColor: active ? '#EEF2FF' : '#F5F5F7',
-                      marginTop: '8px',
-                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
-                    }}
+                { href: '/events',   label: 'Événements' },
+                { href: '/creators', label: 'Créateurs' },
+                { href: '/about',    label: 'À propos' },
+                { href: '/blog',     label: 'Blog' },
+                { href: '/contact',  label: 'Contact' },
+              ].map(({ href, label }, i) => (
+                <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>
+                  <Link href={href} onClick={() => setMobileOpen(false)}
+                    className={`block py-3 text-[22px] font-bold tracking-tight transition-colors ${isActive(href) ? 'text-white' : 'text-white/35 hover:text-white/80'}`}
                   >
-                    <span style={{ fontSize: '13px', fontWeight: '600' }}>{item.title}</span>
-                    <span style={{ fontSize: '11px', color: active ? '#818CF8' : '#888888' }}>{item.desc}</span>
+                    {label}
                   </Link>
-                )
-              })}
-            </div>
-          </div>
+                </motion.div>
+              ))}
 
-          <div>
-            <button
-              onClick={() => setOpenDropdown(openDropdown === 'resources' ? null : 'resources')}
-              style={{
-                width: '100%', padding: '12px 0',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                borderRadius: '8px', border: 'none', backgroundColor: 'transparent',
-                color: isResourcesActive ? '#6366F1' : '#1A1A1A',
-                fontSize: '14px', fontWeight: '600', cursor: 'pointer',
-              }}
-            >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Ressources
-                {isResourcesActive && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0 }} />}
-              </span>
-              <ChevronDown size={18} style={{ transform: openDropdown === 'resources' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 200ms ease' }} />
-            </button>
-            <div style={{ overflow: 'hidden', maxHeight: openDropdown === 'resources' ? '200px' : '0', transition: 'max-height 200ms ease' }}>
-              {[
-                { title: 'À propos', href: '/about' },
-                { title: 'Blog', href: '/blog' },
-                { title: 'Nous contacter', href: '/contact' },
-              ].map((item) => {
-                const active = pathname === item.href || pathname.startsWith(item.href + '/')
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => { setIsMobileOpen(false); setOpenDropdown(null) }}
-                    style={{
-                      display: 'block', padding: '12px 16px', textDecoration: 'none',
-                      color: active ? '#6366F1' : '#1A1A1A',
-                      fontSize: '13px', borderRadius: '8px',
-                      backgroundColor: active ? '#EEF2FF' : '#F5F5F7',
-                      marginTop: '8px',
-                      borderLeft: `3px solid ${active ? '#6366F1' : 'transparent'}`,
-                      fontWeight: active ? '600' : '400',
-                    }}
-                  >
-                    {item.title}
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-
-          {user ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', backgroundColor: '#F5F5F7', borderRadius: '8px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                  {user.avatar_url
-                    // eslint-disable-next-line @next/next/no-img-element
-                    ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <span style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
-                  }
-                </div>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>{firstName ?? 'Mon compte'}</span>
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Link href="/messages" onClick={() => setIsMobileOpen(false)}
-                  style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none', color: '#1A1A1A', fontSize: '13px', fontWeight: '600' }}>
-                  <MessageCircle size={16} /> Messages
-                </Link>
-                <Link href="/favorites" onClick={() => setIsMobileOpen(false)}
-                  style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none', color: '#1A1A1A', fontSize: '13px', fontWeight: '600' }}>
-                  <Heart size={16} /> Favoris
-                </Link>
-              </div>
-              <Link href="/profile" onClick={() => setIsMobileOpen(false)}
-                style={{ padding: '12px 16px', borderRadius: '8px', border: '1px solid #6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none', color: '#6366F1', fontSize: '13px', fontWeight: '600' }}>
-                <User size={16} /> Mon profil
-              </Link>
-              <button onClick={() => { setIsMobileOpen(false); handleLogout() }}
-                style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                <LogOut size={16} /> Déconnexion
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <Link href="/login" onClick={() => setIsMobileOpen(false)}
-                style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}>
-                Se connecter
-              </Link>
-              <Link href="/register" onClick={() => setIsMobileOpen(false)}
-                style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '13px', fontWeight: '600', textAlign: 'center' }}>
-                S'inscrire
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
+                className="mt-8 pt-8 border-t border-white/8 flex flex-col gap-3"
+              >
+                {user ? (
+                  <>
+                    <Link href="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden shrink-0">
+                        {user.avatar_url
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                          : <span className="text-xs font-black text-white">{firstName?.[0]?.toUpperCase()}</span>
+                        }
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">{firstName ?? 'Mon compte'}</p>
+                        <p className="text-xs text-white/35">{user.email}</p>
+                      </div>
+                    </Link>
+                    <button onClick={() => { setMobileOpen(false); handleLogout() }} className="text-left text-sm text-white/35 hover:text-red-400 transition-colors py-2">
+                      Se déconnecter
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center justify-center py-3.5 rounded-xl bg-white text-gray-900 text-[15px] font-bold">
+                      Commencer gratuitement
+                    </Link>
+                    <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center text-sm text-white/35 hover:text-white/60 transition-colors py-2">
+                      Déjà un compte ? Se connecter
+                    </Link>
+                  </>
+                )}
+              </motion.div>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

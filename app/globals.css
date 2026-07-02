@@ -1,37 +1,32 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
 html, body {
   height: 100%;
-  background-color: #FFFFFF;
-  color: #1A1A1A;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  color: #1A1A1A;
-}
-
-p {
-  color: #1A1A1A;
 }
 
 a {
-  color: #4F46E5;
   text-decoration: none;
   transition: color 200ms ease;
 }
 
-a:hover {
-  color: #4340C9;
+@keyframes ticker {
+  from { transform: translateX(0) }
+  to   { transform: translateX(-50%) }
+}
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50% }
+  50%  { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
+}
+
+@keyframes tickerReverse {
+  from { transform: translateX(-50%) }
+  to   { transform: translateX(0) }
 }
 
 a:focus-visible,

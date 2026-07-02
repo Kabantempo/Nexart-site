@@ -5,6 +5,7 @@ import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
 import { CookieBanner } from "@/components/ui/cookie-banner";
+import { PageTransition } from "@/components/page-transition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,16 +45,12 @@ export default function RootLayout({
       lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body
-        className="flex min-h-screen flex-col"
-        style={{
-          backgroundColor: '#FFFFFF',
-          color: '#1A1A1A',
-        }}
-      >
+      <body className="flex min-h-screen flex-col bg-white text-gray-900">
         <Providers>
           <NavbarFull />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pt-[58px]">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
           <CookieBanner />
         </Providers>

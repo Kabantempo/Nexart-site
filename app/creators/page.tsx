@@ -4,28 +4,33 @@ import { useCreators } from '@/lib/hooks'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, Users, ArrowRight, Search, X, ArrowUpAZ, Clock } from 'lucide-react'
+import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette } from 'lucide-react'
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const ITEMS_PER_PAGE = 12
 
-function ActiveChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+function Skeleton() {
   return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: '5px',
-      padding: '4px 10px', borderRadius: '20px',
-      backgroundColor: '#EEF2FF', color: '#4F46E5',
-      fontSize: '12px', fontWeight: '600',
-    }}>
-      {label}
-      <button
-        onClick={onRemove}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#4F46E5', lineHeight: 1 }}
-      >
-        <X size={11} />
-      </button>
-    </span>
+    <div className="bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-20">
+        <div className="h-10 w-64 bg-gray-100 rounded-xl mb-3 animate-pulse" />
+        <div className="h-5 w-48 bg-gray-100 rounded-lg mb-10 animate-pulse" />
+        <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
+        <div className="h-20 bg-gray-100 rounded-2xl mb-8 animate-pulse" />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 60}ms` }}>
+              <div className="aspect-square bg-gray-100" />
+              <div className="p-4 space-y-2">
+                <div className="h-4 bg-gray-100 rounded-lg" />
+                <div className="h-3 w-2/3 bg-gray-100 rounded-lg" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -33,22 +38,16 @@ function CreatorsContent() {
   const { creators, loading, error } = useCreators()
   const searchParams = useSearchParams()
 
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '')
-  const [cityFilter, setCityFilter] = useState('all')
+  const [searchTerm,       setSearchTerm]       = useState(searchParams.get('q') || '')
+  const [cityFilter,       setCityFilter]       = useState('all')
   const [disciplineFilter, setDisciplineFilter] = useState('all')
-  const [sortOrder, setSortOrder] = useState<'alpha' | 'newest'>('alpha')
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+  const [sortOrder,        setSortOrder]        = useState<'alpha' | 'newest'>('alpha')
+  const [visibleCount,     setVisibleCount]     = useState(ITEMS_PER_PAGE)
 
-  useEffect(() => {
-    const q = searchParams.get('q')
-    if (q) setSearchTerm(q)
-  }, [searchParams])
+  useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
+  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
 
-  useEffect(() => {
-    setVisibleCount(ITEMS_PER_PAGE)
-  }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
-
-  const uniqueCities = [...new Set(creators.map((c) => c.city).filter(Boolean))].sort() as string[]
+  const uniqueCities      = [...new Set(creators.map((c) => c.city).filter(Boolean))].sort() as string[]
   const uniqueDisciplines = [...new Set(creators.flatMap((c) => c.disciplines || []).filter(Boolean))].sort() as string[]
 
   const filtered = creators
@@ -66,317 +65,207 @@ function CreatorsContent() {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
 
-  const visible = filtered.slice(0, visibleCount)
-  const hasMore = visibleCount < filtered.length
+  const visible     = filtered.slice(0, visibleCount)
+  const hasMore     = visibleCount < filtered.length
   const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
 
-  const resetFilters = () => {
-    setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm('')
-  }
+  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm('') }
 
-  if (loading) {
-    return (
-      <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
-          <div style={{ width: '38%', height: '52px', backgroundColor: '#F3F4F6', borderRadius: '10px', marginBottom: '12px', animation: 'pulse 1.6s ease-in-out infinite' }} />
-          <div style={{ width: '32%', height: '20px', backgroundColor: '#F3F4F6', borderRadius: '8px', marginBottom: '36px', animation: 'pulse 1.6s ease-in-out infinite' }} />
-          <div style={{ height: '50px', backgroundColor: '#F3F4F6', borderRadius: '12px', marginBottom: '16px', animation: 'pulse 1.6s ease-in-out infinite' }} />
-          <div style={{ height: '96px', backgroundColor: '#F3F4F6', borderRadius: '16px', marginBottom: '36px', animation: 'pulse 1.6s ease-in-out infinite' }} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} style={{ borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden', animation: 'pulse 1.6s ease-in-out infinite', animationDelay: `${i * 0.08}s` }}>
-                <div style={{ width: '100%', aspectRatio: '1', backgroundColor: '#F3F4F6' }} />
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ height: '20px', backgroundColor: '#F3F4F6', borderRadius: '6px' }} />
-                  <div style={{ height: '14px', backgroundColor: '#F3F4F6', borderRadius: '6px', width: '60%' }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
-      </div>
-    )
-  }
+  if (loading) return <Skeleton />
 
-  if (error) {
-    return (
-      <div style={{ maxWidth: '600px', margin: '80px auto', padding: '0 16px', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-        <p style={{ color: '#E05A5A', fontSize: '16px' }}>Une erreur est survenue. Réessayez dans quelques instants.</p>
-      </div>
-    )
-  }
+  if (error) return (
+    <div className="max-w-lg mx-auto px-4 py-32 text-center">
+      <p className="text-4xl mb-4">⚠️</p>
+      <p className="text-red-500">Une erreur est survenue. Réessayez dans quelques instants.</p>
+    </div>
+  )
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 80px' }}>
+    <div className="bg-white min-h-screen">
 
-        {/* Hero */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 800, color: '#1A1A1A', marginBottom: '8px', lineHeight: '1.1' }}>
-            Créateurs & Artisans
-          </h1>
-          <p style={{ fontSize: '17px', color: '#6B7280', marginBottom: '40px', lineHeight: '1.6' }}>
-            {creators.length} créateur{creators.length !== 1 ? 's' : ''} talentueux partout en France
-          </p>
-        </motion.div>
+      {/* Dark hero header */}
+      <div className="bg-[#06060f] border-b border-white/6 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.12]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.8) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-violet-600/12 blur-[80px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+            <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-3">Communauté</p>
+            <h1 className="text-4xl sm:text-5xl font-black text-white mb-2 tracking-tight leading-tight">
+              Créateurs & Artisans
+            </h1>
+            <p className="text-white/40 text-base">
+              {creators.length} créateur{creators.length !== 1 ? 's' : ''} talentueux partout en France
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
 
         {/* Search */}
-        <div style={{ position: 'relative', marginBottom: '16px' }}>
-          <Search size={18} color="#9CA3AF" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+        <div className="relative mb-4">
+          <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="Nom, discipline, ville..."
+            placeholder="Nom, discipline, ville…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%', padding: '14px 44px 14px 44px',
-              borderRadius: '12px', border: '1.5px solid #E5E7EB',
-              fontSize: '15px', color: '#1A1A1A', boxSizing: 'border-box',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.05)', outline: 'none',
-              transition: 'border-color 200ms ease, box-shadow 200ms ease',
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = '#6366F1'
-              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12), 0 1px 4px rgba(0,0,0,0.05)'
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = '#E5E7EB'
-              e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'
-            }}
+            className="w-full pl-11 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
           />
           {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', borderRadius: '4px' }}
-            >
-              <X size={16} color="#9CA3AF" />
+            <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <X size={16} />
             </button>
           )}
         </div>
 
-        {/* Filter card */}
-        <div style={{ backgroundColor: '#F9FAFB', borderRadius: '16px', padding: '20px 24px', marginBottom: '28px', border: '1px solid #F0F0F0' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', alignItems: 'flex-end' }}>
+        {/* Filters */}
+        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
+          <div className="flex flex-wrap gap-5 items-end">
 
-            {/* City select */}
             {uniqueCities.length > 0 && (
               <div>
-                <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '10px' }}>
-                  Ville
-                </p>
-                <div style={{ position: 'relative' }}>
-                  <MapPin size={13} color={cityFilter !== 'all' ? '#6366F1' : '#9CA3AF'} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-                  <select
-                    value={cityFilter}
-                    onChange={(e) => setCityFilter(e.target.value)}
-                    style={{
-                      paddingLeft: '28px', paddingRight: '28px', paddingTop: '9px', paddingBottom: '9px',
-                      borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit',
-                      border: `1.5px solid ${cityFilter !== 'all' ? '#6366F1' : '#E5E7EB'}`,
-                      backgroundColor: cityFilter !== 'all' ? '#EEF2FF' : '#FFFFFF',
-                      color: cityFilter !== 'all' ? '#4F46E5' : '#374151',
-                      appearance: 'none',
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center',
-                      fontWeight: cityFilter !== 'all' ? '600' : '400',
-                    }}
-                  >
-                    <option value="all">Toutes les villes</option>
-                    {uniqueCities.map((city) => (
-                      <option key={city} value={city}>{city}</option>
-                    ))}
-                  </select>
-                </div>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ville</p>
+                <select
+                  value={cityFilter}
+                  onChange={(e) => setCityFilter(e.target.value)}
+                  className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                    cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
+                  }`}
+                >
+                  <option value="all">Toutes les villes</option>
+                  {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
               </div>
             )}
 
-            {/* Discipline select */}
             {uniqueDisciplines.length > 0 && (
               <div>
-                <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '10px' }}>
-                  Discipline
-                </p>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', pointerEvents: 'none' }}>🎨</span>
-                  <select
-                    value={disciplineFilter}
-                    onChange={(e) => setDisciplineFilter(e.target.value)}
-                    style={{
-                      paddingLeft: '28px', paddingRight: '28px', paddingTop: '9px', paddingBottom: '9px',
-                      borderRadius: '8px', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit',
-                      border: `1.5px solid ${disciplineFilter !== 'all' ? '#6366F1' : '#E5E7EB'}`,
-                      backgroundColor: disciplineFilter !== 'all' ? '#EEF2FF' : '#FFFFFF',
-                      color: disciplineFilter !== 'all' ? '#4F46E5' : '#374151',
-                      appearance: 'none',
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center',
-                      fontWeight: disciplineFilter !== 'all' ? '600' : '400',
-                    }}
-                  >
-                    <option value="all">Toutes les disciplines</option>
-                    {uniqueDisciplines.map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Discipline</p>
+                <select
+                  value={disciplineFilter}
+                  onChange={(e) => setDisciplineFilter(e.target.value)}
+                  className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                    disciplineFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
+                  }`}
+                >
+                  <option value="all">Toutes les disciplines</option>
+                  {uniqueDisciplines.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
               </div>
             )}
 
-            {/* Sort toggle */}
             <div>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '10px' }}>
-                Trier par
-              </p>
-              <div style={{ display: 'flex', borderRadius: '8px', border: '1.5px solid #E5E7EB', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
-                <button
-                  onClick={() => setSortOrder('alpha')}
-                  style={{
-                    padding: '7px 12px', border: 'none', cursor: 'pointer', fontSize: '13px',
-                    display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'inherit',
-                    backgroundColor: sortOrder === 'alpha' ? '#6366F1' : 'transparent',
-                    color: sortOrder === 'alpha' ? '#FFFFFF' : '#4B5563',
-                    transition: 'all 150ms ease', fontWeight: '500',
-                  }}
-                >
-                  <ArrowUpAZ size={13} /> A → Z
-                </button>
-                <button
-                  onClick={() => setSortOrder('newest')}
-                  style={{
-                    padding: '7px 12px', border: 'none', cursor: 'pointer', fontSize: '13px',
-                    display: 'flex', alignItems: 'center', gap: '5px', fontFamily: 'inherit',
-                    backgroundColor: sortOrder === 'newest' ? '#6366F1' : 'transparent',
-                    color: sortOrder === 'newest' ? '#FFFFFF' : '#4B5563',
-                    transition: 'all 150ms ease', fontWeight: '500',
-                    borderLeft: '1px solid #E5E7EB',
-                  }}
-                >
-                  <Clock size={13} /> Récents
-                </button>
+              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trier par</p>
+              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
+                {([['alpha', <ArrowUpAZ key="a" size={13} />, 'A → Z'], ['newest', <Clock key="c" size={13} />, 'Récents']] as const).map(([key, icon, label], i) => (
+                  <button
+                    key={key}
+                    onClick={() => setSortOrder(key)}
+                    className={`px-4 py-2 text-sm font-medium flex items-center gap-1.5 transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
+                      sortOrder === key ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {icon} {label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Active chips */}
           {hasActiveFilters && (
-            <div style={{ display: 'flex', gap: '6px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #EBEBEB', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: '500' }}>Actifs :</span>
-              {searchTerm && <ActiveChip label={`"${searchTerm}"`} onRemove={() => setSearchTerm('')} />}
-              {cityFilter !== 'all' && <ActiveChip label={cityFilter} onRemove={() => setCityFilter('all')} />}
-              {disciplineFilter !== 'all' && <ActiveChip label={disciplineFilter} onRemove={() => setDisciplineFilter('all')} />}
-              {sortOrder !== 'alpha' && <ActiveChip label="Récents en premier" onRemove={() => setSortOrder('alpha')} />}
-              <button
-                onClick={resetFilters}
-                style={{ fontSize: '12px', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', padding: '0 4px', fontFamily: 'inherit', marginLeft: '2px' }}
-              >
-                Tout effacer
-              </button>
+            <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap items-center">
+              <span className="text-xs text-gray-400 font-medium">Actifs :</span>
+              {searchTerm && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
+                  "{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button>
+                </span>
+              )}
+              {cityFilter !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
+                  {cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button>
+                </span>
+              )}
+              {disciplineFilter !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
+                  {disciplineFilter} <button onClick={() => setDisciplineFilter('all')}><X size={11} /></button>
+                </span>
+              )}
+              {sortOrder !== 'alpha' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
+                  Récents en premier <button onClick={() => setSortOrder('alpha')}><X size={11} /></button>
+                </span>
+              )}
+              <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
             </div>
           )}
         </div>
 
-        {/* Results header */}
-        <div style={{ marginBottom: '24px' }}>
-          <p style={{ fontSize: '14px', color: '#6B7280' }}>
-            <span style={{ fontWeight: '700', color: '#1A1A1A', fontSize: '16px' }}>{filtered.length}</span>
-            {' '}créateur{filtered.length !== 1 ? 's' : ''}
-            {hasActiveFilters && <span style={{ color: '#9CA3AF' }}> · filtré{filtered.length !== 1 ? 's' : ''}</span>}
-          </p>
+        {/* Results count */}
+        <div className="flex items-center gap-2 mb-6">
+          <Palette size={15} className="text-gray-400" />
+          <span className="text-sm text-gray-500">
+            <span className="font-bold text-gray-900 text-base">{filtered.length}</span> créateur{filtered.length !== 1 ? 's' : ''}
+            {hasActiveFilters && <span className="text-gray-400"> · filtré{filtered.length !== 1 ? 's' : ''}</span>}
+          </span>
         </div>
 
         {/* Grid */}
         {visible.length > 0 ? (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {visible.map((creator, idx) => (
                 <motion.div
                   key={creator.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(idx * 0.05, 0.4) }}
-                  style={{ height: '100%' }}
+                  transition={{ delay: Math.min(idx * 0.04, 0.35), ease: 'easeOut', duration: 0.4 }}
                 >
                   <Link
                     href={`/creators/${creator.id}`}
-                    style={{
-                      display: 'flex', flexDirection: 'column',
-                      textDecoration: 'none', borderRadius: '16px',
-                      border: '1px solid #E5E7EB', overflow: 'hidden',
-                      backgroundColor: '#FFFFFF', height: '100%', cursor: 'pointer',
-                      transition: 'border-color 250ms ease, box-shadow 250ms ease, transform 250ms ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#A5B4FC'
-                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(99,102,241,0.12)'
-                      e.currentTarget.style.transform = 'translateY(-2px)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#E5E7EB'
-                      e.currentTarget.style.boxShadow = 'none'
-                      e.currentTarget.style.transform = 'translateY(0)'
-                    }}
+                    className="group flex flex-col rounded-2xl border border-gray-100 overflow-hidden bg-white hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/8 hover:-translate-y-1 transition-all duration-300 h-full"
                   >
                     {/* Avatar */}
-                    <div style={{ width: '100%', aspectRatio: '1', backgroundColor: '#F5F5F7', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+                    <div className="relative aspect-square bg-gray-100 shrink-0 overflow-hidden">
                       {creator.avatar_url ? (
-                        <Image src={creator.avatar_url} alt={creator.full_name} fill style={{ objectFit: 'cover' }} />
+                        <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
-                        <div style={{
-                          width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)',
-                        }}>
-                          <span style={{ fontSize: '56px', color: 'rgba(255,255,255,0.8)', fontWeight: '700', userSelect: 'none' }}>
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-500">
+                          <span className="text-5xl font-bold text-white/80 select-none">
                             {creator.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
                       )}
                     </div>
 
-                    {/* Content */}
-                    <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px', lineHeight: '1.3' }}>
-                        {creator.full_name}
-                      </h3>
+                    {/* Body */}
+                    <div className="flex flex-col flex-1 p-4">
+                      <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2">{creator.full_name}</h3>
 
-                      {/* Disciplines */}
                       {creator.disciplines?.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
+                        <div className="flex flex-wrap gap-1 mb-2">
                           {creator.disciplines.slice(0, 2).map((d) => (
-                            <span key={d} style={{
-                              fontSize: '11px', fontWeight: '600', padding: '3px 9px', borderRadius: '20px',
-                              backgroundColor: '#EEF2FF', color: '#4F46E5',
-                            }}>
-                              {d}
-                            </span>
+                            <span key={d} className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">{d}</span>
                           ))}
                           {creator.disciplines.length > 2 && (
-                            <span style={{
-                              fontSize: '11px', fontWeight: '600', padding: '3px 9px', borderRadius: '20px',
-                              backgroundColor: '#F3F4F6', color: '#6B7280',
-                            }}>
-                              +{creator.disciplines.length - 2}
-                            </span>
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">+{creator.disciplines.length - 2}</span>
                           )}
                         </div>
                       )}
 
                       {creator.bio && (
-                        <p style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: '1.5', marginBottom: '12px', flex: 1 }}>
-                          {creator.bio.substring(0, 80)}…
-                        </p>
+                        <p className="text-xs text-gray-400 leading-relaxed mb-3 flex-1 line-clamp-2">{creator.bio}</p>
                       )}
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#6366F1', fontSize: '13px', fontWeight: '700' }}>
-                          Voir le profil <ArrowRight size={13} />
-                        </div>
+                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
+                        <span className="flex items-center gap-1 text-indigo-600 text-xs font-bold group-hover:gap-2 transition-all">
+                          Voir le profil <ArrowRight size={12} />
+                        </span>
                         {creator.city && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <MapPin size={12} color="#9CA3AF" />
-                            <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{creator.city}</span>
+                          <div className="flex items-center gap-1 text-gray-400 text-xs">
+                            <MapPin size={11} />
+                            {creator.city}
                           </div>
                         )}
                       </div>
@@ -386,74 +275,46 @@ function CreatorsContent() {
               ))}
             </div>
 
-            {/* Pagination */}
             {hasMore && (
-              <div style={{ textAlign: 'center', marginTop: '56px' }}>
-                <div style={{ maxWidth: '220px', margin: '0 auto 14px' }}>
-                  <div style={{ height: '3px', backgroundColor: '#E5E7EB', borderRadius: '99px', overflow: 'hidden', marginBottom: '8px' }}>
+              <div className="text-center mt-16">
+                <div className="max-w-[200px] mx-auto mb-4">
+                  <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-2">
                     <motion.div
-                      style={{ height: '100%', backgroundColor: '#6366F1', borderRadius: '99px' }}
+                      className="h-full bg-indigo-500 rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${progressPct}%` }}
                       transition={{ duration: 0.4, ease: 'easeOut' }}
                     />
                   </div>
-                  <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
-                    {Math.min(visibleCount, filtered.length)} / {filtered.length} créateurs
-                  </p>
+                  <p className="text-xs text-gray-400">{Math.min(visibleCount, filtered.length)} / {filtered.length} créateurs</p>
                 </div>
                 <button
                   onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
-                  style={{
-                    padding: '12px 36px', borderRadius: '10px', border: '2px solid #6366F1',
-                    backgroundColor: 'transparent', color: '#6366F1', fontSize: '14px',
-                    fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit',
-                    transition: 'all 200ms ease',
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#6366F1'; e.currentTarget.style.color = '#FFFFFF' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#6366F1' }}
+                  className="px-8 py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-semibold text-sm hover:bg-indigo-600 hover:text-white transition-all duration-200"
                 >
                   Voir {Math.min(ITEMS_PER_PAGE, filtered.length - visibleCount)} de plus
                 </button>
               </div>
             )}
-
             {!hasMore && filtered.length > ITEMS_PER_PAGE && (
-              <p style={{ textAlign: 'center', fontSize: '13px', color: '#9CA3AF', marginTop: '40px' }}>
-                Tous les {filtered.length} créateurs sont affichés
-              </p>
+              <p className="text-center text-sm text-gray-400 mt-12">Tous les {filtered.length} créateurs sont affichés</p>
             )}
           </>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ textAlign: 'center', padding: '80px 24px' }}
-          >
-            <div style={{ fontSize: '56px', marginBottom: '20px', lineHeight: 1 }}>
-              {hasActiveFilters ? '🔍' : '🎨'}
-            </div>
-            <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
+            <p className="text-5xl mb-5">{hasActiveFilters ? '🔍' : '🎨'}</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
               {hasActiveFilters ? 'Aucun résultat' : 'Aucun créateur inscrit pour le moment'}
             </h3>
-            <p style={{ fontSize: '15px', color: '#888888', lineHeight: '1.6', maxWidth: '360px', margin: '0 auto 28px' }}>
+            <p className="text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed">
               {hasActiveFilters
                 ? "Aucun créateur ne correspond à vos critères. Essayez d'autres filtres."
                 : 'Les premiers artisans et créateurs arrivent bientôt. Rejoignez la communauté dès maintenant.'}
             </p>
-            {hasActiveFilters ? (
-              <button
-                onClick={resetFilters}
-                style={{ padding: '10px 24px', borderRadius: '8px', border: '1.5px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                Réinitialiser les filtres
-              </button>
-            ) : (
-              <Link href="/register" style={{ display: 'inline-block', padding: '12px 28px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>
-                Rejoindre en tant que créateur
-              </Link>
-            )}
+            {hasActiveFilters
+              ? <button onClick={resetFilters} className="px-6 py-2.5 rounded-xl border border-indigo-300 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors">Réinitialiser les filtres</button>
+              : <Link href="/register" className="px-7 py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-500 transition-colors">Rejoindre en tant que créateur</Link>
+            }
           </motion.div>
         )}
       </div>
@@ -463,11 +324,7 @@ function CreatorsContent() {
 
 export default function CreatorsPage() {
   return (
-    <Suspense fallback={
-      <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#888888' }}>Chargement...</p>
-      </div>
-    }>
+    <Suspense fallback={<Skeleton />}>
       <CreatorsContent />
     </Suspense>
   )

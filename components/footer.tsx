@@ -1,230 +1,109 @@
 'use client'
 
 import Link from 'next/link'
-import { Mail, Globe, Heart, Share2, MessageCircle } from 'lucide-react'
+import Image from 'next/image'
+import { Mail, Globe, Share2, Heart, MessageCircle } from 'lucide-react'
+
+const NAV = {
+  'Pour créateurs': [
+    { label: 'Parcourir les événements', href: '/events' },
+    { label: "Comment ça marche",        href: '/about' },
+    { label: "S'inscrire",               href: '/register' },
+    { label: 'FAQ',                      href: '/faq' },
+  ],
+  'Pour organisateurs': [
+    { label: 'Créer un événement',  href: '/events' },
+    { label: 'Trouver des créateurs', href: '/creators' },
+    { label: "S'inscrire",          href: '/register' },
+    { label: 'Ressources',          href: '/about' },
+  ],
+}
+
+const SOCIALS = [
+  { icon: Globe,         href: '#', label: 'Site web' },
+  { icon: Share2,        href: '#', label: 'Twitter / X' },
+  { icon: Heart,         href: '#', label: 'Instagram' },
+  { icon: MessageCircle, href: '#', label: 'Contact' },
+]
+
+const LEGAL = [
+  { label: 'Confidentialité', href: '/legal/privacy' },
+  { label: 'Conditions',      href: '/legal/terms' },
+  { label: 'Cookies',         href: '/legal/cookies' },
+  { label: 'Contact',         href: '/contact' },
+]
 
 export function Footer() {
   return (
-    <footer
-      style={{
-        backgroundColor: '#F5F5F7',
-        borderTop: '1px solid #E5E7EB',
-        paddingTop: '80px',
-        paddingBottom: '40px',
-      }}
-    >
-      <div style={{ maxWidth: '1280px', margin: '0 auto', paddingLeft: '16px', paddingRight: '16px' }}>
-        {/* Main Footer Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '48px',
-            marginBottom: '48px',
-          }}
-        >
-          {/* Brand & Newsletter */}
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px', color: '#6366F1' }}>
-              Nexart
-            </h2>
-            <p style={{ fontSize: '14px', color: '#888888', marginBottom: '24px', lineHeight: '1.6' }}>
-              La plateforme de mise en relation entre créateurs et marchés artisanaux en France.
+    <footer className="bg-[#06060f] border-t border-white/6 text-white">
+      {/* Top section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+
+          {/* Brand */}
+          <div className="lg:col-span-1">
+            <Link href="/" className="flex items-center gap-2.5 mb-5">
+              <Image src="/logo-mark.png" alt="Nexart" width={30} height={30} className="rounded-lg" />
+              <span className="text-xl font-bold text-white">Nexart</span>
+            </Link>
+            <p className="text-white/40 text-sm leading-relaxed mb-7">
+              La plateforme qui connecte créateurs artisanaux et organisateurs d'événements en France.
             </p>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            {/* Newsletter */}
+            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3">Newsletter</p>
+            <div className="flex gap-2">
               <input
                 type="email"
-                placeholder="Votre email"
-                style={{
-                  flex: 1,
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid #E5E7EB',
-                  backgroundColor: '#FFFFFF',
-                  fontSize: '14px',
-                  color: '#1A1A1A',
-                  fontFamily: 'inherit',
-                }}
+                placeholder="votre@email.fr"
+                className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-white/8 bg-white/4 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-indigo-500/50 focus:bg-white/6 transition"
               />
-              <button
-                style={{
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  backgroundColor: '#6366F1',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  transition: 'all 300ms ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#5B5BD6'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#6366F1'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
-              >
-                <Mail size={18} />
+              <button className="shrink-0 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors">
+                <Mail size={16} className="text-white" />
               </button>
             </div>
           </div>
 
-          {/* Pour Créateurs */}
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '20px', color: '#1A1A1A' }}>
-              Pour créateurs
-            </h3>
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {[
-                { label: 'Parcourir les événements', href: '/events' },
-                { label: 'Comment ça marche', href: '/about' },
-                { label: "S'inscrire", href: '/register' },
-                { label: 'FAQ', href: '/faq' },
-              ].map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    fontSize: '14px',
-                    color: '#888888',
-                    textDecoration: 'none',
-                    transition: 'color 300ms ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#6366F1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#888888'
-                  }}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          {/* Nav columns */}
+          {Object.entries(NAV).map(([title, links]) => (
+            <div key={title}>
+              <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-5">{title}</p>
+              <nav className="flex flex-col gap-3">
+                {links.map(({ label, href }) => (
+                  <Link key={href + label} href={href} className="text-sm text-white/45 hover:text-white transition-colors duration-150">
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          ))}
 
-          {/* Pour Organisateurs */}
+          {/* Socials */}
           <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '20px', color: '#1A1A1A' }}>
-              Pour organisateurs
-            </h3>
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {[
-                { label: 'Créer un événement', href: '/events' },
-                { label: 'Trouver des créateurs', href: '/creators' },
-                { label: "S'inscrire", href: '/register' },
-                { label: 'Ressources', href: '/about' },
-              ].map((link) => (
+            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-5">Nous suivre</p>
+            <div className="flex flex-wrap gap-2">
+              {SOCIALS.map(({ icon: Icon, href, label }) => (
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  style={{
-                    fontSize: '14px',
-                    color: '#888888',
-                    textDecoration: 'none',
-                    transition: 'color 300ms ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#6366F1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#888888'
-                  }}
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="w-10 h-10 rounded-xl border border-white/8 bg-white/4 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 hover:border-white/15 transition-all duration-150"
                 >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Réseaux Sociaux */}
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '20px', color: '#1A1A1A' }}>
-              Nous suivre
-            </h3>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-              {[
-                { icon: Globe, href: '#website', label: 'Site web' },
-                { icon: Share2, href: '#twitter', label: 'Twitter' },
-                { icon: Heart, href: '#instagram', label: 'Instagram' },
-                { icon: MessageCircle, href: '#contact', label: 'Contact' },
-              ].map((social) => (
-                <Link
-                  key={social.label}
-                  href={social.href}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#FFFFFF',
-                    transition: 'all 300ms ease',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#6366F1'
-                    e.currentTarget.style.borderColor = '#6366F1'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#FFFFFF'
-                    e.currentTarget.style.borderColor = '#E5E7EB'
-                  }}
-                >
-                  <social.icon size={20} style={{ color: '#6366F1' }} />
+                  <Icon size={16} />
                 </Link>
               ))}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid #E5E7EB', marginBottom: '32px' }} />
-
-        {/* Bottom Bar */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <p style={{ fontSize: '14px', color: '#888888', margin: 0 }}>
-            © 2026 Nexart. Tous droits réservés.
-          </p>
-          <nav style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {[
-              { label: 'Confidentialité', href: '/legal/privacy' },
-              { label: 'Conditions', href: '/legal/terms' },
-              { label: 'Cookies', href: '/legal/cookies' },
-              { label: 'Contact', href: '/contact' },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                style={{
-                  fontSize: '14px',
-                  color: '#888888',
-                  textDecoration: 'none',
-                  transition: 'color 300ms ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#6366F1'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#888888'
-                }}
-              >
-                {link.label}
+      {/* Bottom bar */}
+      <div className="border-t border-white/6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/25">© 2026 Nexart. Tous droits réservés.</p>
+          <nav className="flex flex-wrap gap-6 justify-center">
+            {LEGAL.map(({ label, href }) => (
+              <Link key={href} href={href} className="text-xs text-white/25 hover:text-white/55 transition-colors duration-150">
+                {label}
               </Link>
             ))}
           </nav>
