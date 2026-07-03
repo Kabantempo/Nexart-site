@@ -81,7 +81,7 @@ export default function CreateEventPage() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       if (!user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
         if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url })
         if (profile?.role !== 'organizer') { router.push('/dashboard'); return }
       } else if (user.role !== 'organizer') {

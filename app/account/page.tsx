@@ -59,7 +59,7 @@ export default function AccountPage() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
 
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
       if (profile) {
         setFullName(profile.full_name || '')
         setBio(profile.bio || '')
@@ -69,7 +69,7 @@ export default function AccountPage() {
         }
 
         if (profile.role === 'creator') {
-          const { data: cp } = await supabase.from('creator_profiles').select('*').eq('user_id', session.user.id).single()
+          const { data: cp } = await supabase.from('creator_profiles').select('*').eq('user_id', session.user.id).maybeSingle()
           if (cp) {
             setCity(cp.city || '')
             setRegion(cp.region || '')
@@ -107,7 +107,7 @@ export default function AccountPage() {
     if (profileErr) { setError(profileErr.message); setSaving(false); return }
 
     if (user?.role === 'creator') {
-      const { data: existing } = await supabase.from('creator_profiles').select('id').eq('user_id', session.user.id).single()
+      const { data: existing } = await supabase.from('creator_profiles').select('id').eq('user_id', session.user.id).maybeSingle()
 
       const creatorData = { user_id: session.user.id, city, region, department, travel_radius: travelRadius, disciplines, website, instagram, etsy }
 

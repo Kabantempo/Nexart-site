@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Mail, Lock, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -31,6 +31,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [focused, setFocused] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -281,7 +282,7 @@ export default function LoginPage() {
               <div style={{ position: 'relative' }}>
                 <Lock size={16} color={focused === 'password' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -289,7 +290,7 @@ export default function LoginPage() {
                   onBlur={() => setFocused(null)}
                   required
                   style={{
-                    width: '100%', padding: '13px 16px 13px 42px',
+                    width: '100%', padding: '13px 42px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: '#0F172A',
                     border: focused === 'password' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
                     backgroundColor: focused === 'password' ? '#FAFBFF' : '#F8FAFC',
@@ -297,6 +298,13 @@ export default function LoginPage() {
                     boxShadow: focused === 'password' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#94A3B8', display: 'flex', alignItems: 'center' }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 

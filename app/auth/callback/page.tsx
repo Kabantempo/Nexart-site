@@ -23,7 +23,7 @@ export default function AuthCallbackPage() {
             .from('profiles')
             .select('id')
             .eq('id', user.id)
-            .single()
+            .maybeSingle()
 
           if (!existing) {
             await supabase.from('profiles').insert({

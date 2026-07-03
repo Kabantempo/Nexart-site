@@ -8,7 +8,7 @@ import { useAuthStore } from '@/lib/store'
 import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
-  LogOut, MessageSquare, User, Heart, List, CalendarDays,
+  LogOut, MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
@@ -37,16 +37,41 @@ export default function DashboardPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
+  const [missingProfileFields, setMissingProfileFields] = useState<string[]>([])
+
+  const PROFILE_STEPS_TOTAL = 6
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       if (!user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
         if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url })
       }
     })
   }, [router, user, setUser])
+
+  useEffect(() => {
+    if (!user) return
+    const checkProfile = async () => {
+      const [{ data: p }, { data: cp }] = await Promise.all([
+        supabase.from('profiles').select('full_name, bio, avatar_url, role').eq('id', user.id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, travel_radius').eq('user_id', user.id).maybeSingle(),
+      ])
+      // Show banner for creators/artisans AND for old accounts that have a creator_profiles row (role may be null)
+      const isCreator = p?.role === 'creator' || p?.role === 'artisan' || cp !== null
+      if (!isCreator) return
+      const missing: string[] = []
+      if (!p?.full_name) missing.push('Nom complet')
+      if (!p?.bio) missing.push('Bio')
+      if (!p?.avatar_url) missing.push('Photo de profil')
+      if (!cp?.disciplines?.length) missing.push('Disciplines')
+      if (!cp?.city) missing.push('Ville')
+      if (!cp?.travel_radius) missing.push('Rayon de déplacement')
+      setMissingProfileFields(missing)
+    }
+    checkProfile()
+  }, [user])
 
   useEffect(() => {
     if (!user) return
@@ -102,6 +127,42 @@ export default function DashboardPage() {
             <LogOut size={16} /> Déconnexion
           </button>
         </div>
+
+        {/* Profile completion banner */}
+        {missingProfileFields.length > 0 && (
+          <Link href="/account" style={{ textDecoration: 'none', display: 'block', marginBottom: '28px' }}>
+            <div style={{ padding: '18px 20px', borderRadius: '14px', border: '1px solid #E0E0FA', backgroundColor: '#F8F7FF', cursor: 'pointer', transition: 'border-color 200ms' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#6366F1' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E0E0FA' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertCircle size={16} color="#6366F1" />
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A' }}>Profil incomplet</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#6366F1' }}>
+                    {PROFILE_STEPS_TOTAL - missingProfileFields.length}/{PROFILE_STEPS_TOTAL}
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>étapes</span>
+                  <span style={{ marginLeft: '6px', fontSize: '12px', fontWeight: '600', color: '#6366F1', textDecoration: 'underline' }}>Compléter →</span>
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div style={{ height: '6px', borderRadius: '99px', backgroundColor: '#E5E7EB', overflow: 'hidden', marginBottom: '10px' }}>
+                <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, #6366F1, #818CF8)', width: `${((PROFILE_STEPS_TOTAL - missingProfileFields.length) / PROFILE_STEPS_TOTAL) * 100}%`, transition: 'width 0.5s ease' }} />
+              </div>
+              {/* Missing chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {missingProfileFields.map(f => (
+                  <span key={f} style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px', backgroundColor: '#EEF2FF', color: '#6366F1' }}>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Link>
+        )}
 
         {/* Nav cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', marginBottom: '48px' }}>

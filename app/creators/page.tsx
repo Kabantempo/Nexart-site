@@ -1,21 +1,65 @@
 'use client'
 
 import { useCreators } from '@/lib/hooks'
-import { motion } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette } from 'lucide-react'
-import { useState, useEffect, Suspense } from 'react'
+import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck } from 'lucide-react'
+import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 const ITEMS_PER_PAGE = 12
 
+function Grain() {
+  return (
+    <div className="fixed inset-0 z-[9998] pointer-events-none opacity-[0.035] mix-blend-overlay"
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundRepeat: 'repeat', backgroundSize: '180px 180px' }}
+    />
+  )
+}
+
+function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
+  return (
+    <motion.div ref={ref} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }} className={className}>
+      {children}
+    </motion.div>
+  )
+}
+
+function WordReveal({ children, delay = 0, className = '' }: { children: string; delay?: number; className?: string }) {
+  return (
+    <span className={className}>
+      {children.split(' ').map((w, i) => (
+        <motion.span key={i} className="inline-block mr-[0.22em] last:mr-0"
+          initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.58, delay: delay + i * 0.075, ease: [0.22, 1, 0.36, 1] }}>
+          {w}
+        </motion.span>
+      ))}
+    </span>
+  )
+}
+
+const DISCIPLINE_COLORS: Record<string, string> = {
+  default: 'bg-indigo-500/90',
+  Céramique: 'bg-amber-500/90',
+  Bijouterie: 'bg-yellow-500/90',
+  Illustration: 'bg-violet-500/90',
+  Peinture: 'bg-rose-500/90',
+  Sculpture: 'bg-stone-500/90',
+  Textile: 'bg-teal-500/90',
+  Photographie: 'bg-sky-500/90',
+  Maroquinerie: 'bg-orange-500/90',
+}
+
 function Skeleton() {
   return (
     <div className="bg-white min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-20">
-        <div className="h-10 w-64 bg-gray-100 rounded-xl mb-3 animate-pulse" />
-        <div className="h-5 w-48 bg-gray-100 rounded-lg mb-10 animate-pulse" />
+      <div className="h-48 bg-[#06060f] animate-pulse" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
         <div className="h-20 bg-gray-100 rounded-2xl mb-8 animate-pulse" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -69,6 +113,7 @@ function CreatorsContent() {
   const hasMore     = visibleCount < filtered.length
   const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
+  const verifiedCount = creators.filter(c => c.siret_verified).length
 
   const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm('') }
 
@@ -77,28 +122,60 @@ function CreatorsContent() {
   if (error) return (
     <div className="max-w-lg mx-auto px-4 py-32 text-center">
       <p className="text-4xl mb-4">⚠️</p>
-      <p className="text-red-500">Une erreur est survenue. Réessayez dans quelques instants.</p>
+      <p className="text-red-500">Une erreur est survenue.</p>
     </div>
   )
 
   return (
     <div className="bg-white min-h-screen">
+      <Grain />
 
-      {/* Dark hero header */}
-      <div className="bg-[#06060f] border-b border-white/6 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.12]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.8) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-violet-600/12 blur-[80px] pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}>
-            <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-3">Communauté</p>
-            <h1 className="text-4xl sm:text-5xl font-black text-white mb-2 tracking-tight leading-tight">
-              Créateurs & Artisans
+      {/* Hero */}
+      <div className="bg-[#06060f] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.10]" style={{ backgroundImage: 'radial-gradient(circle, rgba(139,92,246,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-violet-600/20 blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-20 left-0 w-80 h-80 rounded-full bg-indigo-600/15 blur-[80px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-16 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            <div className="flex items-center gap-2 mb-5">
+              <Sparkles size={13} className="text-violet-400" />
+              <span className="text-violet-400 text-xs font-bold tracking-widest uppercase">Communauté</span>
+            </div>
+          </motion.div>
+
+          <div className="overflow-hidden mb-4">
+            <h1 className="text-5xl sm:text-6xl font-black text-white tracking-tight leading-[1.05]">
+              <WordReveal delay={0.05}>Créateurs & Artisans</WordReveal>
             </h1>
-            <p className="text-white/40 text-base">
-              {creators.length} créateur{creators.length !== 1 ? 's' : ''} talentueux partout en France
-            </p>
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.5 }}
+            className="text-white/40 text-base mb-10"
+          >
+            Des talents partout en France — trouvez le créateur idéal pour votre événement
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.5 }}
+            className="flex flex-wrap gap-3"
+          >
+            {[
+              { value: creators.length, label: 'créateurs' },
+              { value: uniqueCities.length, label: 'villes' },
+              { value: uniqueDisciplines.length, label: 'disciplines' },
+              ...(verifiedCount > 0 ? [{ value: verifiedCount, label: 'vérifiés' }] : []),
+            ].map(({ value, label }) => (
+              <div key={label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                <span className="text-white font-bold text-sm">{value}</span>
+                <span className="text-white/40 text-xs">{label}</span>
+              </div>
+            ))}
           </motion.div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
@@ -123,50 +200,38 @@ function CreatorsContent() {
         {/* Filters */}
         <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
           <div className="flex flex-wrap gap-5 items-end">
-
             {uniqueCities.length > 0 && (
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ville</p>
-                <select
-                  value={cityFilter}
-                  onChange={(e) => setCityFilter(e.target.value)}
+                <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
                   className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                     cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
-                  }`}
-                >
+                  }`}>
                   <option value="all">Toutes les villes</option>
                   {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
             )}
-
             {uniqueDisciplines.length > 0 && (
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Discipline</p>
-                <select
-                  value={disciplineFilter}
-                  onChange={(e) => setDisciplineFilter(e.target.value)}
+                <select value={disciplineFilter} onChange={(e) => setDisciplineFilter(e.target.value)}
                   className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                     disciplineFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
-                  }`}
-                >
+                  }`}>
                   <option value="all">Toutes les disciplines</option>
                   {uniqueDisciplines.map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
             )}
-
             <div>
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trier par</p>
               <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
                 {([['alpha', <ArrowUpAZ key="a" size={13} />, 'A → Z'], ['newest', <Clock key="c" size={13} />, 'Récents']] as const).map(([key, icon, label], i) => (
-                  <button
-                    key={key}
-                    onClick={() => setSortOrder(key)}
+                  <button key={key} onClick={() => setSortOrder(key)}
                     className={`px-4 py-2 text-sm font-medium flex items-center gap-1.5 transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
                       sortOrder === key ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
+                    }`}>
                     {icon} {label}
                   </button>
                 ))}
@@ -177,26 +242,10 @@ function CreatorsContent() {
           {hasActiveFilters && (
             <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap items-center">
               <span className="text-xs text-gray-400 font-medium">Actifs :</span>
-              {searchTerm && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
-                  "{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button>
-                </span>
-              )}
-              {cityFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
-                  {cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button>
-                </span>
-              )}
-              {disciplineFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
-                  {disciplineFilter} <button onClick={() => setDisciplineFilter('all')}><X size={11} /></button>
-                </span>
-              )}
-              {sortOrder !== 'alpha' && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">
-                  Récents en premier <button onClick={() => setSortOrder('alpha')}><X size={11} /></button>
-                </span>
-              )}
+              {searchTerm && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">"{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button></span>}
+              {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
+              {disciplineFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{disciplineFilter} <button onClick={() => setDisciplineFilter('all')}><X size={11} /></button></span>}
+              {sortOrder !== 'alpha' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Récents <button onClick={() => setSortOrder('alpha')}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
             </div>
           )}
@@ -216,36 +265,61 @@ function CreatorsContent() {
           <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {visible.map((creator, idx) => (
-                <motion.div
-                  key={creator.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(idx * 0.04, 0.35), ease: 'easeOut', duration: 0.4 }}
-                >
-                  <Link
-                    href={`/creators/${creator.id}`}
-                    className="group flex flex-col rounded-2xl border border-gray-100 overflow-hidden bg-white hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/8 hover:-translate-y-1 transition-all duration-300 h-full"
+                <FadeUp key={creator.id} delay={Math.min(idx * 0.04, 0.3)}>
+                  <Link href={`/creators/${creator.id}`}
+                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-violet-200 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-1.5 transition-all duration-300 h-full"
                   >
                     {/* Avatar */}
                     <div className="relative aspect-square bg-gray-100 shrink-0 overflow-hidden">
                       {creator.avatar_url ? (
-                        <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-500">
-                          <span className="text-5xl font-bold text-white/80 select-none">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-500 via-indigo-500 to-purple-600">
+                          <span className="text-5xl font-bold text-white/70 select-none">
                             {creator.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
+                        </div>
+                      )}
+
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                      {/* Discipline pills (show on hover) */}
+                      {creator.disciplines?.length > 0 && (
+                        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                          <div className="flex flex-wrap gap-1">
+                            {creator.disciplines.slice(0, 3).map((d: string) => (
+                              <span key={d} className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white backdrop-blur-sm ${DISCIPLINE_COLORS[d] ?? DISCIPLINE_COLORS.default}`}>
+                                {d}
+                              </span>
+                            ))}
+                            {creator.disciplines.length > 3 && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-black/50 backdrop-blur-sm">
+                                +{creator.disciplines.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Verified badge */}
+                      {creator.siret_verified && (
+                        <div className="absolute top-2.5 right-2.5">
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-sm">
+                            <BadgeCheck size={11} className="text-white" />
+                            <span className="text-[10px] font-bold text-white">Vérifié</span>
+                          </div>
                         </div>
                       )}
                     </div>
 
                     {/* Body */}
                     <div className="flex flex-col flex-1 p-4">
-                      <h3 className="font-bold text-gray-900 text-sm leading-snug mb-2">{creator.full_name}</h3>
+                      <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-violet-700 transition-colors">{creator.full_name}</h3>
 
                       {creator.disciplines?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
-                          {creator.disciplines.slice(0, 2).map((d) => (
+                          {creator.disciplines.slice(0, 2).map((d: string) => (
                             <span key={d} className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">{d}</span>
                           ))}
                           {creator.disciplines.length > 2 && (
@@ -271,7 +345,7 @@ function CreatorsContent() {
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </FadeUp>
               ))}
             </div>
 
@@ -279,19 +353,13 @@ function CreatorsContent() {
               <div className="text-center mt-16">
                 <div className="max-w-[200px] mx-auto mb-4">
                   <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-2">
-                    <motion.div
-                      className="h-full bg-indigo-500 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progressPct}%` }}
-                      transition={{ duration: 0.4, ease: 'easeOut' }}
-                    />
+                    <motion.div className="h-full bg-indigo-500 rounded-full"
+                      initial={{ width: 0 }} animate={{ width: `${progressPct}%` }} transition={{ duration: 0.4, ease: 'easeOut' }} />
                   </div>
                   <p className="text-xs text-gray-400">{Math.min(visibleCount, filtered.length)} / {filtered.length} créateurs</p>
                 </div>
-                <button
-                  onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
-                  className="px-8 py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-semibold text-sm hover:bg-indigo-600 hover:text-white transition-all duration-200"
-                >
+                <button onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
+                  className="px-8 py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-semibold text-sm hover:bg-indigo-600 hover:text-white transition-all duration-200">
                   Voir {Math.min(ITEMS_PER_PAGE, filtered.length - visibleCount)} de plus
                 </button>
               </div>
@@ -307,12 +375,10 @@ function CreatorsContent() {
               {hasActiveFilters ? 'Aucun résultat' : 'Aucun créateur inscrit pour le moment'}
             </h3>
             <p className="text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed">
-              {hasActiveFilters
-                ? "Aucun créateur ne correspond à vos critères. Essayez d'autres filtres."
-                : 'Les premiers artisans et créateurs arrivent bientôt. Rejoignez la communauté dès maintenant.'}
+              {hasActiveFilters ? "Aucun créateur ne correspond à vos critères." : 'Les premiers artisans arrivent bientôt.'}
             </p>
             {hasActiveFilters
-              ? <button onClick={resetFilters} className="px-6 py-2.5 rounded-xl border border-indigo-300 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors">Réinitialiser les filtres</button>
+              ? <button onClick={resetFilters} className="px-6 py-2.5 rounded-xl border border-indigo-300 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors">Réinitialiser</button>
               : <Link href="/register" className="px-7 py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-500 transition-colors">Rejoindre en tant que créateur</Link>
             }
           </motion.div>

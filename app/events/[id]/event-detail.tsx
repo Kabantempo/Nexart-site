@@ -2,11 +2,12 @@
 
 import { useEvent, useApplication, useFavorites } from '@/lib/hooks'
 import { useAuthStore } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
@@ -37,6 +38,10 @@ export function EventDetailClient({ id }: Props) {
   const [message, setMessage] = useState('')
   const [showForm, setShowForm] = useState(false)
   const { success: toastSuccess, error: toastError } = useToast()
+  const [missingFields, setMissingFields] = useState<string[]>([])
+  const [profileChecked, setProfileChecked] = useState(false)
+
+  const REQUIRED_FIELDS_TOTAL = 6
 
   useEffect(() => {
     if (success) toastSuccess('Candidature envoyée ! L\'organisateur vous répondra bientôt.')
@@ -45,6 +50,29 @@ export function EventDetailClient({ id }: Props) {
   useEffect(() => {
     if (applyError) toastError(applyError)
   }, [applyError]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!user || (user.role !== 'creator' && user.role !== 'artisan')) {
+      setProfileChecked(true)
+      return
+    }
+    const checkProfile = async () => {
+      const [{ data: p }, { data: cp }] = await Promise.all([
+        supabase.from('profiles').select('full_name, bio, avatar_url').eq('id', user.id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, travel_radius').eq('user_id', user.id).maybeSingle(),
+      ])
+      const missing: string[] = []
+      if (!p?.full_name) missing.push('Nom complet')
+      if (!p?.bio) missing.push('Bio')
+      if (!p?.avatar_url) missing.push('Photo de profil')
+      if (!cp?.disciplines?.length) missing.push('Disciplines')
+      if (!cp?.city) missing.push('Ville')
+      if (!cp?.travel_radius) missing.push('Rayon de déplacement')
+      setMissingFields(missing)
+      setProfileChecked(true)
+    }
+    checkProfile()
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -344,6 +372,45 @@ export function EventDetailClient({ id }: Props) {
                 <p style={{ fontSize: '14px', color: '#888888', textAlign: 'center' }}>
                   Seuls les créateurs peuvent postuler aux événements
                 </p>
+              ) : (user.role === 'creator' || user.role === 'artisan') && profileChecked && missingFields.length > 0 ? (
+                <div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A' }}>Profil complété</span>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#6366F1' }}>
+                        {REQUIRED_FIELDS_TOTAL - missingFields.length}/{REQUIRED_FIELDS_TOTAL}
+                      </span>
+                    </div>
+                    <div style={{ height: '8px', borderRadius: '99px', backgroundColor: '#E5E7EB', overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%',
+                        borderRadius: '99px',
+                        width: `${((REQUIRED_FIELDS_TOTAL - missingFields.length) / REQUIRED_FIELDS_TOTAL) * 100}%`,
+                        background: 'linear-gradient(90deg, #6366F1, #818CF8)',
+                        transition: 'width 0.5s ease',
+                      }} />
+                    </div>
+                  </div>
+                  <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '10px' }}>
+                      <AlertTriangle size={15} color="#F59E0B" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#92400E', margin: 0 }}>
+                        Complétez votre profil avant de postuler
+                      </p>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      {missingFields.map(f => (
+                        <li key={f} style={{ fontSize: '12px', color: '#92400E', marginBottom: '2px' }}>{f}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <Link
+                    href="/account"
+                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
+                  >
+                    Compléter mon profil →
+                  </Link>
+                </div>
               ) : showForm ? (
                 <div>
                   <label style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px', display: 'block' }}>

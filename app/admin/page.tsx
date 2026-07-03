@@ -31,7 +31,7 @@ export default function AdminPage() {
         .from('profiles')
         .select('is_admin')
         .eq('id', session.user.id)
-        .single()
+        .maybeSingle()
       if (!prof?.is_admin) { router.push('/'); return }
       await fetchCreators()
       setLoading(false)
