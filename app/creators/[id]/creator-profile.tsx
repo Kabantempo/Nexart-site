@@ -51,6 +51,9 @@ export function CreatorProfileClient({ id }: Props) {
   const [showQR, setShowQR] = useState(false)
   const [sharedEventId, setSharedEventId] = useState<string | null>(null)
   const [alreadyReviewed, setAlreadyReviewed] = useState(false)
+  const [marchesCount, setMarchesCount] = useState<number | null>(null)
+  const [boutiqueCount, setBoutiqueCount] = useState<number | null>(null)
+  const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
 
@@ -63,6 +66,34 @@ export function CreatorProfileClient({ id }: Props) {
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...p, ...cp })
       setLoading(false)
+
+      // Nombre de marchés participés (candidatures acceptées)
+      const { count } = await supabase
+        .from('applications')
+        .select('id', { count: 'exact', head: true })
+        .eq('creator_id', id)
+        .eq('status', 'accepted')
+      setMarchesCount(count ?? 0)
+
+      // Boutique count
+      const { count: prodCount } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('creator_id', id)
+        .eq('is_available', true)
+      setBoutiqueCount(prodCount ?? 0)
+
+      // Carnet de route public
+      const today = new Date().toISOString().split('T')[0]
+      const { data: itin } = await supabase
+        .from('itinerary')
+        .select('id, label, city, start_date, end_date')
+        .eq('creator_id', id)
+        .eq('is_public', true)
+        .gte('end_date', today)
+        .order('start_date', { ascending: true })
+        .limit(3)
+      setItinerary(itin || [])
 
       // Charger les avis séparément
       const { data: rv, error: rvErr } = await supabase
@@ -359,6 +390,48 @@ export function CreatorProfileClient({ id }: Props) {
               )
             })()}
 
+            {/* Carnet de route */}
+            {itinerary.length > 0 && (
+              <section className="mb-8">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">🗺️ Carnet de route</h2>
+                <div className="flex flex-col gap-2.5">
+                  {itinerary.map(entry => (
+                    <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <MapPin size={14} color="#6B7280" />
+                      <div>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{entry.label}</p>
+                        <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                          {new Date(entry.start_date).toLocaleDateString('fr-FR')} → {new Date(entry.end_date).toLocaleDateString('fr-FR')}
+                          {entry.city && ` · ${entry.city}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Boutique preview */}
+            {boutiqueCount !== null && boutiqueCount > 0 && (
+              <section className="mb-8">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-gray-900">Boutique</h2>
+                  <Link href={`/boutique/${id}`} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                    Voir tout ({boutiqueCount}) →
+                  </Link>
+                </div>
+                <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+                    {boutiqueCount} création{boutiqueCount > 1 ? 's' : ''} disponible{boutiqueCount > 1 ? 's' : ''}
+                  </p>
+                  <Link href={`/boutique/${id}`}
+                    style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}>
+                    Voir la boutique
+                  </Link>
+                </div>
+              </section>
+            )}
+
             {/* Avis */}
             {reviews.length > 0 && (() => {
               const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
@@ -434,6 +507,34 @@ export function CreatorProfileClient({ id }: Props) {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:sticky lg:top-20 h-fit">
             <div className="rounded-2xl border border-gray-100 p-6 shadow-sm">
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 mb-6">
+                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                    {marchesCount ?? '—'}
+                  </p>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Marchés
+                  </p>
+                </div>
+                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                    {reviews.length}
+                  </p>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Avis
+                  </p>
+                </div>
+                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                    {boutiqueCount ?? '—'}
+                  </p>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Créations
+                  </p>
+                </div>
+              </div>
 
               {/* Links */}
               {(creator.website || creator.instagram || creator.etsy) && (

@@ -20,19 +20,49 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexart — Marketplace créateurs & marchés",
-  description: "Connectez créateurs, artisans et marchés artisanaux en France",
+  metadataBase: new URL('https://nexart.fr'),
+  title: {
+    default: 'Nexart — Marketplace créateurs & marchés artisanaux',
+    template: '%s — Nexart',
+  },
+  description: 'Nexart connecte créateurs, artisans et organisateurs de marchés artisanaux en France. Candidatez à des marchés, pop-ups, salons et festivals en quelques clics.',
+  keywords: ['marché artisanal', 'créateurs', 'artisans', 'pop-up', 'salon artisanat', 'marketplace artisan', 'événement artisanal', 'France', 'candidature marché'],
+  authors: [{ name: 'Nexart', url: 'https://nexart.fr' }],
+  creator: 'Nexart',
+  publisher: 'Nexart',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    url: 'https://nexart.fr',
+    siteName: 'Nexart',
+    title: 'Nexart — Marketplace créateurs & marchés artisanaux',
+    description: 'Nexart connecte créateurs, artisans et organisateurs de marchés artisanaux en France.',
+    images: [{ url: '/logo-full.png', width: 502, height: 594, alt: 'Nexart — Marketplace artisanale' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@nexartfr',
+    creator: '@nexartfr',
+    title: 'Nexart — Marketplace créateurs & marchés artisanaux',
+    description: 'Nexart connecte créateurs, artisans et organisateurs de marchés artisanaux en France.',
+    images: ['/logo-full.png'],
+  },
   icons: {
     icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [
-      { url: "/apple-touch-icon-180.png", sizes: "180x180", type: "image/png" },
-    ],
-    shortcut: ["/favicon.ico"],
+    apple: [{ url: '/apple-touch-icon-180.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/favicon.ico'],
   },
+  manifest: '/manifest.json',
+  alternates: { canonical: 'https://nexart.fr' },
 };
 
 export default function RootLayout({

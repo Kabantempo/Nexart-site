@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, Globe, Share2, Heart, MessageCircle } from 'lucide-react'
@@ -18,9 +19,9 @@ const NAV = {
     { label: 'À propos',              href: '/about' },
   ],
   'Pour visiteurs': [
+    { label: 'Carte interactive',      href: '/carte' },
     { label: 'Événements près de moi', href: '/events' },
     { label: 'Découvrir les créateurs', href: '/creators' },
-    { label: 'Réserver une place',     href: '/events' },
     { label: "S'inscrire",             href: '/register' },
   ],
 }
@@ -40,6 +41,27 @@ const LEGAL = [
 ]
 
 export function Footer() {
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+  const handleNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newsletterEmail || newsletterStatus === 'loading') return
+    setNewsletterStatus('loading')
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail }),
+      })
+      setNewsletterStatus(res.ok ? 'success' : 'error')
+      if (res.ok) setNewsletterEmail('')
+    } catch {
+      setNewsletterStatus('error')
+    }
+    setTimeout(() => setNewsletterStatus('idle'), 4000)
+  }
+
   return (
     <footer className="bg-[#06060f] border-t border-white/6 text-white">
       {/* Top section */}
@@ -57,16 +79,29 @@ export function Footer() {
             </p>
             {/* Newsletter */}
             <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3">Newsletter</p>
-            <div className="flex gap-2">
+            <form onSubmit={handleNewsletter} className="flex gap-2">
               <input
                 type="email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="votre@email.fr"
-                className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-white/8 bg-white/4 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-indigo-500/50 focus:bg-white/6 transition"
+                disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
+                className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-white/8 bg-white/4 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-indigo-500/50 focus:bg-white/6 transition disabled:opacity-50"
               />
-              <button className="shrink-0 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors">
+              <button
+                type="submit"
+                disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
+                className="shrink-0 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50"
+              >
                 <Mail size={16} className="text-white" />
               </button>
-            </div>
+            </form>
+            {newsletterStatus === 'success' && (
+              <p className="text-xs text-emerald-400 mt-2">Inscription confirmée !</p>
+            )}
+            {newsletterStatus === 'error' && (
+              <p className="text-xs text-red-400 mt-2">Erreur, réessayez.</p>
+            )}
           </div>
 
           {/* Nav columns */}

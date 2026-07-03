@@ -162,6 +162,7 @@ export function NavbarFull() {
                 {[
                   { href: '/events',   label: 'Événements artisanaux', desc: 'Marchés, pop-ups, salons, festivals' },
                   { href: '/creators', label: 'Créateurs & Artisans',  desc: 'Parcourez les artisans inscrits' },
+                  { href: '/carte',    label: 'Carte interactive',       desc: 'Événements près de chez vous' },
                 ].map(({ href, label, desc }) => (
                   <Link key={href} href={href} onClick={() => setDropdown(null)}
                     className={`group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-colors ${isActive(href) ? 'bg-gray-50' : 'hover:bg-gray-50/70'}`}
@@ -380,6 +381,7 @@ export function NavbarFull() {
               {[
                 { href: '/events',   label: 'Événements' },
                 { href: '/creators', label: 'Créateurs' },
+                { href: '/carte',    label: 'Carte' },
                 { href: '/offres',   label: 'Offres' },
               ].map(({ href, label }, i) => (
                 <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>

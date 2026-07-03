@@ -19,11 +19,13 @@ interface Notification {
 }
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-  application_accepted: { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
-  application_rejected: { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
-  application_received: { icon: <Calendar size={16} />,    color: '#6366F1', bg: '#EEF2FF' },
-  new_message:          { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
-  default:              { icon: <Bell size={16} />,         color: '#6B7280', bg: '#F3F4F6' },
+  application_accepted:    { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
+  application_rejected:    { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
+  application_received:    { icon: <Calendar size={16} />,    color: '#6366F1', bg: '#EEF2FF' },
+  new_message:             { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
+  verification_accepted:   { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
+  verification_refused:    { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
+  default:                 { icon: <Bell size={16} />,         color: '#6B7280', bg: '#F3F4F6' },
 }
 
 function relativeTime(dateStr: string): string {

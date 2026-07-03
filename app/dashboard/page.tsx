@@ -9,6 +9,7 @@ import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   LogOut, MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
+  MapPin, ShoppingBag,
 } from 'lucide-react'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
@@ -20,12 +21,19 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 const NAV_CARDS = (userId: string, role: string) => [
   { href: '/events',           icon: <Calendar size={24} color="#6366F1" />, label: 'Événements',  sub: 'Voir les marchés' },
   { href: '/creators',         icon: <Users size={24} color="#6366F1" />,    label: 'Créateurs',   sub: 'Voir les artisans' },
+  { href: '/carte',            icon: <MapPin size={24} color="#6366F1" />,   label: 'Carte',       sub: 'Événements proches' },
   { href: '/profile',          icon: <User size={24} color="#6366F1" />,     label: 'Mon profil',  sub: 'Éditer mon profil' },
-  { href: '/messages',         icon: <MessageSquare size={24} color="#6366F1" />, label: 'Messages', sub: 'Vos conversations' },
   { href: '/favorites',        icon: <Heart size={24} color="#6366F1" />,    label: 'Favoris',     sub: 'Vos coups de cœur' },
+  ...(role !== 'visitor' ? [
+    { href: '/messages', icon: <MessageSquare size={24} color="#6366F1" />, label: 'Messages', sub: 'Vos conversations' },
+  ] : []),
   ...(role === 'organizer' ? [
     { href: '/events/create',  icon: <CalendarDays size={24} color="#6366F1" />, label: 'Créer un événement', sub: 'Nouveau marché' },
     { href: `/creators/${userId}`, icon: <User size={24} color="#6366F1" />, label: 'Ma fiche', sub: 'Vue publique' },
+  ] : []),
+  ...(role === 'creator' ? [
+    { href: `/boutique/${userId}`, icon: <ShoppingBag size={24} color="#6366F1" />, label: 'Ma boutique', sub: 'Mes créations' },
+    { href: '/carnet-de-route', icon: <MapPin size={24} color="#6366F1" />, label: 'Carnet de route', sub: 'Mes déplacements' },
   ] : []),
 ]
 
@@ -119,7 +127,7 @@ export default function DashboardPage() {
               Bonjour, {firstName} 👋
             </h1>
             <p style={{ fontSize: '15px', color: '#888888', margin: '6px 0 0' }}>
-              {user.role === 'creator' ? 'Tableau de bord Créateur' : 'Tableau de bord Organisateur'}
+              {user.role === 'creator' ? 'Tableau de bord Créateur' : user.role === 'visitor' ? 'Tableau de bord Visiteur' : 'Tableau de bord Organisateur'}
             </p>
           </div>
           <button onClick={handleLogout} className="dash-logout"
@@ -130,7 +138,7 @@ export default function DashboardPage() {
 
         {/* Profile completion banner */}
         {missingProfileFields.length > 0 && (
-          <Link href="/account" style={{ textDecoration: 'none', display: 'block', marginBottom: '28px' }}>
+          <Link href="/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '28px' }}>
             <div style={{ padding: '18px 20px', borderRadius: '14px', border: '1px solid #E0E0FA', backgroundColor: '#F8F7FF', cursor: 'pointer', transition: 'border-color 200ms' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#6366F1' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E0E0FA' }}
@@ -184,6 +192,36 @@ export default function DashboardPage() {
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
             <div style={{ width: '32px', height: '32px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          </div>
+        ) : user.role === 'visitor' ? (
+          <div>
+            <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>Explorer Nexart</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+              {[
+                { href: '/carte', emoji: '🗺️', title: 'Carte des événements', desc: 'Trouvez les marchés près de chez vous' },
+                { href: '/events', emoji: '📅', title: 'Tous les événements', desc: 'Parcourir le calendrier complet' },
+                { href: '/creators', emoji: '🎨', title: 'Découvrir les créateurs', desc: 'Artisans et makers près de vous' },
+                { href: '/favorites', emoji: '❤️', title: 'Mes favoris', desc: 'Événements et créateurs sauvegardés' },
+                { href: '/notifications', emoji: '🔔', title: 'Notifications', desc: 'Actualités des créateurs suivis' },
+                { href: '/profile', emoji: '👤', title: 'Mon profil', desc: 'Gérer mes préférences' },
+              ].map(card => (
+                <Link key={card.href} href={card.href}
+                  style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', textDecoration: 'none', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '14px', transition: 'border-color 200ms' }}
+                  className="dash-card">
+                  <span style={{ fontSize: '28px', flexShrink: 0 }}>{card.emoji}</span>
+                  <div>
+                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{card.title}</p>
+                    <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{card.desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div style={{ marginTop: '32px', padding: '20px 24px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 6px' }}>💡 Conseil</p>
+              <p style={{ fontSize: '13px', color: '#6B7280', margin: 0, lineHeight: 1.6 }}>
+                Suivez vos créateurs préférés pour être notifié de leurs prochains événements et de leurs nouvelles créations en boutique.
+              </p>
+            </div>
           </div>
         ) : user.role === 'creator' ? (
           <div>

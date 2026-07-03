@@ -10,9 +10,11 @@ Disallow: /account
 Disallow: /dashboard
 Disallow: /messages
 Disallow: /favorites
+Disallow: /notifications
+Disallow: /profile
 Disallow: /auth/
 Disallow: /reset-password
 Disallow: /forgot-password
+Disallow: /api/
 
-# Sitemap
 Sitemap: https://nexart.fr/sitemap.xml

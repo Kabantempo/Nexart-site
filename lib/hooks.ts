@@ -5,7 +5,7 @@ import { supabase } from './supabase'
 import { Event, CreatorProfile, OrganizerProfile, Application, Review } from './types'
 
 export function useEvents() {
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<(Event & { remaining_spots?: number })[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -19,7 +19,24 @@ export function useEvents() {
           .order('start_date', { ascending: true })
 
         if (err) throw err
-        setEvents(data || [])
+
+        if (data?.length) {
+          const { data: apps } = await supabase
+            .from('applications')
+            .select('event_id')
+            .in('event_id', data.map(e => e.id))
+            .eq('status', 'accepted')
+
+          const countMap: Record<string, number> = {}
+          apps?.forEach(a => { countMap[a.event_id] = (countMap[a.event_id] || 0) + 1 })
+
+          setEvents(data.map(e => ({
+            ...e,
+            remaining_spots: e.stand_count > 0 ? Math.max(e.stand_count - (countMap[e.id] || 0), 0) : undefined,
+          })))
+        } else {
+          setEvents(data || [])
+        }
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))
       } finally {

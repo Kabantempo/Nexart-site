@@ -95,7 +95,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
   draft:     { label: 'Brouillon',  color: '#9CA3AF', bg: '#F3F4F6' },
   published: { label: 'Publié',     color: '#10B981', bg: '#ECFDF5' },
-  closed:    { label: 'Fermé',      color: '#6366F1', bg: '#EEF2FF' },
+  closed:    { label: 'Fermé',      color: '#6B7280', bg: '#F3F4F6' },
 }
 const EVENT_TYPE_LABELS: Record<string, string> = {
   permanent: 'Permanent', seasonal: 'Saisonnier',
@@ -192,6 +192,8 @@ export default function ProfilePage() {
 
   // Admin messaging state
   const [adminMessages, setAdminMessages] = useState<AdminMessage[]>([])
+  const [refuseModal, setRefuseModal] = useState<{ userId: string; field: 'siret_verified' | 'insurance_verified'; creatorName: string } | null>(null)
+  const [refuseComment, setRefuseComment] = useState('')
   const [msgSearch, setMsgSearch] = useState('')
   const [msgSuggestions, setMsgSuggestions] = useState<UserSuggestion[]>([])
   const [msgRecipient, setMsgRecipient] = useState<UserSuggestion | null>(null)
@@ -391,7 +393,7 @@ export default function ProfilePage() {
     ctx.drawImage(img, x, y, sw, sh)
     ctx.restore()
     // circle border
-    ctx.strokeStyle = '#6366F1'
+    ctx.strokeStyle = '#374151'
     ctx.lineWidth = 2
     ctx.beginPath()
     ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2 - 1, 0, Math.PI * 2)
@@ -399,6 +401,24 @@ export default function ProfilePage() {
   }
 
   useEffect(() => { if (cropSrc) drawCrop() })
+
+  // Realtime — mise à jour siret_verified / insurance_verified en temps réel pour le créateur
+  useEffect(() => {
+    if (!user || profile?.is_admin) return
+    const channel = supabase
+      .channel(`creator_profile:${user.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'creator_profiles',
+        filter: `user_id=eq.${user.id}`,
+      }, (payload) => {
+        const updated = payload.new as { siret_verified?: boolean; insurance_verified?: boolean }
+        setCreator(c => c ? { ...c, ...updated } : c)
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [user, profile?.is_admin]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const confirmCrop = async () => {
     if (!cropCanvasRef.current || !user) return
@@ -425,12 +445,40 @@ export default function ProfilePage() {
 
   // ─── Admin handlers ─────────────────────────────────────────────────────────
 
-  const handleVerifyCreator = async (userId: string, field: 'siret_verified' | 'insurance_verified', value: boolean) => {
+  const handleVerifyCreator = async (userId: string, field: 'siret_verified' | 'insurance_verified', value: boolean, comment?: string) => {
     setAdminSaving(`${userId}-${field}`)
     await supabase.from('creator_profiles').update({ [field]: value }).eq('user_id', userId)
     setAdminCreators(prev => prev.map(c => c.user_id === userId ? { ...c, [field]: value } : c))
+
+    if (!value && comment?.trim()) {
+      const label = field === 'siret_verified' ? 'SIRET' : 'RC Pro'
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'verification_refused',
+        title: `Vérification ${label} refusée`,
+        body: comment.trim(),
+        link: '/profile',
+      })
+    } else if (value) {
+      const label = field === 'siret_verified' ? 'SIRET' : 'RC Pro'
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'verification_accepted',
+        title: `Vérification ${label} validée ✅`,
+        body: `Votre ${label} a été vérifié et validé par l'équipe Nexart.`,
+        link: '/profile',
+      })
+    }
+
     setAdminSaving(null)
-    showToast(value ? '✓ Vérifié' : '✗ Révoqué')
+    showToast(value ? '✓ Vérifié' : '✗ Refusé')
+  }
+
+  const handleRefuseConfirm = async () => {
+    if (!refuseModal) return
+    await handleVerifyCreator(refuseModal.userId, refuseModal.field, false, refuseComment)
+    setRefuseModal(null)
+    setRefuseComment('')
   }
 
   const loadAdminMessages = async () => {
@@ -504,7 +552,7 @@ export default function ProfilePage() {
 
   if (loading) return (
     <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: '40px', height: '40px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <div style={{ width: '40px', height: '40px', border: '3px solid #6B7280', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
@@ -528,6 +576,45 @@ export default function ProfilePage() {
 
     return (
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 16px 80px' }}>
+
+        {/* ── Refuse Modal ── */}
+        {refuseModal && (
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            onClick={(e) => { if (e.target === e.currentTarget) { setRefuseModal(null); setRefuseComment('') } }}>
+            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '6px' }}>
+                Refuser la vérification
+              </h3>
+              <p style={{ fontSize: '14px', color: '#64748B', marginBottom: '20px' }}>
+                {refuseModal.field === 'siret_verified' ? 'SIRET' : 'RC Pro'} de <strong>{refuseModal.creatorName}</strong>
+              </p>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                Motif du refus <span style={{ color: '#9CA3AF', fontWeight: '400' }}>(envoyé en notification)</span>
+              </label>
+              <textarea
+                value={refuseComment}
+                onChange={(e) => setRefuseComment(e.target.value)}
+                placeholder="Ex : Le document est illisible, le SIRET ne correspond pas au nom..."
+                rows={3}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#374151' }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
+                autoFocus
+              />
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button onClick={() => { setRefuseModal(null); setRefuseComment('') }}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#6B7280', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                  Annuler
+                </button>
+                <button onClick={handleRefuseConfirm}
+                  disabled={!refuseComment.trim() || adminSaving !== null}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: !refuseComment.trim() ? '#F3F4F6' : '#111827', color: !refuseComment.trim() ? '#9CA3AF' : '#FFFFFF', fontSize: '14px', fontWeight: '700', cursor: !refuseComment.trim() ? 'not-allowed' : 'pointer' }}>
+                  Confirmer le refus
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Crop Modal ── */}
         {cropSrc && (
@@ -554,7 +641,7 @@ export default function ProfilePage() {
                 <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '6px' }}>Zoom</label>
                 <input type="range" min="0.5" max="4" step="0.01" value={cropScale}
                   onChange={e => setCropScale(parseFloat(e.target.value))}
-                  style={{ width: '100%', accentColor: '#6366F1' }} />
+                  style={{ width: '100%', accentColor: '#374151' }} />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => { setCropSrc(null); if (cropImgRef.current) URL.revokeObjectURL(cropImgRef.current.src) }}
@@ -562,7 +649,7 @@ export default function ProfilePage() {
                   Annuler
                 </button>
                 <button onClick={confirmCrop}
-                  style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
                   Appliquer
                 </button>
               </div>
@@ -575,7 +662,7 @@ export default function ProfilePage() {
           {/* ── Header Admin ── */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
-              <div style={{ width: '88px', height: '88px', borderRadius: '50%', backgroundColor: '#6366F1', overflow: 'hidden', border: '3px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '88px', height: '88px', borderRadius: '50%', backgroundColor: '#374151', overflow: 'hidden', border: '3px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {profile?.avatar_url
                   // eslint-disable-next-line @next/next/no-img-element
                   ? <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -583,7 +670,7 @@ export default function ProfilePage() {
                 }
               </div>
               <button onClick={() => fileRef.current?.click()} disabled={avatarUploading}
-                style={{ position: 'absolute', bottom: 0, right: 0, width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#6366F1', border: '2px solid #FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                style={{ position: 'absolute', bottom: 0, right: 0, width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#374151', border: '2px solid #FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 {avatarUploading ? <div style={{ width: '10px', height: '10px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Upload size={11} color="#FFF" />}
               </button>
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
@@ -607,7 +694,7 @@ export default function ProfilePage() {
                 <Settings size={15} /> Mon profil
               </Link>
               <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-                style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <LogOut size={15} /> Déconnexion
               </button>
             </div>
@@ -616,13 +703,13 @@ export default function ProfilePage() {
           {/* ── Stats ── */}
           <div style={{ display: 'flex', gap: '12px', marginBottom: '28px', flexWrap: 'wrap' }}>
             {[
-              { label: 'Créateurs', value: adminCreators.length, color: '#6366F1', bg: '#EEF2FF' },
-              { label: 'SIRET en attente', value: adminCreators.filter(c => !c.siret_verified && c.siret_number).length, color: '#F59E0B', bg: '#FFFBEB' },
-              { label: 'RC Pro en attente', value: adminCreators.filter(c => !c.insurance_verified && c.insurance_doc_url).length, color: '#EF4444', bg: '#FEF2F2' },
-              { label: 'Marchés publiés', value: adminEvents.filter(e => e.status === 'published').length, color: '#10B981', bg: '#ECFDF5' },
+              { label: 'Créateurs', value: adminCreators.length },
+              { label: 'SIRET en attente', value: adminCreators.filter(c => !c.siret_verified && c.siret_number).length },
+              { label: 'RC Pro en attente', value: adminCreators.filter(c => !c.insurance_verified && c.insurance_doc_url).length },
+              { label: 'Marchés publiés', value: adminEvents.filter(e => e.status === 'published').length },
             ].map(s => (
-              <div key={s.label} style={{ flex: 1, minWidth: '140px', padding: '16px 20px', borderRadius: '12px', backgroundColor: s.bg, border: `1px solid ${s.color}22` }}>
-                <p style={{ fontSize: '28px', fontWeight: '800', color: s.color, margin: '0 0 2px', lineHeight: 1 }}>{s.value}</p>
+              <div key={s.label} style={{ flex: 1, minWidth: '140px', padding: '16px 20px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+                <p style={{ fontSize: '28px', fontWeight: '800', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{s.value}</p>
                 <p style={{ fontSize: '12px', color: '#6B7280', margin: 0, fontWeight: '600' }}>{s.label}</p>
               </div>
             ))}
@@ -646,8 +733,8 @@ export default function ProfilePage() {
                 style={{
                   padding: '10px 20px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer',
                   fontSize: '14px', fontWeight: adminTab === t.k ? '700' : '500',
-                  color: adminTab === t.k ? '#6366F1' : '#888888',
-                  borderBottom: adminTab === t.k ? '2px solid #6366F1' : '2px solid transparent',
+                  color: adminTab === t.k ? '#111827' : '#888888',
+                  borderBottom: adminTab === t.k ? '2px solid #111827' : '2px solid transparent',
                   marginBottom: '-2px',
                 }}>
                 {t.label}
@@ -660,14 +747,14 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
               {analyticsLoading || !analytics ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 0' }}>
-                  <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                  <div style={{ width: '36px', height: '36px', border: '3px solid #6B7280', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
                 </div>
               ) : (
                 <>
                   {/* KPIs Utilisateurs */}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                      <Users size={16} color="#6366F1" />
+                      <Users size={16} color="#6B7280" />
                       <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Utilisateurs</h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
@@ -682,7 +769,7 @@ export default function ProfilePage() {
                         <div key={kpi.label} style={{ padding: '16px 18px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <p style={{ fontSize: '26px', fontWeight: '700', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
-                            {kpi.up && <ArrowUpRight size={16} color="#6366F1" />}
+                            {kpi.up && <ArrowUpRight size={16} color="#6B7280" />}
                           </div>
                           <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 2px' }}>{kpi.label}</p>
                           <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{kpi.sub}</p>
@@ -694,7 +781,7 @@ export default function ProfilePage() {
                   {/* Croissance 30 jours */}
                   <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      <TrendingUp size={16} color="#6366F1" />
+                      <TrendingUp size={16} color="#6B7280" />
                       <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Inscriptions — 30 derniers jours</h3>
                     </div>
                     {analytics.dailySignups.length === 0 ? (
@@ -710,7 +797,7 @@ export default function ProfilePage() {
                                 <div style={{
                                   width: '100%', borderRadius: '3px 3px 0 0',
                                   height: d.count > 0 ? `${Math.max((d.count / max) * 100, 8)}%` : '2px',
-                                  backgroundColor: d.count > 0 ? '#6366F1' : '#E5E7EB',
+                                  backgroundColor: d.count > 0 ? '#374151' : '#E5E7EB',
                                   transition: 'height 0.3s ease',
                                 }} />
                               </div>
@@ -731,15 +818,15 @@ export default function ProfilePage() {
                     {/* Événements */}
                     <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                        <Calendar size={16} color="#6366F1" />
+                        <Calendar size={16} color="#6B7280" />
                         <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Événements</h3>
-                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: '#6366F1' }}>{analytics.events.total}</span>
+                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: '#111827' }}>{analytics.events.total}</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {[
-                          { label: 'Publiés', value: analytics.events.published, color: '#10B981' },
-                          { label: 'Brouillons', value: analytics.events.draft, color: '#9CA3AF' },
-                          { label: 'Fermés', value: analytics.events.closed, color: '#6366F1' },
+                          { label: 'Publiés', value: analytics.events.published, color: '#374151' },
+                          { label: 'Brouillons', value: analytics.events.draft, color: '#374151' },
+                          { label: 'Fermés', value: analytics.events.closed, color: '#374151' },
                         ].map(item => {
                           const pct = analytics.events.total ? (item.value / analytics.events.total) * 100 : 0
                           return (
@@ -772,15 +859,15 @@ export default function ProfilePage() {
                     {/* Candidatures */}
                     <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                        <Package size={16} color="#6366F1" />
+                        <Package size={16} color="#6B7280" />
                         <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Candidatures</h3>
-                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: '#6366F1' }}>{analytics.applications.total}</span>
+                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: '#111827' }}>{analytics.applications.total}</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {[
-                          { label: 'En attente', value: analytics.applications.pending, color: '#F59E0B' },
-                          { label: 'Acceptées', value: analytics.applications.accepted, color: '#10B981' },
-                          { label: 'Refusées', value: analytics.applications.refused, color: '#EF4444' },
+                          { label: 'En attente', value: analytics.applications.pending, color: '#374151' },
+                          { label: 'Acceptées', value: analytics.applications.accepted, color: '#374151' },
+                          { label: 'Refusées', value: analytics.applications.refused, color: '#374151' },
                         ].map(item => {
                           const pct = analytics.applications.total ? (item.value / analytics.applications.total) * 100 : 0
                           return (
@@ -798,7 +885,7 @@ export default function ProfilePage() {
                         {analytics.applications.total > 0 && (
                           <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #F3F4F6' }}>
                             <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-                              Taux d&apos;acceptation : <strong style={{ color: '#6366F1' }}>
+                              Taux d&apos;acceptation : <strong style={{ color: '#111827' }}>
                                 {Math.round(analytics.applications.accepted / analytics.applications.total * 100)}%
                               </strong>
                             </p>
@@ -814,7 +901,7 @@ export default function ProfilePage() {
                     {/* Vérifications */}
                     <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                        <Shield size={16} color="#6366F1" />
+                        <Shield size={16} color="#6B7280" />
                         <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Vérifications</h3>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -827,10 +914,10 @@ export default function ProfilePage() {
                             <div key={v.label}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#4B5563' }}>{v.label}</span>
-                                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#6366F1', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
+                                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#6B7280', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
                               </div>
                               <div style={{ height: '8px', borderRadius: '4px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
-                                <div style={{ height: '100%', width: `${pct}%`, backgroundColor: '#6366F1', borderRadius: '4px', transition: 'width 0.5s ease' }} />
+                                <div style={{ height: '100%', width: `${pct}%`, backgroundColor: '#374151', borderRadius: '4px', transition: 'width 0.5s ease' }} />
                               </div>
                             </div>
                           )
@@ -841,17 +928,17 @@ export default function ProfilePage() {
                     {/* Messages + Abonnements */}
                     <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                        <MessageSquare size={16} color="#6366F1" />
+                        <MessageSquare size={16} color="#6B7280" />
                         <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Activité</h3>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
                           <span style={{ fontSize: '13px', color: '#4B5563', fontWeight: '600' }}>Messages envoyés</span>
-                          <span style={{ fontSize: '18px', fontWeight: '800', color: '#6366F1' }}>{analytics.messages.total}</span>
+                          <span style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>{analytics.messages.total}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
                           <span style={{ fontSize: '13px', color: '#4B5563', fontWeight: '600' }}>Ratio créateurs/orga</span>
-                          <span style={{ fontSize: '14px', fontWeight: '800', color: '#8B5CF6' }}>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: '#111827' }}>
                             {analytics.users.organizers > 0
                               ? `${Math.round(analytics.users.creators / analytics.users.organizers * 10) / 10}:1`
                               : '—'
@@ -866,7 +953,7 @@ export default function ProfilePage() {
                   {analytics.kpi && (
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                        <BarChart2 size={16} color="#6366F1" />
+                        <BarChart2 size={16} color="#6B7280" />
                         <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>KPI Business</h3>
                       </div>
 
@@ -884,17 +971,17 @@ export default function ProfilePage() {
                             ? Math.round(k.retention30.retained / k.retention30.cohort_total * 100) : null
 
                           return [
-                            { label: 'Conversion créateurs', value: `${convCr}%`, sub: `${k.conversionCreator.active}/${k.conversionCreator.total} actifs`, color: '#6366F1', bg: '#EEF2FF', target: '> 40 %' },
-                            { label: 'Conversion organisateurs', value: `${convOrg}%`, sub: `${k.conversionOrganizer.active}/${k.conversionOrganizer.total} actifs`, color: '#06B6D4', bg: '#ECFEFF', target: '> 60 %' },
-                            { label: 'Taux de remplissage', value: `${fill}%`, sub: `${k.fillRate.filled_stands}/${k.fillRate.total_stands} stands`, color: '#10B981', bg: '#ECFDF5', target: '> 70 %' },
-                            { label: 'Liquidité marketplace', value: liq !== null ? `${liq}h` : '—', sub: liq !== null ? '1ère candidature' : 'Pas de données', color: '#F59E0B', bg: '#FFFBEB', target: '< 48h' },
-                            { label: 'Rétention J30', value: ret !== null ? `${ret}%` : '—', sub: ret !== null ? `${k.retention30.retained}/${k.retention30.cohort_total}` : 'Cohorte vide', color: '#8B5CF6', bg: '#F5F3FF', target: '> 40 %' },
+                            { label: 'Conversion créateurs', value: `${convCr}%`, sub: `${k.conversionCreator.active}/${k.conversionCreator.total} actifs`, target: '> 40 %' },
+                            { label: 'Conversion organisateurs', value: `${convOrg}%`, sub: `${k.conversionOrganizer.active}/${k.conversionOrganizer.total} actifs`, target: '> 60 %' },
+                            { label: 'Taux de remplissage', value: `${fill}%`, sub: `${k.fillRate.filled_stands}/${k.fillRate.total_stands} stands`, target: '> 70 %' },
+                            { label: 'Liquidité marketplace', value: liq !== null ? `${liq}h` : '—', sub: liq !== null ? '1ère candidature' : 'Pas de données', target: '< 48h' },
+                            { label: 'Rétention J30', value: ret !== null ? `${ret}%` : '—', sub: ret !== null ? `${k.retention30.retained}/${k.retention30.cohort_total}` : 'Cohorte vide', target: '> 40 %' },
                           ].map(kpi => (
-                            <div key={kpi.label} style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: kpi.bg, border: `1px solid ${kpi.color}22` }}>
-                              <p style={{ fontSize: '22px', fontWeight: '800', color: kpi.color, margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
+                            <div key={kpi.label} style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+                              <p style={{ fontSize: '22px', fontWeight: '800', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
                               <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 2px' }}>{kpi.label}</p>
                               <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 4px' }}>{kpi.sub}</p>
-                              <p style={{ fontSize: '10px', color: kpi.color, fontWeight: '600', margin: 0 }}>Cible : {kpi.target}</p>
+                              <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: 0 }}>Cible : {kpi.target}</p>
                             </div>
                           ))
                         })()}
@@ -926,7 +1013,7 @@ export default function ProfilePage() {
                   { k: 'all', label: `Tous (${adminCreators.length})` },
                 ] as const).map(f => (
                   <button key={f.k} onClick={() => setAdminFilter(f.k)}
-                    style={{ padding: '7px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600', backgroundColor: adminFilter === f.k ? '#6366F1' : '#F3F4F6', color: adminFilter === f.k ? '#FFF' : '#4B5563' }}>
+                    style={{ padding: '7px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600', backgroundColor: adminFilter === f.k ? '#111827' : '#F3F4F6', color: adminFilter === f.k ? '#FFF' : '#4B5563' }}>
                     {f.label}
                   </button>
                 ))}
@@ -943,7 +1030,7 @@ export default function ProfilePage() {
                   {displayedCreators.map(c => (
                     <div key={c.user_id} style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           {c.profiles?.avatar_url
                             // eslint-disable-next-line @next/next/no-img-element
                             ? <img src={c.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -958,10 +1045,10 @@ export default function ProfilePage() {
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
 
                         {/* SIRET block */}
-                        <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${c.siret_verified ? '#A7F3D0' : '#FDE68A'}`, backgroundColor: c.siret_verified ? '#ECFDF5' : '#FFFBEB' }}>
+                        <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>SIRET</p>
-                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: c.siret_verified ? '#059669' : '#F59E0B', color: '#FFF' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: c.siret_verified ? '#374151' : '#E5E7EB', color: c.siret_verified ? '#FFF' : '#6B7280' }}>
                               {c.siret_verified ? 'Vérifié' : 'En attente'}
                             </span>
                           </div>
@@ -973,12 +1060,12 @@ export default function ProfilePage() {
                             <div style={{ display: 'flex', gap: '6px' }}>
                               <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', true)}
                                 disabled={adminSaving === `${c.user_id}-siret_verified`}
-                                style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#059669', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                 <CheckCircle size={12} /> Valider
                               </button>
-                              <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', false)}
+                              <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'siret_verified', creatorName: (c as unknown as { profiles?: { full_name?: string } }).profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
                                 disabled={adminSaving === `${c.user_id}-siret_verified`}
-                                style={{ padding: '7px 10px', borderRadius: '7px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '12px', cursor: 'pointer' }}>
+                                style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
                                 <XCircle size={13} />
                               </button>
                             </div>
@@ -992,16 +1079,16 @@ export default function ProfilePage() {
                         </div>
 
                         {/* RC Pro block */}
-                        <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${c.insurance_verified ? '#A7F3D0' : c.insurance_doc_url ? '#FDE68A' : '#E5E7EB'}`, backgroundColor: c.insurance_verified ? '#ECFDF5' : c.insurance_doc_url ? '#FFFBEB' : '#FAFAFA' }}>
+                        <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro</p>
-                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: c.insurance_verified ? '#059669' : c.insurance_doc_url ? '#F59E0B' : '#E5E7EB', color: c.insurance_verified || c.insurance_doc_url ? '#FFF' : '#9CA3AF' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: c.insurance_verified ? '#374151' : '#E5E7EB', color: c.insurance_verified ? '#FFF' : '#6B7280' }}>
                               {c.insurance_verified ? 'Vérifié' : c.insurance_doc_url ? 'Doc reçu' : 'Aucun doc'}
                             </span>
                           </div>
                           {c.insurance_doc_url ? (
                             <a href={c.insurance_doc_url} target="_blank" rel="noopener noreferrer"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#6366F1', textDecoration: 'none', fontWeight: '600', marginBottom: '10px' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#374151', textDecoration: 'none', fontWeight: '600', marginBottom: '10px' }}>
                               <FileText size={13} /> Voir le document <ExternalLink size={11} />
                             </a>
                           ) : (
@@ -1011,12 +1098,12 @@ export default function ProfilePage() {
                             <div style={{ display: 'flex', gap: '6px' }}>
                               <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', true)}
                                 disabled={adminSaving === `${c.user_id}-insurance_verified`}
-                                style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#059669', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                 <CheckCircle size={12} /> Valider
                               </button>
-                              <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', false)}
+                              <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'insurance_verified', creatorName: (c as unknown as { profiles?: { full_name?: string } }).profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
                                 disabled={adminSaving === `${c.user_id}-insurance_verified`}
-                                style={{ padding: '7px 10px', borderRadius: '7px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '12px', cursor: 'pointer' }}>
+                                style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
                                 <XCircle size={13} />
                               </button>
                             </div>
@@ -1052,7 +1139,7 @@ export default function ProfilePage() {
                       {ev.cover_image
                         // eslint-disable-next-line @next/next/no-img-element
                         ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <div style={{ width: '100%', height: '100%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#FFF" /></div>
+                        : <div style={{ width: '100%', height: '100%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#FFF" /></div>
                       }
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -1074,14 +1161,14 @@ export default function ProfilePage() {
                         onClick={() => handleToggleEventStatus(ev.id, ev.status)}
                         disabled={adminSaving === ev.id}
                         title={ev.status === 'published' ? 'Mettre en brouillon' : 'Publier'}
-                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: 'none', backgroundColor: ev.status === 'published' ? '#ECFDF5' : '#F3F4F6', color: ev.status === 'published' ? '#059669' : '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {ev.status === 'published' ? <Eye size={15} /> : <EyeOff size={15} />}
                       </button>
                       <button
                         onClick={() => { if (window.confirm(`Supprimer "${ev.title}" ?`)) handleDeleteEvent(ev.id) }}
                         disabled={deletingEvent === ev.id}
                         title="Supprimer"
-                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Trash2 size={15} />
                       </button>
                     </div>
@@ -1098,7 +1185,7 @@ export default function ProfilePage() {
               {/* Composer */}
               <div style={{ padding: '24px', borderRadius: '14px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
-                  <Send size={16} color="#6366F1" />
+                  <Send size={16} color="#6B7280" />
                   <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Nouveau message</h3>
                 </div>
 
@@ -1106,8 +1193,8 @@ export default function ProfilePage() {
                 <div style={{ marginBottom: '14px', position: 'relative' }}>
                   <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Destinataire</label>
                   {msgRecipient ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '2px solid #6366F1', backgroundColor: '#EEF2FF' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '2px solid #374151', backgroundColor: '#F3F4F6' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                         {msgRecipient.avatar_url
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={msgRecipient.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1139,7 +1226,7 @@ export default function ProfilePage() {
                               style={{ width: '100%', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}
                               onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
                               onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-                              <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                              <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                                 {s.avatar_url
                                   // eslint-disable-next-line @next/next/no-img-element
                                   ? <img src={s.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1192,11 +1279,11 @@ export default function ProfilePage() {
                     disabled={msgSending || !msgRecipient || !msgContent.trim()}
                     style={{
                       padding: '11px 24px', borderRadius: '8px', border: 'none',
-                      backgroundColor: msgRecipient && msgContent.trim() ? '#6366F1' : '#E5E7EB',
+                      backgroundColor: msgRecipient && msgContent.trim() ? '#111827' : '#E5E7EB',
                       color: msgRecipient && msgContent.trim() ? '#FFF' : '#9CA3AF',
                       fontSize: '14px', fontWeight: '700', cursor: msgRecipient && msgContent.trim() ? 'pointer' : 'not-allowed',
                       display: 'flex', alignItems: 'center', gap: '8px',
-                      boxShadow: msgRecipient && msgContent.trim() ? '0 4px 14px rgba(99,102,241,0.35)' : 'none',
+                      boxShadow: 'none',
                     }}>
                     {msgSending ? (
                       <><div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> Envoi…</>
@@ -1225,7 +1312,7 @@ export default function ProfilePage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {adminMessages.map(msg => (
                       <div key={msg.id} style={{ padding: '14px 18px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           {msg.recipient?.avatar_url
                             // eslint-disable-next-line @next/next/no-img-element
                             ? <img src={msg.recipient.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1237,7 +1324,7 @@ export default function ProfilePage() {
                             <div>
                               <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A' }}>{msg.recipient?.full_name ?? 'Utilisateur'}</span>
                               <span style={{ fontSize: '11px', color: '#9CA3AF', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
-                              {msg.subject && <p style={{ fontSize: '12px', fontWeight: '600', color: '#6366F1', margin: '2px 0 0' }}>{msg.subject}</p>}
+                              {msg.subject && <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: '2px 0 0' }}>{msg.subject}</p>}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                               {msg.read_at
