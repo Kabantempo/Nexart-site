@@ -38,7 +38,7 @@ function relativeTime(dateStr: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function NotificationBell({ userId }: { userId: string }) {
+export function NotificationBell({ userId, dark = false }: { userId: string; dark?: boolean }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [open, setOpen] = useState(false)
   const [supported, setSupported] = useState(true)
@@ -113,17 +113,9 @@ export function NotificationBell({ userId }: { userId: string }) {
       <button
         onClick={() => { setOpen(!open); if (!open && unread > 0) markAllRead() }}
         title="Notifications"
-        style={{
-          width: '38px', height: '38px', borderRadius: '50%',
-          border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', transition: 'background-color 150ms ease',
-          position: 'relative',
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F5F5F7' }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors relative ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
       >
-        <Bell size={18} color="#1A1A1A" />
+        <Bell size={16} />
         {unread > 0 && (
           <span style={{
             position: 'absolute', top: '-3px', right: '-3px',

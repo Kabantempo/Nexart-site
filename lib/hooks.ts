@@ -44,7 +44,7 @@ export function useCreators() {
         const { data: profiles, error: err } = await supabase
           .from('profiles')
           .select('*')
-          .eq('role', 'creator')
+          .or('role.eq.creator,role.eq.artisan')
 
         if (err) throw err
 

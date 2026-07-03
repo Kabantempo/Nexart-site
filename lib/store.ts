@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface User {
   id: string
@@ -15,12 +16,20 @@ interface AuthStore {
   setLoading: (loading: boolean) => void
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  user: null,
-  loading: false,
-  setUser: (user) => set({ user }),
-  setLoading: (loading) => set({ loading }),
-}))
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      user: null,
+      loading: false,
+      setUser: (user) => set({ user }),
+      setLoading: (loading) => set({ loading }),
+    }),
+    {
+      name: 'nexart-auth',
+      partialize: (state) => ({ user: state.user }),
+    }
+  )
+)
 
 interface UiStore {
   sidebarOpen: boolean

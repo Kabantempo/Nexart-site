@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
@@ -36,18 +36,26 @@ export function NavbarFull() {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user && !user) {
-        const { data: p } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        if (p) setUser({ id: p.id, email: session.user.email || '', role: p.role, full_name: p.full_name, avatar_url: p.avatar_url })
+      if (session?.user && !useAuthStore.getState().user) {
+        const su = session.user
+        let { data: p } = await supabase.from('profiles').select('*').eq('id', su.id).maybeSingle()
+        if (!p) {
+          const defaultName = su.user_metadata?.full_name ?? su.email?.split('@')[0] ?? ''
+          await supabase.from('profiles').upsert({ id: su.id, full_name: defaultName, role: su.user_metadata?.role ?? null })
+          const { data: created } = await supabase.from('profiles').select('*').eq('id', su.id).maybeSingle()
+          p = created
+        }
+        if (p) setUser({ id: p.id, email: su.email || '', role: p.role, full_name: p.full_name, avatar_url: p.avatar_url })
       }
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => { if (!s) setUser(null) })
     return () => subscription.unsubscribe()
-  }, [setUser, user])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setUser])
 
   useEffect(() => { setMobileOpen(false); setDropdown(null) }, [pathname])
 
-  const go = (ms = 200) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
+  const go = (ms = 500) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
   const stay = () => { if (closeTimer.current) clearTimeout(closeTimer.current) }
 
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); router.push('/') }
@@ -200,7 +208,10 @@ export function NavbarFull() {
 
             {user ? (
               <>
-                <NotificationBell userId={user.id} />
+                <NotificationBell userId={user.id} dark={dark} />
+                <Link href="/favorites" title="Mes favoris" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
+                  <Heart size={16} />
+                </Link>
                 <Link href="/messages" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
                   <MessageCircle size={16} />
                 </Link>
@@ -227,6 +238,9 @@ export function NavbarFull() {
                     </div>
                     <Link href="/profile" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                       <User size={13} className="text-gray-400" /> Mon profil
+                    </Link>
+                    <Link href="/favorites" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                      <Heart size={13} className="text-gray-400" /> Mes favoris
                     </Link>
                     <Link href="/messages" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                       <MessageCircle size={13} className="text-gray-400" /> Messages

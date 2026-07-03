@@ -10,7 +10,8 @@ import {
   Star, CheckCircle, Calendar, LogOut, Upload, ExternalLink,
   Shield, FileText, XCircle, Trash2, Eye, EyeOff,
   TrendingUp, Users, BarChart2, MessageSquare, Package, CreditCard, ArrowUpRight,
-  Send, Search, CheckCheck, Clock, Settings,
+  Send, Search, CheckCheck, Clock, Settings, AlertCircle, BadgeCheck,
+  LayoutGrid, Award, ChevronRight,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
@@ -192,7 +193,7 @@ export default function ProfilePage() {
         .from('profiles')
         .select('full_name,bio,avatar_url,role,is_admin')
         .eq('id', u.id)
-        .single()
+        .maybeSingle()
 
       setProfile(prof as Profile)
 
@@ -220,7 +221,7 @@ export default function ProfilePage() {
         setAdminMessages((msgs as unknown as AdminMessage[]) ?? [])
       } else {
         const [{ data: creat }, { data: apps }, { data: revs }] = await Promise.all([
-          supabase.from('creator_profiles').select('*').eq('user_id', u.id).single(),
+          supabase.from('creator_profiles').select('*').eq('user_id', u.id).maybeSingle(),
           supabase.from('applications').select('id,status,created_at,message,events(title,city,start_date,cover_image)').eq('creator_id', u.id).order('created_at', { ascending: false }).limit(20),
           supabase.from('reviews').select('id,rating,comment,tags,created_at,profiles(full_name)').eq('reviewed_id', u.id).order('created_at', { ascending: false }).limit(20),
         ])
@@ -1133,146 +1134,283 @@ export default function ProfilePage() {
   // CREATOR DASHBOARD
   // ──────────────────────────────────────────────────────────────────────────────
 
+  const completionMissing: string[] = []
+  const isCreatorRole = profile?.role === 'creator' || profile?.role === 'artisan' || creator !== null
+  if (isCreatorRole) {
+    if (!profile?.full_name) completionMissing.push('Nom complet')
+    if (!profile?.bio) completionMissing.push('Bio')
+    if (!profile?.avatar_url) completionMissing.push('Photo de profil')
+    if (!creator?.disciplines?.length) completionMissing.push('Disciplines')
+    if (!creator?.city) completionMissing.push('Ville')
+    if (!creator?.travel_radius) completionMissing.push('Rayon de déplacement')
+  }
+  const completionDone = 6 - completionMissing.length
+  const acceptedCount = applications.filter(a => a.status === 'accepted').length
+
+  const DISC_COLORS: Record<string, string> = {
+    Tatouage:'#6366F1', Céramique:'#8B5CF6', Gravure:'#EC4899', Joaillerie:'#F59E0B',
+    Bijoux:'#F59E0B', Illustration:'#06B6D4', Textile:'#10B981', Maroquinerie:'#84CC16',
+    Sculpture:'#F97316', Photographie:'#3B82F6', Peinture:'#EC4899', Poterie:'#8B5CF6',
+    Broderie:'#EC4899', Lutherie:'#F97316', Verrerie:'#06B6D4', Reliure:'#6366F1',
+    'Cosmétique naturelle':'#10B981', Savonnerie:'#10B981', Coutellerie:'#6B7280',
+    Bougies:'#F59E0B', Macramé:'#8B5CF6', Origami:'#06B6D4', Calligraphie:'#6366F1', Sérigraphie:'#EC4899',
+  }
+
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 16px 80px' }}>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
-        {/* ── Header ── */}
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#6366F1', overflow: 'hidden', border: '3px solid #EEF2FF' }}>
-              {profile?.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: '36px', fontWeight: '800', color: '#FFF' }}>{firstName[0]?.toUpperCase()}</span>
+        {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
+        <div style={{ position: 'relative', backgroundColor: '#06060f', overflow: 'hidden', paddingTop: '100px', paddingBottom: '72px' }}>
+          {/* Dot grid */}
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.12) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
+          {/* Glow blobs */}
+          <div style={{ position: 'absolute', top: '10%', left: '20%', width: '320px', height: '320px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', animation: 'glow 6s ease-in-out infinite', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '0%', right: '15%', width: '240px', height: '240px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%)', animation: 'glow 8s ease-in-out infinite 2s', pointerEvents: 'none' }} />
+
+          <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+              {/* Avatar */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{ width: '112px', height: '112px', borderRadius: '20px', overflow: 'hidden', border: '3px solid rgba(99,102,241,0.4)', boxShadow: '0 0 32px rgba(99,102,241,0.25)', backgroundColor: '#1e1b4b' }}>
+                  {profile?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}>
+                      <span style={{ fontSize: '40px', fontWeight: '800', color: '#FFF' }}>{firstName[0]?.toUpperCase()}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <button onClick={() => fileRef.current?.click()} disabled={avatarUploading}
-              style={{ position: 'absolute', bottom: 0, right: 0, width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#6366F1', border: '2px solid #FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              {avatarUploading ? <div style={{ width: '12px', height: '12px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Upload size={12} color="#FFF" />}
-            </button>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+                <button onClick={() => fileRef.current?.click()} disabled={avatarUploading}
+                  style={{ position: 'absolute', bottom: '-6px', right: '-6px', width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', border: '2.5px solid #06060f', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(99,102,241,0.5)' }}>
+                  {avatarUploading ? <div style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Upload size={13} color="#FFF" />}
+                </button>
+                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+              </div>
+
+              {/* Info */}
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                {editing ? (
+                  <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Nom complet"
+                    style={{ fontSize: '22px', fontWeight: '700', color: '#FFF', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '8px 14px', marginBottom: '10px', width: '100%', outline: 'none', fontFamily: 'inherit' }} />
+                ) : (
+                  <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#FFFFFF', margin: '0 0 6px', letterSpacing: '-0.5px' }}>{name}</h1>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                  <span style={{ padding: '3px 12px', borderRadius: '99px', backgroundColor: 'rgba(99,102,241,0.25)', color: '#A5B4FC', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(99,102,241,0.3)' }}>
+                    {profile?.role === 'artisan' ? 'Artisan' : 'Créateur'}
+                  </span>
+                  {creator?.siret_verified && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '99px', backgroundColor: 'rgba(16,185,129,0.15)', color: '#6EE7B7', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <BadgeCheck size={12} /> SIRET
+                    </span>
+                  )}
+                  {creator?.insurance_verified && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '99px', backgroundColor: 'rgba(16,185,129,0.15)', color: '#6EE7B7', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.2)' }}>
+                      <BadgeCheck size={12} /> RC Pro
+                    </span>
+                  )}
+                  {avgRating && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '99px', backgroundColor: 'rgba(245,158,11,0.15)', color: '#FCD34D', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(245,158,11,0.2)' }}>
+                      <Star size={11} fill="#FCD34D" color="#FCD34D" /> {avgRating}
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                  {creator?.city && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+                      <MapPin size={13} /> {creator.city}{creator.region ? `, ${creator.region}` : ''}
+                    </span>
+                  )}
+                  {creator?.travel_radius && (
+                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+                      · {RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}
+                    </span>
+                  )}
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
+                    <Mail size={12} /> {user?.email}
+                  </span>
+                </div>
+
+                {/* Disciplines preview */}
+                {(creator?.disciplines ?? []).length > 0 && (
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {creator!.disciplines.slice(0, 4).map(d => (
+                      <span key={d} style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: '600', backgroundColor: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>{d}</span>
+                    ))}
+                    {creator!.disciplines.length > 4 && (
+                      <span style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: '600', backgroundColor: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>+{creator!.disciplines.length - 4}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignSelf: 'flex-start' }}>
+                  {editing ? (
+                    <>
+                      <button onClick={handleSave} disabled={saving}
+                        style={{ padding: '10px 20px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <Save size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
+                      </button>
+                      <button onClick={() => setEditing(false)}
+                        style={{ padding: '10px 14px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <X size={14} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => setEditing(true)}
+                        style={{ padding: '10px 18px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', boxShadow: '0 4px 14px rgba(99,102,241,0.35)' }}>
+                        <Edit3 size={14} /> Modifier le profil
+                      </button>
+                      <button onClick={() => router.push('/creators/' + user?.id)}
+                        style={{ padding: '10px 14px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        <ChevronRight size={14} /> Voir mon profil
+                      </button>
+                    </>
+                  )}
+              </div>
+
+            </div>{/* end flex row */}
+          </div>{/* end max-width */}
+        </div>{/* end dark hero */}
+
+        {/* ═══ CONTENT AREA ══════════════════════════════════════════════════════ */}
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 16px 80px' }}>
+
+          {/* Stats row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '-28px', marginBottom: '32px' }}>
+            {[
+              { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} color="#6366F1" />, bg: '#EEF2FF', c: '#6366F1' },
+              { label: 'Acceptées', value: acceptedCount, icon: <CheckCircle size={18} color="#059669" />, bg: '#ECFDF5', c: '#059669' },
+              { label: 'Avis reçus', value: reviews.length, icon: <Star size={18} color="#F59E0B" />, bg: '#FFFBEB', c: '#F59E0B' },
+              { label: 'Note moy.', value: avgRating ?? '—', icon: <Award size={18} color="#8B5CF6" />, bg: '#F5F3FF', c: '#8B5CF6' },
+            ].map(s => (
+              <div key={s.label} style={{ padding: '16px', borderRadius: '14px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', textAlign: 'center' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>{s.icon}</div>
+                <p style={{ fontSize: '22px', fontWeight: '800', color: '#0F172A', margin: '0 0 2px', lineHeight: 1 }}>{s.value}</p>
+                <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0, fontWeight: '500' }}>{s.label}</p>
+              </div>
+            ))}
           </div>
 
-          <div style={{ flex: 1, minWidth: '200px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '6px' }}>
-              <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1A1A1A', margin: 0 }}>{name}</h1>
-              {profile?.role === 'creator' && (
-                <span style={{ padding: '3px 10px', borderRadius: '20px', backgroundColor: '#EEF2FF', color: '#6366F1', fontSize: '12px', fontWeight: '700' }}>Créateur</span>
-              )}
-              {avgRating && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', fontWeight: '700', color: '#F59E0B' }}>
-                  <Star size={14} fill="#F59E0B" color="#F59E0B" /> {avgRating} ({reviews.length} avis)
-                </span>
-              )}
+          {/* Profile completion banner */}
+          {isCreatorRole && completionMissing.length > 0 && (
+            <div style={{ marginBottom: '24px', padding: '16px 20px', borderRadius: '14px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <AlertCircle size={18} color="#D97706" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#92400E' }}>Profil complété {completionDone}/6</span>
+                  <span style={{ fontSize: '12px', color: '#B45309', fontWeight: '600' }}>{Math.round((completionDone / 6) * 100)}%</span>
+                </div>
+                <div style={{ height: '6px', borderRadius: '99px', backgroundColor: '#FDE68A', overflow: 'hidden', marginBottom: '10px' }}>
+                  <div style={{ height: '100%', width: `${(completionDone / 6) * 100}%`, borderRadius: '99px', background: 'linear-gradient(90deg,#F59E0B,#D97706)', transition: 'width 600ms ease' }} />
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {completionMissing.map(f => (
+                    <span key={f} style={{ padding: '3px 10px', borderRadius: '99px', backgroundColor: '#FEF3C7', border: '1px solid #FDE68A', fontSize: '12px', fontWeight: '600', color: '#92400E' }}>{f}</span>
+                  ))}
+                </div>
+              </div>
             </div>
-            <p style={{ fontSize: '14px', color: '#888888', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Mail size={13} /> {user?.email}
-            </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <Badge ok={creator?.siret_verified ?? false} label="SIRET vérifié" />
-              <Badge ok={creator?.insurance_verified ?? false} label="RC Pro valide" />
-            </div>
-          </div>
+          )}
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {editing ? (
-              <>
-                <button onClick={handleSave} disabled={saving}
-                  style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFF', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Save size={15} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
-                </button>
-                <button onClick={() => setEditing(false)}
-                  style={{ padding: '10px 16px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#1A1A1A', border: 'none', fontSize: '14px', cursor: 'pointer' }}>
-                  <X size={15} />
-                </button>
-              </>
-            ) : (
-              <button onClick={() => setEditing(true)}
-                style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#1A1A1A', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Edit3 size={15} /> Modifier
+          {/* Pill tabs */}
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '28px', backgroundColor: '#F1F5F9', padding: '4px', borderRadius: '14px', width: 'fit-content', flexWrap: 'wrap' }}>
+            {([
+              { key: 'profil',       label: 'Profil',        icon: <User size={14} /> },
+              { key: 'portfolio',    label: 'Portfolio',     icon: <LayoutGrid size={14} /> },
+              { key: 'candidatures', label: `Candidatures${applications.length ? ` (${applications.length})` : ''}`, icon: <Calendar size={14} /> },
+              { key: 'avis',         label: `Avis${reviews.length ? ` (${reviews.length})` : ''}`, icon: <Award size={14} /> },
+            ] as const).map(t => (
+              <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                  fontSize: '13px', fontWeight: '600', transition: 'all 150ms ease',
+                  backgroundColor: tab === t.key ? '#FFFFFF' : 'transparent',
+                  color: tab === t.key ? '#1E293B' : '#64748B',
+                  boxShadow: tab === t.key ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                }}>
+                {t.icon} {t.label}
               </button>
-            )}
+            ))}
           </div>
-        </div>
-
-        {/* ── Tabs ── */}
-        <div style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #E5E7EB', marginBottom: '32px' }}>
-          {(['profil', 'portfolio', 'candidatures', 'avis'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              style={{
-                padding: '10px 20px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer',
-                fontSize: '14px', fontWeight: tab === t ? '700' : '500',
-                color: tab === t ? '#6366F1' : '#888888',
-                borderBottom: tab === t ? '2px solid #6366F1' : '2px solid transparent',
-                marginBottom: '-2px', textTransform: 'capitalize',
-                transition: 'color 150ms ease',
-              }}>
-              {t === 'candidatures' ? `Candidatures (${applications.length})` : t === 'avis' ? `Avis (${reviews.length})` : t.charAt(0).toUpperCase() + t.slice(1)}
-            </button>
-          ))}
-        </div>
 
         {/* ── Tab: Profil ── */}
         {tab === 'profil' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-            <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <User size={16} color="#6366F1" /> Bio
-              </h3>
+            {/* Bio */}
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color="#6366F1" /></div>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Bio</h3>
+              </div>
               {editing ? (
-                <>
-                  <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Nom complet"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '15px', marginBottom: '12px', fontFamily: 'inherit' }} />
-                  <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité…" rows={4}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.6' }} />
-                </>
+                <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité, votre style, ce qui vous rend unique…" rows={4}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.7', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
               ) : (
-                <p style={{ fontSize: '15px', color: profile?.bio ? '#1A1A1A' : '#9CA3AF', lineHeight: '1.7', margin: 0 }}>
-                  {profile?.bio ?? 'Aucune bio renseignée. Cliquez sur Modifier pour en ajouter une.'}
+                <p style={{ fontSize: '15px', color: profile?.bio ? '#334155' : '#94A3B8', lineHeight: '1.8', margin: 0 }}>
+                  {profile?.bio ?? 'Aucune bio renseignée. Cliquez sur "Modifier le profil" pour en ajouter une.'}
                 </p>
               )}
             </div>
 
-            <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>🎨 Disciplines</h3>
+            {/* Disciplines */}
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '14px' }}>🎨</span></div>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Disciplines</h3>
+              </div>
               {editing ? (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {DISCIPLINES.map(d => (
-                    <button key={d} onClick={() => toggleDisc(d)}
-                      style={{ padding: '6px 14px', borderRadius: '20px', border: `1px solid ${editDisc.includes(d) ? '#6366F1' : '#E5E7EB'}`, backgroundColor: editDisc.includes(d) ? '#EEF2FF' : '#FFF', color: editDisc.includes(d) ? '#6366F1' : '#888', fontSize: '13px', fontWeight: editDisc.includes(d) ? '700' : '500', cursor: 'pointer' }}>
-                      {d}
-                    </button>
-                  ))}
+                  {DISCIPLINES.map(d => {
+                    const c = DISC_COLORS[d] ?? '#6366F1'
+                    const sel = editDisc.includes(d)
+                    return (
+                      <button key={d} onClick={() => toggleDisc(d)}
+                        style={{ padding: '6px 14px', borderRadius: '99px', border: `1.5px solid ${sel ? c : '#E2E8F0'}`, backgroundColor: sel ? c + '18' : '#FFF', color: sel ? c : '#64748B', fontSize: '13px', fontWeight: sel ? '700' : '500', cursor: 'pointer', transition: 'all 150ms' }}>
+                        {d}
+                      </button>
+                    )
+                  })}
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {(creator?.disciplines ?? []).length > 0
-                    ? creator!.disciplines.map(d => (
-                      <span key={d} style={{ padding: '6px 14px', borderRadius: '20px', backgroundColor: '#EEF2FF', color: '#6366F1', fontSize: '13px', fontWeight: '600' }}>{d}</span>
-                    ))
-                    : <span style={{ color: '#9CA3AF', fontSize: '14px' }}>Aucune discipline renseignée</span>
+                    ? creator!.disciplines.map(d => {
+                        const c = DISC_COLORS[d] ?? '#6366F1'
+                        return <span key={d} style={{ padding: '6px 14px', borderRadius: '99px', backgroundColor: c + '18', color: c, fontSize: '13px', fontWeight: '700', border: `1px solid ${c}30` }}>{d}</span>
+                      })
+                    : <span style={{ color: '#94A3B8', fontSize: '14px' }}>Aucune discipline renseignée</span>
                   }
                 </div>
               )}
             </div>
 
-            <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MapPin size={16} color="#6366F1" /> Localisation & déplacement
-              </h3>
+            {/* Localisation */}
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={14} color="#059669" /></div>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Localisation & déplacement</h3>
+              </div>
               {editing ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <input value={editCity} onChange={e => setEditCity(e.target.value)} placeholder="Ville" style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit' }} />
-                    <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région" style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit' }} />
+                    <input value={editCity} onChange={e => setEditCity(e.target.value)} placeholder="Ville" style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }} />
+                    <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région" style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }} />
                   </div>
                   <select value={editRadius} onChange={e => setEditRadius(e.target.value)}
-                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#FFF' }}>
+                    style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }}>
                     <option value="5">Rayon 5 km</option>
                     <option value="10">Rayon 10 km</option>
                     <option value="25">Rayon 25 km</option>
@@ -1280,15 +1418,23 @@ export default function ProfilePage() {
                   </select>
                 </div>
               ) : (
-                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '14px', color: '#1A1A1A' }}>📍 {creator?.city ?? '—'}{creator?.region ? `, ${creator.region}` : ''}</span>
-                  <span style={{ fontSize: '14px', color: '#1A1A1A' }}>🚗 {RADIUS_LABELS[creator?.travel_radius ?? ''] ?? 'Non renseigné'}</span>
+                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#334155' }}>
+                    <MapPin size={14} color="#94A3B8" /> {creator?.city ?? '—'}{creator?.region ? `, ${creator.region}` : ''}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#334155' }}>
+                    🚗 {RADIUS_LABELS[creator?.travel_radius ?? ''] ?? 'Non renseigné'}
+                  </span>
                 </div>
               )}
             </div>
 
-            <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>🔗 Liens</h3>
+            {/* Liens */}
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Globe size={14} color="#F97316" /></div>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Liens</h3>
+              </div>
               {editing ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[
@@ -1299,7 +1445,7 @@ export default function ProfilePage() {
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       {icon}
                       <input value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
-                        style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit' }} />
+                        style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }} />
                     </div>
                   ))}
                 </div>
@@ -1311,22 +1457,23 @@ export default function ProfilePage() {
                     { icon: <ExternalLink size={15} color="#F16521" />, val: creator?.etsy, label: 'Etsy' },
                   ].filter(l => l.val).map(({ icon, val, label }) => (
                     <a key={label} href={val!.startsWith('http') ? val! : `https://${val}`} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1A1A1A', textDecoration: 'none', fontSize: '14px' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
                       {icon} {val}
                     </a>
                   ))}
                   {!creator?.instagram && !creator?.website && !creator?.etsy && (
-                    <span style={{ color: '#9CA3AF', fontSize: '14px' }}>Aucun lien renseigné</span>
+                    <span style={{ color: '#94A3B8', fontSize: '14px' }}>Aucun lien renseigné</span>
                   )}
                 </div>
               )}
             </div>
 
             {/* Vérification */}
-            <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle size={16} color="#6366F1" /> Vérification
-              </h3>
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={14} color="#059669" /></div>
+                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Vérification</h3>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ padding: '16px', borderRadius: '10px', border: `1px solid ${(creator?.siret_verified || editSiret) ? '#A7F3D0' : '#E5E7EB'}`, backgroundColor: (creator?.siret_verified || editSiret) ? '#ECFDF5' : '#FAFAFA' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editing ? '12px' : '0' }}>
@@ -1390,8 +1537,9 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Déconnexion */}
             <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-              style={{ padding: '14px', borderRadius: '12px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              style={{ padding: '14px', borderRadius: '12px', border: '1px solid #FEE2E2', backgroundColor: '#FFF', color: '#EF4444', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <LogOut size={16} /> Se déconnecter
             </button>
           </div>
@@ -1495,8 +1643,10 @@ export default function ProfilePage() {
           </div>
         )}
 
+        </div>{/* end content area */}
+
       </motion.div>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
     </div>
   )
 }

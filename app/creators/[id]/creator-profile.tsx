@@ -6,336 +6,331 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, ChevronRight, QrCode, Heart } from 'lucide-react'
-import { ShareButtons } from '@/components/ui/share-buttons'
+import {
+  ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, QrCode,
+  Heart, MessageCircle, X, Send, BadgeCheck,
+} from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
 
-interface Props {
-  id: string
-}
+interface Props { id: string }
 
 interface CreatorData {
-  id: string
-  full_name: string
-  bio?: string
-  avatar_url?: string
-  city?: string
-  region?: string
-  department?: string
-  travel_radius?: string
-  disciplines?: string[]
-  portfolio_images?: string[]
-  website?: string
-  instagram?: string
-  etsy?: string
-  siret_verified?: boolean
-  insurance_verified?: boolean
-  created_at?: string
+  id: string; full_name: string; bio?: string; avatar_url?: string
+  city?: string; region?: string; department?: string; travel_radius?: string
+  disciplines?: string[]; portfolio_images?: string[]
+  website?: string; instagram?: string; etsy?: string
+  siret_verified?: boolean; insurance_verified?: boolean; created_at?: string
 }
 
 const RADIUS_LABELS: Record<string, string> = {
-  '5': '5 km',
-  '10': '10 km',
-  '25': '25 km',
-  national: 'National',
-}
-
-function QRCodeBlock({ creatorId, name }: { creatorId: string; name: string }) {
-  const [open, setOpen] = useState(false)
-  const url = typeof window !== 'undefined' ? `${window.location.origin}/creators/${creatorId}` : `https://nexart.fr/creators/${creatorId}`
-
-  return (
-    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #F3F4F6' }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', fontWeight: '600', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-      >
-        <QrCode size={15} color="#6366F1" />
-        {open ? 'Masquer le QR code' : 'QR code pour salons'}
-      </button>
-      {open && (
-        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '16px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-          <QRCodeSVG value={url} size={140} level="M" style={{ borderRadius: '8px' }} />
-          <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', lineHeight: 1.5 }}>
-            Scannez pour voir le profil de {name}
-          </p>
-        </div>
-      )}
-    </div>
-  )
+  '5': '5 km', '10': '10 km', '25': '25 km', national: 'National',
 }
 
 export function CreatorProfileClient({ id }: Props) {
   const [creator, setCreator] = useState<CreatorData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [showMsg, setShowMsg] = useState(false)
+  const [msgText, setMsgText] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [showQR, setShowQR] = useState(false)
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
 
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        const [{ data: profile }, { data: cp }] = await Promise.all([
-          supabase.from('profiles').select('*').eq('id', id).single(),
-          supabase.from('creator_profiles').select('*').eq('user_id', id).single(),
-        ])
-
-        if (!profile) { setError(true); setLoading(false); return }
-
-        setCreator({
-          id: profile.id,
-          full_name: profile.full_name,
-          bio: profile.bio,
-          avatar_url: profile.avatar_url,
-          created_at: profile.created_at,
-          ...(cp || {}),
-        })
-      } catch {
-        setError(true)
-      } finally {
-        setLoading(false)
-      }
+    const load = async () => {
+      const [{ data: p }, { data: cp }] = await Promise.all([
+        supabase.from('profiles').select('id, full_name, bio, avatar_url, role, created_at').eq('id', id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, website, instagram, etsy, siret_verified, insurance_verified').eq('user_id', id).maybeSingle(),
+      ])
+      if (!p) { setError(true); setLoading(false); return }
+      setCreator({ ...p, ...cp })
+      setLoading(false)
     }
-    fetch()
+    load()
   }, [id])
 
-  if (loading) {
-    return (
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#888888', fontSize: '16px' }}>Chargement...</p>
-      </div>
-    )
+  const sendMessage = async () => {
+    if (!msgText.trim() || !user) return
+    setSending(true)
+    let convId: string | null = null
+    const { data: existing } = await supabase.from('conversations').select('id').eq('creator_id', id).eq('organizer_id', user.id).maybeSingle()
+    if (existing) { convId = existing.id }
+    else {
+      const { data: created } = await supabase.from('conversations').insert({ creator_id: id, organizer_id: user.id }).select('id').single()
+      convId = created?.id ?? null
+    }
+    if (convId) {
+      await supabase.from('messages').insert({ conversation_id: convId, sender_id: user.id, content: msgText.trim() })
+      setSent(true); setMsgText('')
+    }
+    setSending(false)
   }
 
-  if (error || !creator) {
-    return (
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#E05A5A', fontSize: '16px' }}>Créateur introuvable</p>
-        <Link href="/creators" style={{ color: '#6366F1', textDecoration: 'none', marginTop: '16px', display: 'block' }}>
-          ← Retour aux créateurs
-        </Link>
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  )
+
+  if (error || !creator) return (
+    <div className="max-w-lg mx-auto px-4 py-24 text-center">
+      <p className="text-red-500 text-base mb-4">Créateur introuvable</p>
+      <Link href="/creators" className="text-indigo-600 font-semibold text-sm hover:underline">← Retour aux créateurs</Link>
+    </div>
+  )
+
+  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${id}` : `https://nexart.fr/creators/${id}`
+  const isOwn = user?.id === id
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '24px 16px 40px' }}>
+    <div className="bg-white min-h-screen">
 
-        {/* Breadcrumb */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <Link href="/" style={{ color: '#9CA3AF', textDecoration: 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
-            Accueil
+      {/* Message modal */}
+      {showMsg && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setShowMsg(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2 }}
+            className="relative z-10 bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Envoyer un message</h3>
+                <p className="text-sm text-gray-400 mt-0.5">à {creator.full_name}</p>
+              </div>
+              <button onClick={() => setShowMsg(false)} className="text-gray-400 hover:text-gray-600 p-1"><X size={20} /></button>
+            </div>
+            {sent ? (
+              <div className="text-center py-6">
+                <div className="text-5xl mb-3">✅</div>
+                <p className="font-bold text-gray-900 text-base mb-1">Message envoyé !</p>
+                <p className="text-gray-500 text-sm mb-6">Retrouvez la conversation dans <Link href="/messages" className="text-indigo-600 font-semibold">vos messages</Link>.</p>
+                <button onClick={() => setShowMsg(false)} className="px-7 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">Fermer</button>
+              </div>
+            ) : (
+              <>
+                <textarea value={msgText} onChange={(e) => setMsgText(e.target.value)}
+                  placeholder={`Bonjour ${creator.full_name?.split(' ')[0]}, je souhaite…`} rows={5} autoFocus
+                  className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm text-gray-900 resize-none outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 font-[inherit] leading-relaxed"
+                />
+                <div className="flex gap-3 mt-4">
+                  <button onClick={() => setShowMsg(false)} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">Annuler</button>
+                  <button onClick={sendMessage} disabled={!msgText.trim() || sending}
+                    className="flex-[2] py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                    style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)' }}>
+                    <Send size={15} /> {sending ? 'Envoi…' : 'Envoyer'}
+                  </button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* ── HERO ─────────────────────────────────────────────────────── */}
+      <div className="bg-[#06060f] relative overflow-hidden">
+        {/* Dot grid */}
+        <div className="absolute inset-0 opacity-[0.10]" style={{ backgroundImage: 'radial-gradient(circle, rgba(139,92,246,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-600/15 blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-indigo-600/12 blur-[60px] pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-10 relative z-10">
+          {/* Back link */}
+          <Link href="/creators" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm font-medium mb-8 transition-colors">
+            <ArrowLeft size={15} /> Retour aux créateurs
           </Link>
-          <ChevronRight size={13} color="#D1D5DB" />
-          <Link href="/creators" style={{ color: '#9CA3AF', textDecoration: 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
-            Créateurs
-          </Link>
-          <ChevronRight size={13} color="#D1D5DB" />
-          <span style={{ color: '#1A1A1A', fontWeight: '600', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {creator.full_name}
-          </span>
-        </nav>
 
-        <Link
-          href="/creators"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#5B5BD6' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#6366F1' }}
-        >
-          <ArrowLeft size={16} />
-          Retour aux créateurs
-        </Link>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '32px' }}>
-          {/* Main */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            {/* Header */}
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', marginBottom: '32px' }}>
-              <div style={{ width: '120px', height: '120px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, position: 'relative', backgroundColor: '#F5F5F7' }}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            {/* Avatar */}
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: '#1e1b4b' }}>
                 {creator.avatar_url ? (
-                  <Image src={creator.avatar_url} alt={creator.full_name} fill style={{ objectFit: 'cover' }} />
+                  <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)' }}>
-                    <span style={{ fontSize: '48px', color: '#FFFFFF', fontWeight: '700' }}>
-                      {creator.full_name?.charAt(0) || '?'}
-                    </span>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600">
+                    <span className="text-4xl font-bold text-white/80">{creator.full_name?.charAt(0) || '?'}</span>
                   </div>
                 )}
               </div>
-              <div style={{ flex: 1 }}>
-                <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
-                  {creator.full_name}
-                </h1>
+              {(creator.siret_verified || creator.insurance_verified) && (
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-emerald-500 border-2 border-[#06060f] flex items-center justify-center">
+                  <BadgeCheck size={14} className="text-white" />
+                </div>
+              )}
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">{creator.full_name}</h1>
+
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 {creator.city && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                    <MapPin size={16} color="#6366F1" />
-                    <span style={{ fontSize: '15px', color: '#888888' }}>
-                      {creator.city}{creator.region ? `, ${creator.region}` : ''}
-                    </span>
-                    {creator.travel_radius && (
-                      <span style={{ marginLeft: '8px', padding: '2px 10px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: '#6366F1', fontSize: '13px', fontWeight: '500' }}>
-                        {RADIUS_LABELS[creator.travel_radius] || creator.travel_radius}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-1.5 text-white/50 text-sm">
+                    <MapPin size={13} className="text-indigo-400 shrink-0" />
+                    {creator.city}{creator.region ? `, ${creator.region}` : ''}
                   </div>
                 )}
+                {creator.travel_radius && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                    {RADIUS_LABELS[creator.travel_radius] || creator.travel_radius}
+                  </span>
+                )}
+              </div>
 
-                {/* Badges */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {creator.siret_verified && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '9999px', backgroundColor: '#E8F5E9', color: '#4CAF50', fontSize: '12px', fontWeight: '600' }}>
-                      <CheckCircle size={14} />
-                      SIRET vérifié
-                    </div>
-                  )}
-                  {creator.insurance_verified && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '9999px', backgroundColor: '#E8F5E9', color: '#4CAF50', fontSize: '12px', fontWeight: '600' }}>
-                      <CheckCircle size={14} />
-                      Assurance RC
-                    </div>
-                  )}
-                </div>
+              {/* Verification badges */}
+              <div className="flex flex-wrap gap-2">
+                {creator.siret_verified && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-xs font-bold">
+                    <CheckCircle size={12} /> SIRET vérifié
+                  </span>
+                )}
+                {creator.insurance_verified && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-xs font-bold">
+                    <CheckCircle size={12} /> Assurance RC
+                  </span>
+                )}
+                {creator.created_at && (
+                  <span className="flex items-center gap-1 text-white/25 text-xs">
+                    Membre depuis {new Date(creator.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                  </span>
+                )}
               </div>
             </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-3 mt-7">
+            {!user ? (
+              <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ background: 'linear-gradient(135deg,#6366F1,#4F46E5)' }}>
+                <MessageCircle size={15} /> Contacter
+              </Link>
+            ) : isOwn ? (
+              <Link href="/account" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white text-sm font-semibold hover:bg-white/15 transition-colors">
+                Éditer mon profil
+              </Link>
+            ) : (
+              <button onClick={() => { setShowMsg(true); setSent(false) }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                style={{ background: 'linear-gradient(135deg,#6366F1,#4F46E5)' }}>
+                <MessageCircle size={15} /> Envoyer un message
+              </button>
+            )}
+
+            {user && !isOwn && (
+              <button onClick={() => toggleCreatorFav(id)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+                  favCreatorIds.has(id)
+                    ? 'bg-rose-500/15 border-rose-500/30 text-rose-400'
+                    : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                }`}>
+                <Heart size={15} fill={favCreatorIds.has(id) ? 'currentColor' : 'none'} />
+                {favCreatorIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
+              </button>
+            )}
+
+            <button onClick={() => setShowQR(!showQR)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 text-sm font-semibold transition-all">
+              <QrCode size={15} /> QR code
+            </button>
+          </div>
+
+          {/* QR code inline */}
+          {showQR && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="mt-5 inline-flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className="p-3 bg-white rounded-xl">
+                <QRCodeSVG value={profileUrl} size={120} level="M" />
+              </div>
+              <p className="text-white/40 text-xs text-center">Scannez pour voir le profil de {creator.full_name}</p>
+            </motion.div>
+          )}
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
+      </div>
+
+      {/* ── CONTENT ──────────────────────────────────────────────────── */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
+
+          {/* Main */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
             {/* Bio */}
             {creator.bio && (
-              <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>À propos</h2>
-                <p style={{ fontSize: '16px', color: '#555555', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
-                  {creator.bio}
-                </p>
-              </div>
+              <section className="mb-8">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">À propos</h2>
+                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{creator.bio}</p>
+              </section>
             )}
 
             {/* Disciplines */}
             {creator.disciplines && creator.disciplines.length > 0 && (
-              <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>
-                  <Tag size={18} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-                  Disciplines
+              <section className="mb-8">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-3">
+                  <Tag size={17} className="text-indigo-500" /> Disciplines
                 </h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <div className="flex flex-wrap gap-2">
                   {creator.disciplines.map((d: string) => (
-                    <span key={d} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: '#6366F1', fontSize: '14px', fontWeight: '500' }}>
-                      {d}
-                    </span>
+                    <span key={d} className="px-3.5 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold">{d}</span>
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
             {/* Portfolio */}
             {creator.portfolio_images && creator.portfolio_images.length > 0 && (
-              <div style={{ marginBottom: '32px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>Portfolio</h2>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+              <section className="mb-8">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {creator.portfolio_images.map((img: string, idx: number) => (
-                    <div key={idx} style={{ aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', position: 'relative', backgroundColor: '#F5F5F7' }}>
-                      <Image src={img} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} />
+                    <div key={idx} className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative group">
+                      <Image src={img} alt={`Portfolio ${idx + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                   ))}
                 </div>
-              </div>
+              </section>
             )}
           </motion.div>
 
           {/* Sidebar */}
-          <div style={{ position: 'sticky', top: '80px', height: 'fit-content' }}>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              style={{ borderRadius: '16px', border: '1px solid #E5E7EB', padding: '24px', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
-            >
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '20px' }}>
-                Contact
-              </h3>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:sticky lg:top-20 h-fit">
+            <div className="rounded-2xl border border-gray-100 p-6 shadow-sm">
 
               {/* Links */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-                {creator.website && (
-                  <a href={creator.website} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px' }}>
-                    <Globe size={16} />
-                    {creator.website.replace(/^https?:\/\//, '')}
-                  </a>
-                )}
-                {creator.instagram && (
-                  <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px' }}>
-                    <Link2 size={16} />
-                    @{creator.instagram.replace('@', '')}
-                  </a>
-                )}
-              </div>
-
-              {/* Contact button */}
-              {!user ? (
-                <Link
-                  href="/login"
-                  style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
-                >
-                  Se connecter pour contacter
-                </Link>
-              ) : user.id === id ? (
-                <Link
-                  href="/dashboard"
-                  style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #6366F1', color: '#6366F1', textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
-                >
-                  Mon profil (éditer)
-                </Link>
-              ) : user.role === 'organizer' ? (
-                <button
-                  style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '15px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#5B5BD6' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1' }}
-                  onClick={() => alert('Messagerie bientôt disponible !')}
-                >
-                  Contacter
-                </button>
-              ) : null}
-
-              {creator.created_at && (
-                <p style={{ fontSize: '12px', color: '#AAAAAA', textAlign: 'center', marginTop: '16px' }}>
-                  Membre depuis {new Date(creator.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
-                </p>
+              {(creator.website || creator.instagram || creator.etsy) && (
+                <div className="mb-5">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Liens</p>
+                  <div className="flex flex-col gap-2.5">
+                    {creator.website && (
+                      <a href={creator.website} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors">
+                        <Globe size={15} className="shrink-0" />
+                        <span className="truncate">{creator.website.replace(/^https?:\/\//, '')}</span>
+                      </a>
+                    )}
+                    {creator.instagram && (
+                      <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors">
+                        <Link2 size={15} className="shrink-0" />
+                        @{creator.instagram.replace('@', '')}
+                      </a>
+                    )}
+                    {creator.etsy && (
+                      <a href={`https://etsy.com/shop/${creator.etsy}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors">
+                        <Link2 size={15} className="shrink-0" />
+                        Etsy : {creator.etsy}
+                      </a>
+                    )}
+                  </div>
+                </div>
               )}
 
-              {/* Share + Favori */}
-              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #F3F4F6' }}>
-                <p style={{ fontSize: '12px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager ce profil</p>
-                <ShareButtons url={`/creators/${id}`} title={`${creator.full_name} — Créateur sur Nexart`} />
-                {user && user.id !== id && (
-                  <button
-                    onClick={() => toggleCreatorFav(id)}
-                    title={favCreatorIds.has(id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: favCreatorIds.has(id) ? '#FFF1F2' : '#F8FAFC',
-                      color: favCreatorIds.has(id) ? '#BE123C' : '#64748B',
-                      fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                      border: `1.5px solid ${favCreatorIds.has(id) ? '#FECDD3' : '#E2E8F0'}`,
-                      marginTop: '12px', width: '100%', justifyContent: 'center',
-                    }}
-                  >
-                    <Heart size={16} fill={favCreatorIds.has(id) ? '#E05A5A' : 'none'} color={favCreatorIds.has(id) ? '#E05A5A' : '#94A3B8'} />
-                    {favCreatorIds.has(id) ? 'Sauvegardé dans mes favoris' : 'Ajouter aux favoris'}
-                  </button>
-                )}
-              </div>
-
-              {/* QR Code */}
-              <QRCodeBlock creatorId={id} name={creator.full_name} />
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

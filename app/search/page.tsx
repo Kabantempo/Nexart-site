@@ -13,8 +13,9 @@ type Tab = 'all' | 'events' | 'creators'
 function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { events } = useEvents()
-  const { creators } = useCreators()
+  const { events, loading: eventsLoading } = useEvents()
+  const { creators, loading: creatorsLoading } = useCreators()
+  const isLoading = eventsLoading || creatorsLoading
   const [query, setQuery] = useState(searchParams.get('q') ?? '')
   const [tab, setTab] = useState<Tab>('all')
 
@@ -223,8 +224,16 @@ function SearchContent() {
           </div>
         )}
 
+        {/* Loading state */}
+        {isLoading && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+            <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+          </div>
+        )}
+
         {/* Empty state */}
-        {q && totalResults === 0 && (
+        {!isLoading && q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
             <p style={{ fontSize: '18px', color: '#888888' }}>Aucun résultat pour "{query}"</p>
@@ -232,7 +241,7 @@ function SearchContent() {
           </div>
         )}
 
-        {!q && totalResults === 0 && (
+        {!isLoading && !q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
             <p style={{ fontSize: '18px', color: '#888888' }}>Commencez à taper pour rechercher</p>
