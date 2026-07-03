@@ -1542,6 +1542,29 @@ export default function ProfilePage() {
               style={{ padding: '14px', borderRadius: '12px', border: '1px solid #FEE2E2', backgroundColor: '#FFF', color: '#EF4444', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <LogOut size={16} /> Se déconnecter
             </button>
+
+            {/* Supprimer le compte */}
+            <button
+              onClick={async () => {
+                const confirmed = window.confirm('⚠️ Supprimer définitivement votre compte ?\n\nToutes vos données seront effacées et cette action est irréversible.')
+                if (!confirmed) return
+                const { data: { session } } = await supabase.auth.getSession()
+                if (!session) return
+                const res = await fetch('/api/delete-account', {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${session.access_token}` },
+                })
+                if (res.ok) {
+                  await supabase.auth.signOut()
+                  router.push('/')
+                } else {
+                  const body = await res.json()
+                  alert('Erreur : ' + (body.error ?? 'Impossible de supprimer le compte'))
+                }
+              }}
+              style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: 'transparent', color: '#9CA3AF', fontSize: '13px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <Trash2 size={14} /> Supprimer mon compte
+            </button>
           </div>
         )}
 
