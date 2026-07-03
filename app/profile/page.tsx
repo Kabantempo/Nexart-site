@@ -1162,7 +1162,7 @@ export default function ProfilePage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
-        <div style={{ position: 'relative', backgroundColor: '#06060f', overflow: 'hidden', paddingTop: '100px', paddingBottom: '72px' }}>
+        <div style={{ position: 'relative', backgroundColor: '#06060f', overflow: 'hidden', paddingTop: '100px', paddingBottom: '48px' }}>
           {/* Dot grid */}
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.12) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
           {/* Glow blobs */}
@@ -1282,10 +1282,10 @@ export default function ProfilePage() {
         </div>{/* end dark hero */}
 
         {/* ═══ CONTENT AREA ══════════════════════════════════════════════════════ */}
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 16px 80px' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 16px 80px', position: 'relative' }}>
 
           {/* Stats row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '-28px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '28px', marginBottom: '32px' }}>
             {[
               { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} color="#6366F1" />, bg: '#EEF2FF', c: '#6366F1' },
               { label: 'Acceptées', value: acceptedCount, icon: <CheckCircle size={18} color="#059669" />, bg: '#ECFDF5', c: '#059669' },
