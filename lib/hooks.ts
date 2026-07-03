@@ -41,10 +41,12 @@ export function useCreators() {
   useEffect(() => {
     const fetchCreators = async () => {
       try {
-        const { data: profiles, error: err } = await supabase
-          .from('profiles')
-          .select('*')
-          .or('role.eq.creator,role.eq.artisan')
+        const [{ data: creatorProfiles }, { data: artisanProfiles }] = await Promise.all([
+          supabase.from('profiles').select('*').eq('role', 'creator'),
+          supabase.from('profiles').select('*').eq('role', 'artisan'),
+        ])
+        const profiles = [...(creatorProfiles ?? []), ...(artisanProfiles ?? [])]
+        const err = null
 
         if (err) throw err
 
