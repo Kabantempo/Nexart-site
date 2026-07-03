@@ -404,7 +404,7 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6"
             >
               <Link href="/register" className="group flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-all duration-200 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
-                Commencer gratuitement <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                S'inscrire gratuitement <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link href="/events" className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl border border-white/10 text-white/55 hover:text-white hover:bg-white/6 hover:border-white/18 font-semibold text-sm transition-all duration-200">
                 Explorer les événements
@@ -577,7 +577,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/register" className="group flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all duration-200 shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
-                Commencer gratuitement <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                S'inscrire gratuitement <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link href="/events" className="flex items-center justify-center gap-2 px-9 py-4 rounded-2xl border border-white/10 text-white/50 hover:text-white hover:bg-white/5 hover:border-white/20 font-semibold transition-all duration-200">
                 Explorer <ChevronRight size={15} />

@@ -435,7 +435,7 @@ export function NavbarFull() {
                 ) : (
                   <>
                     <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center justify-center py-3.5 rounded-xl bg-white text-gray-900 text-[15px] font-bold">
-                      Commencer gratuitement
+                      S'inscrire gratuitement
                     </Link>
                     <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center text-sm text-white/35 hover:text-white/60 transition-colors py-2">
                       Déjà un compte ? Se connecter
