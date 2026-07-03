@@ -17,6 +17,7 @@ interface Props { id: string }
 
 interface CreatorData {
   id: string; full_name: string; bio?: string; avatar_url?: string
+  username?: string; show_real_name?: boolean
   city?: string; region?: string; department?: string; travel_radius?: string
   disciplines?: string[]; portfolio_images?: string[]
   portfolio_grid?: { url: string; colSpan: 1|2|3; rowSpan: 1|2|3 }[]
@@ -43,7 +44,7 @@ export function CreatorProfileClient({ id }: Props) {
   useEffect(() => {
     const load = async () => {
       const [{ data: p }, { data: cp }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, bio, avatar_url, role, created_at').eq('id', id).maybeSingle(),
+        supabase.from('profiles').select('id, full_name, bio, avatar_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
         supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
@@ -86,6 +87,8 @@ export function CreatorProfileClient({ id }: Props) {
 
   const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${id}` : `https://nexart.fr/creators/${id}`
   const isOwn = user?.id === id
+  const displayName = creator.username || creator.full_name
+  const showReal = creator.show_real_name !== false
 
   return (
     <div className="bg-white min-h-screen">
@@ -164,7 +167,12 @@ export function CreatorProfileClient({ id }: Props) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">{creator.full_name}</h1>
+              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">
+                {displayName}
+                {creator.username && showReal && (
+                  <span className="block text-sm font-normal text-white/40 mt-1">{creator.full_name}</span>
+                )}
+              </h1>
 
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 {creator.city && (

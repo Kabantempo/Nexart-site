@@ -145,6 +145,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [editName, setEditName] = useState('')
+  const [editUsername, setEditUsername] = useState('')
+  const [editShowRealName, setEditShowRealName] = useState(true)
   const [editBio, setEditBio] = useState('')
   const [editCity, setEditCity] = useState('')
   const [editRegion, setEditRegion] = useState('')
@@ -191,7 +193,7 @@ export default function ProfilePage() {
 
       const { data: prof } = await supabase
         .from('profiles')
-        .select('full_name,bio,avatar_url,role,is_admin')
+        .select('full_name,bio,avatar_url,role,is_admin,username,show_real_name')
         .eq('id', u.id)
         .maybeSingle()
 
@@ -231,6 +233,8 @@ export default function ProfilePage() {
         setApplications((apps as unknown as Application[]) ?? [])
         setReviews((revs as unknown as Review[]) ?? [])
         setEditName(prof?.full_name ?? u.user_metadata?.full_name ?? '')
+        setEditUsername((prof as unknown as { username?: string })?.username ?? '')
+        setEditShowRealName((prof as unknown as { show_real_name?: boolean })?.show_real_name ?? true)
         setEditBio(prof?.bio ?? '')
         setEditCity(creat?.city ?? '')
         setEditRegion(creat?.region ?? '')
@@ -258,7 +262,7 @@ export default function ProfilePage() {
     if (!user) return
     setSaving(true)
     await Promise.all([
-      supabase.from('profiles').upsert({ id: user.id, full_name: editName, bio: editBio }),
+      supabase.from('profiles').upsert({ id: user.id, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }),
       supabase.from('creator_profiles').upsert({
         user_id: user.id, disciplines: editDisc,
         city: editCity, region: editRegion, travel_radius: editRadius,
@@ -1356,12 +1360,46 @@ export default function ProfilePage() {
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Bio</h3>
               </div>
               {editing ? (
-                <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité, votre style, ce qui vous rend unique…" rows={4}
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.7', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* Pseudo */}
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Pseudo / Nom d'affichage</label>
+                    <input value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="ex : sophie.ceramiques"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
+                    <p style={{ fontSize: '12px', color: '#94A3B8', margin: '5px 0 0' }}>Affiché à la place de votre nom sur votre profil public si renseigné.</p>
+                  </div>
+                  {/* Toggle nom réel */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '12px 14px', borderRadius: '10px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <div onClick={() => setEditShowRealName(v => !v)}
+                      style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? '#6366F1' : '#CBD5E1', position: 'relative', flexShrink: 0, transition: 'background 200ms', cursor: 'pointer' }}>
+                      <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#1E293B', margin: 0 }}>Afficher mon vrai nom</p>
+                      <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>{editShowRealName ? 'Votre nom complet est visible publiquement' : 'Seul le pseudo est affiché'}</p>
+                    </div>
+                  </label>
+                  {/* Bio */}
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Bio</label>
+                    <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité, votre style, ce qui vous rend unique…" rows={4}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.7', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
               ) : (
-                <p style={{ fontSize: '15px', color: profile?.bio ? '#334155' : '#94A3B8', lineHeight: '1.8', margin: 0 }}>
-                  {profile?.bio ?? 'Aucune bio renseignée. Cliquez sur "Modifier le profil" pour en ajouter une.'}
-                </p>
+                <div>
+                  {/* Pseudo affiché */}
+                  {(profile as unknown as { username?: string })?.username && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#6366F1' }}>@{(profile as unknown as { username?: string }).username}</span>
+                      <span style={{ fontSize: '12px', color: '#94A3B8' }}>·</span>
+                      <span style={{ fontSize: '12px', color: '#94A3B8' }}>{(profile as unknown as { show_real_name?: boolean })?.show_real_name !== false ? 'Nom visible' : 'Nom masqué'}</span>
+                    </div>
+                  )}
+                  <p style={{ fontSize: '15px', color: profile?.bio ? '#334155' : '#94A3B8', lineHeight: '1.8', margin: 0 }}>
+                    {profile?.bio ?? 'Aucune bio renseignée. Cliquez sur "Modifier le profil" pour en ajouter une.'}
+                  </p>
+                </div>
               )}
             </div>
 
