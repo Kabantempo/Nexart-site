@@ -57,14 +57,14 @@ export function useCreators() {
           return
         }
 
-        const { data: creators, error: creatorErr } = await supabase
+        const { data: creatorData, error: creatorErr } = await supabase
           .from('creator_profiles')
           .select('*')
           .in('user_id', creatorIds)
 
         if (creatorErr) throw creatorErr
 
-        const enriched = creators?.map((creator) => {
+        const enriched = creatorData?.map((creator) => {
           const profile = profiles?.find((p) => p.id === creator.user_id)
           return {
             ...creator,
