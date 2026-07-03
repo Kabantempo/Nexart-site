@@ -575,7 +575,7 @@ export default function ProfilePage() {
           {/* ── Header Admin ── */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
-              <div style={{ width: '88px', height: '88px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', overflow: 'hidden', border: '3px solid #EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '88px', height: '88px', borderRadius: '50%', backgroundColor: '#6366F1', overflow: 'hidden', border: '3px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {profile?.avatar_url
                   // eslint-disable-next-line @next/next/no-img-element
                   ? <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -592,7 +592,7 @@ export default function ProfilePage() {
             <div style={{ flex: 1, minWidth: '200px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
                 <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1A1A1A', margin: 0 }}>{name}</h1>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 12px', borderRadius: '20px', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: '#FFF', fontSize: '12px', fontWeight: '700' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '12px', fontWeight: '600' }}>
                   <Shield size={12} /> Administrateur
                 </span>
               </div>
@@ -672,19 +672,19 @@ export default function ProfilePage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
                       {[
-                        { label: 'Total', value: analytics.users.total, color: '#6366F1', bg: '#EEF2FF', sub: 'comptes créés' },
-                        { label: 'Créateurs', value: analytics.users.creators, color: '#8B5CF6', bg: '#F5F3FF', sub: `${analytics.users.total ? Math.round(analytics.users.creators / analytics.users.total * 100) : 0}% du total` },
-                        { label: 'Organisateurs', value: analytics.users.organizers, color: '#06B6D4', bg: '#ECFEFF', sub: `${analytics.users.total ? Math.round(analytics.users.organizers / analytics.users.total * 100) : 0}% du total` },
-                        { label: 'Cette semaine', value: analytics.users.new_week, color: '#10B981', bg: '#ECFDF5', sub: 'nouveaux inscrits', up: analytics.users.new_week > 0 },
-                        { label: 'Ce mois', value: analytics.users.new_month, color: '#F59E0B', bg: '#FFFBEB', sub: 'nouveaux inscrits' },
-                        { label: "Aujourd'hui", value: analytics.users.new_today, color: '#EF4444', bg: '#FEF2F2', sub: 'inscrits aujourd\'hui' },
+                        { label: 'Total', value: analytics.users.total, sub: 'comptes créés' },
+                        { label: 'Créateurs', value: analytics.users.creators, sub: `${analytics.users.total ? Math.round(analytics.users.creators / analytics.users.total * 100) : 0}% du total` },
+                        { label: 'Organisateurs', value: analytics.users.organizers, sub: `${analytics.users.total ? Math.round(analytics.users.organizers / analytics.users.total * 100) : 0}% du total` },
+                        { label: 'Cette semaine', value: analytics.users.new_week, sub: 'nouveaux inscrits', up: analytics.users.new_week > 0 },
+                        { label: 'Ce mois', value: analytics.users.new_month, sub: 'nouveaux inscrits' },
+                        { label: "Aujourd'hui", value: analytics.users.new_today, sub: 'inscrits aujourd\'hui' },
                       ].map(kpi => (
-                        <div key={kpi.label} style={{ padding: '16px 18px', borderRadius: '12px', backgroundColor: kpi.bg, border: `1px solid ${kpi.color}22` }}>
+                        <div key={kpi.label} style={{ padding: '16px 18px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <p style={{ fontSize: '26px', fontWeight: '800', color: kpi.color, margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
-                            {kpi.up && <ArrowUpRight size={16} color="#10B981" />}
+                            <p style={{ fontSize: '26px', fontWeight: '700', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
+                            {kpi.up && <ArrowUpRight size={16} color="#6366F1" />}
                           </div>
-                          <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 2px' }}>{kpi.label}</p>
+                          <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 2px' }}>{kpi.label}</p>
                           <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{kpi.sub}</p>
                         </div>
                       ))}
@@ -759,7 +759,7 @@ export default function ProfilePage() {
                             <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Par type</p>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                               {analytics.eventTypes.map(et => (
-                                <span key={et.event_type} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', backgroundColor: '#EEF2FF', color: '#6366F1', fontWeight: '600' }}>
+                                <span key={et.event_type} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', backgroundColor: '#F3F4F6', color: '#6B7280', fontWeight: '500' }}>
                                   {et.event_type} · {et.count}
                                 </span>
                               ))}
@@ -798,7 +798,7 @@ export default function ProfilePage() {
                         {analytics.applications.total > 0 && (
                           <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #F3F4F6' }}>
                             <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-                              Taux d&apos;acceptation : <strong style={{ color: '#10B981' }}>
+                              Taux d&apos;acceptation : <strong style={{ color: '#6366F1' }}>
                                 {Math.round(analytics.applications.accepted / analytics.applications.total * 100)}%
                               </strong>
                             </p>
@@ -827,10 +827,10 @@ export default function ProfilePage() {
                             <div key={v.label}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#4B5563' }}>{v.label}</span>
-                                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#F59E0B', fontWeight: '700' }}>{v.pending} en attente</span>}</span>
+                                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#6366F1', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
                               </div>
                               <div style={{ height: '8px', borderRadius: '4px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
-                                <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #6366F1, #10B981)', borderRadius: '4px', transition: 'width 0.5s ease' }} />
+                                <div style={{ height: '100%', width: `${pct}%`, backgroundColor: '#6366F1', borderRadius: '4px', transition: 'width 0.5s ease' }} />
                               </div>
                             </div>
                           )
@@ -1052,7 +1052,7 @@ export default function ProfilePage() {
                       {ev.cover_image
                         // eslint-disable-next-line @next/next/no-img-element
                         ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#6366F1,#818CF8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#FFF" /></div>
+                        : <div style={{ width: '100%', height: '100%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#FFF" /></div>
                       }
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -1192,7 +1192,7 @@ export default function ProfilePage() {
                     disabled={msgSending || !msgRecipient || !msgContent.trim()}
                     style={{
                       padding: '11px 24px', borderRadius: '8px', border: 'none',
-                      background: msgRecipient && msgContent.trim() ? 'linear-gradient(135deg, #6366F1, #8B5CF6)' : '#E5E7EB',
+                      backgroundColor: msgRecipient && msgContent.trim() ? '#6366F1' : '#E5E7EB',
                       color: msgRecipient && msgContent.trim() ? '#FFF' : '#9CA3AF',
                       fontSize: '14px', fontWeight: '700', cursor: msgRecipient && msgContent.trim() ? 'pointer' : 'not-allowed',
                       display: 'flex', alignItems: 'center', gap: '8px',
@@ -1361,18 +1361,18 @@ export default function ProfilePage() {
 
               {/* Avatar */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div style={{ width: '112px', height: '112px', borderRadius: '50%', overflow: 'hidden', border: '3px solid rgba(99,102,241,0.4)', boxShadow: '0 0 32px rgba(99,102,241,0.25)', backgroundColor: '#1e1b4b' }}>
+                <div style={{ width: '112px', height: '112px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #E5E7EB', backgroundColor: '#111827' }}>
                   {profile?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)' }}>
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#6366F1' }}>
                       <span style={{ fontSize: '40px', fontWeight: '800', color: '#FFF' }}>{firstName[0]?.toUpperCase()}</span>
                     </div>
                   )}
                 </div>
                 <button onClick={() => fileRef.current?.click()} disabled={avatarUploading}
-                  style={{ position: 'absolute', bottom: '-6px', right: '-6px', width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', border: '2.5px solid #06060f', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(99,102,241,0.5)' }}>
+                  style={{ position: 'absolute', bottom: '-6px', right: '-6px', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#6366F1', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                   {avatarUploading ? <div style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Upload size={13} color="#FFF" />}
                 </button>
                 <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
@@ -1442,7 +1442,7 @@ export default function ProfilePage() {
                   {editing ? (
                     <>
                       <button onClick={handleSave} disabled={saving}
-                        style={{ padding: '10px 20px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                        style={{ padding: '10px 20px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
                         <Save size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                       </button>
                       <button onClick={() => setEditing(false)}
@@ -1453,7 +1453,7 @@ export default function ProfilePage() {
                   ) : (
                     <>
                       <button onClick={() => setEditing(true)}
-                        style={{ padding: '10px 18px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', boxShadow: '0 4px 14px rgba(99,102,241,0.35)' }}>
+                        style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', boxShadow: 'none' }}>
                         <Edit3 size={14} /> Modifier le profil
                       </button>
                       <button onClick={() => router.push('/creators/' + user?.id)}
@@ -1499,7 +1499,7 @@ export default function ProfilePage() {
                   <span style={{ fontSize: '12px', color: '#B45309', fontWeight: '600' }}>{Math.round((completionDone / 6) * 100)}%</span>
                 </div>
                 <div style={{ height: '6px', borderRadius: '99px', backgroundColor: '#FDE68A', overflow: 'hidden', marginBottom: '10px' }}>
-                  <div style={{ height: '100%', width: `${(completionDone / 6) * 100}%`, borderRadius: '99px', background: 'linear-gradient(90deg,#F59E0B,#D97706)', transition: 'width 600ms ease' }} />
+                  <div style={{ height: '100%', width: `${(completionDone / 6) * 100}%`, borderRadius: '99px', backgroundColor: '#6366F1', transition: 'width 600ms ease' }} />
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {completionMissing.map(f => (
@@ -1539,7 +1539,7 @@ export default function ProfilePage() {
             {/* Bio */}
             <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color="#6366F1" /></div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color="#6B7280" /></div>
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Bio</h3>
               </div>
               {editing ? (
@@ -1596,7 +1596,7 @@ export default function ProfilePage() {
             {/* Disciplines */}
             <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '14px' }}>🎨</span></div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '14px' }}>🎨</span></div>
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Disciplines</h3>
               </div>
               {editing ? (
@@ -1628,7 +1628,7 @@ export default function ProfilePage() {
             {/* Localisation */}
             <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={14} color="#059669" /></div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={14} color="#6B7280" /></div>
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Localisation & déplacement</h3>
               </div>
               {editing ? (
@@ -1767,11 +1767,11 @@ export default function ProfilePage() {
             {/* Vérification */}
             <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={14} color="#059669" /></div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={14} color="#6B7280" /></div>
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Vérification</h3>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ padding: '16px', borderRadius: '10px', border: `1px solid ${(creator?.siret_verified || editSiret) ? '#A7F3D0' : '#E5E7EB'}`, backgroundColor: (creator?.siret_verified || editSiret) ? '#ECFDF5' : '#FAFAFA' }}>
+                <div style={{ padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editing ? '12px' : '0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <CheckCircle size={18} fill={(creator?.siret_verified || editSiret) ? '#059669' : 'none'} color={(creator?.siret_verified || editSiret) ? '#059669' : '#9CA3AF'} />
@@ -1810,7 +1810,7 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                <div style={{ padding: '16px', borderRadius: '10px', border: `1px solid ${creator?.insurance_verified ? '#A7F3D0' : creator?.insurance_doc_url ? '#FDE68A' : '#E5E7EB'}`, backgroundColor: creator?.insurance_verified ? '#ECFDF5' : creator?.insurance_doc_url ? '#FFFBEB' : '#FAFAFA' }}>
+                <div style={{ padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <CheckCircle size={18}
@@ -1905,7 +1905,7 @@ export default function ProfilePage() {
                     {ev?.cover_image
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#6366F1,#818CF8)' }}><Calendar size={24} color="#FFF" /></div>
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#6366F1' }}><Calendar size={24} color="#FFF" /></div>
                     }
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>

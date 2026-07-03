@@ -10,14 +10,6 @@ import { useSearchParams } from 'next/navigation'
 
 const ITEMS_PER_PAGE = 12
 
-function Grain() {
-  return (
-    <div className="fixed inset-0 z-[9998] pointer-events-none opacity-[0.035] mix-blend-overlay"
-      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundRepeat: 'repeat', backgroundSize: '180px 180px' }}
-    />
-  )
-}
-
 function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
@@ -43,17 +35,7 @@ function WordReveal({ children, delay = 0, className = '' }: { children: string;
   )
 }
 
-const DISCIPLINE_COLORS: Record<string, string> = {
-  default: 'bg-indigo-500/90',
-  Céramique: 'bg-amber-500/90',
-  Bijouterie: 'bg-yellow-500/90',
-  Illustration: 'bg-violet-500/90',
-  Peinture: 'bg-rose-500/90',
-  Sculpture: 'bg-stone-500/90',
-  Textile: 'bg-teal-500/90',
-  Photographie: 'bg-sky-500/90',
-  Maroquinerie: 'bg-orange-500/90',
-}
+const DISCIPLINE_PILL = 'bg-black/60 backdrop-blur-sm'
 
 function Skeleton() {
   return (
@@ -128,7 +110,6 @@ function CreatorsContent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Grain />
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">
@@ -140,12 +121,12 @@ function CreatorsContent() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div className="flex items-center gap-2 mb-5">
               <Sparkles size={13} className="text-violet-400" />
-              <span className="text-violet-400 text-xs font-bold tracking-widest uppercase">Communauté</span>
+              <span className="text-indigo-400 text-xs font-semibold">Communauté</span>
             </div>
           </motion.div>
 
           <div className="overflow-hidden mb-4">
-            <h1 className="text-5xl sm:text-6xl font-black text-white tracking-tight leading-[1.05]">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.1]">
               <WordReveal delay={0.05}>Créateurs & Artisans</WordReveal>
             </h1>
           </div>
@@ -202,7 +183,7 @@ function CreatorsContent() {
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-5 items-start sm:items-end">
             {uniqueCities.length > 0 && (
               <div className="w-full sm:w-auto">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ville</p>
+                <p className="text-[11px] font-bold text-gray-400 mb-3">Ville</p>
                 <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
                   className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                     cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
@@ -214,7 +195,7 @@ function CreatorsContent() {
             )}
             {uniqueDisciplines.length > 0 && (
               <div className="w-full sm:w-auto">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Discipline</p>
+                <p className="text-[11px] font-bold text-gray-400 mb-3">Discipline</p>
                 <select value={disciplineFilter} onChange={(e) => setDisciplineFilter(e.target.value)}
                   className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                     disciplineFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
@@ -225,7 +206,7 @@ function CreatorsContent() {
               </div>
             )}
             <div className="w-full sm:w-auto">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trier par</p>
+              <p className="text-[11px] font-bold text-gray-400 mb-3">Trier par</p>
               <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
                 {([['alpha', <ArrowUpAZ key="a" size={13} />, 'A → Z'], ['newest', <Clock key="c" size={13} />, 'Récents']] as const).map(([key, icon, label], i) => (
                   <button key={key} onClick={() => setSortOrder(key)}
@@ -267,7 +248,7 @@ function CreatorsContent() {
               {visible.map((creator, idx) => (
                 <FadeUp key={creator.id} delay={Math.min(idx * 0.04, 0.3)}>
                   <Link href={`/creators/${creator.id}`}
-                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-violet-200 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-1.5 transition-all duration-300 h-full"
+                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
                   >
                     {/* Media header — portfolio if available, avatar fallback */}
                     <div className="relative shrink-0 overflow-hidden bg-gray-100">
@@ -302,7 +283,7 @@ function CreatorsContent() {
                           <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                         </div>
                       ) : (
-                        <div className="aspect-square w-full flex items-center justify-center bg-gradient-to-br from-violet-500 via-indigo-500 to-purple-600">
+                        <div className="aspect-square w-full flex items-center justify-center bg-[#111827]">
                           <span className="text-5xl font-bold text-white/70 select-none">
                             {creator.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
@@ -324,7 +305,7 @@ function CreatorsContent() {
                         <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                           <div className={`flex flex-wrap gap-1 ${creator.portfolio_images?.length > 0 && creator.avatar_url ? 'pl-11' : ''}`}>
                             {creator.disciplines.slice(0, 3).map((d: string) => (
-                              <span key={d} className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white backdrop-blur-sm ${DISCIPLINE_COLORS[d] ?? DISCIPLINE_COLORS.default}`}>
+                              <span key={d} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full text-white ${DISCIPLINE_PILL}`}>
                                 {d}
                               </span>
                             ))}
@@ -340,9 +321,9 @@ function CreatorsContent() {
                       {/* Verified badge */}
                       {creator.siret_verified && (
                         <div className="absolute top-2.5 right-2.5">
-                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-sm">
-                            <BadgeCheck size={11} className="text-white" />
-                            <span className="text-[10px] font-bold text-white">Vérifié</span>
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200">
+                            <BadgeCheck size={10} className="text-gray-700" />
+                            <span className="text-[10px] font-semibold text-gray-700">Vérifié</span>
                           </div>
                         </div>
                       )}
@@ -350,15 +331,15 @@ function CreatorsContent() {
 
                     {/* Body */}
                     <div className="flex flex-col flex-1 p-4">
-                      <h3 className="font-bold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-violet-700 transition-colors">{creator.full_name}</h3>
+                      <h3 className="font-semibold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-indigo-600 transition-colors">{creator.full_name}</h3>
 
                       {creator.disciplines?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {creator.disciplines.slice(0, 2).map((d: string) => (
-                            <span key={d} className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">{d}</span>
+                            <span key={d} className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">{d}</span>
                           ))}
                           {creator.disciplines.length > 2 && (
-                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">+{creator.disciplines.length - 2}</span>
+                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-400">+{creator.disciplines.length - 2}</span>
                           )}
                         </div>
                       )}
@@ -368,7 +349,7 @@ function CreatorsContent() {
                       )}
 
                       <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
-                        <span className="flex items-center gap-1 text-indigo-600 text-xs font-bold group-hover:gap-2 transition-all">
+                        <span className="flex items-center gap-1 text-indigo-600 text-xs font-semibold group-hover:gap-2 transition-all">
                           Voir le profil <ArrowRight size={12} />
                         </span>
                         {creator.city && (

@@ -71,7 +71,10 @@ export default function RegisterPage() {
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name, role } },
+      options: {
+        data: { full_name: name, role },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
 
     if (err) {
@@ -101,7 +104,7 @@ export default function RegisterPage() {
   const handleResend = async () => {
     setResending(true)
     setResendMsg(null)
-    const { error: err } = await supabase.auth.resend({ type: 'signup', email })
+    const { error: err } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } })
     if (err) setResendMsg('Erreur : ' + err.message)
     else setResendMsg('Email renvoyé !')
     setResending(false)

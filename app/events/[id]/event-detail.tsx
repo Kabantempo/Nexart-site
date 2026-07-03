@@ -52,7 +52,7 @@ export function EventDetailClient({ id }: Props) {
   }, [applyError]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!user || (user.role !== 'creator' && user.role !== 'artisan')) {
+    if (!user || user.role !== 'creator') {
       setProfileChecked(true)
       return
     }
@@ -101,8 +101,16 @@ export function EventDetailClient({ id }: Props) {
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .event-grid { grid-template-columns: 1fr !important; }
+          .event-cover { height: 240px !important; }
+          .event-title { font-size: 24px !important; }
+          .event-sidebar { order: -1; }
+        }
+      `}</style>
       {/* Cover Image */}
-      <div style={{ width: '100%', height: '400px', position: 'relative', backgroundColor: '#F5F5F7' }}>
+      <div className="event-cover" style={{ width: '100%', height: '400px', position: 'relative', backgroundColor: '#F5F5F7' }}>
         {event.cover_image ? (
           <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
         ) : (
@@ -117,7 +125,7 @@ export function EventDetailClient({ id }: Props) {
               {EVENT_TYPE_LABELS[event.event_type] || event.event_type}
             </span>
           )}
-          <h1 style={{ fontSize: '36px', fontWeight: '700', color: '#FFFFFF', margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+          <h1 className="event-title" style={{ fontSize: '36px', fontWeight: '700', color: '#FFFFFF', margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
             {event.title}
           </h1>
         </div>
@@ -154,7 +162,7 @@ export function EventDetailClient({ id }: Props) {
           Retour aux événements
         </Link>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px' }}>
+        <div className="event-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px' }}>
           {/* Main Content */}
           <div>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -222,7 +230,7 @@ export function EventDetailClient({ id }: Props) {
                     title={favEventIds.has(id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                     style={{
                       display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '10px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                      padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
                       backgroundColor: favEventIds.has(id) ? '#FFF1F2' : '#F8FAFC',
                       color: favEventIds.has(id) ? '#BE123C' : '#64748B',
                       fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
@@ -276,7 +284,7 @@ export function EventDetailClient({ id }: Props) {
           </div>
 
           {/* Sidebar */}
-          <div style={{ position: 'sticky', top: '80px', height: 'fit-content' }}>
+          <div className="event-sidebar" style={{ position: 'sticky', top: '80px', height: 'fit-content' }}>
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -405,7 +413,7 @@ export function EventDetailClient({ id }: Props) {
                     </ul>
                   </div>
                   <Link
-                    href="/account"
+                    href="/profile"
                     style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
                   >
                     Compléter mon profil →

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
+import { ReviewForm } from '@/components/review-form'
 
 interface Props { id: string }
 
@@ -48,6 +49,8 @@ export function CreatorProfileClient({ id }: Props) {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [showQR, setShowQR] = useState(false)
+  const [sharedEventId, setSharedEventId] = useState<string | null>(null)
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
 
@@ -78,6 +81,34 @@ export function CreatorProfileClient({ id }: Props) {
     }
     load()
   }, [id])
+
+  // Vérifier si l'organisateur connecté peut laisser un avis
+  useEffect(() => {
+    if (!user || user.role !== 'organizer') return
+    const checkSharedEvent = async () => {
+      const { data: apps } = await supabase
+        .from('applications')
+        .select('event_id, events!inner(organizer_id)')
+        .eq('creator_id', id)
+        .eq('status', 'accepted')
+        .eq('events.organizer_id', user.id)
+        .limit(1)
+        .maybeSingle()
+      if (!apps) return
+      const eventId = apps.event_id as string
+      setSharedEventId(eventId)
+      // Vérifier si l'avis existe déjà
+      const { data: existing } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('reviewer_id', user.id)
+        .eq('reviewed_id', id)
+        .maybeSingle()
+      setAlreadyReviewed(!!existing)
+    }
+    checkSharedEvent()
+  }, [id, user])
 
   const sendMessage = async () => {
     if (!msgText.trim() || !user) return
@@ -148,7 +179,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <button onClick={() => setShowMsg(false)} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">Annuler</button>
                   <button onClick={sendMessage} disabled={!msgText.trim() || sending}
                     className="flex-[2] py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                    style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)' }}>
+                    style={{ backgroundColor: '#6366F1' }}>
                     <Send size={15} /> {sending ? 'Envoi…' : 'Envoyer'}
                   </button>
                 </div>
@@ -160,10 +191,7 @@ export function CreatorProfileClient({ id }: Props) {
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <div className="bg-[#06060f] relative overflow-hidden">
-        {/* Dot grid */}
-        <div className="absolute inset-0 opacity-[0.10]" style={{ backgroundImage: 'radial-gradient(circle, rgba(139,92,246,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-600/15 blur-[80px] pointer-events-none" />
-        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-indigo-600/12 blur-[60px] pointer-events-none" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-10 relative z-10">
           {/* Back link */}
@@ -178,7 +206,7 @@ export function CreatorProfileClient({ id }: Props) {
                 {creator.avatar_url ? (
                   <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-violet-600">
+                  <div className="w-full h-full flex items-center justify-center bg-[#111827]">
                     <span className="text-4xl font-bold text-white/80">{creator.full_name?.charAt(0) || '?'}</span>
                   </div>
                 )}
@@ -192,7 +220,7 @@ export function CreatorProfileClient({ id }: Props) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
                 {displayName}
                 {creator.username && showReal && (
                   <span className="block text-sm font-normal text-white/40 mt-1">{creator.full_name}</span>
@@ -202,12 +230,12 @@ export function CreatorProfileClient({ id }: Props) {
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 {creator.city && (
                   <div className="flex items-center gap-1.5 text-white/50 text-sm">
-                    <MapPin size={13} className="text-indigo-400 shrink-0" />
+                    <MapPin size={13} className="text-white/40 shrink-0" />
                     {creator.city}{creator.region ? `, ${creator.region}` : ''}
                   </div>
                 )}
                 {creator.travel_radius && (
-                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 border border-white/15 text-white/60 text-xs font-semibold">
                     {RADIUS_LABELS[creator.travel_radius] || creator.travel_radius}
                   </span>
                 )}
@@ -216,12 +244,12 @@ export function CreatorProfileClient({ id }: Props) {
               {/* Verification badges */}
               <div className="flex flex-wrap gap-2">
                 {creator.siret_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-xs font-bold">
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
                     <CheckCircle size={12} /> SIRET vérifié
                   </span>
                 )}
                 {creator.insurance_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-xs font-bold">
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
                     <CheckCircle size={12} /> Assurance RC
                   </span>
                 )}
@@ -237,17 +265,17 @@ export function CreatorProfileClient({ id }: Props) {
           {/* Action buttons */}
           <div className="flex flex-wrap gap-3 mt-7">
             {!user ? (
-              <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ background: 'linear-gradient(135deg,#6366F1,#4F46E5)' }}>
+              <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ backgroundColor: '#6366F1' }}>
                 <MessageCircle size={15} /> Contacter
               </Link>
             ) : isOwn ? (
-              <Link href="/account" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white text-sm font-semibold hover:bg-white/15 transition-colors">
+              <Link href="/profile" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white text-sm font-semibold hover:bg-white/15 transition-colors">
                 Éditer mon profil
               </Link>
             ) : (
               <button onClick={() => { setShowMsg(true); setSent(false) }}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold hover:opacity-90 transition-opacity"
-                style={{ background: 'linear-gradient(135deg,#6366F1,#4F46E5)' }}>
+                style={{ backgroundColor: '#6366F1' }}>
                 <MessageCircle size={15} /> Envoyer un message
               </button>
             )}
@@ -303,11 +331,11 @@ export function CreatorProfileClient({ id }: Props) {
             {creator.disciplines && creator.disciplines.length > 0 && (
               <section className="mb-8">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-3">
-                  <Tag size={17} className="text-indigo-500" /> Disciplines
+                  <Tag size={17} className="text-gray-400" /> Disciplines
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {creator.disciplines.map((d: string) => (
-                    <span key={d} className="px-3.5 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold">{d}</span>
+                    <span key={d} className="px-3.5 py-1.5 rounded-md bg-gray-100 text-gray-600 text-sm font-medium">{d}</span>
                   ))}
                 </div>
               </section>
@@ -349,7 +377,7 @@ export function CreatorProfileClient({ id }: Props) {
                       <div key={r.id} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50">
                         <div className="flex items-start justify-between gap-3 mb-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 text-sm font-bold text-indigo-600">
+                            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-sm font-bold text-gray-600">
                               {(r.profiles?.full_name ?? '?')[0].toUpperCase()}
                             </div>
                             <div>
@@ -368,7 +396,7 @@ export function CreatorProfileClient({ id }: Props) {
                         {r.tags && r.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1.5">
                             {r.tags.map(tag => (
-                              <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-semibold">{tag}</span>
+                              <span key={tag} className="text-xs px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-600 font-medium">{tag}</span>
                             ))}
                           </div>
                         )}
@@ -378,6 +406,28 @@ export function CreatorProfileClient({ id }: Props) {
                 </section>
               )
             })()}
+
+            {/* Laisser un avis — organisateurs ayant eu une candidature acceptée */}
+            {sharedEventId && !isOwn && (
+              <section className="mb-8">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Laisser un avis</h2>
+                {alreadyReviewed ? (
+                  <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', textAlign: 'center' }}>
+                    <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>Vous avez déjà laissé un avis pour ce créateur.</p>
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
+                    <ReviewForm
+                      eventId={sharedEventId}
+                      reviewerId={user!.id}
+                      reviewedId={id}
+                      reviewerRole="organizer"
+                      onSubmitted={() => { setAlreadyReviewed(true) }}
+                    />
+                  </div>
+                )}
+              </section>
+            )}
           </motion.div>
 
           {/* Sidebar */}
@@ -388,25 +438,25 @@ export function CreatorProfileClient({ id }: Props) {
               {/* Links */}
               {(creator.website || creator.instagram || creator.etsy) && (
                 <div className="mb-5">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Liens</p>
+                  <p className="text-[11px] font-semibold text-gray-400 mb-3">Liens</p>
                   <div className="flex flex-col gap-2.5">
                     {creator.website && (
                       <a href={creator.website} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors">
+                        className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Globe size={15} className="shrink-0" />
                         <span className="truncate">{creator.website.replace(/^https?:\/\//, '')}</span>
                       </a>
                     )}
                     {creator.instagram && (
                       <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors">
+                        className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Link2 size={15} className="shrink-0" />
                         @{creator.instagram.replace('@', '')}
                       </a>
                     )}
                     {creator.etsy && (
                       <a href={`https://etsy.com/shop/${creator.etsy}`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2.5 text-indigo-600 text-sm font-medium hover:text-indigo-800 transition-colors">
+                        className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Link2 size={15} className="shrink-0" />
                         Etsy : {creator.etsy}
                       </a>

@@ -134,13 +134,13 @@ export function NavbarFull() {
         !scrolled
           ? dark
             ? 'bg-[#06060f] border-b border-white/6'
-            : 'bg-white/90 backdrop-blur-xl border-b border-gray-100'
+            : 'bg-white border-b border-gray-100'
           : 'pointer-events-none'
       }`}>
         <div className={`transition-all duration-500 ${scrolled ? 'pointer-events-auto mx-3 sm:mx-6 mt-3' : ''}`}>
         <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
           scrolled
-            ? 'bg-white/90 backdrop-blur-2xl rounded-2xl border border-gray-200/70 shadow-xl shadow-black/[0.10]'
+            ? 'bg-white rounded-xl border border-gray-200 shadow-sm'
             : ''
         }`}>
 
@@ -182,24 +182,6 @@ export function NavbarFull() {
             >
               Offres
             </Link>
-
-            {/* Ressources */}
-            <div className="relative" onMouseEnter={() => { stay(); setDropdown('resources') }} onMouseLeave={() => go()}>
-              <Trigger id="resources" label="Ressources" active={isActive('/about') || isActive('/blog') || isActive('/contact')} />
-              <Panel id="resources">
-                {[
-                  { href: '/about',   label: 'À propos' },
-                  { href: '/blog',    label: 'Blog' },
-                  { href: '/contact', label: 'Contact' },
-                ].map(({ href, label }) => (
-                  <Link key={href} href={href} onClick={() => setDropdown(null)}
-                    className={`block px-3.5 py-2.5 rounded-xl text-[13px] transition-colors ${isActive(href) ? 'text-indigo-600 bg-indigo-50/60 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </Panel>
-            </div>
           </nav>
 
           {/* Desktop right */}
@@ -399,9 +381,6 @@ export function NavbarFull() {
                 { href: '/events',   label: 'Événements' },
                 { href: '/creators', label: 'Créateurs' },
                 { href: '/offres',   label: 'Offres' },
-                { href: '/about',    label: 'À propos' },
-                { href: '/blog',     label: 'Blog' },
-                { href: '/contact',  label: 'Contact' },
               ].map(({ href, label }, i) => (
                 <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>
                   <Link href={href} onClick={() => setMobileOpen(false)}

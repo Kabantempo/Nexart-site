@@ -325,11 +325,12 @@ export default function ConversationPage() {
   const canSend = (text.trim() || pendingFile) && !sending && !uploading
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 70px)' }}>
+    <div style={{ position: 'fixed', top: '58px', left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', backgroundColor: '#FFFFFF', zIndex: 10 }}>
       <style>{`
         @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
         @keyframes spin{to{transform:rotate(360deg)}}
       `}</style>
+      <div style={{ width: '100%', maxWidth: '800px', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: '#FFFFFF', flexShrink: 0 }}>
@@ -401,7 +402,7 @@ export default function ConversationPage() {
                     </div>
                   )}
 
-                  <div style={{ maxWidth: '72%' }}>
+                  <div style={{ maxWidth: 'min(72%, 480px)' }}>
                     {isEditing ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         <textarea
@@ -495,7 +496,7 @@ export default function ConversationPage() {
       )}
 
       {/* Input */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #F3F4F6', backgroundColor: '#FFFFFF', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+      <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))', borderTop: '1px solid #F3F4F6', backgroundColor: '#FFFFFF', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
         {/* File attach button */}
         <input ref={fileInputRef} type="file" style={{ display: 'none' }} accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" onChange={handleFileSelect} />
         <button
@@ -549,6 +550,7 @@ export default function ConversationPage() {
             : <Send size={18} />
           }
         </button>
+      </div>
       </div>
     </div>
   )

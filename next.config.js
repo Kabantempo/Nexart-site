@@ -41,6 +41,7 @@ async function headers() {
 }
 
 const nextConfig = {
+  output: 'standalone',
   headers,
   images: {
     remotePatterns: [

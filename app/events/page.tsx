@@ -25,20 +25,13 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_BADGE: Record<string, { bg: string; text: string }> = {
-  popup:     { bg: 'rgba(139,92,246,0.85)', text: '#fff' },
-  salon:     { bg: 'rgba(16,185,129,0.85)', text: '#fff' },
-  fair:      { bg: 'rgba(245,158,11,0.85)', text: '#fff' },
-  seasonal:  { bg: 'rgba(14,165,233,0.85)', text: '#fff' },
-  permanent: { bg: 'rgba(99,102,241,0.85)', text: '#fff' },
+  popup:     { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
+  salon:     { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
+  fair:      { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
+  seasonal:  { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
+  permanent: { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
 }
 
-function Grain() {
-  return (
-    <div className="fixed inset-0 z-[9998] pointer-events-none opacity-[0.035] mix-blend-overlay"
-      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundRepeat: 'repeat', backgroundSize: '180px 180px' }}
-    />
-  )
-}
 
 function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -138,7 +131,6 @@ function EventsContent() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Grain />
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">
@@ -152,12 +144,12 @@ function EventsContent() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div className="flex items-center gap-2 mb-5">
               <Sparkles size={13} className="text-indigo-400" />
-              <span className="text-indigo-400 text-xs font-bold tracking-widest uppercase">Découvrir</span>
+              <span className="text-indigo-400 text-xs font-semibold">Découvrir</span>
             </div>
           </motion.div>
 
           <div className="overflow-hidden mb-4">
-            <h1 className="text-5xl sm:text-6xl font-black text-white tracking-tight leading-[1.05]">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.1]">
               <WordReveal delay={0.05}>Événements artisanaux</WordReveal>
             </h1>
           </div>
@@ -214,7 +206,7 @@ function EventsContent() {
         <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-5 items-start">
             <div className="w-full sm:flex-1">
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Type d'événement</p>
+              <p className="text-[11px] font-bold text-gray-400 mb-3">Type d'événement</p>
               <div className="flex flex-wrap gap-2">
                 {EVENT_TYPES.map(({ key, label }) => {
                   const active = typeFilter === key
@@ -233,7 +225,7 @@ function EventsContent() {
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 items-start sm:items-end w-full sm:w-auto">
               {uniqueCities.length > 0 && (
                 <div className="w-full sm:w-auto">
-                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ville</p>
+                  <p className="text-[11px] font-bold text-gray-400 mb-3">Ville</p>
                   <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
                     className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                       cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
@@ -244,7 +236,7 @@ function EventsContent() {
                 </div>
               )}
               <div className="w-full sm:w-auto">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trier par date</p>
+                <p className="text-[11px] font-bold text-gray-400 mb-3">Trier par date</p>
                 <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
                   {(['asc', 'desc'] as const).map((o, i) => (
                     <button key={o} onClick={() => setSortOrder(o)}
@@ -286,14 +278,14 @@ function EventsContent() {
               {visible.map((event, idx) => (
                 <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)}>
                   <Link href={`/events/${event.id}`}
-                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 transition-all duration-300 h-full"
+                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
                   >
                     {/* Cover */}
                     <div className="relative h-52 bg-gray-100 shrink-0 overflow-hidden">
                       {event.cover_image ? (
                         <Image src={event.cover_image} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600">
+                        <div className="w-full h-full flex items-center justify-center bg-[#111827]">
                           <Calendar size={48} className="text-white/40" />
                         </div>
                       )}
@@ -323,7 +315,7 @@ function EventsContent() {
                       {event.stand_price != null && (
                         <div className="absolute bottom-3 right-3">
                           {event.stand_price === 0
-                            ? <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/90 text-white backdrop-blur-sm">Gratuit</span>
+                            ? <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/90 text-gray-800 backdrop-blur-sm border border-gray-200">Gratuit</span>
                             : <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-black/60 text-white backdrop-blur-sm flex items-center gap-0.5"><Euro size={10} />{event.stand_price}</span>
                           }
                         </div>

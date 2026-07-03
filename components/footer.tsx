@@ -9,13 +9,13 @@ const NAV = {
     { label: 'Parcourir les événements', href: '/events' },
     { label: "Comment ça marche",        href: '/about' },
     { label: "S'inscrire",               href: '/register' },
-    { label: 'FAQ',                      href: '/faq' },
+    { label: 'Contact',                  href: '/contact' },
   ],
   'Pour organisateurs': [
     { label: 'Créer un événement',    href: '/events' },
     { label: 'Trouver des créateurs', href: '/creators' },
     { label: "S'inscrire",            href: '/register' },
-    { label: 'Ressources',            href: '/about' },
+    { label: 'À propos',              href: '/about' },
   ],
   'Pour visiteurs': [
     { label: 'Événements près de moi', href: '/events' },
@@ -35,7 +35,7 @@ const SOCIALS = [
 const LEGAL = [
   { label: 'Confidentialité', href: '/legal/privacy' },
   { label: 'Conditions',      href: '/legal/terms' },
-  { label: 'Cookies',         href: '/legal/cookies' },
+  { label: 'Mentions légales', href: '/legal' },
   { label: 'Contact',         href: '/contact' },
 ]
 
