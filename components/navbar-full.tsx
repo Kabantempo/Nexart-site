@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
@@ -15,6 +15,10 @@ export function NavbarFull() {
   const [dropdown,    setDropdown]    = useState<string | null>(null)
   const [searchOpen,  setSearchOpen]  = useState(false)
   const [searchValue, setSearchValue] = useState('')
+  const [searchResults, setSearchResults] = useState<{ events: {id:string;title:string;city?:string;cover_image?:string}[]; creators: {id:string;full_name:string;username?:string;avatar_url?:string;disciplines?:string[]}[] }>({ events: [], creators: [] })
+  const [searchLoading, setSearchLoading] = useState(false)
+  const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
   const [scrolled,    setScrolled]    = useState(false)
   const searchRef  = useRef<HTMLInputElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -60,10 +64,26 @@ export function NavbarFull() {
 
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); router.push('/') }
   const openSearch   = () => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50) }
-  const closeSearch  = () => { setSearchOpen(false); setSearchValue('') }
+  const closeSearch  = () => { setSearchOpen(false); setSearchValue(''); setSearchResults({ events: [], creators: [] }) }
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchValue.trim()) { router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`); closeSearch() }
+  }
+
+  const handleSearchChange = (val: string) => {
+    setSearchValue(val)
+    if (searchDebounce.current) clearTimeout(searchDebounce.current)
+    if (!val.trim()) { setSearchResults({ events: [], creators: [] }); return }
+    setSearchLoading(true)
+    searchDebounce.current = setTimeout(async () => {
+      const q = val.trim().toLowerCase()
+      const [{ data: events }, { data: profiles }] = await Promise.all([
+        supabase.from('events').select('id,title,city,cover_image').eq('status','published').ilike('title', `%${q}%`).limit(4),
+        supabase.from('profiles').select('id,full_name,username,avatar_url').eq('role','creator').ilike('full_name', `%${q}%`).limit(4),
+      ])
+      setSearchResults({ events: events ?? [], creators: profiles ?? [] })
+      setSearchLoading(false)
+    }, 250)
   }
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
@@ -179,32 +199,106 @@ export function NavbarFull() {
           <div className="hidden lg:flex items-center gap-1 ml-auto">
 
             {/* Search */}
-            <AnimatePresence mode="wait">
-              {searchOpen ? (
-                <motion.form key="open"
-                  initial={{ width: 32, opacity: 0 }} animate={{ width: 200, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  onSubmit={submitSearch}
-                  className={`flex items-center gap-2 h-8 px-3 rounded-lg border overflow-hidden ${dark ? 'bg-white/8 border-white/12' : 'bg-gray-100 border-transparent'}`}
-                >
-                  <Search size={12} className={dark ? 'text-white/40 shrink-0' : 'text-gray-400 shrink-0'} />
-                  <input ref={searchRef} value={searchValue} onChange={e => setSearchValue(e.target.value)}
-                    placeholder="Rechercher…"
-                    className={`flex-1 bg-transparent text-[13px] outline-none min-w-0 ${dark ? 'text-white placeholder:text-white/30' : 'text-gray-900 placeholder:text-gray-400'}`}
-                  />
-                  <button type="button" onClick={closeSearch}>
-                    <X size={12} className={dark ? 'text-white/30 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'} />
-                  </button>
-                </motion.form>
-              ) : (
-                <motion.button key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  onClick={openSearch}
-                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
-                >
-                  <Search size={15} />
-                </motion.button>
-              )}
-            </AnimatePresence>
+            <div ref={searchContainerRef} className="relative">
+              <AnimatePresence mode="wait">
+                {searchOpen ? (
+                  <motion.form key="open"
+                    initial={{ width: 32, opacity: 0 }} animate={{ width: 260, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    onSubmit={submitSearch}
+                    className={`flex items-center gap-2 h-8 px-3 rounded-lg border overflow-hidden ${dark ? 'bg-white/8 border-white/12' : 'bg-gray-100 border-transparent'}`}
+                  >
+                    <Search size={12} className={dark ? 'text-white/40 shrink-0' : 'text-gray-400 shrink-0'} />
+                    <input ref={searchRef} value={searchValue} onChange={e => handleSearchChange(e.target.value)}
+                      placeholder="Rechercher…"
+                      className={`flex-1 bg-transparent text-[13px] outline-none min-w-0 ${dark ? 'text-white placeholder:text-white/30' : 'text-gray-900 placeholder:text-gray-400'}`}
+                    />
+                    {searchLoading
+                      ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+                      : <button type="button" onClick={closeSearch}><X size={12} className={dark ? 'text-white/30 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'} /></button>
+                    }
+                  </motion.form>
+                ) : (
+                  <motion.button key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    onClick={openSearch}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
+                  >
+                    <Search size={15} />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              {/* Live results dropdown */}
+              <AnimatePresence>
+                {searchOpen && searchValue.trim() && (searchResults.events.length > 0 || searchResults.creators.length > 0) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                    transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: '#FFF', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid #E5E7EB', overflow: 'hidden', zIndex: 999 }}
+                  >
+                    {searchResults.events.length > 0 && (
+                      <div>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Événements</p>
+                        {searchResults.events.map(ev => (
+                          <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
+                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {ev.cover_image
+                                // eslint-disable-next-line @next/next/no-img-element
+                                ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                : <Calendar size={16} color="#6366F1" />
+                              }
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                              {ev.city && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{ev.city}</p>}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    {searchResults.creators.length > 0 && (
+                      <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid #F3F4F6' : 'none' }}>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
+                        {searchResults.creators.map(cr => (
+                          <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
+                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {cr.avatar_url
+                                // eslint-disable-next-line @next/next/no-img-element
+                                ? <img src={cr.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                : <Palette size={14} color="#6366F1" />
+                              }
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', margin: 0 }}>{cr.username ?? cr.full_name}</p>
+                              {cr.username && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{cr.full_name}</p>}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ borderTop: '1px solid #F3F4F6' }}>
+                      <Link href={`/search?q=${encodeURIComponent(searchValue.trim())}`} onClick={closeSearch}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: '600', color: '#6366F1' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F5F5FF')}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      >
+                        <Search size={13} /> Voir tous les résultats
+                      </Link>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {user ? (
               <>
