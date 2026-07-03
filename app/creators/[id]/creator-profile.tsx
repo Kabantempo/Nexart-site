@@ -19,6 +19,7 @@ interface CreatorData {
   id: string; full_name: string; bio?: string; avatar_url?: string
   city?: string; region?: string; department?: string; travel_radius?: string
   disciplines?: string[]; portfolio_images?: string[]
+  portfolio_grid?: { url: string; colSpan: 1|2|3; rowSpan: 1|2|3 }[]
   website?: string; instagram?: string; etsy?: string
   siret_verified?: boolean; insurance_verified?: boolean; created_at?: string
 }
@@ -43,7 +44,7 @@ export function CreatorProfileClient({ id }: Props) {
     const load = async () => {
       const [{ data: p }, { data: cp }] = await Promise.all([
         supabase.from('profiles').select('id, full_name, bio, avatar_url, role, created_at').eq('id', id).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, website, instagram, etsy, siret_verified, insurance_verified').eq('user_id', id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...p, ...cp })
@@ -280,18 +281,22 @@ export function CreatorProfileClient({ id }: Props) {
             )}
 
             {/* Portfolio */}
-            {creator.portfolio_images && creator.portfolio_images.length > 0 && (
-              <section className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {creator.portfolio_images.map((img: string, idx: number) => (
-                    <div key={idx} className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative group">
-                      <Image src={img} alt={`Portfolio ${idx + 1}`} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+            {(() => {
+              const grid = creator.portfolio_grid?.length ? creator.portfolio_grid : creator.portfolio_images?.map(url => ({ url, colSpan: 1 as const, rowSpan: 1 as const }))
+              if (!grid?.length) return null
+              return (
+                <section className="mb-8">
+                  <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: '160px', gridAutoFlow: 'dense', gap: '8px' }}>
+                    {grid.map((item, idx) => (
+                      <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: '#F3F4F6', position: 'relative' }} className="group">
+                        <Image src={item.url} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )
+            })()}
           </motion.div>
 
           {/* Sidebar */}

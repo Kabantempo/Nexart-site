@@ -275,8 +275,9 @@ export function PortfolioGridEditor({
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gridAutoRows: '140px',
-        gap: '6px',
+        gridAutoRows: '160px',
+        gridAutoFlow: 'dense',
+        gap: '8px',
       }}>
         {items.map((item, i) => (
           <div
