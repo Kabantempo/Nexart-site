@@ -40,7 +40,7 @@ export function NavbarFull() {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user && !useAuthStore.getState().user) {
+      if (session?.user) {
         const su = session.user
         let { data: p } = await supabase.from('profiles').select('*').eq('id', su.id).maybeSingle()
         if (!p) {
@@ -175,6 +175,13 @@ export function NavbarFull() {
                 ))}
               </Panel>
             </div>
+
+            {/* Offres */}
+            <Link href="/offres"
+              className={`px-3.5 py-2 text-[13px] font-semibold rounded-lg transition-colors duration-150 ${isActive('/offres') ? 'text-indigo-600 bg-indigo-50' : dark ? 'text-white/80 hover:text-white' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
+            >
+              Offres
+            </Link>
 
             {/* Ressources */}
             <div className="relative" onMouseEnter={() => { stay(); setDropdown('resources') }} onMouseLeave={() => go()}>
@@ -333,12 +340,6 @@ export function NavbarFull() {
                     <Link href="/profile" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                       <User size={13} className="text-gray-400" /> Mon profil
                     </Link>
-                    <Link href="/favorites" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                      <Heart size={13} className="text-gray-400" /> Mes favoris
-                    </Link>
-                    <Link href="/messages" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                      <MessageCircle size={13} className="text-gray-400" /> Messages
-                    </Link>
                     <div className="h-px bg-gray-100 my-1" />
                     <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-red-500 hover:bg-red-50 transition-colors text-left">
                       <LogOut size={13} /> Déconnexion
@@ -360,7 +361,7 @@ export function NavbarFull() {
                       : 'bg-gray-900 text-white hover:bg-gray-700'
                   }`}
                 >
-                  Commencer
+                  S'inscrire
                 </Link>
               </div>
             )}
@@ -397,6 +398,7 @@ export function NavbarFull() {
               {[
                 { href: '/events',   label: 'Événements' },
                 { href: '/creators', label: 'Créateurs' },
+                { href: '/offres',   label: 'Offres' },
                 { href: '/about',    label: 'À propos' },
                 { href: '/blog',     label: 'Blog' },
                 { href: '/contact',  label: 'Contact' },

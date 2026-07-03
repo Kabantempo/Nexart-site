@@ -19,6 +19,8 @@ export interface CreatorProfile extends Profile {
   etsy?: string
   siret_verified: boolean
   insurance_verified: boolean
+  insurance_doc_url?: string
+  siret?: string
   availability: Record<string, unknown>
 }
 

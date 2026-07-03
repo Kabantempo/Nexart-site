@@ -24,6 +24,7 @@ type OtherProfile = {
   id: string
   full_name: string | null
   avatar_url: string | null
+  role?: string | null
 }
 
 type PendingFile = {
@@ -102,6 +103,7 @@ export default function ConversationPage() {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -130,7 +132,7 @@ export default function ConversationPage() {
     const otherId = conv.creator_id === userId ? conv.organizer_id : conv.creator_id
 
     const [{ data: profile }, { data: msgs }] = await Promise.all([
-      supabase.from('profiles').select('id, full_name, avatar_url').eq('id', otherId).maybeSingle(),
+      supabase.from('profiles').select('id, full_name, avatar_url, role').eq('id', otherId).maybeSingle(),
       supabase.from('messages')
         .select('id, sender_id, content, created_at, read_at, updated_at, attachment_url, attachment_type, attachment_name')
         .eq('conversation_id', id)
@@ -160,18 +162,20 @@ export default function ConversationPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
+      setUserId(session.user.id)
       loadConversation(session.user.id)
     })
   }, [router, loadConversation])
 
   // Realtime: postgres_changes
   useEffect(() => {
-    if (!user) return
+    const uid = userId ?? user?.id
+    if (!uid) return
     const channel = supabase
       .channel(`conv:${id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${id}` }, async (payload) => {
         const msg = payload.new as Message
-        if (msg.sender_id === user.id) return
+        if (msg.sender_id === uid) return
         setMessages(prev => [...prev, msg])
         scrollBottom()
         await supabase.from('messages').update({ read_at: new Date().toISOString() }).eq('id', msg.id)
@@ -188,15 +192,16 @@ export default function ConversationPage() {
       })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [id, user])
+  }, [id, user, userId])
 
   // Realtime: typing indicator
   useEffect(() => {
-    if (!user) return
+    const uid = userId ?? user?.id
+    if (!uid) return
     const channel = supabase
       .channel(`typing:${id}`)
       .on('broadcast', { event: 'typing' }, ({ payload }: { payload: { user_id: string } }) => {
-        if (payload.user_id !== user.id) {
+        if (payload.user_id !== uid) {
           setOtherTyping(true)
           if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
           typingTimeoutRef.current = setTimeout(() => setOtherTyping(false), 3000)
@@ -208,7 +213,7 @@ export default function ConversationPage() {
       supabase.removeChannel(channel)
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     }
-  }, [id, user])
+  }, [id, user, userId])
 
   const broadcastTyping = () => {
     if (!user || !broadcastRef.current) return
@@ -339,7 +344,14 @@ export default function ConversationPage() {
           )}
         </div>
         <div>
-          <p style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{other?.full_name ?? 'Utilisateur'}</p>
+          <Link
+            href={other?.role === 'creator' ? `/creators/${other.id}` : '#'}
+            style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0, textDecoration: 'none' }}
+            onClick={e => { if (other?.role !== 'creator') e.preventDefault() }}
+          >
+            {other?.full_name ?? 'Utilisateur'}
+            {other?.role === 'creator' && <span style={{ fontSize: '11px', color: '#6366F1', marginLeft: '6px', fontWeight: '500' }}>↗ Voir profil</span>}
+          </Link>
           {otherTyping && <p style={{ fontSize: '12px', color: '#6366F1', margin: 0, fontStyle: 'italic' }}>En train d'écrire…</p>}
         </div>
       </div>

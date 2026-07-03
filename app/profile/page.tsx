@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/lib/store'
 import { motion } from 'framer-motion'
 import {
   User, Mail, MapPin, AtSign, Globe, Edit3, Save, X,
@@ -27,6 +28,7 @@ type CreatorProfile = {
   travel_radius: string | null; portfolio_images: string[]
   website: string | null; instagram: string | null; etsy: string | null
   siret_verified: boolean; insurance_verified: boolean
+  insurance_doc_url?: string | null
 }
 type Application = {
   id: string; status: string; created_at: string; message: string | null
@@ -144,12 +146,26 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 })
+  const [cropScale, setCropScale] = useState(1)
+  const [cropDragging, setCropDragging] = useState(false)
+  const [cropDragStart, setCropDragStart] = useState({ x: 0, y: 0 })
+  const [cropImageSize, setCropImageSize] = useState({ w: 0, h: 0 })
+  const cropCanvasRef = useRef<HTMLCanvasElement>(null)
+  const cropImgRef = useRef<HTMLImageElement | null>(null)
   const [editName, setEditName] = useState('')
   const [editUsername, setEditUsername] = useState('')
   const [editShowRealName, setEditShowRealName] = useState(true)
   const [editBio, setEditBio] = useState('')
   const [editCity, setEditCity] = useState('')
   const [editRegion, setEditRegion] = useState('')
+  const [editPostalCode, setEditPostalCode] = useState('')
+  const [cityQuery, setCityQuery] = useState('')
+  const [citySuggestions, setCitySuggestions] = useState<{ nom: string; region: string; departement: string; codesPostaux: string[] }[]>([])
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false)
+  const cityDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const cityContainerRef = useRef<HTMLDivElement>(null)
   const [editRadius, setEditRadius] = useState('')
   const [editDisc, setEditDisc] = useState<string[]>([])
   const [editInstagram, setEditInstagram] = useState('')
@@ -225,7 +241,7 @@ export default function ProfilePage() {
         const [{ data: creat }, { data: apps }, { data: revs }] = await Promise.all([
           supabase.from('creator_profiles').select('*').eq('user_id', u.id).maybeSingle(),
           supabase.from('applications').select('id,status,created_at,message,events(title,city,start_date,cover_image)').eq('creator_id', u.id).order('created_at', { ascending: false }).limit(20),
-          supabase.from('reviews').select('id,rating,comment,tags,created_at,profiles(full_name)').eq('reviewed_id', u.id).order('created_at', { ascending: false }).limit(20),
+          supabase.from('reviews').select('id,rating,comment,tags,created_at,profiles!reviewer_id(full_name,avatar_url)').eq('reviewed_id', u.id).order('created_at', { ascending: false }).limit(20),
         ])
         setCreator(creat)
         if (creat?.portfolio_grid) setGridItems(creat.portfolio_grid as GridItem[])
@@ -238,6 +254,8 @@ export default function ProfilePage() {
         setEditBio(prof?.bio ?? '')
         setEditCity(creat?.city ?? '')
         setEditRegion(creat?.region ?? '')
+        setEditPostalCode((creat as Record<string, unknown>)?.postal_code as string ?? '')
+        setCityQuery(creat?.city ?? '')
         setEditRadius(creat?.travel_radius ?? '25')
         setEditDisc(creat?.disciplines ?? [])
         setEditInstagram(creat?.instagram ?? '')
@@ -261,17 +279,24 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user) return
     setSaving(true)
-    await Promise.all([
-      supabase.from('profiles').upsert({ id: user.id, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }),
-      supabase.from('creator_profiles').upsert({
+    const isCreator = profile?.role === 'creator'
+    const promises = [
+      supabase.from('profiles').update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }).eq('id', user.id),
+      ...(isCreator ? [supabase.from('creator_profiles').upsert({
         user_id: user.id, disciplines: editDisc,
-        city: editCity, region: editRegion, travel_radius: editRadius,
+        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius,
         instagram: editInstagram, website: editWebsite, etsy: editEtsy,
-        siret_verified: editSiret, insurance_verified: editInsurance,
-      }),
-    ])
+      }, { onConflict: 'user_id' })] : []),
+    ]
+    const results = await Promise.all(promises)
+    const hasError = results.some(r => r.error)
+    if (hasError) {
+      setToast('Erreur lors de la sauvegarde. Veuillez réessayer.')
+      setSaving(false)
+      return
+    }
     setProfile(p => p ? { ...p, full_name: editName, bio: editBio } : p)
-    setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius, instagram: editInstagram, website: editWebsite, etsy: editEtsy, siret_verified: editSiret, insurance_verified: editInsurance } : c)
+    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius, instagram: editInstagram, website: editWebsite, etsy: editEtsy } : c)
     setSaving(false)
     setEditing(false)
   }
@@ -280,14 +305,23 @@ export default function ProfilePage() {
     if (!user || siretNumber.length !== 14) return
     setSiretChecking(true)
     setSiretResult(null)
-    const res = await fetch(`/api/verify-siret?siret=${siretNumber}`)
-    const data = await res.json()
-    if (data.valid) {
-      setSiretResult({ valid: true, nom: data.nom })
-      await supabase.from('creator_profiles').upsert({ user_id: user.id, siret_number: siretNumber, siret_verified: false })
-      setCreator(c => c ? { ...c, siret_verified: false } : c)
-    } else {
-      setSiretResult({ valid: false, error: data.error })
+    try {
+      await supabase.from('creator_profiles').upsert({ user_id: user.id, siret_number: siretNumber, siret_verified: false }, { onConflict: 'user_id' })
+      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
+      if (admins?.length) {
+        await supabase.from('notifications').insert(
+          admins.map((a: { id: string }) => ({
+            user_id: a.id,
+            type: 'siret_pending',
+            title: 'SIRET à vérifier',
+            body: `${profile?.full_name ?? 'Créateur'} · ${siretNumber}`,
+            link: '/profile?tab=admin&section=creators',
+          }))
+        )
+      }
+      setSiretResult({ valid: true, nom: 'Demande envoyée — un admin va vérifier votre SIRET.' })
+    } catch {
+      setSiretResult({ valid: false, error: 'Erreur lors de l\'envoi. Veuillez réessayer.' })
     }
     setSiretChecking(false)
   }
@@ -297,11 +331,27 @@ export default function ProfilePage() {
     if (!file || !user) return
     setRcProUploading(true)
     const ext = file.name.split('.').pop()
-    const { error } = await supabase.storage.from('insurance-docs').upload(`${user.id}/rc-pro.${ext}`, file, { upsert: true })
-    if (!error) {
-      await supabase.from('creator_profiles').update({ insurance_verified: true }).eq('user_id', user.id)
-      setCreator(c => c ? { ...c, insurance_verified: true } : c)
-      setEditInsurance(true)
+    const { data: uploadData, error } = await supabase.storage.from('insurance-docs').upload(`${user.id}/rc-pro.${ext}`, file, { upsert: true })
+    if (!error && uploadData) {
+      const { data: { publicUrl } } = supabase.storage.from('insurance-docs').getPublicUrl(uploadData.path)
+      // Sauvegarde l'URL du doc mais NE vérifie PAS — l'admin doit valider
+      await supabase.from('creator_profiles').update({ insurance_doc_url: publicUrl, insurance_verified: false }).eq('user_id', user.id)
+      setCreator(c => c ? { ...c, insurance_doc_url: publicUrl, insurance_verified: false } : c)
+      setEditInsurance(false)
+      // Notif à tous les admins
+      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
+      if (admins?.length) {
+        await supabase.from('notifications').insert(
+          admins.map(a => ({
+            user_id: a.id,
+            type: 'rc_pro_pending',
+            title: 'RC Pro à vérifier',
+            body: `Nouveau document de ${profile?.full_name ?? 'Créateur'}`,
+            link: '/profile?tab=admin&section=creators',
+          }))
+        )
+      }
+      setToast('Document envoyé — en attente de validation par l\'équipe')
     }
     setRcProUploading(false)
   }
@@ -309,16 +359,65 @@ export default function ProfilePage() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
-    setAvatarUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `${user.id}/avatar.${ext}`
-    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
-    if (!error) {
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-      await supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('id', user.id)
-      setProfile(p => p ? { ...p, avatar_url: data.publicUrl } : p)
+    e.target.value = ''
+    const url = URL.createObjectURL(file)
+    const img = new window.Image()
+    img.onload = () => {
+      cropImgRef.current = img
+      setCropImageSize({ w: img.naturalWidth, h: img.naturalHeight })
+      setCropOffset({ x: 0, y: 0 })
+      setCropScale(1)
+      setCropSrc(url)
     }
-    setAvatarUploading(false)
+    img.src = url
+  }
+
+  const drawCrop = () => {
+    const canvas = cropCanvasRef.current
+    const img = cropImgRef.current
+    if (!canvas || !img) return
+    const SIZE = 300
+    const ctx = canvas.getContext('2d')!
+    ctx.clearRect(0, 0, SIZE, SIZE)
+    const s = cropScale
+    const sw = cropImageSize.w * s
+    const sh = cropImageSize.h * s
+    const x = SIZE / 2 - sw / 2 + cropOffset.x
+    const y = SIZE / 2 - sh / 2 + cropOffset.y
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2)
+    ctx.clip()
+    ctx.drawImage(img, x, y, sw, sh)
+    ctx.restore()
+    // circle border
+    ctx.strokeStyle = '#6366F1'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2 - 1, 0, Math.PI * 2)
+    ctx.stroke()
+  }
+
+  useEffect(() => { if (cropSrc) drawCrop() })
+
+  const confirmCrop = async () => {
+    if (!cropCanvasRef.current || !user) return
+    setAvatarUploading(true)
+    setCropSrc(null)
+    cropCanvasRef.current.toBlob(async (blob) => {
+      if (!blob) { setAvatarUploading(false); return }
+      const path = `${user.id}/avatar.jpg`
+      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      if (!error) {
+        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+        const url = `${data.publicUrl}?t=${Date.now()}`
+        await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
+        setProfile(p => p ? { ...p, avatar_url: url } : p)
+        const storeUser = useAuthStore.getState().user
+        if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      }
+      setAvatarUploading(false)
+    }, 'image/jpeg', 0.92)
   }
 
   const toggleDisc = (d: string) =>
@@ -429,6 +528,48 @@ export default function ProfilePage() {
 
     return (
       <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 16px 80px' }}>
+
+        {/* ── Crop Modal ── */}
+        {cropSrc && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '28px', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+              <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '700', color: '#1A1A1A' }}>Recadrer la photo</h3>
+              <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#6B7280' }}>Glisse pour repositionner · molette pour zoomer</p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                <canvas
+                  ref={cropCanvasRef}
+                  width={300} height={300}
+                  style={{ borderRadius: '50%', cursor: cropDragging ? 'grabbing' : 'grab', userSelect: 'none', display: 'block' }}
+                  onMouseDown={e => { setCropDragging(true); setCropDragStart({ x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y }) }}
+                  onMouseMove={e => { if (!cropDragging) return; setCropOffset({ x: e.clientX - cropDragStart.x, y: e.clientY - cropDragStart.y }) }}
+                  onMouseUp={() => setCropDragging(false)}
+                  onMouseLeave={() => setCropDragging(false)}
+                  onTouchStart={e => { const t = e.touches[0]; setCropDragging(true); setCropDragStart({ x: t.clientX - cropOffset.x, y: t.clientY - cropOffset.y }) }}
+                  onTouchMove={e => { if (!cropDragging) return; const t = e.touches[0]; setCropOffset({ x: t.clientX - cropDragStart.x, y: t.clientY - cropDragStart.y }) }}
+                  onTouchEnd={() => setCropDragging(false)}
+                  onWheel={e => { e.preventDefault(); setCropScale(s => Math.min(4, Math.max(0.5, s - e.deltaY * 0.001))) }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '6px' }}>Zoom</label>
+                <input type="range" min="0.5" max="4" step="0.01" value={cropScale}
+                  onChange={e => setCropScale(parseFloat(e.target.value))}
+                  style={{ width: '100%', accentColor: '#6366F1' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => { setCropSrc(null); if (cropImgRef.current) URL.revokeObjectURL(cropImgRef.current.src) }}
+                  style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                  Annuler
+                </button>
+                <button onClick={confirmCrop}
+                  style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                  Appliquer
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
 
           {/* ── Header Admin ── */}
@@ -1163,6 +1304,48 @@ export default function ProfilePage() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
+
+      {/* ── Crop Modal ── */}
+      {cropSrc && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '28px', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '700', color: '#1A1A1A' }}>Recadrer la photo</h3>
+            <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#6B7280' }}>Glisse pour repositionner · molette pour zoomer</p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+              <canvas
+                ref={cropCanvasRef}
+                width={300} height={300}
+                style={{ borderRadius: '50%', cursor: cropDragging ? 'grabbing' : 'grab', userSelect: 'none', display: 'block' }}
+                onMouseDown={e => { setCropDragging(true); setCropDragStart({ x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y }) }}
+                onMouseMove={e => { if (!cropDragging) return; setCropOffset({ x: e.clientX - cropDragStart.x, y: e.clientY - cropDragStart.y }) }}
+                onMouseUp={() => setCropDragging(false)}
+                onMouseLeave={() => setCropDragging(false)}
+                onTouchStart={e => { const t = e.touches[0]; setCropDragging(true); setCropDragStart({ x: t.clientX - cropOffset.x, y: t.clientY - cropOffset.y }) }}
+                onTouchMove={e => { if (!cropDragging) return; const t = e.touches[0]; setCropOffset({ x: t.clientX - cropDragStart.x, y: t.clientY - cropDragStart.y }) }}
+                onTouchEnd={() => setCropDragging(false)}
+                onWheel={e => { e.preventDefault(); setCropScale(s => Math.min(4, Math.max(0.5, s - e.deltaY * 0.001))) }}
+              />
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '6px' }}>Zoom</label>
+              <input type="range" min="0.5" max="4" step="0.01" value={cropScale}
+                onChange={e => setCropScale(parseFloat(e.target.value))}
+                style={{ width: '100%', accentColor: '#6366F1' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => { setCropSrc(null); if (cropImgRef.current) URL.revokeObjectURL(cropImgRef.current.src) }}
+                style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Annuler
+              </button>
+              <button onClick={confirmCrop}
+                style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Appliquer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
@@ -1178,7 +1361,7 @@ export default function ProfilePage() {
 
               {/* Avatar */}
               <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div style={{ width: '112px', height: '112px', borderRadius: '20px', overflow: 'hidden', border: '3px solid rgba(99,102,241,0.4)', boxShadow: '0 0 32px rgba(99,102,241,0.25)', backgroundColor: '#1e1b4b' }}>
+                <div style={{ width: '112px', height: '112px', borderRadius: '50%', overflow: 'hidden', border: '3px solid rgba(99,102,241,0.4)', boxShadow: '0 0 32px rgba(99,102,241,0.25)', backgroundColor: '#1e1b4b' }}>
                   {profile?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1365,8 +1548,15 @@ export default function ProfilePage() {
                   <div>
                     <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Pseudo / Nom d'affichage</label>
                     <input value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="ex : sophie.ceramiques"
+                      onKeyDown={async e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
+                          setToast('Pseudo enregistré ✓')
+                        }
+                      }}
                       style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
-                    <p style={{ fontSize: '12px', color: '#94A3B8', margin: '5px 0 0' }}>Affiché à la place de votre nom sur votre profil public si renseigné.</p>
+                    <p style={{ fontSize: '12px', color: '#94A3B8', margin: '5px 0 0' }}>Appuyez sur <kbd style={{ padding: '1px 5px', borderRadius: '4px', backgroundColor: '#F1F5F9', border: '1px solid #CBD5E1', fontSize: '11px' }}>Entrée</kbd> pour enregistrer.</p>
                   </div>
                   {/* Toggle nom réel */}
                   <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '12px 14px', borderRadius: '10px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
@@ -1443,10 +1633,78 @@ export default function ProfilePage() {
               </div>
               {editing ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <input value={editCity} onChange={e => setEditCity(e.target.value)} placeholder="Ville" style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }} />
-                    <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région" style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }} />
+                  {/* City + postal autocomplete */}
+                  <div ref={cityContainerRef} style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input
+                        value={cityQuery}
+                        onChange={e => {
+                          const q = e.target.value
+                          setCityQuery(q)
+                          setEditCity(q)
+                          setCityDropdownOpen(true)
+                          if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current)
+                          if (q.length < 2) { setCitySuggestions([]); return }
+                          cityDebounceRef.current = setTimeout(async () => {
+                            try {
+                              const isPostal = /^\d+$/.test(q)
+                              const url = isPostal
+                                ? `https://geo.api.gouv.fr/communes?codePostal=${encodeURIComponent(q)}&fields=nom,region,departement,codesPostaux&boost=population&limit=6`
+                                : `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,region,departement,codesPostaux&boost=population&limit=6`
+                              const r = await fetch(url)
+                              const data = await r.json()
+                              setCitySuggestions(data.map((c: { nom: string; region: { nom: string }; departement: { nom: string }; codesPostaux: string[] }) => ({
+                                nom: c.nom,
+                                region: c.region?.nom ?? '',
+                                departement: c.departement?.nom ?? '',
+                                codesPostaux: c.codesPostaux ?? [],
+                              })))
+                            } catch { setCitySuggestions([]) }
+                          }, 250)
+                        }}
+                        onBlur={() => setTimeout(() => setCityDropdownOpen(false), 150)}
+                        onFocus={() => citySuggestions.length > 0 && setCityDropdownOpen(true)}
+                        placeholder="Ville ou code postal"
+                        autoComplete="off"
+                        style={{ flex: 2, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                      <input
+                        value={editPostalCode}
+                        onChange={e => setEditPostalCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                        placeholder="Code postal"
+                        maxLength={5}
+                        style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'monospace', backgroundColor: '#F8FAFC', outline: 'none', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    {cityDropdownOpen && citySuggestions.length > 0 && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: '#FFF', border: '1px solid #E2E8F0', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', marginTop: '4px', overflow: 'hidden' }}>
+                        {citySuggestions.map((s, i) => (
+                          <button key={i} type="button"
+                            onMouseDown={() => {
+                              setEditCity(s.nom)
+                              setEditRegion(s.region)
+                              setCityQuery(s.nom)
+                              if (s.codesPostaux?.length === 1) setEditPostalCode(s.codesPostaux[0])
+                              setCityDropdownOpen(false)
+                              setCitySuggestions([])
+                            }}
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', textAlign: 'left', borderBottom: i < citySuggestions.length - 1 ? '1px solid #F3F4F6' : 'none' }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <div>
+                              <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>{s.nom}</span>
+                              <span style={{ fontSize: '12px', color: '#6B7280', marginLeft: '6px' }}>{s.departement} · {s.region}</span>
+                            </div>
+                            {s.codesPostaux?.length > 0 && (
+                              <span style={{ fontSize: '12px', color: '#6366F1', fontWeight: '600', fontFamily: 'monospace', marginLeft: '8px', flexShrink: 0 }}>{s.codesPostaux[0]}{s.codesPostaux.length > 1 ? '…' : ''}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                  <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région (remplie automatiquement)" style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none', color: '#6B7280' }} />
                   <select value={editRadius} onChange={e => setEditRadius(e.target.value)}
                     style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }}>
                     <option value="5">Rayon 5 km</option>
@@ -1531,19 +1789,20 @@ export default function ProfilePage() {
                   </div>
                   {editing && (
                     <div style={{ marginTop: '12px' }}>
+                      <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 8px' }}>Entrez votre numéro SIRET (14 chiffres) — un admin le validera sous 24h.</p>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <input value={siretNumber} onChange={e => { setSiretNumber(e.target.value.replace(/\D/g, '')); setSiretResult(null) }}
                           placeholder="14 chiffres" maxLength={14}
-                          style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'monospace', letterSpacing: '1px' }} />
+                          style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'monospace', letterSpacing: '2px' }} />
                         <button onClick={handleCheckSiret} disabled={siretNumber.length !== 14 || siretChecking}
                           style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: siretNumber.length === 14 ? '#6366F1' : '#E5E7EB', color: siretNumber.length === 14 ? '#FFF' : '#9CA3AF', fontSize: '13px', fontWeight: '700', cursor: siretNumber.length === 14 ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}>
-                          {siretChecking ? '…' : 'Vérifier'}
+                          {siretChecking ? '…' : 'Envoyer'}
                         </button>
                       </div>
                       {siretResult && (
                         <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: '8px', backgroundColor: siretResult.valid ? '#ECFDF5' : '#FEF2F2', border: `1px solid ${siretResult.valid ? '#A7F3D0' : '#FECACA'}` }}>
                           <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: siretResult.valid ? '#059669' : '#DC2626' }}>
-                            {siretResult.valid ? `✓ ${siretResult.nom} — SIRET valide. Un admin va confirmer votre badge.` : `✗ ${siretResult.error}`}
+                            {siretResult.valid ? `✓ ${siretResult.nom}` : `✗ ${siretResult.error}`}
                           </p>
                         </div>
                       )}
@@ -1551,24 +1810,31 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                <div style={{ padding: '16px', borderRadius: '10px', border: `1px solid ${(creator?.insurance_verified || editInsurance) ? '#A7F3D0' : '#E5E7EB'}`, backgroundColor: (creator?.insurance_verified || editInsurance) ? '#ECFDF5' : '#FAFAFA' }}>
+                <div style={{ padding: '16px', borderRadius: '10px', border: `1px solid ${creator?.insurance_verified ? '#A7F3D0' : creator?.insurance_doc_url ? '#FDE68A' : '#E5E7EB'}`, backgroundColor: creator?.insurance_verified ? '#ECFDF5' : creator?.insurance_doc_url ? '#FFFBEB' : '#FAFAFA' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <CheckCircle size={18} fill={(creator?.insurance_verified || editInsurance) ? '#059669' : 'none'} color={(creator?.insurance_verified || editInsurance) ? '#059669' : '#9CA3AF'} />
+                      <CheckCircle size={18}
+                        fill={creator?.insurance_verified ? '#059669' : 'none'}
+                        color={creator?.insurance_verified ? '#059669' : creator?.insurance_doc_url ? '#F59E0B' : '#9CA3AF'}
+                      />
                       <div>
-                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro valide</p>
-                        <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Assurance Responsabilité Civile Professionnelle</p>
+                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro</p>
+                        <p style={{ fontSize: '12px', color: creator?.insurance_verified ? '#059669' : creator?.insurance_doc_url ? '#D97706' : '#6B7280', margin: 0, fontWeight: '600' }}>
+                          {creator?.insurance_verified ? '✓ Validé par l\'équipe' : creator?.insurance_doc_url ? '⏳ En attente de validation' : 'Assurance Responsabilité Civile Professionnelle'}
+                        </p>
                       </div>
                     </div>
-                    {editing && (
+                    {editing && !creator?.insurance_verified && (
                       <button onClick={() => rcProRef.current?.click()} disabled={rcProUploading}
-                        style={{ padding: '6px 14px', borderRadius: '20px', border: 'none', backgroundColor: editInsurance ? '#059669' : '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                        {rcProUploading ? 'Envoi…' : editInsurance ? '✓ Déposé' : 'Déposer'}
+                        style={{ padding: '6px 14px', borderRadius: '20px', border: 'none', backgroundColor: creator?.insurance_doc_url ? '#F59E0B' : '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                        {rcProUploading ? 'Envoi…' : creator?.insurance_doc_url ? '↺ Remplacer' : 'Déposer'}
                       </button>
                     )}
                   </div>
-                  {editing && (
-                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '8px 0 0' }}>Déposez votre attestation RC Pro (PDF ou image)</p>
+                  {editing && !creator?.insurance_verified && (
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '8px 0 0' }}>
+                      {creator?.insurance_doc_url ? 'Document reçu — l\'équipe Nexart va le vérifier sous 24h.' : 'Déposez votre attestation RC Pro (PDF ou image)'}
+                    </p>
                   )}
                   <input ref={rcProRef} type="file" accept=".pdf,image/*" style={{ display: 'none' }} onChange={handleRcProUpload} />
                 </div>
@@ -1613,7 +1879,7 @@ export default function ProfilePage() {
             userId={user.id}
             onChange={async (next) => {
               setGridItems(next)
-              await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next })
+              await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next }, { onConflict: 'user_id' })
             }}
           />
         )}

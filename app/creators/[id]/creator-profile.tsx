@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, QrCode,
-  Heart, MessageCircle, X, Send, BadgeCheck,
+  Heart, MessageCircle, X, Send, BadgeCheck, Star,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
@@ -29,8 +29,18 @@ const RADIUS_LABELS: Record<string, string> = {
   '5': '5 km', '10': '10 km', '25': '25 km', national: 'National',
 }
 
+type Review = {
+  id: string
+  rating: number
+  comment?: string | null
+  tags?: string[] | null
+  created_at: string
+  profiles?: { full_name: string; avatar_url?: string | null } | null
+}
+
 export function CreatorProfileClient({ id }: Props) {
   const [creator, setCreator] = useState<CreatorData | null>(null)
+  const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [showMsg, setShowMsg] = useState(false)
@@ -50,6 +60,21 @@ export function CreatorProfileClient({ id }: Props) {
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...p, ...cp })
       setLoading(false)
+
+      // Charger les avis séparément
+      const { data: rv, error: rvErr } = await supabase
+        .from('reviews')
+        .select('id, rating, comment, tags, created_at, reviewer:profiles!reviewer_id(full_name, avatar_url)')
+        .eq('reviewed_id', id)
+        .order('created_at', { ascending: false })
+
+      if (!rvErr && rv?.length) {
+        const mapped = rv.map((r: Record<string, unknown>) => ({
+          ...r,
+          profiles: r.reviewer as Review['profiles'],
+        }))
+        setReviews(mapped as Review[])
+      }
     }
     load()
   }, [id])
@@ -299,6 +324,54 @@ export function CreatorProfileClient({ id }: Props) {
                     {grid.map((item, idx) => (
                       <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: '#F3F4F6', position: 'relative' }} className="group">
                         <Image src={item.url} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )
+            })()}
+
+            {/* Avis */}
+            {reviews.length > 0 && (() => {
+              const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+              return (
+                <section className="mb-8">
+                  <div className="flex items-center gap-3 mb-5">
+                    <h2 className="text-lg font-bold text-gray-900">Avis</h2>
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
+                      <Star size={14} className="text-amber-500" fill="#F59E0B" />
+                      <span className="text-sm font-bold text-amber-700">{avg.toFixed(1)}</span>
+                      <span className="text-xs text-amber-500">({reviews.length} avis)</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {reviews.map(r => (
+                      <div key={r.id} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 text-sm font-bold text-indigo-600">
+                              {(r.profiles?.full_name ?? '?')[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">{r.profiles?.full_name ?? 'Organisateur'}</p>
+                              <p className="text-xs text-gray-400">{new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                            </div>
+                          </div>
+                          {/* Étoiles */}
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            {[1,2,3,4,5].map(n => (
+                              <Star key={n} size={15} fill={n <= r.rating ? '#F59E0B' : 'none'} color={n <= r.rating ? '#F59E0B' : '#D1D5DB'} />
+                            ))}
+                          </div>
+                        </div>
+                        {r.comment && <p className="text-sm text-gray-600 leading-relaxed mb-3">{r.comment}</p>}
+                        {r.tags && r.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {r.tags.map(tag => (
+                              <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-semibold">{tag}</span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

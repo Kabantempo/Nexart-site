@@ -199,12 +199,12 @@ function CreatorsContent() {
 
         {/* Filters */}
         <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
-          <div className="flex flex-wrap gap-5 items-end">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-5 items-start sm:items-end">
             {uniqueCities.length > 0 && (
-              <div>
+              <div className="w-full sm:w-auto">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ville</p>
                 <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                  className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                  className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                     cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
                   }`}>
                   <option value="all">Toutes les villes</option>
@@ -213,10 +213,10 @@ function CreatorsContent() {
               </div>
             )}
             {uniqueDisciplines.length > 0 && (
-              <div>
+              <div className="w-full sm:w-auto">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Discipline</p>
                 <select value={disciplineFilter} onChange={(e) => setDisciplineFilter(e.target.value)}
-                  className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                  className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                     disciplineFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
                   }`}>
                   <option value="all">Toutes les disciplines</option>
@@ -224,12 +224,12 @@ function CreatorsContent() {
                 </select>
               </div>
             )}
-            <div>
+            <div className="w-full sm:w-auto">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trier par</p>
               <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
                 {([['alpha', <ArrowUpAZ key="a" size={13} />, 'A → Z'], ['newest', <Clock key="c" size={13} />, 'Récents']] as const).map(([key, icon, label], i) => (
                   <button key={key} onClick={() => setSortOrder(key)}
-                    className={`px-4 py-2 text-sm font-medium flex items-center gap-1.5 transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
+                    className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
                       sortOrder === key ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
                     }`}>
                     {icon} {label}
@@ -269,12 +269,40 @@ function CreatorsContent() {
                   <Link href={`/creators/${creator.id}`}
                     className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-violet-200 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-1.5 transition-all duration-300 h-full"
                   >
-                    {/* Avatar */}
-                    <div className="relative aspect-square bg-gray-100 shrink-0 overflow-hidden">
-                      {creator.avatar_url ? (
-                        <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                    {/* Media header — portfolio if available, avatar fallback */}
+                    <div className="relative shrink-0 overflow-hidden bg-gray-100">
+                      {creator.portfolio_images?.length >= 2 ? (
+                        /* Mini gallery: 1 large + column of 2 */
+                        <div className="flex h-48 gap-px">
+                          <div className="relative flex-1 overflow-hidden">
+                            <Image src={creator.portfolio_images[0]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                          </div>
+                          <div className="flex flex-col gap-px w-[38%]">
+                            <div className="relative flex-1 overflow-hidden">
+                              <Image src={creator.portfolio_images[1]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                            </div>
+                            {creator.portfolio_images[2] ? (
+                              <div className="relative flex-1 overflow-hidden">
+                                <Image src={creator.portfolio_images[2]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                                {creator.portfolio_images.length > 3 && (
+                                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <span className="text-white font-bold text-sm">+{creator.portfolio_images.length - 3}</span>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : creator.portfolio_images?.length === 1 ? (
+                        <div className="relative aspect-square">
+                          <Image src={creator.portfolio_images[0]} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                        </div>
+                      ) : creator.avatar_url ? (
+                        <div className="relative aspect-square">
+                          <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                        </div>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-500 via-indigo-500 to-purple-600">
+                        <div className="aspect-square w-full flex items-center justify-center bg-gradient-to-br from-violet-500 via-indigo-500 to-purple-600">
                           <span className="text-5xl font-bold text-white/70 select-none">
                             {creator.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
@@ -284,10 +312,17 @@ function CreatorsContent() {
                       {/* Gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
+                      {/* Avatar circle (when showing portfolio) */}
+                      {creator.portfolio_images?.length > 0 && creator.avatar_url && (
+                        <div className="absolute bottom-3 left-3 w-9 h-9 rounded-full border-2 border-white overflow-hidden shadow-md">
+                          <Image src={creator.avatar_url} alt="" fill className="object-cover" />
+                        </div>
+                      )}
+
                       {/* Discipline pills (show on hover) */}
                       {creator.disciplines?.length > 0 && (
                         <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                          <div className="flex flex-wrap gap-1">
+                          <div className={`flex flex-wrap gap-1 ${creator.portfolio_images?.length > 0 && creator.avatar_url ? 'pl-11' : ''}`}>
                             {creator.disciplines.slice(0, 3).map((d: string) => (
                               <span key={d} className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white backdrop-blur-sm ${DISCIPLINE_COLORS[d] ?? DISCIPLINE_COLORS.default}`}>
                                 {d}

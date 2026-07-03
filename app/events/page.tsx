@@ -212,8 +212,8 @@ function EventsContent() {
 
         {/* Filters */}
         <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
-          <div className="flex flex-wrap gap-5 items-start">
-            <div className="flex-1 min-w-[280px]">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-5 items-start">
+            <div className="w-full sm:flex-1">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Type d'événement</p>
               <div className="flex flex-wrap gap-2">
                 {EVENT_TYPES.map(({ key, label }) => {
@@ -230,12 +230,12 @@ function EventsContent() {
               </div>
             </div>
 
-            <div className="flex gap-3 items-end flex-wrap shrink-0">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 items-start sm:items-end w-full sm:w-auto">
               {uniqueCities.length > 0 && (
-                <div>
+                <div className="w-full sm:w-auto">
                   <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Ville</p>
                   <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                    className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                    className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
                       cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
                     }`}>
                     <option value="all">Toutes les villes</option>
@@ -243,12 +243,12 @@ function EventsContent() {
                   </select>
                 </div>
               )}
-              <div>
+              <div className="w-full sm:w-auto">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trier par date</p>
                 <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
                   {(['asc', 'desc'] as const).map((o, i) => (
                     <button key={o} onClick={() => setSortOrder(o)}
-                      className={`px-4 py-2 text-sm font-medium transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
+                      className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
                         sortOrder === o ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
                       }`}>
                       {o === 'asc' ? '↑ Prochains' : '↓ Plus loin'}
