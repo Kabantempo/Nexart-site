@@ -45,7 +45,7 @@ export function NavbarFull() {
         let { data: p } = await supabase.from('profiles').select('*').eq('id', su.id).maybeSingle()
         if (!p) {
           const defaultName = su.user_metadata?.full_name ?? su.email?.split('@')[0] ?? ''
-          await supabase.from('profiles').upsert({ id: su.id, full_name: defaultName, role: su.user_metadata?.role ?? null })
+          await supabase.from('profiles').upsert({ id: su.id, full_name: defaultName, role: su.user_metadata?.role ?? 'visitor' })
           const { data: created } = await supabase.from('profiles').select('*').eq('id', su.id).maybeSingle()
           p = created
         }
