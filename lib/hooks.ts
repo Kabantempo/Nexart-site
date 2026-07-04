@@ -12,11 +12,34 @@ export function useEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const { data, error: err } = await supabase
+        // Accès anticipé : Pro/Premium voient tout, Boost voit à -24h, Gratuit à -48h
+        let earlyAccessCutoff: string | null = null
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          const { data: prof } = await supabase.from('profiles').select('subscription_tier').eq('id', session.user.id).single()
+          const tier = prof?.subscription_tier ?? 'free'
+          if (tier === 'free') {
+            earlyAccessCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+          } else if (tier === 'boost') {
+            earlyAccessCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+          }
+          // pro/premium : pas de restriction
+        } else {
+          // non connecté = traité comme gratuit
+          earlyAccessCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+        }
+
+        let query = supabase
           .from('events')
           .select('*')
           .eq('status', 'published')
           .order('start_date', { ascending: true })
+
+        if (earlyAccessCutoff) {
+          query = query.lte('created_at', earlyAccessCutoff)
+        }
+
+        const { data, error: err } = await query
 
         if (err) throw err
 
@@ -79,7 +102,16 @@ export function useCreators() {
 
         if (creatorErr) throw creatorErr
 
-        const enriched = creatorData?.map((creator) => {
+        // Créateurs actifs : candidature acceptée dans les 6 derniers mois
+        const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()
+        const { data: recentApps } = await supabase
+          .from('applications')
+          .select('creator_id')
+          .eq('status', 'accepted')
+          .gte('updated_at', sixMonthsAgo)
+        const activeIds = new Set(recentApps?.map(a => a.creator_id) || [])
+
+        const enriched = (creatorData?.map((creator) => {
           const profile = profiles?.find((p) => p.id === creator.user_id)
           return {
             ...creator,
@@ -89,8 +121,14 @@ export function useCreators() {
             bio: profile?.bio,
             role: 'creator' as const,
             created_at: profile?.created_at || '',
+            is_active: activeIds.has(creator.user_id),
           }
-        }) || []
+        }) || []).sort((a, b) => {
+          // Vérifiés (SIRET + RC Pro) d'abord, puis actifs, puis le reste
+          const scoreA = (a.siret_verified && a.insurance_verified ? 2 : 0) + (a.is_active ? 1 : 0)
+          const scoreB = (b.siret_verified && b.insurance_verified ? 2 : 0) + (b.is_active ? 1 : 0)
+          return scoreB - scoreA
+        })
 
         setCreators(enriched)
       } catch (err) {
@@ -198,6 +236,30 @@ export function useApplication(eventId: string, userId?: string) {
     setApplying(true)
     setError(null)
     try {
+      // Vérifier la limite mensuelle de candidatures pour le tier free
+      const { data: profile } = await supabase.from('profiles').select('subscription_tier, created_at').eq('id', userId).single()
+      const tier = profile?.subscription_tier ?? 'free'
+
+      if (tier === 'free') {
+        const accountAge = profile?.created_at
+          ? (Date.now() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30)
+          : 99
+        // Premier mois: 2 candidatures, ensuite 1/mois
+        const limit = accountAge < 1 ? 2 : 1
+        const monthStart = new Date()
+        monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0)
+        const { count } = await supabase
+          .from('applications')
+          .select('id', { count: 'exact', head: true })
+          .eq('creator_id', userId)
+          .gte('created_at', monthStart.toISOString())
+        if ((count ?? 0) >= limit) {
+          setError(`Limite atteinte : le plan gratuit autorise ${limit} candidature${limit > 1 ? 's' : ''} par mois. Passez au plan Boost pour postuler davantage.`)
+          setApplying(false)
+          return
+        }
+      }
+
       const { error: err } = await supabase.from('applications').insert({
         event_id: eventId,
         creator_id: userId,

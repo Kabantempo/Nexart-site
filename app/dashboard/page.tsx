@@ -3,39 +3,62 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   LogOut, MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
-  MapPin, ShoppingBag,
+  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap,
 } from 'lucide-react'
+import { CreditsWidget } from '@/components/credits-widget'
+import { BoostButton } from '@/components/boost-button'
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
-  pending:  { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB', icon: <Clock size={14} /> },
-  accepted: { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5', icon: <CheckCircle size={14} /> },
-  refused:  { label: 'Refusée',    color: '#E05A5A', bg: '#FEF2F2', icon: <X size={14} /> },
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; dot: string }> = {
+  pending:  { label: 'En attente', color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',   dot: 'bg-amber-400' },
+  accepted: { label: 'Acceptée',   color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', dot: 'bg-emerald-400' },
+  refused:  { label: 'Refusée',    color: 'text-red-700',     bg: 'bg-red-50 border-red-200',       dot: 'bg-red-400' },
 }
 
-const NAV_CARDS = (userId: string, role: string) => [
-  { href: '/events',           icon: <Calendar size={24} color="#6366F1" />, label: 'Événements',  sub: 'Voir les marchés' },
-  { href: '/creators',         icon: <Users size={24} color="#6366F1" />,    label: 'Créateurs',   sub: 'Voir les artisans' },
-  { href: '/carte',            icon: <MapPin size={24} color="#6366F1" />,   label: 'Carte',       sub: 'Événements proches' },
-  { href: '/profile',          icon: <User size={24} color="#6366F1" />,     label: 'Mon profil',  sub: 'Éditer mon profil' },
-  { href: '/favorites',        icon: <Heart size={24} color="#6366F1" />,    label: 'Favoris',     sub: 'Vos coups de cœur' },
-  ...(role !== 'visitor' ? [
-    { href: '/messages', icon: <MessageSquare size={24} color="#6366F1" />, label: 'Messages', sub: 'Vos conversations' },
+const NAV_CARDS = (userId: string, isCreator: boolean, isOrganizer: boolean, isVisitor: boolean) => [
+  { href: '/events',           icon: <Calendar size={22} className="text-indigo-600" />,    label: 'Événements',          sub: 'Voir les marchés' },
+  { href: '/creators',         icon: <Users size={22} className="text-indigo-600" />,        label: 'Créateurs',           sub: 'Voir les artisans' },
+  { href: '/carte',            icon: <MapPin size={22} className="text-indigo-600" />,       label: 'Carte',               sub: 'Événements proches' },
+  { href: '/profile',          icon: <User size={22} className="text-indigo-600" />,         label: 'Mon profil',          sub: 'Éditer mon profil' },
+  { href: '/favorites',        icon: <Heart size={22} className="text-indigo-600" />,        label: 'Favoris',             sub: 'Vos coups de coeur' },
+  ...(!isVisitor ? [
+    { href: '/messages', icon: <MessageSquare size={22} className="text-indigo-600" />, label: 'Messages', sub: 'Vos conversations' },
   ] : []),
-  ...(role === 'organizer' ? [
-    { href: '/events/create',  icon: <CalendarDays size={24} color="#6366F1" />, label: 'Créer un événement', sub: 'Nouveau marché' },
-    { href: `/creators/${userId}`, icon: <User size={24} color="#6366F1" />, label: 'Ma fiche', sub: 'Vue publique' },
+  ...(isOrganizer ? [
+    { href: '/events/create',      icon: <CalendarDays size={22} className="text-indigo-600" />, label: 'Créer un événement', sub: 'Nouveau marché' },
+    { href: '/analytics',          icon: <BarChart2 size={22} className="text-indigo-600" />,    label: 'Analytiques',        sub: 'Stats événements' },
+    { href: '/calendrier',         icon: <CalendarDays size={22} className="text-indigo-600" />, label: 'Calendrier',         sub: 'Vue multi-événements' },
   ] : []),
-  ...(role === 'creator' ? [
-    { href: `/boutique/${userId}`, icon: <ShoppingBag size={24} color="#6366F1" />, label: 'Ma boutique', sub: 'Mes créations' },
-    { href: '/carnet-de-route', icon: <MapPin size={24} color="#6366F1" />, label: 'Carnet de route', sub: 'Mes déplacements' },
+  ...(isCreator ? [
+    { href: `/boutique/${userId}`, icon: <ShoppingBag size={22} className="text-indigo-600" />, label: 'Ma boutique',     sub: 'Mes créations' },
+    { href: '/carnet-de-route',    icon: <MapPin size={22} className="text-indigo-600" />,      label: 'Carnet de route', sub: 'Mes déplacements' },
+    ...(!isOrganizer ? [{ href: '/analytics', icon: <BarChart2 size={22} className="text-indigo-600" />, label: 'Analytiques', sub: 'Mes statistiques' }] : []),
   ] : []),
 ]
+
+function DashSkeleton() {
+  return (
+    <div className="bg-white min-h-screen">
+      <div className="h-48 bg-[#06060f] animate-pulse" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-20 space-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {[...Array(8)].map((_, i) => <div key={i} className="h-20 rounded-2xl bg-gray-100 animate-pulse" style={{ animationDelay: `${i * 50}ms` }} />)}
+        </div>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => <div key={i} className="h-20 rounded-2xl bg-gray-100 animate-pulse" style={{ animationDelay: `${i * 70}ms` }} />)}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PROFILE_STEPS_TOTAL = 6
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
@@ -47,14 +70,12 @@ export default function DashboardPage() {
   const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
   const [missingProfileFields, setMissingProfileFields] = useState<string[]>([])
 
-  const PROFILE_STEPS_TOTAL = 6
-
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       if (!user) {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url })
+        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
       }
     })
   }, [router, user, setUser])
@@ -66,7 +87,6 @@ export default function DashboardPage() {
         supabase.from('profiles').select('full_name, bio, avatar_url, role').eq('id', user.id).maybeSingle(),
         supabase.from('creator_profiles').select('disciplines, city, travel_radius').eq('user_id', user.id).maybeSingle(),
       ])
-      // Show banner for creators/artisans AND for old accounts that have a creator_profiles row (role may be null)
       const isCreator = p?.role === 'creator' || p?.role === 'artisan' || cp !== null
       if (!isCreator) return
       const missing: string[] = []
@@ -85,16 +105,21 @@ export default function DashboardPage() {
     if (!user) return
     const fetchData = async () => {
       setLoading(true)
-      if (user.role === 'creator') {
-        const { data: apps } = await supabase.from('applications').select('*').eq('creator_id', user.id).order('created_at', { ascending: false })
-        if (apps?.length) {
-          const { data: eventsData } = await supabase.from('events').select('*').in('id', apps.map(a => a.event_id))
-          setApplications(apps.map(a => ({ ...a, event: eventsData?.find(e => e.id === a.event_id) })))
-        }
-      } else if (user.role === 'organizer') {
-        const { data: eventsData } = await supabase.from('events').select('*').eq('organizer_id', user.id).order('created_at', { ascending: false })
-        setEvents(eventsData || [])
-      }
+      const hasCreator = user.is_creator || user.role === 'creator'
+      const hasOrganizer = user.is_organizer || user.role === 'organizer'
+      await Promise.all([
+        hasCreator ? (async () => {
+          const { data: apps } = await supabase.from('applications').select('*').eq('creator_id', user.id).order('created_at', { ascending: false })
+          if (apps?.length) {
+            const { data: eventsData } = await supabase.from('events').select('*').in('id', apps.map(a => a.event_id))
+            setApplications(apps.map(a => ({ ...a, event: eventsData?.find(e => e.id === a.event_id) })))
+          }
+        })() : Promise.resolve(),
+        hasOrganizer ? (async () => {
+          const { data: eventsData } = await supabase.from('events').select('*').eq('organizer_id', user.id).order('created_at', { ascending: false })
+          setEvents(eventsData || [])
+        })() : Promise.resolve(),
+      ])
       setLoading(false)
     }
     fetchData()
@@ -106,66 +131,109 @@ export default function DashboardPage() {
     router.push('/')
   }
 
-  if (!user) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <div style={{ width: '40px', height: '40px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-    </div>
-  )
+  if (!user) return <DashSkeleton />
+
+  const hasCreator = user.is_creator || user.role === 'creator'
+  const hasOrganizer = user.is_organizer || user.role === 'organizer'
+  const isVisitor = !hasCreator && !hasOrganizer
 
   const firstName = user.full_name?.split(' ')[0]
+  const acceptedApps = applications.filter(a => a.status === 'accepted')
+  const acceptanceRate = applications.length > 0 ? Math.round((acceptedApps.length / applications.length) * 100) : 0
+  const publishedEvents = events.filter(e => e.status === 'published')
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir'
+
+  const roleLabel = hasCreator && hasOrganizer ? 'Créateur · Organisateur' : hasCreator ? 'Créateur' : hasOrganizer ? 'Organisateur' : 'Visiteur'
+  const roleSubtitle = hasCreator && hasOrganizer ? 'Votre espace Nexart — double rôle' : hasCreator ? 'Votre espace créateur Nexart' : hasOrganizer ? 'Votre espace organisateur Nexart' : 'Bienvenue sur Nexart'
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 80px)' }}>
-      <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.dash-card:hover{border-color:#6366F1!important;box-shadow:0 4px 12px rgba(99,102,241,0.1)!important}.dash-logout:hover{border-color:#E05A5A!important;color:#E05A5A!important}`}</style>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '40px 16px 80px', animation: 'fadeInUp 0.4s ease' }}>
+    <div className="bg-white min-h-screen">
 
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', flexWrap: 'wrap', gap: '16px' }}>
-          <div>
-            <h1 style={{ fontSize: '34px', fontWeight: '800', color: '#1A1A1A', marginBottom: '6px', margin: 0 }}>
-              Bonjour, {firstName} 👋
-            </h1>
-            <p style={{ fontSize: '15px', color: '#888888', margin: '6px 0 0' }}>
-              {user.role === 'creator' ? 'Tableau de bord Créateur' : user.role === 'visitor' ? 'Tableau de bord Visiteur' : 'Tableau de bord Organisateur'}
-            </p>
-          </div>
-          <button onClick={handleLogout} className="dash-logout"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#888888', fontSize: '14px', cursor: 'pointer', transition: 'all 200ms ease' }}>
-            <LogOut size={16} /> Déconnexion
-          </button>
+      {/* Hero */}
+      <div className="bg-[#06060f] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.08]"
+          style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-indigo-600/20 blur-[90px] pointer-events-none" />
+        <div className="absolute -bottom-16 left-0 w-72 h-72 rounded-full bg-violet-600/15 blur-[80px] pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-16 pb-14 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                    style={{ backgroundColor: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)', color: '#A5B4FC' }}>
+                    {roleLabel}
+                  </span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                  {greeting}, {firstName}
+                </h1>
+                <p className="text-white/40 text-sm mt-2">
+                  {roleSubtitle}
+                </p>
+              </div>
+              <button onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-white/50 text-sm font-medium hover:border-red-500/40 hover:text-red-400 transition-all duration-200">
+                <LogOut size={15} /> Déconnexion
+              </button>
+            </div>
+
+            {/* Stats rapides */}
+            {!loading && (hasCreator || hasOrganizer) && (
+              <div className="flex flex-wrap gap-3 mt-8">
+                {hasCreator && applications.length > 0 && [
+                  { label: 'candidatures', value: applications.length, icon: <Calendar size={13} /> },
+                  { label: 'acceptées', value: acceptedApps.length, icon: <CheckCircle size={13} /> },
+                  { label: "taux d'acceptation", value: `${acceptanceRate}%`, icon: <TrendingUp size={13} /> },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <span className="text-indigo-400">{s.icon}</span>
+                    <span className="text-white font-bold text-sm">{s.value}</span>
+                    <span className="text-white/40 text-xs">{s.label}</span>
+                  </div>
+                ))}
+                {hasOrganizer && [
+                  { label: 'événements', value: events.length },
+                  { label: 'publiés', value: publishedEvents.length },
+                ].map(s => (
+                  <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                    <span className="text-white font-bold text-sm">{s.value}</span>
+                    <span className="text-white/40 text-xs">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
+      </div>
 
-        {/* Profile completion banner */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-24">
+
+        {/* Profile completion */}
         {missingProfileFields.length > 0 && (
-          <Link href="/profile" style={{ textDecoration: 'none', display: 'block', marginBottom: '28px' }}>
-            <div style={{ padding: '18px 20px', borderRadius: '14px', border: '1px solid #E0E0FA', backgroundColor: '#F8F7FF', cursor: 'pointer', transition: 'border-color 200ms' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#6366F1' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E0E0FA' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <AlertCircle size={16} color="#6366F1" />
-                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A' }}>Profil incomplet</span>
+          <Link href="/profile" className="block mb-8 group">
+            <div className="p-5 rounded-2xl border border-indigo-100 bg-indigo-50/60 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <AlertCircle size={16} className="text-indigo-600" />
+                  <span className="text-sm font-bold text-gray-900">Profil incomplet</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#6366F1' }}>
-                    {PROFILE_STEPS_TOTAL - missingProfileFields.length}/{PROFILE_STEPS_TOTAL}
-                  </span>
-                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>étapes</span>
-                  <span style={{ marginLeft: '6px', fontSize: '12px', fontWeight: '600', color: '#6366F1', textDecoration: 'underline' }}>Compléter →</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-indigo-600">{PROFILE_STEPS_TOTAL - missingProfileFields.length}/{PROFILE_STEPS_TOTAL}</span>
+                  <span className="text-xs text-gray-400">étapes</span>
+                  <span className="ml-2 text-xs font-semibold text-indigo-600">Compléter →</span>
                 </div>
               </div>
-              {/* Progress bar */}
-              <div style={{ height: '6px', borderRadius: '99px', backgroundColor: '#E5E7EB', overflow: 'hidden', marginBottom: '10px' }}>
-                <div style={{ height: '100%', borderRadius: '99px', background: 'linear-gradient(90deg, #6366F1, #818CF8)', width: `${((PROFILE_STEPS_TOTAL - missingProfileFields.length) / PROFILE_STEPS_TOTAL) * 100}%`, transition: 'width 0.5s ease' }} />
+              <div className="h-1.5 rounded-full bg-indigo-100 overflow-hidden mb-3">
+                <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-indigo-400 transition-all duration-500"
+                  style={{ width: `${((PROFILE_STEPS_TOTAL - missingProfileFields.length) / PROFILE_STEPS_TOTAL) * 100}%` }} />
               </div>
-              {/* Missing chips */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <div className="flex flex-wrap gap-2">
                 {missingProfileFields.map(f => (
-                  <span key={f} style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '9999px', backgroundColor: '#EEF2FF', color: '#6366F1' }}>
-                    {f}
-                  </span>
+                  <span key={f} className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700">{f}</span>
                 ))}
               </div>
             </div>
@@ -173,222 +241,268 @@ export default function DashboardPage() {
         )}
 
         {/* Nav cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', marginBottom: '48px' }}>
-          {NAV_CARDS(user.id, user.role ?? '').map(c => (
-            <Link key={c.href} href={c.href} className="dash-card"
-              style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', textDecoration: 'none', backgroundColor: '#FFFFFF', transition: 'all 200ms ease', display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '10px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                {c.icon}
-              </div>
-              <div>
-                <div style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A' }}>{c.label}</div>
-                <div style={{ fontSize: '13px', color: '#888888' }}>{c.sub}</div>
-              </div>
-            </Link>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-12">
+          {NAV_CARDS(user.id, hasCreator, hasOrganizer, isVisitor).map((c, i) => (
+            <motion.div key={c.href} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04, duration: 0.4 }}>
+              <Link href={c.href}
+                className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+                <div className="w-11 h-11 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                  {c.icon}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">{c.label}</div>
+                  <div className="text-xs text-gray-400 truncate">{c.sub}</div>
+                </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
 
-        {/* Content */}
+        {/* Main content */}
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <div style={{ width: '32px', height: '32px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-20 rounded-2xl bg-gray-100 animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
+            ))}
           </div>
-        ) : user.role === 'visitor' ? (
-          <div>
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>Explorer Nexart</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
-              {[
-                { href: '/carte', emoji: '🗺️', title: 'Carte des événements', desc: 'Trouvez les marchés près de chez vous' },
-                { href: '/events', emoji: '📅', title: 'Tous les événements', desc: 'Parcourir le calendrier complet' },
-                { href: '/creators', emoji: '🎨', title: 'Découvrir les créateurs', desc: 'Artisans et makers près de vous' },
-                { href: '/favorites', emoji: '❤️', title: 'Mes favoris', desc: 'Événements et créateurs sauvegardés' },
-                { href: '/notifications', emoji: '🔔', title: 'Notifications', desc: 'Actualités des créateurs suivis' },
-                { href: '/profile', emoji: '👤', title: 'Mon profil', desc: 'Gérer mes préférences' },
-              ].map(card => (
-                <Link key={card.href} href={card.href}
-                  style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', textDecoration: 'none', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '14px', transition: 'border-color 200ms' }}
-                  className="dash-card">
-                  <span style={{ fontSize: '28px', flexShrink: 0 }}>{card.emoji}</span>
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{card.title}</p>
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{card.desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div style={{ marginTop: '32px', padding: '20px 24px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-              <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 6px' }}>💡 Conseil</p>
-              <p style={{ fontSize: '13px', color: '#6B7280', margin: 0, lineHeight: 1.6 }}>
-                Suivez vos créateurs préférés pour être notifié de leurs prochains événements et de leurs nouvelles créations en boutique.
-              </p>
-            </div>
-          </div>
-        ) : user.role === 'creator' ? (
-          <div>
-            {/* Header + toggle */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A' }}>
-                Mes candidatures ({applications.length})
-              </h2>
-              <div style={{ display: 'flex', backgroundColor: '#F5F5F7', borderRadius: '8px', padding: '3px', gap: '2px' }}>
-                <button onClick={() => setCreatorView('list')} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 14px', borderRadius: '6px', border: 'none', backgroundColor: creatorView === 'list' ? '#FFFFFF' : 'transparent', color: creatorView === 'list' ? '#6366F1' : '#888888', fontSize: '13px', fontWeight: '600', cursor: 'pointer', boxShadow: creatorView === 'list' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
-                  <List size={14} /> Liste
-                </button>
-                <button onClick={() => setCreatorView('calendar')} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 14px', borderRadius: '6px', border: 'none', backgroundColor: creatorView === 'calendar' ? '#FFFFFF' : 'transparent', color: creatorView === 'calendar' ? '#6366F1' : '#888888', fontSize: '13px', fontWeight: '600', cursor: 'pointer', boxShadow: creatorView === 'calendar' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
-                  <CalendarDays size={14} /> Calendrier
-                </button>
-              </div>
-            </div>
-
-            {applications.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
-                <Calendar size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-                <p style={{ fontSize: '16px', color: '#888888', marginBottom: '20px' }}>Aucune candidature pour le moment</p>
-                <Link href="/events"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>
-                  Voir les événements <ArrowRight size={16} />
-                </Link>
-              </div>
-            ) : creatorView === 'list' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {applications.map((app) => {
-                  const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
-                  return (
-                    <div key={app.id} style={{ borderRadius: '12px', border: '1px solid #E5E7EB', padding: '20px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>
-                          {app.event?.title || 'Événement inconnu'}
-                        </h3>
-                        {app.event?.start_date && (
-                          <p style={{ fontSize: '13px', color: '#888888', margin: 0 }}>
-                            {new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                            {app.event.city ? ` · ${app.event.city}` : ''}
-                          </p>
-                        )}
-                        <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>
-                          Candidature du {new Date(app.created_at).toLocaleDateString('fr-FR')}
-                        </p>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color, fontSize: '13px', fontWeight: '700' }}>
-                        {sc.icon} {sc.label}
-                      </div>
-                      {app.event && (
-                        <Link href={`/events/${app.event_id}`}
-                          style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#6366F1', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
-                          Voir <ArrowRight size={14} />
-                        </Link>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            ) : (
-              /* Calendar view — timeline grouped by month */
-              (() => {
-                // Build sorted upcoming events + past grouped by month
-                const sorted = [...applications]
-                  .filter(a => a.event?.start_date)
-                  .sort((a, b) => new Date(a.event!.start_date).getTime() - new Date(b.event!.start_date).getTime())
-
-                const grouped: Record<string, typeof sorted> = {}
-                sorted.forEach(a => {
-                  const key = new Date(a.event!.start_date).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
-                  if (!grouped[key]) grouped[key] = []
-                  grouped[key].push(a)
-                })
-
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    {Object.entries(grouped).map(([month, apps]) => (
-                      <div key={month}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                          <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
-                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'capitalize', whiteSpace: 'nowrap', padding: '4px 12px', borderRadius: '9999px', backgroundColor: '#F5F5F7' }}>
-                            {month}
-                          </span>
-                          <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingLeft: '12px', borderLeft: '2px solid #E5E7EB' }}>
-                          {apps.map(app => {
-                            const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
-                            const d = new Date(app.event!.start_date)
-                            return (
-                              <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', gap: '14px', alignItems: 'center', padding: '14px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', transition: 'all 150ms' }}
-                                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#A5B4FC'; e.currentTarget.style.backgroundColor = '#FAFBFF' }}
-                                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}>
-                                {/* Day block */}
-                                <div style={{ width: '44px', flexShrink: 0, textAlign: 'center', backgroundColor: '#EEF2FF', borderRadius: '8px', padding: '6px 0' }}>
-                                  <div style={{ fontSize: '20px', fontWeight: '800', color: '#6366F1', lineHeight: 1 }}>{d.getDate()}</div>
-                                  <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: '600', textTransform: 'capitalize' }}>
-                                    {d.toLocaleDateString('fr-FR', { weekday: 'short' })}
-                                  </div>
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {app.event?.title}
-                                  </p>
-                                  {app.event?.city && (
-                                    <p style={{ fontSize: '12px', color: '#9CA3AF' }}>{app.event.city}</p>
-                                  )}
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color, fontSize: '12px', fontWeight: '700', flexShrink: 0 }}>
-                                  {sc.icon} {sc.label}
-                                </div>
-                              </Link>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              })()
-            )}
-          </div>
+        ) : isVisitor ? (
+          <VisitorContent />
         ) : (
-          <div>
-            <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '20px' }}>
-              Mes événements ({events.length})
-            </h2>
-            {events.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
-                <Calendar size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-                <p style={{ fontSize: '16px', color: '#888888', marginBottom: '4px' }}>Aucun événement créé</p>
-                <p style={{ fontSize: '14px', color: '#9CA3AF', marginBottom: '20px' }}>Créez votre premier marché et trouvez des artisans</p>
-                <Link href="/events/create"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>
-                  Créer un événement <ArrowRight size={16} />
-                </Link>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {events.map((event) => (
-                  <Link key={event.id} href={`/events/${event.id}`} className="dash-card"
-                    style={{ borderRadius: '12px', border: '1px solid #E5E7EB', padding: '20px', display: 'flex', gap: '16px', alignItems: 'center', textDecoration: 'none', transition: 'all 200ms ease', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                      <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>{event.title}</h3>
-                      {event.start_date && (
-                        <p style={{ fontSize: '13px', color: '#888888', margin: 0 }}>
-                          {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          {event.city ? ` · ${event.city}` : ''}
-                        </p>
-                      )}
-                    </div>
-                    <span style={{
-                      padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700',
-                      backgroundColor: event.status === 'published' ? '#ECFDF5' : event.status === 'draft' ? '#FFFBEB' : '#F3F4F6',
-                      color: event.status === 'published' ? '#10B981' : event.status === 'draft' ? '#F59E0B' : '#9CA3AF',
-                    }}>
-                      {event.status === 'published' ? 'Publié' : event.status === 'draft' ? 'Brouillon' : 'Fermé'}
-                    </span>
-                    <ArrowRight size={16} color="#6366F1" />
-                  </Link>
-                ))}
-              </div>
-            )}
+          <div className="flex flex-col gap-12">
+            {hasCreator && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} />}
+            {hasOrganizer && <OrganizerContent events={events} />}
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function VisitorContent() {
+  return (
+    <div>
+      <h2 className="text-xl font-bold text-gray-900 mb-5">Explorer Nexart</h2>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {[
+          { href: '/carte',         icon: <MapPin size={18} className="text-indigo-600" />,        title: 'Carte des événements',   desc: 'Trouvez les marchés près de chez vous' },
+          { href: '/events',        icon: <Calendar size={18} className="text-indigo-600" />,      title: 'Tous les événements',     desc: 'Parcourir le calendrier complet' },
+          { href: '/creators',      icon: <Users size={18} className="text-indigo-600" />,         title: 'Découvrir les créateurs', desc: 'Artisans et makers près de vous' },
+          { href: '/favorites',     icon: <Heart size={18} className="text-indigo-600" />,         title: 'Mes favoris',             desc: 'Evenements et créateurs sauvegardés' },
+          { href: '/notifications', icon: <MessageSquare size={18} className="text-indigo-600" />, title: 'Notifications',           desc: 'Actualités des créateurs suivis' },
+          { href: '/profile',       icon: <User size={18} className="text-indigo-600" />,          title: 'Mon profil',              desc: 'Gérer mes préférences' },
+        ].map(card => (
+          <Link key={card.href} href={card.href}
+            className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">{card.icon}</div>
+            <div>
+              <p className="text-sm font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">{card.title}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{card.desc}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <div className="mt-6 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+        <p className="text-xs font-bold text-gray-900 mb-1.5">Conseil</p>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          Suivez vos créateurs préférés pour être notifié de leurs prochains événements et de leurs nouvelles créations.
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function CreatorContent({
+  applications,
+  creatorView,
+  setCreatorView,
+}: {
+  applications: (Application & { event?: Event })[]
+  creatorView: 'list' | 'calendar'
+  setCreatorView: (v: 'list' | 'calendar') => void
+}) {
+  return (
+    <div>
+      <CreditsWidget />
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <h2 className="text-xl font-bold text-gray-900">Mes candidatures ({applications.length})</h2>
+        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+          {(['list', 'calendar'] as const).map(v => (
+            <button key={v} onClick={() => setCreatorView(v)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                creatorView === v ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}>
+              {v === 'list' ? <List size={13} /> : <CalendarDays size={13} />}
+              {v === 'list' ? 'Liste' : 'Calendrier'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {applications.length === 0 ? (
+        <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
+          <Calendar size={40} className="text-gray-200 mx-auto mb-4" />
+          <p className="text-base font-semibold text-gray-500 mb-1">Aucune candidature pour le moment</p>
+          <p className="text-sm text-gray-400 mb-6">Explorez les événements disponibles et postulez</p>
+          <Link href="/events"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+            Voir les événements <ArrowRight size={15} />
+          </Link>
+        </div>
+      ) : creatorView === 'list' ? (
+        <div className="flex flex-col gap-3">
+          {applications.map((app) => {
+            const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
+            return (
+              <div key={app.id}
+                className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-150 flex-wrap">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-bold text-gray-900 truncate mb-1">
+                    {app.event?.title || 'Événement inconnu'}
+                  </h3>
+                  {app.event?.start_date && (
+                    <p className="text-xs text-gray-400">
+                      {new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {app.event.city ? ` · ${app.event.city}` : ''}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-300 mt-0.5">
+                    Candidature du {new Date(app.created_at).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+                <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${sc.bg} ${sc.color}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                  {sc.label}
+                </span>
+                {app.status === 'accepted' && (
+                  <BoostButton
+                    type="boost_application"
+                    refId={app.id}
+                    boostedUntil={app.boosted_at ? new Date(new Date(app.boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
+                  />
+                )}
+                {app.event && (
+                  <Link href={`/events/${app.event_id}`}
+                    className="flex items-center gap-1 text-indigo-600 text-xs font-bold hover:gap-2 transition-all">
+                    Voir <ArrowRight size={13} />
+                  </Link>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <CalendarView applications={applications} />
+      )}
+    </div>
+  )
+}
+
+function CalendarView({ applications }: { applications: (Application & { event?: Event })[] }) {
+  const sorted = [...applications]
+    .filter(a => a.event?.start_date)
+    .sort((a, b) => new Date(a.event!.start_date).getTime() - new Date(b.event!.start_date).getTime())
+
+  const grouped: Record<string, typeof sorted> = {}
+  sorted.forEach(a => {
+    const key = new Date(a.event!.start_date).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+    if (!grouped[key]) grouped[key] = []
+    grouped[key].push(a)
+  })
+
+  return (
+    <div className="flex flex-col gap-6">
+      {Object.entries(grouped).map(([month, apps]) => (
+        <div key={month}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-px flex-1 bg-gray-100" />
+            <span className="text-xs font-bold text-gray-400 capitalize px-3 py-1 rounded-full bg-gray-50">{month}</span>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+          <div className="flex flex-col gap-2 pl-3 border-l-2 border-gray-100">
+            {apps.map(app => {
+              const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
+              const d = new Date(app.event!.start_date)
+              return (
+                <Link key={app.id} href={`/events/${app.event_id}`}
+                  className="flex gap-3 items-center p-4 rounded-xl border border-gray-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30 transition-all duration-150">
+                  <div className="w-11 shrink-0 text-center bg-indigo-50 rounded-xl py-1.5">
+                    <div className="text-lg font-black text-indigo-600 leading-none">{d.getDate()}</div>
+                    <div className="text-[10px] text-gray-400 font-semibold capitalize">
+                      {d.toLocaleDateString('fr-FR', { weekday: 'short' })}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 truncate">{app.event?.title}</p>
+                    {app.event?.city && <p className="text-xs text-gray-400">{app.event.city}</p>}
+                  </div>
+                  <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold shrink-0 ${sc.bg} ${sc.color}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                    {sc.label}
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function OrganizerContent({ events }: { events: Event[] }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <h2 className="text-xl font-bold text-gray-900">Mes événements ({events.length})</h2>
+        <Link href="/events/create"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+          <Zap size={15} /> Créer un événement
+        </Link>
+      </div>
+
+      {events.length === 0 ? (
+        <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
+          <Calendar size={40} className="text-gray-200 mx-auto mb-4" />
+          <p className="text-base font-semibold text-gray-500 mb-1">Aucun événement créé</p>
+          <p className="text-sm text-gray-400 mb-6">Créez votre premier marché et trouvez des artisans</p>
+          <Link href="/events/create"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+            Créer un événement <ArrowRight size={15} />
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {events.map((event, i) => {
+            const statusBadge = {
+              published: { label: 'Publié',    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
+              draft:     { label: 'Brouillon', classes: 'bg-amber-50 text-amber-700 border-amber-200',       dot: 'bg-amber-400' },
+              closed:    { label: 'Fermé',     classes: 'bg-gray-50 text-gray-500 border-gray-200',          dot: 'bg-gray-300' },
+            }[event.status] ?? { label: event.status, classes: 'bg-gray-50 text-gray-500 border-gray-200', dot: 'bg-gray-300' }
+
+            return (
+              <motion.div key={event.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                <Link href={`/events/${event.id}`}
+                  className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm hover:-translate-y-px transition-all duration-150 flex-wrap group">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-gray-900 truncate mb-1 group-hover:text-indigo-700 transition-colors">{event.title}</h3>
+                    {event.start_date && (
+                      <p className="text-xs text-gray-400">
+                        {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {event.city ? ` · ${event.city}` : ''}
+                      </p>
+                    )}
+                  </div>
+                  <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${statusBadge.classes}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${statusBadge.dot}`} />
+                    {statusBadge.label}
+                  </span>
+                  <ArrowRight size={15} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

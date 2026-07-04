@@ -42,6 +42,9 @@ async function headers() {
 
 const nextConfig = {
   output: 'standalone',
+  experimental: {
+    cpus: 1,
+  },
   headers,
   images: {
     remotePatterns: [

@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
 import { createClient } from '@supabase/supabase-js'
+import { sendMail } from '@/lib/mailer'
+
+const adminClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+)
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,12 +14,7 @@ export async function POST(req: NextRequest) {
 
     let creatorEmail = rawEmail
     if (!creatorEmail && creatorId) {
-      const admin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { autoRefreshToken: false, persistSession: false } }
-      )
-      const { data: { user } } = await admin.auth.admin.getUserById(creatorId)
+      const { data: { user } } = await adminClient.auth.admin.getUserById(creatorId)
       creatorEmail = user?.email ?? null
     }
 
@@ -25,17 +26,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, skipped: true })
     }
 
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.hostinger.com',
-      port: 465,
-      secure: true,
-      auth: { user: 'contact@nexart.fr', pass: process.env.SMTP_PASS },
-    })
-
     const accepted = status === 'accepted'
 
-    await transporter.sendMail({
-      from: '"Nexart" <contact@nexart.fr>',
+    await sendMail({
       to: creatorEmail,
       subject: accepted
         ? `✅ Candidature acceptée — ${eventTitle}`
@@ -104,7 +97,8 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ ok: true })
-  } catch {
-    return NextResponse.json({ error: 'Erreur envoi email' }, { status: 500 })
+  } catch (err) {
+    console.error('[application-status] email error:', err)
+    return NextResponse.json({ ok: true, warning: 'Email non envoyé' })
   }
 }

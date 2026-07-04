@@ -21,7 +21,8 @@ import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-
 
 type Profile = {
   full_name: string; bio: string | null; avatar_url: string | null
-  role: string | null; is_admin: boolean
+  role: string | null; is_admin: boolean; subscription_tier?: string | null
+  is_creator?: boolean; is_organizer?: boolean
 }
 type CreatorProfile = {
   disciplines: string[]; city: string | null; region: string | null
@@ -54,6 +55,11 @@ type AdminMessage = {
   recipient: { full_name: string; avatar_url: string | null; role: string | null } | null
 }
 type UserSuggestion = { id: string; full_name: string; avatar_url: string | null; role: string | null }
+type DisciplineProposal = {
+  id: string; name: string; status: string; created_at: string
+  creator_id: string
+  profiles?: { full_name: string } | null
+}
 
 type Analytics = {
   users: { total: number; creators: number; organizers: number; new_week: number; new_month: number; new_today: number }
@@ -179,8 +185,33 @@ export default function ProfilePage() {
   const rcProRef = useRef<HTMLInputElement>(null)
   const [rcProUploading, setRcProUploading] = useState(false)
 
+  // Organizer profile + verification state
+  const [orgaProfile, setOrgaProfile] = useState<{
+    siret_number: string | null; siret_verified: boolean
+    verification_doc_url: string | null; verification_doc_verified: boolean
+  } | null>(null)
+  const [orgaSiretInput, setOrgaSiretInput] = useState('')
+  const [orgaSiretChecking, setOrgaSiretChecking] = useState(false)
+  const [orgaSiretResult, setOrgaSiretResult] = useState<{ valid: boolean; nom?: string; error?: string } | null>(null)
+  const orgaDocRef = useRef<HTMLInputElement>(null)
+  const [orgaDocUploading, setOrgaDocUploading] = useState(false)
+  const [adminOrgaVerifs, setAdminOrgaVerifs] = useState<{
+    user_id: string; siret_number: string | null; siret_verified: boolean
+    verification_doc_url: string | null; verification_doc_verified: boolean
+    profiles?: { full_name: string; avatar_url: string | null } | null
+  }[]>([])
+  const [orgaVerifSaving, setOrgaVerifSaving] = useState<string | null>(null)
+  const [orgaVerifFilter, setOrgaVerifFilter] = useState<'pending' | 'all'>('pending')
+
   // Admin state
-  const [adminTab, setAdminTab] = useState<'analytics' | 'verifications' | 'marches' | 'messages'>('analytics')
+  const [adminTab, setAdminTab] = useState<'analytics' | 'verifications' | 'marches' | 'messages' | 'abonnements' | 'disciplines'>('analytics')
+  const [adminDiscProposals, setAdminDiscProposals] = useState<DisciplineProposal[]>([])
+  const [discProposalSaving, setDiscProposalSaving] = useState<string | null>(null)
+
+  // Creator-side discipline proposal
+  const [discProposalInput, setDiscProposalInput] = useState('')
+  const [discProposalSending, setDiscProposalSending] = useState(false)
+  const [myDiscProposals, setMyDiscProposals] = useState<DisciplineProposal[]>([])
   const [adminCreators, setAdminCreators] = useState<AdminCreator[]>([])
   const [adminEvents, setAdminEvents] = useState<AdminEvent[]>([])
   const [adminFilter, setAdminFilter] = useState<'pending' | 'all'>('pending')
@@ -190,10 +221,19 @@ export default function ProfilePage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
 
+  // Admin abonnements state
+  const [subSearch, setSubSearch] = useState('')
+  const [subResults, setSubResults] = useState<{ id: string; full_name: string; email?: string; role: string; subscription_tier?: string }[]>([])
+  const [subSearching, setSubSearching] = useState(false)
+  const [subSaving, setSubSaving] = useState<string | null>(null)
+  const [subToast, setSubToast] = useState<string | null>(null)
+
   // Admin messaging state
   const [adminMessages, setAdminMessages] = useState<AdminMessage[]>([])
   const [refuseModal, setRefuseModal] = useState<{ userId: string; field: 'siret_verified' | 'insurance_verified'; creatorName: string } | null>(null)
   const [refuseComment, setRefuseComment] = useState('')
+  // Suivi local des refus (siret/insurance) pour afficher "Refusé" au lieu de "En attente"
+  const [refusedSet, setRefusedSet] = useState<Set<string>>(new Set())
   const [msgSearch, setMsgSearch] = useState('')
   const [msgSuggestions, setMsgSuggestions] = useState<UserSuggestion[]>([])
   const [msgRecipient, setMsgRecipient] = useState<UserSuggestion | null>(null)
@@ -211,14 +251,14 @@ export default function ProfilePage() {
 
       const { data: prof } = await supabase
         .from('profiles')
-        .select('full_name,bio,avatar_url,role,is_admin,username,show_real_name')
+        .select('full_name,bio,avatar_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer')
         .eq('id', u.id)
         .maybeSingle()
 
       setProfile(prof as Profile)
 
       if (prof?.is_admin) {
-        const [{ data: creators }, { data: events }, analyticsRes] = await Promise.all([
+        const [{ data: creators }, { data: events }, analyticsRes, { data: discProps }] = await Promise.all([
           supabase.from('creator_profiles')
             .select('user_id,siret_number,siret_verified,insurance_verified,insurance_doc_url,profiles(full_name,avatar_url)')
             .order('user_id'),
@@ -227,10 +267,14 @@ export default function ProfilePage() {
             .order('created_at', { ascending: false })
             .limit(50),
           fetch('/api/admin/analytics').then(r => r.json()),
+          supabase.from('discipline_proposals')
+            .select('id,name,status,created_at,creator_id,profiles!creator_id(full_name)')
+            .order('created_at', { ascending: false }),
         ])
         setAdminCreators((creators as unknown as AdminCreator[]) ?? [])
         setAdminEvents((events as unknown as AdminEvent[]) ?? [])
         setAnalytics(analyticsRes as Analytics)
+        setAdminDiscProposals((discProps as unknown as DisciplineProposal[]) ?? [])
         // Load sent messages
         const { data: msgs } = await supabase
           .from('admin_messages')
@@ -266,6 +310,31 @@ export default function ProfilePage() {
         setEditSiret(creat?.siret_verified ?? false)
         setEditInsurance(creat?.insurance_verified ?? false)
         setSiretNumber((creat as Record<string, unknown>)?.siret_number as string ?? '')
+        // Load own discipline proposals
+        const { data: myProps } = await supabase
+          .from('discipline_proposals')
+          .select('id,name,status,created_at,creator_id')
+          .eq('creator_id', u.id)
+          .order('created_at', { ascending: false })
+        setMyDiscProposals((myProps as unknown as DisciplineProposal[]) ?? [])
+        // Load organizer profile if also organizer
+        if (prof?.is_organizer || prof?.role === 'organizer') {
+          const { data: orgaP } = await supabase
+            .from('organizer_profiles')
+            .select('siret_number,siret_verified,verification_doc_url,verification_doc_verified')
+            .eq('user_id', u.id)
+            .maybeSingle()
+          setOrgaProfile(orgaP)
+          setOrgaSiretInput((orgaP as Record<string, unknown>)?.siret_number as string ?? '')
+        }
+      }
+      // If admin: also load organizer verifications
+      if (prof?.is_admin) {
+        const { data: orgaVerifs } = await supabase
+          .from('organizer_profiles')
+          .select('user_id,siret_number,siret_verified,verification_doc_url,verification_doc_verified,profiles!user_id(full_name,avatar_url)')
+          .order('user_id')
+        setAdminOrgaVerifs((orgaVerifs as unknown as typeof adminOrgaVerifs) ?? [])
       }
       setLoading(false)
     })
@@ -356,6 +425,38 @@ export default function ProfilePage() {
       setToast('Document envoyé — en attente de validation par l\'équipe')
     }
     setRcProUploading(false)
+  }
+
+  const handleProposeDisc = async () => {
+    const name = discProposalInput.trim()
+    if (!name || !user) return
+    const already = myDiscProposals.find(p => p.name.toLowerCase() === name.toLowerCase() && p.status === 'pending')
+    if (already) { showToast('Proposition déjà en attente'); return }
+    setDiscProposalSending(true)
+    const { data } = await supabase.from('discipline_proposals').insert({ creator_id: user.id, name }).select().single()
+    if (data) {
+      setMyDiscProposals(prev => [data as unknown as DisciplineProposal, ...prev])
+      setDiscProposalInput('')
+      showToast('Proposition envoyée')
+    }
+    setDiscProposalSending(false)
+  }
+
+  const handleAdminDiscProposal = async (id: string, action: 'approved' | 'rejected') => {
+    if (!user) return
+    setDiscProposalSaving(id)
+    const proposal = adminDiscProposals.find(p => p.id === id)
+    if (action === 'approved' && proposal) {
+      // Add the discipline to the creator's profile
+      const { data: cp } = await supabase.from('creator_profiles').select('disciplines').eq('user_id', proposal.creator_id).maybeSingle()
+      const existing: string[] = cp?.disciplines ?? []
+      if (!existing.includes(proposal.name)) {
+        await supabase.from('creator_profiles').upsert({ user_id: proposal.creator_id, disciplines: [...existing, proposal.name] }, { onConflict: 'user_id' })
+      }
+    }
+    await supabase.from('discipline_proposals').update({ status: action, reviewed_at: new Date().toISOString(), reviewed_by: user.id }).eq('id', id)
+    setAdminDiscProposals(prev => prev.map(p => p.id === id ? { ...p, status: action } : p))
+    setDiscProposalSaving(null)
   }
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -449,6 +550,12 @@ export default function ProfilePage() {
     setAdminSaving(`${userId}-${field}`)
     await supabase.from('creator_profiles').update({ [field]: value }).eq('user_id', userId)
     setAdminCreators(prev => prev.map(c => c.user_id === userId ? { ...c, [field]: value } : c))
+    const key = `${userId}-${field}`
+    if (!value) {
+      setRefusedSet(prev => new Set([...prev, key]))
+    } else {
+      setRefusedSet(prev => { const s = new Set(prev); s.delete(key); return s })
+    }
 
     if (!value && comment?.trim()) {
       const label = field === 'siret_verified' ? 'SIRET' : 'RC Pro'
@@ -464,14 +571,22 @@ export default function ProfilePage() {
       await supabase.from('notifications').insert({
         user_id: userId,
         type: 'verification_accepted',
-        title: `Vérification ${label} validée ✅`,
+        title: `Vérification ${label} validée OK`,
         body: `Votre ${label} a été vérifié et validé par l'équipe Nexart.`,
         link: '/profile',
       })
     }
 
+    // Email de notification
+    const creatorName = adminCreators.find(c => c.user_id === userId)?.profiles?.full_name
+    fetch('/api/verification-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, field, accepted: value, comment, creator_name: creatorName }),
+    }).catch(() => {})
+
     setAdminSaving(null)
-    showToast(value ? '✓ Vérifié' : '✗ Refusé')
+    showToast(value ? '✓ Vérifié — email envoyé' : '✗ Refusé — email envoyé')
   }
 
   const handleRefuseConfirm = async () => {
@@ -551,9 +666,17 @@ export default function ProfilePage() {
   // ─── Loading ─────────────────────────────────────────────────────────────────
 
   if (loading) return (
-    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: '40px', height: '40px', border: '3px solid #6B7280', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <div className="min-h-screen bg-gray-50">
+      <div className="h-52 bg-[#06060f] animate-pulse" />
+      <div className="max-w-[900px] mx-auto px-4 pt-8 pb-20">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-2xl bg-gray-100 animate-pulse" />)}
+        </div>
+        <div className="h-10 w-80 rounded-xl bg-gray-100 animate-pulse mb-7" />
+        <div className="flex flex-col gap-4">
+          {[...Array(3)].map((_, i) => <div key={i} className="h-32 rounded-2xl bg-gray-100 animate-pulse" />)}
+        </div>
+      </div>
     </div>
   )
 
@@ -720,8 +843,10 @@ export default function ProfilePage() {
             {([
               { k: 'analytics', label: 'Analytiques' },
               { k: 'verifications', label: `Vérifications${pendingCreators.length > 0 ? ` (${pendingCreators.length})` : ''}` },
+              { k: 'disciplines', label: `Disciplines${adminDiscProposals.filter(p => p.status === 'pending').length > 0 ? ` (${adminDiscProposals.filter(p => p.status === 'pending').length})` : ''}` },
               { k: 'marches', label: `Marchés (${adminEvents.length})` },
               { k: 'messages', label: `Messages${adminMessages.length > 0 ? ` (${adminMessages.length})` : ''}` },
+              { k: 'abonnements', label: 'Abonnements' },
             ] as const).map(t => (
               <button key={t.k} onClick={() => {
                 setAdminTab(t.k)
@@ -1045,80 +1170,164 @@ export default function ProfilePage() {
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
 
                         {/* SIRET block */}
-                        <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>SIRET</p>
-                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: c.siret_verified ? '#374151' : '#E5E7EB', color: c.siret_verified ? '#FFF' : '#6B7280' }}>
-                              {c.siret_verified ? 'Vérifié' : 'En attente'}
-                            </span>
-                          </div>
-                          {c.siret_number
-                            ? <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', letterSpacing: '1px', margin: '0 0 10px', fontFamily: 'monospace' }}>{c.siret_number}</p>
-                            : <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 10px' }}>Non renseigné</p>
-                          }
-                          {!c.siret_verified && c.siret_number && (
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', true)}
-                                disabled={adminSaving === `${c.user_id}-siret_verified`}
-                                style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                <CheckCircle size={12} /> Valider
-                              </button>
-                              <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'siret_verified', creatorName: (c as unknown as { profiles?: { full_name?: string } }).profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
-                                disabled={adminSaving === `${c.user_id}-siret_verified`}
-                                style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
-                                <XCircle size={13} />
-                              </button>
+                        {(() => {
+                          const siretRefused = refusedSet.has(`${c.user_id}-siret_verified`)
+                          const siretStatus = c.siret_verified ? 'verified' : siretRefused ? 'refused' : 'pending'
+                          return (
+                            <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${siretStatus === 'refused' ? '#FECACA' : '#E5E7EB'}`, backgroundColor: siretStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>SIRET</p>
+                                <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
+                                  backgroundColor: siretStatus === 'verified' ? '#374151' : siretStatus === 'refused' ? '#FEE2E2' : '#E5E7EB',
+                                  color: siretStatus === 'verified' ? '#FFF' : siretStatus === 'refused' ? '#EF4444' : '#6B7280' }}>
+                                  {siretStatus === 'verified' ? 'Vérifié' : siretStatus === 'refused' ? 'Refusé' : 'En attente'}
+                                </span>
+                              </div>
+                              {c.siret_number ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', letterSpacing: '1px', margin: 0, fontFamily: 'monospace' }}>{c.siret_number}</p>
+                                  <a href={`https://pappers.fr/entreprise/${c.siret_number}`} target="_blank" rel="noopener noreferrer"
+                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>
+                                    <ExternalLink size={10} /> Pappers
+                                  </a>
+                                </div>
+                              ) : (
+                                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 10px' }}>Non renseigné</p>
+                              )}
+                              {siretStatus === 'pending' && c.siret_number && (
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', true)}
+                                    disabled={adminSaving === `${c.user_id}-siret_verified`}
+                                    style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                    <CheckCircle size={12} /> Valider
+                                  </button>
+                                  <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'siret_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
+                                    disabled={adminSaving === `${c.user_id}-siret_verified`}
+                                    style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                    <XCircle size={13} />
+                                  </button>
+                                </div>
+                              )}
+                              {siretStatus === 'refused' && (
+                                <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', true)}
+                                  style={{ width: '100%', padding: '7px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                                  Re-examiner
+                                </button>
+                              )}
+                              {siretStatus === 'verified' && (
+                                <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', false)}
+                                  style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                  Révoquer
+                                </button>
+                              )}
                             </div>
-                          )}
-                          {c.siret_verified && (
-                            <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', false)}
-                              style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                              Révoquer
-                            </button>
-                          )}
-                        </div>
+                          )
+                        })()}
 
                         {/* RC Pro block */}
-                        <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro</p>
-                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: c.insurance_verified ? '#374151' : '#E5E7EB', color: c.insurance_verified ? '#FFF' : '#6B7280' }}>
-                              {c.insurance_verified ? 'Vérifié' : c.insurance_doc_url ? 'Doc reçu' : 'Aucun doc'}
-                            </span>
-                          </div>
-                          {c.insurance_doc_url ? (
-                            <a href={c.insurance_doc_url} target="_blank" rel="noopener noreferrer"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#374151', textDecoration: 'none', fontWeight: '600', marginBottom: '10px' }}>
-                              <FileText size={13} /> Voir le document <ExternalLink size={11} />
-                            </a>
-                          ) : (
-                            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 10px' }}>Aucun document</p>
-                          )}
-                          {!c.insurance_verified && c.insurance_doc_url && (
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', true)}
-                                disabled={adminSaving === `${c.user_id}-insurance_verified`}
-                                style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                <CheckCircle size={12} /> Valider
-                              </button>
-                              <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'insurance_verified', creatorName: (c as unknown as { profiles?: { full_name?: string } }).profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
-                                disabled={adminSaving === `${c.user_id}-insurance_verified`}
-                                style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
-                                <XCircle size={13} />
-                              </button>
+                        {(() => {
+                          const insRefused = refusedSet.has(`${c.user_id}-insurance_verified`)
+                          const insStatus = c.insurance_verified ? 'verified' : insRefused ? 'refused' : c.insurance_doc_url ? 'doc' : 'none'
+                          return (
+                            <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${insStatus === 'refused' ? '#FECACA' : '#E5E7EB'}`, backgroundColor: insStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro</p>
+                                <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
+                                  backgroundColor: insStatus === 'verified' ? '#374151' : insStatus === 'refused' ? '#FEE2E2' : insStatus === 'doc' ? '#EEF2FF' : '#E5E7EB',
+                                  color: insStatus === 'verified' ? '#FFF' : insStatus === 'refused' ? '#EF4444' : insStatus === 'doc' ? '#6366F1' : '#6B7280' }}>
+                                  {insStatus === 'verified' ? 'Vérifié' : insStatus === 'refused' ? 'Refusé' : insStatus === 'doc' ? 'Doc reçu' : 'Aucun doc'}
+                                </span>
+                              </div>
+                              {c.insurance_doc_url ? (
+                                <a href={c.insurance_doc_url} target="_blank" rel="noopener noreferrer"
+                                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#374151', textDecoration: 'none', fontWeight: '600', marginBottom: '10px' }}>
+                                  <FileText size={13} /> Voir le document <ExternalLink size={11} />
+                                </a>
+                              ) : (
+                                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 10px' }}>Aucun document</p>
+                              )}
+                              {insStatus === 'doc' && (
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', true)}
+                                    disabled={adminSaving === `${c.user_id}-insurance_verified`}
+                                    style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                    <CheckCircle size={12} /> Valider
+                                  </button>
+                                  <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'insurance_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
+                                    disabled={adminSaving === `${c.user_id}-insurance_verified`}
+                                    style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                    <XCircle size={13} />
+                                  </button>
+                                </div>
+                              )}
+                              {insStatus === 'refused' && (
+                                <button onClick={() => { setRefusedSet(prev => { const s = new Set(prev); s.delete(`${c.user_id}-insurance_verified`); return s }) }}
+                                  style={{ width: '100%', padding: '7px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                                  Re-examiner
+                                </button>
+                              )}
+                              {insStatus === 'verified' && (
+                                <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', false)}
+                                  style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                  Révoquer
+                                </button>
+                              )}
                             </div>
-                          )}
-                          {c.insurance_verified && (
-                            <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', false)}
-                              style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                              Révoquer
-                            </button>
-                          )}
-                        </div>
+                          )
+                        })()}
                       </div>
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Tab: Disciplines ── */}
+          {adminTab === 'disciplines' && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="text-base font-bold text-gray-900">Propositions de disciplines</h2>
+                <span className="text-xs text-gray-400">{adminDiscProposals.filter(p => p.status === 'pending').length} en attente</span>
+              </div>
+              {adminDiscProposals.length === 0 ? (
+                <div className="text-center py-12 rounded-2xl border border-dashed border-gray-200">
+                  <LayoutGrid size={32} className="text-gray-200 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400">Aucune proposition pour le moment</p>
+                </div>
+              ) : (
+                adminDiscProposals.map(p => (
+                  <div key={p.id} className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-sm">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-900">{p.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        Par {(p as unknown as { profiles?: { full_name?: string } })?.profiles?.full_name ?? 'Créateur'} · {new Date(p.created_at).toLocaleDateString('fr-FR')}
+                      </p>
+                    </div>
+                    {p.status === 'pending' ? (
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          onClick={() => handleAdminDiscProposal(p.id, 'approved')}
+                          disabled={discProposalSaving === p.id}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold border-0 cursor-pointer hover:bg-emerald-500 transition-colors disabled:opacity-50">
+                          <CheckCircle size={13} /> Approuver
+                        </button>
+                        <button
+                          onClick={() => handleAdminDiscProposal(p.id, 'rejected')}
+                          disabled={discProposalSaving === p.id}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold border-0 cursor-pointer hover:bg-gray-200 transition-colors disabled:opacity-50">
+                          <XCircle size={13} /> Refuser
+                        </button>
+                      </div>
+                    ) : (
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${
+                        p.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-500'
+                      }`}>
+                        {p.status === 'approved' ? 'Approuvée' : 'Refusée'}
+                      </span>
+                    )}
+                  </div>
+                ))
               )}
             </div>
           )}
@@ -1350,6 +1559,139 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* ── Tab: Abonnements ── */}
+          {adminTab === 'abonnements' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ padding: '24px', borderRadius: '14px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 16px' }}>Modifier l&apos;abonnement d&apos;un utilisateur</h3>
+
+                {/* Recherche */}
+                <div style={{ position: 'relative', marginBottom: '16px' }}>
+                  <Search size={14} color="#9CA3AF" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                  <input
+                    value={subSearch}
+                    onChange={async e => {
+                      const q = e.target.value
+                      setSubSearch(q)
+                      if (q.length < 2) { setSubResults([]); return }
+                      setSubSearching(true)
+                      try {
+                        const res = await fetch(`/api/admin/search-users?q=${encodeURIComponent(q)}`)
+                        const json = await res.json()
+                        setSubResults(json.users || [])
+                      } catch {
+                        setSubResults([])
+                      }
+                      setSubSearching(false)
+                    }}
+                    placeholder="Rechercher un utilisateur par nom…"
+                    style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box', backgroundColor: '#FFFFFF' }}
+                  />
+                  {subSearching && (
+                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+                      <div style={{ width: '14px', height: '14px', border: '2px solid #E5E7EB', borderTopColor: '#374151', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    </div>
+                  )}
+                </div>
+
+                {subToast && (
+                  <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#ECFDF5', border: '1px solid #A7F3D0', marginBottom: '12px' }}>
+                    <p style={{ fontSize: '13px', color: '#065F46', fontWeight: '600', margin: 0 }}>{subToast}</p>
+                  </div>
+                )}
+
+                {/* Résultats */}
+                {subResults.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {subResults.map(u => {
+                      const TIERS = [
+                        { value: 'free',        label: 'Gratuit',         role: 'creator' },
+                        { value: 'boost',       label: 'Boost — 5,99€',   role: 'creator' },
+                        { value: 'pro',         label: 'Pro — 14,99€',    role: 'creator' },
+                        { value: 'premium',     label: 'Premium — 29,99€',role: 'creator' },
+                        { value: 'org_pro',     label: 'Org Pro — 29€',   role: 'organizer' },
+                        { value: 'org_studio',  label: 'Org Studio — 79€',role: 'organizer' },
+                      ]
+                      const relevantTiers = u.role === 'organizer'
+                        ? TIERS.filter(t => t.role === 'organizer' || t.value === 'free')
+                        : TIERS.filter(t => t.role === 'creator')
+
+                      const currentTier = u.subscription_tier || 'free'
+                      const TIER_COLORS: Record<string, string> = {
+                        free: '#9CA3AF', boost: '#6366F1', pro: '#8B5CF6',
+                        premium: '#EC4899', org_pro: '#0EA5E9', org_studio: '#F59E0B',
+                      }
+
+                      return (
+                        <div key={u.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                          {/* Avatar */}
+                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#FFFFFF' }}>{u.full_name?.[0]?.toUpperCase()}</span>
+                          </div>
+
+                          {/* Infos */}
+                          <div style={{ flex: 1, minWidth: '140px' }}>
+                            <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{u.full_name}</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '11px', color: '#9CA3AF', textTransform: 'capitalize' }}>{u.role}</span>
+                              <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || '#9CA3AF', backgroundColor: '#F3F4F6', padding: '2px 7px', borderRadius: '99px' }}>
+                                {currentTier}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Sélecteur tier */}
+                          <select
+                            value={currentTier}
+                            onChange={async e => {
+                              const newTier = e.target.value
+                              setSubSaving(u.id)
+                              const res = await fetch('/api/admin/set-tier', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ user_id: u.id, tier: newTier }),
+                              })
+                              if (res.ok) {
+                                setSubResults(prev => prev.map(x => x.id === u.id ? { ...x, subscription_tier: newTier } : x))
+                                setSubToast(`✓ Abonnement de ${u.full_name} changé en "${newTier}"`)
+                                setTimeout(() => setSubToast(null), 3000)
+                              } else {
+                                const d = await res.json().catch(() => ({}))
+                                setSubToast(`Erreur Erreur : ${d.error || 'inconnue'}`)
+                                setTimeout(() => setSubToast(null), 4000)
+                              }
+                              setSubSaving(null)
+                            }}
+                            disabled={subSaving === u.id}
+                            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', fontFamily: 'inherit', backgroundColor: '#FFFFFF', cursor: 'pointer', minWidth: '180px' }}
+                          >
+                            {relevantTiers.map(t => (
+                              <option key={t.value} value={t.value}>{t.label}</option>
+                            ))}
+                          </select>
+
+                          {subSaving === u.id && (
+                            <div style={{ width: '16px', height: '16px', border: '2px solid #E5E7EB', borderTopColor: '#374151', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {subSearch.length >= 2 && !subSearching && subResults.length === 0 && (
+                  <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
+                )}
+
+                <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FFF7ED', border: '1px solid #FED7AA' }}>
+                  <p style={{ fontSize: '12px', color: '#92400E', margin: 0, lineHeight: 1.5 }}>
+                    ⚠️ Ces changements sont immédiats. Ils ne créent pas d&apos;abonnement Stripe — uniquement une mise à jour manuelle en base. À utiliser pour les tests ou les exceptions clients.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
         </motion.div>
 
         {toast && (
@@ -1379,30 +1721,22 @@ export default function ProfilePage() {
   const completionDone = 6 - completionMissing.length
   const acceptedCount = applications.filter(a => a.status === 'accepted').length
 
-  const DISC_COLORS: Record<string, string> = {
-    Tatouage:'#6366F1', Céramique:'#8B5CF6', Gravure:'#EC4899', Joaillerie:'#F59E0B',
-    Bijoux:'#F59E0B', Illustration:'#06B6D4', Textile:'#10B981', Maroquinerie:'#84CC16',
-    Sculpture:'#F97316', Photographie:'#3B82F6', Peinture:'#EC4899', Poterie:'#8B5CF6',
-    Broderie:'#EC4899', Lutherie:'#F97316', Verrerie:'#06B6D4', Reliure:'#6366F1',
-    'Cosmétique naturelle':'#10B981', Savonnerie:'#10B981', Coutellerie:'#6B7280',
-    Bougies:'#F59E0B', Macramé:'#8B5CF6', Origami:'#06B6D4', Calligraphie:'#6366F1', Sérigraphie:'#EC4899',
-  }
-
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+    <div className="min-h-screen bg-gray-50">
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
 
       {/* ── Crop Modal ── */}
       {cropSrc && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '28px', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '700', color: '#1A1A1A' }}>Recadrer la photo</h3>
-            <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#6B7280' }}>Glisse pour repositionner · molette pour zoomer</p>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <div className="fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-7 w-full max-w-[380px] shadow-2xl">
+            <h3 className="text-base font-bold text-gray-900 mb-1">Recadrer la photo</h3>
+            <p className="text-sm text-gray-400 mb-5">Glisse pour repositionner · molette pour zoomer</p>
+            <div className="flex justify-center mb-5">
               <canvas
                 ref={cropCanvasRef}
                 width={300} height={300}
-                style={{ borderRadius: '50%', cursor: cropDragging ? 'grabbing' : 'grab', userSelect: 'none', display: 'block' }}
+                className="rounded-full block select-none"
+                style={{ cursor: cropDragging ? 'grabbing' : 'grab' }}
                 onMouseDown={e => { setCropDragging(true); setCropDragStart({ x: e.clientX - cropOffset.x, y: e.clientY - cropOffset.y }) }}
                 onMouseMove={e => { if (!cropDragging) return; setCropOffset({ x: e.clientX - cropDragStart.x, y: e.clientY - cropDragStart.y }) }}
                 onMouseUp={() => setCropDragging(false)}
@@ -1413,19 +1747,19 @@ export default function ProfilePage() {
                 onWheel={e => { e.preventDefault(); setCropScale(s => Math.min(4, Math.max(0.5, s - e.deltaY * 0.001))) }}
               />
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '6px' }}>Zoom</label>
+            <div className="mb-4">
+              <label className="text-xs text-gray-400 font-semibold block mb-1.5">Zoom</label>
               <input type="range" min="0.5" max="4" step="0.01" value={cropScale}
                 onChange={e => setCropScale(parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#6366F1' }} />
+                className="w-full accent-indigo-600" />
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="flex gap-2.5">
               <button onClick={() => { setCropSrc(null); if (cropImgRef.current) URL.revokeObjectURL(cropImgRef.current.src) }}
-                style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors">
                 Annuler
               </button>
               <button onClick={confirmCrop}
-                style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                className="flex-1 py-2.5 rounded-xl border-0 bg-indigo-600 text-white text-sm font-bold cursor-pointer hover:bg-indigo-500 transition-colors">
                 Appliquer
               </button>
             </div>
@@ -1436,161 +1770,173 @@ export default function ProfilePage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
-        <div style={{ position: 'relative', backgroundColor: '#06060f', overflow: 'hidden', paddingTop: '100px', paddingBottom: '48px' }}>
-          {/* Dot grid */}
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.12) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
-          {/* Glow blobs */}
-          <div style={{ position: 'absolute', top: '10%', left: '20%', width: '320px', height: '320px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', animation: 'glow 6s ease-in-out infinite', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: '0%', right: '15%', width: '240px', height: '240px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%)', animation: 'glow 8s ease-in-out infinite 2s', pointerEvents: 'none' }} />
+        <div className="relative bg-[#06060f] overflow-hidden pt-24 pb-12">
+          <div className="absolute inset-0 opacity-[0.10] pointer-events-none"
+            style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+          <div className="absolute top-[10%] left-[20%] w-80 h-80 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', animation: 'glow 6s ease-in-out infinite' }} />
+          <div className="absolute bottom-0 right-[15%] w-60 h-60 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%)', animation: 'glow 8s ease-in-out infinite 2s' }} />
 
-          <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div className="max-w-[900px] mx-auto px-6 relative z-10">
+            <div className="flex gap-7 items-start flex-wrap">
 
               {/* Avatar */}
-              <div style={{ position: 'relative', flexShrink: 0 }}>
-                <div style={{ width: '112px', height: '112px', borderRadius: '50%', overflow: 'hidden', border: '3px solid #E5E7EB', backgroundColor: '#111827' }}>
+              <div className="relative shrink-0">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-white/20 bg-gray-900">
                   {profile?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={profile.avatar_url} alt={name} className="w-full h-full object-cover" />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#6366F1' }}>
-                      <span style={{ fontSize: '40px', fontWeight: '800', color: '#FFF' }}>{firstName[0]?.toUpperCase()}</span>
+                    <div className="w-full h-full flex items-center justify-center bg-indigo-600">
+                      <span className="text-4xl font-black text-white">{firstName[0]?.toUpperCase()}</span>
                     </div>
                   )}
                 </div>
                 <button onClick={() => fileRef.current?.click()} disabled={avatarUploading}
-                  style={{ position: 'absolute', bottom: '-6px', right: '-6px', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#6366F1', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                  {avatarUploading ? <div style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Upload size={13} color="#FFF" />}
+                  className="absolute -bottom-1.5 -right-1.5 w-8 h-8 rounded-full bg-indigo-600 border-2 border-white flex items-center justify-center cursor-pointer">
+                  {avatarUploading
+                    ? <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full" style={{ animation: 'spin 1s linear infinite' }} />
+                    : <Upload size={13} className="text-white" />}
                 </button>
-                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
               </div>
 
               {/* Info */}
-              <div style={{ flex: 1, minWidth: '200px' }}>
+              <div className="flex-1 min-w-[200px]">
                 {editing ? (
                   <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Nom complet"
-                    style={{ fontSize: '22px', fontWeight: '700', color: '#FFF', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px', padding: '8px 14px', marginBottom: '10px', width: '100%', outline: 'none', fontFamily: 'inherit' }} />
+                    className="text-[22px] font-bold text-white bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 mb-2.5 w-full outline-none" />
                 ) : (
-                  <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#FFFFFF', margin: '0 0 6px', letterSpacing: '-0.5px' }}>{name}</h1>
+                  <h1 className="text-2xl sm:text-[26px] font-black text-white mb-1.5 tracking-tight">{name}</h1>
                 )}
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
-                  <span style={{ padding: '3px 12px', borderRadius: '99px', backgroundColor: 'rgba(99,102,241,0.25)', color: '#A5B4FC', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(99,102,241,0.3)' }}>
+                <div className="flex items-center gap-2 flex-wrap mb-3">
+                  <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
                     {profile?.role === 'artisan' ? 'Artisan' : 'Créateur'}
                   </span>
                   {creator?.siret_verified && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '99px', backgroundColor: 'rgba(16,185,129,0.15)', color: '#6EE7B7', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/20">
                       <BadgeCheck size={12} /> SIRET
                     </span>
                   )}
                   {creator?.insurance_verified && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '99px', backgroundColor: 'rgba(16,185,129,0.15)', color: '#6EE7B7', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/20">
                       <BadgeCheck size={12} /> RC Pro
                     </span>
                   )}
                   {avgRating && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '99px', backgroundColor: 'rgba(245,158,11,0.15)', color: '#FCD34D', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(245,158,11,0.2)' }}>
-                      <Star size={11} fill="#FCD34D" color="#FCD34D" /> {avgRating}
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 text-xs font-bold border border-indigo-500/20">
+                      <Star size={11} fill="currentColor" /> {avgRating}
                     </span>
                   )}
+                  {(() => {
+                    const tier = profile?.subscription_tier ?? 'free'
+                    const tierLabel: Record<string, string> = {
+                      free: 'Gratuit', boost: 'Boost', pro: 'Pro', premium: 'Premium', org_pro: 'Org Pro', org_studio: 'Org Studio',
+                    }
+                    return (
+                      <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/50 text-xs font-semibold border border-white/15">
+                        {tierLabel[tier] ?? 'Gratuit'}
+                      </span>
+                    )
+                  })()}
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                <div className="flex gap-3 flex-wrap mb-3.5 text-[13px] text-white/50">
                   {creator?.city && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
-                      <MapPin size={13} /> {creator.city}{creator.region ? `, ${creator.region}` : ''}
+                    <span className="flex items-center gap-1">
+                      <MapPin size={12} /> {creator.city}{creator.region ? `, ${creator.region}` : ''}
                     </span>
                   )}
                   {creator?.travel_radius && (
-                    <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-                      · {RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}
-                    </span>
+                    <span>· {RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}</span>
                   )}
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
+                  <span className="flex items-center gap-1 text-white/35">
                     <Mail size={12} /> {user?.email}
                   </span>
                 </div>
 
-                {/* Disciplines preview */}
                 {(creator?.disciplines ?? []).length > 0 && (
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  <div className="flex gap-1.5 flex-wrap">
                     {creator!.disciplines.slice(0, 4).map(d => (
-                      <span key={d} style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: '600', backgroundColor: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)' }}>{d}</span>
+                      <span key={d} className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/7 text-white/60 border border-white/10">{d}</span>
                     ))}
                     {creator!.disciplines.length > 4 && (
-                      <span style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: '600', backgroundColor: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)', border: '1px solid rgba(255,255,255,0.08)' }}>+{creator!.disciplines.length - 4}</span>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/5 text-white/35 border border-white/8">+{creator!.disciplines.length - 4}</span>
                     )}
                   </div>
                 )}
               </div>
 
               {/* Action buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignSelf: 'flex-start' }}>
-                  {editing ? (
-                    <>
-                      <button onClick={handleSave} disabled={saving}
-                        style={{ padding: '10px 20px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
-                        <Save size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
-                      </button>
-                      <button onClick={() => setEditing(false)}
-                        style={{ padding: '10px 14px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                        <X size={14} />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => setEditing(true)}
-                        style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#FFF', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', boxShadow: 'none' }}>
-                        <Edit3 size={14} /> Modifier le profil
-                      </button>
-                      <button onClick={() => router.push('/creators/' + user?.id)}
-                        style={{ padding: '10px 14px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
-                        <ChevronRight size={14} /> Voir mon profil
-                      </button>
-                    </>
-                  )}
+              <div className="flex flex-col gap-2 self-start">
+                {editing ? (
+                  <>
+                    <button onClick={handleSave} disabled={saving}
+                      className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors whitespace-nowrap">
+                      <Save size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
+                    </button>
+                    <button onClick={() => setEditing(false)}
+                      className="flex items-center justify-center px-3.5 py-2.5 rounded-xl bg-white/8 text-white/60 border border-white/12 text-sm cursor-pointer hover:bg-white/12 transition-colors">
+                      <X size={14} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => setEditing(true)}
+                      className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors whitespace-nowrap">
+                      <Edit3 size={14} /> Modifier le profil
+                    </button>
+                    <button onClick={() => router.push('/creators/' + user?.id)}
+                      className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/6 text-white/50 border border-white/10 text-sm cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">
+                      <ChevronRight size={14} /> Voir mon profil
+                    </button>
+                  </>
+                )}
               </div>
 
             </div>{/* end flex row */}
           </div>{/* end max-width */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
         </div>{/* end dark hero */}
 
         {/* ═══ CONTENT AREA ══════════════════════════════════════════════════════ */}
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 16px 80px', position: 'relative' }}>
+        <div className="max-w-[900px] mx-auto px-4 pb-20">
 
           {/* Stats row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '28px', marginBottom: '32px' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7 mb-8">
             {[
-              { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} color="#6366F1" />, bg: '#EEF2FF', c: '#6366F1' },
-              { label: 'Acceptées', value: acceptedCount, icon: <CheckCircle size={18} color="#059669" />, bg: '#ECFDF5', c: '#059669' },
-              { label: 'Avis reçus', value: reviews.length, icon: <Star size={18} color="#F59E0B" />, bg: '#FFFBEB', c: '#F59E0B' },
-              { label: 'Note moy.', value: avgRating ?? '—', icon: <Award size={18} color="#8B5CF6" />, bg: '#F5F3FF', c: '#8B5CF6' },
+              { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} className="text-indigo-600" /> },
+              { label: 'Acceptées',    value: acceptedCount,       icon: <CheckCircle size={18} className="text-indigo-600" /> },
+              { label: 'Avis reçus',  value: reviews.length,      icon: <Star size={18} className="text-indigo-600" /> },
+              { label: 'Note moy.',   value: avgRating ?? '—',    icon: <Award size={18} className="text-indigo-600" /> },
             ].map(s => (
-              <div key={s.label} style={{ padding: '16px', borderRadius: '14px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', textAlign: 'center' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>{s.icon}</div>
-                <p style={{ fontSize: '22px', fontWeight: '800', color: '#0F172A', margin: '0 0 2px', lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0, fontWeight: '500' }}>{s.label}</p>
+              <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm">
+                <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3">{s.icon}</div>
+                <p className="text-2xl font-black text-gray-900 leading-none mb-1">{s.value}</p>
+                <p className="text-[11px] font-semibold text-gray-400">{s.label}</p>
               </div>
             ))}
           </div>
 
           {/* Profile completion banner */}
           {isCreatorRole && completionMissing.length > 0 && (
-            <div style={{ marginBottom: '24px', padding: '16px 20px', borderRadius: '14px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <AlertCircle size={18} color="#D97706" />
+            <div className="mb-6 p-4 rounded-2xl bg-indigo-50 border border-indigo-200 flex gap-4 items-start">
+              <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                <AlertCircle size={18} className="text-indigo-600" />
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#92400E' }}>Profil complété {completionDone}/6</span>
-                  <span style={{ fontSize: '12px', color: '#B45309', fontWeight: '600' }}>{Math.round((completionDone / 6) * 100)}%</span>
+              <div className="flex-1">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-bold text-indigo-900">Profil complété {completionDone}/6</span>
+                  <span className="text-xs font-semibold text-indigo-600">{Math.round((completionDone / 6) * 100)}%</span>
                 </div>
-                <div style={{ height: '6px', borderRadius: '99px', backgroundColor: '#FDE68A', overflow: 'hidden', marginBottom: '10px' }}>
-                  <div style={{ height: '100%', width: `${(completionDone / 6) * 100}%`, borderRadius: '99px', backgroundColor: '#6366F1', transition: 'width 600ms ease' }} />
+                <div className="h-1.5 rounded-full bg-indigo-200 overflow-hidden mb-2.5">
+                  <div className="h-full rounded-full bg-indigo-600 transition-all duration-700" style={{ width: `${(completionDone / 6) * 100}%` }} />
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                <div className="flex flex-wrap gap-1.5">
                   {completionMissing.map(f => (
-                    <span key={f} style={{ padding: '3px 10px', borderRadius: '99px', backgroundColor: '#FEF3C7', border: '1px solid #FDE68A', fontSize: '12px', fontWeight: '600', color: '#92400E' }}>{f}</span>
+                    <span key={f} className="px-2.5 py-0.5 rounded-full bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-700">{f}</span>
                   ))}
                 </div>
               </div>
@@ -1598,7 +1944,7 @@ export default function ProfilePage() {
           )}
 
           {/* Pill tabs */}
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '28px', backgroundColor: '#F1F5F9', padding: '4px', borderRadius: '14px', width: 'fit-content', flexWrap: 'wrap' }}>
+          <div className="flex gap-1 mb-7 bg-gray-100 p-1 rounded-xl w-fit flex-wrap">
             {([
               { key: 'profil',       label: 'Profil',        icon: <User size={14} /> },
               { key: 'portfolio',    label: 'Portfolio',     icon: <LayoutGrid size={14} /> },
@@ -1606,14 +1952,11 @@ export default function ProfilePage() {
               { key: 'avis',         label: `Avis${reviews.length ? ` (${reviews.length})` : ''}`, icon: <Award size={14} /> },
             ] as const).map(t => (
               <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '9px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-                  fontSize: '13px', fontWeight: '600', transition: 'all 150ms ease',
-                  backgroundColor: tab === t.key ? '#FFFFFF' : 'transparent',
-                  color: tab === t.key ? '#1E293B' : '#64748B',
-                  boxShadow: tab === t.key ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
-                }}>
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 border-0 cursor-pointer ${
+                  tab === t.key
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'bg-transparent text-gray-500 hover:text-gray-700'
+                }`}>
                 {t.icon} {t.label}
               </button>
             ))}
@@ -1621,341 +1964,375 @@ export default function ProfilePage() {
 
         {/* ── Tab: Profil ── */}
         {tab === 'profil' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="flex flex-col gap-5">
 
-            {/* Bio */}
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color="#6B7280" /></div>
-                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Bio</h3>
-              </div>
-              {editing ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {/* Pseudo */}
-                  <div>
-                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Pseudo / Nom d'affichage</label>
-                    <input value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="ex : sophie.ceramiques"
-                      onKeyDown={async e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
-                          setToast('Pseudo enregistré ✓')
-                        }
-                      }}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
-                    <p style={{ fontSize: '12px', color: '#94A3B8', margin: '5px 0 0' }}>Appuyez sur <kbd style={{ padding: '1px 5px', borderRadius: '4px', backgroundColor: '#F1F5F9', border: '1px solid #CBD5E1', fontSize: '11px' }}>Entrée</kbd> pour enregistrer.</p>
-                  </div>
-                  {/* Toggle nom réel */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '12px 14px', borderRadius: '10px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                    <div onClick={() => setEditShowRealName(v => !v)}
-                      style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? '#6366F1' : '#CBD5E1', position: 'relative', flexShrink: 0, transition: 'background 200ms', cursor: 'pointer' }}>
-                      <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-                    </div>
+            {/* Carte unique avec toutes les sections */}
+            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+
+              {/* Bio */}
+              <div className="px-6 py-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Bio</p>
+                </div>
+                {editing ? (
+                  <div className="flex flex-col gap-3">
                     <div>
-                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#1E293B', margin: 0 }}>Afficher mon vrai nom</p>
-                      <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>{editShowRealName ? 'Votre nom complet est visible publiquement' : 'Seul le pseudo est affiché'}</p>
-                    </div>
-                  </label>
-                  {/* Bio */}
-                  <div>
-                    <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Bio</label>
-                    <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité, votre style, ce qui vous rend unique…" rows={4}
-                      style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.7', outline: 'none', color: '#1A1A1A', backgroundColor: '#F8FAFC', boxSizing: 'border-box' }} />
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  {/* Pseudo affiché */}
-                  {(profile as unknown as { username?: string })?.username && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#6366F1' }}>@{(profile as unknown as { username?: string }).username}</span>
-                      <span style={{ fontSize: '12px', color: '#94A3B8' }}>·</span>
-                      <span style={{ fontSize: '12px', color: '#94A3B8' }}>{(profile as unknown as { show_real_name?: boolean })?.show_real_name !== false ? 'Nom visible' : 'Nom masqué'}</span>
-                    </div>
-                  )}
-                  <p style={{ fontSize: '15px', color: profile?.bio ? '#334155' : '#94A3B8', lineHeight: '1.8', margin: 0 }}>
-                    {profile?.bio ?? 'Aucune bio renseignée. Cliquez sur "Modifier le profil" pour en ajouter une.'}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Disciplines */}
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '14px' }}>🎨</span></div>
-                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Disciplines</h3>
-              </div>
-              {editing ? (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {DISCIPLINES.map(d => {
-                    const c = DISC_COLORS[d] ?? '#6366F1'
-                    const sel = editDisc.includes(d)
-                    return (
-                      <button key={d} onClick={() => toggleDisc(d)}
-                        style={{ padding: '6px 14px', borderRadius: '99px', border: `1.5px solid ${sel ? c : '#E2E8F0'}`, backgroundColor: sel ? c + '18' : '#FFF', color: sel ? c : '#64748B', fontSize: '13px', fontWeight: sel ? '700' : '500', cursor: 'pointer', transition: 'all 150ms' }}>
-                        {d}
-                      </button>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {(creator?.disciplines ?? []).length > 0
-                    ? creator!.disciplines.map(d => {
-                        const c = DISC_COLORS[d] ?? '#6366F1'
-                        return <span key={d} style={{ padding: '6px 14px', borderRadius: '99px', backgroundColor: c + '18', color: c, fontSize: '13px', fontWeight: '700', border: `1px solid ${c}30` }}>{d}</span>
-                      })
-                    : <span style={{ color: '#94A3B8', fontSize: '14px' }}>Aucune discipline renseignée</span>
-                  }
-                </div>
-              )}
-            </div>
-
-            {/* Localisation */}
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><MapPin size={14} color="#6B7280" /></div>
-                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Localisation & déplacement</h3>
-              </div>
-              {editing ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {/* City + postal autocomplete */}
-                  <div ref={cityContainerRef} style={{ position: 'relative' }}>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <input
-                        value={cityQuery}
-                        onChange={e => {
-                          const q = e.target.value
-                          setCityQuery(q)
-                          setEditCity(q)
-                          setCityDropdownOpen(true)
-                          if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current)
-                          if (q.length < 2) { setCitySuggestions([]); return }
-                          cityDebounceRef.current = setTimeout(async () => {
-                            try {
-                              const isPostal = /^\d+$/.test(q)
-                              const url = isPostal
-                                ? `https://geo.api.gouv.fr/communes?codePostal=${encodeURIComponent(q)}&fields=nom,region,departement,codesPostaux&boost=population&limit=6`
-                                : `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,region,departement,codesPostaux&boost=population&limit=6`
-                              const r = await fetch(url)
-                              const data = await r.json()
-                              setCitySuggestions(data.map((c: { nom: string; region: { nom: string }; departement: { nom: string }; codesPostaux: string[] }) => ({
-                                nom: c.nom,
-                                region: c.region?.nom ?? '',
-                                departement: c.departement?.nom ?? '',
-                                codesPostaux: c.codesPostaux ?? [],
-                              })))
-                            } catch { setCitySuggestions([]) }
-                          }, 250)
+                      <label className="text-[11px] font-semibold text-gray-400 block mb-1.5">Pseudo / Nom d&apos;affichage</label>
+                      <input value={editUsername} onChange={e => setEditUsername(e.target.value)} placeholder="ex : sophie.ceramiques"
+                        onKeyDown={async e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
+                            setToast('Pseudo enregistré')
+                          }
                         }}
-                        onBlur={() => setTimeout(() => setCityDropdownOpen(false), 150)}
-                        onFocus={() => citySuggestions.length > 0 && setCityDropdownOpen(true)}
-                        placeholder="Ville ou code postal"
-                        autoComplete="off"
-                        style={{ flex: 2, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none', boxSizing: 'border-box' }}
-                      />
-                      <input
-                        value={editPostalCode}
-                        onChange={e => setEditPostalCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                        placeholder="Code postal"
-                        maxLength={5}
-                        style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'monospace', backgroundColor: '#F8FAFC', outline: 'none', boxSizing: 'border-box' }}
-                      />
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 text-gray-900" />
                     </div>
-                    {cityDropdownOpen && citySuggestions.length > 0 && (
-                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: '#FFF', border: '1px solid #E2E8F0', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.10)', marginTop: '4px', overflow: 'hidden' }}>
-                        {citySuggestions.map((s, i) => (
-                          <button key={i} type="button"
-                            onMouseDown={() => {
-                              setEditCity(s.nom)
-                              setEditRegion(s.region)
-                              setCityQuery(s.nom)
-                              if (s.codesPostaux?.length === 1) setEditPostalCode(s.codesPostaux[0])
-                              setCityDropdownOpen(false)
-                              setCitySuggestions([])
-                            }}
-                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', textAlign: 'left', borderBottom: i < citySuggestions.length - 1 ? '1px solid #F3F4F6' : 'none' }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                          >
-                            <div>
-                              <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>{s.nom}</span>
-                              <span style={{ fontSize: '12px', color: '#6B7280', marginLeft: '6px' }}>{s.departement} · {s.region}</span>
-                            </div>
-                            {s.codesPostaux?.length > 0 && (
-                              <span style={{ fontSize: '12px', color: '#6366F1', fontWeight: '600', fontFamily: 'monospace', marginLeft: '8px', flexShrink: 0 }}>{s.codesPostaux[0]}{s.codesPostaux.length > 1 ? '…' : ''}</span>
-                            )}
-                          </button>
-                        ))}
+                    <label className="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl bg-gray-50 border border-gray-200">
+                      <div onClick={() => setEditShowRealName(v => !v)} className="relative shrink-0 cursor-pointer"
+                        style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
+                        <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800 leading-none mb-0.5">Afficher mon vrai nom</p>
+                        <p className="text-xs text-gray-400">{editShowRealName ? 'Visible publiquement' : 'Seul le pseudo est affiché'}</p>
+                      </div>
+                    </label>
+                    <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité, votre style, ce qui vous rend unique…" rows={4}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-y outline-none focus:border-indigo-400 text-gray-900 leading-relaxed" />
+                  </div>
+                ) : (
+                  <div>
+                    {(profile as unknown as { username?: string })?.username && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-bold text-indigo-600">@{(profile as unknown as { username?: string }).username}</span>
+                        <span className="text-gray-300">·</span>
+                        <span className="text-xs text-gray-400">{(profile as unknown as { show_real_name?: boolean })?.show_real_name !== false ? 'Nom visible' : 'Nom masqué'}</span>
                       </div>
                     )}
+                    <p className={`text-sm leading-relaxed ${profile?.bio ? 'text-gray-600' : 'text-gray-400'}`}>
+                      {profile?.bio ?? 'Aucune bio renseignée — cliquez sur "Modifier le profil".'}
+                    </p>
                   </div>
-                  <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région (remplie automatiquement)" style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none', color: '#6B7280' }} />
-                  <select value={editRadius} onChange={e => setEditRadius(e.target.value)}
-                    style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }}>
-                    <option value="5">Rayon 5 km</option>
-                    <option value="10">Rayon 10 km</option>
-                    <option value="25">Rayon 25 km</option>
-                    <option value="national">France entière</option>
-                  </select>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#334155' }}>
-                    <MapPin size={14} color="#94A3B8" /> {creator?.city ?? '—'}{creator?.region ? `, ${creator.region}` : ''}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: '#334155' }}>
-                    🚗 {RADIUS_LABELS[creator?.travel_radius ?? ''] ?? 'Non renseigné'}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Liens */}
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Globe size={14} color="#F97316" /></div>
-                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Liens</h3>
+                )}
               </div>
-              {editing ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[
-                    { icon: <AtSign size={16} color="#E1306C" />, val: editInstagram, set: setEditInstagram, placeholder: '@votre_compte' },
-                    { icon: <Globe size={16} color="#6366F1" />, val: editWebsite, set: setEditWebsite, placeholder: 'https://votre-site.fr' },
-                    { icon: <ExternalLink size={16} color="#F16521" />, val: editEtsy, set: setEditEtsy, placeholder: 'https://etsy.com/shop/...' },
-                  ].map(({ icon, val, set, placeholder }, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      {icon}
-                      <input value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
-                        style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E2E8F0', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#F8FAFC', outline: 'none' }} />
+
+              <div className="h-px bg-gray-100" />
+
+              {/* Disciplines */}
+              <div className="px-6 py-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Disciplines</p>
+                {editing ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-wrap gap-2">
+                      {DISCIPLINES.map(d => {
+                        const sel = editDisc.includes(d)
+                        return (
+                          <button key={d} onClick={() => toggleDisc(d)}
+                            className={`px-3 py-1.5 rounded-full text-sm cursor-pointer transition-all border ${
+                              sel ? 'bg-indigo-50 border-indigo-400 text-indigo-700 font-bold' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 font-medium'
+                            }`}>
+                            {d}
+                          </button>
+                        )
+                      })}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[
-                    { icon: <AtSign size={15} color="#E1306C" />, val: creator?.instagram, label: 'Instagram' },
-                    { icon: <Globe size={15} color="#6366F1" />, val: creator?.website, label: 'Site web' },
-                    { icon: <ExternalLink size={15} color="#F16521" />, val: creator?.etsy, label: 'Etsy' },
-                  ].filter(l => l.val).map(({ icon, val, label }) => (
-                    <a key={label} href={val!.startsWith('http') ? val! : `https://${val}`} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#334155', textDecoration: 'none', fontSize: '14px', fontWeight: '500' }}>
-                      {icon} {val}
-                    </a>
-                  ))}
-                  {!creator?.instagram && !creator?.website && !creator?.etsy && (
-                    <span style={{ color: '#94A3B8', fontSize: '14px' }}>Aucun lien renseigné</span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Vérification */}
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFFFF', boxShadow: '0 1px 8px rgba(0,0,0,0.06)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={14} color="#6B7280" /></div>
-                <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A', margin: 0 }}>Vérification</h3>
+                    <div className="pt-3 border-t border-gray-100">
+                      <p className="text-[11px] font-semibold text-gray-400 mb-2">Proposer une discipline manquante</p>
+                      <div className="flex gap-2">
+                        <input value={discProposalInput} onChange={e => setDiscProposalInput(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && handleProposeDisc()}
+                          placeholder="Ex : Poterie Raku, Marionnettes..."
+                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                        <button onClick={handleProposeDisc} disabled={!discProposalInput.trim() || discProposalSending}
+                          className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 disabled:opacity-40">
+                          {discProposalSending ? '…' : 'Proposer'}
+                        </button>
+                      </div>
+                      {myDiscProposals.length > 0 && (
+                        <div className="mt-2.5 flex flex-col gap-1.5">
+                          {myDiscProposals.map(p => (
+                            <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50">
+                              <span className="text-sm text-gray-700">{p.name}</span>
+                              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${p.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : p.status === 'rejected' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'}`}>
+                                {p.status === 'approved' ? 'Approuvée' : p.status === 'rejected' ? 'Refusée' : 'En attente'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {(creator?.disciplines ?? []).length > 0
+                      ? creator!.disciplines.map(d => (
+                          <span key={d} className="px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold border border-indigo-100">{d}</span>
+                        ))
+                      : <span className="text-sm text-gray-400">Aucune discipline renseignée</span>
+                    }
+                    {myDiscProposals.filter(p => p.status === 'pending').length > 0 && (
+                      <span className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 text-xs font-semibold border border-amber-100">
+                        <Clock size={11} /> {myDiscProposals.filter(p => p.status === 'pending').length} en attente
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editing ? '12px' : '0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <CheckCircle size={18} fill={(creator?.siret_verified || editSiret) ? '#059669' : 'none'} color={(creator?.siret_verified || editSiret) ? '#059669' : '#9CA3AF'} />
+
+              <div className="h-px bg-gray-100" />
+
+              {/* Localisation */}
+              <div className="px-6 py-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Localisation & déplacement</p>
+                {editing ? (
+                  <div className="flex flex-col gap-2.5">
+                    <div ref={cityContainerRef} className="relative">
+                      <div className="flex gap-2.5">
+                        <input value={cityQuery}
+                          onChange={e => {
+                            const q = e.target.value
+                            setCityQuery(q); setEditCity(q); setCityDropdownOpen(true)
+                            if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current)
+                            if (q.length < 2) { setCitySuggestions([]); return }
+                            cityDebounceRef.current = setTimeout(async () => {
+                              try {
+                                const isPostal = /^\d+$/.test(q)
+                                const url = isPostal
+                                  ? `https://geo.api.gouv.fr/communes?codePostal=${encodeURIComponent(q)}&fields=nom,region,departement,codesPostaux&boost=population&limit=6`
+                                  : `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,region,departement,codesPostaux&boost=population&limit=6`
+                                const r = await fetch(url)
+                                const data = await r.json()
+                                setCitySuggestions(data.map((c: { nom: string; region: { nom: string }; departement: { nom: string }; codesPostaux: string[] }) => ({
+                                  nom: c.nom, region: c.region?.nom ?? '', departement: c.departement?.nom ?? '', codesPostaux: c.codesPostaux ?? [],
+                                })))
+                              } catch { setCitySuggestions([]) }
+                            }, 250)
+                          }}
+                          onBlur={() => setTimeout(() => setCityDropdownOpen(false), 150)}
+                          onFocus={() => citySuggestions.length > 0 && setCityDropdownOpen(true)}
+                          placeholder="Ville ou code postal" autoComplete="off"
+                          className="flex-[2] px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                        <input value={editPostalCode}
+                          onChange={e => setEditPostalCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                          placeholder="Code postal" maxLength={5}
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono outline-none focus:border-indigo-400" />
+                      </div>
+                      {cityDropdownOpen && citySuggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg mt-1 overflow-hidden">
+                          {citySuggestions.map((s, i) => (
+                            <button key={i} type="button"
+                              onMouseDown={() => { setEditCity(s.nom); setEditRegion(s.region); setCityQuery(s.nom); if (s.codesPostaux?.length === 1) setEditPostalCode(s.codesPostaux[0]); setCityDropdownOpen(false); setCitySuggestions([]) }}
+                              className={`flex justify-between items-center w-full px-3.5 py-2.5 border-0 bg-transparent cursor-pointer text-left hover:bg-gray-50 ${i < citySuggestions.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                              <div>
+                                <span className="text-sm font-semibold text-gray-900">{s.nom}</span>
+                                <span className="text-xs text-gray-400 ml-1.5">{s.departement} · {s.region}</span>
+                              </div>
+                              {s.codesPostaux?.length > 0 && <span className="text-xs text-indigo-600 font-semibold font-mono ml-2 shrink-0">{s.codesPostaux[0]}{s.codesPostaux.length > 1 ? '…' : ''}</span>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région (remplie automatiquement)"
+                      className="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-400 outline-none" />
+                    <select value={editRadius} onChange={e => setEditRadius(e.target.value)}
+                      className="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none">
+                      <option value="5">Rayon 5 km</option>
+                      <option value="10">Rayon 10 km</option>
+                      <option value="25">Rayon 25 km</option>
+                      <option value="national">France entière</option>
+                    </select>
+                  </div>
+                ) : (
+                  <div className="flex gap-4 flex-wrap">
+                    <span className="flex items-center gap-1.5 text-sm text-gray-700">
+                      <MapPin size={14} className="text-gray-400" /> {creator?.city ?? '—'}{creator?.region ? `, ${creator.region}` : ''}
+                    </span>
+                    {creator?.travel_radius && (
+                      <span className="text-sm text-gray-500">{RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="h-px bg-gray-100" />
+
+              {/* Liens */}
+              <div className="px-6 py-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Liens</p>
+                {editing ? (
+                  <div className="flex flex-col gap-2.5">
+                    {[
+                      { icon: <AtSign size={15} className="text-gray-400 shrink-0" />, val: editInstagram, set: setEditInstagram, placeholder: '@votre_compte' },
+                      { icon: <Globe size={15} className="text-gray-400 shrink-0" />, val: editWebsite, set: setEditWebsite, placeholder: 'https://votre-site.fr' },
+                      { icon: <ExternalLink size={15} className="text-gray-400 shrink-0" />, val: editEtsy, set: setEditEtsy, placeholder: 'https://etsy.com/shop/...' },
+                    ].map(({ icon, val, set, placeholder }, i) => (
+                      <div key={i} className="flex items-center gap-2.5">
+                        {icon}
+                        <input value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5">
+                    {[
+                      { icon: <AtSign size={14} className="text-gray-400" />, val: creator?.instagram, label: 'Instagram' },
+                      { icon: <Globe size={14} className="text-gray-400" />, val: creator?.website, label: 'Site web' },
+                      { icon: <ExternalLink size={14} className="text-gray-400" />, val: creator?.etsy, label: 'Etsy' },
+                    ].filter(l => l.val).map(({ icon, val, label }) => (
+                      <a key={label} href={val!.startsWith('http') ? val! : `https://${val}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-gray-700 no-underline hover:text-indigo-600 transition-colors">
+                        {icon} {val}
+                      </a>
+                    ))}
+                    {!creator?.instagram && !creator?.website && !creator?.etsy && (
+                      <span className="text-sm text-gray-400">Aucun lien renseigné</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="h-px bg-gray-100" />
+
+              {/* Vérification */}
+              <div className="px-6 py-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Vérification</p>
+                <div className="flex flex-col gap-3">
+                  {/* SIRET */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle size={17} fill={(creator?.siret_verified || editSiret) ? '#059669' : 'none'} color={(creator?.siret_verified || editSiret) ? '#059669' : '#D1D5DB'} />
                       <div>
-                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>SIRET vérifié</p>
-                        <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Confirme que vous êtes un professionnel déclaré</p>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">SIRET vérifié</p>
+                        <p className="text-xs text-gray-400">Professionnel déclaré</p>
                       </div>
                     </div>
                     {editing && (
                       <button onClick={() => setEditSiret(!editSiret)}
-                        style={{ padding: '6px 14px', borderRadius: '20px', border: 'none', backgroundColor: editSiret ? '#059669' : '#E5E7EB', color: editSiret ? '#FFF' : '#6B7280', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                        {editSiret ? '✓ Activé' : 'Activer'}
+                        className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer border-0 ${editSiret ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                        {editSiret ? 'Activé' : 'Activer'}
                       </button>
                     )}
                   </div>
                   {editing && (
-                    <div style={{ marginTop: '12px' }}>
-                      <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 8px' }}>Entrez votre numéro SIRET (14 chiffres) — un admin le validera sous 24h.</p>
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="ml-8">
+                      <p className="text-xs text-gray-400 mb-2">Entrez votre SIRET (14 chiffres) — validé par un admin sous 24h.</p>
+                      <div className="flex gap-2">
                         <input value={siretNumber} onChange={e => { setSiretNumber(e.target.value.replace(/\D/g, '')); setSiretResult(null) }}
                           placeholder="14 chiffres" maxLength={14}
-                          style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'monospace', letterSpacing: '2px' }} />
+                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono tracking-widest outline-none" />
                         <button onClick={handleCheckSiret} disabled={siretNumber.length !== 14 || siretChecking}
-                          style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', backgroundColor: siretNumber.length === 14 ? '#6366F1' : '#E5E7EB', color: siretNumber.length === 14 ? '#FFF' : '#9CA3AF', fontSize: '13px', fontWeight: '700', cursor: siretNumber.length === 14 ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}>
+                          className={`px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer ${siretNumber.length === 14 ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
                           {siretChecking ? '…' : 'Envoyer'}
                         </button>
                       </div>
                       {siretResult && (
-                        <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: '8px', backgroundColor: siretResult.valid ? '#ECFDF5' : '#FEF2F2', border: `1px solid ${siretResult.valid ? '#A7F3D0' : '#FECACA'}` }}>
-                          <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: siretResult.valid ? '#059669' : '#DC2626' }}>
-                            {siretResult.valid ? `✓ ${siretResult.nom}` : `✗ ${siretResult.error}`}
-                          </p>
+                        <div className={`mt-2 px-3.5 py-2 rounded-xl border text-sm font-semibold ${siretResult.valid ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-600'}`}>
+                          {siretResult.valid ? siretResult.nom : siretResult.error}
                         </div>
                       )}
                     </div>
                   )}
-                </div>
-
-                <div style={{ padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <CheckCircle size={18}
+                  {/* RC Pro */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle size={17}
                         fill={creator?.insurance_verified ? '#059669' : 'none'}
-                        color={creator?.insurance_verified ? '#059669' : creator?.insurance_doc_url ? '#F59E0B' : '#9CA3AF'}
-                      />
+                        color={creator?.insurance_verified ? '#059669' : creator?.insurance_doc_url ? '#F59E0B' : '#D1D5DB'} />
                       <div>
-                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro</p>
-                        <p style={{ fontSize: '12px', color: creator?.insurance_verified ? '#059669' : creator?.insurance_doc_url ? '#D97706' : '#6B7280', margin: 0, fontWeight: '600' }}>
-                          {creator?.insurance_verified ? '✓ Validé par l\'équipe' : creator?.insurance_doc_url ? '⏳ En attente de validation' : 'Assurance Responsabilité Civile Professionnelle'}
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">RC Pro</p>
+                        <p className={`text-xs font-medium ${creator?.insurance_verified ? 'text-emerald-600' : creator?.insurance_doc_url ? 'text-amber-500' : 'text-gray-400'}`}>
+                          {creator?.insurance_verified ? 'Validé par l\'équipe' : creator?.insurance_doc_url ? 'En attente de validation' : 'Responsabilité Civile Professionnelle'}
                         </p>
                       </div>
                     </div>
                     {editing && !creator?.insurance_verified && (
                       <button onClick={() => rcProRef.current?.click()} disabled={rcProUploading}
-                        style={{ padding: '6px 14px', borderRadius: '20px', border: 'none', backgroundColor: creator?.insurance_doc_url ? '#F59E0B' : '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                        {rcProUploading ? 'Envoi…' : creator?.insurance_doc_url ? '↺ Remplacer' : 'Déposer'}
+                        className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer border-0 text-white ${creator?.insurance_doc_url ? 'bg-amber-500' : 'bg-indigo-600 hover:bg-indigo-500'}`}>
+                        {rcProUploading ? 'Envoi…' : creator?.insurance_doc_url ? 'Remplacer' : 'Déposer'}
                       </button>
                     )}
                   </div>
                   {editing && !creator?.insurance_verified && (
-                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '8px 0 0' }}>
-                      {creator?.insurance_doc_url ? 'Document reçu — l\'équipe Nexart va le vérifier sous 24h.' : 'Déposez votre attestation RC Pro (PDF ou image)'}
+                    <p className="text-[11px] text-gray-400 ml-8">
+                      {creator?.insurance_doc_url ? 'Document reçu — vérification sous 24h.' : 'Déposez votre attestation (PDF ou image)'}
                     </p>
                   )}
-                  <input ref={rcProRef} type="file" accept=".pdf,image/*" style={{ display: 'none' }} onChange={handleRcProUpload} />
+                  <input ref={rcProRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleRcProUpload} />
+                </div>
+              </div>
+
+              <div className="h-px bg-gray-100" />
+
+              {/* Double rôle */}
+              <div className="px-6 py-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Rôle secondaire</p>
+                <div className="flex flex-col gap-3">
+                  {profile?.role === 'creator' && (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Devenir aussi organisateur</p>
+                        <p className="text-xs text-gray-400">Créez et gérez vos propres marchés tout en restant créateur</p>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          const next = !profile?.is_organizer
+                          await supabase.from('profiles').update({ is_organizer: next }).eq('id', user!.id)
+                          setProfile(prev => prev ? { ...prev, is_organizer: next } : prev)
+                          const su = useAuthStore.getState().user; if (su) useAuthStore.getState().setUser({ ...su, is_organizer: next })
+                          showToast(next ? 'Rôle organisateur activé' : 'Rôle organisateur désactivé')
+                        }}
+                        className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
+                        <div style={{ position: 'absolute', top: '4px', left: profile?.is_organizer ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                      </button>
+                    </div>
+                  )}
+                  {profile?.role === 'organizer' && (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Devenir aussi créateur</p>
+                        <p className="text-xs text-gray-400">Postulez aux événements tout en continuant à en organiser</p>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          const next = !profile?.is_creator
+                          await supabase.from('profiles').update({ is_creator: next }).eq('id', user!.id)
+                          setProfile(prev => prev ? { ...prev, is_creator: next } : prev)
+                          const su = useAuthStore.getState().user; if (su) useAuthStore.getState().setUser({ ...su, is_creator: next })
+                          showToast(next ? 'Rôle créateur activé' : 'Rôle créateur désactivé')
+                        }}
+                        className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
+                        <div style={{ position: 'absolute', top: '4px', left: profile?.is_creator ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Déconnexion */}
-            <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-              style={{ padding: '14px', borderRadius: '12px', border: '1px solid #FEE2E2', backgroundColor: '#FFF', color: '#EF4444', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <LogOut size={16} /> Se déconnecter
-            </button>
-
-            {/* Supprimer le compte */}
-            <button
-              onClick={async () => {
-                const confirmed = window.confirm('⚠️ Supprimer définitivement votre compte ?\n\nToutes vos données seront effacées et cette action est irréversible.')
-                if (!confirmed) return
-                const { data: { session } } = await supabase.auth.getSession()
-                if (!session) return
-                const res = await fetch('/api/delete-account', {
-                  method: 'DELETE',
-                  headers: { Authorization: `Bearer ${session.access_token}` },
-                })
-                if (res.ok) {
-                  await supabase.auth.signOut()
-                  router.push('/')
-                } else {
-                  const body = await res.json()
-                  alert('Erreur : ' + (body.error ?? 'Impossible de supprimer le compte'))
-                }
-              }}
-              style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: 'transparent', color: '#9CA3AF', fontSize: '13px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-              <Trash2 size={14} /> Supprimer mon compte
-            </button>
+            {/* Déconnexion + Supprimer */}
+            <div className="flex flex-col gap-2">
+              <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
+                className="w-full py-3 rounded-2xl border border-red-200 bg-white text-red-500 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
+                <LogOut size={15} /> Se déconnecter
+              </button>
+              <button onClick={async () => {
+                  const confirmed = window.confirm('Supprimer définitivement votre compte ?\n\nToutes vos données seront effacées.')
+                  if (!confirmed) return
+                  const { data: { session } } = await supabase.auth.getSession()
+                  if (!session) return
+                  const res = await fetch('/api/delete-account', { method: 'DELETE', headers: { Authorization: `Bearer ${session.access_token}` } })
+                  if (res.ok) { await supabase.auth.signOut(); router.push('/') }
+                  else { const body = await res.json(); alert('Erreur : ' + (body.error ?? 'Impossible de supprimer le compte')) }
+                }}
+                className="w-full py-2.5 rounded-2xl border border-gray-200 bg-transparent text-gray-400 text-sm cursor-pointer flex items-center justify-center gap-1.5 hover:text-gray-600 transition-colors">
+                <Trash2 size={13} /> Supprimer mon compte
+              </button>
+            </div>
           </div>
         )}
 
@@ -1964,6 +2341,7 @@ export default function ProfilePage() {
           <PortfolioGridEditor
             items={gridItems}
             userId={user.id}
+            maxPhotos={profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium' ? 30 : profile?.subscription_tier === 'boost' ? 30 : 10}
             onChange={async (next) => {
               setGridItems(next)
               await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next }, { onConflict: 'user_id' })
@@ -1973,13 +2351,14 @@ export default function ProfilePage() {
 
         {/* ── Tab: Candidatures ── */}
         {tab === 'candidatures' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-3">
             {applications.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
-                <Calendar size={40} color="#D1D5DB" style={{ marginBottom: '16px' }} />
-                <p style={{ fontSize: '16px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>Aucune candidature</p>
-                <p style={{ fontSize: '14px', color: '#888888', marginBottom: '20px' }}>Explorez les événements et postulez pour exposer votre travail.</p>
-                <button onClick={() => router.push('/events')} style={{ padding: '10px 24px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFF', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+              <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-gray-200">
+                <Calendar size={40} className="text-gray-200 mx-auto mb-4" />
+                <p className="text-base font-semibold text-gray-700 mb-1">Aucune candidature</p>
+                <p className="text-sm text-gray-400 mb-5">Explorez les événements et postulez pour exposer votre travail.</p>
+                <button onClick={() => router.push('/events')}
+                  className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors">
                   Voir les événements
                 </button>
               </div>
@@ -1987,26 +2366,26 @@ export default function ProfilePage() {
               const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const ev = app.events
               return (
-                <div key={app.id} style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '60px', height: '60px', borderRadius: '8px', backgroundColor: '#F3F4F6', overflow: 'hidden', flexShrink: 0 }}>
+                <div key={app.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-start shadow-sm">
+                  <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                     {ev?.cover_image
                       // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#6366F1' }}><Calendar size={24} color="#FFF" /></div>
+                      ? <img src={ev.cover_image} alt="" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full flex items-center justify-center bg-indigo-600"><Calendar size={22} className="text-white" /></div>
                     }
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', flexWrap: 'wrap' }}>
-                      <p style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 4px' }}>{ev?.title ?? 'Événement supprimé'}</p>
-                      <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', backgroundColor: sc.bg, color: sc.color, flexShrink: 0 }}>{sc.label}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2 flex-wrap">
+                      <p className="text-sm font-bold text-gray-900 mb-0.5">{ev?.title ?? 'Événement supprimé'}</p>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0" style={{ backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
                     </div>
                     {ev && (
-                      <p style={{ fontSize: '13px', color: '#888888', margin: '0 0 6px' }}>
-                        📍 {ev.city ?? '—'} · 📅 {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      <p className="text-xs text-gray-400 mb-1.5">
+                        {ev.city ?? '—'} · {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </p>
                     )}
-                    {app.message && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0, fontStyle: 'italic' }}>"{app.message}"</p>}
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>Candidature envoyée le {new Date(app.created_at).toLocaleDateString('fr-FR')}</p>
+                    {app.message && <p className="text-xs text-gray-500 italic">"{app.message}"</p>}
+                    <p className="text-[11px] text-gray-300 mt-1">Envoyée le {new Date(app.created_at).toLocaleDateString('fr-FR')}</p>
                   </div>
                 </div>
               )
@@ -2016,39 +2395,39 @@ export default function ProfilePage() {
 
         {/* ── Tab: Avis ── */}
         {tab === 'avis' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-3">
             {reviews.length > 0 && (
-              <div style={{ padding: '20px 24px', borderRadius: '12px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: '36px', fontWeight: '800', color: '#F59E0B', margin: 0, lineHeight: 1 }}>{avgRating}</p>
+              <div className="bg-white border border-gray-100 rounded-2xl p-5 flex items-center gap-5 shadow-sm mb-1">
+                <div className="text-center">
+                  <p className="text-4xl font-black text-indigo-600 leading-none">{avgRating}</p>
                   <Stars n={Math.round(Number(avgRating))} />
                 </div>
                 <div>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 4px' }}>Note moyenne</p>
-                  <p style={{ fontSize: '13px', color: '#888888', margin: 0 }}>Basée sur {reviews.length} avis d'organisateurs</p>
+                  <p className="text-sm font-bold text-gray-900 mb-0.5">Note moyenne</p>
+                  <p className="text-xs text-gray-400">Basée sur {reviews.length} avis d&apos;organisateurs</p>
                 </div>
               </div>
             )}
             {reviews.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
-                <Star size={40} color="#D1D5DB" style={{ marginBottom: '16px' }} />
-                <p style={{ fontSize: '16px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>Aucun avis reçu</p>
-                <p style={{ fontSize: '14px', color: '#888888' }}>Les avis des organisateurs apparaîtront ici après chaque marché.</p>
+              <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-gray-200">
+                <Star size={40} className="text-gray-200 mx-auto mb-4" />
+                <p className="text-base font-semibold text-gray-700 mb-1">Aucun avis reçu</p>
+                <p className="text-sm text-gray-400">Les avis des organisateurs apparaîtront ici après chaque marché.</p>
               </div>
             ) : reviews.map(rev => (
-              <div key={rev.id} style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+              <div key={rev.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                <div className="flex justify-between items-start mb-2">
                   <div>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 4px' }}>{rev.profiles?.full_name ?? 'Organisateur'}</p>
+                    <p className="text-sm font-bold text-gray-900 mb-1">{rev.profiles?.full_name ?? 'Organisateur'}</p>
                     <Stars n={rev.rating} />
                   </div>
-                  <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{new Date(rev.created_at).toLocaleDateString('fr-FR')}</span>
+                  <span className="text-xs text-gray-400">{new Date(rev.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
-                {rev.comment && <p style={{ fontSize: '14px', color: '#4B5563', margin: '8px 0 0', lineHeight: '1.6' }}>"{rev.comment}"</p>}
+                {rev.comment && <p className="text-sm text-gray-600 mt-2 leading-relaxed">"{rev.comment}"</p>}
                 {(rev.tags ?? []).length > 0 && (
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' }}>
+                  <div className="flex gap-1.5 flex-wrap mt-3">
                     {rev.tags!.map(t => (
-                      <span key={t} style={{ padding: '2px 10px', borderRadius: '20px', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', fontWeight: '600' }}>{t}</span>
+                      <span key={t} className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">{t}</span>
                     ))}
                   </div>
                 )}
@@ -2060,7 +2439,6 @@ export default function ProfilePage() {
         </div>{/* end content area */}
 
       </motion.div>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
     </div>
   )
 }

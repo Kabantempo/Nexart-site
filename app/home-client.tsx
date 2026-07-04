@@ -436,20 +436,6 @@ export default function HomeClient() {
         </motion.div>
       </section>
 
-      {/* ══ STATS ══════════════════════════════════════════════════════ */}
-      <section className="border-y border-white/6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 grid grid-cols-3 divide-x divide-white/6">
-          {STATS.map(({ value, suffix, label }, i) => (
-            <FadeUp key={i} delay={i * 0.12} className="text-center px-8">
-              <p className="text-[clamp(2.4rem,5vw,4rem)] font-black tracking-tight text-white leading-none mb-3 tabular-nums">
-                <Counter to={value} suffix={suffix} />
-              </p>
-              <p className="text-white/35 text-sm font-medium">{label}</p>
-            </FadeUp>
-          ))}
-        </div>
-      </section>
-
       {/* ══ 3 FACES ════════════════════════════════════════════════════ */}
       <FacesSection />
 

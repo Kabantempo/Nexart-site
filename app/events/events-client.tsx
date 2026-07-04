@@ -272,6 +272,13 @@ function EventsContent() {
           </span>
         </div>
 
+        {/* Lien carte */}
+        <Link href="/carte" className="flex items-center gap-2 px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 hover:border-indigo-200 transition-all duration-150 group w-fit mb-2">
+          <MapPin size={15} className="text-indigo-500 shrink-0" />
+          <span className="text-sm font-600 text-indigo-700">Voir les événements sur la carte</span>
+          <ArrowRight size={14} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+
         {/* Grid */}
         {visible.length > 0 ? (
           <>

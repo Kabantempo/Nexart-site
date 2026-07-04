@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, Star } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, Star, FileText, Send } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
@@ -249,8 +249,26 @@ export function EventDetailClient({ id }: Props) {
   const [applications, setApplications] = useState<{ id: string; creator_id: string; status: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
   const [appsLoading, setAppsLoading] = useState(false)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [contractLoading, setContractLoading] = useState<string | null>(null)
+  const [contractSigning, setContractSigning] = useState(false)
+  const [existingContract, setExistingContract] = useState<{ id: string; status: string; pdf_url: string; signed_at?: string } | null>(null)
+  const [bulkMsgText, setBulkMsgText] = useState('')
+  const [bulkMsgSending, setBulkMsgSending] = useState(false)
+  const [bulkMsgDone, setBulkMsgDone] = useState(false)
+  const [showBulkMsg, setShowBulkMsg] = useState(false)
 
   const REQUIRED_FIELDS_TOTAL = 6
+
+  // Charger le contrat existant si le créateur est accepté
+  useEffect(() => {
+    if (!user || user.role !== 'creator' || !application || application.status !== 'accepted') return
+    supabase.from('contracts')
+      .select('id, status, pdf_url, signed_at')
+      .eq('event_id', id)
+      .eq('creator_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => { if (data) setExistingContract(data) })
+  }, [user, application, id])
 
   useEffect(() => {
     if (success) toastSuccess('Candidature envoyée ! L\'organisateur vous répondra bientôt.')
@@ -316,6 +334,80 @@ export function EventDetailClient({ id }: Props) {
       toastError('Erreur lors de la mise à jour')
     }
     setUpdatingId(null)
+  }
+
+  const handleSignContract = async () => {
+    if (!user || !existingContract) return
+    setContractSigning(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/contracts/sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ contract_id: existingContract.id, signer_id: user.id }),
+      })
+      if (res.ok) {
+        setExistingContract(c => c ? { ...c, status: 'signed', signed_at: new Date().toISOString() } : c)
+        toastSuccess('Contrat signé électroniquement ✓')
+      } else {
+        toastError('Erreur lors de la signature')
+      }
+    } finally {
+      setContractSigning(false)
+    }
+  }
+
+  const handleGenerateContract = async (creatorId: string, appId: string) => {
+    if (!user || !event) return
+    setContractLoading(appId)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/contracts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ event_id: event.id, creator_id: creatorId, organizer_id: event.organizer_id, application_id: appId }),
+      })
+      if (!res.ok) { toastError('Erreur lors de la génération du contrat'); return }
+      const json = await res.json()
+      if (json.pdf_url) window.open(json.pdf_url, '_blank')
+      else toastError('URL du contrat manquante')
+    } finally {
+      setContractLoading(null)
+    }
+  }
+
+  const handleBulkMessage = async () => {
+    if (!bulkMsgText.trim() || !user || !event) return
+    setBulkMsgSending(true)
+    const acceptedApps = applications.filter(a => a.status === 'accepted')
+    try {
+      await Promise.all(acceptedApps.map(async (app) => {
+        // Trouver ou créer la conversation
+        let { data: conv } = await supabase.from('conversations')
+          .select('id')
+          .eq('event_id', event.id)
+          .eq('creator_id', app.creator_id)
+          .eq('organizer_id', user.id)
+          .maybeSingle()
+        if (!conv) {
+          const { data: newConv } = await supabase.from('conversations').insert({
+            event_id: event.id,
+            creator_id: app.creator_id,
+            organizer_id: user.id,
+          }).select('id').single()
+          conv = newConv
+        }
+        if (conv) {
+          await supabase.from('messages').insert({ conversation_id: conv.id, sender_id: user.id, content: bulkMsgText.trim() })
+        }
+      }))
+      setBulkMsgDone(true)
+      setBulkMsgText('')
+      setShowBulkMsg(false)
+      toastSuccess(`Message envoyé à ${acceptedApps.length} créateur${acceptedApps.length > 1 ? 's' : ''} ✓`)
+    } finally {
+      setBulkMsgSending(false)
+    }
   }
 
   useEffect(() => {
@@ -618,6 +710,44 @@ export function EventDetailClient({ id }: Props) {
                   <p style={{ fontSize: '13px', color: '#888888', marginTop: '4px' }}>
                     Candidature envoyée le {new Date(application.created_at).toLocaleDateString('fr-FR')}
                   </p>
+                  {application.status === 'accepted' && user && event && (
+                    <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      {existingContract ? (
+                        <>
+                          <a
+                            href={existingContract.pdf_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: '#FFF', color: '#6366F1', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}
+                          >
+                            <FileText size={14} /> Voir le contrat
+                          </a>
+                          {existingContract.status !== 'signed' ? (
+                            <button
+                              onClick={handleSignContract}
+                              disabled={contractSigning}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: contractSigning ? 'wait' : 'pointer', opacity: contractSigning ? 0.7 : 1 }}
+                            >
+                              ✍️ {contractSigning ? 'Signature…' : 'Signer électroniquement'}
+                            </button>
+                          ) : (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: '#ECFDF5', color: '#10B981', fontSize: '13px', fontWeight: '700' }}>
+                              ✓ Signé le {new Date(existingContract.signed_at!).toLocaleDateString('fr-FR')}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleGenerateContract(user.id, application.id)}
+                          disabled={contractLoading === application.id}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}
+                        >
+                          <FileText size={14} />
+                          {contractLoading === application.id ? 'Génération…' : 'Générer le contrat PDF'}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : success ? (
                 <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#E8F5E9', border: '1px solid #4CAF50', textAlign: 'center' }}>
@@ -648,9 +778,42 @@ export function EventDetailClient({ id }: Props) {
                 </div>
               ) : user.role === 'organizer' && event?.organizer_id === user.id ? (
                 <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
-                    Candidatures ({applications.length})
-                  </h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>
+                      Candidatures ({applications.length})
+                    </h3>
+                    {applications.some(a => a.status === 'accepted') && (
+                      <button
+                        onClick={() => setShowBulkMsg(s => !s)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: showBulkMsg ? '#6366F1' : '#FFF', color: showBulkMsg ? '#FFF' : '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                      >
+                        <Send size={13} /> Messagerie groupée
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Bulk message form */}
+                  {showBulkMsg && (
+                    <div style={{ padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F8F9FF', marginBottom: '16px' }}>
+                      <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 8px' }}>
+                        Message à tous les créateurs acceptés ({applications.filter(a => a.status === 'accepted').length})
+                      </p>
+                      <textarea
+                        value={bulkMsgText}
+                        onChange={e => setBulkMsgText(e.target.value)}
+                        placeholder="Bonjour à toutes et à tous, voici les informations pratiques pour le jour J…"
+                        rows={3}
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }}
+                      />
+                      <button
+                        onClick={handleBulkMessage}
+                        disabled={bulkMsgSending || !bulkMsgText.trim()}
+                        style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
+                      >
+                        <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
+                      </button>
+                    </div>
+                  )}
                   {appsLoading ? (
                     <div style={{ textAlign: 'center', padding: '24px', color: '#888888', fontSize: '14px' }}>Chargement...</div>
                   ) : applications.length === 0 ? (
@@ -705,6 +868,16 @@ export function EventDetailClient({ id }: Props) {
                                 Refuser
                               </button>
                             </div>
+                          )}
+                          {app.status === 'accepted' && (
+                            <button
+                              onClick={() => handleGenerateContract(app.creator_id, app.id)}
+                              disabled={contractLoading === app.id}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F8F9FF', color: '#6366F1', fontSize: '12px', fontWeight: '700', cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}
+                            >
+                              <FileText size={12} />
+                              {contractLoading === app.id ? 'Génération…' : 'Contrat PDF'}
+                            </button>
                           )}
                         </div>
                       ))}

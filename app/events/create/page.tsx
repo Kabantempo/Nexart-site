@@ -20,6 +20,8 @@ const DISCIPLINE_TAGS = [
   'Coutellerie', 'Bougies', 'Macramé', 'Origami', 'Calligraphie', 'Sérigraphie',
 ]
 
+type PricingModel = 'flat' | 'variable' | 'percent'
+
 interface FormData {
   title: string
   description: string
@@ -33,6 +35,10 @@ interface FormData {
   end_time: string
   stand_count: string
   stand_price: string
+  pricing_model: PricingModel
+  pricing_variable_min: string
+  pricing_variable_max: string
+  pricing_percent: string
   stand_dimensions: string
   discipline_tags: string[]
   rules: string
@@ -52,6 +58,10 @@ const EMPTY_FORM: FormData = {
   end_time: '',
   stand_count: '',
   stand_price: '',
+  pricing_model: 'flat',
+  pricing_variable_min: '',
+  pricing_variable_max: '',
+  pricing_percent: '',
   stand_dimensions: '',
   discipline_tags: [],
   rules: '',
@@ -66,6 +76,13 @@ function validate(form: FormData): string | null {
   if (form.end_date < form.start_date) return 'La date de fin doit être après la date de début'
   if (!form.stand_count || isNaN(Number(form.stand_count))) return 'Nombre de stands invalide'
   if (form.discipline_tags.length === 0) return 'Sélectionnez au moins une discipline'
+  if (form.pricing_model === 'variable') {
+    if (!form.pricing_variable_min || !form.pricing_variable_max) return 'Renseignez le tarif min et max'
+    if (Number(form.pricing_variable_min) > Number(form.pricing_variable_max)) return 'Le tarif min doit être inférieur au max'
+  }
+  if (form.pricing_model === 'percent') {
+    if (!form.pricing_percent || Number(form.pricing_percent) <= 0 || Number(form.pricing_percent) > 100) return 'Pourcentage invalide (1–100)'
+  }
   return null
 }
 
@@ -76,16 +93,29 @@ export default function CreateEventPage() {
   const [form, setForm] = useState<FormData>({ ...EMPTY_FORM })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [eventLimitReached, setEventLimitReached] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
+      let profile = null
       if (!user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        profile = data
         if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url })
         if (profile?.role !== 'organizer') { router.push('/dashboard'); return }
       } else if (user.role !== 'organizer') {
         router.push('/dashboard')
+        return
+      }
+
+      // Vérifier la limite 1 événement actif pour le plan gratuit
+      const uid = session.user.id
+      const { data: sub } = await supabase.from('profiles').select('subscription_tier').eq('id', uid).single()
+      if (!sub?.subscription_tier || sub.subscription_tier === 'free') {
+        const { count } = await supabase.from('events').select('id', { count: 'exact', head: true })
+          .eq('organizer_id', uid).in('status', ['published', 'draft'])
+        if ((count ?? 0) >= 1) setEventLimitReached(true)
       }
     })
   }, [router, user, setUser])
@@ -106,9 +136,16 @@ export default function CreateEventPage() {
     const validationError = validate(form)
     if (validationError) { setError(validationError); return }
     if (!user) return
+    if (eventLimitReached) { setError('Votre plan gratuit est limité à 1 événement actif. Passez au plan Pro pour en créer davantage.'); return }
 
     setSaving(true)
     setError(null)
+
+    // Prix du stand selon le modèle
+    let standPrice: number | null = null
+    if (form.pricing_model === 'flat') standPrice = form.stand_price !== '' ? Number(form.stand_price) : null
+    else if (form.pricing_model === 'variable') standPrice = Number(form.pricing_variable_min)
+    else if (form.pricing_model === 'percent') standPrice = null
 
     const payload = {
       organizer_id: user.id,
@@ -123,7 +160,11 @@ export default function CreateEventPage() {
       start_time: form.start_time || null,
       end_time: form.end_time || null,
       stand_count: Number(form.stand_count),
-      stand_price: form.stand_price !== '' ? Number(form.stand_price) : null,
+      stand_price: standPrice,
+      pricing_model: form.pricing_model,
+      pricing_variable_min: form.pricing_model === 'variable' ? Number(form.pricing_variable_min) : null,
+      pricing_variable_max: form.pricing_model === 'variable' ? Number(form.pricing_variable_max) : null,
+      pricing_percent: form.pricing_model === 'percent' ? Number(form.pricing_percent) : null,
       stand_dimensions: form.stand_dimensions.trim() || null,
       discipline_tags: form.discipline_tags,
       rules: form.rules.trim() || null,
@@ -153,10 +194,12 @@ export default function CreateEventPage() {
         .chip { padding: 6px 14px; border-radius: 9999px; border: 1px solid #E5E7EB; background: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 150ms; white-space: nowrap; }
         .chip:hover { border-color: #6366F1; color: #6366F1; }
         .chip-active { background: #6366F1 !important; border-color: #6366F1 !important; color: #FFFFFF !important; }
+        .pricing-card { padding: 16px; border-radius: 10px; border: 2px solid #E5E7EB; background: #FFFFFF; cursor: pointer; transition: all 150ms; }
+        .pricing-card:hover { border-color: #A5B4FC; }
+        .pricing-card-active { border-color: #6366F1 !important; background: #F8F7FF !important; }
       `}</style>
 
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-        {/* Header */}
         <div style={{ marginBottom: '36px' }}>
           <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#888888', fontSize: '14px', cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
             ← Retour
@@ -165,7 +208,14 @@ export default function CreateEventPage() {
           <p style={{ fontSize: '15px', color: '#888888', margin: '6px 0 0' }}>Remplissez les informations de votre événement</p>
         </div>
 
-        {/* Error */}
+        {/* Alerte limite plan gratuit */}
+        {eventLimitReached && (
+          <div style={{ padding: '16px 20px', borderRadius: '12px', backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', marginBottom: '24px' }}>
+            <p style={{ fontSize: '14px', fontWeight: '700', color: '#92400E', margin: '0 0 4px' }}>Limite du plan Découverte atteinte</p>
+            <p style={{ fontSize: '13px', color: '#92400E', margin: 0 }}>Vous avez déjà 1 événement actif. Passez au plan Pro pour créer des événements illimités.</p>
+          </div>
+        )}
+
         {error && (
           <div style={{ padding: '14px 18px', borderRadius: '10px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#E05A5A', fontSize: '14px', fontWeight: '600', marginBottom: '24px' }}>
             {error}
@@ -228,19 +278,63 @@ export default function CreateEventPage() {
             </div>
           </Section>
 
-          {/* Stands */}
-          <Section title="Stands">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <Field label="Nombre de stands">
-                <input className="form-input" type="number" min="1" value={form.stand_count} onChange={e => set('stand_count')(e.target.value)} placeholder="Ex : 40" />
-              </Field>
-              <Field label="Prix du stand (€)" hint="0 = gratuit">
-                <input className="form-input" type="number" min="0" value={form.stand_price} onChange={e => set('stand_price')(e.target.value)} placeholder="Ex : 80" />
-              </Field>
-            </div>
+          {/* Stands & Tarification */}
+          <Section title="Stands & Tarification">
+            <Field label="Nombre de stands">
+              <input className="form-input" type="number" min="1" value={form.stand_count} onChange={e => set('stand_count')(e.target.value)} placeholder="Ex : 40" />
+            </Field>
             <Field label="Dimensions du stand" hint="(optionnel)">
               <input className="form-input" value={form.stand_dimensions} onChange={e => set('stand_dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
             </Field>
+
+            <Field label="Modèle de tarification">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+                {([
+                  { value: 'flat', label: 'Tarif fixe', desc: 'Un prix unique par stand' },
+                  { value: 'variable', label: 'Tarif variable', desc: 'Fourchette min–max' },
+                  { value: 'percent', label: '% du chiffre d\'affaires', desc: 'Commission sur les ventes' },
+                ] as { value: PricingModel; label: string; desc: string }[]).map(opt => (
+                  <button
+                    key={opt.value}
+                    className={`pricing-card ${form.pricing_model === opt.value ? 'pricing-card-active' : ''}`}
+                    onClick={() => set('pricing_model')(opt.value)}
+                    style={{ textAlign: 'left' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: `2px solid ${form.pricing_model === opt.value ? '#6366F1' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {form.pricing_model === opt.value && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6366F1' }} />}
+                      </div>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: form.pricing_model === opt.value ? '#6366F1' : '#1A1A1A' }}>{opt.label}</span>
+                    </div>
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </Field>
+
+            {form.pricing_model === 'flat' && (
+              <Field label="Prix du stand (€)" hint="0 = gratuit">
+                <input className="form-input" type="number" min="0" value={form.stand_price} onChange={e => set('stand_price')(e.target.value)} placeholder="Ex : 80" />
+              </Field>
+            )}
+
+            {form.pricing_model === 'variable' && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <Field label="Prix minimum (€)">
+                  <input className="form-input" type="number" min="0" value={form.pricing_variable_min} onChange={e => set('pricing_variable_min')(e.target.value)} placeholder="Ex : 60" />
+                </Field>
+                <Field label="Prix maximum (€)">
+                  <input className="form-input" type="number" min="0" value={form.pricing_variable_max} onChange={e => set('pricing_variable_max')(e.target.value)} placeholder="Ex : 120" />
+                </Field>
+              </div>
+            )}
+
+            {form.pricing_model === 'percent' && (
+              <Field label="Pourcentage du CA (%)">
+                <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
+                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
+              </Field>
+            )}
           </Section>
 
           {/* Disciplines */}
@@ -268,7 +362,7 @@ export default function CreateEventPage() {
           <Section title="Paiement en ligne">
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: form.stripe_enabled ? '#EEF2FF' : '#F5F5F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={form.stripe_enabled ? '#6366F1' : '#888'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={form.stripe_enabled ? '#6366F1' : '#888'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><line x1="12" x2="12.01" y1="14" y2="14"/></svg>
               </div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Activer le paiement Stripe</p>
@@ -276,42 +370,26 @@ export default function CreateEventPage() {
               </div>
               <button
                 onClick={() => set('stripe_enabled')(!form.stripe_enabled)}
-                style={{
-                  width: '48px', height: '28px', borderRadius: '9999px', border: 'none', cursor: 'pointer',
-                  backgroundColor: form.stripe_enabled ? '#6366F1' : '#E5E7EB',
-                  position: 'relative', transition: 'background 200ms', flexShrink: 0,
-                }}
+                style={{ width: '48px', height: '28px', borderRadius: '9999px', border: 'none', cursor: 'pointer', backgroundColor: form.stripe_enabled ? '#6366F1' : '#E5E7EB', position: 'relative', transition: 'background 200ms', flexShrink: 0 }}
               >
-                <span style={{
-                  position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: '50%',
-                  backgroundColor: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                  transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px',
-                }} />
+                <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
               </button>
             </div>
-            {form.stripe_enabled && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '12px', borderRadius: '8px', backgroundColor: '#EEF2FF', marginTop: '8px' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                <p style={{ fontSize: '13px', color: '#6366F1', margin: 0, lineHeight: '1.5' }}>
-                  Le montant facturé sera le prix du stand ({form.stand_price || '0'} €). Assurez-vous que votre compte Stripe est actif.
-                </p>
-              </div>
-            )}
           </Section>
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
             <button
               onClick={() => handleSave(false)}
-              disabled={saving}
-              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#1A1A1A', fontSize: '15px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.5 : 1, transition: 'all 200ms' }}
+              disabled={saving || eventLimitReached}
+              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#1A1A1A', fontSize: '15px', fontWeight: '600', cursor: (saving || eventLimitReached) ? 'not-allowed' : 'pointer', opacity: (saving || eventLimitReached) ? 0.5 : 1, transition: 'all 200ms' }}
             >
               Enregistrer en brouillon
             </button>
             <button
               onClick={() => handleSave(true)}
-              disabled={saving}
-              style={{ flex: 2, padding: '14px', borderRadius: '10px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.5 : 1, transition: 'all 200ms', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              disabled={saving || eventLimitReached}
+              style={{ flex: 2, padding: '14px', borderRadius: '10px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '15px', fontWeight: '700', cursor: (saving || eventLimitReached) ? 'not-allowed' : 'pointer', opacity: (saving || eventLimitReached) ? 0.5 : 1, transition: 'all 200ms', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
               {saving ? (
                 <><span style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFFFFF', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite' }} /> Enregistrement…</>

@@ -66,6 +66,7 @@ export interface Application {
   message?: string
   status: 'pending' | 'accepted' | 'refused'
   stripe_payment_id?: string
+  boosted_at?: string | null
   created_at: string
   updated_at: string
 }

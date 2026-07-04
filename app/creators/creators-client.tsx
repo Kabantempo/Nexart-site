@@ -318,15 +318,20 @@ function CreatorsContent() {
                         </div>
                       )}
 
-                      {/* Verified badge */}
-                      {creator.siret_verified && (
-                        <div className="absolute top-2.5 right-2.5">
-                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200">
-                            <BadgeCheck size={10} className="text-gray-700" />
-                            <span className="text-[10px] font-semibold text-gray-700">Vérifié</span>
+                      {/* Badges */}
+                      <div className="absolute top-2.5 right-2.5 flex flex-col gap-1 items-end">
+                        {creator.siret_verified && creator.insurance_verified && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-indigo-200">
+                            <BadgeCheck size={10} className="text-indigo-600" />
+                            <span className="text-[10px] font-semibold text-indigo-600">Vérifié</span>
                           </div>
-                        </div>
-                      )}
+                        )}
+                        {(creator as { is_active?: boolean }).is_active && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 backdrop-blur-sm border border-emerald-200">
+                            <span className="text-[10px] font-semibold text-emerald-600">● Actif</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Body */}

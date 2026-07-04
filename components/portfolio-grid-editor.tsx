@@ -238,10 +238,12 @@ export function PortfolioGridEditor({
   items,
   userId,
   onChange,
+  maxPhotos = 30,
 }: {
   items: GridItem[]
   userId: string
   onChange: (items: GridItem[]) => void
+  maxPhotos?: number
 }) {
   const [showAdd, setShowAdd] = useState(false)
   const [editIdx, setEditIdx] = useState<number | null>(null)
@@ -262,13 +264,18 @@ export function PortfolioGridEditor({
     onChange(next)
   }
 
-  const MAX = 9
+  const MAX = maxPhotos
 
   return (
     <>
       {/* Légende */}
       <p style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '16px' }}>
         {items.length}/{MAX} photos · Cliquez sur une photo pour la redimensionner ou la supprimer
+        {items.length >= MAX && MAX <= 10 && (
+          <span style={{ display: 'block', marginTop: '4px', color: '#F59E0B', fontWeight: '600' }}>
+            Limite atteinte — passez au plan Boost pour 30 photos ou Pro pour un portfolio illimité
+          </span>
+        )}
       </p>
 
       {/* Grille */}

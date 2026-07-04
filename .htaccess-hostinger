@@ -1,0 +1,11 @@
+PassengerAppRoot /home/u142938038/domains/nexart.fr/nodejs
+PassengerAppType node
+PassengerNodejs /opt/alt/alt-nodejs20/root/bin/node
+PassengerStartupFile server.js
+PassengerBaseURI /
+PassengerRestartDir /home/u142938038/domains/nexart.fr/nodejs/tmp
+SetEnv NODE_OPTIONS "--require /home/u142938038/domains/nexart.fr/public_html/.builds/config/preload-timestamp.js"
+SetEnv LSNODE_CONSOLE_LOG console.log
+SetEnv TOKIO_WORKER_THREADS 2
+SetEnv UV_THREADPOOL_SIZE 1
+RewriteRule ^\.builds - [F,L]

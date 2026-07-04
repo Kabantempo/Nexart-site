@@ -53,6 +53,7 @@ export function CreatorProfileClient({ id }: Props) {
   const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const [marchesCount, setMarchesCount] = useState<number | null>(null)
   const [boutiqueCount, setBoutiqueCount] = useState<number | null>(null)
+  const [isActive, setIsActive] = useState(false)
   const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
@@ -67,6 +68,13 @@ export function CreatorProfileClient({ id }: Props) {
       setCreator({ ...p, ...cp })
       setLoading(false)
 
+      // Enregistrer la vue de profil (anonyme ou connectée)
+      const { data: { session } } = await supabase.auth.getSession()
+      const viewerId = session?.user?.id ?? null
+      if (!viewerId || viewerId !== id) {
+        supabase.from('profile_views').insert({ profile_id: id, viewer_id: viewerId }).then(() => {})
+      }
+
       // Nombre de marchés participés (candidatures acceptées)
       const { count } = await supabase
         .from('applications')
@@ -74,6 +82,16 @@ export function CreatorProfileClient({ id }: Props) {
         .eq('creator_id', id)
         .eq('status', 'accepted')
       setMarchesCount(count ?? 0)
+
+      // Créateur actif : candidature acceptée dans les 6 derniers mois
+      const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()
+      const { count: recentCount } = await supabase
+        .from('applications')
+        .select('id', { count: 'exact', head: true })
+        .eq('creator_id', id)
+        .eq('status', 'accepted')
+        .gte('updated_at', sixMonthsAgo)
+      setIsActive((recentCount ?? 0) > 0)
 
       // Boutique count
       const { count: prodCount } = await supabase
@@ -282,6 +300,16 @@ export function CreatorProfileClient({ id }: Props) {
                 {creator.insurance_verified && (
                   <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
                     <CheckCircle size={12} /> Assurance RC
+                  </span>
+                )}
+                {creator.siret_verified && creator.insurance_verified && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#A5B4FC' }}>
+                    ⭐ Créateur vérifié
+                  </span>
+                )}
+                {isActive && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ADE80' }}>
+                    ● Créateur actif
                   </span>
                 )}
                 {creator.created_at && (

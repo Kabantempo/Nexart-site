@@ -273,6 +273,12 @@ export default function ConversationPage() {
     if (newMsg) {
       setMessages(prev => [...prev, newMsg as Message])
       scrollBottom()
+      // Notif email au destinataire (fire-and-forget)
+      fetch('/api/message-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversation_id: id, sender_id: user.id, content }),
+      }).catch(() => {})
     }
     setSending(false)
   }

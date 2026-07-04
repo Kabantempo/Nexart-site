@@ -7,6 +7,8 @@ interface User {
   role: 'creator' | 'organizer' | 'visitor'
   full_name: string
   avatar_url?: string
+  is_creator?: boolean
+  is_organizer?: boolean
 }
 
 interface AuthStore {
