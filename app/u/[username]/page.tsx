@@ -1,14 +1,9 @@
 import { redirect, notFound } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseServer = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export default async function UsernamePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params
-  const { data } = await supabaseServer
+  const { data } = await getAdminClient()
     .from('profiles')
     .select('id')
     .eq('username', username)
