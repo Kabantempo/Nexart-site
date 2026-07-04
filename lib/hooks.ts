@@ -102,15 +102,6 @@ export function useCreators() {
 
         if (creatorErr) throw creatorErr
 
-        // Créateurs actifs : candidature acceptée dans les 6 derniers mois
-        const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()
-        const { data: recentApps } = await supabase
-          .from('applications')
-          .select('creator_id')
-          .eq('status', 'accepted')
-          .gte('updated_at', sixMonthsAgo)
-        const activeIds = new Set(recentApps?.map(a => a.creator_id) || [])
-
         const enriched = (creatorData?.map((creator) => {
           const profile = profiles?.find((p) => p.id === creator.user_id)
           return {
@@ -121,7 +112,7 @@ export function useCreators() {
             bio: profile?.bio,
             role: 'creator' as const,
             created_at: profile?.created_at || '',
-            is_active: activeIds.has(creator.user_id),
+            is_active: (creator as Record<string, unknown>).is_active_creator as boolean || false,
           }
         }) || []).sort((a, b) => {
           // Vérifiés (SIRET + RC Pro) d'abord, puis actifs, puis le reste
@@ -231,7 +222,7 @@ export function useApplication(eventId: string, userId?: string) {
       .then(({ data }) => { if (data) setApplication(data) })
   }, [eventId, userId])
 
-  const apply = async (message: string) => {
+  const apply = async (message: string, portfolioImages?: string[]) => {
     if (!userId) return
     setApplying(true)
     setError(null)
@@ -265,8 +256,29 @@ export function useApplication(eventId: string, userId?: string) {
         creator_id: userId,
         message,
         status: 'pending',
+        ...(portfolioImages?.length ? { portfolio_images: portfolioImages } : {}),
       })
       if (err) throw err
+
+      // Notif in-app pour l'organisateur
+      const { data: ev } = await supabase.from('events').select('title, organizer_id').eq('id', eventId).single()
+      const { data: creatorProf } = await supabase.from('profiles').select('full_name').eq('id', userId).single()
+      if (ev?.organizer_id) {
+        await supabase.from('notifications').insert({
+          user_id: ev.organizer_id,
+          type: 'application_received',
+          title: 'Nouvelle candidature',
+          body: `${creatorProf?.full_name || 'Un créateur'} a postulé pour "${ev.title}"`,
+          link: `/dashboard`,
+        })
+        // Email à l'organisateur (fire-and-forget)
+        fetch('/api/application-received', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ organizer_id: ev.organizer_id, creator_name: creatorProf?.full_name, event_title: ev.title, event_id: eventId }),
+        }).catch(() => {})
+      }
+
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la candidature')

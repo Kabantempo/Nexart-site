@@ -4,9 +4,10 @@ import { useCreators } from '@/lib/hooks'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck } from 'lucide-react'
+import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck, Star, TrendingUp } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 const ITEMS_PER_PAGE = 12
 
@@ -67,11 +68,33 @@ function CreatorsContent() {
   const [searchTerm,       setSearchTerm]       = useState(searchParams.get('q') || '')
   const [cityFilter,       setCityFilter]       = useState('all')
   const [disciplineFilter, setDisciplineFilter] = useState('all')
-  const [sortOrder,        setSortOrder]        = useState<'alpha' | 'newest'>('alpha')
+  const [sortOrder,        setSortOrder]        = useState<'alpha' | 'newest' | 'rating' | 'popular'>('alpha')
   const [visibleCount,     setVisibleCount]     = useState(ITEMS_PER_PAGE)
+  const [ratingsMap,       setRatingsMap]       = useState<Record<string, number>>({})
+  const [followersMap,     setFollowersMap]     = useState<Record<string, number>>({})
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
+
+  useEffect(() => {
+    const loadStats = async () => {
+      const [{ data: reviews }, { data: follows }] = await Promise.all([
+        supabase.from('reviews').select('reviewed_id, rating'),
+        supabase.from('creator_followers').select('creator_id'),
+      ])
+      const rm: Record<string, { sum: number; count: number }> = {}
+      ;(reviews ?? []).forEach(r => {
+        if (!rm[r.reviewed_id]) rm[r.reviewed_id] = { sum: 0, count: 0 }
+        rm[r.reviewed_id].sum += r.rating
+        rm[r.reviewed_id].count++
+      })
+      setRatingsMap(Object.fromEntries(Object.entries(rm).map(([id, v]) => [id, v.sum / v.count])))
+      const fm: Record<string, number> = {}
+      ;(follows ?? []).forEach(f => { fm[f.creator_id] = (fm[f.creator_id] ?? 0) + 1 })
+      setFollowersMap(fm)
+    }
+    loadStats()
+  }, [])
 
   const uniqueCities      = [...new Set(creators.map((c) => c.city).filter(Boolean))].sort() as string[]
   const uniqueDisciplines = [...new Set(creators.flatMap((c) => c.disciplines || []).filter(Boolean))].sort() as string[]
@@ -87,13 +110,17 @@ function CreatorsContent() {
     .filter((c) => cityFilter === 'all' || c.city === cityFilter)
     .filter((c) => disciplineFilter === 'all' || (c.disciplines || []).includes(disciplineFilter))
     .sort((a, b) => {
-      if (sortOrder === 'alpha') return (a.full_name || '').localeCompare(b.full_name || '', 'fr')
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      if (sortOrder === 'alpha')    return (a.full_name || '').localeCompare(b.full_name || '', 'fr')
+      if (sortOrder === 'newest')   return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      if (sortOrder === 'rating')   return (ratingsMap[b.id] ?? 0) - (ratingsMap[a.id] ?? 0)
+      if (sortOrder === 'popular')  return (followersMap[b.id] ?? 0) - (followersMap[a.id] ?? 0)
+      return 0
     })
 
   const visible     = filtered.slice(0, visibleCount)
   const hasMore     = visibleCount < filtered.length
   const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm
+  const sortLabels: Record<string, string> = { alpha: 'A → Z', newest: 'Récents', rating: 'Note', popular: 'Popularité' }
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const verifiedCount = creators.filter(c => c.siret_verified).length
 
@@ -208,7 +235,7 @@ function CreatorsContent() {
             <div className="w-full sm:w-auto">
               <p className="text-[11px] font-bold text-gray-400 mb-3">Trier par</p>
               <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
-                {([['alpha', <ArrowUpAZ key="a" size={13} />, 'A → Z'], ['newest', <Clock key="c" size={13} />, 'Récents']] as const).map(([key, icon, label], i) => (
+                {([['alpha', <ArrowUpAZ key="a" size={13} />, 'A → Z'], ['newest', <Clock key="c" size={13} />, 'Récents'], ['rating', <Star key="r" size={13} />, 'Note'], ['popular', <TrendingUp key="p" size={13} />, 'Popularité']] as const).map(([key, icon, label], i) => (
                   <button key={key} onClick={() => setSortOrder(key)}
                     className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium flex items-center justify-center gap-1.5 transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
                       sortOrder === key ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
@@ -226,7 +253,7 @@ function CreatorsContent() {
               {searchTerm && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">"{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button></span>}
               {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
               {disciplineFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{disciplineFilter} <button onClick={() => setDisciplineFilter('all')}><X size={11} /></button></span>}
-              {sortOrder !== 'alpha' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Récents <button onClick={() => setSortOrder('alpha')}><X size={11} /></button></span>}
+              {sortOrder !== 'alpha' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{sortLabels[sortOrder]} <button onClick={() => setSortOrder('alpha')}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
             </div>
           )}

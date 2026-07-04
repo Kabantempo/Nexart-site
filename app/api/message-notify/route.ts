@@ -45,6 +45,15 @@ export async function POST(req: NextRequest) {
     const recipientEmail = recipientAuth?.email
     const senderName = senderProfile?.full_name || 'Un utilisateur'
 
+    // Notif in-app (toujours insérée, indépendamment de l'email)
+    await admin.from('notifications').insert({
+      user_id: recipientId,
+      type: 'new_message',
+      title: `Nouveau message de ${senderName}`,
+      body: content?.slice(0, 120) || null,
+      link: `/messages/${conversation_id}`,
+    })
+
     if (!recipientEmail || !process.env.SMTP_PASS) return NextResponse.json({ ok: true })
 
     await sendMail({

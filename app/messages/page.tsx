@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
-import { MessageCircle, ChevronRight, Trash2, Palette, Building2, Eye } from 'lucide-react'
+import { MessageCircle, Trash2, Palette, Building2, Eye, Search, CheckCheck, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -80,6 +80,8 @@ export default function MessagesPage() {
   const [conversations, setConversations] = useState<ConvMeta[]>([])
   const [hoveredConv, setHoveredConv] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterRole>('all')
+  const [search, setSearch] = useState('')
+  const [markingAll, setMarkingAll] = useState(false)
 
   const loadConversations = useCallback(async (userId: string) => {
     const { data: convs, error } = await supabase
@@ -142,6 +144,21 @@ export default function MessagesPage() {
     await supabase.from('conversations').delete().eq('id', convId)
   }
 
+  const markAllAsRead = async () => {
+    if (!user) return
+    setMarkingAll(true)
+    const convIds = conversations.filter(c => c.unreadCount > 0).map(c => c.id)
+    if (convIds.length) {
+      await supabase.from('messages')
+        .update({ read_at: new Date().toISOString() })
+        .in('conversation_id', convIds)
+        .neq('sender_id', user.id)
+        .is('read_at', null)
+      setConversations(prev => prev.map(c => ({ ...c, unreadCount: 0 })))
+    }
+    setMarkingAll(false)
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
@@ -149,9 +166,18 @@ export default function MessagesPage() {
     })
   }, [router, loadConversations])
 
-  const filtered = filter === 'all'
-    ? conversations
-    : conversations.filter(c => roleOfProfile(c.other) === filter)
+  const totalUnread = conversations.reduce((acc, c) => acc + c.unreadCount, 0)
+
+  const filtered = conversations
+    .filter(c => filter === 'all' || roleOfProfile(c.other) === filter)
+    .filter(c => {
+      if (!search.trim()) return true
+      const q = search.toLowerCase()
+      return (
+        c.other?.full_name?.toLowerCase().includes(q) ||
+        c.lastMessage?.content?.toLowerCase().includes(q)
+      )
+    })
 
   const roleCounts: Record<FilterRole, number> = {
     all: conversations.length,
@@ -171,39 +197,57 @@ export default function MessagesPage() {
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 16px' }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>Messages</h1>
-        <p style={{ fontSize: '16px', color: '#888888', marginBottom: '24px' }}>
-          Vos conversations avec les créateurs et organisateurs
-        </p>
+        <div className="flex items-start justify-between flex-wrap gap-3 mb-2">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
+            <p className="text-gray-400 text-sm mt-1">Vos conversations avec les créateurs et organisateurs</p>
+          </div>
+          {totalUnread > 0 && (
+            <button onClick={markAllAsRead} disabled={markingAll}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:border-indigo-300 hover:text-indigo-700 transition-all disabled:opacity-50">
+              <CheckCheck size={15} />
+              Tout marquer comme lu
+              <span className="px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">{totalUnread}</span>
+            </button>
+          )}
+        </div>
+
+        {/* Search bar */}
+        {conversations.length > 0 && (
+          <div className="relative mb-5 mt-5">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Rechercher une conversation..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-400 focus:bg-white transition-all"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Filter tabs */}
         {conversations.length > 0 && (
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', flexWrap: 'wrap' }}>
+          <div className="flex gap-1.5 mb-6 flex-wrap">
             {(Object.keys(ROLE_LABELS) as FilterRole[]).map(r => {
               const count = roleCounts[r]
               if (r !== 'all' && count === 0) return null
               const active = filter === r
               return (
-                <button
-                  key={r}
-                  onClick={() => setFilter(r)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '7px 14px', borderRadius: '99px', border: 'none', cursor: 'pointer',
-                    fontSize: '13px', fontWeight: '600', transition: 'all 150ms ease',
-                    backgroundColor: active ? '#6366F1' : '#F3F4F6',
-                    color: active ? '#FFFFFF' : '#6B7280',
-                  }}
-                >
+                <button key={r} onClick={() => setFilter(r)}
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
+                    active ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  }`}>
                   {ROLE_ICONS[r]}
                   {ROLE_LABELS[r]}
-                  <span style={{
-                    minWidth: '18px', height: '18px', borderRadius: '99px', padding: '0 5px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '11px', fontWeight: '700',
-                    backgroundColor: active ? 'rgba(255,255,255,0.25)' : '#E5E7EB',
-                    color: active ? '#FFF' : '#9CA3AF',
-                  }}>
+                  <span className={`min-w-[18px] h-[18px] rounded-full px-1 flex items-center justify-center text-[11px] font-bold ${
+                    active ? 'bg-white/25 text-white' : 'bg-gray-200 text-gray-400'
+                  }`}>
                     {count}
                   </span>
                 </button>

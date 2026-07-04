@@ -12,7 +12,7 @@ import {
   Shield, FileText, XCircle, Trash2, Eye, EyeOff,
   TrendingUp, Users, BarChart2, MessageSquare, Package, CreditCard, ArrowUpRight,
   Send, Search, CheckCheck, Clock, Settings, AlertCircle, BadgeCheck,
-  LayoutGrid, Award, ChevronRight,
+  LayoutGrid, Award, ChevronRight, Rss, Heart, ImagePlus,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
@@ -20,7 +20,7 @@ import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Profile = {
-  full_name: string; bio: string | null; avatar_url: string | null
+  full_name: string; bio: string | null; avatar_url: string | null; banner_url?: string | null
   role: string | null; is_admin: boolean; subscription_tier?: string | null
   is_creator?: boolean; is_organizer?: boolean
 }
@@ -139,16 +139,22 @@ function Badge({ ok, label }: { ok: boolean; label: string }) {
 export default function ProfilePage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const bannerRef = useRef<HTMLInputElement>(null)
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [bannerUploading, setBannerUploading] = useState(false)
 
   // Creator state
   const [creator, setCreator] = useState<CreatorProfile | null>(null)
   const [applications, setApplications] = useState<Application[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [gridItems, setGridItems] = useState<GridItem[]>([])
-  const [tab, setTab] = useState<'profil' | 'portfolio' | 'candidatures' | 'avis'>('profil')
+  const [tab, setTab] = useState<'profil' | 'portfolio' | 'candidatures' | 'avis' | 'posts'>('profil')
+  const [myPosts, setMyPosts] = useState<{ id: string; content: string; image_url: string | null; created_at: string }[]>([])
+  const [postContent, setPostContent] = useState('')
+  const [postImageFile, setPostImageFile] = useState<File | null>(null)
+  const [postSaving, setPostSaving] = useState(false)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
@@ -204,7 +210,8 @@ export default function ProfilePage() {
   const [orgaVerifFilter, setOrgaVerifFilter] = useState<'pending' | 'all'>('pending')
 
   // Admin state
-  const [adminTab, setAdminTab] = useState<'analytics' | 'verifications' | 'marches' | 'messages' | 'abonnements' | 'disciplines'>('analytics')
+  const [adminTab, setAdminTab] = useState<'analytics' | 'verifications' | 'marches' | 'messages' | 'abonnements' | 'disciplines' | 'signalements'>('analytics')
+  const [adminReports, setAdminReports] = useState<{ id: string; reporter_id: string; target_id: string; target_type: string; reason: string; status: string; created_at: string; reporter?: { full_name: string | null } }[]>([])
   const [adminDiscProposals, setAdminDiscProposals] = useState<DisciplineProposal[]>([])
   const [discProposalSaving, setDiscProposalSaving] = useState<string | null>(null)
 
@@ -251,7 +258,7 @@ export default function ProfilePage() {
 
       const { data: prof } = await supabase
         .from('profiles')
-        .select('full_name,bio,avatar_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer')
+        .select('full_name,bio,avatar_url,banner_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer')
         .eq('id', u.id)
         .maybeSingle()
 
@@ -294,6 +301,8 @@ export default function ProfilePage() {
         else if (creat?.portfolio_images?.length) setGridItems(creat.portfolio_images.map((url: string) => ({ url, colSpan: 1 as const, rowSpan: 1 as const })))
         setApplications((apps as unknown as Application[]) ?? [])
         setReviews((revs as unknown as Review[]) ?? [])
+        const { data: postsData } = await supabase.from('creator_posts').select('id,content,image_url,created_at').eq('creator_id', u.id).order('created_at', { ascending: false }).limit(50)
+        setMyPosts(postsData ?? [])
         setEditName(prof?.full_name ?? u.user_metadata?.full_name ?? '')
         setEditUsername((prof as unknown as { username?: string })?.username ?? '')
         setEditShowRealName((prof as unknown as { show_real_name?: boolean })?.show_real_name ?? true)
@@ -427,6 +436,63 @@ export default function ProfilePage() {
     setRcProUploading(false)
   }
 
+  const handleOrgaSiretCheck = async () => {
+    if (orgaSiretInput.length !== 14 || !user) return
+    setOrgaSiretChecking(true)
+    setOrgaSiretResult(null)
+    try {
+      const r = await fetch(`https://api.pappers.fr/v2/entreprise?siret=${orgaSiretInput}&api_token=`)
+      if (!r.ok) throw new Error()
+      const d = await r.json()
+      const nom = d.nom_entreprise || d.denomination
+      if (nom) {
+        await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false }, { onConflict: 'user_id' })
+        setOrgaProfile(p => p ? { ...p, siret_number: orgaSiretInput, siret_verified: false } : { siret_number: orgaSiretInput, siret_verified: false, verification_doc_url: null, verification_doc_verified: false })
+        const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
+        if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga à vérifier', body: `${profile?.full_name ?? 'Organisateur'} — ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
+        setOrgaSiretResult({ valid: true, nom })
+        showToast('SIRET envoyé — validation sous 24h')
+      } else {
+        setOrgaSiretResult({ valid: false, error: 'Entreprise introuvable pour ce SIRET' })
+      }
+    } catch {
+      // Fallback sans API key Pappers : juste sauvegarder et notifier
+      await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false }, { onConflict: 'user_id' })
+      setOrgaProfile(p => p ? { ...p, siret_number: orgaSiretInput } : { siret_number: orgaSiretInput, siret_verified: false, verification_doc_url: null, verification_doc_verified: false })
+      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
+      if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga à vérifier', body: `${profile?.full_name ?? 'Organisateur'} — ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
+      setOrgaSiretResult({ valid: true, nom: 'SIRET enregistré' })
+      showToast('SIRET envoyé — validation sous 24h')
+    }
+    setOrgaSiretChecking(false)
+  }
+
+  const handleOrgaDocUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+    setOrgaDocUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `${user.id}/doc-orga.${ext}`
+    const { data: uploadData, error } = await supabase.storage.from('organizer-docs').upload(path, file, { upsert: true })
+    if (!error && uploadData) {
+      const { data: { publicUrl } } = supabase.storage.from('organizer-docs').getPublicUrl(uploadData.path)
+      await supabase.from('organizer_profiles').upsert({ user_id: user.id, verification_doc_url: publicUrl, verification_doc_verified: false }, { onConflict: 'user_id' })
+      setOrgaProfile(p => p ? { ...p, verification_doc_url: publicUrl, verification_doc_verified: false } : { siret_number: null, siret_verified: false, verification_doc_url: publicUrl, verification_doc_verified: false })
+      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
+      if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_doc_pending', title: 'Document orga à vérifier', body: `Kbis/RNA de ${profile?.full_name ?? 'Organisateur'}`, link: '/profile?tab=admin&section=orga' })))
+      showToast('Document envoyé — en attente de validation')
+    }
+    setOrgaDocUploading(false)
+  }
+
+  const handleAdminVerifyOrga = async (userId: string, field: 'siret_verified' | 'verification_doc_verified', value: boolean) => {
+    setOrgaVerifSaving(`${userId}-${field}`)
+    await supabase.from('organizer_profiles').update({ [field]: value, verified_at: new Date().toISOString(), verified_by: user?.id }).eq('user_id', userId)
+    setAdminOrgaVerifs(prev => prev.map(o => o.user_id === userId ? { ...o, [field]: value } : o))
+    setOrgaVerifSaving(null)
+    showToast(value ? 'Vérifié' : 'Révoqué')
+  }
+
   const handleProposeDisc = async () => {
     const name = discProposalInput.trim()
     if (!name || !user) return
@@ -457,6 +523,23 @@ export default function ProfilePage() {
     await supabase.from('discipline_proposals').update({ status: action, reviewed_at: new Date().toISOString(), reviewed_by: user.id }).eq('id', id)
     setAdminDiscProposals(prev => prev.map(p => p.id === id ? { ...p, status: action } : p))
     setDiscProposalSaving(null)
+  }
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+    e.target.value = ''
+    setBannerUploading(true)
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const path = `${user.id}/banner.${ext}`
+    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+    if (!error) {
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const url = `${data.publicUrl}?t=${Date.now()}`
+      await supabase.from('profiles').update({ banner_url: url }).eq('id', user.id)
+      setProfile(p => p ? { ...p, banner_url: url } : p)
+    }
+    setBannerUploading(false)
   }
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -847,12 +930,17 @@ export default function ProfilePage() {
               { k: 'marches', label: `Marchés (${adminEvents.length})` },
               { k: 'messages', label: `Messages${adminMessages.length > 0 ? ` (${adminMessages.length})` : ''}` },
               { k: 'abonnements', label: 'Abonnements' },
+              { k: 'signalements', label: `Signalements${adminReports.filter(r => r.status === 'pending').length > 0 ? ` (${adminReports.filter(r => r.status === 'pending').length})` : ''}` },
             ] as const).map(t => (
-              <button key={t.k} onClick={() => {
+              <button key={t.k} onClick={async () => {
                 setAdminTab(t.k)
                 if (t.k === 'analytics' && !analytics && !analyticsLoading) {
                   setAnalyticsLoading(true)
                   fetch('/api/admin/analytics').then(r => r.json()).then(d => { setAnalytics(d); setAnalyticsLoading(false) })
+                }
+                if (t.k === 'signalements' && adminReports.length === 0) {
+                  const { data } = await supabase.from('reports').select('*, reporter:reporter_id(full_name)').order('created_at', { ascending: false }).limit(100)
+                  setAdminReports((data as typeof adminReports) || [])
                 }
               }}
                 style={{
@@ -1131,7 +1219,7 @@ export default function ProfilePage() {
 
           {/* ── Tab: Vérifications ── */}
           {adminTab === 'verifications' && (
-            <div>
+            <div className="flex flex-col gap-0">
               <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
                 {([
                   { k: 'pending', label: `En attente (${pendingCreators.length})` },
@@ -1162,10 +1250,27 @@ export default function ProfilePage() {
                             : <User size={18} color="#FFF" />
                           }
                         </div>
-                        <div>
+                        <div style={{ flex: 1 }}>
                           <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{c.profiles?.full_name ?? 'Créateur'}</p>
                           <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
                         </div>
+                        {/* Ban toggle */}
+                        <button
+                          onClick={async () => {
+                            const banned = (c.profiles as unknown as { is_banned?: boolean })?.is_banned
+                            await supabase.from('profiles').update({ is_banned: !banned }).eq('id', c.user_id)
+                            setAdminCreators(prev => prev.map(x => x.user_id === c.user_id
+                              ? { ...x, profiles: x.profiles ? { ...x.profiles, is_banned: !banned } as typeof x.profiles : x.profiles }
+                              : x
+                            ))
+                          }}
+                          style={{ padding: '5px 12px', borderRadius: '8px', border: '1px solid', fontSize: '12px', fontWeight: '700', cursor: 'pointer',
+                            backgroundColor: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#FEF2F2' : '#F3F4F6',
+                            borderColor: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#FECACA' : '#E5E7EB',
+                            color: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#EF4444' : '#6B7280',
+                          }}>
+                          {(c.profiles as unknown as { is_banned?: boolean })?.is_banned ? 'Débannir' : 'Bannir'}
+                        </button>
                       </div>
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
 
@@ -1280,6 +1385,116 @@ export default function ProfilePage() {
                   ))}
                 </div>
               )}
+
+              {/* ── Organisateurs ── */}
+              {(() => {
+              const pendingOrgas = adminOrgaVerifs.filter(o => !o.siret_verified && !o.verification_doc_verified && (o.siret_number || o.verification_doc_url))
+              const displayOrgas = orgaVerifFilter === 'pending' ? pendingOrgas : adminOrgaVerifs.filter(o => o.siret_number || o.verification_doc_url)
+              return (
+                <div style={{ marginTop: '32px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Organisateurs à vérifier</h3>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {([
+                        { k: 'pending', label: `En attente (${pendingOrgas.length})` },
+                        { k: 'all', label: `Tous (${adminOrgaVerifs.filter(o => o.siret_number || o.verification_doc_url).length})` },
+                      ] as const).map(f => (
+                        <button key={f.k} onClick={() => setOrgaVerifFilter(f.k)}
+                          style={{ padding: '5px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', backgroundColor: orgaVerifFilter === f.k ? '#111827' : '#F3F4F6', color: orgaVerifFilter === f.k ? '#FFF' : '#4B5563' }}>
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {displayOrgas.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
+                      <CheckCircle size={32} color="#10B981" style={{ marginBottom: '8px' }} />
+                      <p style={{ fontSize: '14px', color: '#888' }}>Aucune demande organisateur en attente</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {displayOrgas.map(o => (
+                        <div key={o.user_id} style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                              {o.profiles?.avatar_url
+                                // eslint-disable-next-line @next/next/no-img-element
+                                ? <img src={o.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                : <User size={16} color="#FFF" />}
+                            </div>
+                            <div>
+                              <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{o.profiles?.full_name ?? 'Organisateur'}</p>
+                              <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            {/* SIRET */}
+                            {o.siret_number && (
+                              <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>SIRET</p>
+                                  <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.siret_verified ? '#ECFDF5' : '#F3F4F6', color: o.siret_verified ? '#059669' : '#6B7280' }}>
+                                    {o.siret_verified ? 'Vérifié' : 'En attente'}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', fontFamily: 'monospace', letterSpacing: '1px', margin: 0 }}>{o.siret_number}</p>
+                                  <a href={`https://pappers.fr/entreprise/${o.siret_number}`} target="_blank" rel="noopener noreferrer"
+                                    style={{ fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
+                                </div>
+                                {!o.siret_verified && (
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    <button onClick={() => handleAdminVerifyOrga(o.user_id, 'siret_verified', true)} disabled={orgaVerifSaving === `${o.user_id}-siret_verified`}
+                                      style={{ flex: 1, padding: '6px', borderRadius: '6px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                      <CheckCircle size={12} /> Valider
+                                    </button>
+                                    <button onClick={() => handleAdminVerifyOrga(o.user_id, 'siret_verified', false)} disabled={orgaVerifSaving === `${o.user_id}-siret_verified`}
+                                      style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                      <XCircle size={13} />
+                                    </button>
+                                  </div>
+                                )}
+                                {o.siret_verified && (
+                                  <button onClick={() => handleAdminVerifyOrga(o.user_id, 'siret_verified', false)}
+                                    style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                )}
+                              </div>
+                            )}
+                            {/* Document */}
+                            {o.verification_doc_url && (
+                              <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Document</p>
+                                  <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.verification_doc_verified ? '#ECFDF5' : '#EEF2FF', color: o.verification_doc_verified ? '#059669' : '#6366F1' }}>
+                                    {o.verification_doc_verified ? 'Vérifié' : 'Doc reçu'}
+                                  </span>
+                                </div>
+                                <a href={o.verification_doc_url} target="_blank" rel="noopener noreferrer"
+                                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#374151', textDecoration: 'none', fontWeight: '600', marginBottom: '8px' }}>
+                                  <FileText size={13} /> Voir le document <ExternalLink size={11} />
+                                </a>
+                                {!o.verification_doc_verified && (
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    <button onClick={() => handleAdminVerifyOrga(o.user_id, 'verification_doc_verified', true)} disabled={orgaVerifSaving === `${o.user_id}-verification_doc_verified`}
+                                      style={{ flex: 1, padding: '6px', borderRadius: '6px', border: 'none', backgroundColor: '#111827', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                      <CheckCircle size={12} /> Valider
+                                    </button>
+                                  </div>
+                                )}
+                                {o.verification_doc_verified && (
+                                  <button onClick={() => handleAdminVerifyOrga(o.user_id, 'verification_doc_verified', false)}
+                                    style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
             </div>
           )}
 
@@ -1692,6 +1907,60 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* ── Tab: Signalements ── */}
+          {adminTab === 'signalements' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>
+                  Signalements ({adminReports.filter(r => r.status === 'pending').length} en attente)
+                </h3>
+              </div>
+              {adminReports.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', color: '#9CA3AF', fontSize: '14px' }}>
+                  Aucun signalement
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {adminReports.map(r => (
+                    <div key={r.id} style={{ padding: '14px 16px', borderRadius: '10px', border: `1px solid ${r.status === 'pending' ? '#FDE68A' : '#E5E7EB'}`, backgroundColor: r.status === 'pending' ? '#FFFBEB' : '#FAFAFA', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 2px' }}>
+                          {r.target_type === 'creator' ? 'Créateur' : r.target_type === 'event' ? 'Événement' : 'Post'} signalé
+                          <span style={{ fontWeight: '400', color: '#6B7280', marginLeft: '6px' }}>par {r.reporter?.full_name || 'utilisateur'}</span>
+                        </p>
+                        <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>{r.reason}</p>
+                        <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', shrink: 0 } as React.CSSProperties}>
+                        {r.status === 'pending' && (
+                          <>
+                            <button onClick={async () => {
+                              await supabase.from('reports').update({ status: 'reviewed' }).eq('id', r.id)
+                              setAdminReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'reviewed' } : x))
+                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '12px', fontWeight: '600', color: '#374151', cursor: 'pointer' }}>
+                              Vu
+                            </button>
+                            <button onClick={async () => {
+                              await supabase.from('reports').update({ status: 'dismissed' }).eq('id', r.id)
+                              setAdminReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'dismissed' } : x))
+                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '12px', fontWeight: '600', color: '#9CA3AF', cursor: 'pointer' }}>
+                              Ignorer
+                            </button>
+                          </>
+                        )}
+                        {r.status !== 'pending' && (
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: r.status === 'reviewed' ? '#10B981' : '#9CA3AF', padding: '4px 8px', borderRadius: '6px', backgroundColor: r.status === 'reviewed' ? '#ECFDF5' : '#F3F4F6' }}>
+                            {r.status === 'reviewed' ? 'Traité' : 'Ignoré'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
         </motion.div>
 
         {toast && (
@@ -1771,12 +2040,34 @@ export default function ProfilePage() {
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
         <div className="relative bg-[#06060f] overflow-hidden pt-24 pb-12">
-          <div className="absolute inset-0 opacity-[0.10] pointer-events-none"
-            style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-          <div className="absolute top-[10%] left-[20%] w-80 h-80 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', animation: 'glow 6s ease-in-out infinite' }} />
-          <div className="absolute bottom-0 right-[15%] w-60 h-60 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%)', animation: 'glow 8s ease-in-out infinite 2s' }} />
+          {/* Banner image */}
+          {profile?.banner_url && (
+            <div className="absolute inset-0 z-0">
+              <img src={profile.banner_url} alt="" className="w-full h-full object-cover opacity-25" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/70 to-[#06060f]" />
+            </div>
+          )}
+          {!profile?.banner_url && (
+            <>
+              <div className="absolute inset-0 opacity-[0.10] pointer-events-none"
+                style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+              <div className="absolute top-[10%] left-[20%] w-80 h-80 rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', animation: 'glow 6s ease-in-out infinite' }} />
+              <div className="absolute bottom-0 right-[15%] w-60 h-60 rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%)', animation: 'glow 8s ease-in-out infinite 2s' }} />
+            </>
+          )}
+          {/* Banner upload button (edit mode) */}
+          {editing && (
+            <button onClick={() => bannerRef.current?.click()}
+              className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 text-white/60 text-xs font-semibold hover:bg-white/20 transition-all">
+              {bannerUploading
+                ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <Upload size={12} />}
+              {profile?.banner_url ? 'Changer la bannière' : 'Ajouter une bannière'}
+            </button>
+          )}
+          <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
 
           <div className="max-w-[900px] mx-auto px-6 relative z-10">
             <div className="flex gap-7 items-start flex-wrap">
@@ -1950,6 +2241,7 @@ export default function ProfilePage() {
               { key: 'portfolio',    label: 'Portfolio',     icon: <LayoutGrid size={14} /> },
               { key: 'candidatures', label: `Candidatures${applications.length ? ` (${applications.length})` : ''}`, icon: <Calendar size={14} /> },
               { key: 'avis',         label: `Avis${reviews.length ? ` (${reviews.length})` : ''}`, icon: <Award size={14} /> },
+              { key: 'posts',        label: `Posts${myPosts.length ? ` (${myPosts.length})` : ''}`,   icon: <Rss size={14} /> },
             ] as const).map(t => (
               <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 border-0 cursor-pointer ${
@@ -2314,8 +2606,97 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Vérification organisateur */}
+            {(profile?.role === 'organizer' || profile?.is_organizer) && (
+              <>
+                <div className="h-px bg-gray-100" />
+                <div className="px-6 py-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Vérification organisateur</p>
+                    {(orgaProfile?.siret_verified || orgaProfile?.verification_doc_verified) && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                        <BadgeCheck size={10} /> Vérifié
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {/* SIRET */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-semibold text-gray-800">SIRET</p>
+                        {orgaProfile?.siret_verified
+                          ? <span className="text-xs font-bold text-emerald-600">Vérifié</span>
+                          : orgaProfile?.siret_number
+                          ? <span className="text-xs font-semibold text-amber-500">En attente</span>
+                          : null
+                        }
+                      </div>
+                      {orgaProfile?.siret_verified ? (
+                        <p className="text-sm text-gray-600 font-mono">{orgaProfile.siret_number}</p>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input value={orgaSiretInput} onChange={e => { setOrgaSiretInput(e.target.value.replace(/\D/g, '')); setOrgaSiretResult(null) }}
+                            placeholder="14 chiffres" maxLength={14}
+                            className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono tracking-widest outline-none focus:border-indigo-400" />
+                          <button onClick={handleOrgaSiretCheck} disabled={orgaSiretInput.length !== 14 || orgaSiretChecking}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer ${orgaSiretInput.length === 14 ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                            {orgaSiretChecking ? '…' : 'Envoyer'}
+                          </button>
+                        </div>
+                      )}
+                      {orgaSiretResult && (
+                        <div className={`mt-2 px-3.5 py-2 rounded-xl border text-sm font-semibold ${orgaSiretResult.valid ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-600'}`}>
+                          {orgaSiretResult.valid ? orgaSiretResult.nom : orgaSiretResult.error}
+                        </div>
+                      )}
+                    </div>
+                    {/* Document (Kbis / RNA) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">Document officiel</p>
+                          <p className="text-xs text-gray-400">Kbis, extrait RNA, statuts association…</p>
+                        </div>
+                        {orgaProfile?.verification_doc_verified
+                          ? <span className="text-xs font-bold text-emerald-600">Vérifié</span>
+                          : orgaProfile?.verification_doc_url
+                          ? <span className="text-xs font-semibold text-amber-500">En attente</span>
+                          : null
+                        }
+                      </div>
+                      {orgaProfile?.verification_doc_verified ? (
+                        <p className="text-xs text-emerald-600 font-semibold">Document validé par l'équipe Nexart</p>
+                      ) : (
+                        <button onClick={() => orgaDocRef.current?.click()} disabled={orgaDocUploading}
+                          className={`px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer text-white ${orgaProfile?.verification_doc_url ? 'bg-amber-500 hover:bg-amber-400' : 'bg-indigo-600 hover:bg-indigo-500'}`}>
+                          {orgaDocUploading ? 'Envoi…' : orgaProfile?.verification_doc_url ? 'Remplacer le document' : 'Déposer un document'}
+                        </button>
+                      )}
+                      <input ref={orgaDocRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleOrgaDocUpload} />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Déconnexion + Supprimer */}
             <div className="flex flex-col gap-2">
+              <button onClick={async () => {
+                  if (!user) return
+                  const [{ data: p }, { data: cp }, { data: apps }, { data: convs }] = await Promise.all([
+                    supabase.from('profiles').select('*').eq('id', user.id).single(),
+                    supabase.from('creator_profiles').select('*').eq('user_id', user.id).maybeSingle(),
+                    supabase.from('applications').select('*').eq('creator_id', user.id),
+                    supabase.from('conversations').select('id').or(`creator_id.eq.${user.id},organizer_id.eq.${user.id}`),
+                  ])
+                  const payload = { profil: p, creator_profile: cp, candidatures: apps, conversations_ids: convs?.map(c => c.id), exported_at: new Date().toISOString() }
+                  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a'); a.href = url; a.download = `nexart-mes-donnees-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url)
+                }}
+                className="w-full py-2.5 rounded-2xl border border-gray-200 bg-transparent text-gray-500 text-sm cursor-pointer flex items-center justify-center gap-1.5 hover:bg-gray-50 transition-colors">
+                Exporter mes données (RGPD)
+              </button>
               <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
                 className="w-full py-3 rounded-2xl border border-red-200 bg-white text-red-500 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
                 <LogOut size={15} /> Se déconnecter
@@ -2429,6 +2810,97 @@ export default function ProfilePage() {
                     {rev.tags!.map(t => (
                       <span key={t} className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">{t}</span>
                     ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab === 'posts' && (
+          <div className="flex flex-col gap-4">
+            {/* Create post form */}
+            {user && (
+              <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                <p className="text-sm font-bold text-gray-800 mb-3">Publier un post</p>
+                <textarea
+                  value={postContent}
+                  onChange={e => setPostContent(e.target.value)}
+                  placeholder="Partagez une création, une actualité, une inspiration…"
+                  rows={3}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-y outline-none focus:border-indigo-400 text-gray-900 leading-relaxed mb-3"
+                />
+                {postImageFile && (
+                  <div className="relative w-24 h-24 mb-3 rounded-xl overflow-hidden border border-gray-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={URL.createObjectURL(postImageFile)} alt="" className="w-full h-full object-cover" />
+                    <button onClick={() => setPostImageFile(null)}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center text-white">
+                      <X size={11} />
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer hover:text-indigo-600 transition-colors">
+                    <ImagePlus size={16} />
+                    <span>Ajouter une photo</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={e => setPostImageFile(e.target.files?.[0] ?? null)} />
+                  </label>
+                  <button
+                    disabled={postSaving || !postContent.trim()}
+                    onClick={async () => {
+                      if (!user || !postContent.trim()) return
+                      setPostSaving(true)
+                      let imageUrl: string | null = null
+                      if (postImageFile) {
+                        const ext = postImageFile.name.split('.').pop()
+                        const path = `posts/${user.id}/${Date.now()}.${ext}`
+                        await supabase.storage.from('avatars').upload(path, postImageFile, { upsert: true })
+                        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+                        imageUrl = urlData.publicUrl
+                      }
+                      const { data: newPost } = await supabase.from('creator_posts').insert({
+                        creator_id: user.id,
+                        content: postContent.trim(),
+                        ...(imageUrl ? { image_url: imageUrl } : {}),
+                      }).select('id,content,image_url,created_at').single()
+                      if (newPost) setMyPosts(prev => [newPost, ...prev])
+                      setPostContent('')
+                      setPostImageFile(null)
+                      setPostSaving(false)
+                    }}
+                    className="px-5 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-40 hover:bg-indigo-500 transition-colors">
+                    {postSaving ? 'Publication…' : 'Publier'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Posts list */}
+            {myPosts.length === 0 ? (
+              <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-gray-200">
+                <Rss size={40} className="text-gray-200 mx-auto mb-4" />
+                <p className="text-base font-semibold text-gray-700 mb-1">Aucun post publié</p>
+                <p className="text-sm text-gray-400">Partagez vos créations et actualités avec vos abonnés.</p>
+              </div>
+            ) : myPosts.map(post => (
+              <div key={post.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <button
+                    onClick={async () => {
+                      await supabase.from('creator_posts').delete().eq('id', post.id)
+                      setMyPosts(prev => prev.filter(p => p.id !== post.id))
+                    }}
+                    className="text-gray-300 hover:text-red-500 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line mb-3">{post.content}</p>
+                {post.image_url && (
+                  <div className="rounded-xl overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={post.image_url} alt="" className="w-full max-h-72 object-cover" />
                   </div>
                 )}
               </div>

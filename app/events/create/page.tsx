@@ -43,6 +43,9 @@ interface FormData {
   discipline_tags: string[]
   rules: string
   stripe_enabled: boolean
+  faq: { q: string; a: string }[]
+  recurrence_type: 'none' | 'weekly' | 'biweekly' | 'monthly'
+  recurrence_end_date: string
 }
 
 const EMPTY_FORM: FormData = {
@@ -66,6 +69,9 @@ const EMPTY_FORM: FormData = {
   discipline_tags: [],
   rules: '',
   stripe_enabled: false,
+  faq: [],
+  recurrence_type: 'none',
+  recurrence_end_date: '',
 }
 
 function validate(form: FormData): string | null {
@@ -168,8 +174,26 @@ export default function CreateEventPage() {
       stand_dimensions: form.stand_dimensions.trim() || null,
       discipline_tags: form.discipline_tags,
       rules: form.rules.trim() || null,
+      faq: form.faq.filter(f => f.q.trim() && f.a.trim()),
       stripe_enabled: form.stripe_enabled,
       status: publish ? 'published' : 'draft',
+      recurrence_type: form.recurrence_type,
+      ...(form.recurrence_type !== 'none' && form.start_date && form.recurrence_end_date ? {
+        recurrence_dates: (() => {
+          const dates: string[] = []
+          const cur = new Date(form.start_date)
+          const end = new Date(form.recurrence_end_date)
+          const step = form.recurrence_type === 'weekly' ? 7 : form.recurrence_type === 'biweekly' ? 14 : 0
+          if (step > 0) {
+            while (cur <= end) { dates.push(cur.toISOString().slice(0, 10)); cur.setDate(cur.getDate() + step) }
+          } else {
+            // monthly
+            while (cur <= end) { dates.push(cur.toISOString().slice(0, 10)); cur.setMonth(cur.getMonth() + 1) }
+          }
+          return dates
+        })(),
+        recurrence_end_date: form.recurrence_end_date,
+      } : {}),
     }
 
     const { data, error: err } = await supabase.from('events').insert(payload).select().single()
@@ -278,6 +302,38 @@ export default function CreateEventPage() {
             </div>
           </Section>
 
+          {/* Récurrence */}
+          <Section title="Récurrence (optionnel)">
+            <Field label="Fréquence">
+              <select className="form-input" value={form.recurrence_type}
+                onChange={e => setForm(f => ({ ...f, recurrence_type: e.target.value as FormData['recurrence_type'] }))}>
+                <option value="none">Événement ponctuel</option>
+                <option value="weekly">Hebdomadaire (chaque semaine)</option>
+                <option value="biweekly">Bimensuel (toutes les 2 semaines)</option>
+                <option value="monthly">Mensuel (chaque mois)</option>
+              </select>
+            </Field>
+            {form.recurrence_type !== 'none' && (
+              <Field label="Jusqu'au">
+                <input className="form-input" type="date" value={form.recurrence_end_date}
+                  onChange={e => setForm(f => ({ ...f, recurrence_end_date: e.target.value }))} />
+              </Field>
+            )}
+            {form.recurrence_type !== 'none' && form.start_date && form.recurrence_end_date && (
+              <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600' }}>
+                {(() => {
+                  const step = form.recurrence_type === 'weekly' ? 7 : form.recurrence_type === 'biweekly' ? 14 : 0
+                  let count = 0
+                  const cur = new Date(form.start_date)
+                  const end = new Date(form.recurrence_end_date)
+                  if (step > 0) { while (cur <= end) { count++; cur.setDate(cur.getDate() + step) } }
+                  else { while (cur <= end) { count++; cur.setMonth(cur.getMonth() + 1) } }
+                  return `${count} date${count > 1 ? 's' : ''} générée${count > 1 ? 's' : ''}`
+                })()}
+              </p>
+            )}
+          </Section>
+
           {/* Stands & Tarification */}
           <Section title="Stands & Tarification">
             <Field label="Nombre de stands">
@@ -356,6 +412,40 @@ export default function CreateEventPage() {
           {/* Règlement */}
           <Section title="Règlement" hint="(optionnel)">
             <textarea className="form-input" value={form.rules} onChange={e => set('rules')(e.target.value)} placeholder="Commission, assurance requise, horaires de setup…" rows={4} style={{ resize: 'vertical' }} />
+          </Section>
+
+          {/* FAQ */}
+          <Section title="FAQ" hint="(optionnel)">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {form.faq.map((item, i) => (
+                <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <input
+                      className="form-input"
+                      value={item.q}
+                      onChange={e => setForm(f => { const faq = [...f.faq]; faq[i] = { ...faq[i], q: e.target.value }; return { ...f, faq } })}
+                      placeholder="Question…"
+                    />
+                    <textarea
+                      className="form-input"
+                      value={item.a}
+                      onChange={e => setForm(f => { const faq = [...f.faq]; faq[i] = { ...faq[i], a: e.target.value }; return { ...f, faq } })}
+                      placeholder="Réponse…"
+                      rows={2}
+                      style={{ resize: 'vertical' }}
+                    />
+                  </div>
+                  <button onClick={() => setForm(f => ({ ...f, faq: f.faq.filter((_, j) => j !== i) }))}
+                    style={{ marginTop: '8px', width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FEF2F2', color: '#E05A5A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button onClick={() => setForm(f => ({ ...f, faq: [...f.faq, { q: '', a: '' }] }))}
+                style={{ alignSelf: 'flex-start', padding: '8px 16px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'transparent', color: '#6B7280', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                + Ajouter une question
+              </button>
+            </div>
           </Section>
 
           {/* Paiement Stripe */}

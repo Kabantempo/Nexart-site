@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -10,7 +10,7 @@ import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   LogOut, MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
-  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap,
+  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap, Rss, Star,
 } from 'lucide-react'
 import { CreditsWidget } from '@/components/credits-widget'
 import { BoostButton } from '@/components/boost-button'
@@ -38,6 +38,7 @@ const NAV_CARDS = (userId: string, isCreator: boolean, isOrganizer: boolean, isV
   ...(isCreator ? [
     { href: `/boutique/${userId}`, icon: <ShoppingBag size={22} className="text-indigo-600" />, label: 'Ma boutique',     sub: 'Mes créations' },
     { href: '/carnet-de-route',    icon: <MapPin size={22} className="text-indigo-600" />,      label: 'Carnet de route', sub: 'Mes déplacements' },
+    { href: '/feed',               icon: <Rss size={22} className="text-indigo-600" />,         label: 'Fil d\'actu',      sub: 'Créateurs suivis' },
     ...(!isOrganizer ? [{ href: '/analytics', icon: <BarChart2 size={22} className="text-indigo-600" />, label: 'Analytiques', sub: 'Mes statistiques' }] : []),
   ] : []),
 ]
@@ -66,6 +67,7 @@ export default function DashboardPage() {
   const router = useRouter()
   const [applications, setApplications] = useState<(Application & { event?: Event })[]>([])
   const [events, setEvents] = useState<Event[]>([])
+  const [pendingApps, setPendingApps] = useState<{ id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
   const [loading, setLoading] = useState(true)
   const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
   const [missingProfileFields, setMissingProfileFields] = useState<string[]>([])
@@ -75,7 +77,11 @@ export default function DashboardPage() {
       if (!session) { router.push('/login'); return }
       if (!user) {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
+        if (profile) {
+          if (profile.is_banned) { await supabase.auth.signOut(); router.push('/banned'); return }
+          setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
+          if (!profile.onboarding_done) { router.push('/onboarding'); return }
+        }
       }
     })
   }, [router, user, setUser])
@@ -118,6 +124,15 @@ export default function DashboardPage() {
         hasOrganizer ? (async () => {
           const { data: eventsData } = await supabase.from('events').select('*').eq('organizer_id', user.id).order('created_at', { ascending: false })
           setEvents(eventsData || [])
+          if (eventsData?.length) {
+            const { data: pending } = await supabase
+              .from('applications')
+              .select('id, creator_id, event_id, message, created_at, profiles(full_name, avatar_url)')
+              .in('event_id', eventsData.map(e => e.id))
+              .eq('status', 'pending')
+              .order('created_at', { ascending: false })
+            setPendingApps((pending as unknown as typeof pendingApps) || [])
+          }
         })() : Promise.resolve(),
       ])
       setLoading(false)
@@ -269,8 +284,8 @@ export default function DashboardPage() {
           <VisitorContent />
         ) : (
           <div className="flex flex-col gap-12">
-            {hasCreator && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} />}
-            {hasOrganizer && <OrganizerContent events={events} />}
+            {hasCreator && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} userId={user.id} />}
+            {hasOrganizer && <OrganizerContent events={events} pendingApps={pendingApps} setPendingApps={setPendingApps} userId={user.id} />}
           </div>
         )}
       </div>
@@ -315,11 +330,32 @@ function CreatorContent({
   applications,
   creatorView,
   setCreatorView,
+  userId,
 }: {
   applications: (Application & { event?: Event })[]
   creatorView: 'list' | 'calendar'
   setCreatorView: (v: 'list' | 'calendar') => void
+  userId: string
 }) {
+  const [recommended, setRecommended] = useState<Event[]>([])
+  const appliedEventIds = new Set(applications.map(a => a.event_id))
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: cp } = await supabase.from('creator_profiles').select('disciplines, city').eq('user_id', userId).maybeSingle()
+      if (!cp?.disciplines?.length) return
+      const { data: evs } = await supabase.from('events')
+        .select('*')
+        .eq('status', 'published')
+        .overlaps('discipline_tags', cp.disciplines)
+        .order('start_date', { ascending: true })
+        .limit(5)
+      if (evs) setRecommended(evs.filter(e => !appliedEventIds.has(e.id)))
+    }
+    load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
   return (
     <div>
       <CreditsWidget />
@@ -393,6 +429,34 @@ function CreatorContent({
       ) : (
         <CalendarView applications={applications} />
       )}
+
+      {/* Recommandations */}
+      {recommended.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold text-gray-900">Événements pour vous</h2>
+            <Link href="/events" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Voir tout →</Link>
+          </div>
+          <div className="flex flex-col gap-3">
+            {recommended.map((ev, i) => (
+              <motion.div key={ev.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                <Link href={`/events/${ev.id}`}
+                  className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm transition-all duration-150 group">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-gray-900 truncate mb-1 group-hover:text-indigo-700 transition-colors">{ev.title}</h3>
+                    <p className="text-xs text-gray-400">
+                      {ev.start_date ? new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : ''}
+                      {ev.city ? ` · ${ev.city}` : ''}
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">Recommandé</span>
+                  <ArrowRight size={15} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -449,60 +513,366 @@ function CalendarView({ applications }: { applications: (Application & { event?:
   )
 }
 
-function OrganizerContent({ events }: { events: Event[] }) {
+type PendingApp = { id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }
+
+function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
+  events: Event[]
+  pendingApps: PendingApp[]
+  setPendingApps: React.Dispatch<React.SetStateAction<PendingApp[]>>
+  userId: string
+}) {
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkUpdating, setBulkUpdating] = useState(false)
+  const [recommendedCreators, setRecommendedCreators] = useState<{ id: string; full_name: string | null; avatar_url: string | null; disciplines: string[] }[]>([])
+  const [pendingReviews, setPendingReviews] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string; creatorAvatar: string | null }[]>([])
+  const [reviewModal, setReviewModal] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string } | null>(null)
+  const [reviewRating, setReviewRating] = useState(0)
+  const [reviewComment, setReviewComment] = useState('')
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+
+  useEffect(() => {
+    const load = async () => {
+      const allTags = events.flatMap(e => (e as unknown as { discipline_tags?: string[] }).discipline_tags ?? [])
+      const uniqueTags = [...new Set(allTags)]
+      if (!uniqueTags.length) return
+      const { data } = await supabase.from('creator_profiles')
+        .select('user_id, disciplines, profiles(full_name, avatar_url)')
+        .overlaps('disciplines', uniqueTags)
+        .limit(6)
+      if (!data) return
+      setRecommendedCreators(
+        (data as unknown as { user_id: string; disciplines: string[]; profiles: { full_name: string | null; avatar_url: string | null } | null }[])
+          .map(cp => ({ id: cp.user_id, full_name: cp.profiles?.full_name ?? null, avatar_url: cp.profiles?.avatar_url ?? null, disciplines: cp.disciplines }))
+      )
+    }
+    if (events.length) load()
+  }, [events])
+
+  // Charger les avis à laisser (événements passés avec créateurs acceptés non encore notés)
+  useEffect(() => {
+    const loadPendingReviews = async () => {
+      const pastEvents = events.filter(e => e.end_date && new Date(e.end_date) < new Date())
+      if (!pastEvents.length) return
+
+      const { data: apps } = await supabase
+        .from('applications')
+        .select('id, creator_id, event_id, profiles(full_name, avatar_url)')
+        .in('event_id', pastEvents.map(e => e.id))
+        .eq('status', 'accepted')
+
+      if (!apps?.length) return
+
+      const { data: existingReviews } = await supabase
+        .from('reviews')
+        .select('reviewed_id, event_id')
+        .eq('reviewer_id', userId)
+
+      const reviewed = new Set((existingReviews ?? []).map(r => `${r.event_id}:${r.reviewed_id}`))
+
+      const pending = (apps as unknown as { id: string; creator_id: string; event_id: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[])
+        .filter(a => !reviewed.has(`${a.event_id}:${a.creator_id}`))
+        .map(a => ({
+          eventId: a.event_id,
+          eventTitle: pastEvents.find(e => e.id === a.event_id)?.title ?? 'Événement',
+          creatorId: a.creator_id,
+          creatorName: a.profiles?.full_name ?? 'Créateur',
+          creatorAvatar: a.profiles?.avatar_url ?? null,
+        }))
+
+      setPendingReviews(pending)
+    }
+    if (events.length) loadPendingReviews()
+  }, [events, userId])
+
+  const submitReview = async () => {
+    if (!reviewModal || reviewRating === 0) return
+    setReviewSubmitting(true)
+    await fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event_id: reviewModal.eventId,
+        reviewer_id: userId,
+        reviewed_id: reviewModal.creatorId,
+        reviewer_role: 'organizer',
+        rating: reviewRating,
+        comment: reviewComment.trim() || null,
+      }),
+    })
+    setPendingReviews(prev => prev.filter(r => !(r.eventId === reviewModal.eventId && r.creatorId === reviewModal.creatorId)))
+    setReviewModal(null)
+    setReviewRating(0)
+    setReviewComment('')
+    setReviewSubmitting(false)
+  }
+
+  const handleStatus = async (appId: string, status: 'accepted' | 'refused', eventTitle?: string, creatorId?: string) => {
+    setUpdatingId(appId)
+    await supabase.from('applications').update({ status, updated_at: new Date().toISOString() }).eq('id', appId)
+    if (creatorId && eventTitle) {
+      await supabase.from('notifications').insert({
+        user_id: creatorId,
+        type: status === 'accepted' ? 'application_accepted' : 'application_rejected',
+        title: status === 'accepted' ? 'Candidature acceptée' : 'Candidature non retenue',
+        body: status === 'accepted' ? `Votre candidature pour "${eventTitle}" a été acceptée !` : `Votre candidature pour "${eventTitle}" n'a pas été retenue.`,
+        link: `/events/${pendingApps.find(a => a.id === appId)?.event_id}`,
+      })
+    }
+    setPendingApps(prev => prev.filter(a => a.id !== appId))
+    setUpdatingId(null)
+  }
+
+  const handleBulkStatus = async (status: 'accepted' | 'refused') => {
+    if (!selected.size) return
+    setBulkUpdating(true)
+    const ids = [...selected]
+    await supabase.from('applications').update({ status, updated_at: new Date().toISOString() }).in('id', ids)
+    const toNotify = pendingApps.filter(a => ids.includes(a.id))
+    await Promise.all(toNotify.map(app => {
+      const ev = events.find(e => e.id === app.event_id)
+      return supabase.from('notifications').insert({
+        user_id: app.creator_id,
+        type: status === 'accepted' ? 'application_accepted' : 'application_rejected',
+        title: status === 'accepted' ? 'Candidature acceptée' : 'Candidature non retenue',
+        body: status === 'accepted' ? `Votre candidature pour "${ev?.title || 'l\'événement'}" a été acceptée !` : `Votre candidature pour "${ev?.title || 'l\'événement'}" n'a pas été retenue.`,
+        link: `/events/${app.event_id}`,
+      })
+    }))
+    setPendingApps(prev => prev.filter(a => !ids.includes(a.id)))
+    setSelected(new Set())
+    setBulkUpdating(false)
+  }
+
+  const toggleSelect = (id: string) => setSelected(prev => {
+    const n = new Set(prev)
+    n.has(id) ? n.delete(id) : n.add(id)
+    return n
+  })
+
+  const toggleAll = () => setSelected(prev => prev.size === pendingApps.length ? new Set() : new Set(pendingApps.map(a => a.id)))
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-        <h2 className="text-xl font-bold text-gray-900">Mes événements ({events.length})</h2>
-        <Link href="/events/create"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
-          <Zap size={15} /> Créer un événement
-        </Link>
-      </div>
-
-      {events.length === 0 ? (
-        <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
-          <Calendar size={40} className="text-gray-200 mx-auto mb-4" />
-          <p className="text-base font-semibold text-gray-500 mb-1">Aucun événement créé</p>
-          <p className="text-sm text-gray-400 mb-6">Créez votre premier marché et trouvez des artisans</p>
-          <Link href="/events/create"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
-            Créer un événement <ArrowRight size={15} />
-          </Link>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {events.map((event, i) => {
-            const statusBadge = {
-              published: { label: 'Publié',    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
-              draft:     { label: 'Brouillon', classes: 'bg-amber-50 text-amber-700 border-amber-200',       dot: 'bg-amber-400' },
-              closed:    { label: 'Fermé',     classes: 'bg-gray-50 text-gray-500 border-gray-200',          dot: 'bg-gray-300' },
-            }[event.status] ?? { label: event.status, classes: 'bg-gray-50 text-gray-500 border-gray-200', dot: 'bg-gray-300' }
-
-            return (
-              <motion.div key={event.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                <Link href={`/events/${event.id}`}
-                  className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm hover:-translate-y-px transition-all duration-150 flex-wrap group">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-gray-900 truncate mb-1 group-hover:text-indigo-700 transition-colors">{event.title}</h3>
-                    {event.start_date && (
-                      <p className="text-xs text-gray-400">
-                        {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        {event.city ? ` · ${event.city}` : ''}
-                      </p>
-                    )}
+    <div className="flex flex-col gap-8">
+      {/* Pending candidatures */}
+      {pendingApps.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold text-gray-900">Candidatures en attente</h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold">{pendingApps.length}</span>
+            </div>
+            {selected.size > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 font-semibold">{selected.size} sélectionné{selected.size > 1 ? 's' : ''}</span>
+                <button onClick={() => handleBulkStatus('accepted')} disabled={bulkUpdating}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-colors disabled:opacity-50">
+                  <CheckCircle size={13} /> Accepter tout
+                </button>
+                <button onClick={() => handleBulkStatus('refused')} disabled={bulkUpdating}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-red-600 text-xs font-bold hover:bg-red-50 transition-colors disabled:opacity-50">
+                  <X size={13} /> Refuser tout
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            {/* Select all row */}
+            <label className="flex items-center gap-2 px-3 py-1.5 cursor-pointer select-none">
+              <input type="checkbox" checked={selected.size === pendingApps.length && pendingApps.length > 0} onChange={toggleAll}
+                className="w-4 h-4 rounded accent-indigo-600" />
+              <span className="text-xs font-semibold text-gray-400">Tout sélectionner</span>
+            </label>
+            {pendingApps.map((app, i) => {
+              const ev = events.find(e => e.id === app.event_id)
+              const isSelected = selected.has(app.id)
+              return (
+                <motion.div key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all duration-150 ${isSelected ? 'border-indigo-200 bg-indigo-50/50' : 'border-gray-100 bg-white'}`}>
+                  <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(app.id)}
+                    className="w-4 h-4 rounded accent-indigo-600 shrink-0" />
+                  <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0 overflow-hidden">
+                    {app.profiles?.avatar_url
+                      ? <img src={app.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                      : (app.profiles?.full_name?.[0] || '?')}
                   </div>
-                  <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${statusBadge.classes}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusBadge.dot}`} />
-                    {statusBadge.label}
-                  </span>
-                  <ArrowRight size={15} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              </motion.div>
-            )
-          })}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <Link href={`/creators/${app.creator_id}`} className="text-sm font-bold text-gray-900 hover:text-indigo-700 transition-colors">
+                        {app.profiles?.full_name || 'Créateur'}
+                      </Link>
+                      {ev && (
+                        <span className="text-xs text-gray-400">· <Link href={`/events/${ev.id}`} className="hover:text-indigo-600 transition-colors">{ev.title}</Link></span>
+                      )}
+                    </div>
+                    {app.message && (
+                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-1 italic">"{app.message}"</p>
+                    )}
+                    <p className="text-[11px] text-gray-400 mt-0.5">{new Date(app.created_at).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={() => handleStatus(app.id, 'accepted', ev?.title, app.creator_id)} disabled={updatingId === app.id}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-colors disabled:opacity-50">
+                      Accepter
+                    </button>
+                    <button onClick={() => handleStatus(app.id, 'refused', ev?.title, app.creator_id)} disabled={updatingId === app.id}
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-red-600 text-xs font-bold hover:bg-red-50 transition-colors disabled:opacity-50">
+                      Refuser
+                    </button>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
         </div>
       )}
+
+      {/* Recommandations créateurs */}
+      {recommendedCreators.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Créateurs compatibles</h2>
+            <Link href="/creators" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Voir tout →</Link>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {recommendedCreators.map((c, i) => (
+              <motion.div key={c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                <Link href={`/creators/${c.id}`}
+                  className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm transition-all duration-150 group">
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0 overflow-hidden">
+                    {c.avatar_url ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" /> : (c.full_name?.[0] || '?')}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">{c.full_name || 'Créateur'}</p>
+                    <p className="text-xs text-gray-400 truncate">{c.disciplines.slice(0, 2).join(', ')}</p>
+                  </div>
+                  <ArrowRight size={14} className="text-indigo-400 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Avis à laisser */}
+      {pendingReviews.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Avis à laisser ({pendingReviews.length})</h2>
+          <div className="flex flex-col gap-3">
+            {pendingReviews.map(r => (
+              <div key={`${r.eventId}:${r.creatorId}`} className="flex items-center gap-4 p-4 rounded-2xl border border-amber-100 bg-amber-50">
+                <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-700 text-sm shrink-0 overflow-hidden">
+                  {r.creatorAvatar ? <img src={r.creatorAvatar} alt="" className="w-full h-full object-cover" /> : r.creatorName[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-gray-900">{r.creatorName}</p>
+                  <p className="text-xs text-gray-500 truncate">{r.eventTitle}</p>
+                </div>
+                <button onClick={() => { setReviewModal(r); setReviewRating(0); setReviewComment('') }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-colors shrink-0">
+                  <Star size={13} /> Noter
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal avis */}
+      {reviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setReviewModal(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Laisser un avis</h3>
+            <p className="text-sm text-gray-500 mb-5">Pour <span className="font-semibold text-gray-700">{reviewModal.creatorName}</span> — {reviewModal.eventTitle}</p>
+            <div className="flex items-center gap-2 mb-5">
+              {[1,2,3,4,5].map(n => (
+                <button key={n} onClick={() => setReviewRating(n)}
+                  className="transition-transform hover:scale-110">
+                  <Star size={28} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : '#D1D5DB'} />
+                </button>
+              ))}
+              {reviewRating > 0 && <span className="text-sm text-gray-500 ml-2">{['','Insuffisant','Passable','Bien','Très bien','Excellent'][reviewRating]}</span>}
+            </div>
+            <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)}
+              placeholder="Commentaire optionnel — ponctualité, qualité des produits, stand bien tenu…"
+              rows={3}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-none outline-none focus:border-indigo-400 text-gray-900 mb-4" />
+            <div className="flex gap-3">
+              <button onClick={() => setReviewModal(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+                Annuler
+              </button>
+              <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
+                className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-40 hover:bg-indigo-500 transition-colors">
+                {reviewSubmitting ? 'Envoi…' : 'Publier l\'avis'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Events list */}
+      <div>
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <h2 className="text-xl font-bold text-gray-900">Mes événements ({events.length})</h2>
+          <Link href="/events/create"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+            <Zap size={15} /> Créer un événement
+          </Link>
+        </div>
+
+        {events.length === 0 ? (
+          <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
+            <Calendar size={40} className="text-gray-200 mx-auto mb-4" />
+            <p className="text-base font-semibold text-gray-500 mb-1">Aucun événement créé</p>
+            <p className="text-sm text-gray-400 mb-6">Créez votre premier marché et trouvez des artisans</p>
+            <Link href="/events/create"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+              Créer un événement <ArrowRight size={15} />
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {events.map((event, i) => {
+              const statusBadge = {
+                published: { label: 'Publié',    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
+                draft:     { label: 'Brouillon', classes: 'bg-amber-50 text-amber-700 border-amber-200',       dot: 'bg-amber-400' },
+                closed:    { label: 'Fermé',     classes: 'bg-gray-50 text-gray-500 border-gray-200',          dot: 'bg-gray-300' },
+              }[event.status] ?? { label: event.status, classes: 'bg-gray-50 text-gray-500 border-gray-200', dot: 'bg-gray-300' }
+              const eventPending = pendingApps.filter(a => a.event_id === event.id).length
+
+              return (
+                <motion.div key={event.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                  <Link href={`/events/${event.id}`}
+                    className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm hover:-translate-y-px transition-all duration-150 flex-wrap group">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-gray-900 truncate mb-1 group-hover:text-indigo-700 transition-colors">{event.title}</h3>
+                      {event.start_date && (
+                        <p className="text-xs text-gray-400">
+                          {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          {event.city ? ` · ${event.city}` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {eventPending > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold">
+                          {eventPending} en attente
+                        </span>
+                      )}
+                      <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${statusBadge.classes}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusBadge.dot}`} />
+                        {statusBadge.label}
+                      </span>
+                    </div>
+                    <ArrowRight size={15} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

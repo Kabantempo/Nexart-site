@@ -6,11 +6,12 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, Star, FileText, Send } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, Star, FileText, Send, Download } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
+import { ReportButton } from '@/components/ui/report-button'
 
 interface Props {
   id: string
@@ -236,6 +237,109 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
   refused: { label: 'Refusée', color: '#E05A5A', bg: '#FEF2F2' },
 }
 
+type Stand = { id: string; stand_number: string; dimensions: string | null; notes: string | null; creator_id: string | null }
+
+function StandsManager({ eventId }: { eventId: string }) {
+  const [stands, setStands] = useState<Stand[]>([])
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [newNum, setNewNum] = useState('')
+  const [newDim, setNewDim] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (!open) return
+    setLoading(true)
+    supabase.from('event_stands').select('*').eq('event_id', eventId).order('stand_number').then(({ data }) => {
+      setStands((data as Stand[]) ?? [])
+      setLoading(false)
+    })
+  }, [open, eventId])
+
+  const addStand = async () => {
+    if (!newNum.trim()) return
+    setSaving(true)
+    const { data } = await supabase.from('event_stands')
+      .insert({ event_id: eventId, stand_number: newNum.trim(), dimensions: newDim.trim() || null })
+      .select().single()
+    if (data) setStands(prev => [...prev, data as Stand])
+    setNewNum('')
+    setNewDim('')
+    setSaving(false)
+  }
+
+  const deleteStand = async (id: string) => {
+    await supabase.from('event_stands').delete().eq('id', id)
+    setStands(prev => prev.filter(s => s.id !== id))
+  }
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)}
+        style={{ width: '100%', marginTop: '16px', padding: '10px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'transparent', color: '#6B7280', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+        Gérer les stands ({stands.length})
+      </button>
+    )
+  }
+
+  return (
+    <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Gestion des stands</p>
+        <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: '18px' }}>×</button>
+      </div>
+      {loading ? <p style={{ fontSize: '13px', color: '#9CA3AF' }}>Chargement…</p> : (
+        <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px', maxHeight: '200px', overflowY: 'auto' }}>
+            {stands.map(s => (
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', minWidth: '40px' }}>#{s.stand_number}</span>
+                {s.dimensions && <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{s.dimensions}</span>}
+                <span style={{ flex: 1 }} />
+                {s.creator_id && <span style={{ fontSize: '11px', color: '#6366F1', fontWeight: '600' }}>Assigné</span>}
+                <button onClick={() => deleteStand(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E05A5A', fontSize: '16px' }}>×</button>
+              </div>
+            ))}
+            {stands.length === 0 && <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' }}>Aucun stand créé</p>}
+          </div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <input value={newNum} onChange={e => setNewNum(e.target.value)} placeholder="N°" style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none' }} />
+            <input value={newDim} onChange={e => setNewDim(e.target.value)} placeholder="Dimensions (ex: 3m×2m)" style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none' }} />
+            <button onClick={addStand} disabled={saving || !newNum.trim()} style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+              Ajouter
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function FaqSection({ items }: { items: { q: string; a: string }[] }) {
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <div style={{ marginBottom: '32px' }}>
+      <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>FAQ</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {items.map((item, i) => (
+          <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
+            <button onClick={() => setOpen(open === i ? null : i)}
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', backgroundColor: open === i ? '#F8F7FF' : '#FFFFFF', border: 'none', cursor: 'pointer', textAlign: 'left', gap: '12px' }}>
+              <span style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>{item.q}</span>
+              <span style={{ fontSize: '20px', color: '#6366F1', flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'none', transition: 'transform 150ms' }}>+</span>
+            </button>
+            {open === i && (
+              <div style={{ padding: '0 20px 16px', fontSize: '14px', color: '#555555', lineHeight: '1.7' }}>
+                {item.a}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function EventDetailClient({ id }: Props) {
   const { event, loading, error } = useEvent(id)
   const user = useAuthStore((s) => s.user)
@@ -256,6 +360,11 @@ export function EventDetailClient({ id }: Props) {
   const [bulkMsgSending, setBulkMsgSending] = useState(false)
   const [bulkMsgDone, setBulkMsgDone] = useState(false)
   const [showBulkMsg, setShowBulkMsg] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
+  const [cancelled, setCancelled] = useState(false)
+  const [appPortfolioFiles, setAppPortfolioFiles] = useState<File[]>([])
+  const [appPortfolioUploading, setAppPortfolioUploading] = useState(false)
+  const appPortfolioRef = useRef<HTMLInputElement>(null)
 
   const REQUIRED_FIELDS_TOTAL = 6
 
@@ -410,6 +519,19 @@ export function EventDetailClient({ id }: Props) {
     }
   }
 
+  const handleCancelApplication = async () => {
+    if (!user || !application) return
+    setCancelling(true)
+    const { error } = await supabase.from('applications').delete().eq('id', application.id).eq('creator_id', user.id)
+    if (!error) {
+      setCancelled(true)
+      toastSuccess('Candidature retirée')
+    } else {
+      toastError('Erreur lors du retrait de la candidature')
+    }
+    setCancelling(false)
+  }
+
   useEffect(() => {
     if (!user || user.role !== 'creator') {
       setProfileChecked(true)
@@ -453,9 +575,49 @@ export function EventDetailClient({ id }: Props) {
   }
 
   const handleApply = async () => {
-    await apply(message)
+    setAppPortfolioUploading(appPortfolioFiles.length > 0)
+    let portfolioUrls: string[] = []
+    if (appPortfolioFiles.length > 0 && user) {
+      const uploads = await Promise.all(appPortfolioFiles.map(async (file, i) => {
+        const ext = file.name.split('.').pop() ?? 'jpg'
+        const path = `applications/${user.id}/${id}/${Date.now()}_${i}.${ext}`
+        const { error, data } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+        if (error) return null
+        return supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl
+      }))
+      portfolioUrls = uploads.filter(Boolean) as string[]
+    }
+    setAppPortfolioUploading(false)
+    await apply(message, portfolioUrls)
     trackApplicationSubmit(id, user?.id)
+    setAppPortfolioFiles([])
     setShowForm(false)
+  }
+
+  const handleAddToCalendar = () => {
+    if (!event) return
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    const start = event.start_date ? new Date(event.start_date) : new Date()
+    const end = event.end_date ? new Date(event.end_date) : new Date(start.getTime() + 8 * 3600000)
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Nexart//FR',
+      'BEGIN:VEVENT',
+      `UID:${id}@nexart.fr`,
+      `DTSTART:${fmt(start)}`,
+      `DTEND:${fmt(end)}`,
+      `SUMMARY:${event.title.replace(/,/g, '\\,')}`,
+      event.location ? `LOCATION:${event.location.replace(/,/g, '\\,')}` : '',
+      event.description ? `DESCRIPTION:${event.description.substring(0, 255).replace(/\n/g, '\\n').replace(/,/g, '\\,')}` : '',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].filter(Boolean).join('\r\n')
+    const blob = new Blob([lines], { type: 'text/calendar' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `${event.title.replace(/\s+/g, '-')}.ics`; a.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -538,6 +700,12 @@ export function EventDetailClient({ id }: Props) {
                           <> → {new Date(event.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</>
                         )}
                       </div>
+                      {(event as unknown as { recurrence_type?: string; recurrence_dates?: string[] }).recurrence_type && (event as unknown as { recurrence_type?: string }).recurrence_type !== 'none' && (
+                        <div style={{ fontSize: '12px', color: '#6366F1', fontWeight: '600', marginTop: '4px' }}>
+                          {({ weekly: 'Hebdomadaire', biweekly: 'Bimensuel', monthly: 'Mensuel' } as Record<string, string>)[(event as unknown as { recurrence_type: string }).recurrence_type] || ''}
+                          {' · '}{(event as unknown as { recurrence_dates?: string[] }).recurrence_dates?.length ?? 0} dates au total
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -577,12 +745,30 @@ export function EventDetailClient({ id }: Props) {
                 )}
               </div>
 
-              {/* Share + Favori */}
+              {/* Share + Favori + Calendar */}
               <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '13px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
                   <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
                 </div>
+                {user && event?.organizer_id !== user.id && (
+                  <div style={{ marginTop: '28px', display: 'flex', alignItems: 'center' }}>
+                    <ReportButton targetId={id} targetType="event" reporterId={user.id} />
+                  </div>
+                )}
+                <button
+                  onClick={handleAddToCalendar}
+                  title="Ajouter à mon agenda"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
+                    backgroundColor: '#F8FAFC', color: '#64748B',
+                    fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
+                    border: '1.5px solid #E2E8F0', marginTop: '28px',
+                  }}
+                >
+                  <Download size={16} /> Agenda (.ics)
+                </button>
                 {user && (
                   <button
                     onClick={() => toggleEventFav(id)}
@@ -640,6 +826,29 @@ export function EventDetailClient({ id }: Props) {
                 </div>
               )}
 
+              {/* Gallery section */}
+              {(event as unknown as { gallery_images?: string[] }).gallery_images?.length ? (
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>Galerie photos</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '8px' }}>
+                    {(event as unknown as { gallery_images: string[] }).gallery_images.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                        style={{ display: 'block', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', backgroundColor: '#F3F4F6' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 200ms ease' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.04)' }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)' }} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* FAQ section */}
+              {(event as unknown as { faq?: { q: string; a: string }[] }).faq?.length ? (
+                <FaqSection items={(event as unknown as { faq: { q: string; a: string }[] }).faq} />
+              ) : null}
+
               {/* Reviews section */}
               <EventReviews eventId={id} userId={user?.id} userRole={user?.role} />
             </motion.div>
@@ -696,7 +905,7 @@ export function EventDetailClient({ id }: Props) {
               })()}
 
               {/* Already applied */}
-              {application ? (
+              {application && !cancelled ? (
                 <div style={{
                   padding: '16px',
                   borderRadius: '8px',
@@ -710,6 +919,15 @@ export function EventDetailClient({ id }: Props) {
                   <p style={{ fontSize: '13px', color: '#888888', marginTop: '4px' }}>
                     Candidature envoyée le {new Date(application.created_at).toLocaleDateString('fr-FR')}
                   </p>
+                  {application.status === 'pending' && (
+                    <button
+                      onClick={handleCancelApplication}
+                      disabled={cancelling}
+                      style={{ marginTop: '12px', padding: '8px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#9CA3AF', fontSize: '12px', fontWeight: '600', cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1 }}
+                    >
+                      {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
+                    </button>
+                  )}
                   {application.status === 'accepted' && user && event && (
                     <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       {existingContract ? (
@@ -790,6 +1008,15 @@ export function EventDetailClient({ id }: Props) {
                         <Send size={13} /> Messagerie groupée
                       </button>
                     )}
+                  <button
+                    onClick={() => {
+                      const link = `${window.location.origin}/events/${id}?invite=1`
+                      navigator.clipboard.writeText(link).then(() => toastSuccess('Lien d\'invitation copié !'))
+                    }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#6B7280', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                  >
+                    Inviter un créateur
+                  </button>
                   </div>
 
                   {/* Bulk message form */}
@@ -851,6 +1078,18 @@ export function EventDetailClient({ id }: Props) {
                               "{app.message}"
                             </p>
                           )}
+                          {/* Portfolio images jointes */}
+                          {(app as unknown as { portfolio_images?: string[] }).portfolio_images?.length ? (
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                              {(app as unknown as { portfolio_images: string[] }).portfolio_images.map((url: string, i: number) => (
+                                <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                                  style={{ display: 'block', width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E5E7EB', flexShrink: 0 }}>
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </a>
+                              ))}
+                            </div>
+                          ) : null}
                           {app.status === 'pending' && (
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button
@@ -883,6 +1122,8 @@ export function EventDetailClient({ id }: Props) {
                       ))}
                     </div>
                   )}
+                  {/* Gestion des stands */}
+                  <StandsManager eventId={id} />
                 </div>
               ) : (user.role === 'organizer' || user.role === 'visitor') ? (
                 <p style={{ fontSize: '14px', color: '#888888', textAlign: 'center' }}>
@@ -939,6 +1180,43 @@ export function EventDetailClient({ id }: Props) {
                     rows={4}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', marginBottom: '12px' }}
                   />
+                  {/* Portfolio joint */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: '600', color: '#4B5563', display: 'block', marginBottom: '6px' }}>
+                      Photos de vos créations (optionnel, max 4)
+                    </label>
+                    <input ref={appPortfolioRef} type="file" accept="image/*" multiple style={{ display: 'none' }}
+                      onChange={e => {
+                        const files = Array.from(e.target.files ?? []).slice(0, 4)
+                        setAppPortfolioFiles(files)
+                        e.target.value = ''
+                      }} />
+                    {appPortfolioFiles.length === 0 ? (
+                      <button onClick={() => appPortfolioRef.current?.click()}
+                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: '#F9FAFB', color: '#6B7280', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                        + Ajouter des photos
+                      </button>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {appPortfolioFiles.map((f, i) => (
+                          <div key={i} style={{ position: 'relative', width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <button onClick={() => setAppPortfolioFiles(prev => prev.filter((_, j) => j !== i))}
+                              style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#111', color: '#FFF', border: 'none', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                        {appPortfolioFiles.length < 4 && (
+                          <button onClick={() => appPortfolioRef.current?.click()}
+                            style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: '#F9FAFB', color: '#9CA3AF', fontSize: '20px', cursor: 'pointer' }}>
+                            +
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   {applyError && (
                     <p style={{ color: '#E05A5A', fontSize: '13px', marginBottom: '12px' }}>{applyError}</p>
                   )}

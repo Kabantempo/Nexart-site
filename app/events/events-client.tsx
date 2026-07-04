@@ -87,16 +87,38 @@ function EventsContent() {
   const { events, loading, error } = useEvents()
   const searchParams = useSearchParams()
 
-  const [searchTerm,  setSearchTerm]  = useState(searchParams.get('q') || '')
-  const [cityFilter,  setCityFilter]  = useState('all')
-  const [typeFilter,  setTypeFilter]  = useState('all')
-  const [sortOrder,   setSortOrder]   = useState<'asc' | 'desc'>('asc')
+  const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || '')
+  const [cityFilter,   setCityFilter]   = useState('all')
+  const [typeFilter,   setTypeFilter]   = useState('all')
+  const [discFilter,   setDiscFilter]   = useState('all')
+  const [priceMax,     setPriceMax]     = useState<number | ''>('')
+  const [freeOnly,     setFreeOnly]     = useState(false)
+  const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>('asc')
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [nearMe, setNearMe] = useState(false)
+  const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
+  const [geoRadius] = useState(50) // km
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
-  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, sortOrder])
+  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder])
+
+  const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  }
+
+  const handleNearMe = () => {
+    if (nearMe) { setNearMe(false); return }
+    navigator.geolocation.getCurrentPosition(pos => {
+      setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+      setNearMe(true)
+    }, () => alert('Géolocalisation non disponible'))
+  }
 
   const uniqueCities = [...new Set(events.map((e) => e.city).filter(Boolean))].sort() as string[]
+  const uniqueDiscs = [...new Set(events.flatMap((e) => (e as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []).filter(Boolean))].sort()
 
   const filtered = events
     .filter((e) =>
@@ -107,6 +129,10 @@ function EventsContent() {
     )
     .filter((e) => cityFilter === 'all' || e.city === cityFilter)
     .filter((e) => typeFilter === 'all' || e.event_type === typeFilter)
+    .filter((e) => discFilter === 'all' || ((e as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []).includes(discFilter))
+    .filter((e) => !freeOnly || e.stand_price === 0)
+    .filter((e) => priceMax === '' || (e.stand_price != null && e.stand_price <= priceMax))
+    .filter((e) => !nearMe || !userPos || (e.lat && e.lng && haversine(userPos.lat, userPos.lng, e.lat, e.lng) <= geoRadius))
     .sort((a, b) => {
       const da = a.start_date ? new Date(a.start_date).getTime() : 0
       const db = b.start_date ? new Date(b.start_date).getTime() : 0
@@ -115,11 +141,11 @@ function EventsContent() {
 
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
-  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || sortOrder !== 'asc' || !!searchTerm
+  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || discFilter !== 'all' || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const uniqueCitiesCount = new Set(events.map(e => e.city).filter(Boolean)).size
 
-  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setSortOrder('asc'); setSearchTerm('') }
+  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setDiscFilter('all'); setSortOrder('asc'); setSearchTerm(''); setPriceMax(''); setFreeOnly(false); setNearMe(false) }
 
   if (loading) return <Skeleton />
 
@@ -252,12 +278,57 @@ function EventsContent() {
             </div>
           </div>
 
+          {/* Advanced filters toggle */}
+          <div className="mt-3">
+            <button onClick={() => setShowAdvanced(s => !s)}
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+              {showAdvanced ? '▲ Moins de filtres' : '▼ Filtres avancés (discipline, tarif stand)'}
+            </button>
+          </div>
+
+          {showAdvanced && (
+            <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-100">
+              {uniqueDiscs.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 mb-2">Discipline</p>
+                  <select value={discFilter} onChange={e => setDiscFilter(e.target.value)}
+                    className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${discFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+                    <option value="all">Toutes disciplines</option>
+                    {uniqueDiscs.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+              )}
+              <div>
+                <p className="text-[11px] font-bold text-gray-400 mb-2">Prix stand max (€)</p>
+                <input type="number" min={0} placeholder="ex: 50" value={priceMax}
+                  onChange={e => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-300" />
+              </div>
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" checked={freeOnly} onChange={e => setFreeOnly(e.target.checked)} className="w-4 h-4 rounded accent-indigo-600" />
+                  <span className="text-sm font-medium text-gray-700">Stands gratuits uniquement</span>
+                </label>
+              </div>
+              <div className="flex items-end pb-1">
+                <button onClick={handleNearMe}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors ${nearMe ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}>
+                  <MapPin size={14} /> Autour de moi ({geoRadius} km)
+                </button>
+              </div>
+            </div>
+          )}
+
           {hasActiveFilters && (
             <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap items-center">
               <span className="text-xs text-gray-400 font-medium">Actifs :</span>
               {searchTerm && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">"{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button></span>}
               {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
               {typeFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{EVENT_TYPE_LABELS[typeFilter]} <button onClick={() => setTypeFilter('all')}><X size={11} /></button></span>}
+              {discFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{discFilter} <button onClick={() => setDiscFilter('all')}><X size={11} /></button></span>}
+              {freeOnly && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Gratuit <button onClick={() => setFreeOnly(false)}><X size={11} /></button></span>}
+              {priceMax !== '' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">≤ {priceMax}€ <button onClick={() => setPriceMax('')}><X size={11} /></button></span>}
+              {nearMe && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold"><MapPin size={10} /> Autour de moi <button onClick={() => setNearMe(false)}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
             </div>
           )}
