@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { sendMail } from '@/lib/mailer'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   try {
     const { user_id, field, accepted, comment, creator_name } = await req.json()
     const label = field === 'siret_verified' ? 'SIRET' : 'RC Pro'

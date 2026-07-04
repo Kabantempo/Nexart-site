@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { sendMail } from '@/lib/mailer'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   try {
     const { conversation_id, sender_id, content } = await req.json()
     if (!conversation_id || !sender_id) return NextResponse.json({ ok: true })

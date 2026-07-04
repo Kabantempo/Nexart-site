@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { sendMail } from '@/lib/mailer'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   try {
     const { organizer_id, creator_name, event_title, event_id } = await req.json()
     if (!organizer_id || !event_title) return NextResponse.json({ ok: true })

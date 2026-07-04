@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 // GET /api/itinerary?creator_id=xxx  or  ?region=xxx (pour organisateurs)
 export async function GET(req: NextRequest) {
+  const admin = getAdminClient()
   const creatorId = req.nextUrl.searchParams.get('creator_id')
   const region = req.nextUrl.searchParams.get('region')
 
@@ -32,6 +27,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/itinerary — ajouter une étape
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   const body = await req.json()
   const { creator_id, label, region, department, city, lat, lng, start_date, end_date, is_public } = body
 
@@ -76,6 +72,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE /api/itinerary?id=xxx&creator_id=xxx
 export async function DELETE(req: NextRequest) {
+  const admin = getAdminClient()
   const id = req.nextUrl.searchParams.get('id')
   const creatorId = req.nextUrl.searchParams.get('creator_id')
 

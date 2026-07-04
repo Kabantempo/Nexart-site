@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 // GET /api/boutique?creator_id=xxx
 export async function GET(req: NextRequest) {
+  const admin = getAdminClient()
   const creatorId = req.nextUrl.searchParams.get('creator_id')
   if (!creatorId) return NextResponse.json({ error: 'creator_id requis' }, { status: 400 })
 
@@ -24,6 +19,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/boutique — créer un produit
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   const body = await req.json()
   const { creator_id, title, description, price, images, category, stock, featured_event_id } = body
 
@@ -64,6 +60,7 @@ export async function POST(req: NextRequest) {
 
 // PATCH /api/boutique — mettre à jour un produit
 export async function PATCH(req: NextRequest) {
+  const admin = getAdminClient()
   const body = await req.json()
   const { id, creator_id, ...updates } = body
 
@@ -84,6 +81,7 @@ export async function PATCH(req: NextRequest) {
 
 // DELETE /api/boutique?id=xxx&creator_id=xxx
 export async function DELETE(req: NextRequest) {
+  const admin = getAdminClient()
   const id = req.nextUrl.searchParams.get('id')
   const creatorId = req.nextUrl.searchParams.get('creator_id')
 

@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 const VALID_TIERS = ['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']
 
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   try {
     const { user_id, tier } = await req.json()
 

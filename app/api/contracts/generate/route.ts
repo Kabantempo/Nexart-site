@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
-import { createClient } from '@supabase/supabase-js'
 import { createHash } from 'crypto'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
@@ -16,6 +10,7 @@ function formatDate(d: string) {
 // POST /api/contracts/generate
 // Génère le contrat PDF et l'enregistre dans Supabase Storage
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   const body = await req.json()
   const { event_id, creator_id, organizer_id, application_id } = body
 

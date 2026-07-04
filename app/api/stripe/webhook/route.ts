@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { getStripe, isStripeConfigured, SubscriptionTier } from '@/lib/stripe'
+import { getAdminClient } from '@/lib/supabase-admin'
 
 // Mapping Stripe Price ID → tier Nexart
 // À remplir avec les vrais Price IDs quand Stripe est actif
@@ -21,13 +21,8 @@ const PRICE_TO_CREDITS: Record<string, { type: string; amount: number }> = {
   price_EVENT_X3:  { type: 'event_creation', amount: 3 },
 }
 
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
-
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   if (!isStripeConfigured()) {
     return NextResponse.json({ received: true, skipped: 'stripe_not_configured' })
   }

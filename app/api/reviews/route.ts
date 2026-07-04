@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 // GET /api/reviews?event_id=xxx  or  ?profile_id=xxx
 export async function GET(req: NextRequest) {
+  const admin = getAdminClient()
   const url = req.nextUrl
   const eventId = url.searchParams.get('event_id')
   const profileId = url.searchParams.get('profile_id')
@@ -30,6 +25,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/reviews
 export async function POST(req: NextRequest) {
+  const admin = getAdminClient()
   const body = await req.json()
   const { event_id, reviewer_id, reviewed_id, reviewer_role, rating, comment, tags } = body
 
