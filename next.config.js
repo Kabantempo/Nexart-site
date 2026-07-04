@@ -47,12 +47,12 @@ const nextConfig = {
   },
   headers,
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'cvqeysnymnkfxfithhsr.supabase.co' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'i.pravatar.cc' },
     ],
-    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,
   },
   eslint: { ignoreDuringBuilds: true },

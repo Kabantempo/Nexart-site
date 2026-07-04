@@ -10,6 +10,7 @@ function formatDate(d: string) {
 // POST /api/contracts/generate
 // Génère le contrat PDF et l'enregistre dans Supabase Storage
 export async function POST(req: NextRequest) {
+  try {
   const admin = getAdminClient()
   const body = await req.json()
   const { event_id, creator_id, organizer_id, application_id } = body
@@ -185,4 +186,8 @@ export async function POST(req: NextRequest) {
   }, { onConflict: 'event_id,creator_id' }).select().single()
 
   return NextResponse.json({ contract, pdf_url: publicUrl, document_hash: documentHash }, { status: 201 })
+  } catch (err) {
+    console.error('[contracts/generate]', err)
+    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
+  }
 }
