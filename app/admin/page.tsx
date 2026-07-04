@@ -242,31 +242,53 @@ export default function AdminPage() {
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
+  const callVerifyAPI = async (userId: string, field: string, value: boolean, table = 'creator_profiles') => {
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/admin/verify-creator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ userId, field, value, table }),
+    })
+    return res.ok
+  }
+
   const handleVerifyCreator = async (userId: string, field: 'siret_verified' | 'insurance_verified', value: boolean) => {
     setVerifSaving(`${userId}-${field}`)
-    await supabase.from('creator_profiles').update({ [field]: value }).eq('user_id', userId)
-    setCreators(prev => prev.map(c => c.user_id === userId ? { ...c, [field]: value } : c))
+    const ok = await callVerifyAPI(userId, field, value)
+    if (ok) {
+      setCreators(prev => prev.map(c => c.user_id === userId ? { ...c, [field]: value } : c))
+      showToast(value ? '✓ Vérifié' : '✓ Révoqué')
+    } else {
+      showToast('Erreur lors de la mise à jour')
+    }
     setVerifSaving(null)
-    showToast(value ? '✓ Vérifié' : '✓ Révoqué')
   }
 
   const handleRefuse = async () => {
     if (!refuseModal) return
     const { userId, field } = refuseModal
     setVerifSaving(`${userId}-${field}`)
-    await supabase.from('creator_profiles').update({ [field]: false }).eq('user_id', userId)
-    setRefusedSet(prev => new Set([...prev, `${userId}-${field}`]))
+    const ok = await callVerifyAPI(userId, field, false)
+    if (ok) {
+      setRefusedSet(prev => new Set([...prev, `${userId}-${field}`]))
+      showToast('✓ Refusé')
+    } else {
+      showToast('Erreur lors du refus')
+    }
     setVerifSaving(null)
     setRefuseModal(null)
-    showToast('✓ Refusé')
   }
 
   const handleVerifyOrga = async (userId: string, field: 'siret_verified' | 'verification_doc_verified', value: boolean) => {
     setOrgaVerifSaving(`${userId}-${field}`)
-    await supabase.from('organizer_profiles').update({ [field]: value }).eq('user_id', userId)
-    setOrgaVerifs(prev => prev.map(o => o.user_id === userId ? { ...o, [field]: value } : o))
+    const ok = await callVerifyAPI(userId, field, value, 'organizer_profiles')
+    if (ok) {
+      setOrgaVerifs(prev => prev.map(o => o.user_id === userId ? { ...o, [field]: value } : o))
+      showToast(value ? '✓ Vérifié' : '✓ Révoqué')
+    } else {
+      showToast('Erreur lors de la mise à jour')
+    }
     setOrgaVerifSaving(null)
-    showToast(value ? '✓ Vérifié' : '✓ Révoqué')
   }
 
   const handleBanCreator = async (userId: string, ban: boolean) => {
