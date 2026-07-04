@@ -67,14 +67,58 @@ function TypingDots() {
   )
 }
 
+function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.85)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'zoom-out',
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt="image"
+        onClick={e => e.stopPropagation()}
+        style={{
+          maxWidth: '90vw', maxHeight: '90vh',
+          borderRadius: '12px', objectFit: 'contain',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.6)',
+          cursor: 'default',
+        }}
+      />
+      <button
+        onClick={onClose}
+        style={{
+          position: 'absolute', top: '20px', right: '20px',
+          background: 'rgba(255,255,255,0.15)', border: 'none',
+          borderRadius: '50%', width: '40px', height: '40px',
+          color: '#fff', fontSize: '20px', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >×</button>
+    </div>
+  )
+}
+
 function AttachmentPreview({ url, type, name, isMine }: { url: string; type: string | null; name: string | null; isMine: boolean }) {
+  const [lightbox, setLightbox] = useState(false)
   const isImage = type === 'image' || url.match(/\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i)
   if (isImage) {
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginBottom: '6px', borderRadius: '12px', overflow: 'hidden', maxWidth: '260px' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={url} alt={name ?? 'image'} style={{ width: '100%', display: 'block', maxHeight: '200px', objectFit: 'cover' }} />
-      </a>
+      <>
+        {lightbox && <ImageLightbox url={url} onClose={() => setLightbox(false)} />}
+        <div
+          onClick={() => setLightbox(true)}
+          style={{ display: 'block', marginBottom: '6px', borderRadius: '12px', overflow: 'hidden', maxWidth: '260px', cursor: 'zoom-in' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt={name ?? 'image'} style={{ width: '100%', display: 'block', maxHeight: '200px', objectFit: 'cover' }} />
+        </div>
+      </>
     )
   }
   return (
