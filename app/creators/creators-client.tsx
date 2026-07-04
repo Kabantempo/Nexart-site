@@ -72,6 +72,9 @@ function CreatorsContent() {
   const [visibleCount,     setVisibleCount]     = useState(ITEMS_PER_PAGE)
   const [ratingsMap,       setRatingsMap]       = useState<Record<string, number>>({})
   const [followersMap,     setFollowersMap]     = useState<Record<string, number>>({})
+  const [userCoords,       setUserCoords]       = useState<{ lat: number; lng: number } | null>(null)
+  const [geoLoading,       setGeoLoading]       = useState(false)
+  const [geoError,         setGeoError]         = useState<string | null>(null)
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
@@ -99,7 +102,14 @@ function CreatorsContent() {
   const uniqueCities      = [...new Set(creators.map((c) => c.city).filter(Boolean))].sort() as string[]
   const uniqueDisciplines = [...new Set(creators.flatMap((c) => c.disciplines || []).filter(Boolean))].sort() as string[]
 
-  const filtered = creators
+  const creatorsWithDist = userCoords
+    ? creators.map(c => ({
+        ...c,
+        _dist: (c.lat && c.lng) ? haversine(userCoords.lat, userCoords.lng, c.lat, c.lng) : Infinity
+      }))
+    : creators.map(c => ({ ...c, _dist: Infinity }))
+
+  const filtered = creatorsWithDist
     .filter((c) =>
       !searchTerm ||
       c.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -110,10 +120,11 @@ function CreatorsContent() {
     .filter((c) => cityFilter === 'all' || c.city === cityFilter)
     .filter((c) => disciplineFilter === 'all' || (c.disciplines || []).includes(disciplineFilter))
     .sort((a, b) => {
-      if (sortOrder === 'alpha')    return (a.full_name || '').localeCompare(b.full_name || '', 'fr')
-      if (sortOrder === 'newest')   return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      if (sortOrder === 'rating')   return (ratingsMap[b.id] ?? 0) - (ratingsMap[a.id] ?? 0)
-      if (sortOrder === 'popular')  return (followersMap[b.id] ?? 0) - (followersMap[a.id] ?? 0)
+      if (userCoords)              return a._dist - b._dist
+      if (sortOrder === 'alpha')   return (a.full_name || '').localeCompare(b.full_name || '', 'fr')
+      if (sortOrder === 'newest')  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      if (sortOrder === 'rating')  return (ratingsMap[b.id] ?? 0) - (ratingsMap[a.id] ?? 0)
+      if (sortOrder === 'popular') return (followersMap[b.id] ?? 0) - (followersMap[a.id] ?? 0)
       return 0
     })
 
@@ -124,7 +135,29 @@ function CreatorsContent() {
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const verifiedCount = creators.filter(c => c.siret_verified).length
 
-  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm('') }
+  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm(''); setUserCoords(null); setGeoError(null) }
+
+  const handleGeolocate = () => {
+    if (!navigator.geolocation) { setGeoError('Géolocalisation non supportée'); return }
+    setGeoLoading(true)
+    setGeoError(null)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setSortOrder('alpha')
+        setGeoLoading(false)
+      },
+      () => { setGeoError('Localisation refusée'); setGeoLoading(false) }
+    )
+  }
+
+  const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const R = 6371
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLng = (lng2 - lng1) * Math.PI / 180
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  }
 
   if (loading) return <Skeleton />
 
@@ -244,6 +277,22 @@ function CreatorsContent() {
                   </button>
                 ))}
               </div>
+            </div>
+            <div className="w-full sm:w-auto sm:ml-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-3">Proximité</p>
+              <button
+                onClick={userCoords ? () => { setUserCoords(null); setGeoError(null) } : handleGeolocate}
+                disabled={geoLoading}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition ${
+                  userCoords
+                    ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-red-50 hover:border-red-200 hover:text-red-600'
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700'
+                } disabled:opacity-50`}
+              >
+                <Navigation size={14} />
+                {geoLoading ? 'Localisation…' : userCoords ? 'Autour de moi ✓' : 'Autour de moi'}
+              </button>
+              {geoError && <p className="text-xs text-red-500 mt-1">{geoError}</p>}
             </div>
           </div>
 

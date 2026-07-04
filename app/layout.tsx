@@ -5,6 +5,7 @@ import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
 import { CookieBanner } from "@/components/ui/cookie-banner";
+import { EmailConfirmationBanner } from "@/components/ui/email-confirmation-banner";
 import { PageTransition } from "@/components/page-transition";
 
 const geistSans = Geist({
@@ -78,6 +79,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col bg-white text-gray-900">
         <Providers>
           <NavbarFull />
+          <EmailConfirmationBanner />
           <main className="flex-1 pt-[58px]">
             <PageTransition>{children}</PageTransition>
           </main>
