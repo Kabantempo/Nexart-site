@@ -525,14 +525,74 @@ export default function ProfilePage() {
     setDiscProposalSaving(null)
   }
 
+  const correctImageOrientation = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        const buf = ev.target?.result as ArrayBuffer
+        if (!buf) { resolve(URL.createObjectURL(file)); return }
+        // Lire l'orientation EXIF (tag 0x0112) dans les données JPEG
+        let orientation = 1
+        const view = new DataView(buf)
+        if (view.getUint16(0) === 0xFFD8) {
+          let offset = 2
+          while (offset < view.byteLength) {
+            if (view.getUint16(offset) === 0xFFE1) {
+              if (view.getUint32(offset + 4) === 0x45786966) {
+                const little = view.getUint16(offset + 10) === 0x4949
+                const ifdOffset = offset + 10 + view.getUint32(offset + 14, little)
+                const tags = view.getUint16(ifdOffset, little)
+                for (let i = 0; i < tags; i++) {
+                  if (view.getUint16(ifdOffset + 2 + 12 * i, little) === 0x0112) {
+                    orientation = view.getUint16(ifdOffset + 2 + 12 * i + 8, little)
+                    break
+                  }
+                }
+              }
+              break
+            }
+            offset += 2 + view.getUint16(offset + 2)
+          }
+        }
+        if (orientation === 1) { resolve(URL.createObjectURL(file)); return }
+        const img = new window.Image()
+        img.onload = () => {
+          const w = img.naturalWidth
+          const h = img.naturalHeight
+          const canvas = document.createElement('canvas')
+          const swapped = orientation >= 5
+          canvas.width = swapped ? h : w
+          canvas.height = swapped ? w : h
+          const ctx = canvas.getContext('2d')!
+          const t: Record<number, () => void> = {
+            2: () => { ctx.transform(-1, 0, 0, 1, w, 0) },
+            3: () => { ctx.transform(-1, 0, 0, -1, w, h) },
+            4: () => { ctx.transform(1, 0, 0, -1, 0, h) },
+            5: () => { ctx.transform(0, 1, 1, 0, 0, 0) },
+            6: () => { ctx.transform(0, 1, -1, 0, h, 0) },
+            7: () => { ctx.transform(0, -1, -1, 0, h, w) },
+            8: () => { ctx.transform(0, -1, 1, 0, 0, w) },
+          }
+          t[orientation]?.()
+          ctx.drawImage(img, 0, 0)
+          resolve(canvas.toDataURL('image/jpeg', 0.95))
+          URL.revokeObjectURL(img.src)
+        }
+        img.src = URL.createObjectURL(file)
+      }
+      reader.readAsArrayBuffer(file)
+    })
+  }
+
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
     e.target.value = ''
     setBannerUploading(true)
-    const ext = file.name.split('.').pop() ?? 'jpg'
-    const path = `${user.id}/banner.${ext}`
-    const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
+    const correctedDataUrl = await correctImageOrientation(file)
+    const blob = await fetch(correctedDataUrl).then(r => r.blob())
+    const path = `${user.id}/banner.jpg`
+    const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
     if (!error) {
       const { data } = supabase.storage.from('avatars').getPublicUrl(path)
       const url = `${data.publicUrl}?t=${Date.now()}`
@@ -546,16 +606,16 @@ export default function ProfilePage() {
     const file = e.target.files?.[0]
     if (!file || !user) return
     e.target.value = ''
-    const url = URL.createObjectURL(file)
+    const correctedUrl = await correctImageOrientation(file)
     const img = new window.Image()
     img.onload = () => {
       cropImgRef.current = img
       setCropImageSize({ w: img.naturalWidth, h: img.naturalHeight })
       setCropOffset({ x: 0, y: 0 })
       setCropScale(1)
-      setCropSrc(url)
+      setCropSrc(correctedUrl)
     }
-    img.src = url
+    img.src = correctedUrl
   }
 
   const drawCrop = () => {
