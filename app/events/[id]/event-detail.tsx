@@ -362,6 +362,8 @@ export function EventDetailClient({ id }: Props) {
   const [showBulkMsg, setShowBulkMsg] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   const [cancelled, setCancelled] = useState(false)
+  const [onWaitlist, setOnWaitlist] = useState(false)
+  const [joiningWaitlist, setJoiningWaitlist] = useState(false)
   const [appPortfolioFiles, setAppPortfolioFiles] = useState<File[]>([])
   const [appPortfolioUploading, setAppPortfolioUploading] = useState(false)
   const appPortfolioRef = useRef<HTMLInputElement>(null)
@@ -522,14 +524,58 @@ export function EventDetailClient({ id }: Props) {
   const handleCancelApplication = async () => {
     if (!user || !application) return
     setCancelling(true)
+    const wasAccepted = application.status === 'accepted'
     const { error } = await supabase.from('applications').delete().eq('id', application.id).eq('creator_id', user.id)
     if (!error) {
       setCancelled(true)
       toastSuccess('Candidature retirée')
+      // Si la candidature était acceptée, notifier le premier en waitlist
+      if (wasAccepted) {
+        const { data: next } = await supabase
+          .from('application_waitlist')
+          .select('creator_id')
+          .eq('event_id', id)
+          .order('position')
+          .limit(1)
+          .maybeSingle()
+        if (next?.creator_id) {
+          await supabase.from('notifications').insert({
+            user_id: next.creator_id,
+            type: 'waitlist_available',
+            title: 'Une place s\'est libérée !',
+            body: `Une place vient de se libérer pour "${event?.title}". Postulez maintenant !`,
+            link: `/events/${id}`,
+          })
+          // Retirer de la waitlist
+          await supabase.from('application_waitlist').delete().eq('event_id', id).eq('creator_id', next.creator_id)
+        }
+      }
     } else {
       toastError('Erreur lors du retrait de la candidature')
     }
     setCancelling(false)
+  }
+
+  // Vérifier si le créateur est déjà en waitlist
+  useEffect(() => {
+    if (!user || !id) return
+    supabase.from('application_waitlist').select('id').eq('event_id', id).eq('creator_id', user.id).maybeSingle()
+      .then(({ data }) => { if (data) setOnWaitlist(true) })
+  }, [user, id])
+
+  const handleJoinWaitlist = async () => {
+    if (!user || joiningWaitlist) return
+    setJoiningWaitlist(true)
+    const { data: lastPos } = await supabase.from('application_waitlist').select('position').eq('event_id', id).order('position', { ascending: false }).limit(1).maybeSingle()
+    await supabase.from('application_waitlist').insert({ event_id: id, creator_id: user.id, position: (lastPos?.position ?? 0) + 1 })
+    setOnWaitlist(true)
+    setJoiningWaitlist(false)
+  }
+
+  const handleLeaveWaitlist = async () => {
+    if (!user) return
+    await supabase.from('application_waitlist').delete().eq('event_id', id).eq('creator_id', user.id)
+    setOnWaitlist(false)
   }
 
   useEffect(() => {
@@ -1234,16 +1280,54 @@ export function EventDetailClient({ id }: Props) {
                     Annuler
                   </button>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setShowForm(true)}
-                  style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#5B5BD6'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1'; e.currentTarget.style.boxShadow = 'none' }}
-                >
-                  Je m'inscris
-                </button>
-              )}
+              ) : (() => {
+                const full = event.stand_count > 0 && acceptedCount !== null && acceptedCount >= event.stand_count
+                if (full) {
+                  return onWaitlist ? (
+                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#FFF7ED', border: '1px solid #FCD34D', textAlign: 'center' }}>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: '#B45309', margin: '0 0 4px' }}>
+                        Vous êtes en liste d'attente
+                      </p>
+                      <p style={{ fontSize: '12px', color: '#92400E', margin: '0 0 12px' }}>
+                        Vous serez notifié si une place se libère
+                      </p>
+                      <button
+                        onClick={handleLeaveWaitlist}
+                        disabled={joiningWaitlist}
+                        style={{ padding: '8px 18px', borderRadius: '8px', border: '1px solid #FCD34D', backgroundColor: '#FFFFFF', color: '#B45309', fontSize: '13px', fontWeight: '600', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
+                      >
+                        {joiningWaitlist ? 'Traitement…' : 'Se retirer de la liste'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', textAlign: 'center' }}>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>
+                        Événement complet
+                      </p>
+                      <p style={{ fontSize: '12px', color: '#7F1D1D', margin: '0 0 12px' }}>
+                        Rejoignez la liste d'attente pour être prévenu si une place se libère
+                      </p>
+                      <button
+                        onClick={handleJoinWaitlist}
+                        disabled={joiningWaitlist}
+                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '14px', fontWeight: '700', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
+                      >
+                        {joiningWaitlist ? 'Traitement…' : "Rejoindre la liste d'attente"}
+                      </button>
+                    </div>
+                  )
+                }
+                return (
+                  <button
+                    onClick={() => setShowForm(true)}
+                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#5B5BD6'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1'; e.currentTarget.style.boxShadow = 'none' }}
+                  >
+                    Je m'inscris
+                  </button>
+                )
+              })()}
             </motion.div>
           </div>
         </div>

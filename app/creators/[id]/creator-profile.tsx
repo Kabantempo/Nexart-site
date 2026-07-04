@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ReportButton } from '@/components/ui/report-button'
 import {
   ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, QrCode,
   Heart, MessageCircle, X, Send, BadgeCheck, Star,
@@ -13,11 +14,12 @@ import {
 import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
 import { ReviewForm } from '@/components/review-form'
+import { useToast } from '@/components/ui/toast-provider'
 
 interface Props { id: string }
 
 interface CreatorData {
-  id: string; full_name: string; bio?: string; avatar_url?: string
+  id: string; full_name: string; bio?: string; avatar_url?: string; banner_url?: string
   username?: string; show_real_name?: boolean
   city?: string; region?: string; department?: string; travel_radius?: string
   disciplines?: string[]; portfolio_images?: string[]
@@ -61,7 +63,7 @@ export function CreatorProfileClient({ id }: Props) {
   useEffect(() => {
     const load = async () => {
       const [{ data: p }, { data: cp }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, bio, avatar_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
+        supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
         supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
@@ -240,7 +242,16 @@ export function CreatorProfileClient({ id }: Props) {
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <div className="bg-[#06060f] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        {/* Banner image */}
+        {creator.banner_url && (
+          <div className="absolute inset-0 z-0">
+            <img src={creator.banner_url} alt="" className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/60 to-[#06060f]" />
+          </div>
+        )}
+        {!creator.banner_url && (
+          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        )}
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-10 relative z-10">
           {/* Back link */}
@@ -355,6 +366,11 @@ export function CreatorProfileClient({ id }: Props) {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 text-sm font-semibold transition-all">
               <QrCode size={15} /> QR code
             </button>
+            {user && user.id !== id && (
+              <div className="flex items-center" style={{ opacity: 0.5 }}>
+                <ReportButton targetId={id} targetType="creator" reporterId={user.id} />
+              </div>
+            )}
           </div>
 
           {/* QR code inline */}
@@ -594,10 +610,81 @@ export function CreatorProfileClient({ id }: Props) {
                 </div>
               )}
 
+              {/* Demande de devis */}
+              {user && !isOwn && <DevisForm creatorId={id} requesterId={user.id} />}
             </div>
           </motion.div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function DevisForm({ creatorId, requesterId }: { creatorId: string; requesterId: string }) {
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const { success, error } = useToast()
+
+  const handleSend = async () => {
+    if (!message.trim()) return
+    setSending(true)
+    const { error: err } = await supabase.from('notifications').insert({
+      user_id: creatorId,
+      type: 'devis_request',
+      title: 'Nouvelle demande de devis',
+      body: message.substring(0, 200),
+      link: `/messages`,
+    })
+    if (!err) {
+      // Also open a conversation
+      const { data: conv } = await supabase.from('conversations')
+        .select('id')
+        .eq('creator_id', creatorId)
+        .eq('organizer_id', requesterId)
+        .maybeSingle()
+      const convId = conv?.id || (await supabase.from('conversations').insert({ creator_id: creatorId, organizer_id: requesterId }).select('id').single()).data?.id
+      if (convId) await supabase.from('messages').insert({ conversation_id: convId, sender_id: requesterId, content: `[Demande de devis]\n${message}` })
+      setSent(true)
+      success('Demande envoyée au créateur')
+    } else {
+      error('Erreur lors de l\'envoi')
+    }
+    setSending(false)
+  }
+
+  if (sent) return (
+    <div className="mt-5 p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-center">
+      <p className="text-sm font-semibold text-emerald-700">Demande de devis envoyée</p>
+    </div>
+  )
+
+  return (
+    <div className="mt-5">
+      {!open ? (
+        <button onClick={() => setOpen(true)}
+          className="w-full py-3 rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-bold hover:bg-indigo-100 transition-colors">
+          Demander un devis
+        </button>
+      ) : (
+        <div className="border border-gray-100 rounded-2xl p-5 bg-gray-50/50">
+          <p className="text-sm font-bold text-gray-900 mb-3">Demande de devis</p>
+          <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4}
+            placeholder="Décrivez votre événement, les dates, le type de stand…"
+            className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-indigo-300 bg-white" />
+          <div className="flex gap-2 mt-3">
+            <button onClick={handleSend} disabled={sending || !message.trim()}
+              className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors disabled:opacity-50">
+              {sending ? 'Envoi…' : 'Envoyer'}
+            </button>
+            <button onClick={() => setOpen(false)}
+              className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 text-sm hover:bg-gray-50 transition-colors">
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
