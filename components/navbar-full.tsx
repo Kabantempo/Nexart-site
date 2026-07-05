@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
@@ -331,6 +331,21 @@ export function NavbarFull() {
                         )}
                       </div>
                     </div>
+                    {/* Dashboard(s) */}
+                    {(user.is_creator || user.role === 'creator') && (user.is_organizer || user.role === 'organizer') ? (
+                      <>
+                        <Link href="/dashboard?tab=creator" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                          <Brush size={13} className="text-indigo-400" /> Dashboard créateur
+                        </Link>
+                        <Link href="/dashboard?tab=organizer" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors">
+                          <Building2 size={13} className="text-violet-400" /> Dashboard organisateur
+                        </Link>
+                      </>
+                    ) : (
+                      <Link href="/dashboard" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <User size={13} className="text-gray-400" /> Mon dashboard
+                      </Link>
+                    )}
                     <Link href="/profile" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                       <User size={13} className="text-gray-400" /> Mon profil
                     </Link>

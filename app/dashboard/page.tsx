@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
@@ -65,13 +65,20 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [applications, setApplications] = useState<(Application & { event?: Event })[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [pendingApps, setPendingApps] = useState<{ id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
   const [loading, setLoading] = useState(true)
   const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
   const [missingProfileFields, setMissingProfileFields] = useState<string[]>([])
-  const [dashTab, setDashTab] = useState<'creator' | 'organizer'>('creator')
+  const [dashTab, setDashTab] = useState<'creator' | 'organizer'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('tab')
+      if (p === 'organizer') return 'organizer'
+    }
+    return 'creator'
+  })
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -276,11 +283,11 @@ export default function DashboardPage() {
         {/* Onglets si double rôle */}
         {hasCreator && hasOrganizer && (
           <div className="flex gap-1 mb-8 bg-gray-100 p-1 rounded-xl w-fit">
-            <button onClick={() => setDashTab('creator')}
+            <button onClick={() => { setDashTab('creator'); router.replace('/dashboard?tab=creator', { scroll: false }) }}
               className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-150 border-0 cursor-pointer ${dashTab === 'creator' ? 'bg-white text-indigo-600 shadow-sm' : 'bg-transparent text-gray-500 hover:text-gray-700'}`}>
               <Users size={14} /> Créateur
             </button>
-            <button onClick={() => setDashTab('organizer')}
+            <button onClick={() => { setDashTab('organizer'); router.replace('/dashboard?tab=organizer', { scroll: false }) }}
               className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-150 border-0 cursor-pointer ${dashTab === 'organizer' ? 'bg-white text-violet-600 shadow-sm' : 'bg-transparent text-gray-500 hover:text-gray-700'}`}>
               <Calendar size={14} /> Organisateur
             </button>
