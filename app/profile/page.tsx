@@ -30,6 +30,8 @@ type CreatorProfile = {
   website: string | null; instagram: string | null; etsy: string | null
   siret_verified: boolean; insurance_verified: boolean
   insurance_doc_url?: string | null
+  open_to_collab?: boolean
+  postal_code?: string | null
 }
 type Application = {
   id: string; status: string; created_at: string; message: string | null
@@ -2672,6 +2674,26 @@ export default function ProfilePage() {
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '4px', left: profile?.is_creator ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                      </button>
+                    </div>
+                  )}
+                  {/* Toggle collab — pour les créateurs */}
+                  {isCreatorRole && (
+                    <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Ouvert aux collaborations</p>
+                        <p className="text-xs text-gray-400">Les autres créateurs pourront vous proposer des collabs</p>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          const next = !creator?.open_to_collab
+                          await supabase.from('creator_profiles').update({ open_to_collab: next }).eq('user_id', user!.id)
+                          setCreator(prev => prev ? { ...prev, open_to_collab: next } : prev)
+                          showToast(next ? 'Collaborations activées' : 'Collaborations désactivées')
+                        }}
+                        className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: creator?.open_to_collab ? '#7C3AED' : '#CBD5E1', transition: 'background 200ms' }}>
+                        <div style={{ position: 'absolute', top: '4px', left: creator?.open_to_collab ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
                   )}

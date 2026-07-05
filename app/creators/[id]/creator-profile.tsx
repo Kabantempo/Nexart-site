@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { ReportButton } from '@/components/ui/report-button'
 import {
   ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, QrCode,
-  Heart, MessageCircle, X, Send, BadgeCheck, Star,
+  Heart, MessageCircle, X, Send, BadgeCheck, Star, Handshake,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
@@ -26,6 +26,7 @@ interface CreatorData {
   portfolio_grid?: { url: string; colSpan: 1|2|3; rowSpan: 1|2|3 }[]
   website?: string; instagram?: string; etsy?: string
   siret_verified?: boolean; insurance_verified?: boolean; created_at?: string
+  open_to_collab?: boolean
 }
 
 const RADIUS_LABELS: Record<string, string> = {
@@ -64,7 +65,7 @@ export function CreatorProfileClient({ id }: Props) {
     const load = async () => {
       const [{ data: p }, { data: cp }] = await Promise.all([
         supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified').eq('user_id', id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...p, ...cp })
@@ -612,10 +613,118 @@ export function CreatorProfileClient({ id }: Props) {
 
               {/* Demande de devis */}
               {user && !isOwn && <DevisForm creatorId={id} requesterId={user.id} />}
+
+              {/* Proposition de collab — visible seulement si le créateur l'a activé et le visiteur est aussi créateur */}
+              {user && !isOwn && creator.open_to_collab && (user.is_creator || user.role === 'creator') && (
+                <CollabForm creatorId={id} requesterId={user.id} requesterName={user.full_name ?? 'Créateur'} />
+              )}
             </div>
           </motion.div>
         </div>
       </div>
+    </div>
+  )
+}
+
+const COLLAB_TYPES = [
+  { value: 'stand_partage', label: 'Stand partagé', emoji: '🏪' },
+  { value: 'collection_commune', label: 'Collection commune', emoji: '🎨' },
+  { value: 'popup_ensemble', label: 'Pop-up ensemble', emoji: '✨' },
+  { value: 'autre', label: 'Autre', emoji: '💬' },
+]
+
+function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: string; requesterId: string; requesterName: string }) {
+  const [open, setOpen] = useState(false)
+  const [collabType, setCollabType] = useState('')
+  const [pitch, setPitch] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  const { success, error } = useToast()
+
+  const handleSend = async () => {
+    if (!pitch.trim() || !collabType) return
+    setSending(true)
+    const typeLabel = COLLAB_TYPES.find(t => t.value === collabType)?.label ?? collabType
+    const content = `[Demande de collaboration]\nType : ${typeLabel}\n${pitch}`
+
+    const { data: conv } = await supabase.from('conversations')
+      .select('id')
+      .eq('creator_id', creatorId)
+      .eq('organizer_id', requesterId)
+      .maybeSingle()
+    const convId = conv?.id || (await supabase.from('conversations').insert({ creator_id: creatorId, organizer_id: requesterId }).select('id').single()).data?.id
+
+    if (convId) {
+      await supabase.from('messages').insert({ conversation_id: convId, sender_id: requesterId, content })
+      await supabase.from('notifications').insert({
+        user_id: creatorId,
+        type: 'collab_request',
+        title: 'Proposition de collaboration',
+        body: `${requesterName} vous propose : ${typeLabel}`,
+        link: `/messages/${convId}`,
+      })
+      setSent(true)
+      success('Proposition envoyée !')
+    } else {
+      error('Erreur lors de l\'envoi')
+    }
+    setSending(false)
+  }
+
+  if (sent) return (
+    <div className="mt-3 p-4 rounded-2xl border border-violet-200 bg-violet-50 text-center">
+      <Handshake size={18} className="text-violet-600 mx-auto mb-1" />
+      <p className="text-sm font-semibold text-violet-700">Proposition de collab envoyée !</p>
+    </div>
+  )
+
+  return (
+    <div className="mt-3">
+      {!open ? (
+        <button onClick={() => setOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-violet-200 bg-violet-50 text-violet-700 text-sm font-bold hover:bg-violet-100 transition-colors">
+          <Handshake size={16} /> Proposer une collaboration
+        </button>
+      ) : (
+        <div className="border border-violet-100 rounded-2xl p-5 bg-violet-50/40">
+          <div className="flex items-center gap-2 mb-4">
+            <Handshake size={16} className="text-violet-600 shrink-0" />
+            <p className="text-sm font-bold text-gray-900">Proposition de collaboration</p>
+          </div>
+
+          {/* Type de collab */}
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Type de collaboration</p>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {COLLAB_TYPES.map(t => (
+              <button key={t.value} onClick={() => setCollabType(t.value)}
+                className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-all ${
+                  collabType === t.value
+                    ? 'border-violet-400 bg-violet-100 text-violet-800'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-violet-200 hover:bg-violet-50'
+                }`}>
+                <span className="text-base">{t.emoji}</span> {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Pitch */}
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Ton idée</p>
+          <textarea value={pitch} onChange={e => setPitch(e.target.value)} rows={4}
+            placeholder="Décris ton idée, le contexte, ce que tu imagines ensemble…"
+            className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-violet-300 bg-white" />
+
+          <div className="flex gap-2 mt-3">
+            <button onClick={handleSend} disabled={sending || !pitch.trim() || !collabType}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-bold hover:bg-violet-500 transition-colors disabled:opacity-50">
+              <Send size={14} /> {sending ? 'Envoi…' : 'Envoyer la proposition'}
+            </button>
+            <button onClick={() => setOpen(false)}
+              className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 text-sm hover:bg-gray-50 transition-colors">
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

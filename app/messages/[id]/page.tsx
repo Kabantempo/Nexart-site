@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
-import { ArrowLeft, Send, Pencil, Trash2, Check, X, CheckCheck, Paperclip, ImageIcon, FileText, Download, FileSearch } from 'lucide-react'
+import { ArrowLeft, Send, Pencil, Trash2, Check, X, CheckCheck, Paperclip, ImageIcon, FileText, Download, FileSearch, Handshake } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -482,31 +482,44 @@ export default function ConversationPage() {
                         {/* Text bubble (only if there's text content) */}
                         {m.content && (() => {
                           const isDevis = m.content.startsWith('[Demande de devis]')
-                          const devisText = isDevis ? m.content.replace('[Demande de devis]\n', '').replace('[Demande de devis]', '').trim() : null
-                          if (isDevis) return (
-                            <div style={{
-                              borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                              border: '1.5px solid #A5B4FC',
-                              backgroundColor: isMine ? '#4338CA' : '#EEF2FF',
-                              overflow: 'hidden', wordBreak: 'break-word',
-                            }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: '1px solid', borderColor: isMine ? 'rgba(165,180,252,0.3)' : '#C7D2FE' }}>
-                                <FileSearch size={13} color={isMine ? '#A5B4FC' : '#6366F1'} />
-                                <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#A5B4FC' : '#6366F1' }}>Demande de devis</span>
+                          const isCollab = m.content.startsWith('[Demande de collaboration]')
+
+                          if (isDevis) {
+                            const text = m.content.replace('[Demande de devis]\n', '').replace('[Demande de devis]', '').trim()
+                            return (
+                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: '1.5px solid #A5B4FC', backgroundColor: isMine ? '#4338CA' : '#EEF2FF', overflow: 'hidden', wordBreak: 'break-word' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: '1px solid', borderColor: isMine ? 'rgba(165,180,252,0.3)' : '#C7D2FE' }}>
+                                  <FileSearch size={13} color={isMine ? '#A5B4FC' : '#6366F1'} />
+                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#A5B4FC' : '#6366F1' }}>Demande de devis</span>
+                                </div>
+                                {text && <p style={{ margin: 0, padding: '8px 14px 10px', fontSize: '14px', lineHeight: '1.5', color: isMine ? '#E0E7FF' : '#1e1b4b' }}>{text}</p>}
                               </div>
-                              {devisText && (
-                                <p style={{ margin: 0, padding: '8px 14px 10px', fontSize: '14px', lineHeight: '1.5', color: isMine ? '#E0E7FF' : '#1e1b4b' }}>{devisText}</p>
-                              )}
-                            </div>
-                          )
+                            )
+                          }
+
+                          if (isCollab) {
+                            const raw = m.content.replace('[Demande de collaboration]\n', '').replace('[Demande de collaboration]', '').trim()
+                            const typeMatch = raw.match(/^Type : (.+)$/m)
+                            const typeLabel = typeMatch?.[1] ?? null
+                            const pitch = raw.replace(/^Type : .+\n?/, '').trim()
+                            return (
+                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: `1.5px solid ${isMine ? '#C4B5FD' : '#DDD6FE'}`, backgroundColor: isMine ? '#4C1D95' : '#F5F3FF', overflow: 'hidden', wordBreak: 'break-word', minWidth: '220px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: `1px solid ${isMine ? 'rgba(196,181,253,0.25)' : '#DDD6FE'}` }}>
+                                  <Handshake size={13} color={isMine ? '#C4B5FD' : '#7C3AED'} />
+                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#C4B5FD' : '#7C3AED' }}>Proposition de collab</span>
+                                </div>
+                                {typeLabel && (
+                                  <div style={{ padding: '6px 14px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', backgroundColor: isMine ? 'rgba(196,181,253,0.2)' : '#EDE9FE', color: isMine ? '#DDD6FE' : '#6D28D9' }}>{typeLabel}</span>
+                                  </div>
+                                )}
+                                {pitch && <p style={{ margin: 0, padding: '6px 14px 12px', fontSize: '14px', lineHeight: '1.55', color: isMine ? '#EDE9FE' : '#2E1065' }}>{pitch}</p>}
+                              </div>
+                            )
+                          }
+
                           return (
-                            <div style={{
-                              padding: '10px 14px',
-                              borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                              backgroundColor: isMine ? '#6366F1' : '#F3F4F6',
-                              color: isMine ? '#FFFFFF' : '#1A1A1A',
-                              fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word',
-                            }}>
+                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? '#6366F1' : '#F3F4F6', color: isMine ? '#FFFFFF' : '#1A1A1A', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
                               <p style={{ margin: 0 }}>{m.content}</p>
                             </div>
                           )

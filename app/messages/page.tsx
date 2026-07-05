@@ -356,9 +356,12 @@ export default function MessagesPage() {
                         fontWeight: conv.unreadCount > 0 ? '600' : '400',
                       }}>
                         {conv.lastMessage
-                          ? conv.lastMessage.content.startsWith('[Demande de devis]')
-                            ? (conv.lastMessage.sender_id === user?.id ? 'Vous : ' : '') + '📋 Demande de devis'
-                            : (conv.lastMessage.sender_id === user?.id ? 'Vous : ' : '') + conv.lastMessage.content
+                          ? (() => {
+                              const prefix = conv.lastMessage.sender_id === user?.id ? 'Vous : ' : ''
+                              if (conv.lastMessage.content.startsWith('[Demande de devis]')) return prefix + '📋 Demande de devis'
+                              if (conv.lastMessage.content.startsWith('[Demande de collaboration]')) return prefix + '🤝 Proposition de collab'
+                              return prefix + conv.lastMessage.content
+                            })()
                           : 'Conversation démarrée'}
                       </p>
                       {conv.unreadCount > 0 && (
