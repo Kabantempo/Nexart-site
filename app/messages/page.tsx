@@ -356,7 +356,9 @@ export default function MessagesPage() {
                         fontWeight: conv.unreadCount > 0 ? '600' : '400',
                       }}>
                         {conv.lastMessage
-                          ? (conv.lastMessage.sender_id === user?.id ? 'Vous : ' : '') + conv.lastMessage.content
+                          ? conv.lastMessage.content.startsWith('[Demande de devis]')
+                            ? (conv.lastMessage.sender_id === user?.id ? 'Vous : ' : '') + '📋 Demande de devis'
+                            : (conv.lastMessage.sender_id === user?.id ? 'Vous : ' : '') + conv.lastMessage.content
                           : 'Conversation démarrée'}
                       </p>
                       {conv.unreadCount > 0 && (

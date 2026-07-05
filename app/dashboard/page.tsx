@@ -75,16 +75,14 @@ export default function DashboardPage() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
-      if (!user) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-        if (profile) {
-          if (profile.is_banned) { await supabase.auth.signOut(); router.push('/banned'); return }
-          setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
-          if (!profile.onboarding_done) { router.push('/onboarding'); return }
-        }
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+      if (profile) {
+        if (profile.is_banned) { await supabase.auth.signOut(); router.push('/banned'); return }
+        setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
+        if (!profile.onboarding_done) { router.push('/onboarding'); return }
       }
     })
-  }, [router, user, setUser])
+  }, [router, setUser])
 
   useEffect(() => {
     if (!user) return

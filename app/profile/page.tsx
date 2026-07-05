@@ -359,7 +359,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user) return
     setSaving(true)
-    const isCreator = profile?.role === 'creator'
+    const isCreator = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true
     const promises = [
       supabase.from('profiles').update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }).eq('id', user.id),
       ...(isCreator ? [supabase.from('creator_profiles').upsert({
@@ -2038,7 +2038,7 @@ export default function ProfilePage() {
   // ──────────────────────────────────────────────────────────────────────────────
 
   const completionMissing: string[] = []
-  const isCreatorRole = profile?.role === 'creator' || profile?.role === 'artisan' || creator !== null
+  const isCreatorRole = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || creator !== null
   if (isCreatorRole) {
     if (!profile?.full_name) completionMissing.push('Nom complet')
     if (!profile?.bio) completionMissing.push('Bio')
@@ -2163,9 +2163,21 @@ export default function ProfilePage() {
                 )}
 
                 <div className="flex items-center gap-2 flex-wrap mb-3">
-                  <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
-                    {profile?.role === 'artisan' ? 'Artisan' : 'Créateur'}
-                  </span>
+                  {(profile?.role === 'creator' || profile?.role === 'artisan' || (profile?.is_creator && profile?.role !== 'organizer')) && (
+                    <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+                      {profile?.role === 'artisan' ? 'Artisan' : 'Créateur'}
+                    </span>
+                  )}
+                  {(profile?.role === 'organizer' || profile?.is_organizer) && (
+                    <span className="px-3 py-0.5 rounded-full bg-violet-500/25 text-violet-300 text-xs font-bold border border-violet-500/30">
+                      Organisateur
+                    </span>
+                  )}
+                  {(profile?.role === 'organizer' && profile?.is_creator) && (
+                    <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+                      Créateur
+                    </span>
+                  )}
                   {creator?.siret_verified && (
                     <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/20">
                       <BadgeCheck size={12} /> SIRET
@@ -2620,13 +2632,14 @@ export default function ProfilePage() {
 
               {/* Double rôle */}
               <div className="px-6 py-5">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Rôle secondaire</p>
-                <div className="flex flex-col gap-3">
-                  {profile?.role === 'creator' && (
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Rôles</p>
+                <div className="flex flex-col gap-4">
+                  {/* Toggle organisateur — caché si c'est déjà le rôle principal sans secondaire possible */}
+                  {profile?.role !== 'organizer' && (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Devenir aussi organisateur</p>
-                        <p className="text-xs text-gray-400">Créez et gérez vos propres marchés tout en restant créateur</p>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Organisateur</p>
+                        <p className="text-xs text-gray-400">Créez et gérez vos propres marchés</p>
                       </div>
                       <button
                         onClick={async () => {
@@ -2642,11 +2655,11 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   )}
-                  {profile?.role === 'organizer' && (
+                  {profile?.role !== 'creator' && profile?.role !== 'artisan' && (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Devenir aussi créateur</p>
-                        <p className="text-xs text-gray-400">Postulez aux événements tout en continuant à en organiser</p>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Créateur</p>
+                        <p className="text-xs text-gray-400">Postulez aux événements en tant qu'artisan</p>
                       </div>
                       <button
                         onClick={async () => {

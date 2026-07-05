@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
-import { ArrowLeft, Send, Pencil, Trash2, Check, X, CheckCheck, Paperclip, ImageIcon, FileText, Download } from 'lucide-react'
+import { ArrowLeft, Send, Pencil, Trash2, Check, X, CheckCheck, Paperclip, ImageIcon, FileText, Download, FileSearch } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -480,17 +480,37 @@ export default function ConversationPage() {
                           <AttachmentPreview url={m.attachment_url} type={m.attachment_type ?? null} name={m.attachment_name ?? null} isMine={isMine} />
                         )}
                         {/* Text bubble (only if there's text content) */}
-                        {m.content && (
-                          <div style={{
-                            padding: '10px 14px',
-                            borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                            backgroundColor: isMine ? '#6366F1' : '#F3F4F6',
-                            color: isMine ? '#FFFFFF' : '#1A1A1A',
-                            fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word',
-                          }}>
-                            <p style={{ margin: 0 }}>{m.content}</p>
-                          </div>
-                        )}
+                        {m.content && (() => {
+                          const isDevis = m.content.startsWith('[Demande de devis]')
+                          const devisText = isDevis ? m.content.replace('[Demande de devis]\n', '').replace('[Demande de devis]', '').trim() : null
+                          if (isDevis) return (
+                            <div style={{
+                              borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                              border: '1.5px solid #A5B4FC',
+                              backgroundColor: isMine ? '#4338CA' : '#EEF2FF',
+                              overflow: 'hidden', wordBreak: 'break-word',
+                            }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: '1px solid', borderColor: isMine ? 'rgba(165,180,252,0.3)' : '#C7D2FE' }}>
+                                <FileSearch size={13} color={isMine ? '#A5B4FC' : '#6366F1'} />
+                                <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#A5B4FC' : '#6366F1' }}>Demande de devis</span>
+                              </div>
+                              {devisText && (
+                                <p style={{ margin: 0, padding: '8px 14px 10px', fontSize: '14px', lineHeight: '1.5', color: isMine ? '#E0E7FF' : '#1e1b4b' }}>{devisText}</p>
+                              )}
+                            </div>
+                          )
+                          return (
+                            <div style={{
+                              padding: '10px 14px',
+                              borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                              backgroundColor: isMine ? '#6366F1' : '#F3F4F6',
+                              color: isMine ? '#FFFFFF' : '#1A1A1A',
+                              fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word',
+                            }}>
+                              <p style={{ margin: 0 }}>{m.content}</p>
+                            </div>
+                          )
+                        })()}
                         {/* Meta: time + read receipt */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMine ? 'flex-end' : 'flex-start', gap: '4px', marginTop: '3px', paddingRight: '4px' }}>
                           <span style={{ fontSize: '11px', color: '#9CA3AF' }}>

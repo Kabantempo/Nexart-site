@@ -42,7 +42,7 @@ type AdminCreator = {
   siret_verified: boolean
   insurance_verified: boolean
   insurance_doc_url: string | null
-  profiles: { full_name: string; avatar_url: string | null; is_banned?: boolean } | null
+  profiles: { full_name: string; avatar_url: string | null; is_banned?: boolean; is_creator?: boolean; is_organizer?: boolean; role?: string } | null
 }
 
 type AdminOrgaVerif = {
@@ -185,7 +185,7 @@ export default function AdminPage() {
         { data: msgs },
       ] = await Promise.all([
         supabase.from('creator_profiles')
-          .select('user_id,siret_number,siret_verified,insurance_verified,insurance_doc_url,profiles(full_name,avatar_url,is_banned)')
+          .select('user_id,siret_number,siret_verified,insurance_verified,insurance_doc_url,profiles(full_name,avatar_url,is_banned,is_creator,is_organizer,role)')
           .order('user_id'),
         supabase.from('events')
           .select('id,title,city,start_date,event_type,status,cover_image,stand_count,stand_price,profiles(full_name)')
@@ -761,6 +761,38 @@ export default function AdminPage() {
                             )
                           })()}
                         </div>
+
+                        {/* Rôles */}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                          {(['is_creator', 'is_organizer'] as const).map(field => {
+                            const active = !!(c.profiles as { is_creator?: boolean; is_organizer?: boolean })?.[field]
+                            const label = field === 'is_creator' ? 'Créateur' : 'Organisateur'
+                            return (
+                              <button key={field} onClick={async () => {
+                                const { data: { session } } = await supabase.auth.getSession()
+                                await fetch('/api/admin/set-role', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+                                  body: JSON.stringify({ userId: c.user_id, field, value: !active }),
+                                })
+                                setCreators(prev => prev.map(x => x.user_id === c.user_id
+                                  ? { ...x, profiles: x.profiles ? { ...x.profiles, [field]: !active } : x.profiles }
+                                  : x
+                                ))
+                              }} style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '5px 12px', borderRadius: '8px', border: '1px solid',
+                                borderColor: active ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.1)',
+                                backgroundColor: active ? 'rgba(99,102,241,0.2)' : 'transparent',
+                                color: active ? '#A5B4FC' : '#6B7280',
+                                fontSize: '12px', fontWeight: '700', cursor: 'pointer',
+                              }}>
+                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: active ? '#818CF8' : '#4B5563', flexShrink: 0 }} />
+                                {label}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1229,8 +1261,8 @@ export default function AdminPage() {
                 {reports.map(r => (
                   <div key={r.id} style={{
                     padding: '14px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px',
-                    border: `1px solid ${r.status === 'pending' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                    backgroundColor: r.status === 'pending' ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${r.status === 'pending' ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.12)'}`,
+                    backgroundColor: r.status === 'pending' ? 'rgba(245,158,11,0.12)' : '#111827',
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: '13px', fontWeight: '700', color: '#F9FAFB', margin: '0 0 2px' }}>
@@ -1246,13 +1278,13 @@ export default function AdminPage() {
                           <button onClick={async () => {
                             await supabase.from('reports').update({ status: 'reviewed' }).eq('id', r.id)
                             setReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'reviewed' } : x))
-                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', fontSize: '12px', fontWeight: '600', color: '#D1D5DB', cursor: 'pointer' }}>
+                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.4)', backgroundColor: 'rgba(16,185,129,0.15)', fontSize: '12px', fontWeight: '600', color: '#6EE7B7', cursor: 'pointer' }}>
                             Vu
                           </button>
                           <button onClick={async () => {
                             await supabase.from('reports').update({ status: 'dismissed' }).eq('id', r.id)
                             setReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'dismissed' } : x))
-                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', fontSize: '12px', fontWeight: '600', color: '#6B7280', cursor: 'pointer' }}>
+                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', fontSize: '12px', fontWeight: '600', color: '#9CA3AF', cursor: 'pointer' }}>
                             Ignorer
                           </button>
                         </>
