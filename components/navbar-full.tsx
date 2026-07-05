@@ -49,7 +49,7 @@ export function NavbarFull() {
           const { data: created } = await supabase.from('profiles').select('*').eq('id', su.id).maybeSingle()
           p = created
         }
-        if (p) setUser({ id: p.id, email: su.email || '', role: p.role, full_name: p.full_name, avatar_url: p.avatar_url })
+        if (p) setUser({ id: p.id, email: su.email || '', role: p.role, full_name: p.full_name, avatar_url: p.avatar_url, is_creator: p.is_creator, is_organizer: p.is_organizer })
       }
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => { if (!s) setUser(null) })
@@ -318,7 +318,18 @@ export function NavbarFull() {
                   <Panel id="profile" align="right" width="w-[190px]">
                     <div className="px-3.5 py-2.5 mb-1 border-b border-gray-100">
                       <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
-                      <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
+                      <p className="text-[11px] text-gray-400 truncate mb-1.5">{user.email}</p>
+                      <div className="flex gap-1 flex-wrap">
+                        {(user.is_creator || user.role === 'creator') && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">Créateur</span>
+                        )}
+                        {(user.is_organizer || user.role === 'organizer') && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-600 border border-violet-100">Organisateur</span>
+                        )}
+                        {!user.is_creator && !user.is_organizer && user.role === 'visitor' && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-50 text-gray-400 border border-gray-100">Visiteur</span>
+                        )}
+                      </div>
                     </div>
                     <Link href="/profile" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                       <User size={13} className="text-gray-400" /> Mon profil
