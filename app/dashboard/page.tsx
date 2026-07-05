@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
@@ -65,7 +65,6 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [applications, setApplications] = useState<(Application & { event?: Event })[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [pendingApps, setPendingApps] = useState<{ id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
