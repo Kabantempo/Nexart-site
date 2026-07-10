@@ -137,14 +137,34 @@
 ## v1.1.0 (Post v1.0) — Advanced Features
 
 - [ ] Dark mode complete
-- [ ] Organizer tools (analytics, bulk messaging)
+- [ ] Organizer analytics dashboard
 - [ ] Creator verification (manual review)
 - [ ] Advanced filters (by rating, availability, etc.)
-- [ ] CSV export (for organizers)
+- [ ] Bulk messaging for organizers
+- [ ] Creator followers system
 - [ ] Rate limiting on API
-- [ ] Monitoring dashboard
+- [ ] Performance monitoring setup
 
 **Timeline**: August 2026
+**See**: `docs/TODO-v1.1.0.md`
+
+---
+
+## v1.2.0 (Post v1.1) — Organizer Power Tools
+
+**Based on organizer feedback (Vocal Nexart):**
+- [ ] Centralized exhibitor dashboard (no more Google Forms + Excel)
+- [ ] Auto-reminders + waitlist system
+- [ ] Smart auto-responder (filter out-of-scope applications)
+- [ ] Team collaboration space (Notion-lite)
+- [ ] Event checklist + AI-generated documents (permits, press release)
+- [ ] Marketing suite (comms calendar + media database + pricing reference)
+- [ ] Volunteer scheduling tool
+
+**Why**: Organizers currently use Google Forms + Excel + Messenger. Need 1 platform for all workflows.
+
+**Timeline**: September 2026 (2-3 weeks)
+**See**: `docs/TODO-v1.2.0.md`
 
 ---
 
