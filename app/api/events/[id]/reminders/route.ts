@@ -6,7 +6,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   try {
     // Verify cron token
     const authHeader = req.headers.get('authorization')
+    if (!process.env.CRON_SECRET_TOKEN) {
+      console.error('CRON_SECRET_TOKEN not configured')
+      return NextResponse.json(
+        { error: 'Server misconfigured: CRON_SECRET_TOKEN not set' },
+        { status: 500 }
+      )
+    }
+
     if (authHeader !== `Bearer ${process.env.CRON_SECRET_TOKEN}`) {
+      console.warn('Unauthorized cron attempt:', authHeader?.substring(0, 10))
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -181,27 +190,65 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 
     return NextResponse.json({
+      success: true,
       event_id: params.id,
       first_reminders_sent: firstRemindersSent,
       second_reminders_sent: secondRemindersSent,
       timestamp: new Date().toISOString(),
     })
   } catch (error: any) {
-    console.error('Reminders cron error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    const errorStack = error?.stack || ''
+    console.error('❌ Reminders cron failed:', {
+      event_id: params.id,
+      error: errorMsg,
+      stack: errorStack,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Reminders cron failed',
+        details: errorMsg,
+        event_id: params.id,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    )
   }
 }
 
 // POST: Update reminder settings for event
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Supabase env vars not configured')
+      return NextResponse.json(
+        { error: 'Server misconfigured: Supabase env vars missing' },
+        { status: 500 }
+      )
+    }
+
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
     )
 
     const body = await req.json()
     const { first_reminder_days = 7, second_reminder_days = 14 } = body
+
+    // Validate input
+    if (
+      typeof first_reminder_days !== 'number' ||
+      typeof second_reminder_days !== 'number' ||
+      first_reminder_days < 1 ||
+      second_reminder_days < 1
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid reminder days (must be positive integers)' },
+        { status: 400 }
+      )
+    }
 
     // Upsert settings
     const { error } = await supabase.from('event_reminder_settings').upsert({
@@ -211,15 +258,36 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       enabled: true,
     })
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase upsert error:', error)
+      throw error
+    }
+
+    console.log('✓ Reminder settings updated:', {
+      event_id: params.id,
+      first_reminder_days,
+      second_reminder_days,
+    })
 
     return NextResponse.json({
       success: true,
+      event_id: params.id,
       first_reminder_days,
       second_reminder_days,
     })
   } catch (error: any) {
-    console.error('Settings update error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('❌ Settings update failed:', {
+      event_id: params.id,
+      error: errorMsg,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      {
+        error: 'Failed to update reminder settings',
+        details: errorMsg,
+      },
+      { status: 500 }
+    )
   }
 }

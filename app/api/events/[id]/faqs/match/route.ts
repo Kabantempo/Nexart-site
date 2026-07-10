@@ -105,8 +105,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       })
     }
   } catch (error: any) {
-    console.error('FAQ matching error:', error)
-    return NextResponse.json({ error: 'Erreur matching FAQ' }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('❌ FAQ matching error:', {
+      event_id: params.id,
+      error: errorMsg,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      {
+        matched: false,
+        error: 'FAQ matching failed',
+        details: errorMsg,
+        recommended_action: 'manual_review',
+      },
+      { status: 500 }
+    )
   }
 }
 

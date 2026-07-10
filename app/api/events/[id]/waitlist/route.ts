@@ -27,8 +27,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(data || [])
   } catch (error: any) {
-    console.error('Waitlist GET error:', error)
-    return NextResponse.json({ error: 'Erreur chargement waitlist' }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('❌ Waitlist GET error:', {
+      event_id: params.id,
+      error: errorMsg,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      { error: 'Erreur chargement waitlist', details: errorMsg },
+      { status: 500 }
+    )
   }
 }
 
@@ -141,8 +149,17 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
   } catch (error: any) {
-    console.error('Waitlist POST error:', error)
-    return NextResponse.json({ error: 'Erreur traitement waitlist' }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('❌ Waitlist POST error:', {
+      event_id: params.id,
+      error: errorMsg,
+      action: body?.action,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      { error: 'Erreur traitement waitlist', details: errorMsg },
+      { status: 500 }
+    )
   }
 }
 
@@ -199,8 +216,17 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     return NextResponse.json({ success: true, exhibitor_id })
   } catch (error: any) {
-    console.error('Waitlist PATCH error:', error)
-    return NextResponse.json({ error: 'Erreur mise à jour waitlist' }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('❌ Waitlist PATCH error:', {
+      event_id: params.id,
+      exhibitor_id: body?.exhibitor_id,
+      error: errorMsg,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      { error: 'Erreur mise à jour waitlist', details: errorMsg },
+      { status: 500 }
+    )
   }
 }
 
@@ -215,29 +241,58 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const body = await req.json()
     const { exhibitor_id } = body
 
-    await supabase
+    if (!exhibitor_id) {
+      return NextResponse.json(
+        { error: 'exhibitor_id required' },
+        { status: 400 }
+      )
+    }
+
+    const { error: deleteError } = await supabase
       .from('event_exhibitor_waitlist')
       .delete()
       .eq('event_id', params.id)
       .eq('exhibitor_id', exhibitor_id)
 
+    if (deleteError) throw deleteError
+
     // Reorder remaining
-    const { data: remaining } = await supabase
+    const { data: remaining, error: fetchError } = await supabase
       .from('event_exhibitor_waitlist')
       .select('id')
       .eq('event_id', params.id)
       .order('position', { ascending: true })
 
+    if (fetchError) throw fetchError
+
     for (let i = 0; i < (remaining?.length || 0); i++) {
-      await supabase
+      const { error: updateError } = await supabase
         .from('event_exhibitor_waitlist')
         .update({ position: i + 1 })
         .eq('id', remaining![i].id)
+
+      if (updateError) {
+        console.warn('Failed to reorder position:', updateError)
+      }
     }
 
-    return NextResponse.json({ success: true })
+    console.log('✓ Exhibitor removed from waitlist:', {
+      event_id: params.id,
+      exhibitor_id,
+      remaining_count: remaining?.length,
+    })
+
+    return NextResponse.json({ success: true, remaining_count: remaining?.length })
   } catch (error: any) {
-    console.error('Waitlist DELETE error:', error)
-    return NextResponse.json({ error: 'Erreur suppression waitlist' }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('❌ Waitlist DELETE error:', {
+      event_id: params.id,
+      error: errorMsg,
+      timestamp: new Date().toISOString(),
+    })
+    return NextResponse.json(
+      { error: 'Erreur suppression waitlist', details: errorMsg },
+      { status: 500 }
+    )
   }
 }

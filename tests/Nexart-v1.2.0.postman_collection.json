@@ -1,0 +1,351 @@
+{
+  "info": {
+    "name": "Nexart v1.2.0 API Tests",
+    "description": "Complete test suite for v1.2.0 features (reminders, waitlist, auto-responder, analytics, campaigns, team, volunteers)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "event_id",
+      "value": "test-event-id"
+    },
+    {
+      "key": "exhibitor_id",
+      "value": "test-exhibitor-id"
+    },
+    {
+      "key": "cron_token",
+      "value": "your-cron-secret-token"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Get Event Analytics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/analytics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "analytics"]
+            },
+            "description": "Get event fill rate, applications breakdown, acceptance stats"
+          }
+        },
+        {
+          "name": "Get Creator Analytics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/creator/analytics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "creator", "analytics"]
+            },
+            "description": "Get creator profile views, applications, acceptance rate, ratings"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auto-Reminders",
+      "item": [
+        {
+          "name": "Trigger Reminders (Cron)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{cron_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/reminders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "reminders"]
+            },
+            "description": "Cron job: Check for overdue exhibitors and send 7-day + 14-day reminders"
+          }
+        },
+        {
+          "name": "Update Reminder Settings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_reminder_days\": 7,\n  \"second_reminder_days\": 14\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/reminders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "reminders"]
+            },
+            "description": "Configure reminder schedule for event"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Waitlist",
+      "item": [
+        {
+          "name": "Get Waitlist",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/waitlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "waitlist"]
+            },
+            "description": "List all exhibitors in waitlist ordered by position"
+          }
+        },
+        {
+          "name": "Add to Waitlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exhibitor_id\": \"{{exhibitor_id}}\",\n  \"action\": \"add\",\n  \"reason\": \"Sold out\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/waitlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "waitlist"]
+            },
+            "description": "Add exhibitor to waitlist queue"
+          }
+        },
+        {
+          "name": "Cancel Exhibitor (Notify Next)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exhibitor_id\": \"{{exhibitor_id}}\",\n  \"action\": \"cancel\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/waitlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "waitlist"]
+            },
+            "description": "Cancel exhibitor and auto-notify next person in queue"
+          }
+        },
+        {
+          "name": "Move from Waitlist to Approved",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exhibitor_id\": \"{{exhibitor_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/waitlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "waitlist"]
+            },
+            "description": "Move exhibitor from waitlist to approved status"
+          }
+        },
+        {
+          "name": "Remove from Waitlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exhibitor_id\": \"{{exhibitor_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/waitlist",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "waitlist"]
+            },
+            "description": "Remove exhibitor from waitlist and reorder queue"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auto-Responder",
+      "item": [
+        {
+          "name": "Match Application Against FAQs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exhibitor_id\": \"{{exhibitor_id}}\",\n  \"application_text\": \"I sell handmade jewelry and pottery\",\n  \"application_data\": {\n    \"discipline\": \"jewelry\",\n    \"category\": \"handmade\",\n    \"experience\": \"10 years\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/faqs/match",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "faqs", "match"]
+            },
+            "description": "Match application keywords against FAQ entries. Returns confidence score and recommended action (auto_reject, manual_review, accept)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campaigns",
+      "item": [
+        {
+          "name": "Get Campaigns",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/campaigns",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "campaigns"]
+            },
+            "description": "List all email campaigns (draft + sent)"
+          }
+        },
+        {
+          "name": "Create Campaign",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Q3 Event Invitation\",\n  \"subject\": \"Don't miss our summer market!\",\n  \"message\": \"We'd love to see you at our upcoming event...\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/campaigns",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "campaigns"]
+            },
+            "description": "Create new email campaign (as draft)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team",
+      "item": [
+        {
+          "name": "Get Team Members",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/team",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "team"]
+            },
+            "description": "List all team members for event (with roles)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Volunteers",
+      "item": [
+        {
+          "name": "Get Volunteers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/volunteers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "volunteers"]
+            },
+            "description": "List all volunteers for event"
+          }
+        },
+        {
+          "name": "Get Shifts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/volunteers/shifts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "volunteers", "shifts"]
+            },
+            "description": "List all volunteer shifts for event"
+          }
+        },
+        {
+          "name": "Create Shift",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-08-15\",\n  \"time\": \"09:00\",\n  \"capacity\": 5,\n  \"role\": \"Reception\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}/volunteers/shifts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "{{event_id}}", "volunteers", "shifts"]
+            },
+            "description": "Create new volunteer shift"
+          }
+        }
+      ]
+    }
+  ]
+}
