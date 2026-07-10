@@ -32,3 +32,40 @@
 ## Env vars requis
 - `NEXT_PUBLIC_SUPABASE_URL` 
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+---
+
+# Quick Setup & Deploy
+
+## Before running dev server
+Create `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+```
+
+## Dev server
+```bash
+npm run dev  # http://localhost:3000
+```
+
+## Deploy to Hostinger
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+Requires: `~/.ssh/hostinger_nexart` key + `.env.local` configured
+
+**Post-deploy checklist:**
+- [ ] `/patch-notes` page loads
+- [ ] WhatsNew button appears in navbar
+- [ ] Changelog table exists in Supabase (run migration if needed)
+- [ ] Latest version shows in WhatsNew dropdown
+
+## Tech stack
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: inline + Tailwind (hybrid)
+- **Animation**: Framer Motion
+- **Icons**: Lucide React
+- **Backend**: Supabase (auth, realtime, storage)
+- **Hosting**: Hostinger (Node.js)
