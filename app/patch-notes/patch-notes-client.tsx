@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 interface PatchNote {
@@ -16,6 +15,7 @@ interface PatchNote {
 export default function PatchNotesClient() {
   const [notes, setNotes] = useState<PatchNote[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     fetch('/patch-notes.json')
@@ -24,108 +24,123 @@ export default function PatchNotesClient() {
         setNotes(data.versions)
         setLoading(false)
       })
+      .catch(() => {
+        setError(true)
+        setLoading(false)
+      })
   }, [])
 
   return (
     <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '60px 16px 40px' }}>
+      <header style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <Sparkles size={32} style={{ color: '#FF6B6B' }} />
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>
-              Patch Notes
-            </h1>
-          </div>
-          <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.6' }}>
-            Toutes les mises à jour, nouvelles fonctionnalités et corrections de Nexart
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', margin: 0, marginBottom: '16px' }}>
+            Mises à jour et nouveautés
+          </h1>
+          <p style={{ fontSize: '18px', color: '#555555', lineHeight: '1.6', maxWidth: '600px', margin: 0 }}>
+            Découvrez toutes les améliorations et nouvelles fonctionnalités de Nexart. Nous mettons régulièrement à jour la plateforme pour vous offrir une meilleure expérience.
           </p>
         </motion.div>
-      </div>
+      </header>
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 16px' }}>
-          <p>Chargement...</p>
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '60px 16px' }} role="status" aria-live="polite">
+          <p style={{ fontSize: '16px', color: '#888888' }}>Chargement des mises à jour...</p>
         </div>
-      ) : (
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 16px 80px' }}>
+      )}
+
+      {error && (
+        <div style={{ textAlign: 'center', padding: '60px 16px' }} role="alert">
+          <p style={{ fontSize: '16px', color: '#666666' }}>Impossible de charger les mises à jour. Veuillez réessayer plus tard.</p>
+        </div>
+      )}
+
+      {!loading && !error && notes.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '60px 16px' }}>
+          <p style={{ fontSize: '16px', color: '#888888' }}>Aucune mise à jour pour le moment.</p>
+        </div>
+      )}
+
+      {!loading && !error && notes.length > 0 && (
+        <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 16px 80px' }}>
           {notes.map((note, idx) => (
-            <motion.div
+            <motion.article
               key={note.version}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: idx * 0.1 }}
               viewport={{ once: true }}
               style={{
-                borderLeft: '3px solid #FF6B6B',
+                borderLeft: '4px solid #FF6B6B',
                 paddingLeft: '24px',
                 marginBottom: '48px',
                 paddingTop: '24px',
               }}
             >
               <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>
+                <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A', margin: 0, marginBottom: '8px' }}>
                   {note.name}
                 </h2>
-                <p style={{ fontSize: '14px', color: '#888888', margin: '8px 0 0 0' }}>
+                <time dateTime={note.date} style={{ fontSize: '14px', color: '#666666', display: 'block' }}>
                   {new Date(note.date).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                   })}
-                </p>
+                </time>
               </div>
 
               {note.features.length > 0 && (
-                <div style={{ marginBottom: '20px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#FF6B6B', marginBottom: '12px', textTransform: 'uppercase' }}>
-                    ✨ Nouveautés
+                <section style={{ marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', margin: 0 }}>
+                    Nouvelles fonctionnalités
                   </h3>
-                  <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                  <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
                     {note.features.map((feature, i) => (
                       <li key={i} style={{ color: '#555555', marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
                         {feature}
                       </li>
                     ))}
                   </ul>
-                </div>
+                </section>
               )}
 
               {note.improvements.length > 0 && (
-                <div style={{ marginBottom: '20px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#FF6B6B', marginBottom: '12px', textTransform: 'uppercase' }}>
-                    🛠️ Améliorations
+                <section style={{ marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', margin: 0 }}>
+                    Améliorations
                   </h3>
-                  <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                  <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
                     {note.improvements.map((imp, i) => (
                       <li key={i} style={{ color: '#555555', marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
                         {imp}
                       </li>
                     ))}
                   </ul>
-                </div>
+                </section>
               )}
 
               {note.fixes.length > 0 && (
-                <div>
-                  <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#FF6B6B', marginBottom: '12px', textTransform: 'uppercase' }}>
-                    🐛 Correctifs
+                <section>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', margin: 0 }}>
+                    Correctifs
                   </h3>
-                  <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                  <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
                     {note.fixes.map((fix, i) => (
                       <li key={i} style={{ color: '#555555', marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
                         {fix}
                       </li>
                     ))}
                   </ul>
-                </div>
+                </section>
               )}
-            </motion.div>
+            </motion.article>
           ))}
-        </div>
+        </main>
       )}
     </div>
   )
