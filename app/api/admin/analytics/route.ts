@@ -15,10 +15,11 @@ async function sql(query: string) {
 }
 
 export async function GET() {
-  const [
-    users, events, applications, dailySignups, eventTypes, verifications, messages,
-    conversionCreator, conversionOrganizer, fillRate, liquidity, retention30,
-  ] = await Promise.all([
+  try {
+    const [
+      users, events, applications, dailySignups, eventTypes, verifications, messages,
+      conversionCreator, conversionOrganizer, fillRate, liquidity, retention30,
+    ] = await Promise.all([
     sql(`
       SELECT
         COUNT(*)::int AS total,
@@ -131,27 +132,32 @@ export async function GET() {
     `),
   ])
 
-  return NextResponse.json({
-    users: users[0] ?? {},
-    events: events[0] ?? {},
-    applications: applications[0] ?? {},
-    dailySignups: dailySignups ?? [],
-    eventTypes: eventTypes ?? [],
-    verifications: verifications[0] ?? {},
-    messages: messages[0] ?? {},
-    kpi: {
-      conversionCreator: conversionCreator[0] ?? { active: 0, total: 0 },
-      conversionOrganizer: conversionOrganizer[0] ?? { active: 0, total: 0 },
-      fillRate: fillRate[0] ?? { total_stands: 0, filled_stands: 0 },
-      liquidity: liquidity[0] ?? { avg_hours: null },
-      retention30: retention30[0] ?? { cohort_total: 0, retained: 0 },
-      // Stripe / abonnements — disponible après intégration Stripe Connect
-      mrr: 0,
-      churnRate: null,
-      cac: null,
-      ltv: null,
-      gmv: 0,
-      arpu: 0,
-    },
-  })
+    console.log('✓ Admin analytics loaded')
+    return NextResponse.json({
+      users: users[0] ?? {},
+      events: events[0] ?? {},
+      applications: applications[0] ?? {},
+      dailySignups: dailySignups ?? [],
+      eventTypes: eventTypes ?? [],
+      verifications: verifications[0] ?? {},
+      messages: messages[0] ?? {},
+      kpi: {
+        conversionCreator: conversionCreator[0] ?? { active: 0, total: 0 },
+        conversionOrganizer: conversionOrganizer[0] ?? { active: 0, total: 0 },
+        fillRate: fillRate[0] ?? { total_stands: 0, filled_stands: 0 },
+        liquidity: liquidity[0] ?? { avg_hours: null },
+        retention30: retention30[0] ?? { cohort_total: 0, retained: 0 },
+        // Stripe / abonnements — disponible après intégration Stripe Connect
+        mrr: 0,
+        churnRate: null,
+        cac: null,
+        ltv: null,
+        gmv: 0,
+        arpu: 0,
+      },
+    })
+  } catch (error: any) {
+    console.error('❌ Admin analytics error:', { error: error?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur chargement analytics', details: error?.message }, { status: 500 })
+  }
 }
