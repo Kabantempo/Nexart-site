@@ -1,16 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-// Verify cron secret token
-const CRON_SECRET = process.env.CRON_SECRET_TOKEN || 'dev-token'
-
 export async function POST(req: NextRequest) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const CRON_SECRET = process.env.CRON_SECRET_TOKEN || 'dev-token'
+
     // Vérifier le token de sécurité
     const authHeader = req.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
@@ -113,6 +112,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
     const { data: users } = await supabase
