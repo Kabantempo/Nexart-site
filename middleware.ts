@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 const rateLimit = new Map<string, { count: number; reset: number }>()
 
@@ -21,10 +22,53 @@ function getRateLimitKey(req: NextRequest): string {
   return `${ip}:${path}`
 }
 
-export function middleware(req: NextRequest) {
+async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; userId?: string }> {
+  try {
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return { isAdmin: false }
+    }
+
+    const token = authHeader.substring(7)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    )
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) return { isAdmin: false }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    return {
+      isAdmin: profile?.is_admin === true,
+      userId: user.id
+    }
+  } catch {
+    return { isAdmin: false }
+  }
+}
+
+export async function middleware(req: NextRequest) {
   const path = new URL(req.url).pathname
 
-  // Only rate limit API routes
+  // Admin auth check
+  if (path.startsWith('/api/admin/')) {
+    const { isAdmin } = await checkAdminAccess(req)
+    if (!isAdmin) {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin access required' },
+        { status: 403 }
+      )
+    }
+  }
+
+  // Rate limiting
   if (!path.startsWith('/api/')) {
     return NextResponse.next()
   }
