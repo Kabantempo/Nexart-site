@@ -1,5 +1,17 @@
 @AGENTS.md
 
+---
+
+## ⚠️ Claude Instructions
+
+**Do NOT re-read all project files every session.** It wastes tokens.
+- Read CLAUDE.md Quick Setup section first
+- Check memory: `/Users/Kalvert/.claude/projects/-Users-Kalvert/memory/nexart_project.md`
+- Only read files when specifically asked or when debugging
+- Use `grep` or `git log` instead of full file reads
+
+If you need to explore: ask the user first before doing full file scans.
+
 # Patch Notes & Changelog
 
 ## Deux systèmes complémentaires
