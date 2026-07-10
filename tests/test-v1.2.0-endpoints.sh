@@ -41,8 +41,8 @@ test_endpoint() {
       "$BASE_URL$endpoint")
   fi
 
-  http_code=$(echo "$response" | tail -n1)
-  body=$(echo "$response" | head -n-1)
+  http_code=$(echo "$response" | tail -1)
+  body=$(echo "$response" | sed '$d')
 
   if [[ $http_code =~ ^(200|201|202|204)$ ]]; then
     echo -e "${GREEN}✓ PASS${NC} (HTTP $http_code)"
