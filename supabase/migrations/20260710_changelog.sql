@@ -23,12 +23,12 @@ CREATE POLICY changelog_public_read ON changelog
 
 -- Aucune policy d'écriture : réservé au service-role / dashboard Supabase (équipe).
 
--- Seed : version de base V1
+-- Seed : version 0.8.0
 INSERT INTO changelog (version, date, title, entries, audience, published)
 VALUES (
-  '1.0.0',
+  '0.8.0',
   '2026-07-10',
-  'Lancement de Nexart',
+  'Patch Notes & Changelog System',
   '[
     { "type": "new", "text": "Créez votre profil créateur ou organisateur et candidatez aux événements." },
     { "type": "new", "text": "Messagerie en temps réel entre créateurs et organisateurs." },

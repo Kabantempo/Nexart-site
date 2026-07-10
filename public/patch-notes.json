@@ -1,9 +1,9 @@
 {
   "versions": [
     {
-      "version": "1.0.0",
-      "date": "2026-01-15",
-      "name": "V1 — Launch",
+      "version": "0.8.0",
+      "date": "2026-07-10",
+      "name": "v0.8.0 — Patch Notes & Changelog",
       "features": [
         "Authentification multi-rôles (visiteur / créateur / organisateur / admin)",
         "Candidature créateur → événement avec statuts et notifications push",
