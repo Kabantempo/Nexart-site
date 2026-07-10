@@ -86,8 +86,39 @@ export async function POST(
 
     if (error) throw error
 
-    return NextResponse.json({ success: true, response: data?.[0] })
+    // Call FAQ matching for auto-responder
+    const applicationText = JSON.stringify(response_data).substring(0, 500)
+    const matchResult = await matchFAQ(params.id, user.id, applicationText, response_data)
+
+    return NextResponse.json({
+      success: true,
+      response: data?.[0],
+      auto_responder: matchResult,
+    })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+// Helper: Call FAQ matching
+async function matchFAQ(eventId: string, exhibitorId: string, text: string, data: any) {
+  try {
+    const result = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/events/${eventId}/faqs/match`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          exhibitor_id: exhibitorId,
+          application_text: text,
+          application_data: data,
+        }),
+      }
+    )
+
+    return await result.json()
+  } catch (err) {
+    console.error('FAQ matching failed:', err)
+    return { matched: false, error: 'matching_failed' }
   }
 }
