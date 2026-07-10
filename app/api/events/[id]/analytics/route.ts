@@ -1,0 +1,45 @@
+import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    const { data: apps, error: appsError } = await supabase
+      .from('applications')
+      .select('status')
+      .eq('event_id', params.id)
+
+    if (appsError) throw appsError
+
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('stand_count')
+      .eq('id', params.id)
+      .single()
+
+    if (eventError) throw eventError
+
+    const accepted = apps.filter(a => a.status === 'accepted').length
+    const pending = apps.filter(a => a.status === 'pending').length
+    const refused = apps.filter(a => a.status === 'refused').length
+    const total = apps.length
+    const totalStands = event?.stand_count || 0
+
+    return NextResponse.json({
+      totalApplications: total,
+      acceptedCount: accepted,
+      pendingCount: pending,
+      refusedCount: refused,
+      fillRate: totalStands > 0 ? Math.round((accepted / totalStands) * 100) : 0,
+      totalStands,
+      acceptanceRate: total > 0 ? Math.round((accepted / total) * 100) : 0,
+    })
+  } catch (error: any) {
+    console.error('Analytics error:', error)
+    return NextResponse.json({ error: 'Erreur chargement stats' }, { status: 500 })
+  }
+}
