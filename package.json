@@ -1,6 +1,6 @@
 {
   "name": "nexart-site",
-  "version": "0.1.0",
+  "version": "0.8.0",
   "private": true,
   "engines": {
     "node": ">=20.0.0",
@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "audit:performance": "node scripts/audit-performance.mjs"
+    "audit:performance": "node scripts/audit-performance.mjs",
+    "bump-version": "bash scripts/bump-version.sh"
   },
   "dependencies": {
     "@21st-sdk/agent": "^0.0.18",

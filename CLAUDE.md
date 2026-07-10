@@ -81,3 +81,23 @@ Requires: `~/.ssh/hostinger_nexart` key + `.env.local` configured
 - **Icons**: Lucide React
 - **Backend**: Supabase (auth, realtime, storage)
 - **Hosting**: Hostinger (Node.js)
+
+---
+
+# Versioning (SemVer)
+
+**System**: Semantic Versioning (MAJOR.MINOR.PATCH)
+**Storage**: `package.json` + git tags
+**Display**: `NEXT_PUBLIC_VERSION` env var
+
+### Bump version
+```bash
+npm run bump-version 0.8.0
+# → updates package.json, commits, creates git tag, pushes
+```
+
+### Milestones
+- **v0.8.0** (current) : auth, messaging, feed, reviews, map, notifications, patch notes
+- **v1.0.0** : + Stripe integration, complete emails
+- **v1.1.0** : organizer tools, volunteer scheduling
+- **v2.0.0** : mini-boutique, advanced payments
