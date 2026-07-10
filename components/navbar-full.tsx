@@ -9,6 +9,7 @@ import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Hear
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
+import { WhatsNew } from '@/components/ui/whats-new'
 
 export function NavbarFull() {
   const [mobileOpen,  setMobileOpen]  = useState(false)
@@ -289,6 +290,8 @@ export function NavbarFull() {
                 )}
               </AnimatePresence>
             </div>
+
+            <WhatsNew dark={dark} />
 
             {user ? (
               <>
