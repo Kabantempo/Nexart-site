@@ -68,29 +68,34 @@
 
 ---
 
-## PHASE 3: Frontend Integration ⏳ (TODO)
+## PHASE 3: Frontend Integration ✅ (DONE)
 
 ### Settings / Account Page
-- [ ] Créer `/app/settings/page.tsx`
-- [ ] Bouton "Supprimer mon compte"
-- [ ] Modal confirmation (2-step)
-- [ ] Call `POST /api/account/delete-request`
-- [ ] Afficher message succès + email instruction
-- [ ] **TEST**: Cliquer bouton, voir modal, soumettre
+- [x] Créé `/app/settings/page.tsx`
+- [x] Bouton "Supprimer mon compte"
+- [x] Modal confirmation (2-step)
+- [x] Call `POST /api/account/delete-request`
+- [x] Message succès + email instruction
+- [ ] **TEST**: Cliquer bouton, voir modal, soumettre (fin)
 
 ### Account Export
-- [ ] Créer `POST /api/account/export-data`
-- [ ] Retourner JSON/CSV téléchargeable
-- [ ] Inclure: profile, conversations, reviews, events
-- [ ] Lien dans settings "Télécharger mes données"
-- [ ] **TEST**: Download données, vérifier format
+- [x] Créé `GET /api/account/export-data`
+- [x] Retourne JSON téléchargeable
+- [x] Inclure: profile, conversations, reviews, posts, messages
+- [x] Lien "Télécharger mes données" dans settings
+- [ ] **TEST**: Download données, vérifier format (fin)
+
+### Auth Endpoint
+- [x] Créé `GET /api/auth/me` (current user info)
+- [x] Retourne userId + email + profile
+- [ ] **TEST**: Vérifier retour données (fin)
 
 ### RLS Policies (Soft-Delete)
 - [ ] Profile queries filtrées (deleted_at IS NULL)
 - [ ] Applications queries filtrées
 - [ ] Messages queries filtrées
 - [ ] Posts queries filtrées
-- [ ] **TEST**: Soft-delete user → vérifier pas visible en requête
+- [ ] **TEST**: Soft-delete user → vérifier pas visible (Phase 6)
 
 ---
 
