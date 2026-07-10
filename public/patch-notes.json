@@ -3,17 +3,18 @@
     {
       "version": "0.8.0",
       "date": "2026-07-10",
-      "name": "v0.8.0 — Patch Notes & Changelog",
+      "name": "v0.8.0 — Patch Notes System & Accessibility",
       "features": [
-        "Authentification multi-rôles (visiteur / créateur / organisateur / admin)",
-        "Candidature créateur → événement avec statuts et notifications push",
-        "Messagerie temps réel (Supabase Realtime)",
-        "Système d'avis / reviews avec badge « isTrusted »",
-        "Feed social (posts, hashtags, likes optimistes)",
-        "Carte / Discover géolocalisé (filtre rayon Haversine)",
-        "Dashboard, boutique de crédits (Stripe), emails transactionnels"
+        "Système de patch notes sur le site (page + dropdown navbar)",
+        "Bouton WhatsNew pour voir les dernières mises à jour",
+        "Pages créateurs personnalisables (couleurs, polices, tagline, musique)"
       ],
-      "improvements": [],
+      "improvements": [
+        "Accessibilité améliorée (HTML sémantique, ARIA, meilleur contraste)",
+        "Lisibilité pour tous les publics (langage clair, non-technique)",
+        "Versioning SemVer automatisé (npm run bump-version)",
+        "Documentation projet complète dans CLAUDE.md local"
+      ],
       "fixes": []
     }
   ]
