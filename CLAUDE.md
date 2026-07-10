@@ -2,9 +2,9 @@
 
 ---
 
-## ⚠️ Claude Instructions
+## Claude Instructions
 
-**Do NOT re-read all project files every session.** It wastes tokens.
+Do NOT re-read all project files every session. It wastes tokens.
 - Read CLAUDE.md Quick Setup section first
 - Check memory: `/Users/Kalvert/.claude/projects/-Users-Kalvert/memory/nexart_project.md`
 - Only read files when specifically asked or when debugging
@@ -73,6 +73,121 @@ Requires: `~/.ssh/hostinger_nexart` key + `.env.local` configured
 - [ ] WhatsNew button appears in navbar
 - [ ] Changelog table exists in Supabase (run migration if needed)
 - [ ] Latest version shows in WhatsNew dropdown
+
+---
+
+# Page Creation Standards
+
+## File structure
+```
+app/my-page/
+  ├── page.tsx              (server component — metadata + layout)
+  └── my-page-client.tsx    (client component — rendering + interactivity)
+```
+
+## page.tsx template
+```tsx
+import type { Metadata } from 'next'
+import MyPageClient from './my-page-client'
+
+export const metadata: Metadata = {
+  title: 'Page Title — Nexart',
+  description: 'Short description for SEO',
+  alternates: { canonical: 'https://nexart.fr/my-page' },
+  openGraph: {
+    title: 'Page Title — Nexart',
+    description: 'Short description',
+    url: 'https://nexart.fr/my-page',
+    type: 'website',
+  },
+}
+
+export default function MyPage() {
+  return <MyPageClient />
+}
+```
+
+## -client.tsx template
+```tsx
+'use client'
+import { motion } from 'framer-motion'
+import { SomeIcon } from 'lucide-react'
+
+export default function MyPageClient() {
+  return (
+    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+      {/* Container */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
+        {/* Section with animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+            Title
+          </h1>
+        </motion.div>
+      </div>
+
+      {/* Content sections */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px', borderTop: '1px solid #E5E7EB' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          {/* Content */}
+        </motion.div>
+      </div>
+    </div>
+  )
+}
+```
+
+## Styling rules
+- **Use inline styles** (NOT Tailwind classes in main content)
+- **Container max-width**: 1280px (`maxWidth: '1280px'`)
+- **Default padding**: `padding: '60px 16px'` (vertical/horizontal)
+- **Borders**: `border: '1px solid #E5E7EB'` (light gray dividers)
+
+## Color palette
+- **Background**: `#FFFFFF` (white)
+- **Text primary**: `#1A1A1A` (dark gray/black)
+- **Text secondary**: `#888888` (medium gray)
+- **Text tertiary**: `#9CA3AF` (light gray)
+- **Accent**: `#FF6B6B` (red) or `#6366F1` (indigo)
+- **Borders**: `#E5E7EB` (light border)
+
+## Animation patterns
+```tsx
+// Fade-in on load
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+/>
+
+// Fade-in on scroll (once)
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+  viewport={{ once: true }}
+/>
+```
+
+## Typography
+- **H1** : `fontSize: '48px', fontWeight: 700`
+- **H2** : `fontSize: '32px', fontWeight: 700`
+- **Body** : `fontSize: '18px', color: '#888888', lineHeight: '1.6'`
+- **Small** : `fontSize: '14px', color: '#9CA3AF'`
+
+## Icons
+- Use Lucide React (`lucide-react`)
+- Example: `import { Heart, Target, Zap, Users } from 'lucide-react'`
+- Size: typically `size={16}` or `size={32}`
 
 ## Tech stack
 - **Framework**: Next.js 15 (App Router)
