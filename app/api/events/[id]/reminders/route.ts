@@ -51,7 +51,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .from('event_exhibitor_responses')
       .select(
         `id, exhibitor_id, submitted_at,
-         profiles:exhibitor_id (id, email, full_name)`
+         profiles:exhibitor_id (id, full_name)`
       )
       .eq('event_id', params.id)
       .eq('status', 'approved')
@@ -121,7 +121,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .from('event_exhibitor_responses')
       .select(
         `id, exhibitor_id, submitted_at,
-         profiles:exhibitor_id (id, email, full_name)`
+         profiles:exhibitor_id (id, full_name)`
       )
       .eq('event_id', params.id)
       .eq('status', 'approved')

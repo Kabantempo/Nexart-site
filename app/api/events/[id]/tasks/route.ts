@@ -15,7 +15,7 @@ export async function GET(
       .from('event_tasks')
       .select(`
         *,
-        profiles!event_tasks_assignee_id_fkey (full_name, email)
+        profiles!event_tasks_assignee_id_fkey (full_name)
       `)
       .eq('event_id', params.id)
       .order('created_at', { ascending: false })

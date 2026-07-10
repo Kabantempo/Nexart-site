@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         reason,
         notified_at,
         created_at,
-        profiles:exhibitor_id (id, email, full_name)
+        profiles:exhibitor_id (id, full_name)
       `)
       .eq('event_id', params.id)
       .order('position', { ascending: true })
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       // Get next in waitlist
       const { data: nextInQueue } = await supabase
         .from('event_exhibitor_waitlist')
-        .select(`id, exhibitor_id, position, profiles:exhibitor_id (email, full_name)`)
+        .select(`id, exhibitor_id, position, profiles:exhibitor_id (full_name)`)
         .eq('event_id', params.id)
         .order('position', { ascending: true })
         .limit(1)
@@ -177,7 +177,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // Get exhibitor
     const { data: exhibitor } = await supabase
       .from('event_exhibitor_responses')
-      .select('id, profiles:exhibitor_id (email, full_name)')
+      .select('id, profiles:exhibitor_id (full_name)')
       .eq('event_id', params.id)
       .eq('exhibitor_id', exhibitor_id)
       .single()

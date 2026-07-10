@@ -26,7 +26,7 @@ export async function GET(
         status,
         tables_count,
         submitted_at,
-        profiles!event_exhibitor_responses_exhibitor_id_fkey (full_name, email)
+        profiles!event_exhibitor_responses_exhibitor_id_fkey (full_name)
       `, { count: 'exact' })
       .eq('event_id', params.id)
 
