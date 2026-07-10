@@ -39,7 +39,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       acceptanceRate: total > 0 ? Math.round((accepted / total) * 100) : 0,
     })
   } catch (error: any) {
-    console.error('Analytics error:', error)
-    return NextResponse.json({ error: 'Erreur chargement stats' }, { status: 500 })
+    const errorMsg = error?.message || 'Unknown error'
+    console.error('Analytics error:', { error: errorMsg, timestamp: new Date().toISOString() })
+    return NextResponse.json(
+      { error: 'Erreur chargement stats', details: errorMsg },
+      { status: 500 }
+    )
   }
 }
