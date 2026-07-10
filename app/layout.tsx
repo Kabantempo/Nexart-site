@@ -4,7 +4,7 @@ import "./globals.css";
 import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
-import { CookieBanner } from "@/components/ui/cookie-banner";
+import { CookieConsent } from "@/components/CookieConsent";
 import { EmailConfirmationBanner } from "@/components/ui/email-confirmation-banner";
 import { PageTransition } from "@/components/page-transition";
 
@@ -84,7 +84,7 @@ export default function RootLayout({
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
-          <CookieBanner />
+          <CookieConsent />
         </Providers>
       </body>
     </html>

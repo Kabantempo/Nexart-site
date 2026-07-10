@@ -10,7 +10,7 @@ const fs = require('fs')
 const path = require('path')
 
 const PROJECT_REF = 'cvqeysnymnkfxfithhsr'
-const PAT = ''
+const PAT = process.env.SUPABASE_PAT || 'use env var SUPABASE_PAT'
 
 async function applyMigration(migrationFile) {
   if (!migrationFile) {
