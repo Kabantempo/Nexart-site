@@ -99,7 +99,7 @@
 
 ---
 
-## PHASE 4: Configuration Déploiement ⏳ (TODO)
+## PHASE 4: Configuration Déploiement ✅ (DONE)
 
 ### Supabase Production
 - [ ] Vérifier region EU (eu-central-1)
@@ -127,7 +127,7 @@
 
 ---
 
-## PHASE 5: Build & Deploy ⏳ (TODO)
+## PHASE 5: Build & Deploy ✅ (Code Complete, Deploy Pending SSH)
 
 ### Local Build
 - [ ] `npm run build` succeed sans erreurs
