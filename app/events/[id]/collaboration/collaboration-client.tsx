@@ -397,15 +397,15 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     </div>
                   </div>
 
-                  {/* Comments */}
+                  {/* Comments - Coming in v1.0.1 */}
                   <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <MessageCircle size={18} />
                     Commentaires
                   </h3>
 
-                  <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px', backgroundColor: '#F9FAFB' }}>
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center', margin: '20px 0' }}>
-                      Fonctionnalité commentaires à implémenter
+                  <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '20px', backgroundColor: '#EEF2FF' }}>
+                    <p style={{ fontSize: '14px', color: '#6366F1', fontWeight: 500, textAlign: 'center', margin: '0' }}>
+                      💬 Système de commentaires disponible en v1.0.1
                     </p>
                   </div>
                 </div>

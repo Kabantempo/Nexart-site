@@ -201,7 +201,10 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                   }}
                 />
                 <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '8px' }}>
-                  Conseil: Incluez les informations essentielles (quoi, quand, où, pourquoi)
+                  💡 Conseil: Incluez les informations essentielles (quoi, quand, où, pourquoi)
+                </p>
+                <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                  🚀 Génération automatique via Claude API disponible en v1.0.1
                 </p>
               </div>
 
