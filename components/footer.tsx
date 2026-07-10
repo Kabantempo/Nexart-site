@@ -24,6 +24,11 @@ const NAV = {
     { label: 'Découvrir les créateurs', href: '/creators' },
     { label: "S'inscrire",             href: '/register' },
   ],
+  'Ressources': [
+    { label: 'Patch Notes',         href: '/patch-notes' },
+    { label: 'Carnet de route',     href: '/carnet-de-route' },
+    { label: 'À propos',            href: '/about' },
+  ],
 }
 
 const SOCIALS = [
