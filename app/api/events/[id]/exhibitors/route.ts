@@ -1,124 +1,106 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-// GET: List exhibitors
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { searchParams } = new URL(req.url)
-    const status = searchParams.get('status')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const admin = getAdminClient()
 
-    let query = supabase
-      .from('event_exhibitor_responses')
-      .select(`
-        id,
-        exhibitor_id,
-        response_data,
-        status,
-        tables_count,
-        submitted_at,
-        profiles!event_exhibitor_responses_exhibitor_id_fkey (full_name)
-      `, { count: 'exact' })
-      .eq('event_id', params.id)
-
-    if (status) {
-      query = query.eq('status', status)
+    // Get auth token (organizer only)
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Missing auth token' }, { status: 401 })
     }
 
-    const { data, error, count } = await query
+    const token = authHeader.split(' ')[1]
+    const { data: { user }, error: authError } = await admin.auth.getUser(token)
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify organizer
+    const { data: event } = await admin
+      .from('events')
+      .select('organizer_id')
+      .eq('id', params.id)
+      .single()
+
+    if (event?.organizer_id !== user.id) {
+      return NextResponse.json(
+        { error: 'Only event organizer can view responses' },
+        { status: 403 }
+      )
+    }
+
+    // Get all responses
+    const { data, error, count } = await admin
+      .from('exhibitor_responses')
+      .select('*', { count: 'exact' })
+      .eq('event_id', params.id)
       .order('submitted_at', { ascending: false })
-      .range(offset, offset + limit - 1)
 
     if (error) throw error
 
     return NextResponse.json({
       exhibitors: data || [],
-      count,
-      limit,
-      offset,
-      total_pages: Math.ceil((count || 0) / limit)
+      total: count,
     })
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Exhibitors GET error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to fetch exhibitors' },
+      { status: 500 }
+    )
   }
 }
 
-// POST: Submit exhibitor response
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const admin = getAdminClient()
+
     const body = await req.json()
-    const { response_data, tables_count } = body
+    const { exhibitor_email, exhibitor_name, form_data } = body
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      req.headers.get('Authorization')?.split(' ')[1]
-    )
-
-    if (authError || !user) {
+    if (!exhibitor_email || !form_data) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'exhibitor_email and form_data required' },
+        { status: 400 }
       )
     }
 
-    // Upsert exhibitor response
-    const { data, error } = await supabase
-      .from('event_exhibitor_responses')
-      .upsert({
+    // Create response (public endpoint)
+    const { data, error } = await admin
+      .from('exhibitor_responses')
+      .insert({
         event_id: params.id,
-        exhibitor_id: user.id,
-        response_data,
-        tables_count: tables_count || 1,
-        status: 'pending'
+        exhibitor_email,
+        exhibitor_name: exhibitor_name || null,
+        form_data,
+        status: 'pending',
       })
       .select()
 
     if (error) throw error
 
-    // Call FAQ matching for auto-responder
-    const applicationText = JSON.stringify(response_data).substring(0, 500)
-    const matchResult = await matchFAQ(params.id, user.id, applicationText, response_data)
-
-    return NextResponse.json({
-      success: true,
-      response: data?.[0],
-      auto_responder: matchResult,
-    })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-}
-
-// Helper: Call FAQ matching
-async function matchFAQ(eventId: string, exhibitorId: string, text: string, data: any) {
-  try {
-    const result = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/events/${eventId}/faqs/match`,
+    return NextResponse.json(
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          exhibitor_id: exhibitorId,
-          application_text: text,
-          application_data: data,
-        }),
-      }
+        success: true,
+        exhibitor: data?.[0],
+        message: 'Application submitted successfully. You will receive updates at ' + exhibitor_email,
+      },
+      { status: 201 }
     )
-
-    return await result.json()
-  } catch (err) {
-    console.error('FAQ matching failed:', err)
-    return { matched: false, error: 'matching_failed' }
+  } catch (error: any) {
+    console.error('Exhibitor POST error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to submit application' },
+      { status: 500 }
+    )
   }
 }
