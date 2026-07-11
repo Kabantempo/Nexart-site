@@ -76,6 +76,13 @@ export default function RootLayout({
       lang="fr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{__html: `
+          console.log('🎨 CSS loaded:', document.styleSheets.length > 0);
+          const bgColor = window.getComputedStyle(document.body).backgroundColor;
+          console.log('📐 Body background:', bgColor);
+        `}} />
+      </head>
       <body className="flex min-h-screen flex-col bg-white text-gray-900">
         <Providers>
           <NavbarFull />
