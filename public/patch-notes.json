@@ -1,6 +1,23 @@
 {
   "versions": [
     {
+      "version": "0.8.9",
+      "date": "2026-07-11",
+      "name": "v0.8.9 — RGPD v1.0 Complete",
+      "features": [
+        "Audit logs system (table + API endpoint)",
+        "RGPD internal documentation guide"
+      ],
+      "improvements": [
+        "Automatic logging of profile updates",
+        "Admin audit logs API (GET + POST)",
+        "Sensitive data access tracking",
+        "2-year audit log retention policy",
+        "Incident response procedures documented"
+      ],
+      "fixes": []
+    },
+    {
       "version": "0.8.8",
       "date": "2026-07-11",
       "name": "v0.8.8 — CGU & Mentions Légales",
