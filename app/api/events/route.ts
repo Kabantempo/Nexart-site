@@ -46,7 +46,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
     }
 
-    const { data, error } = await supabase.from('events').insert({
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(organizer_id)) {
+      return NextResponse.json({ error: 'organizer_id doit être un UUID valide' }, { status: 400 })
+    }
+
+    const { data, error } = await admin.from('events').insert({
       organizer_id,
       title,
       description,
