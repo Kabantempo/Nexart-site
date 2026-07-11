@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
     }
 
-    const { data, error } = await admin.from('events').insert({
+    const { data, error } = await supabase.from('events').insert({
       organizer_id,
       title,
       description,
