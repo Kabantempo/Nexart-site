@@ -1,6 +1,33 @@
 {
   "versions": [
     {
+      "version": "0.8.8",
+      "date": "2026-07-11",
+      "name": "v0.8.8 — CGU & Mentions Légales",
+      "features": [
+        "Conditions d'Utilisation complètes (/conditions)",
+        "Mentions Légales (/mentions-legales)"
+      ],
+      "improvements": [
+        "Conformité légale DGCCRF (CGU obligatoire)",
+        "Pages légales avec styling Nexart",
+        "Liens pied page vers pages légales"
+      ],
+      "fixes": []
+    },
+    {
+      "version": "0.8.7",
+      "date": "2026-07-11",
+      "name": "v0.8.7 — RGPD & Compliance Foundation",
+      "features": [],
+      "improvements": [
+        "RGPD compliance audit initié",
+        "Registre traitements données créé",
+        "DPA fournisseurs signés (Supabase, Vercel, Resend)"
+      ],
+      "fixes": []
+    },
+    {
       "version": "0.8.6",
       "date": "2026-07-11",
       "name": "v0.8.6 — API Bug Fixes & Error Handling",
