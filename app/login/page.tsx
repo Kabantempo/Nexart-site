@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -32,6 +32,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [focused, setFocused] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.push('/dashboard')
+    })
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
