@@ -119,7 +119,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Header */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
@@ -127,10 +127,10 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             Suite Marketing
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
             Planifiez votre stratégie marketing et communiqué de presse
           </p>
         </motion.div>
@@ -144,7 +144,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
           transition={{ duration: 0.8 }}
         >
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', borderBottom: '1px solid #E5E7EB', paddingBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
             {[
               { id: 'press', label: 'Communiqué de presse', icon: Megaphone },
               { id: 'media', label: 'Contacts média', icon: Mail },
@@ -176,12 +176,12 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
           {/* Press Release Tab */}
           {activeTab === 'press' && (
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
                 Communiqué de Presse
               </h2>
 
-              <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '12px', color: '#1A1A1A' }}>
+              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '12px', color: 'var(--text-primary)' }}>
                   Contenu du communiqué
                 </label>
                 <textarea
@@ -191,7 +191,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '6px',
                     fontSize: '14px',
                     minHeight: '300px',
@@ -200,10 +200,10 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                     resize: 'vertical'
                   }}
                 />
-                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                   💡 Conseil: Incluez les informations essentielles (quoi, quand, où, pourquoi)
                 </p>
-                <p style={{ fontSize: '12px', color: '#6B7280' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                   🚀 Génération automatique via Claude API disponible en v1.0.1
                 </p>
               </div>
@@ -233,9 +233,9 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                   }}
                   style={{
                     padding: '12px 24px',
-                    backgroundColor: '#F9FAFB',
-                    color: '#1A1A1A',
-                    border: '1px solid #E5E7EB',
+                    backgroundColor: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontWeight: 500,
@@ -254,19 +254,19 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
           {/* Media Contacts Tab */}
           {activeTab === 'media' && (
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
                 Contacts Médias ({mediaContacts.length})
               </h2>
 
               {/* Add Contact Form */}
-              <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', marginBottom: '32px', backgroundColor: '#F9FAFB' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginBottom: '32px', backgroundColor: 'var(--bg-secondary)' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                   Ajouter un contact
                 </h3>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       Nom
                     </label>
                     <input
@@ -277,7 +277,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                       style={{
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #E5E7EB',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         fontSize: '14px',
                         boxSizing: 'border-box'
@@ -286,7 +286,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       Email
                     </label>
                     <input
@@ -297,7 +297,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                       style={{
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #E5E7EB',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         fontSize: '14px',
                         boxSizing: 'border-box'
@@ -306,7 +306,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       Type
                     </label>
                     <input
@@ -317,7 +317,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                       style={{
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #E5E7EB',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         fontSize: '14px',
                         boxSizing: 'border-box'
@@ -349,22 +349,22 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
               {/* Contacts List */}
               <div style={{ display: 'grid', gap: '12px' }}>
                 {mediaContacts.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                     <Mail size={40} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                     <p>Aucun contact média pour le moment</p>
                   </div>
                 ) : (
                   mediaContacts.map((contact, idx) => (
-                    <div key={idx} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                    <div key={idx} style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                       <div>
-                        <p style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
+                        <p style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
                           {contact.name}
                         </p>
-                        <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 4px 0' }}>
+                        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 4px 0' }}>
                           {contact.email}
                         </p>
                         {contact.type && (
-                          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                             {contact.type}
                           </p>
                         )}
@@ -391,19 +391,19 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
           {/* Timeline Tab */}
           {activeTab === 'timeline' && (
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
                 Calendrier Marketing ({timeline.length})
               </h2>
 
               {/* Add Timeline Item Form */}
-              <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', marginBottom: '32px', backgroundColor: '#F9FAFB' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginBottom: '32px', backgroundColor: 'var(--bg-secondary)' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                   Ajouter une étape
                 </h3>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px', marginBottom: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       Date
                     </label>
                     <input
@@ -413,7 +413,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                       style={{
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #E5E7EB',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         fontSize: '14px',
                         boxSizing: 'border-box'
@@ -422,7 +422,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       Tâche
                     </label>
                     <input
@@ -433,7 +433,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                       style={{
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #E5E7EB',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         fontSize: '14px',
                         boxSizing: 'border-box'
@@ -465,7 +465,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
               {/* Timeline List */}
               <div style={{ display: 'grid', gap: '12px' }}>
                 {timeline.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                     <Calendar size={40} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                     <p>Aucune étape prévue</p>
                   </div>
@@ -476,7 +476,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                       <div
                         key={actualIdx}
                         style={{
-                          border: '1px solid #E5E7EB',
+                          border: '1px solid var(--border-color)',
                           borderRadius: '8px',
                           padding: '16px',
                           backgroundColor: item.status === 'completed' ? '#F0FDF4' : '#FFFFFF',
@@ -502,7 +502,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                           }}>
                             {item.task}
                           </p>
-                          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                             {new Date(item.date).toLocaleDateString('fr-FR')}
                           </p>
                         </div>

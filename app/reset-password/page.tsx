@@ -58,19 +58,19 @@ export default function ResetPasswordPage() {
           {success ? (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-              <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '12px' }}>
                 Mot de passe mis à jour
               </h2>
-              <p style={{ fontSize: '16px', color: '#6B7280' }}>
+              <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
                 Redirection vers la connexion...
               </p>
             </div>
           ) : (
             <>
-              <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
+              <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Nouveau mot de passe
               </h1>
-              <p style={{ fontSize: '16px', color: '#6B7280', marginBottom: '32px' }}>
+              <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px' }}>
                 Choisissez votre nouveau mot de passe
               </p>
 
@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                     <Lock size={16} color="#6366F1" />
                     Nouveau mot de passe
                   </label>
@@ -93,14 +93,14 @@ export default function ResetPasswordPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '16px', color: '#1A1A1A', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '16px', color: 'var(--text-primary)', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                     <Lock size={16} color="#6366F1" />
                     Confirmer
                   </label>
@@ -110,7 +110,7 @@ export default function ResetPasswordPage() {
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     required
-                    style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '16px', color: '#1A1A1A', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '16px', color: 'var(--text-primary)', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
                     onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
                   />
@@ -127,7 +127,7 @@ export default function ResetPasswordPage() {
                 </button>
               </form>
 
-              <p style={{ marginTop: '24px', fontSize: '14px', color: '#6B7280', textAlign: 'center' }}>
+              <p style={{ marginTop: '24px', fontSize: '14px', color: 'var(--text-secondary)', textAlign: 'center' }}>
                 <Link href="/login" style={{ color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>
                   Retour à la connexion
                 </Link>

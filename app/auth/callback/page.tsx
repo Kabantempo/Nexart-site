@@ -63,7 +63,7 @@ export default function AuthCallbackPage() {
               borderRadius: '50%', animation: 'spin 1s linear infinite',
               margin: '0 auto 24px',
             }} />
-            <p style={{ color: '#6B7280', fontSize: '16px' }}>Connexion en cours…</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>Connexion en cours…</p>
           </>
         )}
       </div>

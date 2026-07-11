@@ -72,7 +72,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Header */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
@@ -80,10 +80,10 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             FAQ & Auto-répondeur
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
             Répondez automatiquement aux questions fréquentes des candidats
           </p>
         </motion.div>
@@ -108,13 +108,13 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
           </div>
 
           {/* Add FAQ Form */}
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '32px', marginBottom: '40px', backgroundColor: '#F9FAFB' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '32px', marginBottom: '40px', backgroundColor: 'var(--bg-secondary)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
               Ajouter une FAQ
             </h2>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#1A1A1A', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Question
               </label>
               <input
@@ -125,7 +125,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   boxSizing: 'border-box'
@@ -134,7 +134,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
             </div>
 
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#1A1A1A', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Réponse
               </label>
               <textarea
@@ -144,7 +144,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   minHeight: '100px',
@@ -155,7 +155,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#1A1A1A', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Mots-clés (séparés par des virgules)
               </label>
               <input
@@ -166,13 +166,13 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: '1px solid #E5E7EB',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   boxSizing: 'border-box'
                 }}
               />
-              <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                 L\'IA détectera ces mots-clés dans les messages entrants
               </p>
             </div>
@@ -201,21 +201,21 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
 
           {/* FAQs List */}
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
               FAQs existantes ({faqs.length})
             </h2>
 
             {faqs.length === 0 ? (
-              <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+              <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                 <HelpCircle size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
                 <p>Aucune FAQ pour le moment</p>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: '16px' }}>
                 {faqs.map((faq) => (
-                  <div key={faq.id} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '20px' }}>
+                  <div key={faq.id} style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
                         {faq.question}
                       </h3>
                       <button
@@ -232,7 +232,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                       </button>
                     </div>
 
-                    <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '12px', lineHeight: '1.6' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px', lineHeight: '1.6' }}>
                       {faq.answer}
                     </p>
 
@@ -244,8 +244,8 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                             style={{
                               display: 'inline-block',
                               padding: '4px 10px',
-                              backgroundColor: '#F3F4F6',
-                              color: '#6B7280',
+                              backgroundColor: 'var(--bg-secondary)',
+                              color: 'var(--text-secondary)',
                               borderRadius: '4px',
                               fontSize: '12px'
                             }}

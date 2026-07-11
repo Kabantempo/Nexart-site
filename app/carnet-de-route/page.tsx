@@ -73,12 +73,12 @@ export default function CarnetDeRoutePage() {
 
   if (!user || user.role !== 'creator') return (
     <div style={{ padding: '80px 24px', textAlign: 'center' }}>
-      <p style={{ color: '#6B7280' }}>Réservé aux créateurs</p>
+      <p style={{ color: 'var(--text-secondary)' }}>Réservé aux créateurs</p>
     </div>
   )
 
   return (
-    <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
       <div style={{ backgroundColor: '#111827', padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', textDecoration: 'none', marginBottom: '16px' }}>
@@ -94,7 +94,7 @@ export default function CarnetDeRoutePage() {
               </p>
             </div>
             <button onClick={() => setShowForm(!showForm)}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', backgroundColor: '#FFFFFF', color: '#111827', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '8px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
               <Plus size={14} /> Ajouter une étape
             </button>
           </div>
@@ -104,44 +104,44 @@ export default function CarnetDeRoutePage() {
       <div style={{ maxWidth: '800px', margin: '32px auto', padding: '0 24px' }}>
         {/* Formulaire */}
         {showForm && (
-          <form onSubmit={handleAdd} style={{ padding: '24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', margin: '0 0 16px' }}>Nouvelle étape</h3>
+          <form onSubmit={handleAdd} style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 16px' }}>Nouvelle étape</h3>
             <div style={{ display: 'grid', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Label *</label>
+                <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Label *</label>
                 <input value={form.label} onChange={e => setForm(p => ({ ...p, label: e.target.value }))} required
                   placeholder="ex : Var du 10 au 20 juillet"
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Région</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Région</label>
                   <input value={form.region} onChange={e => setForm(p => ({ ...p, region: e.target.value }))}
                     placeholder="Provence-Alpes-Côte d'Azur"
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Ville</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Ville</label>
                   <input value={form.city} onChange={e => setForm(p => ({ ...p, city: e.target.value }))}
                     placeholder="Toulon"
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Date début *</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Date début *</label>
                   <input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} required
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Date fin *</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Date fin *</label>
                   <input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} required
-                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input type="checkbox" checked={form.is_public} onChange={e => setForm(p => ({ ...p, is_public: e.target.checked }))} />
-                <span style={{ fontSize: '13px', color: '#374151' }}>Visible publiquement (organisateurs + visiteurs)</span>
+                <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Visible publiquement (organisateurs + visiteurs)</span>
               </label>
             </div>
             {error && <p style={{ fontSize: '12px', color: '#E05A5A', marginTop: '8px' }}>{error}</p>}
@@ -151,7 +151,7 @@ export default function CarnetDeRoutePage() {
                 {submitting ? 'Ajout...' : 'Ajouter l\'étape'}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
-                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '13px', color: '#6B7280', cursor: 'pointer' }}>
+                style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                 Annuler
               </button>
             </div>
@@ -164,10 +164,10 @@ export default function CarnetDeRoutePage() {
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
           </div>
         ) : entries.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
+          <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
             <MapPin size={40} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
-            <p style={{ fontSize: '16px', fontWeight: '700', color: '#111827', margin: '0 0 8px' }}>Carnet vide</p>
-            <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 20px', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px' }}>Carnet vide</p>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 20px', lineHeight: 1.6 }}>
               Ajoutez vos prochains déplacements prévus. Les organisateurs de votre zone pourront vous contacter !
             </p>
             <button onClick={() => setShowForm(true)}
@@ -178,14 +178,14 @@ export default function CarnetDeRoutePage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {entries.map(entry => (
-              <div key={entry.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+              <div key={entry.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <MapPin size={18} color="#6B7280" />
                   </div>
                   <div>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{entry.label}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: '#6B7280' }}>
+                    <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 3px' }}>{entry.label}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: 'var(--text-secondary)' }}>
                       {entry.city && <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={9} />{entry.city}</span>}
                       <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                         <Calendar size={9} />

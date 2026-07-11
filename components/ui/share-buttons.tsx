@@ -45,9 +45,9 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
   const btnStyle: React.CSSProperties = {
     display: 'flex', alignItems: 'center', gap: '6px',
     padding: '8px 14px', borderRadius: '8px',
-    border: '1px solid #E5E7EB',
-    backgroundColor: '#FFFFFF',
-    color: '#374151',
+    border: '1px solid var(--border-color)',
+    backgroundColor: 'var(--bg-primary)',
+    color: 'var(--text-primary)',
     fontSize: '13px', fontWeight: '600',
     cursor: 'pointer', transition: 'all 150ms',
     fontFamily: 'inherit',

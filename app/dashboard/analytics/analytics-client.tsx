@@ -60,7 +60,7 @@ export default function CreatorAnalyticsClient() {
   if (!stats) return null
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
         {/* Header */}
         <motion.div
@@ -69,10 +69,10 @@ export default function CreatorAnalyticsClient() {
           transition={{ duration: 0.8 }}
           style={{ marginBottom: '60px' }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
             Mes Statistiques
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
             Suivi de votre visibilité et vos candidatures
           </p>
         </motion.div>
@@ -93,39 +93,39 @@ export default function CreatorAnalyticsClient() {
           {/* Profile Views */}
           <div
             style={{
-              backgroundColor: '#F9FAFB',
-              border: '1px solid #E5E7EB',
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '24px',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A' }}>Vues de profil</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Vues de profil</h3>
               <Eye size={20} color='#6366F1' />
             </div>
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#6366F1', marginBottom: '8px' }}>
               {stats.profileViews}
             </div>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>Cette année</p>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Cette année</p>
           </div>
 
           {/* Applications Received */}
           <div
             style={{
-              backgroundColor: '#F9FAFB',
-              border: '1px solid #E5E7EB',
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '24px',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A' }}>Candidatures</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Candidatures</h3>
               <CheckCircle size={20} color='#10B981' />
             </div>
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
               {stats.applicationsReceived}
             </div>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               {stats.acceptanceRate}% acceptées
             </p>
           </div>
@@ -133,20 +133,20 @@ export default function CreatorAnalyticsClient() {
           {/* Rating */}
           <div
             style={{
-              backgroundColor: '#F9FAFB',
-              border: '1px solid #E5E7EB',
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '24px',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A' }}>Note</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Note</h3>
               <Star size={20} color='#F59E0B' />
             </div>
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
               {stats.averageRating.toFixed(1)}
             </div>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               {stats.reviewCount} avis
             </p>
           </div>
@@ -154,20 +154,20 @@ export default function CreatorAnalyticsClient() {
           {/* Accepted */}
           <div
             style={{
-              backgroundColor: '#F9FAFB',
-              border: '1px solid #E5E7EB',
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '24px',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A' }}>Acceptée</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Acceptée</h3>
               <CheckCircle size={20} color='#10B981' />
             </div>
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
               {stats.acceptedCount}
             </div>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               Marchés confirmés
             </p>
           </div>

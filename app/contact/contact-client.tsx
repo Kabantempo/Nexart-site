@@ -46,7 +46,7 @@ export default function ContactPageClient() {
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '40px 16px' }}>
         {/* Back Button */}
         <Link
@@ -73,17 +73,17 @@ export default function ContactPageClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 style={{ fontSize: '48px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               Nous contacter
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280', marginBottom: '40px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: '1.6' }}>
               Vous avez une question, une suggestion ou besoin d'aide ? Remplissez le formulaire ci-dessous et nous vous répondrons dès que possible.
             </p>
 
             <form onSubmit={handleSubmit}>
               {/* Name */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Nom complet
                 </label>
                 <input
@@ -96,7 +96,7 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
@@ -108,7 +108,7 @@ export default function ContactPageClient() {
 
               {/* Email */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Adresse email
                 </label>
                 <input
@@ -121,7 +121,7 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
@@ -133,7 +133,7 @@ export default function ContactPageClient() {
 
               {/* Subject */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Sujet
                 </label>
                 <input
@@ -146,7 +146,7 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
@@ -158,7 +158,7 @@ export default function ContactPageClient() {
 
               {/* Message */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Message
                 </label>
                 <textarea
@@ -171,7 +171,7 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
@@ -241,9 +241,9 @@ export default function ContactPageClient() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              style={{ borderRadius: '16px', border: '1px solid #E5E7EB', padding: '24px', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+              style={{ borderRadius: '16px', border: '1px solid var(--border-color)', padding: '24px', backgroundColor: 'var(--bg-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
             >
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '24px' }}>
                 Autres moyens de nous contacter
               </h3>
 
@@ -251,7 +251,7 @@ export default function ContactPageClient() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <Mail size={18} color="#6366F1" />
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Email</span>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Email</span>
                   </div>
                   <a
                     href="mailto:contact@nexart.fr"
@@ -264,9 +264,9 @@ export default function ContactPageClient() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <MessageSquare size={18} color="#6366F1" />
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Messagerie</span>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Messagerie</span>
                   </div>
-                  <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
                     Connectez-vous et utilisez la messagerie directe
                   </p>
                   <Link
@@ -278,7 +278,7 @@ export default function ContactPageClient() {
                 </div>
               </div>
 
-              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
+              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
                 <p style={{ fontSize: '12px', color: '#AAAAAA', lineHeight: '1.5' }}>
                   Nous vous répondrons dans un délai de 24 à 48 heures.
                 </p>

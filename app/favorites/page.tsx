@@ -42,13 +42,13 @@ export default function FavoritesPage() {
           <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.5px' }}>
             Mes favoris
           </h1>
-          <p style={{ fontSize: '15px', color: '#64748B' }}>
+          <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
             {favEvents.length + favCreators.length} élément{favEvents.length + favCreators.length !== 1 ? 's' : ''} sauvegardé{favEvents.length + favCreators.length !== 1 ? 's' : ''}
           </p>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '32px', backgroundColor: '#F1F5F9', borderRadius: '10px', padding: '4px', width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '32px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '4px', width: 'fit-content' }}>
           {(['events', 'creators'] as const).map((t) => (
             <button
               key={t}
@@ -86,7 +86,7 @@ export default function FavoritesPage() {
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   style={{
                     borderRadius: '14px', border: '1px solid #E2E8F0',
-                    backgroundColor: '#FFFFFF', overflow: 'hidden',
+                    backgroundColor: 'var(--bg-primary)', overflow: 'hidden',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     transition: 'all 200ms ease',
                   }}
@@ -110,13 +110,13 @@ export default function FavoritesPage() {
                       </button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                         <MapPin size={13} color="#94A3B8" /> {event.city}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                         <Calendar size={13} color="#94A3B8" /> {formatDate(event.start_date)}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748B' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                         <Users size={13} color="#94A3B8" /> {event.stand_count} stands · {event.stand_price}€
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export default function FavoritesPage() {
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   style={{
                     borderRadius: '14px', border: '1px solid #E2E8F0',
-                    backgroundColor: '#FFFFFF', padding: '20px', textAlign: 'center',
+                    backgroundColor: 'var(--bg-primary)', padding: '20px', textAlign: 'center',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     transition: 'all 200ms ease',
                   }}
@@ -214,12 +214,12 @@ function EmptyState({ icon, title, description, cta, href }: {
   icon: React.ReactNode, title: string, description: string, cta: string, href: string
 }) {
   return (
-    <div style={{ textAlign: 'center', padding: '80px 24px', borderRadius: '16px', border: '1px dashed #CBD5E1', backgroundColor: '#F8FAFC' }}>
+    <div style={{ textAlign: 'center', padding: '80px 24px', borderRadius: '16px', border: '1px dashed #CBD5E1', backgroundColor: 'var(--bg-secondary)' }}>
       <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
         {icon}
       </div>
       <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#0F172A', marginBottom: '8px' }}>{title}</h3>
-      <p style={{ fontSize: '15px', color: '#64748B', lineHeight: '1.6', maxWidth: '360px', margin: '0 auto 28px' }}>{description}</p>
+      <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '360px', margin: '0 auto 28px' }}>{description}</p>
       <Link
         href={href}
         style={{

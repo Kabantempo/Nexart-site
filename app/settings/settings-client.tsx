@@ -39,7 +39,7 @@ export default function SettingsClient() {
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Header */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 0' }}>
         <motion.div
@@ -47,10 +47,10 @@ export default function SettingsClient() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
             Paramètres
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.6', marginBottom: '40px' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '40px' }}>
             Gestion compte, données et préférences
           </p>
         </motion.div>
@@ -79,18 +79,18 @@ export default function SettingsClient() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            style={{ borderTop: '1px solid #E5E7EB', paddingTop: '60px' }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
           >
-            <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#1A1A1A', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
               Données Personnelles
             </h2>
 
-            <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+            <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Télécharger mes données
                 </h3>
-                <p style={{ fontSize: '14px', color: '#6B7280' }}>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                   Export profil, conversations, reviews (JSON)
                 </p>
               </div>
@@ -131,9 +131,9 @@ export default function SettingsClient() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            style={{ borderTop: '1px solid #E5E7EB', paddingTop: '60px' }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
           >
-            <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#1A1A1A', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
               Suppression Compte
             </h2>
 
@@ -164,9 +164,9 @@ export default function SettingsClient() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            style={{ borderTop: '1px solid #E5E7EB', paddingTop: '60px', marginBottom: '40px' }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px', marginBottom: '40px' }}
           >
-            <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#1A1A1A', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
               RGPD & Conformité
             </h2>
 
@@ -177,12 +177,12 @@ export default function SettingsClient() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '12px',
                   padding: '16px',
                   textDecoration: 'none',
-                  color: '#1A1A1A',
+                  color: 'var(--text-primary)',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
@@ -194,10 +194,10 @@ export default function SettingsClient() {
                 }}
               >
                 <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '4px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
                     Politique de confidentialité
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#6B7280' }}>Lire nos engagements RGPD</p>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Lire nos engagements RGPD</p>
                 </div>
                 <ChevronRight size={20} color="#888888" />
               </a>
@@ -208,12 +208,12 @@ export default function SettingsClient() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: '#FFFFFF',
-                  border: '1px solid #E5E7EB',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '12px',
                   padding: '16px',
                   textDecoration: 'none',
-                  color: '#1A1A1A',
+                  color: 'var(--text-primary)',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
@@ -225,10 +225,10 @@ export default function SettingsClient() {
                 }}
               >
                 <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '4px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
                     Demande RGPD
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#6B7280' }}>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                     Accès, rectification, portabilité (contact@nexart.fr)
                   </p>
                 </div>
@@ -328,7 +328,7 @@ function DeleteAccountButton() {
             animate={{ scale: 1, opacity: 1 }}
             onClick={(e) => e.stopPropagation()}
             style={{
-              backgroundColor: '#FFFFFF',
+              backgroundColor: 'var(--bg-primary)',
               borderRadius: '12px',
               padding: '32px',
               maxWidth: '500px',
@@ -341,7 +341,7 @@ function DeleteAccountButton() {
                 <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#DC2626', marginBottom: '16px' }}>
                   ⚠️ Confirmer suppression
                 </h2>
-                <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: '1.6', marginBottom: '24px' }}>
+                <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
                   Vous avez 24h pour annuler via email après confirmation.
                 </p>
 
@@ -371,8 +371,8 @@ function DeleteAccountButton() {
                   <button
                     onClick={() => setShowModal(false)}
                     style={{
-                      backgroundColor: '#E5E7EB',
-                      color: '#1A1A1A',
+                      backgroundColor: 'var(--border-color)',
+                      color: 'var(--text-primary)',
                       border: 'none',
                       borderRadius: '8px',
                       padding: '12px',
@@ -394,10 +394,10 @@ function DeleteAccountButton() {
               </>
             ) : (
               <>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
                   Confirmer suppression
                 </h2>
-                <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
                   Entrez votre email pour confirmer :
                 </p>
 
@@ -415,12 +415,12 @@ function DeleteAccountButton() {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '8px',
                     marginBottom: '24px',
                     fontSize: '14px',
                     boxSizing: 'border-box',
-                    color: '#1A1A1A',
+                    color: 'var(--text-primary)',
                   }}
                 />
 
@@ -456,8 +456,8 @@ function DeleteAccountButton() {
                       setEmail('')
                     }}
                     style={{
-                      backgroundColor: '#E5E7EB',
-                      color: '#1A1A1A',
+                      backgroundColor: 'var(--border-color)',
+                      color: 'var(--text-primary)',
                       border: 'none',
                       borderRadius: '8px',
                       padding: '12px',

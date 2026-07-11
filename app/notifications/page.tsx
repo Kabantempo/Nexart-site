@@ -22,7 +22,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   application_rejected: { icon: <X size={18} />,           color: '#E05A5A', bg: '#FEF2F2' },
   application_received: { icon: <Calendar size={18} />,    color: '#6366F1', bg: '#EEF2FF' },
   new_message:          { icon: <MessageCircle size={18} />,color: '#06B6D4', bg: '#ECFEFF' },
-  default:              { icon: <Bell size={18} />,         color: '#6B7280', bg: '#F3F4F6' },
+  default:              { icon: <Bell size={18} />,         color: 'var(--text-secondary)', bg: '#F3F4F6' },
 }
 
 function relativeTime(dateStr: string): string {
@@ -85,7 +85,7 @@ export default function NotificationsPage() {
   )
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 80px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 80px)' }}>
       <div style={{ maxWidth: '680px', margin: '0 auto', padding: '40px 16px 80px' }}>
 
         {/* Header */}
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#1A1A1A', margin: 0 }}>Notifications</h1>
+              <h1 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>Notifications</h1>
               {unread > 0 && (
                 <p style={{ fontSize: '14px', color: '#6366F1', fontWeight: '600', margin: '4px 0 0' }}>
                   {unread} non lue{unread > 1 ? 's' : ''}
@@ -105,7 +105,7 @@ export default function NotificationsPage() {
             {unread > 0 && (
               <button
                 onClick={markAllRead}
-                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#6366F1', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: '#6366F1', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
               >
                 Tout marquer lu
               </button>
@@ -115,9 +115,9 @@ export default function NotificationsPage() {
 
         {/* List */}
         {notifications.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 20px', borderRadius: '16px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
+          <div style={{ textAlign: 'center', padding: '80px 20px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
             <Bell size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-            <p style={{ fontSize: '16px', color: '#6B7280' }}>Aucune notification pour le moment</p>
+            <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>Aucune notification pour le moment</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -151,15 +151,15 @@ export default function NotificationsPage() {
                     {tc.icon}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '14px', fontWeight: isUnread ? '700' : '500', color: '#1A1A1A', marginBottom: '3px', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: '14px', fontWeight: isUnread ? '700' : '500', color: 'var(--text-primary)', marginBottom: '3px', lineHeight: 1.4 }}>
                       {n.title}
                     </p>
                     {n.body && (
-                      <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '5px', lineHeight: 1.4 }}>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '5px', lineHeight: 1.4 }}>
                         {n.body}
                       </p>
                     )}
-                    <p style={{ fontSize: '12px', color: '#6B7280' }}>{relativeTime(n.created_at)}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{relativeTime(n.created_at)}</p>
                   </div>
                   {isUnread && (
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0, marginTop: '8px' }} />

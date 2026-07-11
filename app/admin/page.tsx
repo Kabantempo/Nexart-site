@@ -87,9 +87,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   pending:   { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB' },
   accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
-  draft:     { label: 'Brouillon',  color: '#6B7280', bg: '#F3F4F6' },
+  draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: '#F3F4F6' },
   published: { label: 'Publié',     color: '#10B981', bg: '#ECFDF5' },
-  closed:    { label: 'Fermé',      color: '#6B7280', bg: '#F3F4F6' },
+  closed:    { label: 'Fermé',      color: 'var(--text-secondary)', bg: '#F3F4F6' },
 }
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -413,7 +413,7 @@ export default function AdminPage() {
             <span style={{ fontSize: '16px', fontWeight: '800', color: '#F9FAFB', letterSpacing: '-0.3px' }}>Nexart Admin</span>
           </div>
           <div style={{ flex: 1 }} />
-          <Link href="/profile" style={{ fontSize: '13px', color: '#6B7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Link href="/profile" style={{ fontSize: '13px', color: 'var(--text-secondary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
             ← Retour au profil
           </Link>
         </div>
@@ -475,7 +475,7 @@ export default function AdminPage() {
                           {'up' in kpi && kpi.up && <ArrowUpRight size={16} color="#6366F1" />}
                         </div>
                         <p style={{ fontSize: '13px', fontWeight: '600', color: '#D1D5DB', margin: '0 0 2px' }}>{kpi.label}</p>
-                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{kpi.sub}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{kpi.sub}</p>
                       </div>
                     ))}
                   </div>
@@ -488,7 +488,7 @@ export default function AdminPage() {
                     <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>Inscriptions — 30 derniers jours</h3>
                   </div>
                   {analytics.dailySignups.length === 0 ? (
-                    <p style={{ color: '#6B7280', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Aucune donnée</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Aucune donnée</p>
                   ) : (() => {
                     const max = Math.max(...analytics.dailySignups.map(d => d.count), 1)
                     return (
@@ -506,8 +506,8 @@ export default function AdminPage() {
                           ))}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-                          <span style={{ fontSize: '10px', color: '#6B7280' }}>{analytics.dailySignups[0]?.date}</span>
-                          <span style={{ fontSize: '10px', color: '#6B7280' }}>{analytics.dailySignups[analytics.dailySignups.length - 1]?.date}</span>
+                          <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{analytics.dailySignups[0]?.date}</span>
+                          <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{analytics.dailySignups[analytics.dailySignups.length - 1]?.date}</span>
                         </div>
                       </div>
                     )
@@ -530,7 +530,7 @@ export default function AdminPage() {
                     ].map(item => (
                       <div key={item.label} style={{ marginBottom: '10px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{item.label}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.label}</span>
                           <span style={{ fontSize: '12px', fontWeight: '700', color: '#F9FAFB' }}>{item.value}</span>
                         </div>
                         <div style={{ height: '5px', borderRadius: '3px', backgroundColor: 'rgba(255,255,255,0.08)' }}>
@@ -554,7 +554,7 @@ export default function AdminPage() {
                     ].map(item => (
                       <div key={item.label} style={{ marginBottom: '10px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{item.label}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.label}</span>
                           <span style={{ fontSize: '12px', fontWeight: '700', color: '#F9FAFB' }}>{item.value}</span>
                         </div>
                         <div style={{ height: '5px', borderRadius: '3px', backgroundColor: 'rgba(255,255,255,0.08)' }}>
@@ -563,7 +563,7 @@ export default function AdminPage() {
                       </div>
                     ))}
                     {analytics.applications.total > 0 && (
-                      <p style={{ fontSize: '12px', color: '#6B7280', margin: '12px 0 0', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '12px 0 0', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                         Taux d&apos;acceptation : <strong style={{ color: '#10B981' }}>{Math.round(analytics.applications.accepted / analytics.applications.total * 100)}%</strong>
                       </p>
                     )}
@@ -589,7 +589,7 @@ export default function AdminPage() {
                         <div key={kpi.label} style={{ padding: '14px 16px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                           <p style={{ fontSize: '20px', fontWeight: '800', color: '#F9FAFB', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
                           <p style={{ fontSize: '12px', fontWeight: '600', color: '#D1D5DB', margin: '0 0 2px' }}>{kpi.label}</p>
-                          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{kpi.sub}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{kpi.sub}</p>
                         </div>
                       ))}
                     </div>
@@ -627,7 +627,7 @@ export default function AdminPage() {
                 if (list.length === 0) return (
                   <div style={{ textAlign: 'center', padding: '40px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                     <CheckCircle size={32} color="#10B981" style={{ marginBottom: '8px' }} />
-                    <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>Aucune demande en attente</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Aucune demande en attente</p>
                   </div>
                 )
                 return (
@@ -644,7 +644,7 @@ export default function AdminPage() {
                             </div>
                             <div>
                               <p style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>{c.profiles?.full_name ?? 'Créateur'}</p>
-                              <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
+                              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
                             </div>
                           </div>
                           <button
@@ -681,7 +681,7 @@ export default function AdminPage() {
                                     </a>
                                   </div>
                                 ) : (
-                                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 10px' }}>Non renseigné</p>
+                                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>Non renseigné</p>
                                 )}
                                 {status === 'pending' && c.siret_number && (
                                   <div style={{ display: 'flex', gap: '6px' }}>
@@ -690,7 +690,7 @@ export default function AdminPage() {
                                       <CheckCircle size={12} /> Valider
                                     </button>
                                     <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'siret_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
-                                      style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                      style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
                                       <XCircle size={13} />
                                     </button>
                                   </div>
@@ -703,7 +703,7 @@ export default function AdminPage() {
                                 )}
                                 {status === 'verified' && (
                                   <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', false)}
-                                    style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                    style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                                     Révoquer
                                   </button>
                                 )}
@@ -731,7 +731,7 @@ export default function AdminPage() {
                                     <FileText size={13} /> Voir le document <ExternalLink size={11} />
                                   </a>
                                 ) : (
-                                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 10px' }}>Aucun document</p>
+                                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>Aucun document</p>
                                 )}
                                 {status === 'doc' && (
                                   <div style={{ display: 'flex', gap: '6px' }}>
@@ -740,7 +740,7 @@ export default function AdminPage() {
                                       <CheckCircle size={12} /> Valider
                                     </button>
                                     <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'insurance_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
-                                      style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                      style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
                                       <XCircle size={13} />
                                     </button>
                                   </div>
@@ -753,7 +753,7 @@ export default function AdminPage() {
                                 )}
                                 {status === 'verified' && (
                                   <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', false)}
-                                    style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                    style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                                     Révoquer
                                   </button>
                                 )}
@@ -823,7 +823,7 @@ export default function AdminPage() {
                 if (list.length === 0) return (
                   <div style={{ textAlign: 'center', padding: '40px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                     <CheckCircle size={32} color="#10B981" style={{ marginBottom: '8px' }} />
-                    <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>Aucune demande organisateur en attente</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Aucune demande organisateur en attente</p>
                   </div>
                 )
                 return (
@@ -839,14 +839,14 @@ export default function AdminPage() {
                           </div>
                           <div>
                             <p style={{ fontSize: '13px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>{o.profiles?.full_name ?? 'Organisateur'}</p>
-                            <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
+                            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                           {o.siret_number && (
                             <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>SIRET</p>
+                                <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>SIRET</p>
                                 <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.siret_verified ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.08)', color: o.siret_verified ? '#10B981' : '#9CA3AF' }}>
                                   {o.siret_verified ? 'Vérifié' : 'En attente'}
                                 </span>
@@ -863,21 +863,21 @@ export default function AdminPage() {
                                     <CheckCircle size={12} /> Valider
                                   </button>
                                   <button onClick={() => handleVerifyOrga(o.user_id, 'siret_verified', false)} disabled={orgaVerifSaving === `${o.user_id}-siret_verified`}
-                                    style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                    style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
                                     <XCircle size={13} />
                                   </button>
                                 </div>
                               )}
                               {o.siret_verified && (
                                 <button onClick={() => handleVerifyOrga(o.user_id, 'siret_verified', false)}
-                                  style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                  style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
                               )}
                             </div>
                           )}
                           {o.verification_doc_url && (
                             <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Document</p>
+                                <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Document</p>
                                 <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.verification_doc_verified ? 'rgba(16,185,129,0.2)' : 'rgba(99,102,241,0.2)', color: o.verification_doc_verified ? '#10B981' : '#6366F1' }}>
                                   {o.verification_doc_verified ? 'Vérifié' : 'Doc reçu'}
                                 </span>
@@ -894,7 +894,7 @@ export default function AdminPage() {
                               )}
                               {o.verification_doc_verified && (
                                 <button onClick={() => handleVerifyOrga(o.user_id, 'verification_doc_verified', false)}
-                                  style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                  style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
                               )}
                             </div>
                           )}
@@ -913,18 +913,18 @@ export default function AdminPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', animation: 'fadeIn 0.2s ease' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
               <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>Propositions de disciplines</h2>
-              <span style={{ fontSize: '12px', color: '#6B7280' }}>{pendingDiscs.length} en attente</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{pendingDiscs.length} en attente</span>
             </div>
             {discProposals.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                 <LayoutGrid size={32} color="#374151" style={{ marginBottom: '10px' }} />
-                <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucune proposition</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune proposition</p>
               </div>
             ) : discProposals.map(p => (
               <div key={p.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>{p.name}</p>
-                  <p style={{ fontSize: '12px', color: '#6B7280', margin: '3px 0 0' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '3px 0 0' }}>
                     Par {(p as unknown as { profiles?: { full_name?: string } })?.profiles?.full_name ?? 'Créateur'} · {new Date(p.created_at).toLocaleDateString('fr-FR')}
                   </p>
                 </div>
@@ -935,7 +935,7 @@ export default function AdminPage() {
                       <CheckCircle size={13} /> Approuver
                     </button>
                     <button onClick={() => handleDiscProposal(p.id, 'rejected')} disabled={discProposalSaving === p.id}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: '#6B7280', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
                       <XCircle size={13} /> Refuser
                     </button>
                   </div>
@@ -957,7 +957,7 @@ export default function AdminPage() {
             {events.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                 <Calendar size={40} color="#374151" style={{ marginBottom: '12px' }} />
-                <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucun marché créé</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun marché créé</p>
               </div>
             ) : events.map(ev => {
               const sc = STATUS_CONFIG[ev.status] ?? STATUS_CONFIG.draft
@@ -975,18 +975,18 @@ export default function AdminPage() {
                       <p style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                       <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: sc.bg, color: sc.color, flexShrink: 0 }}>{sc.label}</span>
                     </div>
-                    <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                       {EVENT_TYPE_LABELS[ev.event_type] ?? ev.event_type}
                       {ev.city ? ` · ${ev.city}` : ''}
                       {ev.start_date ? ` · ${new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
                     </p>
                     {ev.profiles?.full_name && (
-                      <p style={{ fontSize: '11px', color: '#6B7280', margin: '2px 0 0' }}>par {ev.profiles.full_name}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>par {ev.profiles.full_name}</p>
                     )}
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                     <button onClick={() => handleToggleEventStatus(ev.id, ev.status)} title={ev.status === 'published' ? 'Mettre en brouillon' : 'Publier'}
-                      style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {ev.status === 'published' ? <Eye size={15} /> : <EyeOff size={15} />}
                     </button>
                     <button onClick={() => { if (window.confirm(`Supprimer "${ev.title}" ?`)) handleDeleteEvent(ev.id) }} disabled={deletingEvent === ev.id} title="Supprimer"
@@ -1013,7 +1013,7 @@ export default function AdminPage() {
 
               {/* Destinataire */}
               <div style={{ marginBottom: '14px', position: 'relative' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Destinataire</label>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Destinataire</label>
                 {msgRecipient ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(99,102,241,0.5)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
@@ -1025,9 +1025,9 @@ export default function AdminPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <p style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>{msgRecipient.full_name}</p>
-                      <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, textTransform: 'capitalize' }}>{msgRecipient.role ?? 'utilisateur'}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, textTransform: 'capitalize' }}>{msgRecipient.role ?? 'utilisateur'}</p>
                     </div>
-                    <button onClick={() => { setMsgRecipient(null); setMsgSearch('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px' }}>
+                    <button onClick={() => { setMsgRecipient(null); setMsgSearch('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
                       <X size={16} />
                     </button>
                   </div>
@@ -1052,7 +1052,7 @@ export default function AdminPage() {
                             </div>
                             <div>
                               <p style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>{s.full_name}</p>
-                              <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, textTransform: 'capitalize' }}>{s.role ?? 'utilisateur'}</p>
+                              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, textTransform: 'capitalize' }}>{s.role ?? 'utilisateur'}</p>
                             </div>
                           </button>
                         ))}
@@ -1064,14 +1064,14 @@ export default function AdminPage() {
 
               {/* Objet */}
               <div style={{ marginBottom: '14px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Objet <span style={{ color: '#374151', fontWeight: '400', textTransform: 'none' }}>(optionnel)</span></label>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Objet <span style={{ color: 'var(--text-primary)', fontWeight: '400', textTransform: 'none' }}>(optionnel)</span></label>
                 <input value={msgSubject} onChange={e => setMsgSubject(e.target.value)} placeholder="Ex : Votre compte a été vérifié"
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '14px', fontFamily: 'inherit', backgroundColor: 'rgba(255,255,255,0.06)', color: '#F9FAFB', boxSizing: 'border-box' }} />
               </div>
 
               {/* Message */}
               <div style={{ marginBottom: '18px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Message</label>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Message</label>
                 <textarea value={msgContent} onChange={e => setMsgContent(e.target.value)} placeholder="Tapez votre message ici…" rows={4}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '14px', fontFamily: 'inherit', lineHeight: '1.6', resize: 'vertical', backgroundColor: 'rgba(255,255,255,0.06)', color: '#F9FAFB', boxSizing: 'border-box' }} />
               </div>
@@ -1094,12 +1094,12 @@ export default function AdminPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
                 <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>Envoyés</h3>
-                <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: '#6B7280', fontWeight: '600' }}>{adminMessages.length}</span>
+                <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.08)', color: 'var(--text-secondary)', fontWeight: '600' }}>{adminMessages.length}</span>
               </div>
               {adminMessages.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                   <MessageSquare size={32} color="#374151" style={{ marginBottom: '10px' }} />
-                  <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucun message envoyé</p>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun message envoyé</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1116,17 +1116,17 @@ export default function AdminPage() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '4px' }}>
                           <div>
                             <span style={{ fontSize: '13px', fontWeight: '700', color: '#F9FAFB' }}>{msg.recipient?.full_name ?? 'Utilisateur'}</span>
-                            <span style={{ fontSize: '11px', color: '#6B7280', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
                             {msg.subject && <p style={{ fontSize: '12px', fontWeight: '600', color: '#D1D5DB', margin: '2px 0 0' }}>{msg.subject}</p>}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                             {msg.read_at ? <CheckCheck size={13} color="#10B981" /> : <Clock size={13} color="#6B7280" />}
-                            <span style={{ fontSize: '11px', color: '#6B7280', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                               {new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
                         </div>
-                        <p style={{ fontSize: '13px', color: '#6B7280', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
                           {msg.content}
                         </p>
                       </div>
@@ -1199,7 +1199,7 @@ export default function AdminPage() {
                         <div style={{ flex: 1, minWidth: '140px' }}>
                           <p style={{ fontSize: '14px', fontWeight: '700', color: '#F9FAFB', margin: '0 0 3px' }}>{u.full_name}</p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '11px', color: '#6B7280', textTransform: 'capitalize' }}>{u.role}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>{u.role}</span>
                             <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || '#9CA3AF', backgroundColor: 'rgba(255,255,255,0.08)', padding: '2px 7px', borderRadius: '99px' }}>
                               {currentTier}
                             </span>
@@ -1227,7 +1227,7 @@ export default function AdminPage() {
               )}
 
               {subSearch.length >= 2 && !subSearching && subResults.length === 0 && (
-                <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
               )}
 
               <div style={{ marginTop: '18px', padding: '12px 16px', borderRadius: '8px', backgroundColor: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
@@ -1244,7 +1244,7 @@ export default function AdminPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', animation: 'fadeIn 0.2s ease' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#F9FAFB', margin: 0 }}>
-                Signalements <span style={{ color: '#6B7280', fontWeight: '500' }}>({pendingReports.length} en attente)</span>
+                Signalements <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>({pendingReports.length} en attente)</span>
               </h3>
             </div>
             {!reportsLoaded ? (
@@ -1254,7 +1254,7 @@ export default function AdminPage() {
             ) : reports.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
                 <AlertTriangle size={36} color="#374151" style={{ marginBottom: '10px' }} />
-                <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucun signalement</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun signalement</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1267,10 +1267,10 @@ export default function AdminPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: '13px', fontWeight: '700', color: '#F9FAFB', margin: '0 0 2px' }}>
                         {r.target_type === 'creator' ? 'Créateur' : r.target_type === 'event' ? 'Événement' : 'Post'} signalé
-                        <span style={{ fontWeight: '400', color: '#6B7280', marginLeft: '6px' }}>par {r.reporter?.full_name || 'utilisateur'}</span>
+                        <span style={{ fontWeight: '400', color: 'var(--text-secondary)', marginLeft: '6px' }}>par {r.reporter?.full_name || 'utilisateur'}</span>
                       </p>
-                      <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>{r.reason}</p>
-                      <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 2px' }}>{r.reason}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
                     </div>
                     <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                       {r.status === 'pending' && (
@@ -1284,7 +1284,7 @@ export default function AdminPage() {
                           <button onClick={async () => {
                             await supabase.from('reports').update({ status: 'dismissed' }).eq('id', r.id)
                             setReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'dismissed' } : x))
-                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', fontSize: '12px', fontWeight: '600', color: '#6B7280', cursor: 'pointer' }}>
+                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                             Ignorer
                           </button>
                         </>
@@ -1309,13 +1309,13 @@ export default function AdminPage() {
         <div onClick={() => setRefuseModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', padding: '28px', maxWidth: '420px', width: '100%' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#F9FAFB', margin: '0 0 8px' }}>Refuser la vérification</h3>
-            <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 16px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
               Refuser {refuseModal.field === 'siret_verified' ? 'le SIRET' : 'la RC Pro'} de <strong style={{ color: '#F9FAFB' }}>{refuseModal.creatorName}</strong>
             </p>
             <textarea value={refuseComment} onChange={e => setRefuseComment(e.target.value)} placeholder="Raison du refus (optionnel)…" rows={3}
               style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'rgba(255,255,255,0.06)', color: '#F9FAFB', resize: 'none', boxSizing: 'border-box', marginBottom: '16px' }} />
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setRefuseModal(null)} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: '#6B7280', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+              <button onClick={() => setRefuseModal(null)} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                 Annuler
               </button>
               <button onClick={handleRefuse} style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>

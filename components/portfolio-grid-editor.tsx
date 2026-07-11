@@ -123,9 +123,9 @@ function AddModal({
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto' }}>
+      <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Ajouter une photo</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Ajouter une photo</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={20} color="#888" /></button>
         </div>
 
@@ -148,7 +148,7 @@ function AddModal({
             : (
               <div style={{ textAlign: 'center', padding: '20px' }}>
                 <Plus size={32} color="#9CA3AF" />
-                <p style={{ fontSize: '14px', color: '#6B7280', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
               </div>
             )
           }
@@ -157,7 +157,7 @@ function AddModal({
 
         {/* Taille */}
         <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>Taille dans la grille</p>
+          <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
           <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
         </div>
 
@@ -169,7 +169,7 @@ function AddModal({
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
             Annuler
           </button>
           <button onClick={handleSave} disabled={!file || uploading}
@@ -202,9 +202,9 @@ function ResizeModal({
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '420px' }}>
+      <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '420px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Modifier la photo</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Modifier la photo</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} color="#888" /></button>
         </div>
 
@@ -214,7 +214,7 @@ function ResizeModal({
           <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
 
-        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>Taille dans la grille</p>
+        <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
         <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
@@ -269,7 +269,7 @@ export function PortfolioGridEditor({
   return (
     <>
       {/* Légende */}
-      <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '16px' }}>
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
         {items.length}/{MAX} photos · Cliquez sur une photo pour la redimensionner ou la supprimer
         {items.length >= MAX && MAX <= 10 && (
           <span style={{ display: 'block', marginTop: '4px', color: '#F59E0B', fontWeight: '600' }}>
@@ -352,7 +352,7 @@ export function PortfolioGridEditor({
             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Plus size={20} color="#6366F1" />
             </div>
-            <span style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>Ajouter</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '600' }}>Ajouter</span>
           </div>
         )}
       </div>

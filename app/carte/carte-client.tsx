@@ -155,7 +155,7 @@ export default function CarteClient() {
 
       {/* Légende */}
       <div style={{ padding: '6px 16px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.12)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
-        {[{ color: '#6366F1', label: 'Places disponibles' }, { color: '#F59E0B', label: '≤ 3 places restantes' }, { color: '#4B5563', label: 'Complet' }].map(({ color, label }) => (
+        {[{ color: '#6366F1', label: 'Places disponibles' }, { color: '#F59E0B', label: '≤ 3 places restantes' }, { color: 'var(--text-secondary)', label: 'Complet' }].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }} />
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>

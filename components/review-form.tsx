@@ -66,7 +66,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Stars */}
       <div>
-        <label style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px', display: 'block' }}>Note *</label>
+        <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px', display: 'block' }}>Note *</label>
         <div style={{ display: 'flex', gap: '4px' }}>
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -89,7 +89,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
 
       {/* Tags */}
       <div>
-        <label style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px', display: 'block' }}>Tags</label>
+        <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px', display: 'block' }}>Tags</label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {tags.map((tag) => {
             const sel = selectedTags.includes(tag)
@@ -109,7 +109,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
 
       {/* Comment */}
       <div>
-        <label style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px', display: 'block' }}>
+        <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px', display: 'block' }}>
           Commentaire (optionnel, 100 caractères max)
         </label>
         <textarea
@@ -117,7 +117,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
           onChange={(e) => setComment(e.target.value.slice(0, 100))}
           placeholder="Votre avis en quelques mots..."
           rows={2}
-          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box', transition: 'border-color 300ms ease' }}
+          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box', transition: 'border-color 300ms ease' }}
           onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1' }}
           onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
         />

@@ -55,7 +55,7 @@ function formatBytes(bytes: number): string {
 
 function TypingDots() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '12px 16px', backgroundColor: '#F3F4F6', borderRadius: '18px 18px 18px 4px', width: 'fit-content' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '12px 16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '18px 18px 18px 4px', width: 'fit-content' }}>
       {[0, 1, 2].map(i => (
         <span key={i} style={{
           width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#9CA3AF',
@@ -375,7 +375,7 @@ export default function ConversationPage() {
   const canSend = (text.trim() || pendingFile) && !sending && !uploading
 
   return (
-    <div style={{ position: 'fixed', top: '58px', left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', backgroundColor: '#FFFFFF', zIndex: 10 }}>
+    <div style={{ position: 'fixed', top: '58px', left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', backgroundColor: 'var(--bg-primary)', zIndex: 10 }}>
       <style>{`
         @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -383,7 +383,7 @@ export default function ConversationPage() {
       <div style={{ width: '100%', maxWidth: '800px', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: '#FFFFFF', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', flexShrink: 0 }}>
         <Link href="/messages" style={{ display: 'flex', alignItems: 'center', color: '#6366F1', textDecoration: 'none' }}>
           <ArrowLeft size={20} />
         </Link>
@@ -397,7 +397,7 @@ export default function ConversationPage() {
         <div>
           <Link
             href={other?.role === 'creator' ? `/creators/${other.id}` : '#'}
-            style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0, textDecoration: 'none' }}
+            style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, textDecoration: 'none' }}
             onClick={e => { if (other?.role !== 'creator') e.preventDefault() }}
           >
             {other?.full_name ?? 'Utilisateur'}
@@ -410,13 +410,13 @@ export default function ConversationPage() {
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
         {messages.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#6B7280', fontSize: '14px', marginTop: '40px' }}>Démarrez la conversation 👋</p>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '14px', marginTop: '40px' }}>Démarrez la conversation 👋</p>
         )}
 
         {grouped.map(({ day, msgs: dayMsgs }) => (
           <div key={day}>
             <div style={{ textAlign: 'center', margin: '16px 0 12px' }}>
-              <span style={{ fontSize: '12px', color: '#6B7280', backgroundColor: '#F3F4F6', padding: '4px 12px', borderRadius: '9999px' }}>{day}</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)', padding: '4px 12px', borderRadius: '9999px' }}>{day}</span>
             </div>
             {dayMsgs.map((m, i) => {
               const isMine = m.sender_id === user?.id
@@ -436,14 +436,14 @@ export default function ConversationPage() {
                   {isMine && isHovered && !isEditing && (
                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginRight: '8px', alignSelf: 'center' }}>
                       <button onClick={() => startEdit(m)} title="Modifier"
-                        style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#E0E0FA'; e.currentTarget.style.color = '#6366F1' }}
                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = '#6B7280' }}
                       >
                         <Pencil size={13} />
                       </button>
                       <button onClick={() => deleteMessage(m.id)} title="Supprimer"
-                        style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FEF2F2'; e.currentTarget.style.color = '#E05A5A' }}
                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = '#6B7280' }}
                       >
@@ -465,7 +465,7 @@ export default function ConversationPage() {
                           onInput={e => { const el = e.currentTarget; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px' }}
                         />
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          <button onClick={cancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#6B7280', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+                          <button onClick={cancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
                             <X size={12} /> Annuler
                           </button>
                           <button onClick={() => saveEdit(m.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
@@ -526,7 +526,7 @@ export default function ConversationPage() {
                         })()}
                         {/* Meta: time + read receipt */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMine ? 'flex-end' : 'flex-start', gap: '4px', marginTop: '3px', paddingRight: '4px' }}>
-                          <span style={{ fontSize: '11px', color: '#6B7280' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                             {formatTime(m.created_at)}
                             {m.updated_at && m.updated_at !== m.created_at && ' · modifié'}
                           </span>
@@ -557,8 +557,8 @@ export default function ConversationPage() {
 
       {/* File preview */}
       {pendingFile && (
-        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6', backgroundColor: '#F9FAFB', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', maxWidth: '320px' }}>
+        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', maxWidth: '320px' }}>
             {pendingFile.type === 'image' && pendingFile.preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={pendingFile.preview} alt="" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
@@ -568,10 +568,10 @@ export default function ConversationPage() {
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#1A1A1A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pendingFile.file.name}</p>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#6B7280' }}>{formatBytes(pendingFile.file.size)}</p>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pendingFile.file.name}</p>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>{formatBytes(pendingFile.file.size)}</p>
             </div>
-            <button onClick={removePendingFile} style={{ width: '24px', height: '24px', borderRadius: '50%', border: 'none', backgroundColor: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <button onClick={removePendingFile} style={{ width: '24px', height: '24px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
               <X size={13} />
             </button>
           </div>
@@ -579,7 +579,7 @@ export default function ConversationPage() {
       )}
 
       {/* Input */}
-      <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))', borderTop: '1px solid #F3F4F6', backgroundColor: '#FFFFFF', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+      <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))', borderTop: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
         {/* File attach button */}
         <input ref={fileInputRef} type="file" style={{ display: 'none' }} accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" onChange={handleFileSelect} />
         <button
@@ -605,9 +605,9 @@ export default function ConversationPage() {
           placeholder={pendingFile ? 'Ajouter un message… (optionnel)' : 'Écrivez un message…'}
           rows={1}
           style={{
-            flex: 1, padding: '12px 16px', borderRadius: '24px', border: '1px solid #E5E7EB',
+            flex: 1, padding: '12px 16px', borderRadius: '24px', border: '1px solid var(--border-color)',
             fontSize: '14px', fontFamily: 'inherit', resize: 'none', outline: 'none',
-            backgroundColor: '#F9FAFB', lineHeight: '1.5', maxHeight: '120px', overflowY: 'auto',
+            backgroundColor: 'var(--bg-secondary)', lineHeight: '1.5', maxHeight: '120px', overflowY: 'auto',
           }}
           onInput={e => {
             const el = e.currentTarget

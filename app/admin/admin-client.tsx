@@ -81,14 +81,14 @@ export default function AdminClient() {
   ]
 
   return (
-    <div style={{ display: 'flex', backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       {/* Sidebar */}
       <div style={{
         width: sidebarOpen ? '280px' : '0',
         backgroundColor: '#1A1A1A',
         color: '#FFFFFF',
         padding: sidebarOpen ? '24px 16px' : '0',
-        borderRight: '1px solid #E5E7EB',
+        borderRight: '1px solid var(--border-color)',
         overflow: 'hidden',
         transition: 'width 0.3s',
         minHeight: '100vh'
@@ -97,7 +97,7 @@ export default function AdminClient() {
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 8px 0' }}>
             Admin
           </h1>
-          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
             Nexart v1.0.0
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function AdminClient() {
         {/* Header */}
         <div style={{
           padding: '16px 24px',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
@@ -151,7 +151,7 @@ export default function AdminClient() {
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
             {tabs.find(t => t.id === activeTab)?.label}
           </h2>
           <div style={{ width: '40px' }} />
@@ -165,7 +165,7 @@ export default function AdminClient() {
             transition={{ duration: 0.3 }}
           >
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6B7280' }}>
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
                 <p>Chargement...</p>
               </div>
             ) : activeTab === 'reports' ? (
@@ -225,22 +225,22 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
 
   return (
     <div>
-      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '8px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
         Signalements
       </h3>
-      <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
+      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
         {pending.length} en attente · {resolved.length} traités
       </p>
 
       {reports.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
           <p>Aucun signalement pour le moment</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '12px' }}>
           {reports.map(report => (
             <div key={report.id} style={{
-              border: '1px solid #E5E7EB',
+              border: '1px solid var(--border-color)',
               borderRadius: '8px',
               padding: '16px',
               backgroundColor: report.status === 'open' ? '#FEF2F2' : '#F9FAFB',
@@ -248,10 +248,10 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
                     {report.type}
                   </p>
-                  <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                     {new Date(report.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>
@@ -267,7 +267,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                   {report.status === 'open' ? '⏳ En attente' : '✅ Traité'}
                 </span>
               </div>
-              <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 12px 0' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 12px 0' }}>
                 {report.reason}
               </p>
               {report.status === 'open' && (
@@ -294,9 +294,9 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                     disabled={resolving === report.id}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#F9FAFB',
-                      color: '#6B7280',
-                      border: '1px solid #E5E7EB',
+                      backgroundColor: 'var(--bg-secondary)',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '4px',
                       cursor: resolving === report.id ? 'not-allowed' : 'pointer',
                       fontSize: '12px',
@@ -319,23 +319,23 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
 function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }) {
   return (
     <div>
-      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
         Users ({users.length})
       </h3>
 
       {users.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
           <p>Aucun utilisateur trouvé</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '12px' }}>
           {users.map(user => (
-            <div key={user.id} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={user.id} style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
                   {user.full_name}
                 </p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                   {user.email}
                 </p>
               </div>
@@ -365,22 +365,22 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
 function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => void }) {
   return (
     <div>
-      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
         Events ({events.length})
       </h3>
 
       {events.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
           <p>Aucun événement en attente de modération</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '12px' }}>
           {events.map(event => (
-            <div key={event.id} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px' }}>
-              <h4 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 8px 0' }}>
+            <div key={event.id} style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '16px' }}>
+              <h4 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px 0' }}>
                 {event.title}
               </h4>
-              <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                 Status: <span style={{ fontWeight: 600 }}>{event.status}</span>
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -424,12 +424,12 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
 // ── Stats Tab ──
 function StatsTab({ stats }: { stats: Stats | null }) {
   if (!stats) {
-    return <div style={{ color: '#6B7280' }}>Chargement des stats...</div>
+    return <div style={{ color: 'var(--text-secondary)' }}>Chargement des stats...</div>
   }
 
   return (
     <div>
-      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+      <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
         KPI Dashboard
       </h3>
 
@@ -445,8 +445,8 @@ function StatsTab({ stats }: { stats: Stats | null }) {
 
 function KPICard({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', backgroundColor: '#F9FAFB' }}>
-      <p style={{ fontSize: '12px', color: '#6B7280', fontWeight: 500, margin: '0 0 12px 0' }}>
+    <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', backgroundColor: 'var(--bg-secondary)' }}>
+      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500, margin: '0 0 12px 0' }}>
         {label}
       </p>
       <p style={{ fontSize: '32px', fontWeight: 700, color: '#6366F1', margin: 0 }}>
