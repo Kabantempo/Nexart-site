@@ -1,6 +1,30 @@
 {
   "versions": [
     {
+      "version": "1.0.0",
+      "date": "2026-07-11",
+      "name": "v1.0.0 — Outils Organisateurs Complets",
+      "features": [
+        "Système exposants : formulaire custom + dashboard + CSV export",
+        "Analytics événement : stats en temps réel",
+        "Campagnes email : création + suivi ouvertures",
+        "Gestion équipe : invitations + rôles",
+        "Bénévoles : shifts + assignations",
+        "Checklists : suivi des tâches",
+        "FAQ auto-réponse : réponses automatiques aux candidats",
+        "Rappels automatiques : notifications pré-événement",
+        "Signalement de contenu : bouton flag sur posts, profils, événements",
+        "Dashboard admin modération : résoudre/ignorer signalements"
+      ],
+      "improvements": [
+        "Dashboard exposants avec filtres et export CSV",
+        "Liste d'attente FIFO automatique",
+        "Admin reports avec actions PATCH",
+        "ReportButton intégré sur toutes les pages"
+      ],
+      "fixes": []
+    },
+    {
       "version": "0.8.10",
       "date": "2026-07-11",
       "name": "v0.8.10 — Content Moderation System",

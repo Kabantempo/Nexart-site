@@ -186,58 +186,126 @@ export default function AdminClient() {
 
 // ── Reports Tab ──
 function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () => void }) {
+  const [resolving, setResolving] = useState<string | null>(null)
+
+  const handleResolve = async (reportId: string) => {
+    setResolving(reportId)
+    try {
+      await fetch(`/api/admin/reports/${reportId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'resolved' })
+      })
+      onRefresh()
+    } catch (e) {
+      console.error('Error resolving report:', e)
+    } finally {
+      setResolving(null)
+    }
+  }
+
+  const handleDismiss = async (reportId: string) => {
+    setResolving(reportId)
+    try {
+      await fetch(`/api/admin/reports/${reportId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'dismissed' })
+      })
+      onRefresh()
+    } catch (e) {
+      console.error('Error dismissing report:', e)
+    } finally {
+      setResolving(null)
+    }
+  }
+
+  const pending = reports.filter(r => r.status === 'open')
+  const resolved = reports.filter(r => r.status !== 'open')
+
   return (
     <div>
-      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
-        Reports ({reports.length})
+      <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '8px' }}>
+        Signalements
       </h3>
+      <p style={{ fontSize: '14px', color: '#9CA3AF', marginBottom: '24px' }}>
+        {pending.length} en attente · {resolved.length} traités
+      </p>
 
       {reports.length === 0 ? (
         <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
-          <p>Aucun report</p>
+          <p>Aucun signalement pour le moment</p>
         </div>
       ) : (
         <div style={{ display: 'grid', gap: '12px' }}>
           {reports.map(report => (
-            <div key={report.id} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px', backgroundColor: report.status === 'open' ? '#FEF2F2' : '#F0FDF4' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+            <div key={report.id} style={{
+              border: '1px solid #E5E7EB',
+              borderRadius: '8px',
+              padding: '16px',
+              backgroundColor: report.status === 'open' ? '#FEF2F2' : '#F9FAFB',
+              borderLeft: `4px solid ${report.status === 'open' ? '#FF6B6B' : '#10B981'}`
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
                     {report.type}
                   </p>
                   <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
-                    {new Date(report.created_at).toLocaleDateString('fr-FR')}
+                    {new Date(report.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>
                 <span style={{
                   padding: '4px 12px',
-                  backgroundColor: report.status === 'open' ? '#FF6B6B' : '#10B981',
-                  color: '#FFFFFF',
+                  backgroundColor: report.status === 'open' ? '#FF6B6B20' : '#10B98120',
+                  color: report.status === 'open' ? '#FF6B6B' : '#10B981',
+                  border: `1px solid ${report.status === 'open' ? '#FF6B6B' : '#10B981'}`,
                   borderRadius: '4px',
                   fontSize: '12px',
                   fontWeight: 500
                 }}>
-                  {report.status === 'open' ? 'Ouvert' : 'Résolu'}
+                  {report.status === 'open' ? '⏳ En attente' : '✅ Traité'}
                 </span>
               </div>
               <p style={{ fontSize: '14px', color: '#888888', margin: '0 0 12px 0' }}>
                 {report.reason}
               </p>
               {report.status === 'open' && (
-                <button
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: 500
-                  }}
-                >
-                  Marquer résolu
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => handleResolve(report.id)}
+                    disabled={resolving === report.id}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#10B981',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: resolving === report.id ? 'not-allowed' : 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      opacity: resolving === report.id ? 0.6 : 1
+                    }}
+                  >
+                    ✓ Résoudre
+                  </button>
+                  <button
+                    onClick={() => handleDismiss(report.id)}
+                    disabled={resolving === report.id}
+                    style={{
+                      padding: '8px 16px',
+                      backgroundColor: '#F9FAFB',
+                      color: '#9CA3AF',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '4px',
+                      cursor: resolving === report.id ? 'not-allowed' : 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 500
+                    }}
+                  >
+                    Ignorer
+                  </button>
+                </div>
               )}
             </div>
           ))}

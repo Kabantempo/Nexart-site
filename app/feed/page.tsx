@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { Heart, MessageCircle, ArrowRight, Rss } from 'lucide-react'
+import { ReportButton } from '@/components/ui/report-button'
 
 type Post = {
   id: string
@@ -169,6 +170,9 @@ export default function FeedPage() {
                     className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-indigo-600 transition-colors">
                     <MessageCircle size={14} /> Voir le profil
                   </Link>
+                  <div className="ml-auto">
+                    <ReportButton targetId={post.id} targetType="post" reporterId={userId ?? undefined} />
+                  </div>
                 </div>
               </motion.div>
             ))}
