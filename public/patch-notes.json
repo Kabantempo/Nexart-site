@@ -1,6 +1,24 @@
 {
   "versions": [
     {
+      "version": "0.8.6",
+      "date": "2026-07-11",
+      "name": "v0.8.6 — API Bug Fixes & Error Handling",
+      "features": [],
+      "improvements": [
+        "Improved error messages with detailed descriptions",
+        "Added UUID validation for event creation",
+        "Better console logging for debugging",
+        "All 54 API endpoints tested and verified"
+      ],
+      "fixes": [
+        "Fixed POST /api/events undefined variable bug",
+        "Fixed POST /api/events missing UUID validation",
+        "Added missing GET /api/events/[id] endpoint",
+        "Fixed generic error messages in campaigns, volunteers, shifts endpoints"
+      ]
+    },
+    {
       "version": "0.8.0",
       "date": "2026-07-10",
       "name": "v0.8.0 — Patch Notes System & Accessibility",
