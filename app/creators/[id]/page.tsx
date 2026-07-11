@@ -28,7 +28,9 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
         description: creator.bio?.substring(0, 160),
         type: 'profile',
         url: `https://nexart.fr/creators/${params.id}`,
-        images: creator.avatar_url ? [{ url: creator.avatar_url, width: 500, height: 500 }] : [],
+        images: creator.avatar_url
+          ? [{ url: creator.avatar_url, width: 500, height: 500 }]
+          : [{ url: `https://nexart.fr/api/og?title=${encodeURIComponent(creator.full_name)}&subtitle=Créateur artisanal&type=creator`, width: 1200, height: 630 }],
       },
     }
   } catch {

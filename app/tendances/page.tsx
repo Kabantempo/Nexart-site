@@ -9,19 +9,23 @@ import { TrendingUp, MapPin, Calendar, Users, ArrowRight } from 'lucide-react'
 type DisciplineCount = { name: string; count: number }
 type RegionCount = { name: string; count: number; eventCount: number }
 type UpcomingEvent = { id: string; title: string; city: string; start_date: string; cover_image: string | null }
+type TopPost = { id: string; content: string; likes_count: number; author_id: string; profiles: { full_name: string } | null }
 
 export default function TendancesPage() {
   const [disciplines, setDisciplines] = useState<DisciplineCount[]>([])
   const [regions, setRegions] = useState<RegionCount[]>([])
   const [upcoming, setUpcoming] = useState<UpcomingEvent[]>([])
+  const [topPosts, setTopPosts] = useState<TopPost[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: creators }, { data: events }] = await Promise.all([
+      const [{ data: creators }, { data: events }, { data: posts }] = await Promise.all([
         supabase.from('creator_profiles').select('disciplines, region'),
         supabase.from('events').select('id, title, city, start_date, cover_image, region').eq('status', 'published').gte('start_date', new Date().toISOString()).order('start_date').limit(6),
+        supabase.from('posts').select('id, content, likes_count, author_id, profiles(full_name)').order('likes_count', { ascending: false }).limit(5),
       ])
+      setTopPosts((posts ?? []) as unknown as TopPost[])
 
       // Disciplines les plus populaires
       const discMap: Record<string, number> = {}
@@ -167,6 +171,40 @@ export default function TendancesPage() {
                 </div>
               )}
             </section>
+
+            {/* Top posts */}
+            {topPosts.length > 0 && (
+              <section>
+                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="text-indigo-600">💬</span> Posts les plus aimés
+                </h2>
+                <div className="flex flex-col gap-3">
+                  {topPosts.map((post, i) => (
+                    <motion.div key={post.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                      <Link href={`/feed`} style={{ display: 'flex', gap: '12px', padding: '14px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', textDecoration: 'none', transition: 'all 200ms', alignItems: 'flex-start' }}
+                        onMouseEnter={e => (e.currentTarget.style.borderColor = '#6366F1')}
+                        onMouseLeave={e => (e.currentTarget.style.borderColor = '#E5E7EB')}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px', fontWeight: 700, color: '#6366F1' }}>
+                          {post.profiles?.full_name?.charAt(0) || '?'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: '13px', fontWeight: 600, color: '#6366F1', marginBottom: '3px' }}>{post.profiles?.full_name || 'Créateur'}</p>
+                          <p style={{ fontSize: '14px', color: '#1A1A1A', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{post.content}</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#E05A5A', fontSize: '13px', fontWeight: 600, flexShrink: 0 }}>
+                          ❤️ {post.likes_count}
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+                <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                  <Link href="/feed" style={{ fontSize: '13px', fontWeight: 600, color: '#6366F1', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    Voir le feed <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </section>
+            )}
 
           </div>
         )}

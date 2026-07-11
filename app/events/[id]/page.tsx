@@ -28,7 +28,9 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
         description: event.description?.substring(0, 160),
         type: 'website',
         url: `https://nexart.fr/events/${params.id}`,
-        images: event.cover_image ? [{ url: event.cover_image, width: 1200, height: 630 }] : [],
+        images: event.cover_image
+          ? [{ url: event.cover_image, width: 1200, height: 630 }]
+          : [{ url: `https://nexart.fr/api/og?title=${encodeURIComponent(event.title)}&subtitle=${encodeURIComponent(event.city || '')}&type=event`, width: 1200, height: 630 }],
       },
     }
   } catch {
