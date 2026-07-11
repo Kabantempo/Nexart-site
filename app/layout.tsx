@@ -78,9 +78,13 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{__html: `
-          console.log('🎨 CSS loaded:', document.styleSheets.length > 0);
-          const bgColor = window.getComputedStyle(document.body).backgroundColor;
-          console.log('📐 Body background:', bgColor);
+          if (typeof window !== 'undefined') {
+            console.log('🎨 CSS loaded:', document.styleSheets.length > 0);
+            if (document.body) {
+              const bgColor = window.getComputedStyle(document.body).backgroundColor;
+              console.log('📐 Body background:', bgColor);
+            }
+          }
         `}} />
       </head>
       <body className="flex min-h-screen flex-col bg-white text-gray-900">
