@@ -1,20 +1,35 @@
 # Nexart robots.txt
-# Allow all public content, block admin and auth paths
-
 User-agent: *
 Allow: /
+Allow: /events
+Allow: /creators
+Allow: /carte
+Allow: /search
+Allow: /about
+Allow: /offres
+Allow: /contact
+Allow: /conditions
+Allow: /confidentialite
+Allow: /mentions-legales
+Allow: /patch-notes
+Allow: /tendances
+
 Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
 Disallow: /login
 Disallow: /register
-Disallow: /account
+Disallow: /profile
+Disallow: /settings
 Disallow: /dashboard
 Disallow: /messages
 Disallow: /favorites
 Disallow: /notifications
-Disallow: /profile
+Disallow: /onboarding
 Disallow: /auth/
 Disallow: /reset-password
 Disallow: /forgot-password
-Disallow: /api/
+Disallow: /feed
+Disallow: /carnet-de-route
 
 Sitemap: https://nexart.fr/sitemap.xml
