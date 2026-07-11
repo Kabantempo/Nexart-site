@@ -39,10 +39,10 @@ const SOCIALS = [
 ]
 
 const LEGAL = [
-  { label: 'Confidentialité', href: '/legal/privacy' },
-  { label: 'Conditions',      href: '/legal/terms' },
-  { label: 'Mentions légales', href: '/legal' },
-  { label: 'Contact',         href: '/contact' },
+  { label: 'Conditions d\'utilisation', href: '/conditions' },
+  { label: 'Politique de confidentialité', href: '/confidentialite' },
+  { label: 'Mentions légales',           href: '/mentions-legales' },
+  { label: 'Contact support',             href: '/contact' },
 ]
 
 export function Footer() {
