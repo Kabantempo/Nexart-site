@@ -77,6 +77,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script dangerouslySetInnerHTML={{__html: `
           if (typeof window !== 'undefined') {
             console.log('🎨 CSS loaded:', document.styleSheets.length > 0);

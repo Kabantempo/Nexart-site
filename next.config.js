@@ -31,9 +31,16 @@ async function headers() {
         },
         {
           key: 'Content-Security-Policy',
-          value: process.env.NODE_ENV === 'development'
-            ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://cvqeysnymnkfxfithhsr.supabase.co https://*.supabase.co ws: wss: https://geo.api.gouv.fr; frame-ancestors 'none';"
-            : "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://cvqeysnymnkfxfithhsr.supabase.co https://*.supabase.co https://geo.api.gouv.fr; frame-ancestors 'none'; upgrade-insecure-requests;",
+          value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.vercel-insights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://cvqeysnymnkfxfithhsr.supabase.co https://*.supabase.co ws: wss: https://geo.api.gouv.fr; frame-ancestors 'none'; upgrade-insecure-requests;",
+        },
+        {
+          key: 'Access-Control-Allow-Origin',
+          value: 'https://nexart.fr',
+        },
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+          source: '/_next/static/*',
         },
       ],
     },
