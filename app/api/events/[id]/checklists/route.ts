@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 // Checklist templates by event type
 const CHECKLIST_TEMPLATES: Record<string, any> = {
@@ -44,7 +39,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data, error } = await supabase
+    const admin = getAdminClient()
+    const { data, error } = await admin
       .from('event_checklists')
       .select('*')
       .eq('event_id', params.id)
@@ -68,13 +64,14 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const admin = getAdminClient()
     const body = await req.json()
     const { checklist_type, items } = body
 
     const template = CHECKLIST_TEMPLATES[checklist_type] || CHECKLIST_TEMPLATES.salon
     const defaultItems = Object.values(template).flat()
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('event_checklists')
       .upsert({
         event_id: params.id,

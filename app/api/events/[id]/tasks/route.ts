@@ -1,17 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data, error } = await supabase
+    const admin = getAdminClient()
+    const { data, error } = await admin
       .from('event_tasks')
       .select(`
         *,
@@ -33,9 +30,14 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const admin = getAdminClient()
     const body = await req.json()
     const { title, description, assignee_id, deadline } = body
 
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
     )
@@ -44,7 +46,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('event_tasks')
       .insert({
         event_id: params.id,
