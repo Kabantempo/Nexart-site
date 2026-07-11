@@ -222,7 +222,7 @@ function SearchContent() {
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}>
                     <div style={{ width: '100%', height: '160px', backgroundColor: '#F5F5F7', position: 'relative' }}>
                       {event.cover_image
-                        ? <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
+                        ? <Image src={event.cover_image} alt={event.title} placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGNUY3Ii8+PC9zdmc+" fill style={{ objectFit: 'cover' }} />
                         : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={40} color="rgba(255,255,255,0.7)" /></div>
                       }
                     </div>
@@ -268,7 +268,7 @@ function SearchContent() {
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}>
                     <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', position: 'relative', backgroundColor: '#F5F5F7', flexShrink: 0 }}>
                       {creator.avatar_url
-                        ? <Image src={creator.avatar_url} alt={creator.full_name || 'Créateur'} fill style={{ objectFit: 'cover' }} />
+                        ? <Image src={creator.avatar_url} alt={creator.full_name || 'Créateur'} placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGNUY3Ii8+PC9zdmc+" fill style={{ objectFit: 'cover' }} />
                         : <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '20px', color: '#FFFFFF', fontWeight: 700 }}>{creator.full_name?.charAt(0) || '?'}</span></div>
                       }
                     </div>

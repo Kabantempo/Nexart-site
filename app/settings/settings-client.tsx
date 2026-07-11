@@ -1,13 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Trash2, ChevronRight } from 'lucide-react'
+import { Download, Trash2, ChevronRight, Bell, BellOff } from 'lucide-react'
+import { subscribeToPush, unsubscribeFromPush, isPushSubscribed } from '@/lib/push-notifications'
+import { supabase } from '@/lib/supabase'
 
 export default function SettingsClient() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [pushLoading, setPushLoading] = useState(false)
+
+  useEffect(() => {
+    isPushSubscribed().then(setPushEnabled)
+  }, [])
+
+  const handleTogglePush = async () => {
+    setPushLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (pushEnabled) {
+        await unsubscribeFromPush()
+        if (token) await fetch('/api/push', { method: 'DELETE', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: '' }) })
+        setPushEnabled(false)
+      } else {
+        const sub = await subscribeToPush()
+        if (sub && token) {
+          await fetch('/api/push', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON() }) })
+          setPushEnabled(true)
+        }
+      }
+    } catch (e) {
+      console.error('Push toggle error:', e)
+    }
+    setPushLoading(false)
+  }
 
   const handleExportData = async () => {
     setLoading(true)
@@ -234,6 +264,37 @@ export default function SettingsClient() {
                 </div>
                 <ChevronRight size={20} color="#888888" />
               </a>
+            </div>
+          </motion.section>
+
+          {/* Notifications push */}
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '24px', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>Notifications</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {pushEnabled ? <Bell size={20} color="#6366F1" /> : <BellOff size={20} color="#6B7280" />}
+                <div>
+                  <p style={{ fontSize: '15px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>Notifications push</p>
+                  <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>
+                    {pushEnabled ? 'Activées — tu reçois les alertes en temps réel' : 'Désactivées — active-les pour ne rien manquer'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleTogglePush}
+                disabled={pushLoading}
+                aria-label={pushEnabled ? 'Désactiver les notifications push' : 'Activer les notifications push'}
+                style={{
+                  padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: pushLoading ? 'wait' : 'pointer',
+                  backgroundColor: pushEnabled ? '#FEE2E2' : '#6366F1',
+                  color: pushEnabled ? '#DC2626' : '#FFFFFF',
+                  fontSize: '14px', fontWeight: 600, transition: 'all 200ms', opacity: pushLoading ? 0.7 : 1,
+                  fontFamily: 'inherit',
+                }}
+              >
+                {pushLoading ? '...' : pushEnabled ? 'Désactiver' : 'Activer'}
+              </button>
             </div>
           </motion.section>
         </div>

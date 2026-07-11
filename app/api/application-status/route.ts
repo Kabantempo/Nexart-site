@@ -91,6 +91,40 @@ export async function POST(req: NextRequest) {
 </body></html>`,
     })
 
+    // Push notification si accepté
+    if (accepted && creatorId) {
+      try {
+        const { data: subs } = await adminClient
+          .from('push_subscriptions')
+          .select('endpoint, p256dh, auth')
+          .eq('user_id', creatorId)
+
+        if (subs && subs.length > 0) {
+          const { default: webpush } = await import('web-push')
+          webpush.setVapidDetails(
+            process.env.VAPID_SUBJECT!,
+            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+            process.env.VAPID_PRIVATE_KEY!
+          )
+          const payload = JSON.stringify({
+            title: '🎉 Candidature acceptée !',
+            body: `Votre candidature pour "${eventTitle}" a été acceptée.`,
+            url: 'https://nexart.fr/dashboard',
+          })
+          await Promise.allSettled(
+            subs.map((sub) =>
+              webpush.sendNotification(
+                { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+                payload
+              )
+            )
+          )
+        }
+      } catch (pushErr) {
+        console.error('[application-status] push error:', pushErr)
+      }
+    }
+
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[application-status] email error:', err)

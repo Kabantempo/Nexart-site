@@ -54,8 +54,36 @@ async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; u
   }
 }
 
+const PROTECTED_PAGES = ['/dashboard', '/profile', '/settings', '/messages', '/notifications', '/favorites', '/events/create', '/onboarding']
+const ADMIN_PAGES = ['/admin']
+
+function getSessionToken(req: NextRequest): string | null {
+  const cookieHeader = req.headers.get('cookie') || ''
+  const match = cookieHeader.match(/sb-[^=]+-auth-token=([^;]+)/)
+  if (match) {
+    try {
+      const decoded = decodeURIComponent(match[1])
+      const parsed = JSON.parse(decoded)
+      return Array.isArray(parsed) ? (parsed[0]?.access_token ?? null) : (parsed?.access_token ?? null)
+    } catch { return null }
+  }
+  return null
+}
+
 export async function middleware(req: NextRequest) {
   const path = new URL(req.url).pathname
+
+  // Protect page routes — redirect to login if no session cookie
+  const isProtectedPage = PROTECTED_PAGES.some(p => path.startsWith(p))
+  const isAdminPage = ADMIN_PAGES.some(p => path.startsWith(p))
+  if (isProtectedPage || isAdminPage) {
+    const token = getSessionToken(req)
+    if (!token) {
+      const loginUrl = new URL('/login', req.url)
+      loginUrl.searchParams.set('redirect', path)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
 
   // Admin auth check
   if (path.startsWith('/api/admin/')) {
@@ -98,5 +126,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: '/api/:path*',
+  matcher: ['/api/:path*', '/dashboard/:path*', '/profile/:path*', '/settings/:path*', '/messages/:path*', '/notifications/:path*', '/favorites/:path*', '/admin/:path*', '/events/create/:path*', '/onboarding/:path*'],
 }

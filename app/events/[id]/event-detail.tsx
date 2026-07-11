@@ -679,7 +679,7 @@ export function EventDetailClient({ id }: Props) {
       {/* Cover Image */}
       <div className="event-cover" style={{ width: '100%', height: '400px', position: 'relative', backgroundColor: '#F5F5F7' }}>
         {event.cover_image ? (
-          <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
+          <Image src={event.cover_image} alt={event.title} placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGNUY3Ii8+PC9zdmc+" fill style={{ objectFit: 'cover' }} />
         ) : (
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Calendar size={80} color="rgba(255,255,255,0.5)" />

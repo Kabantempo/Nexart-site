@@ -362,7 +362,7 @@ function EventsContent() {
                     {/* Cover */}
                     <div className="relative h-52 bg-gray-100 shrink-0 overflow-hidden">
                       {event.cover_image ? (
-                        <Image src={event.cover_image} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <Image src={event.cover_image} alt={event.title} placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGNUY3Ii8+PC9zdmc+" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-[#111827]">
                           <Calendar size={48} className="text-white/40" />

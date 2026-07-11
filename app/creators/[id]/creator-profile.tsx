@@ -265,7 +265,7 @@ export function CreatorProfileClient({ id }: Props) {
             <div className="relative shrink-0">
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: '#1e1b4b' }}>
                 {creator.avatar_url ? (
-                  <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
+                  <Image src={creator.avatar_url} alt={creator.full_name} placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGNUY3Ii8+PC9zdmc+" fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-[#111827]">
                     <span className="text-4xl font-bold text-white/80">{creator.full_name?.charAt(0) || '?'}</span>
@@ -427,7 +427,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
                     {grid.map((item, idx) => (
                       <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: '#F3F4F6', position: 'relative' }} className="group">
-                        <Image src={item.url} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
+                        <Image src={item.url} alt={`Portfolio ${idx + 1}`} placeholder="blur" blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjVGNUY3Ii8+PC9zdmc+" fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     ))}
                   </div>
