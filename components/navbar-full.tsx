@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
 import { WhatsNew } from '@/components/ui/whats-new'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function NavbarFull() {
   const [mobileOpen,  setMobileOpen]  = useState(false)
@@ -292,6 +293,7 @@ export function NavbarFull() {
             </div>
 
             <WhatsNew dark={dark} />
+            <ThemeToggle />
 
             {user ? (
               <>

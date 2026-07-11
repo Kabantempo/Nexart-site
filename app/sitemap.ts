@@ -13,8 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/about`,         lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/offres`,        lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/contact`,       lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.4 },
-    { url: `${BASE_URL}/legal/privacy`, lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.2 },
-    { url: `${BASE_URL}/legal/terms`,   lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.2 },
+    { url: `${BASE_URL}/conditions`,       lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.3 },
+    { url: `${BASE_URL}/confidentialite`,  lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.3 },
+    { url: `${BASE_URL}/mentions-legales`, lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.2 },
+    { url: `${BASE_URL}/patch-notes`,      lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.4 },
+    { url: `${BASE_URL}/legal/privacy`,    lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.2 },
+    { url: `${BASE_URL}/legal/terms`,      lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.2 },
   ]
 
   let eventRoutes: MetadataRoute.Sitemap = []
