@@ -138,7 +138,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             Espace Collaboration
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280' }}>
             Coordonnez votre équipe, assignez des tâches et suivez la progression
           </p>
         </motion.div>
@@ -183,7 +183,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
               {/* Task List */}
               <div style={{ display: 'grid', gap: '12px', marginBottom: '32px' }}>
                 {filteredTasks.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                     <p>Aucune tâche pour le moment</p>
                   </div>
                 ) : (
@@ -206,11 +206,11 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                           <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: 0, marginBottom: '4px' }}>
                             {task.title}
                           </h3>
-                          <p style={{ fontSize: '14px', color: '#888888', margin: 0, marginBottom: '8px' }}>
+                          <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, marginBottom: '8px' }}>
                             {task.profiles?.full_name || 'Non assigné'}
                           </p>
                           {task.deadline && (
-                            <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                            <p style={{ fontSize: '12px', color: '#6B7280' }}>
                               Deadline: {new Date(task.deadline).toLocaleDateString('fr-FR')}
                             </p>
                           )}
@@ -350,13 +350,13 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       {selectedTask.title}
                     </h3>
 
-                    <p style={{ fontSize: '14px', color: '#888888', lineHeight: '1.6', marginBottom: '20px' }}>
+                    <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', marginBottom: '20px' }}>
                       {selectedTask.description}
                     </p>
 
                     <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
                       <div>
-                        <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>Statut</p>
+                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Statut</p>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           {(['not_started', 'in_progress', 'completed'] as const).map(status => (
                             <button
@@ -380,7 +380,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       </div>
 
                       <div>
-                        <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>Assigné à</p>
+                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Assigné à</p>
                         <p style={{ fontSize: '14px', color: '#1A1A1A', margin: 0 }}>
                           {selectedTask.profiles?.full_name || 'Non assigné'}
                         </p>
@@ -388,7 +388,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
                       {selectedTask.deadline && (
                         <div>
-                          <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px' }}>Deadline</p>
+                          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Deadline</p>
                           <p style={{ fontSize: '14px', color: '#1A1A1A', margin: 0 }}>
                             {new Date(selectedTask.deadline).toLocaleDateString('fr-FR')}
                           </p>
@@ -410,7 +410,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                   </div>
                 </div>
               ) : (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF' }}>
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280' }}>
                   <Users size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
                   <p>Sélectionnez une tâche pour voir les détails</p>
                 </div>

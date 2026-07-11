@@ -97,7 +97,7 @@ export default function AdminClient() {
           <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 8px 0' }}>
             Admin
           </h1>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
             Nexart v1.0.0
           </p>
         </div>
@@ -165,7 +165,7 @@ export default function AdminClient() {
             transition={{ duration: 0.3 }}
           >
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
+              <div style={{ textAlign: 'center', padding: '40px', color: '#6B7280' }}>
                 <p>Chargement...</p>
               </div>
             ) : activeTab === 'reports' ? (
@@ -228,12 +228,12 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
       <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '8px' }}>
         Signalements
       </h3>
-      <p style={{ fontSize: '14px', color: '#9CA3AF', marginBottom: '24px' }}>
+      <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
         {pending.length} en attente · {resolved.length} traités
       </p>
 
       {reports.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
           <p>Aucun signalement pour le moment</p>
         </div>
       ) : (
@@ -251,7 +251,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                   <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
                     {report.type}
                   </p>
-                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                  <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                     {new Date(report.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </p>
                 </div>
@@ -267,7 +267,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                   {report.status === 'open' ? '⏳ En attente' : '✅ Traité'}
                 </span>
               </div>
-              <p style={{ fontSize: '14px', color: '#888888', margin: '0 0 12px 0' }}>
+              <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 12px 0' }}>
                 {report.reason}
               </p>
               {report.status === 'open' && (
@@ -295,7 +295,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#F9FAFB',
-                      color: '#9CA3AF',
+                      color: '#6B7280',
                       border: '1px solid #E5E7EB',
                       borderRadius: '4px',
                       cursor: resolving === report.id ? 'not-allowed' : 'pointer',
@@ -324,7 +324,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
       </h3>
 
       {users.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
           <p>Aucun utilisateur trouvé</p>
         </div>
       ) : (
@@ -335,7 +335,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                 <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
                   {user.full_name}
                 </p>
-                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                   {user.email}
                 </p>
               </div>
@@ -370,7 +370,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
       </h3>
 
       {events.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
           <p>Aucun événement en attente de modération</p>
         </div>
       ) : (
@@ -380,7 +380,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
               <h4 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 8px 0' }}>
                 {event.title}
               </h4>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '12px' }}>
+              <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
                 Status: <span style={{ fontWeight: 600 }}>{event.status}</span>
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -424,7 +424,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
 // ── Stats Tab ──
 function StatsTab({ stats }: { stats: Stats | null }) {
   if (!stats) {
-    return <div style={{ color: '#9CA3AF' }}>Chargement des stats...</div>
+    return <div style={{ color: '#6B7280' }}>Chargement des stats...</div>
   }
 
   return (
@@ -446,7 +446,7 @@ function StatsTab({ stats }: { stats: Stats | null }) {
 function KPICard({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', backgroundColor: '#F9FAFB' }}>
-      <p style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 500, margin: '0 0 12px 0' }}>
+      <p style={{ fontSize: '12px', color: '#6B7280', fontWeight: 500, margin: '0 0 12px 0' }}>
         {label}
       </p>
       <p style={{ fontSize: '32px', fontWeight: 700, color: '#6366F1', margin: 0 }}>

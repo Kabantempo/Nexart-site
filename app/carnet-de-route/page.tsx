@@ -73,7 +73,7 @@ export default function CarnetDeRoutePage() {
 
   if (!user || user.role !== 'creator') return (
     <div style={{ padding: '80px 24px', textAlign: 'center' }}>
-      <p style={{ color: '#9CA3AF' }}>Réservé aux créateurs</p>
+      <p style={{ color: '#6B7280' }}>Réservé aux créateurs</p>
     </div>
   )
 
@@ -167,7 +167,7 @@ export default function CarnetDeRoutePage() {
           <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
             <MapPin size={40} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
             <p style={{ fontSize: '16px', fontWeight: '700', color: '#111827', margin: '0 0 8px' }}>Carnet vide</p>
-            <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 20px', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 20px', lineHeight: 1.6 }}>
               Ajoutez vos prochains déplacements prévus. Les organisateurs de votre zone pourront vous contacter !
             </p>
             <button onClick={() => setShowForm(true)}
@@ -185,7 +185,7 @@ export default function CarnetDeRoutePage() {
                   </div>
                   <div>
                     <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{entry.label}</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: '#9CA3AF' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '11px', color: '#6B7280' }}>
                       {entry.city && <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={9} />{entry.city}</span>}
                       <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                         <Calendar size={9} />

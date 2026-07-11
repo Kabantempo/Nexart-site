@@ -223,10 +223,10 @@ export default function ConditionsClient() {
             <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
               Conditions d'Utilisation
             </h1>
-            <p style={{ fontSize: '18px', color: '#888888', maxWidth: '600px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: '#6B7280', maxWidth: '600px', lineHeight: '1.6' }}>
               Consulter les règles et responsabilités de la plateforme Nexart. Lisez attentivement avant d'utiliser.
             </p>
-            <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '24px' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '24px' }}>
               Dernière mise à jour : 11 juillet 2026 | Version 1.0
             </p>
           </motion.div>

@@ -51,7 +51,7 @@ export function CookieBanner() {
             borderRadius: '8px',
             border: '1px solid rgba(255,255,255,0.2)',
             backgroundColor: 'transparent',
-            color: '#9CA3AF',
+            color: '#6B7280',
             fontSize: '14px',
             fontWeight: '500',
             cursor: 'pointer',

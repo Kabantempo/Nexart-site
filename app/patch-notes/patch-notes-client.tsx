@@ -49,7 +49,7 @@ export default function PatchNotesClient() {
 
       {loading && (
         <div style={{ textAlign: 'center', padding: '60px 16px' }} role="status" aria-live="polite">
-          <p style={{ fontSize: '16px', color: '#888888' }}>Chargement des mises à jour...</p>
+          <p style={{ fontSize: '16px', color: '#6B7280' }}>Chargement des mises à jour...</p>
         </div>
       )}
 
@@ -61,7 +61,7 @@ export default function PatchNotesClient() {
 
       {!loading && !error && notes.length === 0 && (
         <div style={{ textAlign: 'center', padding: '60px 16px' }}>
-          <p style={{ fontSize: '16px', color: '#888888' }}>Aucune mise à jour pour le moment.</p>
+          <p style={{ fontSize: '16px', color: '#6B7280' }}>Aucune mise à jour pour le moment.</p>
         </div>
       )}
 

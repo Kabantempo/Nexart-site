@@ -182,9 +182,9 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
       )}
 
       {loading ? (
-        <p style={{ fontSize: '13px', color: '#9CA3AF' }}>Chargement des avis...</p>
+        <p style={{ fontSize: '13px', color: '#6B7280' }}>Chargement des avis...</p>
       ) : reviews.length === 0 ? (
-        <p style={{ fontSize: '13px', color: '#9CA3AF', fontStyle: 'italic' }}>Aucun avis pour le moment. Soyez le premier !</p>
+        <p style={{ fontSize: '13px', color: '#6B7280', fontStyle: 'italic' }}>Aucun avis pour le moment. Soyez le premier !</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {reviews.map(r => (
@@ -193,11 +193,11 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
                 <div>
                   <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>
                     {r.reviewer?.full_name || 'Anonyme'}
-                    <span style={{ fontSize: '10px', fontWeight: '600', color: '#9CA3AF', marginLeft: '6px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: '600', color: '#6B7280', marginLeft: '6px' }}>
                       {r.reviewer_role === 'creator' ? 'Créateur' : 'Organisateur'}
                     </span>
                   </p>
-                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                  <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
                     Note à {r.reviewed?.full_name || 'la contrepartie'} · {new Date(r.created_at).toLocaleDateString('fr-FR')}
                   </p>
                 </div>
@@ -286,21 +286,21 @@ function StandsManager({ eventId }: { eventId: string }) {
     <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Gestion des stands</p>
-        <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: '18px' }}>×</button>
+        <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: '18px' }}>×</button>
       </div>
-      {loading ? <p style={{ fontSize: '13px', color: '#9CA3AF' }}>Chargement…</p> : (
+      {loading ? <p style={{ fontSize: '13px', color: '#6B7280' }}>Chargement…</p> : (
         <>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px', maxHeight: '200px', overflowY: 'auto' }}>
             {stands.map(s => (
               <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                 <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', minWidth: '40px' }}>#{s.stand_number}</span>
-                {s.dimensions && <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{s.dimensions}</span>}
+                {s.dimensions && <span style={{ fontSize: '12px', color: '#6B7280' }}>{s.dimensions}</span>}
                 <span style={{ flex: 1 }} />
                 {s.creator_id && <span style={{ fontSize: '11px', color: '#6366F1', fontWeight: '600' }}>Assigné</span>}
                 <button onClick={() => deleteStand(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E05A5A', fontSize: '16px' }}>×</button>
               </div>
             ))}
-            {stands.length === 0 && <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' }}>Aucun stand créé</p>}
+            {stands.length === 0 && <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center' }}>Aucun stand créé</p>}
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <input value={newNum} onChange={e => setNewNum(e.target.value)} placeholder="N°" style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none' }} />
@@ -604,7 +604,7 @@ export function EventDetailClient({ id }: Props) {
   if (loading) {
     return (
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#888888', fontSize: '16px' }}>Chargement...</p>
+        <p style={{ color: '#6B7280', fontSize: '16px' }}>Chargement...</p>
       </div>
     )
   }
@@ -702,13 +702,13 @@ export function EventDetailClient({ id }: Props) {
 
         {/* Breadcrumb */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <Link href="/" style={{ color: '#9CA3AF', textDecoration: 'none' }}
+          <Link href="/" style={{ color: '#6B7280', textDecoration: 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
             Accueil
           </Link>
           <ChevronRight size={13} color="#D1D5DB" />
-          <Link href="/events" style={{ color: '#9CA3AF', textDecoration: 'none' }}
+          <Link href="/events" style={{ color: '#6B7280', textDecoration: 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
             onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
             Événements
@@ -739,7 +739,7 @@ export function EventDetailClient({ id }: Props) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Calendar size={18} color="#6366F1" />
                     <div>
-                      <div style={{ fontSize: '12px', color: '#888888' }}>Date</div>
+                      <div style={{ fontSize: '12px', color: '#6B7280' }}>Date</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>
                         {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                         {event.end_date && event.end_date !== event.start_date && (
@@ -759,7 +759,7 @@ export function EventDetailClient({ id }: Props) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Clock size={18} color="#6366F1" />
                     <div>
-                      <div style={{ fontSize: '12px', color: '#888888' }}>Horaires</div>
+                      <div style={{ fontSize: '12px', color: '#6B7280' }}>Horaires</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>
                         {event.start_time}{event.end_time ? ` — ${event.end_time}` : ''}
                       </div>
@@ -770,7 +770,7 @@ export function EventDetailClient({ id }: Props) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <MapPin size={18} color="#6366F1" />
                     <div>
-                      <div style={{ fontSize: '12px', color: '#888888' }}>Lieu</div>
+                      <div style={{ fontSize: '12px', color: '#6B7280' }}>Lieu</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>
                         {event.location}
                       </div>
@@ -781,7 +781,7 @@ export function EventDetailClient({ id }: Props) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Users size={18} color="#6366F1" />
                     <div>
-                      <div style={{ fontSize: '12px', color: '#888888' }}>Stands</div>
+                      <div style={{ fontSize: '12px', color: '#6B7280' }}>Stands</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: '#1A1A1A' }}>
                         {event.stand_count} stands
                         {event.stand_dimensions ? ` · ${event.stand_dimensions}` : ''}
@@ -794,7 +794,7 @@ export function EventDetailClient({ id }: Props) {
               {/* Share + Favori + Calendar */}
               <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
+                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
                   <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
                 </div>
                 {user && event?.organizer_id !== user.id && (
@@ -917,7 +917,7 @@ export function EventDetailClient({ id }: Props) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '12px', borderRadius: '8px', backgroundColor: '#F9F9FF' }}>
                   <Euro size={20} color="#6366F1" />
                   <div>
-                    <div style={{ fontSize: '12px', color: '#888888' }}>Prix du stand</div>
+                    <div style={{ fontSize: '12px', color: '#6B7280' }}>Prix du stand</div>
                     <div style={{ fontSize: '22px', fontWeight: '700', color: '#6366F1' }}>{event.stand_price}€</div>
                   </div>
                 </div>
@@ -934,7 +934,7 @@ export function EventDetailClient({ id }: Props) {
                       <span style={{ fontSize: '13px', fontWeight: '600', color: '#6B7280' }}>
                         {full ? 'Complet' : `${remaining} stand${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                      <span style={{ fontSize: '12px', color: '#6B7280' }}>
                         {acceptedCount}/{event.stand_count}
                       </span>
                     </div>
@@ -962,14 +962,14 @@ export function EventDetailClient({ id }: Props) {
                   <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || '#888888', margin: 0 }}>
                     {STATUS_STYLES[application.status]?.label || application.status}
                   </p>
-                  <p style={{ fontSize: '13px', color: '#888888', marginTop: '4px' }}>
+                  <p style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px' }}>
                     Candidature envoyée le {new Date(application.created_at).toLocaleDateString('fr-FR')}
                   </p>
                   {application.status === 'pending' && (
                     <button
                       onClick={handleCancelApplication}
                       disabled={cancelling}
-                      style={{ marginTop: '12px', padding: '8px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#9CA3AF', fontSize: '12px', fontWeight: '600', cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1 }}
+                      style={{ marginTop: '12px', padding: '8px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#6B7280', fontSize: '12px', fontWeight: '600', cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1 }}
                     >
                       {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
                     </button>
@@ -1018,13 +1018,13 @@ export function EventDetailClient({ id }: Props) {
                   <p style={{ fontSize: '15px', fontWeight: '700', color: '#4CAF50', margin: 0 }}>
                     Candidature envoyée ✓
                   </p>
-                  <p style={{ fontSize: '13px', color: '#888888', marginTop: '4px' }}>
+                  <p style={{ fontSize: '13px', color: '#6B7280', marginTop: '4px' }}>
                     L'organisateur vous répondra bientôt
                   </p>
                 </div>
               ) : !user ? (
                 <div>
-                  <p style={{ fontSize: '14px', color: '#888888', marginBottom: '16px', lineHeight: '1.6' }}>
+                  <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '16px', lineHeight: '1.6' }}>
                     Connectez-vous pour postuler à cet événement
                   </p>
                   <Link
@@ -1088,10 +1088,10 @@ export function EventDetailClient({ id }: Props) {
                     </div>
                   )}
                   {appsLoading ? (
-                    <div style={{ textAlign: 'center', padding: '24px', color: '#888888', fontSize: '14px' }}>Chargement...</div>
+                    <div style={{ textAlign: 'center', padding: '24px', color: '#6B7280', fontSize: '14px' }}>Chargement...</div>
                   ) : applications.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '24px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
-                      <p style={{ fontSize: '14px', color: '#888888', margin: 0 }}>Aucune candidature reçue</p>
+                      <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucune candidature reçue</p>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1107,7 +1107,7 @@ export function EventDetailClient({ id }: Props) {
                               <Link href={`/creators/${app.creator_id}`} style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', textDecoration: 'none' }}>
                                 {app.profiles?.full_name || 'Créateur'}
                               </Link>
-                              <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                              <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                                 {new Date(app.created_at).toLocaleDateString('fr-FR')}
                               </p>
                             </div>
@@ -1172,7 +1172,7 @@ export function EventDetailClient({ id }: Props) {
                   <StandsManager eventId={id} />
                 </div>
               ) : (user.role === 'organizer' || user.role === 'visitor') ? (
-                <p style={{ fontSize: '14px', color: '#888888', textAlign: 'center' }}>
+                <p style={{ fontSize: '14px', color: '#6B7280', textAlign: 'center' }}>
                   {user.role === 'visitor' ? 'Créez un compte créateur pour postuler aux événements' : 'Seuls les créateurs peuvent postuler aux événements'}
                 </p>
               ) : (user.role === 'creator') && profileChecked && missingFields.length > 0 ? (
@@ -1256,7 +1256,7 @@ export function EventDetailClient({ id }: Props) {
                         ))}
                         {appPortfolioFiles.length < 4 && (
                           <button onClick={() => appPortfolioRef.current?.click()}
-                            style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: '#F9FAFB', color: '#9CA3AF', fontSize: '20px', cursor: 'pointer' }}>
+                            style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: '#F9FAFB', color: '#6B7280', fontSize: '20px', cursor: 'pointer' }}>
                             +
                           </button>
                         )}
@@ -1275,7 +1275,7 @@ export function EventDetailClient({ id }: Props) {
                   </button>
                   <button
                     onClick={() => setShowForm(false)}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: 'transparent', border: '1px solid #E5E7EB', color: '#888888', fontSize: '14px', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: 'transparent', border: '1px solid #E5E7EB', color: '#6B7280', fontSize: '14px', cursor: 'pointer' }}
                   >
                     Annuler
                   </button>

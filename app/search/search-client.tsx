@@ -73,7 +73,7 @@ function SearchContent() {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             Recherche
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888', marginBottom: '32px' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280', marginBottom: '32px' }}>
             {q ? `${totalResults} résultat${totalResults !== 1 ? 's' : ''} pour "${query}"` : 'Recherchez des événements ou des créateurs'}
           </p>
         </motion.div>
@@ -154,7 +154,7 @@ function SearchContent() {
                         {event.start_date && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Calendar size={12} color="#6366F1" />
-                            <span style={{ fontSize: '12px', color: '#888888' }}>
+                            <span style={{ fontSize: '12px', color: '#6B7280' }}>
                               {new Date(event.start_date).toLocaleDateString('fr-FR')}
                             </span>
                           </div>
@@ -162,7 +162,7 @@ function SearchContent() {
                         {event.city && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <MapPin size={12} color="#6366F1" />
-                            <span style={{ fontSize: '12px', color: '#888888' }}>{event.city}</span>
+                            <span style={{ fontSize: '12px', color: '#6B7280' }}>{event.city}</span>
                           </div>
                         )}
                       </div>
@@ -213,7 +213,7 @@ function SearchContent() {
                       {creator.city && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                           <MapPin size={12} color="#888888" />
-                          <span style={{ fontSize: '12px', color: '#888888' }}>{creator.city}</span>
+                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{creator.city}</span>
                         </div>
                       )}
                     </div>
@@ -236,7 +236,7 @@ function SearchContent() {
         {!isLoading && q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-            <p style={{ fontSize: '18px', color: '#888888' }}>Aucun résultat pour "{query}"</p>
+            <p style={{ fontSize: '18px', color: '#6B7280' }}>Aucun résultat pour "{query}"</p>
             <p style={{ fontSize: '14px', color: '#AAAAAA', marginTop: '8px' }}>Essayez avec des mots-clés différents</p>
           </div>
         )}
@@ -244,7 +244,7 @@ function SearchContent() {
         {!isLoading && !q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-            <p style={{ fontSize: '18px', color: '#888888' }}>Commencez à taper pour rechercher</p>
+            <p style={{ fontSize: '18px', color: '#6B7280' }}>Commencez à taper pour rechercher</p>
           </div>
         )}
       </div>

@@ -118,7 +118,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             Checklist Événement
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280' }}>
             Suivez toutes les tâches essentielles avant votre événement
           </p>
         </motion.div>
@@ -137,7 +137,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px' }}>
                 Créer une checklist
               </h2>
-              <p style={{ fontSize: '16px', color: '#888888', marginBottom: '32px' }}>
+              <p style={{ fontSize: '16px', color: '#6B7280', marginBottom: '32px' }}>
                 Choisissez un type d'événement pour initialiser une checklist adaptée
               </p>
 
@@ -164,7 +164,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                     <p style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 8px 0' }}>
                       {label}
                     </p>
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                    <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                       {description}
                     </p>
                   </button>
@@ -193,7 +193,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                     }}
                   />
                 </div>
-                <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '12px' }}>
+                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '12px' }}>
                   {items.filter(i => i.completed).length} sur {items.length} tâches complétées
                 </p>
               </div>
@@ -269,7 +269,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                                   {item.title}
                                 </p>
                                 {item.description && (
-                                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                                  <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                                     {item.description}
                                   </p>
                                 )}

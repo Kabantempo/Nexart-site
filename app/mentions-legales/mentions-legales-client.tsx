@@ -78,10 +78,10 @@ export default function MentionsLegalesClient() {
             <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
               Mentions Légales
             </h1>
-            <p style={{ fontSize: '18px', color: '#888888', maxWidth: '600px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: '#6B7280', maxWidth: '600px', lineHeight: '1.6' }}>
               Informations légales requises de la plateforme Nexart. Consulter pour entreprise, contact légal et hébergeur.
             </p>
-            <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '24px' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '24px' }}>
               Dernière mise à jour : 11 juillet 2026
             </p>
           </motion.div>
@@ -137,7 +137,7 @@ export default function MentionsLegalesClient() {
                       style={{
                         fontSize: '12px',
                         fontWeight: 600,
-                        color: '#9CA3AF',
+                        color: '#6B7280',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                         marginBottom: '8px',

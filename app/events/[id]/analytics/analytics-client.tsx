@@ -72,7 +72,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
             Analytique Événement
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.6' }}>
             Suivi des candidatures et du remplissage de votre événement
           </p>
         </motion.div>
@@ -106,7 +106,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#6366F1', marginBottom: '8px' }}>
               {stats.fillRate}%
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               {stats.acceptedCount}/{stats.totalStands} places
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
               {stats.totalApplications}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               {stats.acceptanceRate}% acceptées
             </p>
           </div>
@@ -148,7 +148,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#059669', marginBottom: '8px' }}>
               {stats.acceptedCount}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               Participants confirmés
             </p>
           </div>
@@ -169,7 +169,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
               {stats.pendingCount}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               Réponses attendues
             </p>
           </div>

@@ -25,7 +25,7 @@ const TYPE_META: Record<string, { emoji: string; label: string; color: string }>
   improvement: { emoji: '🛠️', label: 'Amélioration', color: '#2196F3' },
   fix:         { emoji: '🐛', label: 'Correctif',   color: '#4CAF50' },
   perf:        { emoji: '⚡', label: 'Performance',  color: '#FF9800' },
-  security:    { emoji: '🔒', label: 'Sécurité',    color: '#888888' },
+  security:    { emoji: '🔒', label: 'Sécurité',    color: '#6B7280' },
 }
 
 const SEEN_KEY = 'nexart_last_seen_changelog'
@@ -154,7 +154,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
                     {v.title && (
                       <span style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A' }}>{v.title}</span>
                     )}
-                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#9CA3AF', flexShrink: 0 }}>
+                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#6B7280', flexShrink: 0 }}>
                       {formatDate(v.date)}
                     </span>
                   </div>

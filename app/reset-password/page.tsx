@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
               <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>
                 Mot de passe mis à jour
               </h2>
-              <p style={{ fontSize: '16px', color: '#888888' }}>
+              <p style={{ fontSize: '16px', color: '#6B7280' }}>
                 Redirection vers la connexion...
               </p>
             </div>
@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
               <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
                 Nouveau mot de passe
               </h1>
-              <p style={{ fontSize: '16px', color: '#888888', marginBottom: '32px' }}>
+              <p style={{ fontSize: '16px', color: '#6B7280', marginBottom: '32px' }}>
                 Choisissez votre nouveau mot de passe
               </p>
 
@@ -127,7 +127,7 @@ export default function ResetPasswordPage() {
                 </button>
               </form>
 
-              <p style={{ marginTop: '24px', fontSize: '14px', color: '#888888', textAlign: 'center' }}>
+              <p style={{ marginTop: '24px', fontSize: '14px', color: '#6B7280', textAlign: 'center' }}>
                 <Link href="/login" style={{ color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>
                   Retour à la connexion
                 </Link>

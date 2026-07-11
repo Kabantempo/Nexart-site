@@ -117,7 +117,7 @@ export default function NotificationsPage() {
         {notifications.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px 20px', borderRadius: '16px', border: '1px solid #E5E7EB', backgroundColor: '#F9F9FB' }}>
             <Bell size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-            <p style={{ fontSize: '16px', color: '#888888' }}>Aucune notification pour le moment</p>
+            <p style={{ fontSize: '16px', color: '#6B7280' }}>Aucune notification pour le moment</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -159,7 +159,7 @@ export default function NotificationsPage() {
                         {n.body}
                       </p>
                     )}
-                    <p style={{ fontSize: '12px', color: '#9CA3AF' }}>{relativeTime(n.created_at)}</p>
+                    <p style={{ fontSize: '12px', color: '#6B7280' }}>{relativeTime(n.created_at)}</p>
                   </div>
                   {isUnread && (
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0, marginTop: '8px' }} />

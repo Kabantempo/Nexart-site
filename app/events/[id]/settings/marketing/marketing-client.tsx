@@ -130,7 +130,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             Suite Marketing
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280' }}>
             Planifiez votre stratégie marketing et communiqué de presse
           </p>
         </motion.div>
@@ -200,10 +200,10 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                     resize: 'vertical'
                   }}
                 />
-                <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '8px' }}>
+                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>
                   💡 Conseil: Incluez les informations essentielles (quoi, quand, où, pourquoi)
                 </p>
-                <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                <p style={{ fontSize: '12px', color: '#6B7280' }}>
                   🚀 Génération automatique via Claude API disponible en v1.0.1
                 </p>
               </div>
@@ -349,7 +349,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
               {/* Contacts List */}
               <div style={{ display: 'grid', gap: '12px' }}>
                 {mediaContacts.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                     <Mail size={40} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                     <p>Aucun contact média pour le moment</p>
                   </div>
@@ -360,11 +360,11 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                         <p style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px 0' }}>
                           {contact.name}
                         </p>
-                        <p style={{ fontSize: '14px', color: '#888888', margin: '0 0 4px 0' }}>
+                        <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 4px 0' }}>
                           {contact.email}
                         </p>
                         {contact.type && (
-                          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                             {contact.type}
                           </p>
                         )}
@@ -465,7 +465,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
               {/* Timeline List */}
               <div style={{ display: 'grid', gap: '12px' }}>
                 {timeline.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                     <Calendar size={40} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                     <p>Aucune étape prévue</p>
                   </div>
@@ -502,7 +502,7 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
                           }}>
                             {item.task}
                           </p>
-                          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
                             {new Date(item.date).toLocaleDateString('fr-FR')}
                           </p>
                         </div>

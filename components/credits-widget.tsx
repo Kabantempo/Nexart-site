@@ -54,13 +54,13 @@ export function CreditsWidget() {
           </div>
           <div style={{ textAlign: 'left' }}>
             <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Mes crédits</p>
-            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>1 crédit = boost candidature · 2 crédits = boost profil</p>
+            <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>1 crédit = boost candidature · 2 crédits = boost profil</p>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ textAlign: 'right' }}>
             <span style={{ fontSize: '24px', fontWeight: '800', color: balance > 0 ? '#6366F1' : '#9CA3AF', lineHeight: 1 }}>{balance}</span>
-            <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: '4px' }}>crédit{balance !== 1 ? 's' : ''}</span>
+            <span style={{ fontSize: '12px', color: '#6B7280', marginLeft: '4px' }}>crédit{balance !== 1 ? 's' : ''}</span>
           </div>
           {open ? <ChevronUp size={16} color="#9CA3AF" /> : <ChevronDown size={16} color="#9CA3AF" />}
         </div>
@@ -70,14 +70,14 @@ export function CreditsWidget() {
       {open && (
         <div style={{ padding: '0 20px 16px', backgroundColor: '#FFF', borderTop: '1px solid #F1F5F9' }}>
           {history.length === 0 ? (
-            <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center', padding: '20px 0', margin: 0 }}>Aucun mouvement de crédits</p>
+            <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', padding: '20px 0', margin: 0 }}>Aucun mouvement de crédits</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '12px' }}>
               {history.map(row => (
                 <div key={row.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
                   <div>
                     <p style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', margin: 0 }}>{TYPE_LABEL[row.type] ?? row.type}</p>
-                    {row.description && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{row.description}</p>}
+                    {row.description && <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{row.description}</p>}
                     <p style={{ fontSize: '11px', color: '#CBD5E1', margin: 0 }}>{new Date(row.created_at).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <span style={{ fontSize: '15px', fontWeight: '800', color: row.amount > 0 ? '#10B981' : '#EF4444' }}>

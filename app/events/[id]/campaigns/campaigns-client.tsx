@@ -83,7 +83,7 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
             <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
               Campagnes Email
             </h1>
-            <p style={{ fontSize: '18px', color: '#888888' }}>
+            <p style={{ fontSize: '18px', color: '#6B7280' }}>
               {campaigns.length} campagne{campaigns.length > 1 ? 's' : ''}
             </p>
           </div>
@@ -129,7 +129,7 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
                   <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1A1A1A', marginBottom: '4px' }}>
                     {campaign.title}
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#888888' }}>
+                  <p style={{ fontSize: '14px', color: '#6B7280' }}>
                     Sujet: {campaign.subject}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
                   <div style={{ padding: '12px', backgroundColor: '#FFFFFF', borderRadius: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                       <Eye size={14} color='#6366F1' />
-                      <p style={{ fontSize: '12px', color: '#9CA3AF' }}>Taux ouverture</p>
+                      <p style={{ fontSize: '12px', color: '#6B7280' }}>Taux ouverture</p>
                     </div>
                     <p style={{ fontSize: '16px', fontWeight: '700', color: '#6366F1' }}>
                       {campaign.openRate || 0}%
@@ -161,7 +161,7 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
                   <div style={{ padding: '12px', backgroundColor: '#FFFFFF', borderRadius: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                       <LinkIcon size={14} color='#6366F1' />
-                      <p style={{ fontSize: '12px', color: '#9CA3AF' }}>Taux clics</p>
+                      <p style={{ fontSize: '12px', color: '#6B7280' }}>Taux clics</p>
                     </div>
                     <p style={{ fontSize: '16px', fontWeight: '700', color: '#6366F1' }}>
                       {campaign.clickRate || 0}%
@@ -208,7 +208,7 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
             }}
           >
             <Mail size={48} color='#9CA3AF' style={{ margin: '0 auto 16px' }} />
-            <p style={{ fontSize: '16px', color: '#888888' }}>
+            <p style={{ fontSize: '16px', color: '#6B7280' }}>
               Aucune campagne. Créez-en une pour communiquer avec vos créateurs!
             </p>
           </motion.div>

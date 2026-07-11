@@ -148,7 +148,7 @@ function AddModal({
             : (
               <div style={{ textAlign: 'center', padding: '20px' }}>
                 <Plus size={32} color="#9CA3AF" />
-                <p style={{ fontSize: '14px', color: '#9CA3AF', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
+                <p style={{ fontSize: '14px', color: '#6B7280', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
               </div>
             )
           }
@@ -269,7 +269,7 @@ export function PortfolioGridEditor({
   return (
     <>
       {/* Légende */}
-      <p style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '16px' }}>
+      <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '16px' }}>
         {items.length}/{MAX} photos · Cliquez sur une photo pour la redimensionner ou la supprimer
         {items.length >= MAX && MAX <= 10 && (
           <span style={{ display: 'block', marginTop: '4px', color: '#F59E0B', fontWeight: '600' }}>
@@ -352,7 +352,7 @@ export function PortfolioGridEditor({
             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Plus size={20} color="#6366F1" />
             </div>
-            <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: '600' }}>Ajouter</span>
+            <span style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>Ajouter</span>
           </div>
         )}
       </div>

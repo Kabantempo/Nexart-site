@@ -116,7 +116,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
           <div style={{ textAlign: 'center', padding: '60px 24px' }}>
             <ShoppingBag size={48} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
             <p style={{ fontSize: '16px', fontWeight: '700', color: '#111827', margin: '0 0 8px' }}>Boutique vide</p>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>Ce créateur n&apos;a pas encore ajouté de créations.</p>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>Ce créateur n&apos;a pas encore ajouté de créations.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
@@ -151,7 +151,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                     )}
                     {product.stock === 0 && (
                       <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(249,250,251,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF' }}>Épuisé</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280' }}>Épuisé</span>
                       </div>
                     )}
                   </div>
@@ -159,7 +159,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                   {/* Info */}
                   <div style={{ padding: '12px' }}>
                     {product.category && (
-                      <p style={{ fontSize: '10px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{product.category}</p>
+                      <p style={{ fontSize: '10px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{product.category}</p>
                     )}
                     <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 4px', lineHeight: 1.3 }}>{product.title}</p>
 
@@ -205,7 +205,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                 {selectedProduct.stock > 0 ? (
                   <span style={{ fontSize: '12px', color: '#10B981', fontWeight: '600' }}>En stock ({selectedProduct.stock})</span>
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: '600' }}>Épuisé</span>
+                  <span style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>Épuisé</span>
                 )}
               </div>
               <div style={{ backgroundColor: '#F3F4F6', borderRadius: '10px', padding: '12px', fontSize: '12px', color: '#6B7280', marginBottom: '16px' }}>

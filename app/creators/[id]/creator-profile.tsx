@@ -445,7 +445,7 @@ export function CreatorProfileClient({ id }: Props) {
                       <MapPin size={14} color="#6B7280" />
                       <div>
                         <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{entry.label}</p>
-                        <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
                           {new Date(entry.start_date).toLocaleDateString('fr-FR')} → {new Date(entry.end_date).toLocaleDateString('fr-FR')}
                           {entry.city && ` · ${entry.city}`}
                         </p>
@@ -559,7 +559,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
                     {marchesCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Marchés
                   </p>
                 </div>
@@ -567,7 +567,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
                     {reviews.length}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Avis
                   </p>
                 </div>
@@ -575,7 +575,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
                     {boutiqueCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Créations
                   </p>
                 </div>

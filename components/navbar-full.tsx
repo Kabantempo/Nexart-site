@@ -231,7 +231,7 @@ export function NavbarFull() {
                   >
                     {searchResults.events.length > 0 && (
                       <div>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Événements</p>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Événements</p>
                         {searchResults.events.map(ev => (
                           <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
                             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
@@ -247,7 +247,7 @@ export function NavbarFull() {
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <p style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
-                              {ev.city && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{ev.city}</p>}
+                              {ev.city && <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>{ev.city}</p>}
                             </div>
                           </Link>
                         ))}
@@ -255,7 +255,7 @@ export function NavbarFull() {
                     )}
                     {searchResults.creators.length > 0 && (
                       <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid #F3F4F6' : 'none' }}>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
                         {searchResults.creators.map(cr => (
                           <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
                             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
@@ -271,7 +271,7 @@ export function NavbarFull() {
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <p style={{ fontSize: '13px', fontWeight: '600', color: '#1A1A1A', margin: 0 }}>{cr.username ?? cr.full_name}</p>
-                              {cr.username && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{cr.full_name}</p>}
+                              {cr.username && <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>{cr.full_name}</p>}
                             </div>
                           </Link>
                         ))}

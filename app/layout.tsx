@@ -90,10 +90,13 @@ export default function RootLayout({
         `}} />
       </head>
       <body className="flex min-h-screen flex-col bg-white text-gray-900">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-semibold">
+          Aller au contenu principal
+        </a>
         <Providers>
           <NavbarFull />
           <EmailConfirmationBanner />
-          <main className="flex-1 pt-[58px]">
+          <main id="main-content" className="flex-1 pt-[58px]">
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />

@@ -80,7 +80,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
             <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
               Mon Équipe
             </h1>
-            <p style={{ fontSize: '18px', color: '#888888' }}>
+            <p style={{ fontSize: '18px', color: '#6B7280' }}>
               {members.length} membre{members.length > 1 ? 's' : ''}
             </p>
           </div>
@@ -142,7 +142,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                     </span>
                   )}
                 </div>
-                <span style={{ fontSize: '13px', color: '#9CA3AF' }}>
+                <span style={{ fontSize: '13px', color: '#6B7280' }}>
                   {member.status === 'invited' ? 'Invitation en attente' : `Rejoint le ${new Date(member.joinedAt).toLocaleDateString('fr-FR')}`}
                 </span>
               </div>

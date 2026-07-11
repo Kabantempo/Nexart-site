@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
               <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>
                 Email envoyé
               </h2>
-              <p style={{ fontSize: '16px', color: '#888888', lineHeight: '1.6' }}>
+              <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: '1.6' }}>
                 Un lien de réinitialisation a été envoyé à <strong>{email}</strong>. Vérifiez votre boîte mail.
               </p>
             </div>
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
                 Mot de passe oublié
               </h1>
-              <p style={{ fontSize: '16px', color: '#888888', marginBottom: '32px' }}>
+              <p style={{ fontSize: '16px', color: '#6B7280', marginBottom: '32px' }}>
                 Entrez votre email pour recevoir un lien de réinitialisation
               </p>
 

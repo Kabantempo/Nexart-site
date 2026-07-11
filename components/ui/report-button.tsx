@@ -51,7 +51,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
       <button
         onClick={() => setOpen(true)}
         title="Signaler ce contenu"
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: '#9CA3AF', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: '#6B7280', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E05A5A' }}
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
       >

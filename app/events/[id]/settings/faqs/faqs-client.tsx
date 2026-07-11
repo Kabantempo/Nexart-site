@@ -83,7 +83,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             FAQ & Auto-répondeur
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280' }}>
             Répondez automatiquement aux questions fréquentes des candidats
           </p>
         </motion.div>
@@ -172,7 +172,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                   boxSizing: 'border-box'
                 }}
               />
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '8px' }}>
+              <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '8px' }}>
                 L\'IA détectera ces mots-clés dans les messages entrants
               </p>
             </div>
@@ -206,7 +206,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
             </h2>
 
             {faqs.length === 0 ? (
-              <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+              <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
                 <HelpCircle size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
                 <p>Aucune FAQ pour le moment</p>
               </div>
@@ -232,7 +232,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                       </button>
                     </div>
 
-                    <p style={{ fontSize: '14px', color: '#888888', marginBottom: '12px', lineHeight: '1.6' }}>
+                    <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '12px', lineHeight: '1.6' }}>
                       {faq.answer}
                     </p>
 

@@ -169,7 +169,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
               {notifications.length === 0 ? (
                 <div style={{ padding: '40px 20px', textAlign: 'center' }}>
                   <Bell size={32} color="#E5E7EB" style={{ marginBottom: '10px' }} />
-                  <p style={{ fontSize: '14px', color: '#9CA3AF' }}>Aucune notification</p>
+                  <p style={{ fontSize: '14px', color: '#6B7280' }}>Aucune notification</p>
                 </div>
               ) : (
                 notifications.map(n => {
@@ -206,7 +206,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
                             {n.body}
                           </p>
                         )}
-                        <p style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                        <p style={{ fontSize: '11px', color: '#6B7280' }}>
                           {relativeTime(n.created_at)}
                         </p>
                       </div>

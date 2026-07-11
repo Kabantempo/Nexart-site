@@ -72,7 +72,7 @@ export default function CreatorAnalyticsClient() {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
             Mes Statistiques
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.6' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.6' }}>
             Suivi de votre visibilité et vos candidatures
           </p>
         </motion.div>
@@ -106,7 +106,7 @@ export default function CreatorAnalyticsClient() {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#6366F1', marginBottom: '8px' }}>
               {stats.profileViews}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>Cette année</p>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>Cette année</p>
           </div>
 
           {/* Applications Received */}
@@ -125,7 +125,7 @@ export default function CreatorAnalyticsClient() {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
               {stats.applicationsReceived}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               {stats.acceptanceRate}% acceptées
             </p>
           </div>
@@ -146,7 +146,7 @@ export default function CreatorAnalyticsClient() {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
               {stats.averageRating.toFixed(1)}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               {stats.reviewCount} avis
             </p>
           </div>
@@ -167,7 +167,7 @@ export default function CreatorAnalyticsClient() {
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
               {stats.acceptedCount}
             </div>
-            <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+            <p style={{ fontSize: '14px', color: '#6B7280' }}>
               Marchés confirmés
             </p>
           </div>

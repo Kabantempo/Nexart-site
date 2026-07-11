@@ -101,7 +101,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   pending:   { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB' },
   accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
-  draft:     { label: 'Brouillon',  color: '#9CA3AF', bg: '#F3F4F6' },
+  draft:     { label: 'Brouillon',  color: '#6B7280', bg: '#F3F4F6' },
   published: { label: 'Publié',     color: '#10B981', bg: '#ECFDF5' },
   closed:    { label: 'Fermé',      color: '#6B7280', bg: '#F3F4F6' },
 }
@@ -857,7 +857,7 @@ export default function ProfilePage() {
                 {refuseModal.field === 'siret_verified' ? 'SIRET' : 'RC Pro'} de <strong>{refuseModal.creatorName}</strong>
               </p>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
-                Motif du refus <span style={{ color: '#9CA3AF', fontWeight: '400' }}>(envoyé en notification)</span>
+                Motif du refus <span style={{ color: '#6B7280', fontWeight: '400' }}>(envoyé en notification)</span>
               </label>
               <textarea
                 value={refuseComment}
@@ -951,7 +951,7 @@ export default function ProfilePage() {
                   <Shield size={12} /> Administrateur
                 </span>
               </div>
-              <p style={{ fontSize: '14px', color: '#888888', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Mail size={13} /> {user?.email}
               </p>
             </div>
@@ -1047,7 +1047,7 @@ export default function ProfilePage() {
                             {kpi.up && <ArrowUpRight size={16} color="#6B7280" />}
                           </div>
                           <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 2px' }}>{kpi.label}</p>
-                          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{kpi.sub}</p>
+                          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{kpi.sub}</p>
                         </div>
                       ))}
                     </div>
@@ -1060,7 +1060,7 @@ export default function ProfilePage() {
                       <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Inscriptions — 30 derniers jours</h3>
                     </div>
                     {analytics.dailySignups.length === 0 ? (
-                      <p style={{ color: '#9CA3AF', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Aucune donnée</p>
+                      <p style={{ color: '#6B7280', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Aucune donnée</p>
                     ) : (() => {
                       const max = Math.max(...analytics.dailySignups.map(d => d.count), 1)
                       return (
@@ -1079,8 +1079,8 @@ export default function ProfilePage() {
                             ))}
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-                            <span style={{ fontSize: '10px', color: '#9CA3AF' }}>{analytics.dailySignups[0]?.date}</span>
-                            <span style={{ fontSize: '10px', color: '#9CA3AF' }}>{analytics.dailySignups[analytics.dailySignups.length - 1]?.date}</span>
+                            <span style={{ fontSize: '10px', color: '#6B7280' }}>{analytics.dailySignups[0]?.date}</span>
+                            <span style={{ fontSize: '10px', color: '#6B7280' }}>{analytics.dailySignups[analytics.dailySignups.length - 1]?.date}</span>
                           </div>
                         </div>
                       )
@@ -1118,7 +1118,7 @@ export default function ProfilePage() {
                         })}
                         {analytics.eventTypes.length > 0 && (
                           <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #F3F4F6' }}>
-                            <p style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Par type</p>
+                            <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Par type</p>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                               {analytics.eventTypes.map(et => (
                                 <span key={et.event_type} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', backgroundColor: '#F3F4F6', color: '#6B7280', fontWeight: '500' }}>
@@ -1189,7 +1189,7 @@ export default function ProfilePage() {
                             <div key={v.label}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#4B5563' }}>{v.label}</span>
-                                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#6B7280', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
+                                <span style={{ fontSize: '11px', color: '#6B7280' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#6B7280', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
                               </div>
                               <div style={{ height: '8px', borderRadius: '4px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
                                 <div style={{ height: '100%', width: `${pct}%`, backgroundColor: '#374151', borderRadius: '4px', transition: 'width 0.5s ease' }} />
@@ -1255,7 +1255,7 @@ export default function ProfilePage() {
                             <div key={kpi.label} style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                               <p style={{ fontSize: '22px', fontWeight: '800', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
                               <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 2px' }}>{kpi.label}</p>
-                              <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 4px' }}>{kpi.sub}</p>
+                              <p style={{ fontSize: '10px', color: '#6B7280', margin: '0 0 4px' }}>{kpi.sub}</p>
                               <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: 0 }}>Cible : {kpi.target}</p>
                             </div>
                           ))
@@ -1266,7 +1266,7 @@ export default function ProfilePage() {
                         <CreditCard size={15} color="#9CA3AF" />
                         <span style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280' }}>KPI financiers (Stripe requis)</span>
                         {['MRR', 'GMV', 'ARPU', 'Churn', 'LTV/CAC'].map(f => (
-                          <span key={f} style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '10px', backgroundColor: '#F3F4F6', color: '#9CA3AF' }}>
+                          <span key={f} style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '10px', backgroundColor: '#F3F4F6', color: '#6B7280' }}>
                             {f}
                           </span>
                         ))}
@@ -1314,7 +1314,7 @@ export default function ProfilePage() {
                         </div>
                         <div style={{ flex: 1 }}>
                           <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{c.profiles?.full_name ?? 'Créateur'}</p>
-                          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
+                          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
                         </div>
                         {/* Ban toggle */}
                         <button
@@ -1359,7 +1359,7 @@ export default function ProfilePage() {
                                   </a>
                                 </div>
                               ) : (
-                                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 10px' }}>Non renseigné</p>
+                                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 10px' }}>Non renseigné</p>
                               )}
                               {siretStatus === 'pending' && c.siret_number && (
                                 <div style={{ display: 'flex', gap: '6px' }}>
@@ -1383,7 +1383,7 @@ export default function ProfilePage() {
                               )}
                               {siretStatus === 'verified' && (
                                 <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', false)}
-                                  style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                  style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                                   Révoquer
                                 </button>
                               )}
@@ -1411,7 +1411,7 @@ export default function ProfilePage() {
                                   <FileText size={13} /> Voir le document <ExternalLink size={11} />
                                 </a>
                               ) : (
-                                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '0 0 10px' }}>Aucun document</p>
+                                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 10px' }}>Aucun document</p>
                               )}
                               {insStatus === 'doc' && (
                                 <div style={{ display: 'flex', gap: '6px' }}>
@@ -1435,7 +1435,7 @@ export default function ProfilePage() {
                               )}
                               {insStatus === 'verified' && (
                                 <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', false)}
-                                  style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                  style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                                   Révoquer
                                 </button>
                               )}
@@ -1486,7 +1486,7 @@ export default function ProfilePage() {
                             </div>
                             <div>
                               <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{o.profiles?.full_name ?? 'Organisateur'}</p>
-                              <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
+                              <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -1518,7 +1518,7 @@ export default function ProfilePage() {
                                 )}
                                 {o.siret_verified && (
                                   <button onClick={() => handleAdminVerifyOrga(o.user_id, 'siret_verified', false)}
-                                    style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                    style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
                                 )}
                               </div>
                             )}
@@ -1545,7 +1545,7 @@ export default function ProfilePage() {
                                 )}
                                 {o.verification_doc_verified && (
                                   <button onClick={() => handleAdminVerifyOrga(o.user_id, 'verification_doc_verified', false)}
-                                    style={{ fontSize: '11px', color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                    style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
                                 )}
                               </div>
                             )}
@@ -1639,7 +1639,7 @@ export default function ProfilePage() {
                         {ev.start_date ? ` · ${new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
                       </p>
                       {ev.profiles?.full_name && (
-                        <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '2px 0 0' }}>par {ev.profiles.full_name}</p>
+                        <p style={{ fontSize: '11px', color: '#6B7280', margin: '2px 0 0' }}>par {ev.profiles.full_name}</p>
                       )}
                     </div>
                     <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
@@ -1692,7 +1692,7 @@ export default function ProfilePage() {
                         <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, textTransform: 'capitalize' }}>{msgRecipient.role ?? 'utilisateur'}</p>
                       </div>
                       <button onClick={() => { setMsgRecipient(null); setMsgSearch('') }}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: '4px' }}>
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px' }}>
                         <X size={16} />
                       </button>
                     </div>
@@ -1721,7 +1721,7 @@ export default function ProfilePage() {
                               </div>
                               <div>
                                 <p style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', margin: 0 }}>{s.full_name}</p>
-                                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, textTransform: 'capitalize' }}>{s.role ?? 'utilisateur'}</p>
+                                <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, textTransform: 'capitalize' }}>{s.role ?? 'utilisateur'}</p>
                               </div>
                             </button>
                           ))}
@@ -1729,7 +1729,7 @@ export default function ProfilePage() {
                       )}
                       {msgSearch.length >= 2 && msgSuggestions.length === 0 && (
                         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: '#FFF', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '14px', marginTop: '4px', textAlign: 'center' }}>
-                          <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Aucun utilisateur trouvé</p>
+                          <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Aucun utilisateur trouvé</p>
                         </div>
                       )}
                     </div>
@@ -1792,7 +1792,7 @@ export default function ProfilePage() {
                 {adminMessages.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
                     <MessageSquare size={32} color="#D1D5DB" style={{ marginBottom: '10px' }} />
-                    <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Aucun message envoyé</p>
+                    <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucun message envoyé</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1809,7 +1809,7 @@ export default function ProfilePage() {
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '4px' }}>
                             <div>
                               <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A' }}>{msg.recipient?.full_name ?? 'Utilisateur'}</span>
-                              <span style={{ fontSize: '11px', color: '#9CA3AF', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
+                              <span style={{ fontSize: '11px', color: '#6B7280', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
                               {msg.subject && <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: '2px 0 0' }}>{msg.subject}</p>}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -1817,7 +1817,7 @@ export default function ProfilePage() {
                                 ? <span title="Lu"><CheckCheck size={13} color="#10B981" /></span>
                                 : <span title="Non lu"><Clock size={13} color="#9CA3AF" /></span>
                               }
-                              <span style={{ fontSize: '11px', color: '#9CA3AF', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontSize: '11px', color: '#6B7280', whiteSpace: 'nowrap' }}>
                                 {new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
                                 {' '}
                                 {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
@@ -1910,7 +1910,7 @@ export default function ProfilePage() {
                           <div style={{ flex: 1, minWidth: '140px' }}>
                             <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{u.full_name}</p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: '#9CA3AF', textTransform: 'capitalize' }}>{u.role}</span>
+                              <span style={{ fontSize: '11px', color: '#6B7280', textTransform: 'capitalize' }}>{u.role}</span>
                               <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || '#9CA3AF', backgroundColor: '#F3F4F6', padding: '2px 7px', borderRadius: '99px' }}>
                                 {currentTier}
                               </span>
@@ -1957,7 +1957,7 @@ export default function ProfilePage() {
                 )}
 
                 {subSearch.length >= 2 && !subSearching && subResults.length === 0 && (
-                  <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
+                  <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
                 )}
 
                 <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FFF7ED', border: '1px solid #FED7AA' }}>
@@ -1978,7 +1978,7 @@ export default function ProfilePage() {
                 </h3>
               </div>
               {adminReports.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', color: '#9CA3AF', fontSize: '14px' }}>
+                <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', color: '#6B7280', fontSize: '14px' }}>
                   Aucun signalement
                 </div>
               ) : (
@@ -1991,7 +1991,7 @@ export default function ProfilePage() {
                           <span style={{ fontWeight: '400', color: '#6B7280', marginLeft: '6px' }}>par {r.reporter?.full_name || 'utilisateur'}</span>
                         </p>
                         <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>{r.reason}</p>
-                        <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
+                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', shrink: 0 } as React.CSSProperties}>
                         {r.status === 'pending' && (
@@ -2005,7 +2005,7 @@ export default function ProfilePage() {
                             <button onClick={async () => {
                               await supabase.from('reports').update({ status: 'dismissed' }).eq('id', r.id)
                               setAdminReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'dismissed' } : x))
-                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '12px', fontWeight: '600', color: '#9CA3AF', cursor: 'pointer' }}>
+                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '12px', fontWeight: '600', color: '#6B7280', cursor: 'pointer' }}>
                               Ignorer
                             </button>
                           </>

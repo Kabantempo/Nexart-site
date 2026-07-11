@@ -263,7 +263,7 @@ export default function MessagesPage() {
                 <MessageCircle size={32} color="#6366F1" />
               </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>Aucun message pour l'instant</h3>
-              <p style={{ fontSize: '15px', color: '#888888', lineHeight: '1.6', maxWidth: '340px', margin: '0 auto 24px' }}>
+              <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: '1.6', maxWidth: '340px', margin: '0 auto 24px' }}>
                 Vos échanges avec les créateurs et organisateurs apparaîtront ici.
               </p>
               <button
@@ -275,7 +275,7 @@ export default function MessagesPage() {
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '16px', border: '1px dashed #E5E7EB', backgroundColor: '#FAFAFA' }}>
-              <p style={{ fontSize: '15px', color: '#888888' }}>Aucun message dans cette catégorie.</p>
+              <p style={{ fontSize: '15px', color: '#6B7280' }}>Aucun message dans cette catégorie.</p>
             </div>
           )
         ) : (
@@ -344,7 +344,7 @@ export default function MessagesPage() {
                       <span style={{ fontSize: '15px', fontWeight: conv.unreadCount > 0 ? '700' : '600', color: '#1A1A1A' }}>
                         {conv.other?.full_name ?? 'Utilisateur'}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#9CA3AF', flexShrink: 0, marginLeft: '8px' }}>
+                      <span style={{ fontSize: '12px', color: '#6B7280', flexShrink: 0, marginLeft: '8px' }}>
                         {relativeTime(conv.lastMessage?.created_at ?? conv.created_at)}
                       </span>
                     </div>

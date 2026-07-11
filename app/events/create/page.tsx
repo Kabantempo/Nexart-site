@@ -225,11 +225,11 @@ export default function CreateEventPage() {
 
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         <div style={{ marginBottom: '36px' }}>
-          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#888888', fontSize: '14px', cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
+          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#6B7280', fontSize: '14px', cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
             ← Retour
           </button>
           <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#1A1A1A', margin: 0 }}>Créer un marché</h1>
-          <p style={{ fontSize: '15px', color: '#888888', margin: '6px 0 0' }}>Remplissez les informations de votre événement</p>
+          <p style={{ fontSize: '15px', color: '#6B7280', margin: '6px 0 0' }}>Remplissez les informations de votre événement</p>
         </div>
 
         {/* Alerte limite plan gratuit */}
@@ -362,7 +362,7 @@ export default function CreateEventPage() {
                       </div>
                       <span style={{ fontSize: '13px', fontWeight: '700', color: form.pricing_model === opt.value ? '#6366F1' : '#1A1A1A' }}>{opt.label}</span>
                     </div>
-                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
+                    <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
                   </button>
                 ))}
               </div>
@@ -388,7 +388,7 @@ export default function CreateEventPage() {
             {form.pricing_model === 'percent' && (
               <Field label="Pourcentage du CA (%)">
                 <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
-                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
+                <p style={{ fontSize: '12px', color: '#6B7280', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
               </Field>
             )}
           </Section>
@@ -456,7 +456,7 @@ export default function CreateEventPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <p style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Activer le paiement Stripe</p>
-                <p style={{ fontSize: '13px', color: '#888888', margin: '2px 0 0' }}>Le créateur paie son stand en ligne à la validation</p>
+                <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>Le créateur paie son stand en ligne à la validation</p>
               </div>
               <button
                 onClick={() => set('stripe_enabled')(!form.stripe_enabled)}
@@ -496,7 +496,7 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   return (
     <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ borderBottom: '1px solid #F0F0F0', paddingBottom: '12px' }}>
-        <h2 style={{ fontSize: '13px', fontWeight: '700', color: '#888888', textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }}>
+        <h2 style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }}>
           {title} {hint && <span style={{ fontWeight: '400', color: '#BBBBBB', textTransform: 'none', letterSpacing: 0 }}>{hint}</span>}
         </h2>
       </div>

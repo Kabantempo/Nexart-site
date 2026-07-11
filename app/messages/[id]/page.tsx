@@ -410,13 +410,13 @@ export default function ConversationPage() {
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
         {messages.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '14px', marginTop: '40px' }}>Démarrez la conversation 👋</p>
+          <p style={{ textAlign: 'center', color: '#6B7280', fontSize: '14px', marginTop: '40px' }}>Démarrez la conversation 👋</p>
         )}
 
         {grouped.map(({ day, msgs: dayMsgs }) => (
           <div key={day}>
             <div style={{ textAlign: 'center', margin: '16px 0 12px' }}>
-              <span style={{ fontSize: '12px', color: '#9CA3AF', backgroundColor: '#F3F4F6', padding: '4px 12px', borderRadius: '9999px' }}>{day}</span>
+              <span style={{ fontSize: '12px', color: '#6B7280', backgroundColor: '#F3F4F6', padding: '4px 12px', borderRadius: '9999px' }}>{day}</span>
             </div>
             {dayMsgs.map((m, i) => {
               const isMine = m.sender_id === user?.id
@@ -526,7 +526,7 @@ export default function ConversationPage() {
                         })()}
                         {/* Meta: time + read receipt */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: isMine ? 'flex-end' : 'flex-start', gap: '4px', marginTop: '3px', paddingRight: '4px' }}>
-                          <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                          <span style={{ fontSize: '11px', color: '#6B7280' }}>
                             {formatTime(m.created_at)}
                             {m.updated_at && m.updated_at !== m.created_at && ' · modifié'}
                           </span>
@@ -569,7 +569,7 @@ export default function ConversationPage() {
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#1A1A1A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{pendingFile.file.name}</p>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9CA3AF' }}>{formatBytes(pendingFile.file.size)}</p>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#6B7280' }}>{formatBytes(pendingFile.file.size)}</p>
             </div>
             <button onClick={removePendingFile} style={{ width: '24px', height: '24px', borderRadius: '50%', border: 'none', backgroundColor: '#F3F4F6', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
               <X size={13} />

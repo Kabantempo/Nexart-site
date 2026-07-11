@@ -11,6 +11,18 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Auth: only organizer of this event can export
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      req.headers.get('Authorization')?.split(' ')[1]
+    )
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const { data: event } = await supabase.from('events').select('organizer_id').eq('id', params.id).single()
+    if (!event || event.organizer_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     // Get event fields to know column order
     const { data: fields } = await supabase
       .from('event_exhibitor_fields')

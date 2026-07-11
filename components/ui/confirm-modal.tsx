@@ -123,7 +123,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 style={{
                   position: 'absolute', top: '16px', right: '16px',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#9CA3AF', padding: '4px',
+                  color: '#6B7280', padding: '4px',
                 }}
               >
                 <X size={18} />

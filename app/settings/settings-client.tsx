@@ -50,7 +50,7 @@ export default function SettingsClient() {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
             Paramètres
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.6', marginBottom: '40px' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.6', marginBottom: '40px' }}>
             Gestion compte, données et préférences
           </p>
         </motion.div>
@@ -90,7 +90,7 @@ export default function SettingsClient() {
                 <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '8px' }}>
                   Télécharger mes données
                 </h3>
-                <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+                <p style={{ fontSize: '14px', color: '#6B7280' }}>
                   Export profil, conversations, reviews (JSON)
                 </p>
               </div>
@@ -197,7 +197,7 @@ export default function SettingsClient() {
                   <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '4px' }}>
                     Politique de confidentialité
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#9CA3AF' }}>Lire nos engagements RGPD</p>
+                  <p style={{ fontSize: '14px', color: '#6B7280' }}>Lire nos engagements RGPD</p>
                 </div>
                 <ChevronRight size={20} color="#888888" />
               </a>
@@ -228,7 +228,7 @@ export default function SettingsClient() {
                   <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '4px' }}>
                     Demande RGPD
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#9CA3AF' }}>
+                  <p style={{ fontSize: '14px', color: '#6B7280' }}>
                     Accès, rectification, portabilité (contact@nexart.fr)
                   </p>
                 </div>
@@ -341,7 +341,7 @@ function DeleteAccountButton() {
                 <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#DC2626', marginBottom: '16px' }}>
                   ⚠️ Confirmer suppression
                 </h2>
-                <p style={{ fontSize: '16px', color: '#888888', lineHeight: '1.6', marginBottom: '24px' }}>
+                <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: '1.6', marginBottom: '24px' }}>
                   Vous avez 24h pour annuler via email après confirmation.
                 </p>
 
@@ -397,7 +397,7 @@ function DeleteAccountButton() {
                 <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
                   Confirmer suppression
                 </h2>
-                <p style={{ fontSize: '14px', color: '#888888', marginBottom: '24px' }}>
+                <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
                   Entrez votre email pour confirmer :
                 </p>
 

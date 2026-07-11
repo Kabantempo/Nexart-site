@@ -76,7 +76,7 @@ export default function ContactPageClient() {
             <h1 style={{ fontSize: '48px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
               Nous contacter
             </h1>
-            <p style={{ fontSize: '18px', color: '#888888', marginBottom: '40px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: '#6B7280', marginBottom: '40px', lineHeight: '1.6' }}>
               Vous avez une question, une suggestion ou besoin d'aide ? Remplissez le formulaire ci-dessous et nous vous répondrons dès que possible.
             </p>
 
@@ -266,7 +266,7 @@ export default function ContactPageClient() {
                     <MessageSquare size={18} color="#6366F1" />
                     <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Messagerie</span>
                   </div>
-                  <p style={{ fontSize: '14px', color: '#888888', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>
                     Connectez-vous et utilisez la messagerie directe
                   </p>
                   <Link

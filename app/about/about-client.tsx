@@ -46,7 +46,7 @@ export default function AboutPageClient() {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             À propos de Nexart
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.6', maxWidth: '600px' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.6', maxWidth: '600px' }}>
             Nexart est la plateforme de mise en relation entre créateurs, artisans et
             marchés artisanaux en France.
           </p>
@@ -73,11 +73,11 @@ export default function AboutPageClient() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
             <div>
-              <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.8', marginBottom: '16px' }}>
+              <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.8', marginBottom: '16px' }}>
                 Connecter les créateurs, artisans et designers français avec les marchés et événements
                 artisanaux où ils peuvent exposer et vendre leurs œuvres.
               </p>
-              <p style={{ fontSize: '18px', color: '#888888', lineHeight: '1.8' }}>
+              <p style={{ fontSize: '18px', color: '#6B7280', lineHeight: '1.8' }}>
                 Nous facilitons la mise en relation, les candidatures, les paiements et la communication
                 pour une expérience fluide et professionnelle.
               </p>
@@ -168,7 +168,7 @@ export default function AboutPageClient() {
                   <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
                     {value.title}
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#888888', lineHeight: '1.6' }}>
+                  <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6' }}>
                     {value.description}
                   </p>
                 </motion.div>
@@ -197,7 +197,7 @@ export default function AboutPageClient() {
           <h2 style={{ fontSize: '32px', fontWeight: '700', color: '#1A1A1A', marginBottom: '24px' }}>
             Prêt à vous lancer ?
           </h2>
-          <p style={{ fontSize: '16px', color: '#888888', marginBottom: '32px', maxWidth: '500px', margin: '0 auto 32px' }}>
+          <p style={{ fontSize: '16px', color: '#6B7280', marginBottom: '32px', maxWidth: '500px', margin: '0 auto 32px' }}>
             Rejoignez la communauté Nexart et découvrez de nouvelles opportunités
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>

@@ -124,7 +124,7 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             Gestion Exposants
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888', marginBottom: '24px' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280', marginBottom: '24px' }}>
             {view === 'form-setup' ? 'Personnalisez votre formulaire de candidature' : 'Gérez vos candidatures et approuvez les exposants'}
           </p>
         </motion.div>
@@ -177,7 +177,7 @@ function FormSetup({ fields, onSave, loading }: any) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontWeight: 500, color: '#1A1A1A' }}>{field.field_label}</p>
-                <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '4px' }}>
+                <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>
                   {field.field_type} {field.required ? '(obligatoire)' : '(optionnel)'}
                 </p>
               </div>
@@ -233,7 +233,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
           { label: 'Approuvés', value: stats.approved }
         ].map((stat, i) => (
           <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '20px' }}>
-            <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '8px' }}>{stat.label}</p>
+            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '8px' }}>{stat.label}</p>
             <p style={{ fontSize: '32px', fontWeight: 700, color: '#1A1A1A' }}>{stat.value}</p>
           </div>
         ))}
@@ -286,18 +286,18 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Nom</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Email</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Status</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Tables</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Actions</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Nom</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Email</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Status</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Tables</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {exhibitors.map((exhibitor: Exhibitor) => (
               <tr key={exhibitor.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
                 <td style={{ padding: '12px 16px', color: '#1A1A1A' }}>{exhibitor.profiles?.full_name || 'N/A'}</td>
-                <td style={{ padding: '12px 16px', color: '#888888' }}>{exhibitor.profiles?.email || 'N/A'}</td>
+                <td style={{ padding: '12px 16px', color: '#6B7280' }}>{exhibitor.profiles?.email || 'N/A'}</td>
                 <td style={{ padding: '12px 16px' }}>
                   <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '4px', backgroundColor: statusColors[exhibitor.status] + '20', color: statusColors[exhibitor.status], fontSize: '12px', fontWeight: 500 }}>
                     {exhibitor.status}
@@ -330,7 +330,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
       </div>
 
       {exhibitors.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 16px', color: '#9CA3AF' }}>
+        <div style={{ textAlign: 'center', padding: '60px 16px', color: '#6B7280' }}>
           <AlertCircle size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
           <p>Aucun candidat pour le moment</p>
         </div>

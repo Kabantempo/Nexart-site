@@ -65,7 +65,7 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
             Relances Automatiques
           </h1>
-          <p style={{ fontSize: '18px', color: '#888888' }}>
+          <p style={{ fontSize: '18px', color: '#6B7280' }}>
             Configurez les relances pour les exposants qui n\'ont pas confirmé
           </p>
         </motion.div>
@@ -97,7 +97,7 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
                   {reminderDays} jour{reminderDays > 1 ? 's' : ''}
                 </span>
               </div>
-              <p style={{ fontSize: '14px', color: '#9CA3AF', marginTop: '8px' }}>
+              <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '8px' }}>
                 Les exposants approuvés depuis plus de {reminderDays} jours recevront une relance
               </p>
             </div>
@@ -172,13 +172,13 @@ function WaitlistView({ eventId }: { eventId: string }) {
   }
 
   if (loading) {
-    return <p style={{ color: '#9CA3AF' }}>Chargement...</p>
+    return <p style={{ color: '#6B7280' }}>Chargement...</p>
   }
 
   return (
     <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
       {waitlist.length === 0 ? (
-        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF' }}>
+        <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280' }}>
           <Check size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
           <p>Aucun exposant en liste d\'attente</p>
         </div>
@@ -186,10 +186,10 @@ function WaitlistView({ eventId }: { eventId: string }) {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Position</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Nom</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Email</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#9CA3AF', fontSize: '12px', fontWeight: 600 }}>Notifié</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Position</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Nom</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Email</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Notifié</th>
             </tr>
           </thead>
           <tbody>
@@ -197,14 +197,14 @@ function WaitlistView({ eventId }: { eventId: string }) {
               <tr key={item.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
                 <td style={{ padding: '12px 16px', fontWeight: 600, color: '#6366F1' }}>#{item.position}</td>
                 <td style={{ padding: '12px 16px', color: '#1A1A1A' }}>{item.profiles?.full_name || 'N/A'}</td>
-                <td style={{ padding: '12px 16px', color: '#888888' }}>{item.profiles?.email || 'N/A'}</td>
+                <td style={{ padding: '12px 16px', color: '#6B7280' }}>{item.profiles?.email || 'N/A'}</td>
                 <td style={{ padding: '12px 16px' }}>
                   {item.notified_at ? (
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#10B981', fontSize: '14px' }}>
                       <Check size={16} /> Oui
                     </span>
                   ) : (
-                    <span style={{ color: '#9CA3AF' }}>En attente</span>
+                    <span style={{ color: '#6B7280' }}>En attente</span>
                   )}
                 </td>
               </tr>
