@@ -14,20 +14,20 @@ export const metadata: Metadata = {
 
 export default function ConfidentialitePage() {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)', paddingTop: '60px' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)', paddingTop: '60px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '60px 24px 40px' }}>
-        <h1 style={{ fontSize: '42px', fontWeight: 700, color: '#1A1A1A', marginBottom: '8px' }}>
+        <h1 style={{ fontSize: '42px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
           Politique de Confidentialité
         </h1>
-        <p style={{ color: '#6B7280', fontSize: '16px', marginBottom: '40px' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '40px' }}>
           Protection des données personnelles — RGPD/CNIL conforme
         </p>
 
-        <div style={{ lineHeight: '1.8', color: '#1A1A1A', fontSize: '16px' }}>
+        <div style={{ lineHeight: '1.8', color: 'var(--text-primary)', fontSize: '16px' }}>
           <section style={{ marginBottom: '60px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px' }}>Nexart SAS</h2>
             <p>Marseille, France</p>
-            <p style={{ color: '#6B7280', fontSize: '14px' }}>Mise à jour : 27 juillet 2026</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Mise à jour : 27 juillet 2026</p>
           </section>
 
           <section style={{ marginBottom: '60px' }}>
@@ -134,7 +134,7 @@ export default function ConfidentialitePage() {
             </p>
           </section>
 
-          <section style={{ paddingTop: '40px', borderTop: '1px solid #E5E7EB', color: '#6B7280', fontSize: '14px' }}>
+          <section style={{ paddingTop: '40px', borderTop: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '14px' }}>
             <p>Cette politique est conforme Règlement EU 2016/679 (RGPD) et Loi française.</p>
             <p style={{ marginTop: '8px' }}>Dernière mise à jour : 27 juillet 2026</p>
           </section>

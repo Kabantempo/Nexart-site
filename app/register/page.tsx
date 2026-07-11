@@ -129,7 +129,7 @@ export default function RegisterPage() {
           transition={{ duration: 0.5 }}
           style={{
             width: '100%', maxWidth: '440px',
-            backgroundColor: '#FFFFFF', borderRadius: '20px',
+            backgroundColor: 'var(--bg-primary)', borderRadius: '20px',
             border: '1px solid #E2E8F0', padding: '48px 40px',
             textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
           }}
@@ -143,7 +143,7 @@ export default function RegisterPage() {
           <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', marginBottom: '12px', letterSpacing: '-0.3px' }}>
             Vérifiez vos emails
           </h2>
-          <p style={{ fontSize: '15px', color: '#64748B', lineHeight: '1.7', marginBottom: '32px' }}>
+          <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '32px' }}>
             Un lien de confirmation a été envoyé à{' '}
             <strong style={{ color: '#1E293B' }}>{email}</strong>.
             Cliquez dessus pour activer votre compte.
@@ -300,7 +300,7 @@ export default function RegisterPage() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '48px 24px',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'var(--bg-primary)',
         overflowY: 'auto',
       }}>
         {/* Mobile logo */}
@@ -311,7 +311,7 @@ export default function RegisterPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '16px', fontWeight: '800', color: '#FFFFFF',
           }}>N</div>
-          <span style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', letterSpacing: '-0.5px' }}>Nexart</span>
+          <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
 
         <motion.div
@@ -324,7 +324,7 @@ export default function RegisterPage() {
             <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.5px' }}>
               Créer un compte
             </h1>
-            <p style={{ fontSize: '15px', color: '#64748B' }}>
+            <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
               Déjà inscrit ?{' '}
               <Link href="/login" style={{ color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
                 Se connecter
@@ -338,7 +338,7 @@ export default function RegisterPage() {
             onClick={handleGoogle}
             style={{
               width: '100%', padding: '13px 16px', borderRadius: '10px',
-              backgroundColor: '#FFFFFF', color: '#1A1A1A',
+              backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
               fontSize: '15px', fontWeight: '600',
               border: '1.5px solid #E2E8F0', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
@@ -353,9 +353,9 @@ export default function RegisterPage() {
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#F1F5F9' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
             <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '500' }}>ou par email</span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#F1F5F9' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
           </div>
 
           {error && (
@@ -377,7 +377,7 @@ export default function RegisterPage() {
 
             {/* Nom */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Nom complet
               </label>
               <div style={{ position: 'relative' }}>
@@ -404,7 +404,7 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
@@ -431,7 +431,7 @@ export default function RegisterPage() {
 
             {/* Rôle — Cards */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '10px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '10px' }}>
                 Vous êtes ?
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -471,7 +471,7 @@ export default function RegisterPage() {
 
             {/* Mot de passe */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Mot de passe
               </label>
               <div style={{ position: 'relative' }}>
@@ -507,7 +507,7 @@ export default function RegisterPage() {
 
             {/* Confirmer mot de passe */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Confirmer le mot de passe
               </label>
               <div style={{ position: 'relative' }}>

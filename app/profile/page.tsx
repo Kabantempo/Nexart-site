@@ -101,9 +101,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   pending:   { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB' },
   accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
-  draft:     { label: 'Brouillon',  color: '#6B7280', bg: '#F3F4F6' },
+  draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: '#F3F4F6' },
   published: { label: 'Publié',     color: '#10B981', bg: '#ECFDF5' },
-  closed:    { label: 'Fermé',      color: '#6B7280', bg: '#F3F4F6' },
+  closed:    { label: 'Fermé',      color: 'var(--text-secondary)', bg: '#F3F4F6' },
 }
 const EVENT_TYPE_LABELS: Record<string, string> = {
   permanent: 'Permanent', seasonal: 'Saisonnier',
@@ -849,29 +849,29 @@ export default function ProfilePage() {
         {refuseModal && (
           <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
             onClick={(e) => { if (e.target === e.currentTarget) { setRefuseModal(null); setRefuseComment('') } }}>
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '6px' }}>
+            <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px' }}>
                 Refuser la vérification
               </h3>
-              <p style={{ fontSize: '14px', color: '#64748B', marginBottom: '20px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
                 {refuseModal.field === 'siret_verified' ? 'SIRET' : 'RC Pro'} de <strong>{refuseModal.creatorName}</strong>
               </p>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
-                Motif du refus <span style={{ color: '#6B7280', fontWeight: '400' }}>(envoyé en notification)</span>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+                Motif du refus <span style={{ color: 'var(--text-secondary)', fontWeight: '400' }}>(envoyé en notification)</span>
               </label>
               <textarea
                 value={refuseComment}
                 onChange={(e) => setRefuseComment(e.target.value)}
                 placeholder="Ex : Le document est illisible, le SIRET ne correspond pas au nom..."
                 rows={3}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = '#374151' }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
                 autoFocus
               />
               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                 <button onClick={() => { setRefuseModal(null); setRefuseComment('') }}
-                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#6B7280', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                   Annuler
                 </button>
                 <button onClick={handleRefuseConfirm}
@@ -887,9 +887,9 @@ export default function ProfilePage() {
         {/* ── Crop Modal ── */}
         {cropSrc && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ backgroundColor: '#FFF', borderRadius: '20px', padding: '28px', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-              <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '700', color: '#1A1A1A' }}>Recadrer la photo</h3>
-              <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#6B7280' }}>Glisse pour repositionner · molette pour zoomer</p>
+            <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '20px', padding: '28px', maxWidth: '380px', width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+              <h3 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>Recadrer la photo</h3>
+              <p style={{ margin: '0 0 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>Glisse pour repositionner · molette pour zoomer</p>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 <canvas
                   ref={cropCanvasRef}
@@ -906,14 +906,14 @@ export default function ProfilePage() {
                 />
               </div>
               <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', display: 'block', marginBottom: '6px' }}>Zoom</label>
+                <label style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '600', display: 'block', marginBottom: '6px' }}>Zoom</label>
                 <input type="range" min="0.5" max="4" step="0.01" value={cropScale}
                   onChange={e => setCropScale(parseFloat(e.target.value))}
                   style={{ width: '100%', accentColor: '#374151' }} />
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => { setCropSrc(null); if (cropImgRef.current) URL.revokeObjectURL(cropImgRef.current.src) }}
-                  style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                   Annuler
                 </button>
                 <button onClick={confirmCrop}
@@ -946,23 +946,23 @@ export default function ProfilePage() {
 
             <div style={{ flex: 1, minWidth: '200px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#1A1A1A', margin: 0 }}>{name}</h1>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '12px', fontWeight: '600' }}>
+                <h1 style={{ fontSize: '26px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>{name}</h1>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600' }}>
                   <Shield size={12} /> Administrateur
                 </span>
               </div>
-              <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Mail size={13} /> {user?.email}
               </p>
             </div>
 
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <Link href="/account"
-                style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
+                style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}>
                 <Settings size={15} /> Mon profil
               </Link>
               <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
-                style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#374151', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <LogOut size={15} /> Déconnexion
               </button>
             </div>
@@ -976,9 +976,9 @@ export default function ProfilePage() {
               { label: 'RC Pro en attente', value: adminCreators.filter(c => !c.insurance_verified && c.insurance_doc_url).length },
               { label: 'Marchés publiés', value: adminEvents.filter(e => e.status === 'published').length },
             ].map(s => (
-              <div key={s.label} style={{ flex: 1, minWidth: '140px', padding: '16px 20px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
-                <p style={{ fontSize: '28px', fontWeight: '800', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0, fontWeight: '600' }}>{s.label}</p>
+              <div key={s.label} style={{ flex: 1, minWidth: '140px', padding: '16px 20px', borderRadius: '12px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+                <p style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 2px', lineHeight: 1 }}>{s.value}</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, fontWeight: '600' }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -1030,7 +1030,7 @@ export default function ProfilePage() {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
                       <Users size={16} color="#6B7280" />
-                      <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Utilisateurs</h3>
+                      <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Utilisateurs</h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
                       {[
@@ -1041,26 +1041,26 @@ export default function ProfilePage() {
                         { label: 'Ce mois', value: analytics.users.new_month, sub: 'nouveaux inscrits' },
                         { label: "Aujourd'hui", value: analytics.users.new_today, sub: 'inscrits aujourd\'hui' },
                       ].map(kpi => (
-                        <div key={kpi.label} style={{ padding: '16px 18px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+                        <div key={kpi.label} style={{ padding: '16px 18px', borderRadius: '12px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <p style={{ fontSize: '26px', fontWeight: '700', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
+                            <p style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
                             {kpi.up && <ArrowUpRight size={16} color="#6B7280" />}
                           </div>
-                          <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 2px' }}>{kpi.label}</p>
-                          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{kpi.sub}</p>
+                          <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 2px' }}>{kpi.label}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{kpi.sub}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Croissance 30 jours */}
-                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                       <TrendingUp size={16} color="#6B7280" />
-                      <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Inscriptions — 30 derniers jours</h3>
+                      <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Inscriptions — 30 derniers jours</h3>
                     </div>
                     {analytics.dailySignups.length === 0 ? (
-                      <p style={{ color: '#6B7280', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Aucune donnée</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'center', padding: '20px 0' }}>Aucune donnée</p>
                     ) : (() => {
                       const max = Math.max(...analytics.dailySignups.map(d => d.count), 1)
                       return (
@@ -1079,8 +1079,8 @@ export default function ProfilePage() {
                             ))}
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-                            <span style={{ fontSize: '10px', color: '#6B7280' }}>{analytics.dailySignups[0]?.date}</span>
-                            <span style={{ fontSize: '10px', color: '#6B7280' }}>{analytics.dailySignups[analytics.dailySignups.length - 1]?.date}</span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{analytics.dailySignups[0]?.date}</span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{analytics.dailySignups[analytics.dailySignups.length - 1]?.date}</span>
                           </div>
                         </div>
                       )
@@ -1091,26 +1091,26 @@ export default function ProfilePage() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 
                     {/* Événements */}
-                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
+                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                         <Calendar size={16} color="#6B7280" />
-                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Événements</h3>
-                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: '#111827' }}>{analytics.events.total}</span>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Événements</h3>
+                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)' }}>{analytics.events.total}</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {[
-                          { label: 'Publiés', value: analytics.events.published, color: '#374151' },
-                          { label: 'Brouillons', value: analytics.events.draft, color: '#374151' },
-                          { label: 'Fermés', value: analytics.events.closed, color: '#374151' },
+                          { label: 'Publiés', value: analytics.events.published, color: 'var(--text-primary)' },
+                          { label: 'Brouillons', value: analytics.events.draft, color: 'var(--text-primary)' },
+                          { label: 'Fermés', value: analytics.events.closed, color: 'var(--text-primary)' },
                         ].map(item => {
                           const pct = analytics.events.total ? (item.value / analytics.events.total) * 100 : 0
                           return (
                             <div key={item.label}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: '600', color: '#4B5563' }}>{item.label}</span>
+                                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>{item.label}</span>
                                 <span style={{ fontSize: '12px', fontWeight: '700', color: item.color }}>{item.value}</span>
                               </div>
-                              <div style={{ height: '6px', borderRadius: '3px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
+                              <div style={{ height: '6px', borderRadius: '3px', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
                                 <div style={{ height: '100%', width: `${pct}%`, backgroundColor: item.color, borderRadius: '3px', transition: 'width 0.5s ease' }} />
                               </div>
                             </div>
@@ -1118,10 +1118,10 @@ export default function ProfilePage() {
                         })}
                         {analytics.eventTypes.length > 0 && (
                           <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #F3F4F6' }}>
-                            <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Par type</p>
+                            <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Par type</p>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                               {analytics.eventTypes.map(et => (
-                                <span key={et.event_type} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', backgroundColor: '#F3F4F6', color: '#6B7280', fontWeight: '500' }}>
+                                <span key={et.event_type} style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontWeight: '500' }}>
                                   {et.event_type} · {et.count}
                                 </span>
                               ))}
@@ -1132,26 +1132,26 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Candidatures */}
-                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
+                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                         <Package size={16} color="#6B7280" />
-                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Candidatures</h3>
-                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: '#111827' }}>{analytics.applications.total}</span>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Candidatures</h3>
+                        <span style={{ marginLeft: 'auto', fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)' }}>{analytics.applications.total}</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {[
-                          { label: 'En attente', value: analytics.applications.pending, color: '#374151' },
-                          { label: 'Acceptées', value: analytics.applications.accepted, color: '#374151' },
-                          { label: 'Refusées', value: analytics.applications.refused, color: '#374151' },
+                          { label: 'En attente', value: analytics.applications.pending, color: 'var(--text-primary)' },
+                          { label: 'Acceptées', value: analytics.applications.accepted, color: 'var(--text-primary)' },
+                          { label: 'Refusées', value: analytics.applications.refused, color: 'var(--text-primary)' },
                         ].map(item => {
                           const pct = analytics.applications.total ? (item.value / analytics.applications.total) * 100 : 0
                           return (
                             <div key={item.label}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: '600', color: '#4B5563' }}>{item.label}</span>
+                                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>{item.label}</span>
                                 <span style={{ fontSize: '12px', fontWeight: '700', color: item.color }}>{item.value}</span>
                               </div>
-                              <div style={{ height: '6px', borderRadius: '3px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
+                              <div style={{ height: '6px', borderRadius: '3px', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
                                 <div style={{ height: '100%', width: `${pct}%`, backgroundColor: item.color, borderRadius: '3px', transition: 'width 0.5s ease' }} />
                               </div>
                             </div>
@@ -1159,8 +1159,8 @@ export default function ProfilePage() {
                         })}
                         {analytics.applications.total > 0 && (
                           <div style={{ marginTop: '8px', paddingTop: '12px', borderTop: '1px solid #F3F4F6' }}>
-                            <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-                              Taux d&apos;acceptation : <strong style={{ color: '#111827' }}>
+                            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                              Taux d&apos;acceptation : <strong style={{ color: 'var(--text-primary)' }}>
                                 {Math.round(analytics.applications.accepted / analytics.applications.total * 100)}%
                               </strong>
                             </p>
@@ -1174,10 +1174,10 @@ export default function ProfilePage() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 
                     {/* Vérifications */}
-                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
+                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                         <Shield size={16} color="#6B7280" />
-                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Vérifications</h3>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Vérifications</h3>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {[
@@ -1188,10 +1188,10 @@ export default function ProfilePage() {
                           return (
                             <div key={v.label}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: '600', color: '#4B5563' }}>{v.label}</span>
-                                <span style={{ fontSize: '11px', color: '#6B7280' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: '#6B7280', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
+                                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>{v.label}</span>
+                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{v.ok}/{v.total} · {v.pending > 0 && <span style={{ color: 'var(--text-secondary)', fontWeight: '600' }}>{v.pending} en attente</span>}</span>
                               </div>
-                              <div style={{ height: '8px', borderRadius: '4px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
+                              <div style={{ height: '8px', borderRadius: '4px', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
                                 <div style={{ height: '100%', width: `${pct}%`, backgroundColor: '#374151', borderRadius: '4px', transition: 'width 0.5s ease' }} />
                               </div>
                             </div>
@@ -1201,19 +1201,19 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Messages + Abonnements */}
-                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
+                    <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                         <MessageSquare size={16} color="#6B7280" />
-                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Activité</h3>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Activité</h3>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
-                          <span style={{ fontSize: '13px', color: '#4B5563', fontWeight: '600' }}>Messages envoyés</span>
-                          <span style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>{analytics.messages.total}</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
+                          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>Messages envoyés</span>
+                          <span style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)' }}>{analytics.messages.total}</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
-                          <span style={{ fontSize: '13px', color: '#4B5563', fontWeight: '600' }}>Ratio créateurs/orga</span>
-                          <span style={{ fontSize: '14px', fontWeight: '800', color: '#111827' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
+                          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>Ratio créateurs/orga</span>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)' }}>
                             {analytics.users.organizers > 0
                               ? `${Math.round(analytics.users.creators / analytics.users.organizers * 10) / 10}:1`
                               : '—'
@@ -1229,7 +1229,7 @@ export default function ProfilePage() {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
                         <BarChart2 size={16} color="#6B7280" />
-                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>KPI Business</h3>
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>KPI Business</h3>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
@@ -1252,21 +1252,21 @@ export default function ProfilePage() {
                             { label: 'Liquidité marketplace', value: liq !== null ? `${liq}h` : '—', sub: liq !== null ? '1ère candidature' : 'Pas de données', target: '< 48h' },
                             { label: 'Rétention J30', value: ret !== null ? `${ret}%` : '—', sub: ret !== null ? `${k.retention30.retained}/${k.retention30.cohort_total}` : 'Cohorte vide', target: '> 40 %' },
                           ].map(kpi => (
-                            <div key={kpi.label} style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
-                              <p style={{ fontSize: '22px', fontWeight: '800', color: '#111827', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
-                              <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 2px' }}>{kpi.label}</p>
-                              <p style={{ fontSize: '10px', color: '#6B7280', margin: '0 0 4px' }}>{kpi.sub}</p>
-                              <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: 0 }}>Cible : {kpi.target}</p>
+                            <div key={kpi.label} style={{ padding: '14px 16px', borderRadius: '12px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
+                              <p style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
+                              <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>{kpi.label}</p>
+                              <p style={{ fontSize: '10px', color: 'var(--text-secondary)', margin: '0 0 4px' }}>{kpi.sub}</p>
+                              <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: 0 }}>Cible : {kpi.target}</p>
                             </div>
                           ))
                         })()}
                       </div>
 
-                      <div style={{ padding: '16px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', backgroundColor: '#FAFAFA', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div style={{ padding: '16px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', backgroundColor: 'var(--bg-secondary)', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
                         <CreditCard size={15} color="#9CA3AF" />
-                        <span style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280' }}>KPI financiers (Stripe requis)</span>
+                        <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)' }}>KPI financiers (Stripe requis)</span>
                         {['MRR', 'GMV', 'ARPU', 'Churn', 'LTV/CAC'].map(f => (
-                          <span key={f} style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '10px', backgroundColor: '#F3F4F6', color: '#6B7280' }}>
+                          <span key={f} style={{ fontSize: '11px', fontWeight: '600', padding: '3px 10px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>
                             {f}
                           </span>
                         ))}
@@ -1297,13 +1297,13 @@ export default function ProfilePage() {
               {displayedCreators.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
                   <CheckCircle size={40} color="#10B981" style={{ marginBottom: '12px' }} />
-                  <p style={{ fontSize: '16px', fontWeight: '600', color: '#1A1A1A' }}>Tout est vérifié ✓</p>
+                  <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Tout est vérifié ✓</p>
                   <p style={{ fontSize: '14px', color: '#888' }}>Aucune demande en attente.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {displayedCreators.map(c => (
-                    <div key={c.user_id} style={{ padding: '20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+                    <div key={c.user_id} style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           {c.profiles?.avatar_url
@@ -1313,8 +1313,8 @@ export default function ProfilePage() {
                           }
                         </div>
                         <div style={{ flex: 1 }}>
-                          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{c.profiles?.full_name ?? 'Créateur'}</p>
-                          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
+                          <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>{c.profiles?.full_name ?? 'Créateur'}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, fontFamily: 'monospace' }}>{c.user_id.slice(0, 8)}…</p>
                         </div>
                         {/* Ban toggle */}
                         <button
@@ -1343,7 +1343,7 @@ export default function ProfilePage() {
                           return (
                             <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${siretStatus === 'refused' ? '#FECACA' : '#E5E7EB'}`, backgroundColor: siretStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>SIRET</p>
+                                <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>SIRET</p>
                                 <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
                                   backgroundColor: siretStatus === 'verified' ? '#374151' : siretStatus === 'refused' ? '#FEE2E2' : '#E5E7EB',
                                   color: siretStatus === 'verified' ? '#FFF' : siretStatus === 'refused' ? '#EF4444' : '#6B7280' }}>
@@ -1352,14 +1352,14 @@ export default function ProfilePage() {
                               </div>
                               {c.siret_number ? (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', letterSpacing: '1px', margin: 0, fontFamily: 'monospace' }}>{c.siret_number}</p>
+                                  <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '1px', margin: 0, fontFamily: 'monospace' }}>{c.siret_number}</p>
                                   <a href={`https://pappers.fr/entreprise/${c.siret_number}`} target="_blank" rel="noopener noreferrer"
                                     style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>
                                     <ExternalLink size={10} /> Pappers
                                   </a>
                                 </div>
                               ) : (
-                                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 10px' }}>Non renseigné</p>
+                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>Non renseigné</p>
                               )}
                               {siretStatus === 'pending' && c.siret_number && (
                                 <div style={{ display: 'flex', gap: '6px' }}>
@@ -1370,20 +1370,20 @@ export default function ProfilePage() {
                                   </button>
                                   <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'siret_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
                                     disabled={adminSaving === `${c.user_id}-siret_verified`}
-                                    style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                    style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
                                     <XCircle size={13} />
                                   </button>
                                 </div>
                               )}
                               {siretStatus === 'refused' && (
                                 <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', true)}
-                                  style={{ width: '100%', padding: '7px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                                  style={{ width: '100%', padding: '7px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                                   Re-examiner
                                 </button>
                               )}
                               {siretStatus === 'verified' && (
                                 <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', false)}
-                                  style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                  style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                                   Révoquer
                                 </button>
                               )}
@@ -1398,7 +1398,7 @@ export default function ProfilePage() {
                           return (
                             <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${insStatus === 'refused' ? '#FECACA' : '#E5E7EB'}`, backgroundColor: insStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                <p style={{ fontSize: '12px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>RC Pro</p>
+                                <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>RC Pro</p>
                                 <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
                                   backgroundColor: insStatus === 'verified' ? '#374151' : insStatus === 'refused' ? '#FEE2E2' : insStatus === 'doc' ? '#EEF2FF' : '#E5E7EB',
                                   color: insStatus === 'verified' ? '#FFF' : insStatus === 'refused' ? '#EF4444' : insStatus === 'doc' ? '#6366F1' : '#6B7280' }}>
@@ -1407,11 +1407,11 @@ export default function ProfilePage() {
                               </div>
                               {c.insurance_doc_url ? (
                                 <a href={c.insurance_doc_url} target="_blank" rel="noopener noreferrer"
-                                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#374151', textDecoration: 'none', fontWeight: '600', marginBottom: '10px' }}>
+                                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: '600', marginBottom: '10px' }}>
                                   <FileText size={13} /> Voir le document <ExternalLink size={11} />
                                 </a>
                               ) : (
-                                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 10px' }}>Aucun document</p>
+                                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>Aucun document</p>
                               )}
                               {insStatus === 'doc' && (
                                 <div style={{ display: 'flex', gap: '6px' }}>
@@ -1422,20 +1422,20 @@ export default function ProfilePage() {
                                   </button>
                                   <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'insurance_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
                                     disabled={adminSaving === `${c.user_id}-insurance_verified`}
-                                    style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                    style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
                                     <XCircle size={13} />
                                   </button>
                                 </div>
                               )}
                               {insStatus === 'refused' && (
                                 <button onClick={() => { setRefusedSet(prev => { const s = new Set(prev); s.delete(`${c.user_id}-insurance_verified`); return s }) }}
-                                  style={{ width: '100%', padding: '7px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                                  style={{ width: '100%', padding: '7px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                                   Re-examiner
                                 </button>
                               )}
                               {insStatus === 'verified' && (
                                 <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', false)}
-                                  style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                                  style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                                   Révoquer
                                 </button>
                               )}
@@ -1455,7 +1455,7 @@ export default function ProfilePage() {
               return (
                 <div style={{ marginTop: '32px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                    <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Organisateurs à vérifier</h3>
+                    <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Organisateurs à vérifier</h3>
                     <div style={{ display: 'flex', gap: '6px' }}>
                       {([
                         { k: 'pending', label: `En attente (${pendingOrgas.length})` },
@@ -1476,7 +1476,7 @@ export default function ProfilePage() {
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {displayOrgas.map(o => (
-                        <div key={o.user_id} style={{ padding: '16px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+                        <div key={o.user_id} style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                               {o.profiles?.avatar_url
@@ -1485,22 +1485,22 @@ export default function ProfilePage() {
                                 : <User size={16} color="#FFF" />}
                             </div>
                             <div>
-                              <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{o.profiles?.full_name ?? 'Organisateur'}</p>
-                              <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
+                              <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>{o.profiles?.full_name ?? 'Organisateur'}</p>
+                              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, fontFamily: 'monospace' }}>{o.user_id.slice(0, 8)}…</p>
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             {/* SIRET */}
                             {o.siret_number && (
-                              <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF' }}>
+                              <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>SIRET</p>
+                                  <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>SIRET</p>
                                   <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.siret_verified ? '#ECFDF5' : '#F3F4F6', color: o.siret_verified ? '#059669' : '#6B7280' }}>
                                     {o.siret_verified ? 'Vérifié' : 'En attente'}
                                   </span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', fontFamily: 'monospace', letterSpacing: '1px', margin: 0 }}>{o.siret_number}</p>
+                                  <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'monospace', letterSpacing: '1px', margin: 0 }}>{o.siret_number}</p>
                                   <a href={`https://pappers.fr/entreprise/${o.siret_number}`} target="_blank" rel="noopener noreferrer"
                                     style={{ fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
                                 </div>
@@ -1511,28 +1511,28 @@ export default function ProfilePage() {
                                       <CheckCircle size={12} /> Valider
                                     </button>
                                     <button onClick={() => handleAdminVerifyOrga(o.user_id, 'siret_verified', false)} disabled={orgaVerifSaving === `${o.user_id}-siret_verified`}
-                                      style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: '12px', cursor: 'pointer' }}>
+                                      style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
                                       <XCircle size={13} />
                                     </button>
                                   </div>
                                 )}
                                 {o.siret_verified && (
                                   <button onClick={() => handleAdminVerifyOrga(o.user_id, 'siret_verified', false)}
-                                    style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                    style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
                                 )}
                               </div>
                             )}
                             {/* Document */}
                             {o.verification_doc_url && (
-                              <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF' }}>
+                              <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Document</p>
+                                  <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Document</p>
                                   <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.verification_doc_verified ? '#ECFDF5' : '#EEF2FF', color: o.verification_doc_verified ? '#059669' : '#6366F1' }}>
                                     {o.verification_doc_verified ? 'Vérifié' : 'Doc reçu'}
                                   </span>
                                 </div>
                                 <a href={o.verification_doc_url} target="_blank" rel="noopener noreferrer"
-                                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#374151', textDecoration: 'none', fontWeight: '600', marginBottom: '8px' }}>
+                                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: 'var(--text-primary)', textDecoration: 'none', fontWeight: '600', marginBottom: '8px' }}>
                                   <FileText size={13} /> Voir le document <ExternalLink size={11} />
                                 </a>
                                 {!o.verification_doc_verified && (
@@ -1545,7 +1545,7 @@ export default function ProfilePage() {
                                 )}
                                 {o.verification_doc_verified && (
                                   <button onClick={() => handleAdminVerifyOrga(o.user_id, 'verification_doc_verified', false)}
-                                    style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
+                                    style={{ fontSize: '11px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Révoquer</button>
                                 )}
                               </div>
                             )}
@@ -1615,13 +1615,13 @@ export default function ProfilePage() {
               {adminEvents.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
                   <Calendar size={40} color="#D1D5DB" style={{ marginBottom: '12px' }} />
-                  <p style={{ fontSize: '16px', fontWeight: '600', color: '#1A1A1A' }}>Aucun marché créé</p>
+                  <p style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>Aucun marché créé</p>
                 </div>
               ) : adminEvents.map(ev => {
                 const sc = STATUS_CONFIG[ev.status] ?? STATUS_CONFIG.draft
                 return (
-                  <div key={ev.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA', display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: '#E5E7EB' }}>
+                  <div key={ev.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', gap: '14px', alignItems: 'center' }}>
+                    <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: 'var(--border-color)' }}>
                       {ev.cover_image
                         // eslint-disable-next-line @next/next/no-img-element
                         ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -1630,7 +1630,7 @@ export default function ProfilePage() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '3px' }}>
-                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                        <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                         <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', backgroundColor: sc.bg, color: sc.color, flexShrink: 0 }}>{sc.label}</span>
                       </div>
                       <p style={{ fontSize: '12px', color: '#888', margin: 0 }}>
@@ -1639,7 +1639,7 @@ export default function ProfilePage() {
                         {ev.start_date ? ` · ${new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
                       </p>
                       {ev.profiles?.full_name && (
-                        <p style={{ fontSize: '11px', color: '#6B7280', margin: '2px 0 0' }}>par {ev.profiles.full_name}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>par {ev.profiles.full_name}</p>
                       )}
                     </div>
                     <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
@@ -1647,14 +1647,14 @@ export default function ProfilePage() {
                         onClick={() => handleToggleEventStatus(ev.id, ev.status)}
                         disabled={adminSaving === ev.id}
                         title={ev.status === 'published' ? 'Mettre en brouillon' : 'Publier'}
-                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {ev.status === 'published' ? <Eye size={15} /> : <EyeOff size={15} />}
                       </button>
                       <button
                         onClick={() => { if (window.confirm(`Supprimer "${ev.title}" ?`)) handleDeleteEvent(ev.id) }}
                         disabled={deletingEvent === ev.id}
                         title="Supprimer"
-                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        style={{ width: '34px', height: '34px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Trash2 size={15} />
                       </button>
                     </div>
@@ -1669,17 +1669,17 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
               {/* Composer */}
-              <div style={{ padding: '24px', borderRadius: '14px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+              <div style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
                   <Send size={16} color="#6B7280" />
-                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Nouveau message</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Nouveau message</h3>
                 </div>
 
                 {/* Recipient search */}
                 <div style={{ marginBottom: '14px', position: 'relative' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Destinataire</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Destinataire</label>
                   {msgRecipient ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '2px solid #374151', backgroundColor: '#F3F4F6' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '2px solid #374151', backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                         {msgRecipient.avatar_url
                           // eslint-disable-next-line @next/next/no-img-element
@@ -1688,11 +1688,11 @@ export default function ProfilePage() {
                         }
                       </div>
                       <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>{msgRecipient.full_name}</p>
-                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, textTransform: 'capitalize' }}>{msgRecipient.role ?? 'utilisateur'}</p>
+                        <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>{msgRecipient.full_name}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, textTransform: 'capitalize' }}>{msgRecipient.role ?? 'utilisateur'}</p>
                       </div>
                       <button onClick={() => { setMsgRecipient(null); setMsgSearch('') }}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px' }}>
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
                         <X size={16} />
                       </button>
                     </div>
@@ -1703,10 +1703,10 @@ export default function ProfilePage() {
                         value={msgSearch}
                         onChange={e => handleMsgSearch(e.target.value)}
                         placeholder="Rechercher par nom…"
-                        style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                        style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' }}
                       />
                       {msgSuggestions.length > 0 && (
-                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: '#FFF', borderRadius: '8px', border: '1px solid #E5E7EB', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: '4px', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', marginTop: '4px', overflow: 'hidden' }}>
                           {msgSuggestions.map(s => (
                             <button key={s.id} onClick={() => { setMsgRecipient(s); setMsgSearch(s.full_name); setMsgSuggestions([]) }}
                               style={{ width: '100%', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}
@@ -1720,16 +1720,16 @@ export default function ProfilePage() {
                                 }
                               </div>
                               <div>
-                                <p style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A', margin: 0 }}>{s.full_name}</p>
-                                <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, textTransform: 'capitalize' }}>{s.role ?? 'utilisateur'}</p>
+                                <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{s.full_name}</p>
+                                <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, textTransform: 'capitalize' }}>{s.role ?? 'utilisateur'}</p>
                               </div>
                             </button>
                           ))}
                         </div>
                       )}
                       {msgSearch.length >= 2 && msgSuggestions.length === 0 && (
-                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: '#FFF', borderRadius: '8px', border: '1px solid #E5E7EB', padding: '14px', marginTop: '4px', textAlign: 'center' }}>
-                          <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Aucun utilisateur trouvé</p>
+                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--bg-primary)', borderRadius: '8px', border: '1px solid var(--border-color)', padding: '14px', marginTop: '4px', textAlign: 'center' }}>
+                          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Aucun utilisateur trouvé</p>
                         </div>
                       )}
                     </div>
@@ -1738,24 +1738,24 @@ export default function ProfilePage() {
 
                 {/* Subject */}
                 <div style={{ marginBottom: '14px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Objet <span style={{ color: '#D1D5DB', fontWeight: '400' }}>(optionnel)</span></label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Objet <span style={{ color: '#D1D5DB', fontWeight: '400' }}>(optionnel)</span></label>
                   <input
                     value={msgSubject}
                     onChange={e => setMsgSubject(e.target.value)}
                     placeholder="Ex : Votre compte a été vérifié"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' }}
                   />
                 </div>
 
                 {/* Message */}
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Message</label>
+                  <label style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Message</label>
                   <textarea
                     value={msgContent}
                     onChange={e => setMsgContent(e.target.value)}
                     placeholder="Tapez votre message ici…"
                     rows={4}
-                    style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', lineHeight: '1.6', resize: 'vertical', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', lineHeight: '1.6', resize: 'vertical', boxSizing: 'border-box' }}
                   />
                 </div>
 
@@ -1785,19 +1785,19 @@ export default function ProfilePage() {
               {/* Messages envoyés */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Envoyés</h3>
-                  <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', backgroundColor: '#F3F4F6', color: '#6B7280', fontWeight: '600' }}>{adminMessages.length}</span>
+                  <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Envoyés</h3>
+                  <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontWeight: '600' }}>{adminMessages.length}</span>
                 </div>
 
                 {adminMessages.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '40px 24px', borderRadius: '12px', border: '1px dashed #E5E7EB' }}>
                     <MessageSquare size={32} color="#D1D5DB" style={{ marginBottom: '10px' }} />
-                    <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Aucun message envoyé</p>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun message envoyé</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {adminMessages.map(msg => (
-                      <div key={msg.id} style={{ padding: '14px 18px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                      <div key={msg.id} style={{ padding: '14px 18px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                         <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           {msg.recipient?.avatar_url
                             // eslint-disable-next-line @next/next/no-img-element
@@ -1808,23 +1808,23 @@ export default function ProfilePage() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '4px' }}>
                             <div>
-                              <span style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A' }}>{msg.recipient?.full_name ?? 'Utilisateur'}</span>
-                              <span style={{ fontSize: '11px', color: '#6B7280', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
-                              {msg.subject && <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: '2px 0 0' }}>{msg.subject}</p>}
+                              <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>{msg.recipient?.full_name ?? 'Utilisateur'}</span>
+                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '6px', textTransform: 'capitalize' }}>{msg.recipient?.role ?? ''}</span>
+                              {msg.subject && <p style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)', margin: '2px 0 0' }}>{msg.subject}</p>}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                               {msg.read_at
                                 ? <span title="Lu"><CheckCheck size={13} color="#10B981" /></span>
                                 : <span title="Non lu"><Clock size={13} color="#9CA3AF" /></span>
                               }
-                              <span style={{ fontSize: '11px', color: '#6B7280', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                                 {new Date(msg.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
                                 {' '}
                                 {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
                           </div>
-                          <p style={{ fontSize: '13px', color: '#6B7280', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
                             {msg.content}
                           </p>
                         </div>
@@ -1839,8 +1839,8 @@ export default function ProfilePage() {
           {/* ── Tab: Abonnements ── */}
           {adminTab === 'abonnements' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ padding: '24px', borderRadius: '14px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 16px' }}>Modifier l&apos;abonnement d&apos;un utilisateur</h3>
+              <div style={{ padding: '24px', borderRadius: '14px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 16px' }}>Modifier l&apos;abonnement d&apos;un utilisateur</h3>
 
                 {/* Recherche */}
                 <div style={{ position: 'relative', marginBottom: '16px' }}>
@@ -1862,11 +1862,11 @@ export default function ProfilePage() {
                       setSubSearching(false)
                     }}
                     placeholder="Rechercher un utilisateur par nom…"
-                    style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box', backgroundColor: '#FFFFFF' }}
+                    style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box', backgroundColor: 'var(--bg-primary)' }}
                   />
                   {subSearching && (
                     <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
-                      <div style={{ width: '14px', height: '14px', border: '2px solid #E5E7EB', borderTopColor: '#374151', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                      <div style={{ width: '14px', height: '14px', border: '2px solid var(--border-color)', borderTopColor: '#374151', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                     </div>
                   )}
                 </div>
@@ -1900,7 +1900,7 @@ export default function ProfilePage() {
                       }
 
                       return (
-                        <div key={u.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                        <div key={u.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
                           {/* Avatar */}
                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <span style={{ fontSize: '14px', fontWeight: '800', color: '#FFFFFF' }}>{u.full_name?.[0]?.toUpperCase()}</span>
@@ -1908,10 +1908,10 @@ export default function ProfilePage() {
 
                           {/* Infos */}
                           <div style={{ flex: 1, minWidth: '140px' }}>
-                            <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>{u.full_name}</p>
+                            <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 3px' }}>{u.full_name}</p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '11px', color: '#6B7280', textTransform: 'capitalize' }}>{u.role}</span>
-                              <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || '#9CA3AF', backgroundColor: '#F3F4F6', padding: '2px 7px', borderRadius: '99px' }}>
+                              <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>{u.role}</span>
+                              <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || '#9CA3AF', backgroundColor: 'var(--bg-secondary)', padding: '2px 7px', borderRadius: '99px' }}>
                                 {currentTier}
                               </span>
                             </div>
@@ -1940,7 +1940,7 @@ export default function ProfilePage() {
                               setSubSaving(null)
                             }}
                             disabled={subSaving === u.id}
-                            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', fontFamily: 'inherit', backgroundColor: '#FFFFFF', cursor: 'pointer', minWidth: '180px' }}
+                            style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'var(--bg-primary)', cursor: 'pointer', minWidth: '180px' }}
                           >
                             {relevantTiers.map(t => (
                               <option key={t.value} value={t.value}>{t.label}</option>
@@ -1948,7 +1948,7 @@ export default function ProfilePage() {
                           </select>
 
                           {subSaving === u.id && (
-                            <div style={{ width: '16px', height: '16px', border: '2px solid #E5E7EB', borderTopColor: '#374151', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
+                            <div style={{ width: '16px', height: '16px', border: '2px solid var(--border-color)', borderTopColor: '#374151', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />
                           )}
                         </div>
                       )
@@ -1957,7 +1957,7 @@ export default function ProfilePage() {
                 )}
 
                 {subSearch.length >= 2 && !subSearching && subResults.length === 0 && (
-                  <p style={{ fontSize: '13px', color: '#6B7280', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>Aucun utilisateur trouvé</p>
                 )}
 
                 <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FFF7ED', border: '1px solid #FED7AA' }}>
@@ -1973,12 +1973,12 @@ export default function ProfilePage() {
           {adminTab === 'signalements' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
                   Signalements ({adminReports.filter(r => r.status === 'pending').length} en attente)
                 </h3>
               </div>
               {adminReports.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', color: '#6B7280', fontSize: '14px' }}>
+                <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '12px', border: '1px dashed #E5E7EB', color: 'var(--text-secondary)', fontSize: '14px' }}>
                   Aucun signalement
                 </div>
               ) : (
@@ -1986,12 +1986,12 @@ export default function ProfilePage() {
                   {adminReports.map(r => (
                     <div key={r.id} style={{ padding: '14px 16px', borderRadius: '10px', border: `1px solid ${r.status === 'pending' ? '#FDE68A' : '#E5E7EB'}`, backgroundColor: r.status === 'pending' ? '#FFFBEB' : '#FAFAFA', display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 2px' }}>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>
                           {r.target_type === 'creator' ? 'Créateur' : r.target_type === 'event' ? 'Événement' : 'Post'} signalé
-                          <span style={{ fontWeight: '400', color: '#6B7280', marginLeft: '6px' }}>par {r.reporter?.full_name || 'utilisateur'}</span>
+                          <span style={{ fontWeight: '400', color: 'var(--text-secondary)', marginLeft: '6px' }}>par {r.reporter?.full_name || 'utilisateur'}</span>
                         </p>
-                        <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>{r.reason}</p>
-                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 2px' }}>{r.reason}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{new Date(r.created_at).toLocaleDateString('fr-FR')}</p>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', shrink: 0 } as React.CSSProperties}>
                         {r.status === 'pending' && (
@@ -1999,13 +1999,13 @@ export default function ProfilePage() {
                             <button onClick={async () => {
                               await supabase.from('reports').update({ status: 'reviewed' }).eq('id', r.id)
                               setAdminReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'reviewed' } : x))
-                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '12px', fontWeight: '600', color: '#374151', cursor: 'pointer' }}>
+                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)', cursor: 'pointer' }}>
                               Vu
                             </button>
                             <button onClick={async () => {
                               await supabase.from('reports').update({ status: 'dismissed' }).eq('id', r.id)
                               setAdminReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'dismissed' } : x))
-                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', fontSize: '12px', fontWeight: '600', color: '#6B7280', cursor: 'pointer' }}>
+                            }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                               Ignorer
                             </button>
                           </>
@@ -2357,7 +2357,7 @@ export default function ProfilePage() {
                     <label className="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl bg-gray-50 border border-gray-200">
                       <div onClick={() => setEditShowRealName(v => !v)} className="relative shrink-0 cursor-pointer"
                         style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
-                        <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                        <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-800 leading-none mb-0.5">Afficher mon vrai nom</p>
@@ -2653,7 +2653,7 @@ export default function ProfilePage() {
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
-                        <div style={{ position: 'absolute', top: '4px', left: profile?.is_organizer ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                        <div style={{ position: 'absolute', top: '4px', left: profile?.is_organizer ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
                   )}
@@ -2673,7 +2673,7 @@ export default function ProfilePage() {
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
-                        <div style={{ position: 'absolute', top: '4px', left: profile?.is_creator ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                        <div style={{ position: 'absolute', top: '4px', left: profile?.is_creator ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
                   )}
@@ -2693,7 +2693,7 @@ export default function ProfilePage() {
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: creator?.open_to_collab ? '#7C3AED' : '#CBD5E1', transition: 'background 200ms' }}>
-                        <div style={{ position: 'absolute', top: '4px', left: creator?.open_to_collab ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#FFF', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+                        <div style={{ position: 'absolute', top: '4px', left: creator?.open_to_collab ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
                   )}

@@ -109,7 +109,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 zIndex: 10001,
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'var(--bg-primary)',
                 borderRadius: '20px',
                 padding: '32px',
                 width: '420px',
@@ -123,7 +123,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 style={{
                   position: 'absolute', top: '16px', right: '16px',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#6B7280', padding: '4px',
+                  color: 'var(--text-secondary)', padding: '4px',
                 }}
               >
                 <X size={18} />
@@ -140,13 +140,13 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               </div>
 
               {/* Title */}
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 {state.title}
               </h3>
 
               {/* Description */}
               {state.description && (
-                <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', marginBottom: '28px' }}>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '28px' }}>
                   {state.description}
                 </p>
               )}
@@ -159,8 +159,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   style={{
                     flex: 1, padding: '12px',
                     borderRadius: '10px',
-                    border: '1px solid #E5E7EB',
-                    backgroundColor: '#FFFFFF', color: '#374151',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
                     fontSize: '14px', fontWeight: '600',
                     cursor: 'pointer', transition: 'background-color 200ms',
                     fontFamily: 'inherit',

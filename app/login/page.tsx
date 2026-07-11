@@ -169,7 +169,7 @@ export default function LoginPage() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '48px 24px',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'var(--bg-primary)',
         overflowY: 'auto',
       }}>
         {/* Mobile logo */}
@@ -180,7 +180,7 @@ export default function LoginPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '16px', fontWeight: '800', color: '#FFFFFF',
           }}>N</div>
-          <span style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', letterSpacing: '-0.5px' }}>Nexart</span>
+          <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
 
         <motion.div
@@ -193,7 +193,7 @@ export default function LoginPage() {
             <h1 style={{ fontSize: '30px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.5px' }}>
               Bon retour 👋
             </h1>
-            <p style={{ fontSize: '15px', color: '#64748B' }}>
+            <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
               Pas encore de compte ?{' '}
               <Link href="/register" style={{ color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
                 S'inscrire gratuitement
@@ -207,7 +207,7 @@ export default function LoginPage() {
             onClick={handleGoogle}
             style={{
               width: '100%', padding: '13px 16px', borderRadius: '10px',
-              backgroundColor: '#FFFFFF', color: '#1A1A1A',
+              backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
               fontSize: '15px', fontWeight: '600',
               border: '1.5px solid #E2E8F0', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
@@ -223,9 +223,9 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#F1F5F9' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
             <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '500' }}>ou par email</span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#F1F5F9' }} />
+            <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
           </div>
 
           {error && (
@@ -245,7 +245,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
@@ -272,7 +272,7 @@ export default function LoginPage() {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
                   Mot de passe
                 </label>
                 <Link href="/forgot-password" style={{ fontSize: '13px', color: '#6366F1', fontWeight: '500', textDecoration: 'none' }}>

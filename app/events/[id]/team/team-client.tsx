@@ -67,7 +67,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
         {/* Header */}
         <motion.div
@@ -77,10 +77,10 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px' }}
         >
           <div>
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
               Mon Équipe
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
               {members.length} membre{members.length > 1 ? 's' : ''}
             </p>
           </div>
@@ -121,8 +121,8 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
               transition={{ duration: 0.6, delay: idx * 0.1 }}
               viewport={{ once: true }}
               style={{
-                backgroundColor: '#F9FAFB',
-                border: '1px solid #E5E7EB',
+                backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '12px',
                 padding: '16px',
                 display: 'flex',
@@ -132,7 +132,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: '600', color: '#1A1A1A' }}>
+                  <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
                     {member.email}
                   </span>
                   {member.role === 'owner' && (
@@ -142,7 +142,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                     </span>
                   )}
                 </div>
-                <span style={{ fontSize: '13px', color: '#6B7280' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {member.status === 'invited' ? 'Invitation en attente' : `Rejoint le ${new Date(member.joinedAt).toLocaleDateString('fr-FR')}`}
                 </span>
               </div>
@@ -189,7 +189,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
               animate={{ scale: 1, opacity: 1 }}
               onClick={(e) => e.stopPropagation()}
               style={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'var(--bg-primary)',
                 borderRadius: '12px',
                 padding: '32px',
                 maxWidth: '500px',
@@ -208,7 +208,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                   onChange={(e) => setInviteEmail(e.target.value)}
                   style={{
                     padding: '12px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '8px',
                     fontSize: '14px',
                   }}
@@ -219,8 +219,8 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                 <button
                   onClick={() => setShowInvite(false)}
                   style={{
-                    backgroundColor: '#E5E7EB',
-                    color: '#1A1A1A',
+                    backgroundColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '12px',

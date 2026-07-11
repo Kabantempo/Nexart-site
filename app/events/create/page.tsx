@@ -211,7 +211,7 @@ export default function CreateEventPage() {
   )
 
   return (
-    <div style={{ backgroundColor: '#F9F9FB', minHeight: 'calc(100vh - 80px)', padding: '40px 16px 80px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: 'calc(100vh - 80px)', padding: '40px 16px 80px' }}>
       <style>{`
         .form-input { width: 100%; padding: 12px 14px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 15px; color: #1A1A1A; background: #FFFFFF; outline: none; box-sizing: border-box; transition: border-color 200ms; }
         .form-input:focus { border-color: #6366F1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
@@ -225,11 +225,11 @@ export default function CreateEventPage() {
 
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
         <div style={{ marginBottom: '36px' }}>
-          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#6B7280', fontSize: '14px', cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
+          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
             ← Retour
           </button>
-          <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#1A1A1A', margin: 0 }}>Créer un marché</h1>
-          <p style={{ fontSize: '15px', color: '#6B7280', margin: '6px 0 0' }}>Remplissez les informations de votre événement</p>
+          <h1 style={{ fontSize: '32px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>Créer un marché</h1>
+          <p style={{ fontSize: '15px', color: 'var(--text-secondary)', margin: '6px 0 0' }}>Remplissez les informations de votre événement</p>
         </div>
 
         {/* Alerte limite plan gratuit */}
@@ -362,7 +362,7 @@ export default function CreateEventPage() {
                       </div>
                       <span style={{ fontSize: '13px', fontWeight: '700', color: form.pricing_model === opt.value ? '#6366F1' : '#1A1A1A' }}>{opt.label}</span>
                     </div>
-                    <p style={{ fontSize: '11px', color: '#6B7280', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
                   </button>
                 ))}
               </div>
@@ -388,7 +388,7 @@ export default function CreateEventPage() {
             {form.pricing_model === 'percent' && (
               <Field label="Pourcentage du CA (%)">
                 <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
               </Field>
             )}
           </Section>
@@ -436,13 +436,13 @@ export default function CreateEventPage() {
                     />
                   </div>
                   <button onClick={() => setForm(f => ({ ...f, faq: f.faq.filter((_, j) => j !== i) }))}
-                    style={{ marginTop: '8px', width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FEF2F2', color: '#E05A5A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    style={{ marginTop: '8px', width: '32px', height: '32px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: '#FEF2F2', color: '#E05A5A', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     ×
                   </button>
                 </div>
               ))}
               <button onClick={() => setForm(f => ({ ...f, faq: [...f.faq, { q: '', a: '' }] }))}
-                style={{ alignSelf: 'flex-start', padding: '8px 16px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'transparent', color: '#6B7280', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ alignSelf: 'flex-start', padding: '8px 16px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                 + Ajouter une question
               </button>
             </div>
@@ -450,19 +450,19 @@ export default function CreateEventPage() {
 
           {/* Paiement Stripe */}
           <Section title="Paiement en ligne">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: form.stripe_enabled ? '#EEF2FF' : '#F5F5F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={form.stripe_enabled ? '#6366F1' : '#888'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><line x1="12" x2="12.01" y1="14" y2="14"/></svg>
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Activer le paiement Stripe</p>
-                <p style={{ fontSize: '13px', color: '#6B7280', margin: '2px 0 0' }}>Le créateur paie son stand en ligne à la validation</p>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Activer le paiement Stripe</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Le créateur paie son stand en ligne à la validation</p>
               </div>
               <button
                 onClick={() => set('stripe_enabled')(!form.stripe_enabled)}
                 style={{ width: '48px', height: '28px', borderRadius: '9999px', border: 'none', cursor: 'pointer', backgroundColor: form.stripe_enabled ? '#6366F1' : '#E5E7EB', position: 'relative', transition: 'background 200ms', flexShrink: 0 }}
               >
-                <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
+                <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
               </button>
             </div>
           </Section>
@@ -472,7 +472,7 @@ export default function CreateEventPage() {
             <button
               onClick={() => handleSave(false)}
               disabled={saving || eventLimitReached}
-              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', color: '#1A1A1A', fontSize: '15px', fontWeight: '600', cursor: (saving || eventLimitReached) ? 'not-allowed' : 'pointer', opacity: (saving || eventLimitReached) ? 0.5 : 1, transition: 'all 200ms' }}
+              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: '600', cursor: (saving || eventLimitReached) ? 'not-allowed' : 'pointer', opacity: (saving || eventLimitReached) ? 0.5 : 1, transition: 'all 200ms' }}
             >
               Enregistrer en brouillon
             </button>
@@ -494,9 +494,9 @@ export default function CreateEventPage() {
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ borderBottom: '1px solid #F0F0F0', paddingBottom: '12px' }}>
-        <h2 style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }}>
+        <h2 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', margin: 0 }}>
           {title} {hint && <span style={{ fontWeight: '400', color: '#BBBBBB', textTransform: 'none', letterSpacing: 0 }}>{hint}</span>}
         </h2>
       </div>

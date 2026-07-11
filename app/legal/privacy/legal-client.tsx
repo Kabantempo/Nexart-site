@@ -2,15 +2,15 @@
 
 export default function PrivacyPageClient() {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '64px 16px' }}>
-        <h1 style={{ fontSize: '48px', fontWeight: '700', color: '#1A1A1A', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '32px' }}>
           Politique de Confidentialité
         </h1>
 
         <div style={{ fontSize: '16px', color: '#555555', lineHeight: '1.8' }}>
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               1. Responsable du traitement
             </h2>
             <p>
@@ -20,7 +20,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               2. Données collectées
             </h2>
             <p>Nous collectons les données suivantes :</p>
@@ -34,7 +34,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               3. Base légale
             </h2>
             <p>
@@ -44,7 +44,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               4. Partage des données
             </h2>
             <p>
@@ -58,7 +58,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               5. Droits RGPD
             </h2>
             <p>Vous avez le droit de :</p>
@@ -75,7 +75,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               6. Durée de conservation
             </h2>
             <p>
@@ -85,7 +85,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               7. Sécurité
             </h2>
             <p>
@@ -95,7 +95,7 @@ export default function PrivacyPageClient() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               8. Contact
             </h2>
             <p>
@@ -104,7 +104,7 @@ export default function PrivacyPageClient() {
             </p>
           </section>
 
-          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid #E5E7EB', color: '#AAAAAA', fontSize: '14px' }}>
+          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid var(--border-color)', color: '#AAAAAA', fontSize: '14px' }}>
             <p>Dernière mise à jour : 6 juin 2026</p>
           </div>
         </div>

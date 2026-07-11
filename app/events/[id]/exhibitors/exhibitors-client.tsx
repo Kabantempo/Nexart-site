@@ -113,7 +113,7 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Header */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
@@ -121,10 +121,10 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             Gestion Exposants
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280', marginBottom: '24px' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
             {view === 'form-setup' ? 'Personnalisez votre formulaire de candidature' : 'Gérez vos candidatures et approuvez les exposants'}
           </p>
         </motion.div>
@@ -167,17 +167,17 @@ function FormSetup({ fields, onSave, loading }: any) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '32px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+      <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '32px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
           Champs du formulaire
         </h2>
 
         {defaultFields.map((field, idx) => (
-          <div key={idx} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid #E5E7EB' }}>
+          <div key={idx} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontWeight: 500, color: '#1A1A1A' }}>{field.field_label}</p>
-                <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '4px' }}>
+                <p style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{field.field_label}</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
                   {field.field_type} {field.required ? '(obligatoire)' : '(optionnel)'}
                 </p>
               </div>
@@ -232,9 +232,9 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
           { label: 'En attente', value: stats.pending },
           { label: 'Approuvés', value: stats.approved }
         ].map((stat, i) => (
-          <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '20px' }}>
-            <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '8px' }}>{stat.label}</p>
-            <p style={{ fontSize: '32px', fontWeight: 700, color: '#1A1A1A' }}>{stat.value}</p>
+          <div key={i} style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '20px' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '8px' }}>{stat.label}</p>
+            <p style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)' }}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -267,9 +267,9 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
             marginLeft: 'auto',
             padding: '8px 16px',
             borderRadius: '6px',
-            border: '1px solid #E5E7EB',
-            backgroundColor: '#FFFFFF',
-            color: '#1A1A1A',
+            border: '1px solid var(--border-color)',
+            backgroundColor: 'var(--bg-primary)',
+            color: 'var(--text-primary)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -282,28 +282,28 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
       </div>
 
       {/* Table */}
-      <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Nom</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Email</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Status</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Tables</th>
-              <th style={{ padding: '12px 16px', textAlign: 'left', color: '#6B7280', fontSize: '12px', fontWeight: 600 }}>Actions</th>
+            <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Nom</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Email</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Status</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Tables</th>
+              <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {exhibitors.map((exhibitor: Exhibitor) => (
-              <tr key={exhibitor.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                <td style={{ padding: '12px 16px', color: '#1A1A1A' }}>{exhibitor.profiles?.full_name || 'N/A'}</td>
-                <td style={{ padding: '12px 16px', color: '#6B7280' }}>{exhibitor.profiles?.email || 'N/A'}</td>
+              <tr key={exhibitor.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '12px 16px', color: 'var(--text-primary)' }}>{exhibitor.profiles?.full_name || 'N/A'}</td>
+                <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>{exhibitor.profiles?.email || 'N/A'}</td>
                 <td style={{ padding: '12px 16px' }}>
                   <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '4px', backgroundColor: statusColors[exhibitor.status] + '20', color: statusColors[exhibitor.status], fontSize: '12px', fontWeight: 500 }}>
                     {exhibitor.status}
                   </span>
                 </td>
-                <td style={{ padding: '12px 16px', color: '#1A1A1A' }}>{exhibitor.tables_count}</td>
+                <td style={{ padding: '12px 16px', color: 'var(--text-primary)' }}>{exhibitor.tables_count}</td>
                 <td style={{ padding: '12px 16px' }}>
                   <select
                     value={exhibitor.status}
@@ -311,7 +311,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                     style={{
                       padding: '6px 12px',
                       borderRadius: '4px',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid var(--border-color)',
                       cursor: 'pointer',
                       fontSize: '14px'
                     }}
@@ -330,7 +330,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
       </div>
 
       {exhibitors.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 16px', color: '#6B7280' }}>
+        <div style={{ textAlign: 'center', padding: '60px 16px', color: 'var(--text-secondary)' }}>
           <AlertCircle size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
           <p>Aucun candidat pour le moment</p>
         </div>

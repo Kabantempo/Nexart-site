@@ -38,7 +38,7 @@ export function CookieConsent() {
       justifyContent: 'space-between',
       alignItems: 'center',
       gap: '16px',
-      borderTop: '1px solid #E5E7EB',
+      borderTop: '1px solid var(--border-color)',
     }}>
       <div style={{ flex: 1 }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '16px' }}>

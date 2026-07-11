@@ -66,22 +66,22 @@ export default function MentionsLegalesClient() {
   ]
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Hero Section */}
-      <div style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px 60px' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
               Mentions Légales
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280', maxWidth: '600px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', maxWidth: '600px', lineHeight: '1.6' }}>
               Informations légales requises de la plateforme Nexart. Consulter pour entreprise, contact légal et hébergeur.
             </p>
-            <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '24px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '24px' }}>
               Dernière mise à jour : 11 juillet 2026
             </p>
           </motion.div>
@@ -110,7 +110,7 @@ export default function MentionsLegalesClient() {
                 <div style={{ marginTop: '4px' }}>
                   <IconComponent size={32} color="#FF6B6B" strokeWidth={1.5} />
                 </div>
-                <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A' }}>
+                <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {section.title}
                 </h2>
               </div>
@@ -128,8 +128,8 @@ export default function MentionsLegalesClient() {
                     key={i}
                     style={{
                       padding: '20px',
-                      backgroundColor: '#F9FAFB',
-                      border: '1px solid #E5E7EB',
+                      backgroundColor: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '8px',
                     }}
                   >
@@ -137,7 +137,7 @@ export default function MentionsLegalesClient() {
                       style={{
                         fontSize: '12px',
                         fontWeight: 600,
-                        color: '#6B7280',
+                        color: 'var(--text-secondary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                         marginBottom: '8px',
@@ -145,7 +145,7 @@ export default function MentionsLegalesClient() {
                     >
                       {item.label}
                     </p>
-                    <p style={{ fontSize: '16px', color: '#1A1A1A', fontWeight: 500, lineHeight: '1.6' }}>
+                    <p style={{ fontSize: '16px', color: 'var(--text-primary)', fontWeight: 500, lineHeight: '1.6' }}>
                       {item.value.startsWith('http') ? (
                         <a
                           href={item.value}
@@ -181,16 +181,16 @@ export default function MentionsLegalesClient() {
           style={{
             marginBottom: '60px',
             paddingBottom: '60px',
-            borderBottom: '1px solid #E5E7EB',
+            borderBottom: '1px solid var(--border-color)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
             <AlertCircle size={32} color="#FF6B6B" strokeWidth={1.5} />
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Propriété Intellectuelle
             </h2>
           </div>
-          <div style={{ backgroundColor: '#F9FAFB', padding: '24px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '24px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
             <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '16px' }}>
               Tous les contenus du site Nexart (textes, logos, images, vidéos, codes, etc.) sont la propriété intellectuelle de Nexart SAS ou de ses partenaires. Toute reproduction, représentation ou diffusion, intégrale ou partielle, du contenu sans autorisation écrite est interdite.
             </p>
@@ -209,16 +209,16 @@ export default function MentionsLegalesClient() {
           style={{
             marginBottom: '60px',
             paddingBottom: '60px',
-            borderBottom: '1px solid #E5E7EB',
+            borderBottom: '1px solid var(--border-color)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
             <Shield size={32} color="#FF6B6B" strokeWidth={1.5} />
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Protection des Données Personnelles
             </h2>
           </div>
-          <div style={{ backgroundColor: '#F9FAFB', padding: '24px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '24px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
             <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '16px' }}>
               Nexart traite les données personnelles en conformité avec le Règlement Général sur la Protection des Données (RGPD) et les lois françaises applicables.
             </p>
@@ -248,11 +248,11 @@ export default function MentionsLegalesClient() {
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
             <AlertCircle size={32} color="#FF6B6B" strokeWidth={1.5} />
-            <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Conformité Légale
             </h2>
           </div>
-          <div style={{ backgroundColor: '#F9FAFB', padding: '24px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+          <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '24px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
             <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '16px' }}>
               Nexart respecte toutes les obligations légales applicables en France, notamment :
             </p>
@@ -278,11 +278,11 @@ export default function MentionsLegalesClient() {
       </div>
 
       {/* Footer Links */}
-      <div style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', marginTop: '60px' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', marginTop: '60px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px' }}>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
                 Légal
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -304,7 +304,7 @@ export default function MentionsLegalesClient() {
               </ul>
             </div>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
                 Support
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

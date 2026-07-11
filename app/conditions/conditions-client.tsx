@@ -211,22 +211,22 @@ export default function ConditionsClient() {
   ]
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Hero Section */}
-      <div style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px 60px' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
               Conditions d'Utilisation
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280', maxWidth: '600px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', maxWidth: '600px', lineHeight: '1.6' }}>
               Consulter les règles et responsabilités de la plateforme Nexart. Lisez attentivement avant d'utiliser.
             </p>
-            <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '24px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '24px' }}>
               Dernière mise à jour : 11 juillet 2026 | Version 1.0
             </p>
           </motion.div>
@@ -256,7 +256,7 @@ export default function ConditionsClient() {
                   <IconComponent size={32} color="#FF6B6B" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A', marginBottom: '8px' }}>
+                  <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                     {section.title}
                   </h2>
                 </div>
@@ -295,7 +295,7 @@ export default function ConditionsClient() {
                 <div style={{ marginLeft: '0' }}>
                   {section.subsections.map((subsec, subIdx) => (
                     <div key={subIdx} style={{ marginBottom: '32px' }}>
-                      <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                         {subsec.title}
                       </h3>
                       <ul style={{ marginLeft: '0' }}>
@@ -330,17 +330,17 @@ export default function ConditionsClient() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           style={{
-            backgroundColor: '#F9FAFB',
+            backgroundColor: 'var(--bg-secondary)',
             padding: '40px',
             borderRadius: '12px',
             marginTop: '60px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid var(--border-color)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
             <Mail size={24} color="#FF6B6B" strokeWidth={1.5} />
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#1A1A1A', marginBottom: '8px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Questions ou Signalement?
               </h3>
               <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.6', marginBottom: '16px' }}>
@@ -370,11 +370,11 @@ export default function ConditionsClient() {
       </div>
 
       {/* Footer Links */}
-      <div style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', marginTop: '60px' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', marginTop: '60px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px' }}>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
                 Légal
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -396,7 +396,7 @@ export default function ConditionsClient() {
               </ul>
             </div>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
                 Support
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>

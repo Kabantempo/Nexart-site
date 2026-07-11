@@ -31,14 +31,14 @@ export default function PatchNotesClient() {
   }, [])
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       <header style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', margin: 0, marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: '16px' }}>
             Mises à jour et nouveautés
           </h1>
           <p style={{ fontSize: '18px', color: '#555555', lineHeight: '1.6', maxWidth: '600px', margin: 0 }}>
@@ -49,7 +49,7 @@ export default function PatchNotesClient() {
 
       {loading && (
         <div style={{ textAlign: 'center', padding: '60px 16px' }} role="status" aria-live="polite">
-          <p style={{ fontSize: '16px', color: '#6B7280' }}>Chargement des mises à jour...</p>
+          <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>Chargement des mises à jour...</p>
         </div>
       )}
 
@@ -61,7 +61,7 @@ export default function PatchNotesClient() {
 
       {!loading && !error && notes.length === 0 && (
         <div style={{ textAlign: 'center', padding: '60px 16px' }}>
-          <p style={{ fontSize: '16px', color: '#6B7280' }}>Aucune mise à jour pour le moment.</p>
+          <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>Aucune mise à jour pour le moment.</p>
         </div>
       )}
 
@@ -82,7 +82,7 @@ export default function PatchNotesClient() {
               }}
             >
               <div style={{ marginBottom: '24px' }}>
-                <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A', margin: 0, marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: '8px' }}>
                   {note.name}
                 </h2>
                 <time dateTime={note.date} style={{ fontSize: '14px', color: '#666666', display: 'block' }}>
@@ -96,7 +96,7 @@ export default function PatchNotesClient() {
 
               {note.features.length > 0 && (
                 <section style={{ marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', margin: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px', margin: 0 }}>
                     Nouvelles fonctionnalités
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
@@ -111,7 +111,7 @@ export default function PatchNotesClient() {
 
               {note.improvements.length > 0 && (
                 <section style={{ marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', margin: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px', margin: 0 }}>
                     Améliorations
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
@@ -126,7 +126,7 @@ export default function PatchNotesClient() {
 
               {note.fixes.length > 0 && (
                 <section>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', margin: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px', margin: 0 }}>
                     Correctifs
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>

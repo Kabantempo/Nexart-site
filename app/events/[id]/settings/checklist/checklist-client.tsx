@@ -107,7 +107,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
     : 0
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Header */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
@@ -115,10 +115,10 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             Checklist Événement
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
             Suivez toutes les tâches essentielles avant votre événement
           </p>
         </motion.div>
@@ -132,12 +132,12 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
           transition={{ duration: 0.8 }}
         >
           {!checklist ? (
-            <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '40px 32px', textAlign: 'center' }}>
+            <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '40px 32px', textAlign: 'center' }}>
               <AlertCircle size={48} style={{ margin: '0 auto 16px', color: '#6366F1', opacity: 0.7 }} />
-              <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
                 Créer une checklist
               </h2>
-              <p style={{ fontSize: '16px', color: '#6B7280', marginBottom: '32px' }}>
+              <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px' }}>
                 Choisissez un type d'événement pour initialiser une checklist adaptée
               </p>
 
@@ -153,18 +153,18 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                     disabled={loading}
                     style={{
                       padding: '20px 16px',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '8px',
-                      backgroundColor: '#F9FAFB',
+                      backgroundColor: 'var(--bg-secondary)',
                       cursor: loading ? 'not-allowed' : 'pointer',
                       opacity: loading ? 0.6 : 1,
                       transition: 'all 0.2s'
                     }}
                   >
-                    <p style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 8px 0' }}>
+                    <p style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px 0' }}>
                       {label}
                     </p>
-                    <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                       {description}
                     </p>
                   </button>
@@ -174,16 +174,16 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
           ) : (
             <div>
               {/* Progress */}
-              <div style={{ marginBottom: '40px', padding: '24px', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
+              <div style={{ marginBottom: '40px', padding: '24px', border: '1px solid var(--border-color)', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
                     Progression
                   </h2>
                   <span style={{ fontSize: '24px', fontWeight: 700, color: '#6366F1' }}>
                     {completionRate}%
                   </span>
                 </div>
-                <div style={{ width: '100%', height: '8px', backgroundColor: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div
                     style={{
                       height: '100%',
@@ -193,14 +193,14 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                     }}
                   />
                 </div>
-                <p style={{ fontSize: '12px', color: '#6B7280', marginTop: '12px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '12px' }}>
                   {items.filter(i => i.completed).length} sur {items.length} tâches complétées
                 </p>
               </div>
 
               {/* Checklist Items */}
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                   Tâches ({items.length})
                 </h2>
 
@@ -218,7 +218,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
 
                   return (
                     <div key={category} style={{ marginBottom: '32px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
                         {categoryLabels[category]}
                       </h3>
 
@@ -229,7 +229,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                             <div
                               key={globalIdx}
                               style={{
-                                border: '1px solid #E5E7EB',
+                                border: '1px solid var(--border-color)',
                                 borderRadius: '6px',
                                 padding: '12px 16px',
                                 backgroundColor: item.completed ? '#F0FDF4' : '#FFFFFF',
@@ -269,7 +269,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                                   {item.title}
                                 </p>
                                 {item.description && (
-                                  <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
+                                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
                                     {item.description}
                                   </p>
                                 )}
@@ -304,7 +304,7 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
                     padding: '12px 16px',
                     border: '1px dashed #E5E7EB',
                     borderRadius: '6px',
-                    backgroundColor: '#F9FAFB',
+                    backgroundColor: 'var(--bg-secondary)',
                     color: '#6366F1',
                     cursor: 'pointer',
                     fontWeight: 500,

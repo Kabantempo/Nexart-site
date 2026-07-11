@@ -71,7 +71,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
   }
 
   return (
-    <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
       {/* En-tête créateur */}
       <div style={{ backgroundColor: '#111827', padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -115,8 +115,8 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
         {products.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 24px' }}>
             <ShoppingBag size={48} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
-            <p style={{ fontSize: '16px', fontWeight: '700', color: '#111827', margin: '0 0 8px' }}>Boutique vide</p>
-            <p style={{ fontSize: '14px', color: '#6B7280' }}>Ce créateur n&apos;a pas encore ajouté de créations.</p>
+            <p style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px' }}>Boutique vide</p>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Ce créateur n&apos;a pas encore ajouté de créations.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
@@ -128,14 +128,14 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                 <div key={product.id}
                   onClick={() => setSelectedProduct(product)}
                   style={{
-                    backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB',
+                    backgroundColor: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)',
                     overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                 >
                   {/* Image */}
-                  <div style={{ height: '160px', backgroundColor: '#F9FAFB', position: 'relative' }}>
+                  <div style={{ height: '160px', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
                     {product.images?.[0] ? (
                       <img src={product.images[0]} alt={product.title}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -151,7 +151,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                     )}
                     {product.stock === 0 && (
                       <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(249,250,251,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280' }}>Épuisé</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-secondary)' }}>Épuisé</span>
                       </div>
                     )}
                   </div>
@@ -159,9 +159,9 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                   {/* Info */}
                   <div style={{ padding: '12px' }}>
                     {product.category && (
-                      <p style={{ fontSize: '10px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{product.category}</p>
+                      <p style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{product.category}</p>
                     )}
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 4px', lineHeight: 1.3 }}>{product.title}</p>
+                    <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 4px', lineHeight: 1.3 }}>{product.title}</p>
 
                     {featuredEvent && !isExpiredFeature && (
                       <p style={{ fontSize: '10px', color: '#6366F1', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -170,7 +170,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                     )}
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '15px', fontWeight: '800', color: '#111827', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '2px' }}>
                         <Euro size={12} />{(product.price / 100).toFixed(2)}
                       </span>
                       {product.stock > 0 && product.stock <= 5 && (
@@ -189,27 +189,27 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
       {selectedProduct && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
           onClick={() => setSelectedProduct(null)}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', maxWidth: '480px', width: '100%', overflow: 'hidden' }}
+          <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', maxWidth: '480px', width: '100%', overflow: 'hidden' }}
             onClick={e => e.stopPropagation()}>
             {selectedProduct.images?.[0] && (
               <img src={selectedProduct.images[0]} alt={selectedProduct.title}
                 style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
             )}
             <div style={{ padding: '24px' }}>
-              <p style={{ fontSize: '18px', fontWeight: '800', color: '#111827', margin: '0 0 8px' }}>{selectedProduct.title}</p>
+              <p style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 8px' }}>{selectedProduct.title}</p>
               {selectedProduct.description && (
-                <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.6, margin: '0 0 16px' }}>{selectedProduct.description}</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 16px' }}>{selectedProduct.description}</p>
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <span style={{ fontSize: '22px', fontWeight: '800', color: '#111827' }}>{(selectedProduct.price / 100).toFixed(2)} €</span>
+                <span style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>{(selectedProduct.price / 100).toFixed(2)} €</span>
                 {selectedProduct.stock > 0 ? (
                   <span style={{ fontSize: '12px', color: '#10B981', fontWeight: '600' }}>En stock ({selectedProduct.stock})</span>
                 ) : (
-                  <span style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>Épuisé</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '600' }}>Épuisé</span>
                 )}
               </div>
-              <div style={{ backgroundColor: '#F3F4F6', borderRadius: '10px', padding: '12px', fontSize: '12px', color: '#6B7280', marginBottom: '16px' }}>
-                <p style={{ margin: 0, fontWeight: '600', color: '#374151', marginBottom: '4px' }}>Comment acheter ?</p>
+              <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '12px', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>Comment acheter ?</p>
                 <p style={{ margin: 0 }}>Contactez ce créateur via la messagerie Nexart pour commander cette création.</p>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -218,7 +218,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                   <ExternalLink size={13} /> Contacter le créateur
                 </Link>
                 <button onClick={() => setSelectedProduct(null)}
-                  style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', cursor: 'pointer', fontSize: '13px', color: '#6B7280' }}>
+                  style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-secondary)' }}>
                   Fermer
                 </button>
               </div>

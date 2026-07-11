@@ -256,3 +256,52 @@ p, li, h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
   z-index: 1;
 }
+
+/* ── Dark mode — Tailwind class overrides ── */
+[data-theme="dark"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Tailwind text-gray-* overrides */
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-700 { color: var(--text-primary) !important; }
+
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400,
+[data-theme="dark"] .text-gray-600 { color: var(--text-secondary) !important; }
+
+/* Tailwind bg-white / bg-gray-* overrides */
+[data-theme="dark"] .bg-white { background-color: var(--bg-primary) !important; }
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-gray-100 { background-color: var(--bg-secondary) !important; }
+
+/* Tailwind border overrides */
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-300 { border-color: var(--border-color) !important; }
+
+/* Tailwind shadow */
+[data-theme="dark"] .shadow-sm { box-shadow: 0 1px 4px rgba(0,0,0,0.4) !important; }
+
+/* Input / select backgrounds */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Navbar */
+[data-theme="dark"] nav {
+  background-color: var(--navbar-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Cards hover in dark */
+[data-theme="dark"] a:hover,
+[data-theme="dark"] button:hover {
+  transition: all 200ms ease;
+}

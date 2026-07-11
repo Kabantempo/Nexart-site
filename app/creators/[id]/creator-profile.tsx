@@ -426,7 +426,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
                     {grid.map((item, idx) => (
-                      <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: '#F3F4F6', position: 'relative' }} className="group">
+                      <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative' }} className="group">
                         <Image src={item.url} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     ))}
@@ -441,11 +441,11 @@ export function CreatorProfileClient({ id }: Props) {
                 <h2 className="text-lg font-bold text-gray-900 mb-3">🗺️ Carnet de route</h2>
                 <div className="flex flex-col gap-2.5">
                   {itinerary.map(entry => (
-                    <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <MapPin size={14} color="#6B7280" />
                       <div>
-                        <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{entry.label}</p>
-                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>{entry.label}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
                           {new Date(entry.start_date).toLocaleDateString('fr-FR')} → {new Date(entry.end_date).toLocaleDateString('fr-FR')}
                           {entry.city && ` · ${entry.city}`}
                         </p>
@@ -465,8 +465,8 @@ export function CreatorProfileClient({ id }: Props) {
                     Voir tout ({boutiqueCount}) →
                   </Link>
                 </div>
-                <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+                <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
                     {boutiqueCount} création{boutiqueCount > 1 ? 's' : ''} disponible{boutiqueCount > 1 ? 's' : ''}
                   </p>
                   <Link href={`/boutique/${id}`}
@@ -530,11 +530,11 @@ export function CreatorProfileClient({ id }: Props) {
               <section className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Laisser un avis</h2>
                 {alreadyReviewed ? (
-                  <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', textAlign: 'center' }}>
-                    <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>Vous avez déjà laissé un avis pour ce créateur.</p>
+                  <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Vous avez déjà laissé un avis pour ce créateur.</p>
                   </div>
                 ) : (
-                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
+                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
                     <ReviewForm
                       eventId={sharedEventId}
                       reviewerId={user!.id}
@@ -555,27 +555,27 @@ export function CreatorProfileClient({ id }: Props) {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-6">
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                     {marchesCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Marchés
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                     {reviews.length}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Avis
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                     {boutiqueCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Créations
                   </p>
                 </div>
