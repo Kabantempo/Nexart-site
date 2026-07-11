@@ -18,8 +18,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(data || [])
   } catch (error: any) {
-    console.error('Shifts error:', error)
-    return NextResponse.json({ error: 'Erreur chargement créneaux' }, { status: 500 })
+    console.error('❌ Shifts GET error:', { event_id: params.id, error: error?.message })
+    return NextResponse.json({ error: 'Erreur chargement créneaux', details: error?.message }, { status: 500 })
   }
 }
 

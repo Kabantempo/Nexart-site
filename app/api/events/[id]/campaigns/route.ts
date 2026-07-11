@@ -18,8 +18,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(data || [])
   } catch (error: any) {
-    console.error('Campaigns error:', error)
-    return NextResponse.json({ error: 'Erreur chargement campagnes' }, { status: 500 })
+    console.error('❌ Campaigns GET error:', { error: error?.message, details: error })
+    return NextResponse.json({ error: 'Erreur chargement campagnes', details: error?.message }, { status: 500 })
   }
 }
 

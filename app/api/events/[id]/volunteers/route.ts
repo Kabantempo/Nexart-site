@@ -18,8 +18,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(data || [])
   } catch (error: any) {
-    console.error('Volunteers error:', error)
-    return NextResponse.json({ error: 'Erreur chargement bénévoles' }, { status: 500 })
+    console.error('❌ Volunteers GET error:', { event_id: params.id, error: error?.message })
+    return NextResponse.json({ error: 'Erreur chargement bénévoles', details: error?.message }, { status: 500 })
   }
 }
 
