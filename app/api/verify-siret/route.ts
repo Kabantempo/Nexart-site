@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(req: NextRequest) {
+  // Require authenticated user to prevent API abuse
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
+  }
+  const token = authHeader.split(' ')[1]
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user } } = await supabase.auth.getUser(token)
+  if (!user) return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
+
   const siret = req.nextUrl.searchParams.get('siret')?.replace(/\s/g, '')
 
   if (!siret || siret.length !== 14 || !/^\d{14}$/.test(siret)) {

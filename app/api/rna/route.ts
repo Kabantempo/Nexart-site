@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 // Verification RNA (associations loi 1901)
 // Format : W suivi de 9 chiffres
 export async function GET(req: NextRequest) {
+  // Require authenticated user to prevent API abuse
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: 'Authentification requise' }, { status: 401 })
+  }
+  const token = authHeader.split(' ')[1]
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user } } = await supabase.auth.getUser(token)
+  if (!user) return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
   const rna = req.nextUrl.searchParams.get('rna')?.replace(/\s/g, '').toUpperCase()
 
   if (!rna || !/^W\d{9}$/.test(rna)) {
