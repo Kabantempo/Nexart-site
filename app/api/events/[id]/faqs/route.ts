@@ -6,11 +6,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 // GET: List FAQs
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
     const { data: faqs, error } = await supabase
       .from('event_faqs')

@@ -151,8 +151,6 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
 
 // Form Setup Component
 function FormSetup({ fields, onSave, loading }: any) {
-  const [localFields, setLocalFields] = useState(fields)
-
   const defaultFields = [
     { field_name: 'full_name', field_label: 'Nom Complet', field_type: 'text', required: true },
     { field_name: 'email', field_label: 'Email', field_type: 'text', required: true },
@@ -161,47 +159,191 @@ function FormSetup({ fields, onSave, loading }: any) {
     { field_name: 'special_requests', field_label: 'Demandes spéciales', field_type: 'textarea', required: false },
   ]
 
+  const [localFields, setLocalFields] = useState<any[]>(fields.length > 0 ? fields : defaultFields)
+  const [newField, setNewField] = useState({ field_label: '', field_type: 'text', required: false })
+  const [showAddForm, setShowAddForm] = useState(false)
+
+  const FIELD_TYPES = [
+    { value: 'text', label: 'Texte court' },
+    { value: 'textarea', label: 'Texte long' },
+    { value: 'number', label: 'Nombre' },
+    { value: 'email', label: 'Email' },
+    { value: 'tel', label: 'Téléphone' },
+    { value: 'select', label: 'Liste déroulante' },
+    { value: 'checkbox', label: 'Case à cocher' },
+  ]
+
+  const addField = () => {
+    if (!newField.field_label.trim()) return
+    const field_name = newField.field_label.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    setLocalFields([...localFields, { field_name, ...newField }])
+    setNewField({ field_label: '', field_type: 'text', required: false })
+    setShowAddForm(false)
+  }
+
+  const removeField = (idx: number) => {
+    setLocalFields(localFields.filter((_: any, i: number) => i !== idx))
+  }
+
+  const toggleRequired = (idx: number) => {
+    setLocalFields(localFields.map((f: any, i: number) => i === idx ? { ...f, required: !f.required } : f))
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
       <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '32px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
-          Champs du formulaire
-        </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+            Champs du formulaire
+          </h2>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: showAddForm ? 'var(--bg-secondary)' : '#6366F1',
+              color: showAddForm ? 'var(--text-primary)' : '#FFFFFF',
+              border: showAddForm ? '1px solid var(--border-color)' : 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: 500,
+              fontSize: '14px'
+            }}
+          >
+            <Plus size={14} />
+            {showAddForm ? 'Annuler' : 'Ajouter un champ'}
+          </button>
+        </div>
 
-        {defaultFields.map((field, idx) => (
-          <div key={idx} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Add field form */}
+        {showAddForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            style={{ backgroundColor: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '12px', alignItems: 'end' }}>
               <div>
-                <p style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{field.field_label}</p>
-                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                  {field.field_type} {field.required ? '(obligatoire)' : '(optionnel)'}
-                </p>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4338CA', marginBottom: '6px' }}>
+                  Nom du champ
+                </label>
+                <input
+                  type="text"
+                  value={newField.field_label}
+                  onChange={(e) => setNewField({ ...newField, field_label: e.target.value })}
+                  placeholder="Ex: SIRET, Site web..."
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+                />
               </div>
-              <Check size={20} color="#10B981" />
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4338CA', marginBottom: '6px' }}>
+                  Type
+                </label>
+                <select
+                  value={newField.field_type}
+                  onChange={(e) => setNewField({ ...newField, field_type: e.target.value })}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '14px' }}
+                >
+                  {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 500, color: '#4338CA' }}>Obligatoire</label>
+                <input
+                  type="checkbox"
+                  checked={newField.required}
+                  onChange={(e) => setNewField({ ...newField, required: e.target.checked })}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
+              </div>
+              <button
+                onClick={addField}
+                style={{ padding: '8px 16px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500, fontSize: '14px' }}
+              >
+                Ajouter
+              </button>
             </div>
-          </div>
-        ))}
+          </motion.div>
+        )}
 
-        <button
-          onClick={() => onSave(defaultFields)}
-          disabled={loading}
-          style={{
-            marginTop: '24px',
-            padding: '12px 24px',
-            backgroundColor: '#6366F1',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1
-          }}
-        >
-          {loading ? 'Sauvegarde...' : 'Valider le formulaire'}
-        </button>
+        {/* Fields list */}
+        <div style={{ display: 'grid', gap: '12px', marginBottom: '24px' }}>
+          {localFields.map((field: any, idx: number) => (
+            <div
+              key={idx}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '14px 16px',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                backgroundColor: 'var(--bg-secondary)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: field.required ? '#6366F1' : '#D1D5DB',
+                  flexShrink: 0
+                }} />
+                <div>
+                  <p style={{ fontWeight: 500, color: 'var(--text-primary)', margin: 0, fontSize: '14px' }}>{field.field_label}</p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+                    {FIELD_TYPES.find(t => t.value === field.field_type)?.label || field.field_type}
+                    {' · '}
+                    {field.required ? 'obligatoire' : 'optionnel'}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => toggleRequired(idx)}
+                  title={field.required ? 'Rendre optionnel' : 'Rendre obligatoire'}
+                  style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}
+                >
+                  {field.required ? <Check size={16} color="#6366F1" /> : <AlertCircle size={16} color="#9CA3AF" />}
+                </button>
+                <button
+                  onClick={() => removeField(idx)}
+                  title="Supprimer ce champ"
+                  style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: '#FF6B6B', padding: '4px' }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', paddingTop: '8px', borderTop: '1px solid var(--border-color)' }}>
+          <button
+            onClick={() => onSave(localFields)}
+            disabled={loading || localFields.length === 0}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#6366F1',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: loading || localFields.length === 0 ? 'not-allowed' : 'pointer',
+              opacity: loading || localFields.length === 0 ? 0.6 : 1,
+              fontWeight: 500
+            }}
+          >
+            {loading ? 'Sauvegarde...' : `Valider (${localFields.length} champ${localFields.length > 1 ? 's' : ''})`}
+          </button>
+          <button
+            onClick={() => setLocalFields(defaultFields)}
+            style={{ padding: '12px 24px', backgroundColor: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer' }}
+          >
+            Réinitialiser
+          </button>
+        </div>
       </div>
     </motion.div>
   )
