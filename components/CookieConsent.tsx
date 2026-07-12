@@ -118,9 +118,9 @@ function loadAnalytics() {
   document.head.appendChild(script)
 
   // Initialize gtag
-  window.dataLayer = window.dataLayer || []
-  function gtag() {
-    window.dataLayer.push(arguments)
+  ;(window as any).dataLayer = (window as any).dataLayer || []
+  function gtag(...args: any[]) {
+    ;(window as any).dataLayer.push(args)
   }
   gtag('js', new Date())
   gtag('config', 'GTM-PC469WF9', {

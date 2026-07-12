@@ -52,7 +52,7 @@ export function getStripe(): Stripe {
     throw new Error('STRIPE_SECRET_KEY non configurée — en attente des papiers Stripe')
   }
   if (!stripeInstance) {
-    stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-05-28.basil' })
+    stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-06-24.dahlia' })
   }
   return stripeInstance
 }

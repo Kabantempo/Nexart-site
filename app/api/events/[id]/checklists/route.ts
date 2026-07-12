@@ -93,6 +93,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    const admin = getAdminClient()
     const body = await req.json()
     const { items } = body
 
