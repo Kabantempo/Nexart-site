@@ -1,26 +1,60 @@
 {
   "versions": [
     {
-      "version": "1.0.0",
-      "date": "2026-07-11",
-      "name": "v1.0.0 — Outils Organisateurs Complets",
+      "version": "1.2.0",
+      "date": "2026-07-12",
+      "name": "v1.2.0 — Tableau de Bord Organisateur",
       "features": [
-        "Système exposants : formulaire custom + dashboard + CSV export",
-        "Analytics événement : stats en temps réel",
-        "Campagnes email : création + suivi ouvertures",
-        "Gestion équipe : invitations + rôles",
-        "Bénévoles : shifts + assignations",
-        "Checklists : suivi des tâches",
-        "FAQ auto-réponse : réponses automatiques aux candidats",
-        "Rappels automatiques : notifications pré-événement",
-        "Signalement de contenu : bouton flag sur posts, profils, événements",
-        "Dashboard admin modération : résoudre/ignorer signalements"
+        "Page exposants : liste, filtres, modals de détail",
+        "Liste d'attente FIFO avec promotion en un clic",
+        "Formulaire exposants personnalisable (ajout/suppression de champs)",
+        "Page /offres avec grilles tarifaires créateurs + organisateurs"
       ],
       "improvements": [
-        "Dashboard exposants avec filtres et export CSV",
-        "Liste d'attente FIFO automatique",
-        "Admin reports avec actions PATCH",
-        "ReportButton intégré sur toutes les pages"
+        "FormSetup interactif : 7 types de champs, toggle obligatoire/optionnel",
+        "Interface liste d'attente avec stats en temps réel",
+        "Export CSV exposants depuis le dashboard",
+        "Headers LiteSpeed anti-cache sur toutes les pages"
+      ],
+      "fixes": [
+        "start script corrigé : node .next/standalone/server.js (standalone mode)"
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-07-11",
+      "name": "v1.1.0 — Conformité RGPD",
+      "features": [
+        "Suppression de compte avec délai d'annulation de 24h",
+        "Export de données personnelles au format JSON",
+        "Pages légales complètes : CGU (/conditions) et Mentions légales",
+        "Logs d'audit pour toutes les actions sensibles"
+      ],
+      "improvements": [
+        "Nettoyage automatique des comptes supprimés après 30 jours (cron)",
+        "Protection CSRF renforcée sur toutes les routes API",
+        "Headers de sécurité HTTP stricts (CSP, HSTS, X-Frame-Options)"
+      ],
+      "fixes": []
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-07-10",
+      "name": "v1.0.0 — Outils Organisateurs",
+      "features": [
+        "Tableau de bord exposants avec formulaire personnalisable + export CSV",
+        "Analytics événement : stats candidatures en temps réel",
+        "Campagnes email : création, envoi et suivi des ouvertures",
+        "Gestion équipe : invitations + attribution de rôles",
+        "Bénévoles : création de shifts et assignations",
+        "Checklists : suivi des tâches organisateur",
+        "FAQ auto-répondeur : réponses automatiques aux candidats",
+        "Rappels automatiques : notifications email pré-événement"
+      ],
+      "improvements": [
+        "Dashboard admin avec modération des signalements",
+        "ReportButton intégré sur tous les contenus",
+        "Liste d'attente automatique pour événements complets"
       ],
       "fixes": []
     },
