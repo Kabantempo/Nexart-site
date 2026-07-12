@@ -47,7 +47,10 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
   }
 const fetchMarketingPlan = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/marketing`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/marketing`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       if (data.plan) {
         setPlan(data.plan)
@@ -63,9 +66,10 @@ const fetchMarketingPlan = async () => {
   const handleSavePressRelease = async () => {
     try {
       setLoading(true)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/marketing`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           press_release: pressRelease,
           media_contacts: mediaContacts,
