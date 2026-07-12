@@ -102,7 +102,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         const event_name = 'your event'
 
         // Send email to next in queue
-        if (next.profiles?.email) {
+        if ((next.profiles as any)?.email) {
           try {
             await fetch('https://api.resend.com/emails', {
               method: 'POST',
@@ -112,10 +112,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
               },
               body: JSON.stringify({
                 from: 'noreply@nexart.fr',
-                to: next.profiles.email,
+                to: (next.profiles as any).email,
                 subject: '🎉 Bonne nouvelle: Une place vous attend!',
                 html: `
-                  <h2>Bonjour ${next.profiles.full_name},</h2>
+                  <h2>Bonjour ${(next.profiles as any).full_name},</h2>
                   <p>Une place s'est libérée et nous vous offrons l'opportunité de participer!</p>
                   <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
                      style="display: inline-block; padding: 12px 24px; background-color: #10B981; color: white; text-decoration: none; border-radius: 8px;">

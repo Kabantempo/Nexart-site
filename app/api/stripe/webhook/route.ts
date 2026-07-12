@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     // ── Abonnement créé / mis à jour ──────────────────────────────────────────
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
-      const sub = event.data.object as { items: { data: { price: { id: string } }[] }; status: string; current_period_end: number; id: string; metadata?: { supabase_user_id?: string } }
+      const sub = event.data.object as unknown as { items: { data: { price: { id: string } }[] }; status: string; current_period_end: number; id: string; metadata?: { supabase_user_id?: string } }
       const priceId = sub.items.data[0]?.price.id
       const tier = PRICE_TO_TIER[priceId] ?? 'free'
       const uid = userId ?? sub.metadata?.supabase_user_id
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
           expires_at: expiresAt.toISOString(),
         } as any)
 
-        await admin.from('credit_transactions').insert({
+        await (admin as any).from('credit_transactions').insert({
           user_id: uid,
           credit_type: creditDef.type,
           payment_intent_id: session.payment_intent,

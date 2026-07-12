@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        created_at: user.created_at,
+        created_at: (user as any).created_at,
       },
       profile: user.profile,
       deletion_requested_at: new Date().toISOString(),

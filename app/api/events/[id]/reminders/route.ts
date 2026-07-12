@@ -71,7 +71,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         if (!alreadyReminded?.length) {
           // Send email via Resend
-          if (exhibitor.profiles?.email) {
+          if ((exhibitor.profiles as any)?.email) {
             try {
               await fetch('https://api.resend.com/emails', {
                 method: 'POST',
@@ -81,10 +81,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 },
                 body: JSON.stringify({
                   from: 'noreply@nexart.fr',
-                  to: exhibitor.profiles.email,
+                  to: (exhibitor.profiles as any).email,
                   subject: `Rappel: Confirmez votre participation à ${event.title}`,
                   html: `
-                    <h2>Bonjour ${exhibitor.profiles.full_name},</h2>
+                    <h2>Bonjour ${(exhibitor.profiles as any).full_name},</h2>
                     <p>Votre candidature pour <strong>${event.title}</strong> a été acceptée.</p>
                     <p>Pouvez-vous confirmer votre participation au plus tôt?</p>
                     <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
@@ -147,7 +147,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         if (firstReminded?.length && !alreadyReminded2?.length) {
           // Send urgent follow-up email
-          if (exhibitor.profiles?.email) {
+          if ((exhibitor.profiles as any)?.email) {
             try {
               await fetch('https://api.resend.com/emails', {
                 method: 'POST',
@@ -157,10 +157,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 },
                 body: JSON.stringify({
                   from: 'noreply@nexart.fr',
-                  to: exhibitor.profiles.email,
+                  to: (exhibitor.profiles as any).email,
                   subject: `⚠️ Dernière relance: Confirmez votre participation à ${event.title}`,
                   html: `
-                    <h2>Bonjour ${exhibitor.profiles.full_name},</h2>
+                    <h2>Bonjour ${(exhibitor.profiles as any).full_name},</h2>
                     <p>Ceci est notre dernier rappel avant la clôture des candidatures.</p>
                     <p>Veuillez confirmer votre participation à <strong>${event.title}</strong> au plus tôt.</p>
                     <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
