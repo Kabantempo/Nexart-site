@@ -1042,6 +1042,25 @@ export function EventDetailClient({ id }: Props) {
                 </div>
               ) : user.role === 'organizer' && event?.organizer_id === user.id ? (
                 <div>
+                  {/* Outils organisateur */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
+                    {[
+                      { label: 'Exposants', href: `/events/${id}/exhibitors` },
+                      { label: "Liste d'attente", href: `/events/${id}/waitlist` },
+                      { label: 'Analytics', href: `/events/${id}/analytics` },
+                      { label: 'Équipe', href: `/events/${id}/team` },
+                      { label: 'Campagnes', href: `/events/${id}/campaigns` },
+                      { label: 'Paramètres', href: `/events/${id}/settings/faqs` },
+                    ].map(tool => (
+                      <Link
+                        key={tool.href}
+                        href={tool.href}
+                        style={{ display: 'block', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', textDecoration: 'none', fontSize: '12px', fontWeight: 600, textAlign: 'center' }}
+                      >
+                        {tool.label}
+                      </Link>
+                    ))}
+                  </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
                       Candidatures ({applications.length})

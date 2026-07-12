@@ -23,6 +23,8 @@ ssh -i $SSH_KEY -p $SSH_PORT $SSH_HOST "
   mv .next .next.bak 2>/dev/null || true
   tar -xzf $REMOTE_ARCHIVE
   rm -f $REMOTE_ARCHIVE
+  # Neutralise le build hPanel (il ne peut pas compiler sur le serveur)
+  /opt/alt/alt-nodejs20/root/usr/bin/node -e \"const fs=require('fs'); const p=JSON.parse(fs.readFileSync('package.json','utf8')); p.scripts.build='echo Build skipped - pre-built locally'; fs.writeFileSync('package.json', JSON.stringify(p,null,2))\"
   touch tmp/restart.txt
   echo 'BUILD_ID:' \$(cat .next/BUILD_ID)
 "
