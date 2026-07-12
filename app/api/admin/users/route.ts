@@ -1,12 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function GET(req: NextRequest) {
+  const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
     const search = searchParams.get('search') || ''
@@ -40,12 +36,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = getAdminClient()
   try {
     const body = await req.json()
     const { user_id, action } = body
 
     if (action === 'ban') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ banned: true, banned_at: new Date().toISOString() })
         .eq('id', user_id)
@@ -55,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'unban') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ banned: false, banned_at: null })
         .eq('id', user_id)
@@ -65,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'make_admin') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ is_admin: true })
         .eq('id', user_id)

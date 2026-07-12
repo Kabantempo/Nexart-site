@@ -1,17 +1,13 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const admin = getAdminClient()
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (admin as any)
       .from('event_marketing_plan')
       .select('*')
       .eq('event_id', params.id)
@@ -33,11 +29,12 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const admin = getAdminClient()
   try {
     const body = await req.json()
     const { press_release, media_contacts, deadlines_calendar } = body
 
-    const { data, error } = await supabase
+    const { data, error } = await (admin as any)
       .from('event_marketing_plan')
       .upsert({
         event_id: params.id,

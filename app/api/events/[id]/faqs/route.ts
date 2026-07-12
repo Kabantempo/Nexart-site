@@ -1,21 +1,16 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-// GET: List FAQs
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const admin = getAdminClient()
   try {
-    const { data: faqs, error } = await supabase
+    const { data: faqs, error } = await (admin as any)
       .from('event_faqs')
       .select('*')
       .eq('event_id', params.id)
@@ -29,16 +24,16 @@ export async function GET(
   }
 }
 
-// POST: Add FAQ
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const admin = getAdminClient()
   try {
     const body = await req.json()
     const { question, answer, keywords } = body
 
-    const { data, error } = await supabase
+    const { data, error } = await (admin as any)
       .from('event_faqs')
       .insert({
         event_id: params.id,

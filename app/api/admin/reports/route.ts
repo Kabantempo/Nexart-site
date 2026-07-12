@@ -1,19 +1,15 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function GET(req: NextRequest) {
+  const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status') || 'open'
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    const { data, error, count } = await supabase
+    const { data, error, count } = await (supabase as any)
       .from('reports')
       .select('*', { count: 'exact' })
       .eq('status', status)
@@ -35,12 +31,13 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = getAdminClient()
   try {
     const body = await req.json()
     const { report_id, action } = body
 
     if (action === 'resolve') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('reports')
         .update({ status: 'resolved', resolved_at: new Date().toISOString() })
         .eq('id', report_id)

@@ -1,41 +1,31 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function GET(req: NextRequest) {
+  const supabase = getAdminClient()
   try {
-    // Total users
     const { count: totalUsers } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
 
-    // Total events
     const { count: totalEvents } = await supabase
       .from('events')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'published')
 
-    // Total reports
-    const { count: totalReports } = await supabase
+    const { count: totalReports } = await (supabase as any)
       .from('reports')
       .select('*', { count: 'exact', head: true })
 
-    // Open reports
-    const { count: openReports } = await supabase
+    const { count: openReports } = await (supabase as any)
       .from('reports')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'open')
 
-    // Total applications
     const { count: totalApplications } = await supabase
       .from('applications')
       .select('*', { count: 'exact', head: true })
 
-    // Accepted applications
     const { count: acceptedApplications } = await supabase
       .from('applications')
       .select('*', { count: 'exact', head: true })

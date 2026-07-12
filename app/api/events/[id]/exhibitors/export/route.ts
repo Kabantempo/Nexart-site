@@ -1,37 +1,35 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const admin = getAdminClient()
   try {
-    // Auth: only organizer of this event can export
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
     )
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { data: event } = await supabase.from('events').select('organizer_id').eq('id', params.id).single()
+    const { data: event } = await admin.from('events').select('organizer_id').eq('id', params.id).single()
     if (!event || event.organizer_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get event fields to know column order
-    const { data: fields } = await supabase
+    const { data: fields } = await (admin as any)
       .from('event_exhibitor_fields')
       .select('field_name, field_label')
       .eq('event_id', params.id)
       .order('field_order', { ascending: true })
 
-    // Get all exhibitor responses
-    const { data: exhibitors, error } = await supabase
+    const { data: exhibitors, error } = await (admin as any)
       .from('event_exhibitor_responses')
       .select(`
         id,
@@ -46,13 +44,12 @@ export async function GET(
 
     if (error) throw error
 
-    // Build CSV
     const headers = ['ID', 'Name', 'Email', 'Status', 'Tables', 'Submitted At']
-    const fieldLabels = (fields || []).map(f => f.field_label)
+    const fieldLabels = (fields || []).map((f: any) => f.field_label)
     const csvHeaders = [...headers, ...fieldLabels].join(',')
 
-    const rows = (exhibitors || []).map(e => {
-      const profile = (e as any).profiles
+    const rows = (exhibitors || []).map((e: any) => {
+      const profile = e.profiles
       const data = [
         `"${e.id}"`,
         `"${profile?.full_name || ''}"`,
@@ -62,10 +59,9 @@ export async function GET(
         `"${new Date(e.submitted_at).toISOString()}"`
       ]
 
-      // Add custom fields
       const responseData = e.response_data as Record<string, any>
-      fieldLabels.forEach(label => {
-        const fieldName = (fields || []).find(f => f.field_label === label)?.field_name
+      fieldLabels.forEach((label: string) => {
+        const fieldName = (fields || []).find((f: any) => f.field_label === label)?.field_name
         const value = fieldName ? responseData?.[fieldName] : ''
         data.push(`"${value || ''}"`)
       })
