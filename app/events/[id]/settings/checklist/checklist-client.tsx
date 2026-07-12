@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Circle, Trash2, Plus, AlertCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface ChecklistItem {
   title: string
@@ -29,7 +30,12 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
     fetchChecklist()
   }, [eventId])
 
-  const fetchChecklist = async () => {
+  
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+const fetchChecklist = async () => {
     try {
       const res = await fetch(`/api/events/${eventId}/checklists`)
       const data = await res.json()

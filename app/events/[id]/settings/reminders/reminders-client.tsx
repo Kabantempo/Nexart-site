@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Bell, Check, AlertCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface Exhibitor {
   id: string
@@ -159,7 +160,12 @@ function WaitlistView({ eventId }: { eventId: string }) {
     fetchWaitlist()
   }, [eventId])
 
-  const fetchWaitlist = async () => {
+  
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+const fetchWaitlist = async () => {
     try {
       const res = await fetch(`/api/events/${eventId}/waitlist`)
       const data = await res.json()

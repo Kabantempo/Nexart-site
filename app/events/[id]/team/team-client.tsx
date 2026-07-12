@@ -28,6 +28,20 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
     return session?.access_token
   }
 
+  const handleRemove = async (memberId: string) => {
+    if (!confirm('Supprimer ce membre de l\'équipe ?')) return
+    try {
+      const token = await getToken()
+      await fetch(`/api/events/${eventId}/team/${memberId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      await fetchTeam()
+    } catch (err) {
+      console.error('Error removing member:', err)
+    }
+  }
+
   const fetchTeam = async () => {
     try {
       setLoading(true)
@@ -159,6 +173,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
 
               {member.role !== 'owner' && (
                 <button
+                  onClick={() => handleRemove(member.id)}
                   style={{
                     backgroundColor: '#FEF2F2',
                     color: '#DC2626',

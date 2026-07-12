@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Plus, Send, Eye, Link as LinkIcon } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface Campaign {
   id: string
@@ -25,7 +26,12 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
     fetchCampaigns()
   }, [eventId])
 
-  const fetchCampaigns = async () => {
+  
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+const fetchCampaigns = async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/events/${eventId}/campaigns`)

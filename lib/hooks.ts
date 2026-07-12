@@ -262,6 +262,13 @@ export function useApplication(eventId: string, userId?: string) {
       })
       if (err) throw err
 
+      // Auto-responder: match candidature contre FAQs (fire-and-forget)
+      fetch(`/api/events/${eventId}/faqs/match`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exhibitor_id: userId, application_text: message }),
+      }).catch(() => {})
+
       // Notif in-app pour l'organisateur
       const { data: ev } = await supabase.from('events').select('title, organizer_id').eq('id', eventId).single()
       const { data: creatorProf } = await supabase.from('profiles').select('full_name').eq('id', userId).single()

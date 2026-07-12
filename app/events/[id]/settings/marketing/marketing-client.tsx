@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Copy, Mail, Share2, Megaphone, Calendar } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface MediaContact {
   name: string
@@ -39,7 +40,12 @@ export default function MarketingClient({ eventId }: { eventId: string }) {
     fetchMarketingPlan()
   }, [eventId])
 
-  const fetchMarketingPlan = async () => {
+  
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+const fetchMarketingPlan = async () => {
     try {
       const res = await fetch(`/api/events/${eventId}/marketing`)
       const data = await res.json()
