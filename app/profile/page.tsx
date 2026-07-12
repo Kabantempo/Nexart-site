@@ -366,7 +366,7 @@ export default function ProfilePage() {
       supabase.from('profiles').update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }).eq('id', user.id),
       ...(isCreator ? [supabase.from('creator_profiles').upsert({
         user_id: user.id, disciplines: editDisc,
-        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius,
+        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius as '5' | '10' | '25' | 'national',
         instagram: editInstagram, website: editWebsite, etsy: editEtsy,
       }, { onConflict: 'user_id' })] : []),
     ]
@@ -378,7 +378,7 @@ export default function ProfilePage() {
       return
     }
     setProfile(p => p ? { ...p, full_name: editName, bio: editBio } : p)
-    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius, instagram: editInstagram, website: editWebsite, etsy: editEtsy } : c)
+    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy } : c)
     setSaving(false)
     setEditing(false)
   }
@@ -388,7 +388,7 @@ export default function ProfilePage() {
     setSiretChecking(true)
     setSiretResult(null)
     try {
-      await supabase.from('creator_profiles').upsert({ user_id: user.id, siret_number: siretNumber, siret_verified: false }, { onConflict: 'user_id' })
+      await supabase.from('creator_profiles').upsert({ user_id: user.id, siret_number: siretNumber, siret_verified: false } as any, { onConflict: 'user_id' })
       const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
       if (admins?.length) {
         await supabase.from('notifications').insert(
@@ -448,7 +448,7 @@ export default function ProfilePage() {
       const d = await r.json()
       const nom = d.nom_entreprise || d.denomination
       if (nom) {
-        await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false }, { onConflict: 'user_id' })
+        await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false } as any, { onConflict: 'user_id' })
         setOrgaProfile(p => p ? { ...p, siret_number: orgaSiretInput, siret_verified: false } : { siret_number: orgaSiretInput, siret_verified: false, verification_doc_url: null, verification_doc_verified: false })
         const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
         if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga à vérifier', body: `${profile?.full_name ?? 'Organisateur'} — ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
@@ -459,7 +459,7 @@ export default function ProfilePage() {
       }
     } catch {
       // Fallback sans API key Pappers : juste sauvegarder et notifier
-      await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false }, { onConflict: 'user_id' })
+      await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false } as any, { onConflict: 'user_id' })
       setOrgaProfile(p => p ? { ...p, siret_number: orgaSiretInput } : { siret_number: orgaSiretInput, siret_verified: false, verification_doc_url: null, verification_doc_verified: false })
       const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
       if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga à vérifier', body: `${profile?.full_name ?? 'Organisateur'} — ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
@@ -478,7 +478,7 @@ export default function ProfilePage() {
     const { data: uploadData, error } = await supabase.storage.from('organizer-docs').upload(path, file, { upsert: true })
     if (!error && uploadData) {
       const { data: { publicUrl } } = supabase.storage.from('organizer-docs').getPublicUrl(uploadData.path)
-      await supabase.from('organizer_profiles').upsert({ user_id: user.id, verification_doc_url: publicUrl, verification_doc_verified: false }, { onConflict: 'user_id' })
+      await supabase.from('organizer_profiles').upsert({ user_id: user.id, verification_doc_url: publicUrl, verification_doc_verified: false } as any, { onConflict: 'user_id' })
       setOrgaProfile(p => p ? { ...p, verification_doc_url: publicUrl, verification_doc_verified: false } : { siret_number: null, siret_verified: false, verification_doc_url: publicUrl, verification_doc_verified: false })
       const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
       if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_doc_pending', title: 'Document orga à vérifier', body: `Kbis/RNA de ${profile?.full_name ?? 'Organisateur'}`, link: '/profile?tab=admin&section=orga' })))
@@ -489,7 +489,7 @@ export default function ProfilePage() {
 
   const handleAdminVerifyOrga = async (userId: string, field: 'siret_verified' | 'verification_doc_verified', value: boolean) => {
     setOrgaVerifSaving(`${userId}-${field}`)
-    await supabase.from('organizer_profiles').update({ [field]: value, verified_at: new Date().toISOString(), verified_by: user?.id }).eq('user_id', userId)
+    await supabase.from('organizer_profiles').update({ [field]: value, verified_at: new Date().toISOString(), verified_by: user?.id } as any).eq('user_id', userId)
     setAdminOrgaVerifs(prev => prev.map(o => o.user_id === userId ? { ...o, [field]: value } : o))
     setOrgaVerifSaving(null)
     showToast(value ? 'Vérifié' : 'Révoqué')
@@ -693,7 +693,7 @@ export default function ProfilePage() {
 
   const handleVerifyCreator = async (userId: string, field: 'siret_verified' | 'insurance_verified', value: boolean, comment?: string) => {
     setAdminSaving(`${userId}-${field}`)
-    await supabase.from('creator_profiles').update({ [field]: value }).eq('user_id', userId)
+    await supabase.from('creator_profiles').update({ [field]: value } as any).eq('user_id', userId)
     setAdminCreators(prev => prev.map(c => c.user_id === userId ? { ...c, [field]: value } : c))
     const key = `${userId}-${field}`
     if (!value) {
@@ -1002,7 +1002,7 @@ export default function ProfilePage() {
                 }
                 if (t.k === 'signalements' && adminReports.length === 0) {
                   const { data } = await supabase.from('reports').select('*, reporter:reporter_id(full_name)').order('created_at', { ascending: false }).limit(100)
-                  setAdminReports((data as typeof adminReports) || [])
+                  setAdminReports((data as unknown as typeof adminReports) || [])
                 }
               }}
                 style={{

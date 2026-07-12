@@ -68,7 +68,7 @@ export function CreatorProfileClient({ id }: Props) {
         supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
-      setCreator({ ...p, ...cp })
+      setCreator({ ...p, ...cp } as any)
       setLoading(false)
 
       // Enregistrer la vue de profil (anonyme ou connectée)
@@ -114,7 +114,7 @@ export function CreatorProfileClient({ id }: Props) {
         .gte('end_date', today)
         .order('start_date', { ascending: true })
         .limit(3)
-      setItinerary(itin || [])
+      setItinerary((itin || []) as any)
 
       // Charger les avis séparément
       const { data: rv, error: rvErr } = await supabase

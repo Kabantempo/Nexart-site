@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     const admin = getAdminClient()
-    const { error } = await admin.from('profiles').update({ [field]: value }).eq('id', userId)
+    const { error } = await admin.from('profiles').update({ [field]: value } as any).eq('id', userId)
     if (error) throw error
 
     console.log('✓ Role set:', { userId, field, value })

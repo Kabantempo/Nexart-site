@@ -50,7 +50,7 @@ export default function NotificationsPage() {
       .eq('user_id', uid)
       .order('created_at', { ascending: false })
       .limit(50)
-    setNotifications(data || [])
+    setNotifications((data || []) as any)
     setLoading(false)
   }, [])
 

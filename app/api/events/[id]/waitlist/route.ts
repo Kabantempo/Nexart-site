@@ -42,13 +42,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 // POST: Add exhibitor to waitlist OR handle cancellation
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  let body: any
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const body = await req.json()
+    body = await req.json()
     const { exhibitor_id, action, reason = 'Sold out' } = body
 
     // Action 1: Add to waitlist
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       // Get next in waitlist
       const { data: nextInQueue } = await supabase
         .from('event_exhibitor_waitlist')
-        .select(`id, exhibitor_id, position, profiles:exhibitor_id (full_name)`)
+        .select(`id, exhibitor_id, position, profiles:exhibitor_id (full_name, email)`)
         .eq('event_id', params.id)
         .order('position', { ascending: true })
         .limit(1)
@@ -165,13 +166,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
 // PATCH: Move exhibitor from waitlist to approved
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  let body: any
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const body = await req.json()
+    body = await req.json()
     const { exhibitor_id } = body
 
     // Get exhibitor

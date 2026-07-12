@@ -67,13 +67,13 @@ export default function OnboardingPage() {
     const isOrganizer = role === 'organizer'
 
     await supabase.from('profiles').update({
-      full_name: fullName.trim() || null,
-      bio: bio.trim() || null,
-      role,
+      full_name: fullName.trim() || undefined,
+      bio: bio.trim() || undefined,
+      role: role ?? undefined,
       is_creator: isCreator,
       is_organizer: isOrganizer,
       onboarding_done: true,
-    }).eq('id', user.id)
+    } as any).eq('id', user.id)
 
     if (isCreator && (disciplines.length || city)) {
       const { data: existing } = await supabase.from('creator_profiles').select('user_id').eq('user_id', user.id).maybeSingle()

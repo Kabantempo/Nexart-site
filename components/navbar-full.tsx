@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2 } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
@@ -24,6 +24,8 @@ export function NavbarFull() {
   const [scrolled,    setScrolled]    = useState(false)
   const searchRef  = useRef<HTMLInputElement>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [creditBalance, setCreditBalance] = useState<number | null>(null)
 
   const user      = useAuthStore((s) => s.user)
   const setUser   = useAuthStore((s) => s.setUser)
@@ -61,6 +63,15 @@ export function NavbarFull() {
 
   useEffect(() => { setMobileOpen(false); setDropdown(null) }, [pathname])
 
+  useEffect(() => {
+    if (!user) { setCreditBalance(null); return }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
+      const res = await fetch('/api/credits/balance', { headers: { Authorization: `Bearer ${session.access_token}` } })
+      if (res.ok) { const j = await res.json(); setCreditBalance(j.balance ?? 0) }
+    })
+  }, [user])
+
   const go = (ms = 500) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
   const stay = () => { if (closeTimer.current) clearTimeout(closeTimer.current) }
 
@@ -83,7 +94,7 @@ export function NavbarFull() {
         supabase.from('events').select('id,title,city,cover_image').eq('status','published').ilike('title', `%${q}%`).limit(4),
         supabase.from('profiles').select('id,full_name,username,avatar_url').eq('role','creator').ilike('full_name', `%${q}%`).limit(4),
       ])
-      setSearchResults({ events: events ?? [], creators: profiles ?? [] })
+      setSearchResults({ events: (events ?? []) as any, creators: (profiles ?? []) as any })
       setSearchLoading(false)
     }, 250)
   }
@@ -304,6 +315,19 @@ export function NavbarFull() {
                 <Link href="/messages" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
                   <MessageCircle size={16} />
                 </Link>
+
+                {/* Credits badge */}
+                {creditBalance !== null && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
+                    <Zap size={11} color="#FFF" fill="#FFF" />
+                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFF', lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
+                    <Link href="/dashboard?tab=credits" title="Acheter des crédits"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)', marginLeft: '4px', flexShrink: 0 }}
+                    >
+                      <Plus size={9} color="#FFF" strokeWidth={3} />
+                    </Link>
+                  </div>
+                )}
 
                 {/* Profile */}
                 <div className="relative ml-1" onMouseEnter={() => { stay(); setDropdown('profile') }} onMouseLeave={() => go()}>

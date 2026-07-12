@@ -263,41 +263,48 @@ p, li, h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-/* Tailwind text-gray-* overrides */
-[data-theme="dark"] .text-gray-900,
-[data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .text-gray-700 { color: var(--text-primary) !important; }
+/* Tailwind text-gray-* overrides (not footer) */
+[data-theme="dark"] :not(footer) .text-gray-900,
+[data-theme="dark"] :not(footer) .text-gray-800,
+[data-theme="dark"] :not(footer) .text-gray-700 { color: var(--text-primary) !important; }
 
-[data-theme="dark"] .text-gray-500,
-[data-theme="dark"] .text-gray-400,
-[data-theme="dark"] .text-gray-600 { color: var(--text-secondary) !important; }
+[data-theme="dark"] :not(footer) .text-gray-500,
+[data-theme="dark"] :not(footer) .text-gray-400,
+[data-theme="dark"] :not(footer) .text-gray-600 { color: var(--text-secondary) !important; }
 
-/* Tailwind bg-white / bg-gray-* overrides */
-[data-theme="dark"] .bg-white { background-color: var(--bg-primary) !important; }
-[data-theme="dark"] .bg-gray-50,
-[data-theme="dark"] .bg-gray-100 { background-color: var(--bg-secondary) !important; }
+/* Tailwind bg-white / bg-gray-* overrides (not footer) */
+[data-theme="dark"] :not(footer) > .bg-white { background-color: var(--bg-primary) !important; }
+[data-theme="dark"] :not(footer) > .bg-gray-50,
+[data-theme="dark"] :not(footer) > .bg-gray-100 { background-color: var(--bg-secondary) !important; }
 
-/* Tailwind border overrides */
-[data-theme="dark"] .border-gray-100,
-[data-theme="dark"] .border-gray-200,
-[data-theme="dark"] .border-gray-300 { border-color: var(--border-color) !important; }
+/* Tailwind border overrides (not footer) */
+[data-theme="dark"] :not(footer) .border-gray-100,
+[data-theme="dark"] :not(footer) .border-gray-200,
+[data-theme="dark"] :not(footer) .border-gray-300 { border-color: var(--border-color) !important; }
 
 /* Tailwind shadow */
 [data-theme="dark"] .shadow-sm { box-shadow: 0 1px 4px rgba(0,0,0,0.4) !important; }
 
-/* Input / select backgrounds */
-[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
+/* Input / select backgrounds (not footer) */
+[data-theme="dark"] :not(footer) input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] :not(footer) select,
+[data-theme="dark"] :not(footer) textarea {
   background-color: var(--bg-secondary) !important;
   color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
 }
 
-/* Navbar */
-[data-theme="dark"] nav {
+/* Navbar (main header only, not footer nav) */
+[data-theme="dark"] header nav,
+[data-theme="dark"] > nav {
   background-color: var(--navbar-bg) !important;
   border-color: var(--border-color) !important;
+}
+
+/* Footer: always dark regardless of theme */
+footer {
+  background-color: #06060f !important;
+  color: #fff;
 }
 
 /* Cards hover in dark */

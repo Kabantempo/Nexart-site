@@ -59,7 +59,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
 
       if (error?.code === '42P01') { setSupported(false); return }
       if (error) return
-      setNotifications(data || [])
+      setNotifications((data || []) as any)
     } catch {
       setSupported(false)
     }

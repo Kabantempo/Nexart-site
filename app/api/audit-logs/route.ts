@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
     // Call stored procedure to log
-    const { data, error } = await admin.rpc('log_audit_action', {
+    const { data, error } = await (admin as any).rpc('log_audit_action', {
       p_user_id: user.id,
       p_action: action.toUpperCase(),
       p_resource_type: resource_type,

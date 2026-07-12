@@ -4,11 +4,12 @@ import { persist } from 'zustand/middleware'
 interface User {
   id: string
   email: string
-  role: 'creator' | 'organizer' | 'visitor'
+  role: 'creator' | 'organizer' | 'visitor' | 'admin'
   full_name: string
-  avatar_url?: string
+  avatar_url?: string | null
   is_creator?: boolean
   is_organizer?: boolean
+  is_admin?: boolean | null
 }
 
 interface AuthStore {

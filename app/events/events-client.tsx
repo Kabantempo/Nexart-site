@@ -383,7 +383,7 @@ function EventsContent() {
                             </span>
                           )
                         })()}
-                        {event.stand_count > 0 && (
+                        {(event.stand_count ?? 0) > 0 && (
                           <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 ml-auto ${
                             (event as NexartEvent & { remaining_spots?: number }).remaining_spots === 0
                               ? 'bg-gray-500/70 text-white'

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from './database.types'
 
-let _admin: ReturnType<typeof createClient> | null = null
+let _admin: ReturnType<typeof createClient<Database>> | null = null
 
 export function getAdminClient() {
   if (!_admin) {
@@ -11,7 +12,7 @@ export function getAdminClient() {
       throw new Error(`Supabase config missing: URL=${!!url}, KEY=${!!key}`)
     }
 
-    _admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
+    _admin = createClient<Database>(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
   }
   return _admin
 }

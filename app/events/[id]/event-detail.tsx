@@ -378,7 +378,7 @@ export function EventDetailClient({ id }: Props) {
       .eq('event_id', id)
       .eq('creator_id', user.id)
       .maybeSingle()
-      .then(({ data }) => { if (data) setExistingContract(data) })
+      .then(({ data }) => { if (data) setExistingContract(data as any) })
   }, [user, application, id])
 
   useEffect(() => {
@@ -777,7 +777,7 @@ export function EventDetailClient({ id }: Props) {
                     </div>
                   </div>
                 )}
-                {event.stand_count > 0 && (
+                {(event.stand_count ?? 0) > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Users size={18} color="#6366F1" />
                     <div>
@@ -846,14 +846,14 @@ export function EventDetailClient({ id }: Props) {
               )}
 
               {/* Disciplines */}
-              {event.discipline_tags?.length > 0 && (
+              {(event.discipline_tags ?? []).length > 0 && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
                     <Tag size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
                     Disciplines recherchées
                   </h2>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {event.discipline_tags.map((tag: string) => (
+                    {(event.discipline_tags ?? []).map((tag: string) => (
                       <span key={tag} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: '#6366F1', fontSize: '14px', fontWeight: '500' }}>
                         {tag}
                       </span>
@@ -913,7 +913,7 @@ export function EventDetailClient({ id }: Props) {
               </h3>
 
               {/* Stand price */}
-              {event.stand_price > 0 && (
+              {(event.stand_price ?? 0) > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '12px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
                   <Euro size={20} color="#6366F1" />
                   <div>
@@ -924,9 +924,9 @@ export function EventDetailClient({ id }: Props) {
               )}
 
               {/* Stands occupancy */}
-              {event.stand_count > 0 && acceptedCount !== null && (() => {
-                const remaining = event.stand_count - acceptedCount
-                const pct = Math.min(100, Math.round((acceptedCount / event.stand_count) * 100))
+              {(event.stand_count ?? 0) > 0 && acceptedCount !== null && (() => {
+                const remaining = (event.stand_count ?? 0) - acceptedCount
+                const pct = Math.min(100, Math.round((acceptedCount / (event.stand_count ?? 1)) * 100))
                 const full = remaining <= 0
                 return (
                   <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? '#FEF2F2' : '#F9FAFB', border: `1px solid ${full ? '#FCA5A5' : '#E5E7EB'}` }}>
@@ -1281,7 +1281,7 @@ export function EventDetailClient({ id }: Props) {
                   </button>
                 </div>
               ) : (() => {
-                const full = event.stand_count > 0 && acceptedCount !== null && acceptedCount >= event.stand_count
+                const full = (event.stand_count ?? 0) > 0 && acceptedCount !== null && acceptedCount >= (event.stand_count ?? 0)
                 if (full) {
                   return onWaitlist ? (
                     <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#FFF7ED', border: '1px solid #FCD34D', textAlign: 'center' }}>

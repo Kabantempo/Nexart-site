@@ -96,9 +96,9 @@ export async function PATCH(
     const body = await req.json()
     const { items } = body
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('event_checklists')
-      .update({ items, updated_at: new Date().toISOString() })
+      .update({ items, updated_at: new Date().toISOString() } as any)
       .eq('event_id', params.id)
       .select()
 

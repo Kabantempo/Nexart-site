@@ -196,7 +196,7 @@ export default function CreateEventPage() {
       } : {}),
     }
 
-    const { data, error: err } = await supabase.from('events').insert(payload).select().single()
+    const { data, error: err } = await supabase.from('events').insert(payload as any).select().single()
     setSaving(false)
 
     if (err) { setError(err.message); return }

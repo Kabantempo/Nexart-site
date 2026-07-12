@@ -86,7 +86,7 @@ export default function RegisterPage() {
     }
 
     if (data.user) {
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, role })
+      await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, role: role as any })
       // Email de bienvenue (fire-and-forget)
       fetch('/api/welcome', {
         method: 'POST',

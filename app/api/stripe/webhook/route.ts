@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
           subscription_status: 'active',
           subscription_id: sub.id,
           subscription_ends_at: new Date(sub.current_period_end * 1000).toISOString(),
-        }).eq('id', uid)
+        } as any).eq('id', uid)
 
         await admin.from('notifications').insert({
           user_id: uid,
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
           subscription_status: 'cancelled',
           subscription_id: null,
           subscription_ends_at: null,
-        }).eq('id', uid)
+        } as any).eq('id', uid)
       }
       break
     }
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
           credit_type: creditDef.type,
           amount: creditDef.amount,
           expires_at: expiresAt.toISOString(),
-        })
+        } as any)
 
         await admin.from('credit_transactions').insert({
           user_id: uid,
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
           payment_intent_id: session.payment_intent,
           credits_bought: creditDef.amount,
           amount_paid: item.amount_total,
-        })
+        } as any)
 
         await admin.from('notifications').insert({
           user_id: uid,

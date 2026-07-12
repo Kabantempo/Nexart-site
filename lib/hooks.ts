@@ -55,10 +55,10 @@ export function useEvents() {
 
           setEvents(data.map(e => ({
             ...e,
-            remaining_spots: e.stand_count > 0 ? Math.max(e.stand_count - (countMap[e.id] || 0), 0) : undefined,
-          })))
+            remaining_spots: e.stand_count && e.stand_count > 0 ? Math.max(e.stand_count - (countMap[e.id] || 0), 0) : undefined,
+          })) as unknown as (Event & { remaining_spots?: number })[])
         } else {
-          setEvents(data || [])
+          setEvents((data || []) as unknown as (Event & { remaining_spots?: number })[])
         }
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))
@@ -113,6 +113,8 @@ export function useCreators() {
             role: 'creator' as const,
             created_at: profile?.created_at || '',
             is_active: (creator as Record<string, unknown>).is_active_creator as boolean || false,
+            disciplines: creator.disciplines ?? [],
+            portfolio_images: creator.portfolio_images ?? [],
           }
         }) || []).sort((a, b) => {
           // Vérifiés (SIRET + RC Pro) d'abord, puis actifs, puis le reste
@@ -121,7 +123,7 @@ export function useCreators() {
           return scoreB - scoreA
         })
 
-        setCreators(enriched)
+        setCreators(enriched as unknown as CreatorProfile[])
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))
       } finally {
@@ -151,7 +153,7 @@ export function useApplications(userId?: string) {
           .eq('creator_id', userId)
 
         if (err) throw err
-        setApplications(data || [])
+        setApplications((data || []) as unknown as Application[])
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))
       } finally {
@@ -180,7 +182,7 @@ export function useEvent(id: string) {
           .eq('id', id)
           .single()
         if (err) throw err
-        setEvent(data)
+        setEvent(data as unknown as Event)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))
       } finally {
@@ -219,7 +221,7 @@ export function useApplication(eventId: string, userId?: string) {
       .eq('event_id', eventId)
       .eq('creator_id', userId)
       .maybeSingle()
-      .then(({ data }) => { if (data) setApplication(data) })
+      .then(({ data }) => { if (data) setApplication(data as unknown as Application) })
   }, [eventId, userId])
 
   const apply = async (message: string, portfolioImages?: string[]) => {
@@ -304,7 +306,7 @@ export function useReviews(userId: string) {
           .eq('reviewed_id', userId)
 
         if (err) throw err
-        setReviews(data || [])
+        setReviews((data || []) as unknown as Review[])
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))
       } finally {
@@ -426,7 +428,7 @@ export function useCreator(id: string) {
           etsy: creatorData?.etsy,
           siret_verified: creatorData?.siret_verified || false,
           insurance_verified: creatorData?.insurance_verified || false,
-          availability: creatorData?.availability || {},
+          availability: (creatorData?.availability as Record<string, unknown>) || {},
         })
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'))

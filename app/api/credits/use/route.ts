@@ -47,12 +47,12 @@ export async function POST(req: NextRequest) {
 
     // Appliquer l'effet
     if (type === 'boost_application' && ref_id) {
-      const { error: appError } = await admin.from('applications').update({ boosted_at: new Date().toISOString() }).eq('id', ref_id).eq('creator_id', user.id)
+      const { error: appError } = await admin.from('applications').update({ boosted_at: new Date().toISOString() } as any).eq('id', ref_id).eq('creator_id', user.id)
       if (appError) console.warn('⚠️  Failed to update application boost:', appError)
     }
     if (type === 'boost_profile') {
       const until = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-      const { error: profError } = await admin.from('profiles').update({ profile_boosted_until: until }).eq('id', user.id)
+      const { error: profError } = await admin.from('profiles').update({ profile_boosted_until: until } as any).eq('id', user.id)
       if (profError) console.warn('⚠️  Failed to update profile boost:', profError)
     }
 

@@ -43,15 +43,15 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
         supabase.from('products').select('*').eq('creator_id', creatorId).eq('is_available', true).order('created_at', { ascending: false }),
       ])
 
-      if (profile) setCreator({ ...profile, city: cp?.city })
+      if (profile) setCreator({ ...profile, city: cp?.city ?? undefined } as any)
       if (prods) {
-        setProducts(prods)
+        setProducts(prods as any)
         // Charger les événements mis en avant
         const eventIds = prods.filter(p => p.featured_event_id).map(p => p.featured_event_id!)
         if (eventIds.length) {
           const { data: evs } = await supabase.from('events').select('id, title, city, start_date').in('id', eventIds)
           const map: typeof featuredEvents = {}
-          evs?.forEach(e => { map[e.id] = e })
+          evs?.forEach(e => { map[e.id] = e as any })
           setFeaturedEvents(map)
         }
       }

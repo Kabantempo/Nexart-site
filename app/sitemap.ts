@@ -25,11 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data: events } = await supabase
       .from('events')
-      .select('id, updated_at')
+      .select('id, created_at')
       .eq('status', 'published')
-    eventRoutes = (events || []).map((e: { id: string; updated_at: string }) => ({
+    eventRoutes = ((events || []) as any[]).map((e: { id: string; created_at: string }) => ({
       url: `${BASE_URL}/events/${e.id}`,
-      lastModified: new Date(e.updated_at || Date.now()),
+      lastModified: new Date(e.created_at || Date.now()),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }))
@@ -39,11 +39,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data: creators } = await supabase
       .from('profiles')
-      .select('id, updated_at')
-      .in('role', ['creator', 'artisan'])
-    creatorRoutes = (creators || []).map((c: { id: string; updated_at: string }) => ({
+      .select('id, created_at')
+      .eq('role', 'creator')
+    creatorRoutes = ((creators || []) as any[]).map((c: { id: string; created_at: string }) => ({
       url: `${BASE_URL}/creators/${c.id}`,
-      lastModified: new Date(c.updated_at || Date.now()),
+      lastModified: new Date(c.created_at || Date.now()),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     }))

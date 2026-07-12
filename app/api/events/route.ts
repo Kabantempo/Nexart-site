@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
         organizer_id, organizer:profiles!organizer_id(full_name, avatar_url),
         created_at
       `)
-      .eq('status', status)
+      .eq('status', status as 'draft' | 'published' | 'closed')
       .order('start_date', { ascending: true })
       .range(offset, offset + limit - 1)
 

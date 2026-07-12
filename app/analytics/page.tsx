@@ -56,7 +56,7 @@ export default function AnalyticsPage() {
       setLoading(true)
       if (user.role === 'organizer') {
         const { data } = await supabase.from('event_analytics').select('*').eq('organizer_id', user.id).order('start_date', { ascending: false })
-        setEventStats((data || []) as EventStat[])
+        setEventStats((data || []) as unknown as EventStat[])
       } else if (user.role === 'creator') {
         const { data } = await supabase.from('creator_analytics').select('*').eq('creator_id', user.id).single()
         setCreatorStats(data as CreatorStat | null)

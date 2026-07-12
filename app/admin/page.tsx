@@ -336,8 +336,9 @@ export default function AdminPage() {
     if (!msgRecipient || !msgContent.trim() || !adminId) return
     setMsgSending(true)
     const { data: conv } = await supabase.from('conversations').insert({
-      participant_ids: [adminId, msgRecipient.id],
-    }).select('id').single()
+      creator_id: msgRecipient.id,
+      organizer_id: adminId,
+    } as any).select('id').single()
     if (conv) {
       await supabase.from('messages').insert({
         conversation_id: conv.id,

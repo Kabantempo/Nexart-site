@@ -60,7 +60,7 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     location: {
       '@type': 'Place',
       name: event.location || 'France',
-      address: event.address,
+      address: (event as any).address,
     },
     organizer: {
       '@type': 'Organization',

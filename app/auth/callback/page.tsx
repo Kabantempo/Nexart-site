@@ -30,7 +30,7 @@ export default function AuthCallbackPage() {
               id: user.id,
               full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0],
               avatar_url: user.user_metadata?.avatar_url ?? null,
-              role: null,
+              role: 'visitor' as const,
             })
           }
           router.push('/')

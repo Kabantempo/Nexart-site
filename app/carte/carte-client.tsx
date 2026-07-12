@@ -49,8 +49,8 @@ export default function CarteClient() {
         setEvents(data.map(e => ({
           ...e,
           accepted_count: countMap[e.id] || 0,
-          remaining_spots: Math.max((e.stand_count || 0) - (countMap[e.id] || 0), 0),
-        })))
+          remaining_spots: Math.max((e.stand_count ?? 0) - (countMap[e.id] || 0), 0),
+        })) as any)
         setLoading(false)
       })
   }, [])

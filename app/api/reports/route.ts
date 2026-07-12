@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
         status: 'pending',
         ip_address: ip,
         created_at: new Date().toISOString(),
-      })
+      } as any)
       .select()
 
     if (error) throw error

@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
     const admin = getAdminClient()
 
     if (table === 'organizer_profiles') {
-      const { error } = await admin.from('organizer_profiles').update({ [field]: value }).eq('user_id', userId)
+      const { error } = await admin.from('organizer_profiles').update({ [field]: value } as any).eq('user_id', userId)
       if (error) throw error
     } else {
-      const { error } = await admin.from('creator_profiles').update({ [field]: value }).eq('user_id', userId)
+      const { error } = await admin.from('creator_profiles').update({ [field]: value } as any).eq('user_id', userId)
       if (error) throw error
     }
 

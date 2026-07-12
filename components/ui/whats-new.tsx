@@ -61,7 +61,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
 
       if (error?.code === '42P01') { setSupported(false); return }
       if (error) return
-      setVersions((data as ChangelogVersion[]) || [])
+      setVersions((data as unknown as ChangelogVersion[]) || [])
     } catch {
       setSupported(false)
     }

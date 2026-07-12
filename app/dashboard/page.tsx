@@ -98,7 +98,7 @@ export default function DashboardPage() {
         supabase.from('profiles').select('full_name, bio, avatar_url, role').eq('id', user.id).maybeSingle(),
         supabase.from('creator_profiles').select('disciplines, city, travel_radius').eq('user_id', user.id).maybeSingle(),
       ])
-      const isCreator = p?.role === 'creator' || p?.role === 'artisan' || cp !== null
+      const isCreator = p?.role === 'creator' || (p as any)?.role === 'artisan' || cp !== null
       if (!isCreator) return
       const missing: string[] = []
       if (!p?.full_name) missing.push('Nom complet')
@@ -123,12 +123,12 @@ export default function DashboardPage() {
           const { data: apps } = await supabase.from('applications').select('*').eq('creator_id', user.id).order('created_at', { ascending: false })
           if (apps?.length) {
             const { data: eventsData } = await supabase.from('events').select('*').in('id', apps.map(a => a.event_id))
-            setApplications(apps.map(a => ({ ...a, event: eventsData?.find(e => e.id === a.event_id) })))
+            setApplications(apps.map(a => ({ ...a, event: eventsData?.find(e => e.id === a.event_id) })) as any)
           }
         })() : Promise.resolve(),
         hasOrganizer ? (async () => {
           const { data: eventsData } = await supabase.from('events').select('*').eq('organizer_id', user.id).order('created_at', { ascending: false })
-          setEvents(eventsData || [])
+          setEvents((eventsData || []) as unknown as Event[])
           if (eventsData?.length) {
             const { data: pending } = await supabase
               .from('applications')
@@ -378,7 +378,7 @@ function CreatorContent({
         .overlaps('discipline_tags', cp.disciplines)
         .order('start_date', { ascending: true })
         .limit(5)
-      if (evs) setRecommended(evs.filter(e => !appliedEventIds.has(e.id)))
+      if (evs) setRecommended(evs.filter(e => !appliedEventIds.has(e.id)) as unknown as Event[])
     }
     load()
   // eslint-disable-next-line react-hooks/exhaustive-deps

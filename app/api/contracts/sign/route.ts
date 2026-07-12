@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     const { data: contract } = await admin.from('contracts').select('*').eq('id', contract_id).single()
     if (!contract) return NextResponse.json({ error: 'Contrat introuvable' }, { status: 404 })
 
-    if (contract.creator_id !== signer_id && contract.organizer_id !== signer_id) {
+    if ((contract as any).creator_id !== signer_id && (contract as any).organizer_id !== signer_id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
     if (error) throw error
 
     // Notifier l'autre partie
-    const notifiedId = signer_id === contract.creator_id ? contract.organizer_id : contract.creator_id
+    const c = contract as any
+    const notifiedId = signer_id === c.creator_id ? c.organizer_id : c.creator_id
     await admin.from('notifications').insert({
       user_id: notifiedId,
       type: 'contract_signed',
