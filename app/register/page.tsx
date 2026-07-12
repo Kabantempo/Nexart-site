@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import RegisterClient from './register-client'
 
 export const metadata: Metadata = {
-  title: 'Inscription — Nexart',
+  title: { absolute: 'Inscription — Nexart' },
   description: 'Créez votre compte Nexart gratuitement. Rejoignez la plateforme des créateurs et organisateurs de marchés artisanaux.',
   robots: { index: true, follow: true },
   alternates: { canonical: 'https://nexart.fr/register' },
