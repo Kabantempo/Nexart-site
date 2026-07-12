@@ -12,7 +12,7 @@ ARCHIVE="/tmp/nexart-deploy-$(date +%s).tar.gz"
 
 # ── 1. Build local ────────────────────────────────────────────────────────────
 echo "🔨 Building locally..."
-npm run build
+npm run build:local
 
 # ── 2. Archive standalone seulement (~50MB vs ~500MB avant) ──────────────────
 echo "📦 Creating archive (standalone only)..."
