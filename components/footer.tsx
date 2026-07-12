@@ -15,8 +15,8 @@ const NAV = {
   'Pour organisateurs': [
     { label: 'Créer un événement',    href: '/events' },
     { label: 'Trouver des créateurs', href: '/creators' },
+    { label: 'Offres & tarifs',       href: '/offres' },
     { label: "S'inscrire",            href: '/register' },
-    { label: 'À propos',              href: '/about' },
   ],
   'Pour visiteurs': [
     { label: 'Carte interactive',      href: '/carte' },
