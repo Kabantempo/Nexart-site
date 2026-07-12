@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { TrendingUp, Users, CheckCircle, Clock } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface EventStats {
   totalApplications: number
@@ -26,7 +27,11 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
   const fetchEventStats = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/events/${eventId}/analytics`)
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const response = await fetch(`/api/events/${eventId}/analytics`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       if (!response.ok) throw new Error('Erreur chargement stats')
       const data = await response.json()
       setStats(data)

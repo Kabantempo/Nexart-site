@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Download, Filter, X, Check, AlertCircle, Mail } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface ExhibitorField {
   id: string
@@ -65,9 +66,11 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
   const handleSaveFields = async (newFields: ExhibitorField[]) => {
     try {
       setLoading(true)
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
       const res = await fetch(`/api/events/${eventId}/exhibitor-fields`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ fields: newFields })
       })
       const data = await res.json()

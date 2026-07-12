@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Clock, Check, X, ArrowUp, Trash2 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface WaitlistEntry {
   id: string
@@ -22,10 +23,18 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
     fetchWaitlist()
   }, [eventId])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const fetchWaitlist = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`/api/events/${eventId}/waitlist`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/waitlist`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setEntries(data.waitlist || [])
     } catch (err) {
@@ -38,9 +47,10 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
   const handlePromote = async (entryId: string) => {
     try {
       setActionLoading(entryId)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/waitlist`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ waitlist_id: entryId, action: 'promote' })
       })
       if (res.ok) fetchWaitlist()
@@ -55,9 +65,10 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
     if (!confirm('Retirer cette personne de la liste d\'attente ?')) return
     try {
       setActionLoading(entryId)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/waitlist`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ waitlist_id: entryId })
       })
       if (res.ok) fetchWaitlist()

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit2, HelpCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface FAQ {
   id: string
@@ -21,9 +22,17 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
     fetchFAQs()
   }, [eventId])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const fetchFAQs = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/faqs`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/faqs`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setFaqs(data.faqs || [])
     } catch (error) {
@@ -39,9 +48,10 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
 
     try {
       setLoading(true)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/faqs`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           question: newFaq.question,
           answer: newFaq.answer,

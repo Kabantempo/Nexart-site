@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Plus, Trash2, Crown, Mail } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface TeamMember {
   id: string
@@ -22,10 +23,18 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
     fetchTeam()
   }, [eventId])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const fetchTeam = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/events/${eventId}/team`)
+      const token = await getToken()
+      const response = await fetch(`/api/events/${eventId}/team`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       if (!response.ok) throw new Error('Erreur chargement')
       const data = await response.json()
       setMembers(data)
@@ -43,9 +52,10 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
     }
 
     try {
+      const token = await getToken()
       const response = await fetch(`/api/events/${eventId}/team/invite`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ email: inviteEmail }),
       })
       if (!response.ok) throw new Error('Erreur invitation')
