@@ -1,36 +1,35 @@
 #!/bin/bash
-# Deploy Nexart → Hostinger
-# Avant de lancer : chmod +x deploy.sh
-# Usage : ./deploy.sh
-
+# Deploy to Hostinger — run from project root after `npm run build`
 set -e
 
-# ── CONFIG ─────────────────────────────────────────────────────────────────
-SSH_USER="u142938038"
-SSH_HOST="147.79.103.73"
+REMOTE_DIR="/home/u142938038/domains/nexart.fr/nodejs"
+SSH_KEY="~/.ssh/hostinger_nexart"
+SSH_HOST="u142938038@147.79.103.73"
 SSH_PORT="65002"
-SSH_KEY="$HOME/.ssh/hostinger_nexart"
-REMOTE_DIR="~/domains/nexart.fr/nodejs"
-# ───────────────────────────────────────────────────────────────────────────
+ARCHIVE="/tmp/nexart-deploy-$(date +%s).tar.gz"
 
-echo "📦 Build local..."
-RAYON_NUM_THREADS=1 NEXT_CPU_CPUS=1 npm run build
+echo "📦 Building archive..."
+tar -czf "$ARCHIVE" .next package.json package-lock.json
 
-echo "📁 Préparation du bundle standalone..."
-# Copier les assets statiques dans le dossier standalone
-cp -r .next/static .next/standalone/.next/static
-cp -r public .next/standalone/public
+echo "⬆️  Uploading to Hostinger..."
+scp -P $SSH_PORT -i $SSH_KEY "$ARCHIVE" "$SSH_HOST:$REMOTE_DIR/"
 
-echo "🚀 Envoi sur Hostinger..."
-rsync -avz --delete \
-  --exclude='.git' \
-  --exclude='node_modules' \
-  -e "ssh -p $SSH_PORT -i $SSH_KEY" \
-  .next/standalone/ \
-  "$SSH_USER@$SSH_HOST:$REMOTE_DIR/"
+REMOTE_ARCHIVE=$(basename $ARCHIVE)
 
-echo "♻️  Redémarrage de l'app Node.js..."
-ssh -p "$SSH_PORT" -i "$SSH_KEY" "$SSH_USER@$SSH_HOST" \
-  "touch $REMOTE_DIR/tmp/restart.txt"
+echo "🚀 Deploying on server..."
+ssh -i $SSH_KEY -p $SSH_PORT $SSH_HOST "
+  cd $REMOTE_DIR
+  rm -rf .next.bak 2>/dev/null
+  mv .next .next.bak 2>/dev/null || true
+  tar -xzf $REMOTE_ARCHIVE
+  rm -f $REMOTE_ARCHIVE
+  touch tmp/restart.txt
+  echo 'BUILD_ID:' \$(cat .next/BUILD_ID)
+"
 
-echo "✅ Déployé sur https://nexart.fr"
+echo "🧹 Cleaning up local archive..."
+rm -f "$ARCHIVE"
+
+echo "✅ Done! Waiting for restart..."
+sleep 8
+curl -s -o /dev/null -w "HTTP status: %{http_code}\n" https://nexart.fr
