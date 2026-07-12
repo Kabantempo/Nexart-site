@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import CalendrierClient from './calendrier-client'
 
 export const metadata: Metadata = {
-  title: 'Calendrier des événements — Nexart',
+  title: { absolute: 'Calendrier des événements — Nexart' },
   description: 'Consultez le calendrier des marchés artisanaux et événements créateurs partout en France.',
   robots: { index: true, follow: true },
   alternates: { canonical: 'https://nexart.fr/calendrier' },
