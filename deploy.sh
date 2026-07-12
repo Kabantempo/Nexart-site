@@ -51,7 +51,16 @@ $SSH "
   # Neutralise hPanel build script (it can't compile on server)
   node -e \"const fs=require('fs'); const p=JSON.parse(fs.readFileSync('package.json','utf8')); p.scripts.build='echo Build skipped - pre-built locally'; fs.writeFileSync('package.json', JSON.stringify(p,null,2))\" 2>/dev/null || true
 
-  # Restart app
+  # Tuer les anciens processus node pour éviter 503 (max process limit)
+  echo 'Killing old node processes...'
+  pkill -f 'node.*server.js' 2>/dev/null || true
+  pkill -f 'node.*next' 2>/dev/null || true
+  sleep 3
+
+  # Vider stderr.log avant restart (évite de confondre anciennes erreurs)
+  > stderr.log 2>/dev/null || true
+
+  # Restart via hPanel
   touch tmp/restart.txt
 
   echo 'BUILD_ID:' \$(cat .next/standalone/.next/BUILD_ID 2>/dev/null || cat .next/BUILD_ID 2>/dev/null || echo unknown)
