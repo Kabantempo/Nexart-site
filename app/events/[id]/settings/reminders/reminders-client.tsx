@@ -5,6 +5,11 @@ import { motion } from 'framer-motion'
 import { Bell, Check, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
+const getToken = async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.access_token
+}
+
 interface Exhibitor {
   id: string
   exhibitor_id: string
@@ -25,7 +30,10 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
 
   const checkOverdue = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/reminders`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/reminders`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       // Parse overdue from response (backend returns count)
       // For now, show empty since we need to fetch exhibitors too
@@ -37,9 +45,10 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
   const handleSendReminders = async () => {
     try {
       setLoading(true)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/reminders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ reminder_days: reminderDays })
       })
       if (res.ok) {

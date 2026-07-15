@@ -34,7 +34,10 @@ export default function CampaignsClient({ eventId }: { eventId: string }) {
 const fetchCampaigns = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/events/${eventId}/campaigns`)
+      const token = await getToken()
+      const response = await fetch(`/api/events/${eventId}/campaigns`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       if (!response.ok) throw new Error('Erreur chargement')
       const data = await response.json()
       setCampaigns(data)
@@ -52,9 +55,10 @@ const fetchCampaigns = async () => {
     }
 
     try {
+      const token = await getToken()
       const response = await fetch(`/api/events/${eventId}/campaigns`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ ...formData, eventId }),
       })
       if (!response.ok) throw new Error('Erreur création')

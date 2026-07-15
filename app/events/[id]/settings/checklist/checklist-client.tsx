@@ -37,7 +37,10 @@ export default function ChecklistClient({ eventId }: { eventId: string }) {
   }
 const fetchChecklist = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/checklists`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/checklists`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       if (data.checklist) {
         setChecklist(data.checklist)
@@ -52,9 +55,10 @@ const fetchChecklist = async () => {
   const handleInitializeChecklist = async (type: 'salon' | 'popup' | 'other') => {
     try {
       setLoading(true)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/checklists`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ checklist_type: type })
       })
 
@@ -71,9 +75,10 @@ const fetchChecklist = async () => {
 
   const handleUpdateItems = async (updatedItems: ChecklistItem[]) => {
     try {
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/checklists`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ items: updatedItems })
       })
 
