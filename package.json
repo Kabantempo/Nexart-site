@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "echo Build skipped - pre-built locally",
-    "build:local": "RAYON_NUM_THREADS=1 NEXT_CPU_CPUS=1 next build",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "build:local": "NEXT_TELEMETRY_DISABLED=1 RAYON_NUM_THREADS=1 NEXT_CPU_CPUS=1 next build",
     "start": "node .next/standalone/server.js",
     "lint": "eslint",
     "test:e2e": "playwright test",
