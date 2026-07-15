@@ -19,6 +19,7 @@ interface Campaign {
 export default function CampaignsClient({ eventId }: { eventId: string }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [loading, setLoading] = useState(true)
+  const [sending, setSending] = useState<string | null>(null)
   const [showNewCampaign, setShowNewCampaign] = useState(false)
   const [formData, setFormData] = useState({ title: '', subject: '', message: '' })
 
@@ -182,22 +183,37 @@ const fetchCampaigns = async () => {
 
               {campaign.status === 'draft' && (
                 <button
+                  onClick={async () => {
+                    if (!confirm('Envoyer cette campagne à tous les exposants approuvés ?')) return
+                    setSending(campaign.id)
+                    try {
+                      const token = await getToken()
+                      const res = await fetch(`/api/events/${eventId}/campaigns`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                        body: JSON.stringify({ campaign_id: campaign.id }),
+                      })
+                      const data = await res.json()
+                      if (res.ok) alert(`✅ ${data.sent} email${data.sent !== 1 ? 's' : ''} envoyé${data.sent !== 1 ? 's' : ''}`)
+                      else alert(`❌ ${data.error}`)
+                      await fetchCampaigns()
+                    } catch (err) {
+                      console.error(err)
+                    } finally {
+                      setSending(null)
+                    }
+                  }}
+                  disabled={sending === campaign.id}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '600',
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    backgroundColor: sending === campaign.id ? '#9CA3AF' : '#6366F1',
+                    color: '#FFFFFF', border: 'none', borderRadius: '6px',
+                    padding: '8px 12px', cursor: sending === campaign.id ? 'not-allowed' : 'pointer',
+                    fontSize: '13px', fontWeight: '600',
                   }}
                 >
                   <Send size={14} />
-                  Envoyer
+                  {sending === campaign.id ? 'Envoi...' : 'Envoyer'}
                 </button>
               )}
             </motion.div>

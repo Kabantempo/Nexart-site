@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, CheckCircle, Star, Download } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface CreatorStats {
   profileViews: number
@@ -26,7 +27,11 @@ export default function CreatorAnalyticsClient() {
   const fetchCreatorStats = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/creator/analytics')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const response = await fetch('/api/creator/analytics', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       if (!response.ok) throw new Error('Erreur chargement stats')
       const data = await response.json()
       setStats(data)
