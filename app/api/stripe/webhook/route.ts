@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe, isStripeConfigured, SubscriptionTier } from '@/lib/stripe'
 import { getAdminClient } from '@/lib/supabase-admin'
