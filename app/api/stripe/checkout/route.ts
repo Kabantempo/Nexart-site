@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getStripe, isStripeConfigured, STRIPE_PRICES, STRIPE_CREDIT_PRICES } from '@/lib/stripe'
