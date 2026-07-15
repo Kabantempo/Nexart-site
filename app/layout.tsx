@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
@@ -8,17 +7,6 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { EmailConfirmationBanner } from "@/components/ui/email-confirmation-banner";
 import { PageTransition } from "@/components/page-transition";
 
-const geistSans = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: 'swap',
-});
-
-const geistMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nexart.fr'),
@@ -74,11 +62,12 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{__html: `
           if (typeof window !== 'undefined') {
             console.log('🎨 CSS loaded:', document.styleSheets.length > 0);
