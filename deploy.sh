@@ -23,7 +23,7 @@ echo "   Archive size: $ARCHIVE_SIZE"
 
 # ── 3. Upload ─────────────────────────────────────────────────────────────────
 echo "⬆️  Uploading to Hostinger..."
-scp -P "$SSH_PORT" -i "$SSH_KEY" "$ARCHIVE" "$SSH_HOST:/tmp/"
+scp -P "$SSH_PORT" -i "$SSH_KEY" -o ServerAliveInterval=5 -o ServerAliveCountMax=20 "$ARCHIVE" "$SSH_HOST:/tmp/"
 REMOTE_ARCHIVE="/tmp/$(basename $ARCHIVE)"
 
 # ── 4. Kill stale processes (évite 503 max process limit) ────────────────────
