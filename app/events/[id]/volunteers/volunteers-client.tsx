@@ -16,10 +16,10 @@ interface Volunteer {
 
 interface Shift {
   id: string
-  name: string
-  start_time: string
-  end_time: string
-  max_volunteers: number
+  role: string
+  date: string
+  time: string
+  capacity: number
   assigned: number
 }
 
@@ -203,17 +203,15 @@ export default function VolunteersClient({ eventId }: { eventId: string }) {
               <motion.div key={s.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                 style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px', marginBottom: '4px' }}>{s.name}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px', marginBottom: '4px' }}>{s.role || '—'}</div>
                   <div style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Clock size={12} />
-                    {s.start_time ? new Date(s.start_time).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
-                    {' → '}
-                    {s.end_time ? new Date(s.end_time).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
+                    {s.date || '—'} {s.time || ''}
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                    {s.assigned ?? 0}/{s.max_volunteers ?? '∞'} bénévoles
+                    {s.assigned ?? 0}/{s.capacity ?? '∞'} bénévoles
                   </span>
                   <button onClick={() => handleDelete(s.id, 'shift')}
                     style={{ backgroundColor: '#FEF2F2', color: '#DC2626', border: 'none', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer' }}>

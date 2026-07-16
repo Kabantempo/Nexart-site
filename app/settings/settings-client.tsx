@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Download, Trash2, ChevronRight } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 export default function SettingsClient() {
   const [loading, setLoading] = useState(false)
@@ -15,9 +16,11 @@ export default function SettingsClient() {
     setError('')
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
       const response = await fetch('/api/account/export-data', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       })
 
       if (!response.ok) throw new Error('Erreur export données')
@@ -259,12 +262,16 @@ function DeleteAccountButton() {
     setError('')
 
     try {
-      const meResponse = await fetch('/api/auth/me')
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const meResponse = await fetch('/api/auth/me', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const { id: userId } = await meResponse.json()
 
       const response = await fetch('/api/account/delete-request', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ userId, email }),
       })
 
