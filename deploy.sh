@@ -37,7 +37,7 @@ $SSH "cd $REMOTE_DIR && tar -xzf $REMOTE_ARCHIVE && rm -f $REMOTE_ARCHIVE && ech
 
 # ── 6. Copier compiled routes dans .next/ (serveur lit .next/ pas .next/standalone/) ──
 echo "🔗 Syncing compiled routes to active .next dir..."
-$SSH "cd $REMOTE_DIR && cp -r .next/standalone/.next/server/app/. .next/server/app/ && cp -r .next/standalone/.next/server/chunks/. .next/server/chunks/ && cp .next/standalone/.next/BUILD_ID .next/ && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && [ -f .env.local ] && cp .env.local .next/standalone/.env.local; echo done"
+$SSH "cd $REMOTE_DIR && cp -r .next/standalone/.next/server/app/. .next/server/app/ && cp -r .next/standalone/.next/server/chunks/. .next/server/chunks/ && cp .next/standalone/.next/BUILD_ID .next/ && cp .next/standalone/.next/server/app-paths-manifest.json .next/server/ && cp .next/standalone/.next/app-path-routes-manifest.json .next/ && cp .next/standalone/.next/routes-manifest.json .next/ && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && [ -f .env.local ] && cp .env.local .next/standalone/.env.local; echo done"
 
 # ── 7. Kill workers + restart ─────────────────────────────────────────────────
 echo "🚀 Restarting app (including workers)..."
