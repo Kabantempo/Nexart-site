@@ -114,7 +114,7 @@ export default function CarteClient() {
       const border = isFull ? '#6B7280' : isAlmostFull ? '#FCD34D' : '#A5B4FC'
 
       const imgHtml = event.cover_image
-        ? `<img src="${event.cover_image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0" />`
+        ? `<img src="${event.cover_image}" alt="${event.title}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0" />`
         : `<svg style="position:absolute;inset:0;margin:auto" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
 
       const icon = L.divIcon({

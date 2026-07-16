@@ -1624,7 +1624,7 @@ export default function ProfilePage() {
                     <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: 'var(--border-color)' }}>
                       {ev.cover_image
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ? <img src={ev.cover_image} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         : <div style={{ width: '100%', height: '100%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#FFF" /></div>
                       }
                     </div>
@@ -2846,7 +2846,7 @@ export default function ProfilePage() {
                   <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                     {ev?.cover_image
                       // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={ev.cover_image} alt="" className="w-full h-full object-cover" />
+                      ? <img src={ev.cover_image} alt={ev.title} className="w-full h-full object-cover" />
                       : <div className="w-full h-full flex items-center justify-center bg-indigo-600"><Calendar size={22} className="text-white" /></div>
                     }
                   </div>

@@ -137,7 +137,7 @@ export default function TendancesPage() {
                       {ev.cover_image ? (
                         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={ev.cover_image} alt="" className="w-full h-full object-cover" />
+                          <img src={ev.cover_image} alt={ev.title} className="w-full h-full object-cover" />
                         </div>
                       ) : (
                         <div className="w-16 h-16 rounded-xl bg-indigo-50 shrink-0 flex items-center justify-center">
