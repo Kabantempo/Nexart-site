@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertCircle, Users, FileText, BarChart3, Menu, X } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface Report {
   id: string
@@ -49,20 +50,24 @@ export default function AdminClient() {
   const fetchData = async () => {
     setLoading(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
       if (activeTab === 'reports') {
-        const res = await fetch('/api/admin/reports')
+        const res = await fetch('/api/admin/reports', { headers })
         const data = await res.json()
         setReports(data.reports || [])
       } else if (activeTab === 'users') {
-        const res = await fetch('/api/admin/users')
+        const res = await fetch('/api/admin/users', { headers })
         const data = await res.json()
         setUsers(data.users || [])
       } else if (activeTab === 'events') {
-        const res = await fetch('/api/admin/events')
+        const res = await fetch('/api/admin/events', { headers })
         const data = await res.json()
         setEvents(data.events || [])
       } else if (activeTab === 'stats') {
-        const res = await fetch('/api/admin/stats')
+        const res = await fetch('/api/admin/stats', { headers })
         const data = await res.json()
         setStats(data.stats)
       }

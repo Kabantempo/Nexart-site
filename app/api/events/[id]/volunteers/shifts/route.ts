@@ -36,17 +36,23 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     )
 
     const body = await req.json()
-    const { date, time, capacity, role } = body
+    // Accept both client format (name, start_time, end_time, max_volunteers) and direct format (date, time, capacity, role)
+    const { name, start_time, end_time, max_volunteers, date, time, capacity, role } = body
+
+    const shiftDate = date || (start_time ? start_time.split('T')[0] : null)
+    const shiftTime = time || (start_time ? start_time.split('T')[1]?.slice(0, 5) : null)
+    const shiftCapacity = capacity || parseInt(max_volunteers) || 5
+    const shiftRole = role || name || null
 
     const { data, error } = await supabase
       .from('event_shifts')
       .insert([
         {
           event_id: params.id,
-          date,
-          time,
-          capacity,
-          role: role || null,
+          date: shiftDate,
+          time: shiftTime,
+          capacity: shiftCapacity,
+          role: shiftRole,
           assigned: 0,
         },
       ])
