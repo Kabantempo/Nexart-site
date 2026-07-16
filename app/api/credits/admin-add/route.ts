@@ -1,16 +1,18 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: NextRequest) {
   try {
     const admin = getAdminClient()
     const auth = req.headers.get('Authorization')
-    if (!auth) {
+    if (!auth || !auth.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { data: { user }, error: authError } = await admin.auth.getUser(auth.replace('Bearer ', ''))
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error: authError } = await anon.auth.getUser(auth.slice(7))
     if (authError || !user) {
       console.warn('❌ Invalid auth on credits/admin-add')
       return NextResponse.json({ error: 'Session invalide' }, { status: 401 })
