@@ -1,8 +1,22 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
-// GET /api/itinerary?creator_id=xxx  or  ?region=xxx (pour organisateurs)
+async function getAuthUser(req: NextRequest) {
+  const header = req.headers.get('Authorization')
+  if (!header || !header.startsWith('Bearer ')) return null
+  const token = header.slice(7)
+  if (!token) return null
+  try {
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error } = await anon.auth.getUser(token)
+    if (error || !user) return null
+    return user
+  } catch { return null }
+}
+
+// GET /api/itinerary?creator_id=xxx  or  ?region=xxx (public)
 export async function GET(req: NextRequest) {
   try {
     const admin = getAdminClient()
@@ -24,80 +38,74 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await query
     if (error) throw error
-    console.log('✓ Itinerary fetched:', { creatorId, region })
     return NextResponse.json({ itinerary: data })
   } catch (error: any) {
-    console.error('❌ Itinerary GET error:', { error: error?.message, timestamp: new Date().toISOString() })
+    console.error('❌ Itinerary GET error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement itinéraire', details: error?.message }, { status: 500 })
   }
 }
 
-// POST /api/itinerary — ajouter une étape
+// POST /api/itinerary — ajouter une étape (auth requise, user doit être le creator)
 export async function POST(req: NextRequest) {
+  const user = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const admin = getAdminClient()
     const body = await req.json()
-    const { creator_id, label, region, department, city, lat, lng, start_date, end_date, is_public } = body
+    const { label, region, department, city, lat, lng, start_date, end_date, is_public } = body
 
-    if (!creator_id || !label || !start_date || !end_date) {
+    if (!label || !start_date || !end_date) {
       return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
     }
 
     const { data, error } = await admin.from('itinerary').insert({
-      creator_id, label, region, department, city,
+      creator_id: user.id, label, region, department, city,
       lat: lat || null, lng: lng || null,
       start_date, end_date, is_public: is_public !== false,
     }).select().single()
 
     if (error) throw error
 
-    // Notifier les followers que ce créateur arrive dans la région
     if (is_public !== false && region) {
-      const { data: followers } = await admin.from('follows')
-        .select('follower_id')
-        .eq('followed_id', creator_id)
-
+      const { data: followers } = await admin.from('follows').select('follower_id').eq('followed_id', user.id)
       if (followers?.length) {
-        const { data: creatorProfile } = await admin.from('profiles')
-          .select('full_name')
-          .eq('id', creator_id)
-          .single()
-
+        const { data: profile } = await admin.from('profiles').select('full_name').eq('id', user.id).single()
         const notifications = followers.map(f => ({
           user_id: f.follower_id,
           type: 'creator_itinerary',
-          title: `${creatorProfile?.full_name || 'Un créateur que vous suivez'} arrive dans votre région`,
+          title: `${profile?.full_name || 'Un créateur que vous suivez'} arrive dans votre région`,
           body: `${label} — du ${new Date(start_date).toLocaleDateString('fr-FR')} au ${new Date(end_date).toLocaleDateString('fr-FR')}`,
-          link: `/creators/${creator_id}`,
+          link: `/creators/${user.id}`,
         }))
-
         await admin.from('notifications').insert(notifications)
       }
     }
 
-    console.log('✓ Itinerary entry added:', { creator_id, label })
+    console.log('✓ Itinerary entry added:', { creator_id: user.id, label })
     return NextResponse.json({ entry: data }, { status: 201 })
   } catch (error: any) {
-    console.error('❌ Itinerary POST error:', { error: error?.message, timestamp: new Date().toISOString() })
+    console.error('❌ Itinerary POST error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur création itinéraire', details: error?.message }, { status: 500 })
   }
 }
 
-// DELETE /api/itinerary?id=xxx&creator_id=xxx
+// DELETE /api/itinerary?id=xxx
 export async function DELETE(req: NextRequest) {
+  const user = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const admin = getAdminClient()
     const id = req.nextUrl.searchParams.get('id')
-    const creatorId = req.nextUrl.searchParams.get('creator_id')
+    if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
 
-    if (!id || !creatorId) return NextResponse.json({ error: 'id et creator_id requis' }, { status: 400 })
-
-    const { error } = await admin.from('itinerary').delete().eq('id', id).eq('creator_id', creatorId)
+    const { error } = await admin.from('itinerary').delete().eq('id', id).eq('creator_id', user.id)
     if (error) throw error
-    console.log('✓ Itinerary entry deleted:', { id, creator_id: creatorId })
+    console.log('✓ Itinerary entry deleted:', { id, creator_id: user.id })
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('❌ Itinerary DELETE error:', { error: error?.message, timestamp: new Date().toISOString() })
+    console.error('❌ Itinerary DELETE error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur suppression itinéraire', details: error?.message }, { status: 500 })
   }
 }
