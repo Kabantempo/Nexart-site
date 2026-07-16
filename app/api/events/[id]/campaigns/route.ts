@@ -5,41 +5,54 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+async function requireOrganizer(req: NextRequest, eventId: string) {
+  const header = req.headers.get('Authorization')
+  if (!header || !header.startsWith('Bearer ')) return null
+  const token = header.slice(7)
+  if (!token) return null
+  try {
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error } = await anon.auth.getUser(token)
+    if (error || !user) return null
+    const admin = getAdminClient()
+    const { data: event } = await admin.from('events').select('organizer_id').eq('id', eventId).single()
+    if (!event || event.organizer_id !== user.id) return null
+    return user
+  } catch { return null }
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const supabase = getAdminClient()
-
     const { data, error } = await supabase
       .from('event_campaigns')
       .select('*')
       .eq('event_id', params.id)
       .order('created_at', { ascending: false })
-
     if (error) throw error
-
     return NextResponse.json(data || [])
   } catch (error: any) {
-    console.error('❌ Campaigns GET error:', { error: error?.message, details: error })
+    console.error('❌ Campaigns GET error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement campagnes', details: error?.message }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const supabase = getAdminClient()
-
     const body = await req.json()
     const { title, subject, message } = body
-
     const { data, error } = await supabase
       .from('event_campaigns')
       .insert([{ event_id: params.id, title, subject, message, status: 'draft' }])
       .select()
-
     if (error) throw error
-
     return NextResponse.json(data?.[0], { status: 201 })
   } catch (error: any) {
     console.error('Campaigns POST error:', error)
@@ -47,25 +60,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-// PATCH: send campaign to all approved exhibitors via Resend
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const supabase = getAdminClient()
     const { campaign_id } = await req.json()
-
     if (!campaign_id) return NextResponse.json({ error: 'campaign_id requis' }, { status: 400 })
 
-    // Get campaign
     const { data: campaign, error: camErr } = await supabase
       .from('event_campaigns').select('*').eq('id', campaign_id).eq('event_id', params.id).single()
     if (camErr || !campaign) return NextResponse.json({ error: 'Campagne introuvable' }, { status: 404 })
     if (campaign.status === 'sent') return NextResponse.json({ error: 'Déjà envoyée' }, { status: 400 })
 
-    // Get event title
     const { data: event } = await supabase.from('events').select('title').eq('id', params.id).single()
 
-    // Get approved exhibitors emails
     const { data: exhibitors } = await supabase
       .from('event_exhibitor_responses')
       .select('exhibitor_id, profiles:exhibitor_id(full_name, email)')
