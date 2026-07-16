@@ -1,17 +1,13 @@
 export const dynamic = 'force-dynamic'
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
+    const supabase = getAdminClient()
     const { data, error } = await supabase
       .from('event_shifts')
       .select('*')
@@ -19,7 +15,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .order('date', { ascending: true })
 
     if (error) throw error
-
     return NextResponse.json(data || [])
   } catch (error: any) {
     console.error('❌ Shifts GET error:', { event_id: params.id, error: error?.message })
@@ -30,13 +25,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
+    const supabase = getAdminClient()
     const body = await req.json()
-    // Accept both client format (name, start_time, end_time, max_volunteers) and direct format (date, time, capacity, role)
     const { name, start_time, end_time, max_volunteers, date, time, capacity, role } = body
 
     const shiftDate = date || (start_time ? start_time.split('T')[0] : null)
@@ -46,20 +36,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const { data, error } = await supabase
       .from('event_shifts')
-      .insert([
-        {
-          event_id: params.id,
-          date: shiftDate,
-          time: shiftTime,
-          capacity: shiftCapacity,
-          role: shiftRole,
-          assigned: 0,
-        },
-      ])
+      .insert([{ event_id: params.id, date: shiftDate, time: shiftTime, capacity: shiftCapacity, role: shiftRole, assigned: 0 }])
       .select()
 
     if (error) throw error
-
     return NextResponse.json(data?.[0], { status: 201 })
   } catch (error: any) {
     console.error('Shifts POST error:', error)
