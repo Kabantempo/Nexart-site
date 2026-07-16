@@ -19,14 +19,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if admin (query user's role from profiles table)
     const { data: profile, error: profileError } = await admin
       .from('profiles')
-      .select('role')
+      .select('is_admin')
       .eq('id', user.id)
       .single()
 
-    if (profileError || profile?.role !== 'admin') {
+    if (profileError || !profile?.is_admin) {
       return NextResponse.json(
         { error: 'Only admins can view audit logs' },
         { status: 403 }

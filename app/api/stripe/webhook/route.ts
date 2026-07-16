@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
           expires_at: expiresAt.toISOString(),
         } as any)
 
-        await (admin as any).from('credit_transactions').insert({
+        await admin.from('credit_transactions').insert({
           user_id: uid,
           credit_type: creditDef.type,
           payment_intent_id: session.payment_intent,

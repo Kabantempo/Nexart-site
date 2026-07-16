@@ -161,7 +161,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .order('position', { ascending: true })
 
     for (let i = 0; i < (remaining?.length || 0); i++) {
-      await (admin as any).from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
+      await admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
     }
 
     return NextResponse.json({ success: true })
@@ -200,7 +200,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       .order('position', { ascending: true })
 
     for (let i = 0; i < (remaining?.length || 0); i++) {
-      await (admin as any).from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
+      await admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
     }
 
     return NextResponse.json({ success: true, remaining_count: remaining?.length })

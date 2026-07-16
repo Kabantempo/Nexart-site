@@ -56,7 +56,7 @@ export async function POST(
 
     // Bulk replace: { fields: [...] }
     if (Array.isArray(body.fields)) {
-      await (admin as any).from('exhibitor_fields').delete().eq('event_id', params.id)
+      await admin.from('exhibitor_fields').delete().eq('event_id', params.id)
 
       if (body.fields.length === 0) {
         return NextResponse.json({ success: true, fields: [] })
