@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { createClient } from '@supabase/supabase-js'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -23,10 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     // Get event + reminder settings
     const { data: event } = await supabase
@@ -226,18 +224,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('Supabase env vars not configured')
-      return NextResponse.json(
-        { error: 'Server misconfigured: Supabase env vars missing' },
-        { status: 500 }
-      )
-    }
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
+    const supabase = getAdminClient()
 
     const body = await req.json()
     const { first_reminder_days = 7, second_reminder_days = 14 } = body

@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -8,10 +9,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     const body = await req.json()
     const { exhibitor_id, application_text, application_data = {} } = body
