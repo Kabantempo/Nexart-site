@@ -34,7 +34,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .order('created_at', { ascending: false })
     if (error) throw error
     return NextResponse.json(data || [])
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Campaigns GET error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement campagnes', details: error?.message }, { status: 500 })
   }
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .select()
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Campaigns POST error:', error)
     return NextResponse.json({ error: 'Erreur création campagne' }, { status: 500 })
   }
@@ -115,8 +115,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .update({ status: 'sent', sent_at: new Date().toISOString(), open_rate: 0 })
       .eq('id', campaign_id)
     return NextResponse.json({ success: true, sent, total: recipients.length })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Campaigns PATCH error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

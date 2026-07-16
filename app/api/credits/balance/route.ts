@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     if (historyError) throw historyError
 
     return NextResponse.json({ balance, history: history || [] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Credits balance error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement solde', details: error?.message }, { status: 500 })
   }

@@ -24,8 +24,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       .eq('id', params.shift_id).eq('event_id', params.id)
     if (error) throw error
     return NextResponse.json({ success: true })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('DELETE /volunteers/shifts/[shift_id]:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: (err instanceof Error ? err.message : String(err)) }, { status: 500 })
   }
 }

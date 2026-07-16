@@ -41,9 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     if (error) throw error
     return NextResponse.json({ waitlist: data || [] })
-  } catch (error: any) {
-    console.error('❌ Waitlist GET error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur chargement waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist GET error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur chargement waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -72,9 +72,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })
-  } catch (error: any) {
-    console.error('❌ Waitlist POST error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur traitement waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist POST error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur traitement waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -165,9 +165,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error('❌ Waitlist PATCH error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur mise à jour waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist PATCH error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur mise à jour waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -204,8 +204,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     return NextResponse.json({ success: true, remaining_count: remaining?.length })
-  } catch (error: any) {
-    console.error('❌ Waitlist DELETE error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur suppression waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist DELETE error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur suppression waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

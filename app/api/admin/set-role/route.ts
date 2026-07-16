@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     const { error } = await admin.from('profiles').update({ [field]: value } as any).eq('id', userId)
     if (error) throw error
     return NextResponse.json({ ok: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Set-role error:', { error: error?.message, timestamp: new Date().toISOString() })
     return NextResponse.json({ error: 'Erreur modification rôle', details: error?.message }, { status: 500 })
   }

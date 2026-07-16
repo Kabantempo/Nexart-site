@@ -34,6 +34,6 @@ export async function GET(req: NextRequest) {
       users: (data || []).map(u => ({ ...u, subscription_tier: u.subscription_tier ?? 'free' })),
     })
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? (err instanceof Error ? err.message : String(err)) : 'Erreur' }, { status: 500 })
   }
 }

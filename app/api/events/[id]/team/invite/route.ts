@@ -51,7 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     if (insertError) throw insertError
     return NextResponse.json({ success: true }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Team invite error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur invitation équipe', details: error?.message }, { status: 500 })
   }

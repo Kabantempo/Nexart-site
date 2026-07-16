@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
         arpu: 0,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Admin analytics error:', { error: error?.message, timestamp: new Date().toISOString() })
     return NextResponse.json({ error: 'Erreur chargement analytics', details: error?.message }, { status: 500 })
   }

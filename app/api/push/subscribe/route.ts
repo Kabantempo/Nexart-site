@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     )
     if (error) throw error
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Push subscribe error:', { error: error?.message })
     return NextResponse.json({ error: error?.message }, { status: 500 })
   }
@@ -48,7 +48,7 @@ export async function DELETE(req: NextRequest) {
     const admin = getAdminClient()
     await admin.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', endpoint)
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: error?.message }, { status: 500 })
   }
 }

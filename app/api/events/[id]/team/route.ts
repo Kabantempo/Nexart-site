@@ -32,9 +32,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     if (error) throw error
     return NextResponse.json(data || [])
-  } catch (error: any) {
-    console.error('❌ Team GET error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur chargement équipe', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Team GET error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur chargement équipe', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -56,8 +56,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })
-  } catch (error: any) {
-    console.error('❌ Team POST error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur création membre équipe', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Team POST error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur création membre équipe', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

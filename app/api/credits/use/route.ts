@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       await admin.from('profiles').update({ profile_boosted_until: until } as any).eq('id', user.id)
     }
     return NextResponse.json({ success: true, new_balance: balance - cost })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Credits use error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur utilisation crédits', details: error?.message }, { status: 500 })
   }

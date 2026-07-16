@@ -73,10 +73,10 @@ export async function GET(req: NextRequest) {
       offset,
       page: Math.ceil(offset / limit) + 1,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Audit logs error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch audit logs' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch audit logs' },
       { status: 500 }
     )
   }
@@ -148,10 +148,10 @@ export async function POST(req: NextRequest) {
       { success: true, log_id: data },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Audit log creation error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create audit log' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to create audit log' },
       { status: 500 }
     )
   }

@@ -52,10 +52,10 @@ export async function GET(
       exhibitors: data || [],
       total: count,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Exhibitors GET error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch exhibitors' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch exhibitors' },
       { status: 500 }
     )
   }
@@ -101,10 +101,10 @@ export async function POST(
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Exhibitor POST error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to submit application' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to submit application' },
       { status: 500 }
     )
   }

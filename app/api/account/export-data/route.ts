@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
         'Content-Disposition': `attachment; filename="nexart-data-${new Date().toISOString().split('T')[0]}.json"`,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Export error:', error)
     return NextResponse.json({ error: 'Erreur export données' }, { status: 500 })
   }

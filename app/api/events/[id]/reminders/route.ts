@@ -198,7 +198,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       second_reminders_sent: secondRemindersSent,
       timestamp: new Date().toISOString(),
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorMsg = error?.message || 'Unknown error'
     const errorStack = error?.stack || ''
     console.error('❌ Reminders cron failed:', {
@@ -262,7 +262,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       first_reminder_days,
       second_reminder_days,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorMsg = error?.message || 'Unknown error'
     console.error('❌ Settings update failed:', {
       event_id: params.id,

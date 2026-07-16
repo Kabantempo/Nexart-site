@@ -161,9 +161,9 @@ export async function POST(req: NextRequest) {
       tasks_escalated: tasksEscalated,
       details: results,
     })
-  } catch (error: any) {
-    console.error('❌ Cron send-reminders failed:', error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Cron send-reminders failed:', (error instanceof Error ? error.message : String(error)))
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 

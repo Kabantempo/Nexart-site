@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await query
     if (error) throw error
     return NextResponse.json({ itinerary: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Itinerary GET error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement itinéraire', details: error?.message }, { status: 500 })
   }
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       }
     }
     return NextResponse.json({ entry: data }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Itinerary POST error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur création itinéraire', details: error?.message }, { status: 500 })
   }
@@ -101,7 +101,7 @@ export async function DELETE(req: NextRequest) {
     const { error } = await admin.from('itinerary').delete().eq('id', id).eq('creator_id', user.id)
     if (error) throw error
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Itinerary DELETE error:', { error: error?.message })
     return NextResponse.json({ error: 'Erreur suppression itinéraire', details: error?.message }, { status: 500 })
   }

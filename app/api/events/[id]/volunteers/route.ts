@@ -41,7 +41,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .eq('status', 'active')
     if (error) throw error
     return NextResponse.json(data || [])
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Volunteers GET error:', { event_id: params.id, error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement bénévoles', details: error?.message }, { status: 500 })
   }
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .select()
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Volunteers POST error:', error)
     return NextResponse.json({ error: 'Erreur création bénévole' }, { status: 500 })
   }
