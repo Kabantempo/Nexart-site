@@ -1049,6 +1049,7 @@ export function EventDetailClient({ id }: Props) {
                       { label: "Liste d'attente", href: `/events/${id}/waitlist` },
                       { label: 'Analytics', href: `/events/${id}/analytics` },
                       { label: 'Équipe', href: `/events/${id}/team` },
+                      { label: 'Bénévoles', href: `/events/${id}/volunteers` },
                       { label: 'Campagnes', href: `/events/${id}/campaigns` },
                       { label: 'Paramètres', href: `/events/${id}/settings/faqs` },
                     ].map(tool => (
