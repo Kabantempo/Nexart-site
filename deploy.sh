@@ -35,13 +35,13 @@ sleep 3
 echo "📂 Extracting build..."
 $SSH "cd $REMOTE_DIR && tar -xzf $REMOTE_ARCHIVE && rm -f $REMOTE_ARCHIVE && echo done"
 
-# ── 6. Copier static dans standalone (requis par Next.js) ────────────────────
-echo "🔗 Linking static assets..."
-$SSH "cd $REMOTE_DIR && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && [ -f .env.local ] && cp .env.local .next/standalone/.env.local; echo done"
+# ── 6. Copier compiled routes dans .next/ (serveur lit .next/ pas .next/standalone/) ──
+echo "🔗 Syncing compiled routes to active .next dir..."
+$SSH "cd $REMOTE_DIR && cp -r .next/standalone/.next/server/app/. .next/server/app/ && cp -r .next/standalone/.next/server/chunks/. .next/server/chunks/ && cp .next/standalone/.next/BUILD_ID .next/ && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && [ -f .env.local ] && cp .env.local .next/standalone/.env.local; echo done"
 
-# ── 7. Clear stderr + restart ─────────────────────────────────────────────────
-echo "🚀 Restarting app..."
-$SSH "cd $REMOTE_DIR && > stderr.log && touch tmp/restart.txt && cat .next/standalone/.next/BUILD_ID"
+# ── 7. Kill workers + restart ─────────────────────────────────────────────────
+echo "🚀 Restarting app (including workers)..."
+$SSH "cd $REMOTE_DIR && > stderr.log && pkill -f next-router-worker 2>/dev/null || true; touch tmp/restart.txt && cat .next/BUILD_ID"
 
 echo "🧹 Cleaning up local archive..."
 rm -f "$ARCHIVE"
