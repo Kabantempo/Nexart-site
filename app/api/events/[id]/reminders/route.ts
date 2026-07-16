@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@supabase/supabase-js'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
+import { emailReminder } from '@/lib/email-templates'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -85,18 +86,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                   from: 'noreply@nexart.fr',
                   to: (exhibitor.profiles as any).email,
                   subject: `Rappel: Confirmez votre participation à ${event.title}`,
-                  html: `
-                    <h2>Bonjour ${(exhibitor.profiles as any).full_name},</h2>
-                    <p>Votre candidature pour <strong>${event.title}</strong> a été acceptée.</p>
-                    <p>Pouvez-vous confirmer votre participation au plus tôt?</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
-                       style="display: inline-block; padding: 12px 24px; background-color: #6366F1; color: white; text-decoration: none; border-radius: 8px;">
-                      Confirmer ma candidature
-                    </a>
-                    <p style="color: #888; font-size: 12px; margin-top: 24px;">
-                      Si vous avez des questions, contactez l'organisateur de l'événement.
-                    </p>
-                  `,
+                  html: emailReminder(event.title, params.id as string, false),
                 }),
               })
             } catch (emailError) {
@@ -161,18 +151,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                   from: 'noreply@nexart.fr',
                   to: (exhibitor.profiles as any).email,
                   subject: `⚠️ Dernière relance: Confirmez votre participation à ${event.title}`,
-                  html: `
-                    <h2>Bonjour ${(exhibitor.profiles as any).full_name},</h2>
-                    <p>Ceci est notre dernier rappel avant la clôture des candidatures.</p>
-                    <p>Veuillez confirmer votre participation à <strong>${event.title}</strong> au plus tôt.</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
-                       style="display: inline-block; padding: 12px 24px; background-color: #DC2626; color: white; text-decoration: none; border-radius: 8px;">
-                      Confirmer maintenant
-                    </a>
-                    <p style="color: #888; font-size: 12px; margin-top: 24px;">
-                      Passé ce délai, votre place pourrait être attribuée à un autre candidat.
-                    </p>
-                  `,
+                  html: emailReminder(event.title, params.id as string, true),
                 }),
               })
             } catch (emailError) {
@@ -199,8 +178,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       timestamp: new Date().toISOString(),
     })
   } catch (error: unknown) {
-    const errorMsg = error?.message || 'Unknown error'
-    const errorStack = error?.stack || ''
+    const errorMsg = (error as Error)?.message || 'Unknown error'
+    const errorStack = (error as Error)?.stack || ''
     console.error('❌ Reminders cron failed:', {
       event_id: params.id,
       error: errorMsg,
@@ -263,7 +242,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       second_reminder_days,
     })
   } catch (error: unknown) {
-    const errorMsg = error?.message || 'Unknown error'
+    const errorMsg = (error as Error)?.message || 'Unknown error'
     console.error('❌ Settings update failed:', {
       event_id: params.id,
       error: errorMsg,

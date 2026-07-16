@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
         supabase.from('conversations').select('*').eq('creator_id', userId),
         supabase.from('messages').select('*').eq('sender_id', userId),
         supabase.from('reviews').select('*').eq('reviewer_id', userId),
-        supabase.from('posts').select('*').eq('author_id', userId),
+        (supabase.from('posts') as any).select('*').eq('author_id', userId),
       ])
 
     // Créer JSON export

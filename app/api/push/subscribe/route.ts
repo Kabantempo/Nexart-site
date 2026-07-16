@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
-    console.error('❌ Push subscribe error:', { error: error?.message })
-    return NextResponse.json({ error: error?.message }, { status: 500 })
+    console.error('❌ Push subscribe error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 })
   }
 }
 
@@ -49,6 +49,6 @@ export async function DELETE(req: NextRequest) {
     await admin.from('push_subscriptions').delete().eq('user_id', user.id).eq('endpoint', endpoint)
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
-    return NextResponse.json({ error: error?.message }, { status: 500 })
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 })
   }
 }

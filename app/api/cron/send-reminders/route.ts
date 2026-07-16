@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 
         if (isEscalate && organizerId && organizerId !== task.assigned_to) {
           // Escalade : réassigner à l'organisateur + notifier
-          await admin.from('event_tasks').update({ assigned_to: organizerId }).eq('id', task.id)
+          await (admin as any).from('event_tasks').update({ assigned_to: organizerId }).eq('id', task.id)
           await admin.from('notifications').insert({
             user_id: organizerId,
             type: 'task_escalated',

@@ -34,7 +34,7 @@ export async function PATCH(
 
     const { data, error } = await admin
       .from('event_tasks')
-      .update(updates)
+      .update(updates as any)
       .eq('id', params.task_id)
       .eq('event_id', params.id)
       .select()

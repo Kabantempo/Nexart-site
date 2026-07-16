@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ ok: true })
   } catch (error: unknown) {
-    console.error('❌ Set-role error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur modification rôle', details: error?.message }, { status: 500 })
+    console.error('❌ Set-role error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur modification rôle', details: (error as Error)?.message }, { status: 500 })
   }
 }

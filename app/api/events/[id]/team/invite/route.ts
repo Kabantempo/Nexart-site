@@ -29,9 +29,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Email and role required' }, { status: 400 })
     }
 
-    const { data: invitedUser, error: userError } = await supabase
+    const { data: invitedUser, error: userError } = await (supabase as any)
       .from('profiles')
-      .select('id')
+      .select('id, email')
       .eq('email', email)
       .single()
 
@@ -47,12 +47,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         role: role,
         invited_by: user.id,
         joined_at: new Date().toISOString(),
-      })
+      } as any)
 
     if (insertError) throw insertError
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (error: unknown) {
-    console.error('❌ Team invite error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur invitation équipe', details: error?.message }, { status: 500 })
+    console.error('❌ Team invite error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur invitation équipe', details: (error as Error)?.message }, { status: 500 })
   }
 }

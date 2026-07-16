@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     // Trouver tous les utilisateurs supprimés depuis > 30 jours
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const { data: usersToDelete, error: selectError } = await supabase
+    const { data: usersToDelete, error: selectError } = await (supabase as any)
       .from('users')
       .select('id, email, deleted_at')
       .eq('is_hard_deleted', false)
@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
         await supabase.from('messages').delete().eq('sender_id', user.id)
         await supabase.from('conversations').delete().eq('creator_id', user.id)
         await supabase.from('reviews').delete().eq('reviewer_id', user.id)
-        await supabase.from('posts').delete().eq('author_id', user.id)
+        await (supabase as any).from('posts').delete().eq('author_id', user.id)
 
         // 2. Marquer as hard-deleted (pas de DELETE de users table pour audit)
-        const { error: hardDeleteError } = await supabase
+        const { error: hardDeleteError } = await (supabase as any)
           .from('users')
           .update({
             is_hard_deleted: true,
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const { data: users } = await supabase
+    const { data: users } = await (supabase as any)
       .from('users')
       .select('id, email, deleted_at')
       .eq('is_hard_deleted', false)

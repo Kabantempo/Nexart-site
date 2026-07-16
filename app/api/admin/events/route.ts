@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         created_at,
         profiles!events_organizer_id_fkey (full_name, email)
       `, { count: 'exact' })
-      .eq('status', status)
+      .eq('status', status as 'draft' | 'published' | 'closed')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

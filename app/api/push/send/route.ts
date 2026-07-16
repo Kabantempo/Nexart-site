@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
     await Promise.allSettled(
       subs.map(async (sub) => {
         try {
-          await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload)
+          await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh as string, auth: sub.auth as string } }, payload)
           sent++
         } catch (err: unknown) {
-          if (err.statusCode === 404 || err.statusCode === 410) {
+          if ((err as any).statusCode === 404 || (err as any).statusCode === 410) {
             stale.push(sub.id)
           }
         }
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ sent, total: subs.length, stale_cleaned: stale.length })
   } catch (error: unknown) {
-    console.error('❌ Push send error:', { error: error?.message })
-    return NextResponse.json({ error: error?.message }, { status: 500 })
+    console.error('❌ Push send error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: (error as Error)?.message }, { status: 500 })
   }
 }

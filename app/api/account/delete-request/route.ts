@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
+import { emailDeleteRequest } from '@/lib/email-templates'
 
 export async function POST(req: NextRequest) {
   try {
@@ -81,22 +82,7 @@ export async function POST(req: NextRequest) {
         from: 'noreply@nexart.fr',
         to: email,
         subject: 'Suppression de compte Nexart — Confirmez votre demande',
-        html: `
-          <h2>Suppression de compte demandée</h2>
-          <p>Vous avez demandé la suppression de votre compte Nexart.</p>
-          <p><strong>Qu'est-ce qui se passe ?</strong></p>
-          <ul>
-            <li>Votre compte sera masqué immédiatement (soft-delete)</li>
-            <li>Vous avez 24h pour annuler cette demande</li>
-            <li>Après 30 jours, vos données seront supprimées définitivement</li>
-            <li>Contrats restent conservés 11 ans (obligation légale)</li>
-          </ul>
-          <p><strong>Annuler la suppression ?</strong></p>
-          <p><a href="${cancelUrl}">Cliquez ici pour annuler la suppression (lien valide 24h)</a></p>
-          <p style="color: #888; font-size: 12px;">
-            Si vous n'avez pas demandé cette suppression, ignorez cet email.
-          </p>
-        `,
+        html: emailDeleteRequest(cancelUrl),
       }),
     })
 

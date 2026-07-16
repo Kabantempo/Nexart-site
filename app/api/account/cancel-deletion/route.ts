@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { emailDeleteCancelled } from '@/lib/email-templates'
 
 export async function GET(req: NextRequest) {
   try {
@@ -34,11 +35,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Vérifier que l'utilisateur existe et est en soft-delete
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await (supabase as any)
       .from('users')
       .select('id, deleted_at, email')
       .eq('id', userId)
-      .single()
+      .single() as any
 
     if (userError || !user) {
       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
@@ -49,7 +50,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Annuler la suppression (soft-delete)
-    const { error: restoreError } = await supabase
+    const { error: restoreError } = await (supabase as any)
       .from('users')
       .update({
         deleted_at: null,
@@ -79,12 +80,7 @@ export async function GET(req: NextRequest) {
         from: 'noreply@nexart.fr',
         to: user.email,
         subject: 'Suppression de compte annulée',
-        html: `
-          <h2>Annulation confirmée</h2>
-          <p>Votre demande de suppression de compte a été annulée.</p>
-          <p>Votre compte Nexart est réactivé et accessible.</p>
-          <p>Connectez-vous normalement : <a href="https://nexart.fr/login">nexart.fr/login</a></p>
-        `,
+        html: emailDeleteCancelled(),
       }),
     })
 

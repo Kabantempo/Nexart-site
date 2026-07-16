@@ -32,8 +32,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (error) throw error
     return NextResponse.json(data || [])
   } catch (error: unknown) {
-    console.error('❌ Shifts GET error:', { event_id: params.id, error: error?.message })
-    return NextResponse.json({ error: 'Erreur chargement créneaux', details: error?.message }, { status: 500 })
+    console.error('❌ Shifts GET error:', { event_id: params.id, error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur chargement créneaux', details: (error as Error)?.message }, { status: 500 })
   }
 }
 

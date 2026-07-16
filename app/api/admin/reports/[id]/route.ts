@@ -44,7 +44,7 @@ export async function PATCH(
 
     const { data, error } = await admin
       .from('reports')
-      .update(updateData)
+      .update(updateData as any)
       .eq('id', params.id)
       .select()
       .single()

@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ reviews: data })
   } catch (error: unknown) {
-    console.error('❌ Reviews GET error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur chargement avis', details: error?.message }, { status: 500 })
+    console.error('❌ Reviews GET error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur chargement avis', details: (error as Error)?.message }, { status: 500 })
   }
 }
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     await sendPushToUsers([reviewed_id], '⭐ Nouvelle évaluation', `Vous avez reçu une note de ${rating}/5`, `/events/${event_id}`)
     return NextResponse.json({ review: data }, { status: 201 })
   } catch (error: unknown) {
-    console.error('❌ Reviews POST error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur création avis', details: error?.message }, { status: 500 })
+    console.error('❌ Reviews POST error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur création avis', details: (error as Error)?.message }, { status: 500 })
   }
 }
