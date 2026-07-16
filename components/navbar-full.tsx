@@ -11,6 +11,7 @@ import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
 import { WhatsNew } from '@/components/ui/whats-new'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { PushNotificationButton } from '@/components/push-notifications'
 
 export function NavbarFull() {
   const [mobileOpen,  setMobileOpen]  = useState(false)
@@ -309,6 +310,7 @@ export function NavbarFull() {
             {user ? (
               <>
                 <NotificationBell userId={user.id} dark={dark} />
+                <PushNotificationButton />
                 <Link href="/favorites" title="Mes favoris" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
                   <Heart size={16} />
                 </Link>

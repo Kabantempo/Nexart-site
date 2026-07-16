@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendMail } from '@/lib/mailer'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendPushToUsers } from '@/lib/push'
 
 export async function POST(req: NextRequest) {
   const admin = getAdminClient()
@@ -49,6 +50,9 @@ export async function POST(req: NextRequest) {
       body: content?.slice(0, 120) || null,
       link: `/messages/${conversation_id}`,
     })
+
+    // Push notification
+    await sendPushToUsers([recipientId], `💬 ${senderName}`, content?.slice(0, 120) || 'Nouveau message', `/messages/${conversation_id}`)
 
     if (!recipientEmail || !process.env.SMTP_PASS) return NextResponse.json({ ok: true })
 

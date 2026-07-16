@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getStripe, isStripeConfigured, SubscriptionTier } from '@/lib/stripe'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendPushToUsers } from '@/lib/push'
 
 // Mapping Stripe Price ID → tier Nexart
 // À remplir avec les vrais Price IDs quand Stripe est actif
@@ -69,6 +70,8 @@ export async function POST(req: NextRequest) {
           body: 'Votre abonnement Nexart est maintenant actif.',
           link: '/dashboard',
         })
+
+        await sendPushToUsers([uid], '✅ Abonnement activé', `Votre abonnement ${tier} est maintenant actif.`, '/dashboard')
       }
       break
     }
@@ -140,8 +143,18 @@ export async function POST(req: NextRequest) {
     // ── Paiement échoué ───────────────────────────────────────────────────────
     case 'invoice.payment_failed': {
       const invoice = event.data.object as { subscription?: string; customer_email?: string }
-      // TODO: envoyer email de relance + notif in-app
       console.error('Paiement échoué pour subscription:', invoice.subscription)
+
+      if (userId) {
+        await admin.from('notifications').insert({
+          user_id: userId,
+          type: 'payment_failed',
+          title: 'Échec de paiement',
+          body: 'Votre paiement a échoué. Mettez à jour votre moyen de paiement.',
+          link: '/dashboard?tab=billing',
+        })
+        await sendPushToUsers([userId], '⚠️ Paiement échoué', 'Mettez à jour votre moyen de paiement.', '/dashboard?tab=billing')
+      }
       break
     }
   }
