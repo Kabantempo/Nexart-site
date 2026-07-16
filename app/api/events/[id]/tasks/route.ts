@@ -39,11 +39,11 @@ export async function POST(
     const body = await req.json()
     const { title, description, assignee_id, deadline } = body
 
-    const supabase = createClient(
+    const anonClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
+    const { data: { user }, error: authError } = await anonClient.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
     )
 
