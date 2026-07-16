@@ -1,8 +1,23 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
+
+async function requireAdmin(req: NextRequest) {
+  const token = req.headers.get('authorization')?.replace('Bearer ', '')
+  if (!token) return null
+  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { autoRefreshToken: false, persistSession: false } })
+  const { data: { user } } = await anon.auth.getUser(token)
+  if (!user) return null
+  const { data: prof } = await anon.from('profiles').select('is_admin').eq('id', user.id).single()
+  if (!prof?.is_admin) return null
+  return user
+}
 
 export async function GET(req: NextRequest) {
+  const user = await requireAdmin(req)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const supabase = getAdminClient()
   try {
     const { count: totalUsers } = await supabase
