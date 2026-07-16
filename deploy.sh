@@ -37,7 +37,7 @@ $SSH "cd $REMOTE_DIR && tar -xzf $REMOTE_ARCHIVE && rm -f $REMOTE_ARCHIVE && ech
 
 # ── 6. Copier static dans standalone (requis par Next.js) ────────────────────
 echo "🔗 Linking static assets..."
-$SSH "cd $REMOTE_DIR && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && echo done"
+$SSH "cd $REMOTE_DIR && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && [ -f .env.local ] && cp .env.local .next/standalone/.env.local; echo done"
 
 # ── 7. Clear stderr + restart ─────────────────────────────────────────────────
 echo "🚀 Restarting app..."
