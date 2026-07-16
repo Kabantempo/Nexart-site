@@ -13,6 +13,13 @@ function formatDate(d: string) {
 export async function POST(req: NextRequest) {
   try {
   const admin = getAdminClient()
+
+  // Auth requise
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+  if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
   const body = await req.json()
   const { event_id, creator_id, organizer_id, application_id } = body
 
@@ -192,3 +199,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
   }
 }
+

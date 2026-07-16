@@ -6,6 +6,12 @@ import { getAdminClient } from '@/lib/supabase-admin'
 export async function POST(req: NextRequest) {
   const adminClient = getAdminClient()
   try {
+    // Auth requise
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const { data: { user: authUser } } = await adminClient.auth.getUser(authHeader.substring(7))
+    if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
     const { creatorEmail: rawEmail, creatorName, eventTitle, status, creatorId } = await req.json()
 
     let creatorEmail = rawEmail

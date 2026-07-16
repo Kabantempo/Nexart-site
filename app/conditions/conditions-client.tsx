@@ -190,7 +190,69 @@ export default function ConditionsClient() {
       ],
     },
     {
-      title: '11. Modifications des Conditions',
+      title: '11. Cookies et Technologies de Suivi',
+      icon: AlertCircle,
+      subsections: [
+        {
+          title: '11.1 Cookies Strictement Nécessaires',
+          items: [
+            'Session d\'authentification (Supabase Auth) — indispensable au fonctionnement',
+            'Préférences utilisateur (thème, langue) — stockées localement',
+            'Ces cookies ne peuvent pas être désactivés sans empêcher l\'utilisation du service',
+          ],
+        },
+        {
+          title: '11.2 Cookies Analytiques (avec consentement)',
+          items: [
+            'Nexart peut utiliser des outils d\'analyse de trafic anonymisés',
+            'Ces cookies sont activés uniquement avec votre accord explicite',
+            'Vous pouvez retirer votre consentement à tout moment via kalvin@nexart.fr',
+          ],
+        },
+        {
+          title: '11.3 Pas de Cookies Tiers Publicitaires',
+          items: [
+            'Nexart n\'utilise pas de cookies publicitaires tiers (Google Ads, Facebook Pixel, etc.)',
+            'Aucune donnée de navigation n\'est vendue à des annonceurs',
+          ],
+        },
+      ],
+    },
+    {
+      title: '12. Paiements et Facturation (Stripe)',
+      icon: DollarSign,
+      subsections: [
+        {
+          title: '12.1 Traitement des Paiements',
+          items: [
+            'Tous les paiements sont traités par Stripe (certifié PCI-DSS niveau 1)',
+            'Nexart ne stocke JAMAIS vos coordonnées bancaires',
+            'Les données de carte sont transmises directement à Stripe via chiffrement TLS',
+            'Stripe est un sous-traitant RGPD avec DPA signé — région EU',
+          ],
+        },
+        {
+          title: '12.2 Remboursements',
+          items: [
+            'Abonnements : remboursement prorata possible dans les 7 jours après souscription',
+            'Crédits déjà utilisés : non remboursables',
+            'Demande de remboursement : kalvin@nexart.fr avec votre numéro de transaction',
+            'Délai de traitement : 5-10 jours ouvrés selon votre banque',
+          ],
+        },
+        {
+          title: '12.3 Échec de Paiement',
+          items: [
+            'En cas d\'échec, vous recevez un email d\'alerte automatique',
+            'Votre abonnement reste actif 7 jours après l\'échec',
+            'Sans mise à jour du moyen de paiement : passage automatique au plan Gratuit',
+            'Aucune donnée n\'est perdue lors du changement de plan',
+          ],
+        },
+      ],
+    },
+    {
+      title: '13. Modifications des Conditions',
       icon: AlertCircle,
       items: [
         'Nexart peut modifier ces conditions à tout moment',

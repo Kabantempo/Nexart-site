@@ -1,11 +1,16 @@
 export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase-admin'
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = getAdminClient()
+
+    // Auth requise
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const { data: { user: authUser } } = await supabase.auth.getUser(authHeader.substring(7))
+    if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
     const { userId, email } = await req.json()
 
@@ -13,25 +18,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'userId et email requis' }, { status: 400 })
     }
 
-    // 1. Vérifier que l'utilisateur existe et que l'email correspond
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('id, email, profile:profiles(*)')
-      .eq('id', userId)
-      .single()
-
-    if (userError || !user || user.email !== email) {
-      return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
+    // Seul l'utilisateur lui-même peut demander la suppression
+    if (authUser.id !== userId) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
-    // 2. Créer un backup complet des données utilisateur
+    // Vérifier que l'email correspond
+    if (authUser.email !== email) {
+      return NextResponse.json({ error: 'Email incorrect' }, { status: 400 })
+    }
+
+    // Récupérer le profil pour le backup
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single()
+
+    // Créer un backup complet des données utilisateur
     const backupData = {
       user: {
-        id: user.id,
-        email: user.email,
-        created_at: (user as any).created_at,
+        id: authUser.id,
+        email: authUser.email,
+        created_at: authUser.created_at,
       },
-      profile: user.profile,
+      profile,
       deletion_requested_at: new Date().toISOString(),
     }
 
@@ -48,13 +55,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erreur backup données' }, { status: 500 })
     }
 
-    // 3. Soft-delete: marquer comme supprimé (pas de suppression physique encore)
+    // Soft-delete: marquer le profil comme supprimé
     const { error: deleteError } = await supabase
-      .from('users')
-      .update({
-        deleted_at: new Date().toISOString(),
-        is_hard_deleted: false,
-      })
+      .from('profiles')
+      .update({ deleted_at: new Date().toISOString() } as any)
       .eq('id', userId)
 
     if (deleteError) {
@@ -62,11 +66,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erreur suppression compte' }, { status: 500 })
     }
 
-    // 4. Générer token d'annulation (valide 24h)
+    // Générer token d'annulation (valide 24h)
     const cancelToken = Buffer.from(`${userId}:${Date.now()}`).toString('base64')
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://nexart.fr'}/api/account/cancel-deletion?token=${cancelToken}`
 
-    // 5. Envoyer email de confirmation
+    // Envoyer email de confirmation
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -80,7 +84,6 @@ export async function POST(req: NextRequest) {
         html: `
           <h2>Suppression de compte demandée</h2>
           <p>Vous avez demandé la suppression de votre compte Nexart.</p>
-
           <p><strong>Qu'est-ce qui se passe ?</strong></p>
           <ul>
             <li>Votre compte sera masqué immédiatement (soft-delete)</li>
@@ -88,10 +91,8 @@ export async function POST(req: NextRequest) {
             <li>Après 30 jours, vos données seront supprimées définitivement</li>
             <li>Contrats restent conservés 11 ans (obligation légale)</li>
           </ul>
-
           <p><strong>Annuler la suppression ?</strong></p>
           <p><a href="${cancelUrl}">Cliquez ici pour annuler la suppression (lien valide 24h)</a></p>
-
           <p style="color: #888; font-size: 12px;">
             Si vous n'avez pas demandé cette suppression, ignorez cet email.
           </p>
@@ -101,7 +102,6 @@ export async function POST(req: NextRequest) {
 
     if (!emailResponse.ok) {
       console.error('Email error:', await emailResponse.text())
-      // Ne pas retourner erreur — soft-delete déjà appliqué
     }
 
     return NextResponse.json(
@@ -109,11 +109,11 @@ export async function POST(req: NextRequest) {
         message: 'Compte en cours de suppression',
         deleted_at: new Date().toISOString(),
         hard_delete_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        cancelUrl: cancelUrl.split('?')[0] + '?token=***', // masquer token en réponse
+        cancelUrl: cancelUrl.split('?')[0] + '?token=***',
       },
       { status: 202 }
     )
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur API:', error)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }

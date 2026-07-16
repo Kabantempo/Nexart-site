@@ -7,8 +7,17 @@ import { sendPushToUsers } from '@/lib/push'
 export async function POST(req: NextRequest) {
   const admin = getAdminClient()
   try {
+    // Auth requise
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+    if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
     const { conversation_id, sender_id, content } = await req.json()
     if (!conversation_id || !sender_id) return NextResponse.json({ ok: true })
+
+    // L'expéditeur doit être l'utilisateur authentifié
+    if (authUser.id !== sender_id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
     // Trouver le destinataire
     const { data: conv } = await admin.from('conversations')

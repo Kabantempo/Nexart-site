@@ -7,8 +7,18 @@ import { sendPushToUsers } from '@/lib/push'
 export async function POST(req: NextRequest) {
   try {
     const admin = getAdminClient()
+
+    // Auth requise
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+    if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
     const body = await req.json()
     const { contract_id, signer_id } = body
+
+    // L'utilisateur doit signer lui-même
+    if (authUser.id !== signer_id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
     if (!contract_id || !signer_id) {
       return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
@@ -49,3 +59,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur signature contrat', details: error?.message }, { status: 500 })
   }
 }
+
