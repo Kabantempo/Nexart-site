@@ -193,12 +193,18 @@ export default function AdminClient() {
 function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () => void }) {
   const [resolving, setResolving] = useState<string | null>(null)
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const handleResolve = async (reportId: string) => {
     setResolving(reportId)
     try {
+      const token = await getToken()
       await fetch(`/api/admin/reports/${reportId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status: 'resolved' })
       })
       onRefresh()
@@ -212,9 +218,10 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
   const handleDismiss = async (reportId: string) => {
     setResolving(reportId)
     try {
+      const token = await getToken()
       await fetch(`/api/admin/reports/${reportId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status: 'dismissed' })
       })
       onRefresh()

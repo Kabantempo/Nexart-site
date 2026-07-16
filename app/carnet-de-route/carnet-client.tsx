@@ -43,14 +43,20 @@ export default function CarnetDeRoutePage() {
       .finally(() => setLoading(false))
   }, [user])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user || !form.label || !form.start_date || !form.end_date) return
     setSubmitting(true)
     setError(null)
+    const token = await getToken()
     const res = await fetch('/api/itinerary', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ creator_id: user.id, ...form }),
     })
     if (res.ok) {
@@ -67,7 +73,11 @@ export default function CarnetDeRoutePage() {
 
   const handleDelete = async (id: string) => {
     if (!user) return
-    await fetch(`/api/itinerary?id=${id}&creator_id=${user.id}`, { method: 'DELETE' })
+    const token = await getToken()
+    await fetch(`/api/itinerary?id=${id}&creator_id=${user.id}`, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
     setEntries(prev => prev.filter(e => e.id !== id))
   }
 
