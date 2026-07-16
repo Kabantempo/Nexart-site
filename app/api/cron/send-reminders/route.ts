@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendPushToUsers } from '@/lib/push'
 
 // POST: Global cron — send reminders for all active events
 // Called daily by EasyCron: POST https://nexart.fr/api/cron/send-reminders
@@ -101,13 +102,65 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log('✓ Cron send-reminders:', { events: events.length, totalFirst, totalSecond, timestamp: new Date().toISOString() })
+    // ── Rappels tâches collaboratives en retard ───────────────────────────────
+    let tasksReminded = 0
+    let tasksEscalated = 0
+    const STALE_DAYS = 3 // tâche non mise à jour depuis 3 jours → rappel
+    const ESCALATE_DAYS = 7 // toujours en retard après 7 jours → escalade au chef de projet
+
+    try {
+      const staleCutoff = new Date(Date.now() - STALE_DAYS * 86400000).toISOString()
+      const escalateCutoff = new Date(Date.now() - ESCALATE_DAYS * 86400000).toISOString()
+
+      const { data: staleTasks } = await (admin as any)
+        .from('event_tasks')
+        .select('id, title, event_id, assigned_to, updated_at, events:event_id(organizer_id, title)')
+        .eq('status', 'in_progress')
+        .lt('updated_at', staleCutoff)
+
+      for (const task of staleTasks ?? []) {
+        if (!task.assigned_to) continue
+        const isEscalate = new Date(task.updated_at) < new Date(escalateCutoff)
+        const organizerId = task.events?.organizer_id
+
+        if (isEscalate && organizerId && organizerId !== task.assigned_to) {
+          // Escalade : réassigner à l'organisateur + notifier
+          await (admin as any).from('event_tasks').update({ assigned_to: organizerId }).eq('id', task.id)
+          await admin.from('notifications').insert({
+            user_id: organizerId,
+            type: 'task_escalated',
+            title: 'Tâche non avancée — escalade',
+            body: `La tâche "${task.title}" n'a pas été mise à jour depuis ${ESCALATE_DAYS}+ jours et vous a été réassignée.`,
+            link: `/events/${task.event_id}/collaboration`,
+          })
+          await sendPushToUsers([organizerId], '⚠️ Tâche escaladée', `"${task.title}" vous a été réassignée (${ESCALATE_DAYS}j sans avancement).`, `/events/${task.event_id}/collaboration`)
+          tasksEscalated++
+        } else {
+          // Simple rappel au responsable
+          await admin.from('notifications').insert({
+            user_id: task.assigned_to,
+            type: 'task_reminder',
+            title: 'Tâche en attente de mise à jour',
+            body: `La tâche "${task.title}" n'a pas été mise à jour depuis ${STALE_DAYS}+ jours.`,
+            link: `/events/${task.event_id}/collaboration`,
+          })
+          await sendPushToUsers([task.assigned_to], '🔔 Tâche en attente', `"${task.title}" nécessite une mise à jour.`, `/events/${task.event_id}/collaboration`)
+          tasksReminded++
+        }
+      }
+    } catch (taskErr: any) {
+      console.error('Task reminders error:', taskErr.message)
+    }
+
+    console.log('✓ Cron send-reminders:', { events: events.length, totalFirst, totalSecond, tasksReminded, tasksEscalated, timestamp: new Date().toISOString() })
 
     return NextResponse.json({
       success: true,
       events_processed: events.length,
       first_reminders_sent: totalFirst,
       second_reminders_sent: totalSecond,
+      tasks_reminded: tasksReminded,
+      tasks_escalated: tasksEscalated,
       details: results,
     })
   } catch (error: any) {

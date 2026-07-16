@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStripe, isStripeConfigured, SubscriptionTier } from '@/lib/stripe'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { sendPushToUsers } from '@/lib/push'
+import { sendMail } from '@/lib/mailer'
 
 // Mapping Stripe Price ID → tier Nexart
 // À remplir avec les vrais Price IDs quand Stripe est actif
@@ -154,6 +155,40 @@ export async function POST(req: NextRequest) {
           link: '/dashboard?tab=billing',
         })
         await sendPushToUsers([userId], '⚠️ Paiement échoué', 'Mettez à jour votre moyen de paiement.', '/dashboard?tab=billing')
+
+        // Email de relance
+        const customerEmail = invoice.customer_email
+        if (customerEmail) {
+          await sendMail({
+            to: customerEmail,
+            subject: '⚠️ Échec de paiement — Nexart',
+            html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#F4F4F8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F8;padding:40px 0;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+  <tr><td style="background:linear-gradient(135deg,#DC2626,#B91C1C);padding:40px 48px;text-align:center;">
+    <h1 style="margin:0;color:#fff;font-size:22px;font-weight:800;">⚠️ Votre paiement a échoué</h1>
+  </td></tr>
+  <tr><td style="padding:32px 48px;">
+    <p style="color:#374151;font-size:15px;line-height:1.6;">Nous n'avons pas pu traiter votre paiement pour votre abonnement Nexart.</p>
+    <p style="color:#374151;font-size:15px;line-height:1.6;">Pour continuer à bénéficier de votre abonnement, veuillez mettre à jour votre moyen de paiement.</p>
+    <table cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
+      <tr><td style="background:#6366F1;border-radius:12px;">
+        <a href="https://nexart.fr/dashboard?tab=billing" style="display:inline-block;padding:14px 36px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">Mettre à jour mon paiement →</a>
+      </td></tr>
+    </table>
+    <p style="color:#9CA3AF;font-size:13px;margin-top:24px;">Si vous avez des questions, contactez-nous à <a href="mailto:contact@nexart.fr" style="color:#6366F1;">contact@nexart.fr</a></p>
+  </td></tr>
+  <tr><td style="padding:16px 48px 24px;border-top:1px solid #F1F5F9;">
+    <p style="margin:0;color:#94A3B8;font-size:12px;">© 2026 Nexart · <a href="https://nexart.fr" style="color:#6366F1;text-decoration:none;">nexart.fr</a></p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`,
+          })
+        }
       }
       break
     }
