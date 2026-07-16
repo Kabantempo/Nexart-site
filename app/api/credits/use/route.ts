@@ -43,8 +43,6 @@ export async function POST(req: NextRequest) {
       const until = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       await admin.from('profiles').update({ profile_boosted_until: until } as any).eq('id', user.id)
     }
-
-    console.log('✓ Credits used:', { userId: user.id, type, cost, balance: balance - cost })
     return NextResponse.json({ success: true, new_balance: balance - cost })
   } catch (error: any) {
     console.error('❌ Credits use error:', { error: error?.message })

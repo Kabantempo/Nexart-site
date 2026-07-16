@@ -38,8 +38,6 @@ export async function POST(req: NextRequest) {
       description: description || `Ajout manuel par admin`,
     })
     if (insertError) throw insertError
-
-    console.log('✓ Credits added by admin:', { adminId: user.id, targetUserId: user_id, amount })
     return NextResponse.json({ success: true })
   } catch (error: any) {
     const errorMsg = error?.message || 'Unknown error'

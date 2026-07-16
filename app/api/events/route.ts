@@ -28,8 +28,6 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await query
     if (error) throw error
-
-    console.log('✓ Events fetched:', { city, region, status, count: data?.length })
     return NextResponse.json({ events: data || [] })
   } catch (error: any) {
     console.error('❌ Events GET error:', { error: error?.message })
@@ -67,7 +65,6 @@ export async function POST(req: NextRequest) {
     }).select().single()
 
     if (error) throw error
-    console.log('✓ Event created:', { organizer_id, title })
     return NextResponse.json({ event: data }, { status: 201 })
   } catch (error: any) {
     console.error('❌ Events POST error:', { error: error?.message })

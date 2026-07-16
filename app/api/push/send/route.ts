@@ -59,8 +59,6 @@ export async function POST(req: NextRequest) {
     if (stale.length) {
       await admin.from('push_subscriptions').delete().in('id', stale)
     }
-
-    console.log(`✓ Push sent: ${sent}/${subs.length} (${stale.length} expired cleaned)`)
     return NextResponse.json({ sent, total: subs.length, stale_cleaned: stale.length })
   } catch (error: any) {
     console.error('❌ Push send error:', { error: error?.message })

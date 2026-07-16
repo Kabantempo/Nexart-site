@@ -34,8 +34,6 @@ export async function POST(req: NextRequest) {
       const { error } = await admin.from('creator_profiles').update({ [field]: value } as any).eq('user_id', userId)
       if (error) throw error
     }
-
-    console.log('✓ Creator verified:', { userId, field, value })
     return NextResponse.json({ ok: true })
   } catch (error: any) {
     console.error('❌ Verify-creator error:', { error: error?.message, timestamp: new Date().toISOString() })

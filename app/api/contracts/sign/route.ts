@@ -43,8 +43,6 @@ export async function POST(req: NextRequest) {
     })
 
     await sendPushToUsers([notifiedId], '📄 Contrat signé', 'Un contrat vient d\'être signé pour votre événement.', '/dashboard')
-
-    console.log('✓ Contract signed:', { contract_id, signer_id })
     return NextResponse.json({ contract: data })
   } catch (error: any) {
     console.error('❌ Contract sign error:', { error: error?.message, timestamp: new Date().toISOString() })

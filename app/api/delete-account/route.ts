@@ -49,8 +49,6 @@ export async function DELETE(req: Request) {
         { status: 500 }
       )
     }
-
-    console.log('✓ Account deleted:', { userId, timestamp: new Date().toISOString() })
     return NextResponse.json({ success: true })
   } catch (error: any) {
     const errorMsg = error?.message || 'Unknown error'

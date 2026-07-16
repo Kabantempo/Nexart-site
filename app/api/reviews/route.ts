@@ -91,8 +91,6 @@ export async function POST(req: NextRequest) {
     })
 
     await sendPushToUsers([reviewed_id], '⭐ Nouvelle évaluation', `Vous avez reçu une note de ${rating}/5`, `/events/${event_id}`)
-
-    console.log('✓ Review created:', { reviewer_id, reviewed_id, rating })
     return NextResponse.json({ review: data }, { status: 201 })
   } catch (error: any) {
     console.error('❌ Reviews POST error:', { error: error?.message })

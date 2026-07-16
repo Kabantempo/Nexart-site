@@ -152,8 +152,6 @@ export async function POST(req: NextRequest) {
       console.error('Task reminders error:', taskErr.message)
     }
 
-    console.log('✓ Cron send-reminders:', { events: events.length, totalFirst, totalSecond, tasksReminded, tasksEscalated, timestamp: new Date().toISOString() })
-
     return NextResponse.json({
       success: true,
       events_processed: events.length,

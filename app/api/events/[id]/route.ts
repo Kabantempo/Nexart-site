@@ -24,8 +24,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (!data) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
-
-    console.log('✓ Event fetched:', { id: params.id, title: data.title })
     return NextResponse.json({ event: data })
   } catch (error: any) {
     console.error('❌ Event GET error:', { id: params.id, error: error?.message })
@@ -47,8 +45,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       .single()
 
     if (error) throw error
-
-    console.log('✓ Event updated:', { id: params.id })
     return NextResponse.json({ event: data })
   } catch (error: any) {
     console.error('❌ Event PUT error:', { id: params.id, error: error?.message })
@@ -67,8 +63,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       .eq('id', params.id)
 
     if (error) throw error
-
-    console.log('✓ Event deleted:', { id: params.id })
     return NextResponse.json({ message: 'Event deleted' })
   } catch (error: any) {
     console.error('❌ Event DELETE error:', { id: params.id, error: error?.message })
