@@ -468,6 +468,10 @@ export function NavbarFull() {
                         <p className="text-xs text-white/35">{user.email}</p>
                       </div>
                     </Link>
+                    <Link href="/dashboard" onClick={() => setMobileOpen(false)}
+                      className="flex items-center justify-center py-3 rounded-xl bg-white/10 text-white text-[15px] font-bold">
+                      Mon dashboard
+                    </Link>
                     <button onClick={() => { setMobileOpen(false); handleLogout() }} className="text-left text-sm text-white/35 hover:text-red-400 transition-colors py-2">
                       Se déconnecter
                     </button>
