@@ -255,11 +255,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       throw error
     }
 
-    console.log('✓ Reminder settings updated:', {
-      event_id: params.id,
-      first_reminder_days,
-      second_reminder_days,
-    })
 
     return NextResponse.json({
       success: true,

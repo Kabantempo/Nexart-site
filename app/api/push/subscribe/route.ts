@@ -31,8 +31,6 @@ export async function POST(req: NextRequest) {
       { onConflict: 'user_id,endpoint' }
     )
     if (error) throw error
-
-    console.log('✓ Push subscription saved:', { userId: user.id })
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('❌ Push subscribe error:', { error: error?.message })

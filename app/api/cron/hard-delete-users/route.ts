@@ -68,9 +68,6 @@ export async function POST(req: NextRequest) {
         if (hardDeleteError) throw hardDeleteError
 
         deletedIds.push(user.id)
-
-        // 3. Log suppression
-        console.log(`[HARD-DELETE] User ${user.id} (${user.email}) supprimé après 30 jours`)
       } catch (error: any) {
         errors.push({
           userId: user.id,

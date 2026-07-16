@@ -114,8 +114,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     await supabase.from('event_campaigns')
       .update({ status: 'sent', sent_at: new Date().toISOString(), open_rate: 0 })
       .eq('id', campaign_id)
-
-    console.log(`✓ Campaign sent: ${campaign_id} → ${sent}/${recipients.length} emails`)
     return NextResponse.json({ success: true, sent, total: recipients.length })
   } catch (error: any) {
     console.error('Campaigns PATCH error:', error)

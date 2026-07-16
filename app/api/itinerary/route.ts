@@ -81,8 +81,6 @@ export async function POST(req: NextRequest) {
         await admin.from('notifications').insert(notifications)
       }
     }
-
-    console.log('✓ Itinerary entry added:', { creator_id: user.id, label })
     return NextResponse.json({ entry: data }, { status: 201 })
   } catch (error: any) {
     console.error('❌ Itinerary POST error:', { error: error?.message })
@@ -102,7 +100,6 @@ export async function DELETE(req: NextRequest) {
 
     const { error } = await admin.from('itinerary').delete().eq('id', id).eq('creator_id', user.id)
     if (error) throw error
-    console.log('✓ Itinerary entry deleted:', { id, creator_id: user.id })
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('❌ Itinerary DELETE error:', { error: error?.message })

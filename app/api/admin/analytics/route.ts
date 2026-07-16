@@ -147,8 +147,6 @@ export async function GET(req: NextRequest) {
       WHERE created_at BETWEEN NOW() - INTERVAL '60 days' AND NOW() - INTERVAL '30 days'
     `),
   ])
-
-    console.log('✓ Admin analytics loaded')
     return NextResponse.json({
       users: users[0] ?? {},
       events: events[0] ?? {},

@@ -29,8 +29,6 @@ export async function POST(req: NextRequest) {
     const admin = getAdminClient()
     const { error } = await admin.from('profiles').update({ [field]: value } as any).eq('id', userId)
     if (error) throw error
-
-    console.log('✓ Role set:', { userId, field, value })
     return NextResponse.json({ ok: true })
   } catch (error: any) {
     console.error('❌ Set-role error:', { error: error?.message, timestamp: new Date().toISOString() })
