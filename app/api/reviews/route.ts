@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
+import { sendPushToUsers } from '@/lib/push'
 
 async function getAuthUser(req: NextRequest) {
   const header = req.headers.get('Authorization')
@@ -88,6 +89,8 @@ export async function POST(req: NextRequest) {
       body: `Vous avez reçu une note de ${rating}/5 pour l'événement.`,
       link: `/events/${event_id}`,
     })
+
+    await sendPushToUsers([reviewed_id], '⭐ Nouvelle évaluation', `Vous avez reçu une note de ${rating}/5`, `/events/${event_id}`)
 
     console.log('✓ Review created:', { reviewer_id, reviewed_id, rating })
     return NextResponse.json({ review: data }, { status: 201 })

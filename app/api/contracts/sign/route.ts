@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendPushToUsers } from '@/lib/push'
 
 // POST /api/contracts/sign  — signature simple (SES)
 export async function POST(req: NextRequest) {
@@ -40,6 +41,8 @@ export async function POST(req: NextRequest) {
       body: 'Un contrat vient d\'être signé pour votre événement.',
       link: `/dashboard`,
     })
+
+    await sendPushToUsers([notifiedId], '📄 Contrat signé', 'Un contrat vient d\'être signé pour votre événement.', '/dashboard')
 
     console.log('✓ Contract signed:', { contract_id, signer_id })
     return NextResponse.json({ contract: data })
