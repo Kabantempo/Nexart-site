@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
     return NextResponse.json({ event: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Event GET error:', { id: params.id, error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement événement', details: error?.message }, { status: 500 })
   }
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     if (error) throw error
     return NextResponse.json({ event: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Event PUT error:', { id: params.id, error: error?.message })
     return NextResponse.json({ error: 'Erreur mise à jour événement', details: error?.message }, { status: 500 })
   }
@@ -64,7 +64,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     if (error) throw error
     return NextResponse.json({ message: 'Event deleted' })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Event DELETE error:', { id: params.id, error: error?.message })
     return NextResponse.json({ error: 'Erreur suppression événement', details: error?.message }, { status: 500 })
   }

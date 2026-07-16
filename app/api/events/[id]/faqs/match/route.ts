@@ -106,7 +106,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         reason: 'no_match',
       })
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorMsg = error?.message || 'Unknown error'
     console.error('❌ FAQ matching error:', {
       event_id: params.id,

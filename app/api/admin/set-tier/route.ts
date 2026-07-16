@@ -23,17 +23,17 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       // Colonne pas encore créée → migration Stripe pas encore exécutée
-      if (error.code === '42703' || error.message?.includes('subscription_tier')) {
+      if (error.code === '42703' || (error instanceof Error ? error.message : String(error))?.includes('subscription_tier')) {
         return NextResponse.json({
           error: 'Colonne subscription_tier manquante. Exécutez la migration stripe_skeleton.sql dans Supabase SQL Editor.',
           migration_needed: true,
         }, { status: 503 })
       }
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, tier })
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur inconnue' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? (err instanceof Error ? err.message : String(err)) : 'Erreur inconnue' }, { status: 500 })
   }
 }

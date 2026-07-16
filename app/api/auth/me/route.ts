@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       email: user.email,
       profile: profile,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Auth error:', error)
     return NextResponse.json({ error: 'Erreur authentification' }, { status: 500 })
   }

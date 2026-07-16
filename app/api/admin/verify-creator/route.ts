@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       if (error) throw error
     }
     return NextResponse.json({ ok: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Verify-creator error:', { error: error?.message, timestamp: new Date().toISOString() })
     return NextResponse.json({ error: 'Erreur vérification créateur', details: error?.message }, { status: 500 })
   }

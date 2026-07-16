@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       reviewCount: reviews?.length || 0,
       acceptanceRate,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Analytics error:', error)
     return NextResponse.json({ error: 'Erreur chargement analytics' }, { status: 500 })
   }

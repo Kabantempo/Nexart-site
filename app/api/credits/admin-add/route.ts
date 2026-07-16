@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     })
     if (insertError) throw insertError
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorMsg = error?.message || 'Unknown error'
     console.error('❌ Admin add credits error:', {
       error: errorMsg,

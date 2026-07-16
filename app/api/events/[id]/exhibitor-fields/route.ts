@@ -20,9 +20,9 @@ export async function GET(
 
     if (error) throw error
     return NextResponse.json({ fields: data || [] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Exhibitor fields GET error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to fetch fields' }, { status: 500 })
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch fields' }, { status: 500 })
   }
 }
 
@@ -56,7 +56,7 @@ export async function POST(
 
     // Bulk replace: { fields: [...] }
     if (Array.isArray(body.fields)) {
-      await (admin as any).from('exhibitor_fields').delete().eq('event_id', params.id)
+      await admin.from('exhibitor_fields').delete().eq('event_id', params.id)
 
       if (body.fields.length === 0) {
         return NextResponse.json({ success: true, fields: [] })
@@ -105,8 +105,8 @@ export async function POST(
 
     if (error) throw error
     return NextResponse.json({ success: true, field: data?.[0] }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Exhibitor field POST error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to save fields' }, { status: 500 })
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) || 'Failed to save fields' }, { status: 500 })
   }
 }

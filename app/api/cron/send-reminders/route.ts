@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
           if (!r1?.length) {
             await sendEmail(email, `Rappel: Confirmez votre participation à ${event.title}`, reminderHtml(name, event, 1))
-            await (admin as any).from('event_exhibitor_reminders').insert({ event_id: event.id, exhibitor_id: ex.exhibitor_id, reminder_number: 1 })
+            await admin.from('event_exhibitor_reminders').insert({ event_id: event.id, exhibitor_id: ex.exhibitor_id, reminder_number: 1 })
             first++
             continue
           }
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
 
             if (!r2?.length) {
               await sendEmail(email, `⚠️ Dernière relance: ${event.title}`, reminderHtml(name, event, 2))
-              await (admin as any).from('event_exhibitor_reminders').insert({ event_id: event.id, exhibitor_id: ex.exhibitor_id, reminder_number: 2 })
+              await admin.from('event_exhibitor_reminders').insert({ event_id: event.id, exhibitor_id: ex.exhibitor_id, reminder_number: 2 })
               second++
             }
           }
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 
         if (isEscalate && organizerId && organizerId !== task.assigned_to) {
           // Escalade : réassigner à l'organisateur + notifier
-          await (admin as any).from('event_tasks').update({ assigned_to: organizerId }).eq('id', task.id)
+          await admin.from('event_tasks').update({ assigned_to: organizerId }).eq('id', task.id)
           await admin.from('notifications').insert({
             user_id: organizerId,
             type: 'task_escalated',
@@ -161,9 +161,9 @@ export async function POST(req: NextRequest) {
       tasks_escalated: tasksEscalated,
       details: results,
     })
-  } catch (error: any) {
-    console.error('❌ Cron send-reminders failed:', error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Cron send-reminders failed:', (error instanceof Error ? error.message : String(error)))
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 

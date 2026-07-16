@@ -19,14 +19,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if admin (query user's role from profiles table)
     const { data: profile, error: profileError } = await admin
       .from('profiles')
-      .select('role')
+      .select('is_admin')
       .eq('id', user.id)
       .single()
 
-    if (profileError || profile?.role !== 'admin') {
+    if (profileError || !profile?.is_admin) {
       return NextResponse.json(
         { error: 'Only admins can view audit logs' },
         { status: 403 }
@@ -73,10 +72,10 @@ export async function GET(req: NextRequest) {
       offset,
       page: Math.ceil(offset / limit) + 1,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Audit logs error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch audit logs' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch audit logs' },
       { status: 500 }
     )
   }
@@ -148,10 +147,10 @@ export async function POST(req: NextRequest) {
       { success: true, log_id: data },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Audit log creation error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create audit log' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to create audit log' },
       { status: 500 }
     )
   }

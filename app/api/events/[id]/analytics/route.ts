@@ -55,8 +55,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       totalStands,
       acceptanceRate: total > 0 ? Math.round((accepted / total) * 100) : 0,
     })
-  } catch (error: any) {
-    console.error('Analytics error:', { error: error.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur chargement stats', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('Analytics error:', { error: (error instanceof Error ? error.message : String(error)), timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur chargement stats', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

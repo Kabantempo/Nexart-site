@@ -55,10 +55,10 @@ export async function GET(req: NextRequest) {
       status,
       page: Math.ceil(offset / limit) + 1,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reports GET error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch reports' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch reports' },
       { status: 500 }
     )
   }
@@ -144,10 +144,10 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Report creation error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create report' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to create report' },
       { status: 500 }
     )
   }
@@ -222,10 +222,10 @@ export async function PATCH(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, report: data[0] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Report update error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to update report' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to update report' },
       { status: 500 }
     )
   }

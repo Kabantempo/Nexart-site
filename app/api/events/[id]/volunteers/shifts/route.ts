@@ -31,7 +31,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     if (error) throw error
     return NextResponse.json(data || [])
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Shifts GET error:', { event_id: params.id, error: error?.message })
     return NextResponse.json({ error: 'Erreur chargement créneaux', details: error?.message }, { status: 500 })
   }
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Shifts POST error:', error)
     return NextResponse.json({ error: 'Erreur création créneau' }, { status: 500 })
   }

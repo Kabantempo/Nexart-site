@@ -82,7 +82,7 @@ export async function GET(
         'Content-Disposition': `attachment; filename="exhibitors-${params.id}-${Date.now()}.csv"`
       }
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

@@ -68,10 +68,10 @@ export async function POST(req: NextRequest) {
         if (hardDeleteError) throw hardDeleteError
 
         deletedIds.push(user.id)
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           userId: user.id,
-          error: error.message,
+          error: (error instanceof Error ? error.message : String(error)),
         })
         console.error(`[ERROR] Hard-delete user ${user.id}:`, error)
       }
@@ -95,9 +95,9 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Cron error:', error)
-    return NextResponse.json({ error: 'Erreur serveur', detail: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur', detail: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
       count: users?.length || 0,
       users: users,
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

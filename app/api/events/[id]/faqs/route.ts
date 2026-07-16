@@ -35,8 +35,8 @@ export async function GET(
     if (error) throw error
 
     return NextResponse.json({ faqs: faqs || [] })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -62,7 +62,7 @@ export async function POST(
     if (error) throw error
 
     return NextResponse.json({ success: true, faq: data?.[0] })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

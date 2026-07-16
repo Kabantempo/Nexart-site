@@ -41,9 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     if (error) throw error
     return NextResponse.json({ waitlist: data || [] })
-  } catch (error: any) {
-    console.error('❌ Waitlist GET error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur chargement waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist GET error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur chargement waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -72,9 +72,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })
-  } catch (error: any) {
-    console.error('❌ Waitlist POST error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur traitement waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist POST error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur traitement waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -161,13 +161,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .order('position', { ascending: true })
 
     for (let i = 0; i < (remaining?.length || 0); i++) {
-      await (admin as any).from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
+      await admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
     }
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error('❌ Waitlist PATCH error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur mise à jour waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist PATCH error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur mise à jour waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
@@ -200,12 +200,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       .order('position', { ascending: true })
 
     for (let i = 0; i < (remaining?.length || 0); i++) {
-      await (admin as any).from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
+      await admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
     }
 
     return NextResponse.json({ success: true, remaining_count: remaining?.length })
-  } catch (error: any) {
-    console.error('❌ Waitlist DELETE error:', { event_id: params.id, error: error.message })
-    return NextResponse.json({ error: 'Erreur suppression waitlist', details: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist DELETE error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur suppression waitlist', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         try {
           await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload)
           sent++
-        } catch (err: any) {
+        } catch (err: unknown) {
           if (err.statusCode === 404 || err.statusCode === 410) {
             stale.push(sub.id)
           }
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       await admin.from('push_subscriptions').delete().in('id', stale)
     }
     return NextResponse.json({ sent, total: subs.length, stale_cleaned: stale.length })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Push send error:', { error: error?.message })
     return NextResponse.json({ error: error?.message }, { status: 500 })
   }
