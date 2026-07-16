@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, MessageCircle, Users, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface Task {
   id: string
@@ -39,9 +40,17 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
     fetchTeamMembers()
   }, [eventId])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const fetchTasks = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/tasks`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/tasks`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setTasks(data.tasks || [])
     } catch (error) {
@@ -51,7 +60,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
   const fetchTeamMembers = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/team`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/team`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setTeamMembers(data.members || [])
     } catch (error) {
@@ -67,9 +79,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
     try {
       setLoading(true)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/tasks`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(newTask)
       })
 
@@ -86,9 +99,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
   const handleUpdateStatus = async (taskId: string, newStatus: string) => {
     try {
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/tasks/${taskId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status: newStatus })
       })
 
