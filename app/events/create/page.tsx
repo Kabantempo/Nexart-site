@@ -274,7 +274,7 @@ export default function CreateEventPage() {
             <Field label="Adresse / lieu" hint="(optionnel)">
               <input className="form-input" value={form.location} onChange={e => set('location')(e.target.value)} placeholder="Ex : Parc de la Tête d'Or" />
             </Field>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
               <Field label="Ville">
                 <input className="form-input" value={form.city} onChange={e => set('city')(e.target.value)} placeholder="Ex : Lyon" />
               </Field>
@@ -286,7 +286,7 @@ export default function CreateEventPage() {
 
           {/* Dates */}
           <Section title="Dates & Horaires">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
               <Field label="Date de début">
                 <input className="form-input" type="date" value={form.start_date} onChange={e => set('start_date')(e.target.value)} />
               </Field>
@@ -360,7 +360,7 @@ export default function CreateEventPage() {
                       <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: `2px solid ${form.pricing_model === opt.value ? '#6366F1' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {form.pricing_model === opt.value && <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#6366F1' }} />}
                       </div>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: form.pricing_model === opt.value ? '#6366F1' : '#1A1A1A' }}>{opt.label}</span>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: form.pricing_model === opt.value ? '#6366F1' : 'var(--text-primary)' }}>{opt.label}</span>
                     </div>
                     <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
                   </button>
@@ -375,7 +375,7 @@ export default function CreateEventPage() {
             )}
 
             {form.pricing_model === 'variable' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
                 <Field label="Prix minimum (€)">
                   <input className="form-input" type="number" min="0" value={form.pricing_variable_min} onChange={e => set('pricing_variable_min')(e.target.value)} placeholder="Ex : 60" />
                 </Field>
@@ -460,7 +460,7 @@ export default function CreateEventPage() {
               </div>
               <button
                 onClick={() => set('stripe_enabled')(!form.stripe_enabled)}
-                style={{ width: '48px', height: '28px', borderRadius: '9999px', border: 'none', cursor: 'pointer', backgroundColor: form.stripe_enabled ? '#6366F1' : '#E5E7EB', position: 'relative', transition: 'background 200ms', flexShrink: 0 }}
+                style={{ width: '48px', height: '28px', borderRadius: '9999px', border: 'none', cursor: 'pointer', backgroundColor: form.stripe_enabled ? '#6366F1' : 'var(--border-color)', position: 'relative', transition: 'background 200ms', flexShrink: 0 }}
               >
                 <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
               </button>

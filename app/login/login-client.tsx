@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -180,12 +181,7 @@ export default function LoginPage() {
       }}>
         {/* Mobile logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }} className="lg:hidden">
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '8px',
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '16px', fontWeight: '800', color: '#FFFFFF',
-          }}>N</div>
+          <Image src="/logo-mark.png" alt="Nexart" width={32} height={32} style={{ borderRadius: '8px' }} />
           <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
 
@@ -196,7 +192,7 @@ export default function LoginPage() {
           style={{ width: '100%', maxWidth: '400px' }}
         >
           <div style={{ marginBottom: '36px' }}>
-            <h1 style={{ fontSize: '30px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.5px' }}>
+            <h1 style={{ fontSize: '30px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px', letterSpacing: '-0.5px' }}>
               Bon retour 👋
             </h1>
             <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
@@ -230,7 +226,7 @@ export default function LoginPage() {
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
-            <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '500' }}>ou par email</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-tertiary)', fontWeight: '500' }}>ou par email</span>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
           </div>
 
@@ -255,7 +251,7 @@ export default function LoginPage() {
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   type="email"
                   placeholder="vous@exemple.fr"
@@ -266,9 +262,9 @@ export default function LoginPage() {
                   required
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
-                    borderRadius: '10px', fontSize: '15px', color: '#0F172A',
+                    borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: focused === 'email' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'email' ? '#FAFBFF' : '#F8FAFC',
+                    backgroundColor: focused === 'email' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'email' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -286,7 +282,7 @@ export default function LoginPage() {
                 </Link>
               </div>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'password' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
@@ -297,9 +293,9 @@ export default function LoginPage() {
                   required
                   style={{
                     width: '100%', padding: '13px 42px 13px 42px',
-                    borderRadius: '10px', fontSize: '15px', color: '#0F172A',
+                    borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: focused === 'password' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'password' ? '#FAFBFF' : '#F8FAFC',
+                    backgroundColor: focused === 'password' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'password' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -307,7 +303,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#94A3B8', display: 'flex', alignItems: 'center' }}
+                  style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center' }}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -333,7 +329,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p style={{ marginTop: '32px', fontSize: '13px', color: '#94A3B8', textAlign: 'center', lineHeight: '1.6' }}>
+          <p style={{ marginTop: '32px', fontSize: '13px', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: '1.6' }}>
             En vous connectant, vous acceptez nos{' '}
             <Link href="/legal/terms" style={{ color: '#6366F1', textDecoration: 'none' }}>CGU</Link>
             {' '}et notre{' '}

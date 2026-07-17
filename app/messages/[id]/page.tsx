@@ -58,7 +58,7 @@ function TypingDots() {
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '12px 16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '18px 18px 18px 4px', width: 'fit-content' }}>
       {[0, 1, 2].map(i => (
         <span key={i} style={{
-          width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#9CA3AF',
+          width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--text-tertiary)',
           animation: 'typingBounce 1.2s ease-in-out infinite',
           animationDelay: `${i * 0.2}s`, display: 'block',
         }} />
@@ -126,7 +126,7 @@ function AttachmentPreview({ url, type, name, isMine }: { url: string; type: str
       style={{
         display: 'flex', alignItems: 'center', gap: '10px',
         padding: '10px 14px', borderRadius: '12px', marginBottom: '6px',
-        backgroundColor: isMine ? 'rgba(255,255,255,0.15)' : '#E5E7EB',
+        backgroundColor: isMine ? 'rgba(255,255,255,0.15)' : 'var(--border-color)',
         textDecoration: 'none',
         color: isMine ? '#FFF' : '#374151',
       }}
@@ -461,7 +461,7 @@ export default function ConversationPage() {
                           onChange={e => setEditText(e.target.value)}
                           onKeyDown={e => handleEditKey(e, m.id)}
                           rows={1}
-                          style={{ padding: '10px 14px', borderRadius: '18px 18px 4px 18px', border: '2px solid #6366F1', fontSize: '14px', fontFamily: 'inherit', resize: 'none', outline: 'none', lineHeight: '1.5', minWidth: '200px', backgroundColor: '#F0F0FF' }}
+                          style={{ padding: '10px 14px', borderRadius: '18px 18px 4px 18px', border: '2px solid #6366F1', fontSize: '14px', fontFamily: 'inherit', resize: 'none', outline: 'none', lineHeight: '1.5', minWidth: 0, backgroundColor: '#F0F0FF' }}
                           onInput={e => { const el = e.currentTarget; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px' }}
                         />
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
@@ -503,7 +503,7 @@ export default function ConversationPage() {
                             const typeLabel = typeMatch?.[1] ?? null
                             const pitch = raw.replace(/^Type : .+\n?/, '').trim()
                             return (
-                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: `1.5px solid ${isMine ? '#C4B5FD' : '#DDD6FE'}`, backgroundColor: isMine ? '#4C1D95' : '#F5F3FF', overflow: 'hidden', wordBreak: 'break-word', minWidth: '220px' }}>
+                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: `1.5px solid ${isMine ? '#C4B5FD' : '#DDD6FE'}`, backgroundColor: isMine ? '#4C1D95' : '#F5F3FF', overflow: 'hidden', wordBreak: 'break-word', minWidth: 0 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: `1px solid ${isMine ? 'rgba(196,181,253,0.25)' : '#DDD6FE'}` }}>
                                   <Handshake size={13} color={isMine ? '#C4B5FD' : '#7C3AED'} />
                                   <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#C4B5FD' : '#7C3AED' }}>Proposition de collab</span>
@@ -519,7 +519,7 @@ export default function ConversationPage() {
                           }
 
                           return (
-                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? '#6366F1' : '#F3F4F6', color: isMine ? '#FFFFFF' : '#1A1A1A', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
+                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? '#6366F1' : '#F3F4F6', color: isMine ? '#FFFFFF' : 'var(--text-primary)', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
                               <p style={{ margin: 0 }}>{m.content}</p>
                             </div>
                           )
@@ -588,12 +588,12 @@ export default function ConversationPage() {
           style={{
             width: '40px', height: '40px', borderRadius: '50%', border: 'none', flexShrink: 0,
             backgroundColor: pendingFile ? '#EEF2FF' : '#F3F4F6',
-            color: pendingFile ? '#6366F1' : '#9CA3AF',
+            color: pendingFile ? '#6366F1' : 'var(--text-tertiary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', transition: 'all 200ms ease',
           }}
           onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#EEF2FF'; e.currentTarget.style.color = '#6366F1' }}
-          onMouseLeave={e => { if (!pendingFile) { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = '#9CA3AF' } }}
+          onMouseLeave={e => { if (!pendingFile) { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = 'var(--text-tertiary)' } }}
         >
           {pendingFile ? <ImageIcon size={16} /> : <Paperclip size={16} />}
         </button>
@@ -621,8 +621,8 @@ export default function ConversationPage() {
           disabled={!canSend}
           style={{
             width: '44px', height: '44px', borderRadius: '50%', border: 'none', flexShrink: 0,
-            backgroundColor: canSend ? '#6366F1' : '#E5E7EB',
-            color: canSend ? '#FFFFFF' : '#9CA3AF',
+            backgroundColor: canSend ? '#6366F1' : 'var(--border-color)',
+            color: canSend ? '#FFFFFF' : 'var(--text-tertiary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: canSend ? 'pointer' : 'not-allowed',
             transition: 'all 200ms ease',

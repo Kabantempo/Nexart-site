@@ -454,7 +454,8 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
         </div>
       ) : (
         <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '520px' }}>
             <thead>
               <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
                 {['Nom', 'Email', 'Statut', 'Inscrit le', ''].map(h => (
@@ -489,6 +490,7 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

@@ -411,11 +411,11 @@ export function NavbarFull() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Menu"
-            className={`lg:hidden ml-auto flex flex-col gap-[5px] justify-center w-8 h-8 transition-opacity ${dark ? 'opacity-70 hover:opacity-100' : 'opacity-50 hover:opacity-80'}`}
+            className="lg:hidden ml-auto flex flex-col gap-[5px] justify-center w-9 h-9 rounded-lg transition-colors bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20"
           >
-            <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[1.5px] w-5 rounded-full ${dark ? 'bg-white' : 'bg-gray-900'}`} />
-            <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }} className={`block h-[1.5px] w-5 rounded-full ${dark ? 'bg-white' : 'bg-gray-900'}`} />
-            <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[1.5px] w-5 rounded-full ${dark ? 'bg-white' : 'bg-gray-900'}`} />
+            <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[2px] w-5 mx-auto rounded-full ${dark ? 'bg-white' : 'bg-gray-800'}`} />
+            <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }} className={`block h-[2px] w-5 mx-auto rounded-full ${dark ? 'bg-white' : 'bg-gray-800'}`} />
+            <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[2px] w-5 mx-auto rounded-full ${dark ? 'bg-white' : 'bg-gray-800'}`} />
           </button>
         </div>
         </div>
@@ -433,8 +433,23 @@ export function NavbarFull() {
             <motion.nav
               initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-x-0 top-[58px] z-40 lg:hidden flex flex-col px-5 pt-8 pb-10 gap-1"
+              className="fixed inset-x-0 top-[58px] z-40 lg:hidden flex flex-col px-5 pt-6 pb-10 gap-1 overflow-y-auto max-h-[calc(100vh-58px)]"
             >
+              {/* Search mobile */}
+              <motion.form initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}
+                onSubmit={submitSearch}
+                className="flex items-center gap-2 h-11 px-4 rounded-xl bg-white/8 border border-white/10 mb-4"
+              >
+                <Search size={14} className="text-white/40 shrink-0" />
+                <input
+                  value={searchValue} onChange={e => handleSearchChange(e.target.value)}
+                  placeholder="Rechercher événements, créateurs…"
+                  className="flex-1 bg-transparent text-[14px] text-white placeholder:text-white/30 outline-none"
+                />
+                {searchValue && <button type="button" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}><X size={13} className="text-white/30" /></button>}
+              </motion.form>
+
+              {/* Nav links */}
               {[
                 { href: '/events',   label: 'Événements' },
                 { href: '/creators', label: 'Créateurs' },
@@ -450,24 +465,45 @@ export function NavbarFull() {
                 </motion.div>
               ))}
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-                className="mt-8 pt-8 border-t border-white/8 flex flex-col gap-3"
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+                className="mt-6 pt-6 border-t border-white/8 flex flex-col gap-2"
               >
                 {user ? (
                   <>
+                    {/* User profile row */}
                     <Link href="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden shrink-0">
                         {user.avatar_url
                           // eslint-disable-next-line @next/next/no-img-element
                           ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
                           : <span className="text-xs font-black text-white">{firstName?.[0]?.toUpperCase()}</span>
                         }
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-sm font-semibold text-white">{firstName ?? 'Mon compte'}</p>
-                        <p className="text-xs text-white/35">{user.email}</p>
+                        <p className="text-xs text-white/35 truncate">{user.email}</p>
                       </div>
                     </Link>
+
+                    {/* Quick links row */}
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      <Link href="/messages" onClick={() => setMobileOpen(false)}
+                        className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/6 hover:bg-white/10 transition-colors">
+                        <MessageCircle size={18} className="text-white/70" />
+                        <span className="text-[11px] text-white/50 font-medium">Messages</span>
+                      </Link>
+                      <Link href="/favorites" onClick={() => setMobileOpen(false)}
+                        className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/6 hover:bg-white/10 transition-colors">
+                        <Heart size={18} className="text-white/70" />
+                        <span className="text-[11px] text-white/50 font-medium">Favoris</span>
+                      </Link>
+                      <Link href="/notifications" onClick={() => setMobileOpen(false)}
+                        className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/6 hover:bg-white/10 transition-colors">
+                        <Calendar size={18} className="text-white/70" />
+                        <span className="text-[11px] text-white/50 font-medium">Notifs</span>
+                      </Link>
+                    </div>
+
                     <Link href="/dashboard" onClick={() => setMobileOpen(false)}
                       className="flex items-center justify-center py-3 rounded-xl bg-white/10 text-white text-[15px] font-bold">
                       Mon dashboard

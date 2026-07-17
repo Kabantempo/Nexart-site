@@ -128,9 +128,9 @@ function Badge({ ok, label }: { ok: boolean; label: string }) {
       display: 'inline-flex', alignItems: 'center', gap: '4px',
       padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
       backgroundColor: ok ? '#ECFDF5' : '#F3F4F6',
-      color: ok ? '#059669' : '#9CA3AF',
+      color: ok ? '#059669' : 'var(--text-tertiary)',
     }}>
-      <CheckCircle size={12} fill={ok ? '#059669' : 'none'} color={ok ? '#059669' : '#9CA3AF'} />
+      <CheckCircle size={12} fill={ok ? '#059669' : 'none'} color={ok ? '#059669' : 'var(--text-tertiary)'} />
       {label}
     </span>
   )
@@ -866,7 +866,7 @@ export default function ProfilePage() {
                 rows={3}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = '#374151' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
                 autoFocus
               />
               <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
@@ -876,7 +876,7 @@ export default function ProfilePage() {
                 </button>
                 <button onClick={handleRefuseConfirm}
                   disabled={!refuseComment.trim() || adminSaving !== null}
-                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: !refuseComment.trim() ? '#F3F4F6' : '#111827', color: !refuseComment.trim() ? '#9CA3AF' : '#FFFFFF', fontSize: '14px', fontWeight: '700', cursor: !refuseComment.trim() ? 'not-allowed' : 'pointer' }}>
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: !refuseComment.trim() ? '#F3F4F6' : '#111827', color: !refuseComment.trim() ? 'var(--text-tertiary)' : '#FFFFFF', fontSize: '14px', fontWeight: '700', cursor: !refuseComment.trim() ? 'not-allowed' : 'pointer' }}>
                   Confirmer le refus
                 </button>
               </div>
@@ -1008,7 +1008,7 @@ export default function ProfilePage() {
                 style={{
                   padding: '10px 20px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer',
                   fontSize: '14px', fontWeight: adminTab === t.k ? '700' : '500',
-                  color: adminTab === t.k ? '#111827' : '#888888',
+                  color: adminTab === t.k ? '#111827' : 'var(--text-secondary)',
                   borderBottom: adminTab === t.k ? '2px solid #111827' : '2px solid transparent',
                   marginBottom: '-2px',
                 }}>
@@ -1072,7 +1072,7 @@ export default function ProfilePage() {
                                 <div style={{
                                   width: '100%', borderRadius: '3px 3px 0 0',
                                   height: d.count > 0 ? `${Math.max((d.count / max) * 100, 8)}%` : '2px',
-                                  backgroundColor: d.count > 0 ? '#374151' : '#E5E7EB',
+                                  backgroundColor: d.count > 0 ? '#374151' : 'var(--border-color)',
                                   transition: 'height 0.3s ease',
                                 }} />
                               </div>
@@ -1088,7 +1088,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Événements + Candidatures */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: '16px' }}>
 
                     {/* Événements */}
                     <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
@@ -1171,7 +1171,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Vérifications + Messages */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: '16px' }}>
 
                     {/* Vérifications */}
                     <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
@@ -1328,7 +1328,7 @@ export default function ProfilePage() {
                           }}
                           style={{ padding: '5px 12px', borderRadius: '8px', border: '1px solid', fontSize: '12px', fontWeight: '700', cursor: 'pointer',
                             backgroundColor: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#FEF2F2' : '#F3F4F6',
-                            borderColor: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#FECACA' : '#E5E7EB',
+                            borderColor: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#FECACA' : 'var(--border-color)',
                             color: (c.profiles as unknown as { is_banned?: boolean })?.is_banned ? '#EF4444' : '#6B7280',
                           }}>
                           {(c.profiles as unknown as { is_banned?: boolean })?.is_banned ? 'Débannir' : 'Bannir'}
@@ -1341,11 +1341,11 @@ export default function ProfilePage() {
                           const siretRefused = refusedSet.has(`${c.user_id}-siret_verified`)
                           const siretStatus = c.siret_verified ? 'verified' : siretRefused ? 'refused' : 'pending'
                           return (
-                            <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${siretStatus === 'refused' ? '#FECACA' : '#E5E7EB'}`, backgroundColor: siretStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
+                            <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${siretStatus === 'refused' ? '#FECACA' : 'var(--border-color)'}`, backgroundColor: siretStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                 <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>SIRET</p>
                                 <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
-                                  backgroundColor: siretStatus === 'verified' ? '#374151' : siretStatus === 'refused' ? '#FEE2E2' : '#E5E7EB',
+                                  backgroundColor: siretStatus === 'verified' ? '#374151' : siretStatus === 'refused' ? '#FEE2E2' : 'var(--border-color)',
                                   color: siretStatus === 'verified' ? '#FFF' : siretStatus === 'refused' ? '#EF4444' : '#6B7280' }}>
                                   {siretStatus === 'verified' ? 'Vérifié' : siretStatus === 'refused' ? 'Refusé' : 'En attente'}
                                 </span>
@@ -1396,11 +1396,11 @@ export default function ProfilePage() {
                           const insRefused = refusedSet.has(`${c.user_id}-insurance_verified`)
                           const insStatus = c.insurance_verified ? 'verified' : insRefused ? 'refused' : c.insurance_doc_url ? 'doc' : 'none'
                           return (
-                            <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${insStatus === 'refused' ? '#FECACA' : '#E5E7EB'}`, backgroundColor: insStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
+                            <div style={{ flex: 1, minWidth: '240px', padding: '14px', borderRadius: '10px', border: `1px solid ${insStatus === 'refused' ? '#FECACA' : 'var(--border-color)'}`, backgroundColor: insStatus === 'refused' ? '#FFF5F5' : '#FAFAFA' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                                 <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>RC Pro</p>
                                 <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
-                                  backgroundColor: insStatus === 'verified' ? '#374151' : insStatus === 'refused' ? '#FEE2E2' : insStatus === 'doc' ? '#EEF2FF' : '#E5E7EB',
+                                  backgroundColor: insStatus === 'verified' ? '#374151' : insStatus === 'refused' ? '#FEE2E2' : insStatus === 'doc' ? '#EEF2FF' : 'var(--border-color)',
                                   color: insStatus === 'verified' ? '#FFF' : insStatus === 'refused' ? '#EF4444' : insStatus === 'doc' ? '#6366F1' : '#6B7280' }}>
                                   {insStatus === 'verified' ? 'Vérifié' : insStatus === 'refused' ? 'Refusé' : insStatus === 'doc' ? 'Doc reçu' : 'Aucun doc'}
                                 </span>
@@ -1710,7 +1710,7 @@ export default function ProfilePage() {
                           {msgSuggestions.map(s => (
                             <button key={s.id} onClick={() => { setMsgRecipient(s); setMsgSearch(s.full_name); setMsgSuggestions([]) }}
                               style={{ width: '100%', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
                               onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
                               <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                                 {s.avatar_url
@@ -1765,8 +1765,8 @@ export default function ProfilePage() {
                     disabled={msgSending || !msgRecipient || !msgContent.trim()}
                     style={{
                       padding: '11px 24px', borderRadius: '8px', border: 'none',
-                      backgroundColor: msgRecipient && msgContent.trim() ? '#111827' : '#E5E7EB',
-                      color: msgRecipient && msgContent.trim() ? '#FFF' : '#9CA3AF',
+                      backgroundColor: msgRecipient && msgContent.trim() ? '#111827' : 'var(--border-color)',
+                      color: msgRecipient && msgContent.trim() ? '#FFF' : 'var(--text-tertiary)',
                       fontSize: '14px', fontWeight: '700', cursor: msgRecipient && msgContent.trim() ? 'pointer' : 'not-allowed',
                       display: 'flex', alignItems: 'center', gap: '8px',
                       boxShadow: 'none',
@@ -1895,7 +1895,7 @@ export default function ProfilePage() {
 
                       const currentTier = u.subscription_tier || 'free'
                       const TIER_COLORS: Record<string, string> = {
-                        free: '#9CA3AF', boost: '#6366F1', pro: '#8B5CF6',
+                        free: 'var(--text-tertiary)', boost: '#6366F1', pro: '#8B5CF6',
                         premium: '#EC4899', org_pro: '#0EA5E9', org_studio: '#F59E0B',
                       }
 
@@ -1911,7 +1911,7 @@ export default function ProfilePage() {
                             <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 3px' }}>{u.full_name}</p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <span style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'capitalize' }}>{u.role}</span>
-                              <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || '#9CA3AF', backgroundColor: 'var(--bg-secondary)', padding: '2px 7px', borderRadius: '99px' }}>
+                              <span style={{ fontSize: '11px', fontWeight: '700', color: TIER_COLORS[currentTier] || 'var(--text-tertiary)', backgroundColor: 'var(--bg-secondary)', padding: '2px 7px', borderRadius: '99px' }}>
                                 {currentTier}
                               </span>
                             </div>
@@ -1984,7 +1984,7 @@ export default function ProfilePage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {adminReports.map(r => (
-                    <div key={r.id} style={{ padding: '14px 16px', borderRadius: '10px', border: `1px solid ${r.status === 'pending' ? '#FDE68A' : '#E5E7EB'}`, backgroundColor: r.status === 'pending' ? '#FFFBEB' : '#FAFAFA', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div key={r.id} style={{ padding: '14px 16px', borderRadius: '10px', border: `1px solid ${r.status === 'pending' ? '#FDE68A' : 'var(--border-color)'}`, backgroundColor: r.status === 'pending' ? '#FFFBEB' : '#FAFAFA', display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>
                           {r.target_type === 'creator' ? 'Créateur' : r.target_type === 'event' ? 'Événement' : 'Post'} signalé
@@ -2011,7 +2011,7 @@ export default function ProfilePage() {
                           </>
                         )}
                         {r.status !== 'pending' && (
-                          <span style={{ fontSize: '12px', fontWeight: '600', color: r.status === 'reviewed' ? '#10B981' : '#9CA3AF', padding: '4px 8px', borderRadius: '6px', backgroundColor: r.status === 'reviewed' ? '#ECFDF5' : '#F3F4F6' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: r.status === 'reviewed' ? '#10B981' : 'var(--text-tertiary)', padding: '4px 8px', borderRadius: '6px', backgroundColor: r.status === 'reviewed' ? '#ECFDF5' : '#F3F4F6' }}>
                             {r.status === 'reviewed' ? 'Traité' : 'Ignoré'}
                           </span>
                         )}
@@ -2026,7 +2026,7 @@ export default function ProfilePage() {
         </motion.div>
 
         {toast && (
-          <div style={{ position: 'fixed', bottom: '24px', right: '24px', padding: '12px 20px', borderRadius: '10px', backgroundColor: '#1A1A1A', color: '#FFF', fontSize: '14px', fontWeight: '600', zIndex: 999, animation: 'fadeIn 0.2s ease' }}>
+          <div style={{ position: 'fixed', bottom: '24px', right: '16px', left: '16px', maxWidth: '400px', marginLeft: 'auto', padding: '12px 20px', borderRadius: '10px', backgroundColor: 'var(--text-primary)', color: '#FFF', fontSize: '14px', fontWeight: '600', zIndex: 999, animation: 'fadeIn 0.2s ease' }}>
             {toast}
           </div>
         )}

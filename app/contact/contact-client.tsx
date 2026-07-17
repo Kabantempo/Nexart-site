@@ -47,7 +47,7 @@ export default function ContactPageClient() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '40px 16px' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
         {/* Back Button */}
         <Link
           href="/"
@@ -66,7 +66,7 @@ export default function ContactPageClient() {
           Retour à l'accueil
         </Link>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '48px' }}>
+        <div className="contact-grid">
           {/* Main Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -102,7 +102,7 @@ export default function ContactPageClient() {
                     fontFamily: 'inherit',
                   }}
                   onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
@@ -127,7 +127,7 @@ export default function ContactPageClient() {
                     fontFamily: 'inherit',
                   }}
                   onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
@@ -152,7 +152,7 @@ export default function ContactPageClient() {
                     fontFamily: 'inherit',
                   }}
                   onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
@@ -178,20 +178,20 @@ export default function ContactPageClient() {
                     resize: 'vertical',
                   }}
                   onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.outline = 'none' }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
               {/* Error */}
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FFE5E5', color: '#E05A5A', fontSize: '14px', marginBottom: '24px' }}>
+                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#991B1B', fontSize: '14px', marginBottom: '24px' }}>
                   {error}
                 </div>
               )}
 
               {/* Success */}
               {submitted && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#E8F5E9', color: '#4CAF50', fontSize: '14px', marginBottom: '24px' }}>
+                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#F0FDF4', border: '1px solid #86EFAC', color: '#166534', fontSize: '14px', marginBottom: '24px' }}>
                   ✓ Message envoyé avec succès. Merci de nous avoir contactés !
                 </div>
               )}

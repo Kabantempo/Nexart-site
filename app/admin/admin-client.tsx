@@ -77,7 +77,7 @@ export default function AdminClient() {
   const [events, setEvents] = useState<Event[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -185,7 +185,7 @@ export default function AdminClient() {
         </div>
 
         {/* Tab Content */}
-        <div style={{ flex: 1, padding: '32px 24px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)', overflowY: 'auto' }}>
           {loading ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#6B7280' }}>
               Chargement...
@@ -452,7 +452,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Rechercher nom / email…"
-            style={{ paddingLeft: '32px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', border: '1px solid #D1D5DB', borderRadius: '8px', fontSize: '13px', outline: 'none', width: '240px' }}
+            style={{ paddingLeft: '32px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', border: '1px solid #D1D5DB', borderRadius: '8px', fontSize: '13px', outline: 'none', width: 'min(240px, 100%)' }}
           />
         </div>
       </div>
