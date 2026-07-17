@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Mail, Lock, User, ArrowRight, Palette, Calendar, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
@@ -140,7 +141,7 @@ export default function RegisterPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 24px', fontSize: '28px',
           }}>✉️</div>
-          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', marginBottom: '12px', letterSpacing: '-0.3px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '12px', letterSpacing: '-0.3px' }}>
             Vérifiez vos emails
           </h2>
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '32px' }}>
@@ -221,12 +222,7 @@ export default function RegisterPage() {
         <div style={{ position: 'relative', zIndex: 10 }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '10px',
-                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '18px', fontWeight: '800', color: '#FFFFFF',
-              }}>N</div>
+              <Image src="/logo-mark.png" alt="Nexart" width={36} height={36} style={{ borderRadius: '10px' }} />
               <span style={{ fontSize: '22px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.5px' }}>Nexart</span>
             </div>
           </Link>
@@ -321,7 +317,7 @@ export default function RegisterPage() {
           style={{ width: '100%', maxWidth: '440px' }}
         >
           <div style={{ marginBottom: '32px' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.5px' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px', letterSpacing: '-0.5px' }}>
               Créer un compte
             </h1>
             <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
@@ -354,7 +350,7 @@ export default function RegisterPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
-            <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '500' }}>ou par email</span>
+            <span style={{ fontSize: '13px', color: 'var(--text-tertiary)', fontWeight: '500' }}>ou par email</span>
             <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--bg-secondary)' }} />
           </div>
 
@@ -364,8 +360,8 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               style={{
                 padding: '12px 16px', borderRadius: '10px',
-                backgroundColor: '#FFF1F2', border: '1px solid #FECDD3',
-                color: '#BE123C', fontSize: '14px', marginBottom: '20px',
+                backgroundColor: '#FEF2F2', border: '1px solid #FECACA',
+                color: '#991B1B', fontSize: '14px', marginBottom: '20px',
                 display: 'flex', alignItems: 'center', gap: '8px',
               }}
             >
@@ -381,7 +377,7 @@ export default function RegisterPage() {
                 Nom complet
               </label>
               <div style={{ position: 'relative' }}>
-                <User size={16} color={focused === 'name' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <User size={16} color={focused === 'name' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   type="text"
                   placeholder="Votre prénom et nom"
@@ -392,9 +388,9 @@ export default function RegisterPage() {
                   required
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
-                    borderRadius: '10px', fontSize: '15px', color: '#0F172A',
+                    borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: focused === 'name' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'name' ? '#FAFBFF' : '#F8FAFC',
+                    backgroundColor: focused === 'name' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'name' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -408,7 +404,7 @@ export default function RegisterPage() {
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   type="email"
                   placeholder="vous@exemple.fr"
@@ -419,9 +415,9 @@ export default function RegisterPage() {
                   required
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
-                    borderRadius: '10px', fontSize: '15px', color: '#0F172A',
+                    borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: focused === 'email' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'email' ? '#FAFBFF' : '#F8FAFC',
+                    backgroundColor: focused === 'email' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'email' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -446,7 +442,7 @@ export default function RegisterPage() {
                       style={{
                         padding: '14px 8px', borderRadius: '12px', cursor: 'pointer',
                         border: selected ? `2px solid ${r.color}` : '1.5px solid #E2E8F0',
-                        backgroundColor: selected ? r.bg : '#F8FAFC',
+                        backgroundColor: selected ? r.bg : 'var(--bg-secondary)',
                         transition: 'all 200ms ease',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
                         boxShadow: selected ? `0 0 0 3px ${r.color}22` : 'none',
@@ -458,9 +454,9 @@ export default function RegisterPage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'all 200ms ease',
                       }}>
-                        <Icon size={18} color={selected ? '#FFFFFF' : '#94A3B8'} />
+                        <Icon size={18} color={selected ? '#FFFFFF' : 'var(--text-tertiary)'} />
                       </div>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : '#374151' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : 'var(--text-body, #374151)' }}>
                         {r.label}
                       </span>
                     </button>
@@ -475,7 +471,7 @@ export default function RegisterPage() {
                 Mot de passe
               </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'password' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Minimum 6 caractères"
@@ -487,9 +483,9 @@ export default function RegisterPage() {
                   minLength={6}
                   style={{
                     width: '100%', padding: '13px 42px 13px 42px',
-                    borderRadius: '10px', fontSize: '15px', color: '#0F172A',
+                    borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: focused === 'password' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'password' ? '#FAFBFF' : '#F8FAFC',
+                    backgroundColor: focused === 'password' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'password' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -511,7 +507,7 @@ export default function RegisterPage() {
                 Confirmer le mot de passe
               </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'confirmPassword' ? '#6366F1' : '#94A3B8'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'confirmPassword' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Retapez votre mot de passe"
@@ -523,11 +519,11 @@ export default function RegisterPage() {
                   minLength={6}
                   style={{
                     width: '100%', padding: '13px 42px 13px 42px',
-                    borderRadius: '10px', fontSize: '15px', color: '#0F172A',
+                    borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: confirmPassword && password !== confirmPassword
                       ? '1.5px solid #FCA5A5'
                       : focused === 'confirmPassword' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'confirmPassword' ? '#FAFBFF' : '#F8FAFC',
+                    backgroundColor: focused === 'confirmPassword' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'confirmPassword' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -565,7 +561,7 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p style={{ marginTop: '24px', fontSize: '13px', color: '#94A3B8', textAlign: 'center', lineHeight: '1.6' }}>
+          <p style={{ marginTop: '24px', fontSize: '13px', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: '1.6' }}>
             En vous inscrivant, vous acceptez nos{' '}
             <Link href="/legal/terms" style={{ color: '#6366F1', textDecoration: 'none' }}>CGU</Link>
             {' '}et notre{' '}
