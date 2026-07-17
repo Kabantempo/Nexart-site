@@ -189,6 +189,18 @@ p, li, h1, h2, h3, h4, h5, h6 {
   z-index: 1;
 }
 
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 48px;
+}
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
 .blog-nav-link {
   display: flex;
   flex-direction: column;
