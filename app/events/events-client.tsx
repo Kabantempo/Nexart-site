@@ -353,14 +353,16 @@ function EventsContent() {
         {/* Grid */}
         {visible.length > 0 ? (
           <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visible.map((event, idx) => (
-                <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visible.map((event, idx) => {
+                const isFeatured = idx % 5 === 0
+                return (
+                <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)} className={isFeatured ? 'sm:col-span-2 lg:col-span-2' : ''}>
                   <Link href={`/events/${event.id}`}
                     className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
                   >
                     {/* Cover */}
-                    <div className="relative h-52 bg-gray-100 shrink-0 overflow-hidden">
+                    <div className={`relative bg-gray-100 shrink-0 overflow-hidden ${isFeatured ? 'h-72' : 'h-52'}`}>
                       {event.cover_image ? (
                         <Image src={event.cover_image} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                       ) : (
@@ -440,7 +442,7 @@ function EventsContent() {
                     </div>
                   </Link>
                 </FadeUp>
-              ))}
+              )})}
             </div>
 
             {hasMore && (
