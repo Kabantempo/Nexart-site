@@ -38,6 +38,27 @@
   --input-bg: #1A1A1A;
 }
 
+/* ── Syne display font pour H1/H2 ── */
+h1, h2 {
+  font-family: 'Syne', system-ui, sans-serif;
+}
+
+/* ── Sélection de texte violet ── */
+::selection {
+  background: #6366F1;
+  color: #ffffff;
+}
+
+/* ── Scrollbar fine violette ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #818CF8; }
+
+/* ── Smooth scroll + ancres sous la navbar ── */
+html { scroll-behavior: smooth; }
+[id] { scroll-margin-top: 80px; }
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
