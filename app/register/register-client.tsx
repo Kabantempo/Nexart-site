@@ -301,12 +301,7 @@ export default function RegisterPage() {
       }}>
         {/* Mobile logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px' }} className="lg:hidden">
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '8px',
-            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '16px', fontWeight: '800', color: '#FFFFFF',
-          }}>N</div>
+          <Image src="/logo-mark.png" alt="Nexart" width={32} height={32} style={{ borderRadius: '8px' }} />
           <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
 
