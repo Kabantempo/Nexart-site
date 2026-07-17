@@ -11,25 +11,31 @@
 :root {
   --bg-primary: #FFFFFF;
   --bg-secondary: #F9FAFB;
+  --bg-tertiary: #F4F4F8;
   --text-primary: #1A1A1A;
   --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
   --border-color: #E5E7EB;
   --accent: #6366F1;
   --accent-red: #FF6B6B;
   --card-bg: #FFFFFF;
   --navbar-bg: rgba(255, 255, 255, 0.95);
+  --input-bg: #FFFFFF;
 }
 
 [data-theme="dark"] {
   --bg-primary: #0F0F0F;
   --bg-secondary: #1A1A1A;
+  --bg-tertiary: #111111;
   --text-primary: #F9FAFB;
   --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
   --border-color: #2D2D2D;
   --accent: #818CF8;
   --accent-red: #FF8585;
   --card-bg: #1A1A1A;
   --navbar-bg: rgba(15, 15, 15, 0.95);
+  --input-bg: #1A1A1A;
 }
 
 *, *::before, *::after {
@@ -317,3 +323,32 @@ footer {
 [data-theme="dark"] button:hover {
   transition: all 200ms ease;
 }
+
+/* ── Aggressive dark mode inline style overrides ── */
+/* These cover elements that still have hardcoded colors we couldn't reach via sed */
+
+[data-theme="dark"] [style*="background-color: rgb(255, 255, 255)"],
+[data-theme="dark"] [style*="background-color: white"] {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] [style*="color: rgb(26, 26, 26)"],
+[data-theme="dark"] [style*="color: rgb(17, 24, 39)"],
+[data-theme="dark"] [style*="color: rgb(55, 65, 81)"] {
+  color: var(--text-primary) !important;
+}
+
+/* Input backgrounds */
+[data-theme="dark"] input[style],
+[data-theme="dark"] textarea[style],
+[data-theme="dark"] select[style] {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Cards with white background */
+[data-theme="dark"] div[style*="border-radius"][style*="background"] {
+  border-color: var(--border-color);
+}
+

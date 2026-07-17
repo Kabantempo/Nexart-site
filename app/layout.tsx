@@ -83,6 +83,15 @@ export default function RootLayout({
           <Footer />
           <CookieConsent />
         </Providers>
+        {/* Framer Motion safety net — force visibilité si animation bloquée après 1s */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          setTimeout(function(){
+            document.querySelectorAll('[style*="opacity:0"],[style*="opacity: 0"]').forEach(function(el){
+              el.style.opacity='1';
+              el.style.transform='none';
+            });
+          }, 1000);
+        `}} />
       </body>
     </html>
   );
