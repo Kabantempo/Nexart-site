@@ -94,14 +94,15 @@ function EventsContent() {
   const [priceMax,     setPriceMax]     = useState<number | ''>('')
   const [freeOnly,     setFreeOnly]     = useState(false)
   const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>('asc')
+  const [dateFrom,     setDateFrom]     = useState('')
+  const [dateTo,       setDateTo]       = useState('')
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
-  const [showAdvanced, setShowAdvanced] = useState(false)
   const [nearMe, setNearMe] = useState(false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
   const [geoRadius] = useState(50) // km
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
-  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder])
+  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo])
 
   const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
     const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180
@@ -132,6 +133,8 @@ function EventsContent() {
     .filter((e) => discFilter === 'all' || ((e as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []).includes(discFilter))
     .filter((e) => !freeOnly || e.stand_price === 0)
     .filter((e) => priceMax === '' || (e.stand_price != null && e.stand_price <= priceMax))
+    .filter((e) => !dateFrom || !e.start_date || new Date(e.start_date) >= new Date(dateFrom))
+    .filter((e) => !dateTo || !e.start_date || new Date(e.start_date) <= new Date(dateTo))
     .filter((e) => !nearMe || !userPos || (e.lat && e.lng && haversine(userPos.lat, userPos.lng, e.lat, e.lng) <= geoRadius))
     .sort((a, b) => {
       const da = a.start_date ? new Date(a.start_date).getTime() : 0
@@ -141,11 +144,11 @@ function EventsContent() {
 
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
-  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || discFilter !== 'all' || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe
+  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || discFilter !== 'all' || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe || !!dateFrom || !!dateTo
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const uniqueCitiesCount = new Set(events.map(e => e.city).filter(Boolean)).size
 
-  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setDiscFilter('all'); setSortOrder('asc'); setSearchTerm(''); setPriceMax(''); setFreeOnly(false); setNearMe(false) }
+  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setDiscFilter('all'); setSortOrder('asc'); setSearchTerm(''); setPriceMax(''); setFreeOnly(false); setNearMe(false); setDateFrom(''); setDateTo('') }
 
   if (loading) return <Skeleton />
 
@@ -231,93 +234,97 @@ function EventsContent() {
 
         {/* Filters */}
         <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-5 items-start">
-            <div className="w-full sm:flex-1">
-              <p className="text-[11px] font-bold text-gray-400 mb-3">Type d'événement</p>
-              <div className="flex flex-wrap gap-2">
-                {EVENT_TYPES.map(({ key, label }) => {
-                  const active = typeFilter === key
-                  return (
-                    <button key={key} onClick={() => setTypeFilter(key)}
-                      className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-                        active ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm shadow-indigo-200' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}>
-                      {label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 items-start sm:items-end w-full sm:w-auto">
-              {uniqueCities.length > 0 && (
-                <div className="w-full sm:w-auto">
-                  <p className="text-[11px] font-bold text-gray-400 mb-3">Ville</p>
-                  <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                    className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
-                      cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
+          {/* Row 1: Type */}
+          <div className="mb-5">
+            <p className="text-[11px] font-bold text-gray-400 mb-3">Type d'événement</p>
+            <div className="flex flex-wrap gap-2">
+              {EVENT_TYPES.map(({ key, label }) => {
+                const active = typeFilter === key
+                return (
+                  <button key={key} onClick={() => setTypeFilter(key)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
+                      active ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm shadow-indigo-200' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}>
-                    <option value="all">Toutes les villes</option>
-                    {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-              )}
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Row 2: Ville + Date + Tri */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start pt-4 border-t border-gray-100">
+            {uniqueCities.length > 0 && (
               <div className="w-full sm:w-auto">
-                <p className="text-[11px] font-bold text-gray-400 mb-3">Trier par date</p>
-                <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
-                  {(['asc', 'desc'] as const).map((o, i) => (
-                    <button key={o} onClick={() => setSortOrder(o)}
-                      className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
-                        sortOrder === o ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
-                      }`}>
-                      {o === 'asc' ? '↑ Prochains' : '↓ Plus loin'}
-                    </button>
-                  ))}
-                </div>
+                <p className="text-[11px] font-bold text-gray-400 mb-2">Ville</p>
+                <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
+                  className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                    cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
+                  }`}>
+                  <option value="all">Toutes les villes</option>
+                  {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            )}
+
+            <div className="w-full sm:w-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-2">À partir du</p>
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateFrom ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
+            </div>
+
+            <div className="w-full sm:w-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-2">Jusqu'au</p>
+              <input type="date" value={dateTo} min={dateFrom} onChange={e => setDateTo(e.target.value)}
+                className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateTo ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
+            </div>
+
+            <div className="w-full sm:w-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-2">Trier</p>
+              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
+                {(['asc', 'desc'] as const).map((o, i) => (
+                  <button key={o} onClick={() => setSortOrder(o)}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
+                      sortOrder === o ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
+                    }`}>
+                    {o === 'asc' ? '↑ Prochains' : '↓ Plus loin'}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Advanced filters toggle */}
-          <div className="mt-3">
-            <button onClick={() => setShowAdvanced(s => !s)}
-              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-              {showAdvanced ? '▲ Moins de filtres' : '▼ Filtres avancés (discipline, tarif stand)'}
-            </button>
-          </div>
-
-          {showAdvanced && (
-            <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-100">
-              {uniqueDiscs.length > 0 && (
-                <div>
-                  <p className="text-[11px] font-bold text-gray-400 mb-2">Discipline</p>
-                  <select value={discFilter} onChange={e => setDiscFilter(e.target.value)}
-                    className={`px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${discFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`}>
-                    <option value="all">Toutes disciplines</option>
-                    {uniqueDiscs.map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
-              )}
-              <div>
-                <p className="text-[11px] font-bold text-gray-400 mb-2">Prix stand max (€)</p>
-                <input type="number" min={0} placeholder="ex: 50" value={priceMax}
-                  onChange={e => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-300" />
+          {/* Row 3: Discipline + Tarif + Gratuit + NearMe */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
+            {uniqueDiscs.length > 0 && (
+              <div className="w-full sm:w-auto">
+                <p className="text-[11px] font-bold text-gray-400 mb-2">Discipline</p>
+                <select value={discFilter} onChange={e => setDiscFilter(e.target.value)}
+                  className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${discFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`}>
+                  <option value="all">Toutes disciplines</option>
+                  {uniqueDiscs.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
               </div>
-              <div className="flex items-end pb-1">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input type="checkbox" checked={freeOnly} onChange={e => setFreeOnly(e.target.checked)} className="w-4 h-4 rounded accent-indigo-600" />
-                  <span className="text-sm font-medium text-gray-700">Stands gratuits uniquement</span>
-                </label>
-              </div>
-              <div className="flex items-end pb-1">
-                <button onClick={handleNearMe}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors ${nearMe ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}>
-                  <MapPin size={14} /> Autour de moi ({geoRadius} km)
-                </button>
-              </div>
+            )}
+            <div className="w-full sm:w-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-2">Prix stand max (€)</p>
+              <input type="number" min={0} placeholder="ex: 50" value={priceMax}
+                onChange={e => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
+                className="w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-300" />
             </div>
-          )}
+            <div className="flex items-end pb-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" checked={freeOnly} onChange={e => setFreeOnly(e.target.checked)} className="w-4 h-4 rounded accent-indigo-600" />
+                <span className="text-sm font-medium text-gray-700">Gratuit uniquement</span>
+              </label>
+            </div>
+            <div className="flex items-end pb-1">
+              <button onClick={handleNearMe}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors ${nearMe ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}>
+                <MapPin size={14} /> Autour de moi ({geoRadius} km)
+              </button>
+            </div>
+          </div>
 
           {hasActiveFilters && (
             <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap items-center">
@@ -326,6 +333,8 @@ function EventsContent() {
               {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
               {typeFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{EVENT_TYPE_LABELS[typeFilter]} <button onClick={() => setTypeFilter('all')}><X size={11} /></button></span>}
               {discFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{discFilter} <button onClick={() => setDiscFilter('all')}><X size={11} /></button></span>}
+              {dateFrom && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">À partir du {new Date(dateFrom).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} <button onClick={() => setDateFrom('')}><X size={11} /></button></span>}
+              {dateTo && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Jusqu'au {new Date(dateTo).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} <button onClick={() => setDateTo('')}><X size={11} /></button></span>}
               {freeOnly && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Gratuit <button onClick={() => setFreeOnly(false)}><X size={11} /></button></span>}
               {priceMax !== '' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">≤ {priceMax}€ <button onClick={() => setPriceMax('')}><X size={11} /></button></span>}
               {nearMe && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold"><MapPin size={10} /> Autour de moi <button onClick={() => setNearMe(false)}><X size={11} /></button></span>}
@@ -432,10 +441,25 @@ function EventsContent() {
                         )}
                       </div>
                       {event.description && (
-                        <p className="text-sm text-gray-400 leading-relaxed mb-4 flex-1 line-clamp-2">{event.description}</p>
+                        <p className="text-sm text-gray-400 leading-relaxed mb-3 flex-1 line-clamp-2">{event.description}</p>
                       )}
+                      {/* Discipline tags */}
+                      {(() => {
+                        const tags = (event as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []
+                        if (!tags.length) return null
+                        const shown = tags.slice(0, 2)
+                        const extra = tags.length - 2
+                        return (
+                          <div className="flex flex-wrap gap-1.5 mb-3">
+                            {shown.map(t => (
+                              <span key={t} className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-semibold">{t}</span>
+                            ))}
+                            {extra > 0 && <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold">+{extra}</span>}
+                          </div>
+                        )
+                      })()}
                       <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
-                        <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold group-hover:gap-3 transition-all">
+                        <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-200">
                           Voir l'événement <ArrowRight size={14} />
                         </span>
                       </div>
