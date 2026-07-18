@@ -6,6 +6,7 @@ import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Calendar, ArrowRight, Search, X, Users, SlidersHorizontal, Euro, Sparkles } from 'lucide-react'
+import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -492,6 +493,7 @@ function EventsContent() {
                         <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-200">
                           Voir l'événement <ArrowRight size={14} />
                         </span>
+                        <PinButton event={{ id: event.id, title: event.title, start_date: event.start_date, city: event.city, stand_price: event.stand_price, stand_count: event.stand_count, discipline_tags: tags, cover_image: event.cover_image }} />
                       </div>
                     </div>
 
@@ -553,8 +555,11 @@ function EventsContent() {
 
 export default function EventsClient() {
   return (
-    <Suspense fallback={<Skeleton />}>
-      <EventsContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<Skeleton />}>
+        <EventsContent />
+      </Suspense>
+      <ComparePanel />
+    </>
   )
 }
