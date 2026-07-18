@@ -64,16 +64,16 @@ function Skeleton() {
     <div className="bg-white min-h-screen">
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
-        <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
-        <div className="h-20 bg-gray-100 rounded-2xl mb-8 animate-pulse" />
+        <div className="h-12 animate-shimmer rounded-2xl mb-4" />
+        <div className="h-20 animate-shimmer rounded-2xl mb-8" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 80}ms` }}>
-              <div className="h-52 bg-gray-100" />
+            <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden" style={{ animationDelay: `${i * 80}ms` }}>
+              <div className="h-52 animate-shimmer" />
               <div className="p-5 space-y-3">
-                <div className="h-5 bg-gray-100 rounded-lg" />
-                <div className="h-4 w-3/4 bg-gray-100 rounded-lg" />
-                <div className="h-4 w-1/2 bg-gray-100 rounded-lg" />
+                <div className="h-5 animate-shimmer rounded-lg" />
+                <div className="h-4 w-3/4 animate-shimmer rounded-lg" />
+                <div className="h-4 w-1/2 animate-shimmer rounded-lg" />
               </div>
             </div>
           ))}

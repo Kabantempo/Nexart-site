@@ -88,6 +88,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
       {/* Toast container — fixed bottom-right */}
       <div
+        role="alert"
+        aria-live="polite"
+        aria-atomic="false"
         style={{
           position: 'fixed',
           bottom: '24px',
