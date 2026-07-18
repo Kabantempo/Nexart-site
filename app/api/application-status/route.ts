@@ -13,7 +13,17 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await adminClient.auth.getUser(authHeader.substring(7))
     if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { creatorEmail: rawEmail, creatorName, eventTitle, status, creatorId } = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const appStatusSchema = z.object({
+      creatorEmail: z.string().email().optional(),
+      creatorName: z.string().max(200).optional(),
+      eventTitle: z.string().min(1).max(300),
+      status: z.enum(['accepted', 'refused', 'pending']),
+      creatorId: z.string().uuid().optional(),
+    })
+    const { data: parsed, error: validErr } = v(appStatusSchema, await req.json())
+    if (validErr) return validErr
+    const { creatorEmail: rawEmail, creatorName, eventTitle, status, creatorId } = parsed
 
     let creatorEmail = rawEmail
     if (!creatorEmail && creatorId) {
