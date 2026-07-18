@@ -209,9 +209,31 @@ export function CreatorProfileClient({ id }: Props) {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <div className="bg-white min-h-screen">
+      {/* Banner skeleton */}
+      <div className="h-52 bg-gray-100 animate-pulse" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+        {/* Avatar + name skeleton */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5 -mt-12 mb-8">
+          <div className="w-24 h-24 rounded-2xl bg-gray-200 animate-pulse border-4 border-white shrink-0" />
+          <div className="flex-1 pb-1 space-y-2">
+            <div className="h-7 w-48 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-32 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+        </div>
+        {/* Content skeletons */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="h-4 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-4 w-4/5 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-4 w-3/5 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+            <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+          </div>
+        </div>
+      </div>
     </div>
   )
 
