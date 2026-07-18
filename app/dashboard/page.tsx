@@ -546,6 +546,78 @@ function ProfileViewsWidget({ count, days }: { count: number; days: { date: stri
   )
 }
 
+function ActivationChecklist({ userId, applications }: { userId: string; applications: { id: string }[] }) {
+  const [dismissed, setDismissed] = useState(() => {
+    try { return localStorage.getItem(`nexart_checklist_done_${userId}`) === '1' } catch { return false }
+  })
+  const [checks, setChecks] = useState({ avatar: false, bio: false, photos: false, applied: false, disciplines: false })
+
+  useEffect(() => {
+    if (dismissed) return
+    supabase.from('creator_profiles').select('disciplines, portfolio_images, portfolio_grid').eq('user_id', userId).maybeSingle().then(({ data: cp }) => {
+      supabase.from('profiles').select('avatar_url, bio').eq('id', userId).maybeSingle().then(({ data: p }) => {
+        const photos = cp?.portfolio_grid?.length || cp?.portfolio_images?.length || 0
+        setChecks({
+          avatar: !!p?.avatar_url,
+          bio: (p?.bio?.length ?? 0) > 20,
+          photos: photos >= 3,
+          applied: applications.length > 0,
+          disciplines: (cp?.disciplines?.length ?? 0) > 0,
+        })
+      })
+    })
+  }, [userId, applications.length, dismissed])
+
+  if (dismissed) return null
+
+  const items = [
+    { key: 'avatar', label: 'Ajoute une photo de profil', link: '/profile' },
+    { key: 'bio', label: 'Écris une bio (20 caractères min)', link: '/profile' },
+    { key: 'disciplines', label: 'Sélectionne tes disciplines', link: '/profile' },
+    { key: 'photos', label: 'Ajoute 3 photos au portfolio', link: '/profile?tab=portfolio' },
+    { key: 'applied', label: 'Postule à ton premier événement', link: '/events' },
+  ] as const
+
+  const done = items.filter(i => checks[i.key]).length
+  const total = items.length
+  const pct = Math.round((done / total) * 100)
+
+  if (pct === 100) {
+    localStorage.setItem(`nexart_checklist_done_${userId}`, '1')
+    return null
+  }
+
+  return (
+    <div className="mb-6 rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-sm font-bold text-indigo-900">Complète ton profil ({done}/{total})</p>
+          <p className="text-xs text-indigo-600 mt-0.5">Plus ton profil est complet, plus tu attires les organisateurs</p>
+        </div>
+        <button onClick={() => { localStorage.setItem(`nexart_checklist_done_${userId}`, '1'); setDismissed(true) }}
+          className="text-indigo-400 hover:text-indigo-600 transition-colors" aria-label="Fermer">
+          <X size={16} />
+        </button>
+      </div>
+      <div className="h-2 rounded-full bg-indigo-200 mb-4 overflow-hidden">
+        <motion.div className="h-full rounded-full bg-indigo-500"
+          initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6, ease: 'easeOut' }} />
+      </div>
+      <div className="flex flex-col gap-2">
+        {items.map(item => (
+          <Link key={item.key} href={item.link}
+            className={`flex items-center gap-2.5 text-sm rounded-xl px-3 py-2 transition-colors ${checks[item.key] ? 'text-green-700 bg-green-50' : 'text-indigo-700 hover:bg-indigo-100'}`}>
+            <span className={`shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${checks[item.key] ? 'bg-green-500 text-white' : 'bg-indigo-200 text-indigo-600'}`}>
+              {checks[item.key] ? '✓' : ''}
+            </span>
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function CreatorContent({
   applications,
   creatorView,
@@ -619,6 +691,7 @@ function CreatorContent({
 
   return (
     <div>
+      <ActivationChecklist userId={userId} applications={applications} />
       <ProfileViewsWidget count={profileViewCount} days={profileViewDays} />
       <CreditsWidget />
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
