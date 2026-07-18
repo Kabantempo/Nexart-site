@@ -145,16 +145,16 @@ export function NavbarFull() {
     <>
       {/* ── Bar ── */}
       <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        !scrolled
-          ? dark
-            ? 'bg-[#06060f] border-b border-white/6'
+        scrolled
+          ? 'pointer-events-none'
+          : dark
+            ? 'bg-transparent border-b border-transparent'
             : 'bg-white border-b border-gray-100'
-          : 'pointer-events-none'
       }`}>
         <div className={`transition-all duration-500 ${scrolled ? 'pointer-events-auto mx-3 sm:mx-6 mt-3' : ''}`}>
         <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
           scrolled
-            ? 'bg-white rounded-xl border border-gray-200 shadow-sm'
+            ? 'bg-white/95 backdrop-blur-md rounded-2xl border border-gray-200/80 shadow-lg shadow-black/5'
             : ''
         }`}>
 
