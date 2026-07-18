@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
+import { PastEventsGallery } from '@/components/ui/past-events-gallery'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -2846,6 +2847,17 @@ export default function ProfilePage() {
                       <input ref={orgaDocRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleOrgaDocUpload} />
                     </div>
                   </div>
+                </div>
+              </>
+            )}
+
+            {/* Éditions passées organisateur */}
+            {(profile?.role === 'organizer' || profile?.is_organizer) && user?.id && (
+              <>
+                <div className="h-px bg-gray-100" />
+                <div className="px-6 py-5">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Éditions passées</p>
+                  <PastEventsGallery organizerId={user.id} />
                 </div>
               </>
             )}
