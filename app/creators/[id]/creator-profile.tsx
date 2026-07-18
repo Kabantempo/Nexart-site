@@ -65,7 +65,7 @@ export function CreatorProfileClient({ id }: Props) {
     const load = async () => {
       const [{ data: p }, { data: cp }] = await Promise.all([
         supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab').eq('user_id', id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...p, ...cp } as any)
@@ -421,9 +421,11 @@ export function CreatorProfileClient({ id }: Props) {
             {(() => {
               const grid = creator.portfolio_grid?.length ? creator.portfolio_grid : creator.portfolio_images?.map(url => ({ url, colSpan: 1 as const, rowSpan: 1 as const }))
               if (!grid?.length) return null
+              const brandColor = (creator as any)?.page_settings?.primary_color ?? '#6366F1'
+              const brandBg = brandColor + '0D'
               return (
-                <section className="mb-8">
-                  <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
+                <section className="mb-8" style={{ backgroundColor: brandBg, borderRadius: '16px', padding: '16px' }}>
+                  <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ color: brandColor }}>Portfolio</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
                     {grid.map((item, idx) => (
                       <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative' }} className="group">
