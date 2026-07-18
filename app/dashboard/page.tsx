@@ -543,20 +543,57 @@ function CreatorContent({
   profileViewCount: number
   profileViewDays: { date: string; count: number }[]
 }) {
-  const [recommended, setRecommended] = useState<Event[]>([])
+  const [recommended, setRecommended] = useState<(Event & { _score?: number; _reason?: string })[]>([])
   const appliedEventIds = new Set(applications.map(a => a.event_id))
+  const appliedOrgaIds = new Set(applications.map(a => (a.event as any)?.organizer_id).filter(Boolean))
 
   useEffect(() => {
     const load = async () => {
-      const { data: cp } = await supabase.from('creator_profiles').select('disciplines, city').eq('user_id', userId).maybeSingle()
+      const { data: cp } = await supabase.from('creator_profiles').select('disciplines, city, region').eq('user_id', userId).maybeSingle()
       if (!cp?.disciplines?.length) return
+
       const { data: evs } = await supabase.from('events')
         .select('*')
         .eq('status', 'published')
-        .overlaps('discipline_tags', cp.disciplines)
-        .order('start_date', { ascending: true })
-        .limit(5)
-      if (evs) setRecommended(evs.filter(e => !appliedEventIds.has(e.id)) as unknown as Event[])
+        .gt('start_date', new Date().toISOString())
+        .limit(50)
+
+      if (!evs) return
+
+      const in60days = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
+
+      const scored = evs
+        .filter(e => !appliedEventIds.has(e.id))
+        .map(e => {
+          const tags: string[] = (e as any).discipline_tags ?? []
+          const matchDisc = tags.some((t: string) => cp.disciplines.includes(t))
+          if (!matchDisc) return null
+
+          let score = 0
+          let reason = ''
+
+          // +3 discipline match
+          const discMatches = tags.filter((t: string) => cp.disciplines.includes(t)).length
+          score += discMatches * 3
+          reason = `Correspond à vos disciplines`
+
+          // +2 même région
+          if (cp.region && (e as any).region === cp.region) { score += 2; reason = `Dans votre région` }
+          // +1 même ville
+          if (cp.city && e.city === cp.city) { score += 1; reason = `Dans votre ville` }
+
+          // +1 dans les 60 prochains jours
+          if (e.start_date && e.start_date <= in60days) score += 1
+
+          // +2 organisateur connu (déjà candidaté chez lui)
+          if (appliedOrgaIds.has((e as any).organizer_id)) { score += 2; reason = `Organisateur que vous connaissez` }
+
+          return { ...e, _score: score, _reason: reason }
+        })
+        .filter(Boolean) as (Event & { _score: number; _reason: string })[]
+
+      scored.sort((a, b) => b._score - a._score)
+      setRecommended(scored.slice(0, 4))
     }
     load()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -695,24 +732,32 @@ function CreatorContent({
       {/* Recommandations */}
       {recommended.length > 0 && (
         <div className="mt-10">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold text-gray-900">Événements pour vous</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Pour vous</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Sélectionnés selon vos disciplines et votre localisation</p>
+            </div>
             <Link href="/events" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Voir tout →</Link>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="grid sm:grid-cols-2 gap-3">
             {recommended.map((ev, i) => (
-              <motion.div key={ev.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+              <motion.div key={ev.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
                 <Link href={`/events/${ev.id}`}
-                  className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm transition-all duration-150 group">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-gray-900 truncate mb-1 group-hover:text-indigo-700 transition-colors">{ev.title}</h3>
-                    <p className="text-xs text-gray-400">
-                      {ev.start_date ? new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : ''}
-                      {ev.city ? ` · ${ev.city}` : ''}
-                    </p>
+                  className="flex flex-col p-4 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group h-full">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="text-sm font-bold text-gray-900 leading-snug group-hover:text-indigo-700 transition-colors line-clamp-2">{ev.title}</h3>
+                    <Zap size={13} className="text-indigo-400 shrink-0 mt-0.5" />
                   </div>
-                  <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">Recommandé</span>
-                  <ArrowRight size={15} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
+                  <p className="text-xs text-gray-400 mb-3">
+                    {ev.start_date ? new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+                    {ev.city ? ` · ${ev.city}` : ''}
+                  </p>
+                  <div className="mt-auto flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                      {(ev as any)._reason ?? 'Recommandé'}
+                    </span>
+                    <ArrowRight size={13} className="text-indigo-300 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
                 </Link>
               </motion.div>
             ))}
