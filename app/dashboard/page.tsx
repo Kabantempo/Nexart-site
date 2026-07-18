@@ -10,7 +10,7 @@ import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   LogOut, MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
-  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap, Rss, Star, CreditCard, ExternalLink,
+  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap, Rss, Star, CreditCard, ExternalLink, Eye,
 } from 'lucide-react'
 import { CreditsWidget } from '@/components/credits-widget'
 import { BoostButton } from '@/components/boost-button'
@@ -78,6 +78,8 @@ export default function DashboardPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [pendingApps, setPendingApps] = useState<{ id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
   const [loading, setLoading] = useState(true)
+  const [profileViewCount, setProfileViewCount] = useState<number>(0)
+  const [profileViewDays, setProfileViewDays] = useState<{ date: string; count: number }[]>([])
   const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
   const [missingProfileFields, setMissingProfileFields] = useState<string[]>([])
   const [subscriptionTier, setSubscriptionTier] = useState<string>('free')
@@ -144,10 +146,28 @@ export default function DashboardPage() {
       const hasOrganizer = user.is_organizer || user.role === 'organizer'
       await Promise.all([
         hasCreator ? (async () => {
-          const { data: apps } = await supabase.from('applications').select('*').eq('creator_id', user.id).order('created_at', { ascending: false })
+          const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+          const [{ data: apps }, { data: views }] = await Promise.all([
+            supabase.from('applications').select('*').eq('creator_id', user.id).order('created_at', { ascending: false }),
+            supabase.from('profile_views').select('viewed_at').eq('profile_id', user.id).gte('viewed_at', thirtyDaysAgo),
+          ])
           if (apps?.length) {
             const { data: eventsData } = await supabase.from('events').select('*').in('id', apps.map(a => a.event_id))
             setApplications(apps.map(a => ({ ...a, event: eventsData?.find(e => e.id === a.event_id) })) as any)
+          }
+          if (views) {
+            setProfileViewCount(views.length)
+            const byDay: Record<string, number> = {}
+            views.forEach(v => {
+              const day = v.viewed_at.slice(0, 10)
+              byDay[day] = (byDay[day] ?? 0) + 1
+            })
+            const days = Array.from({ length: 30 }, (_, i) => {
+              const d = new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000)
+              const key = d.toISOString().slice(0, 10)
+              return { date: key, count: byDay[key] ?? 0 }
+            })
+            setProfileViewDays(days)
           }
         })() : Promise.resolve(),
         hasOrganizer ? (async () => {
@@ -265,10 +285,13 @@ export default function DashboardPage() {
             {/* Stats rapides */}
             {!loading && (hasCreator || hasOrganizer) && (
               <div className="flex flex-wrap gap-3 mt-8">
-                {hasCreator && applications.length > 0 && [
-                  { label: 'candidatures', value: applications.length, icon: <Calendar size={13} /> },
-                  { label: 'acceptées', value: acceptedApps.length, icon: <CheckCircle size={13} /> },
-                  { label: "taux d'acceptation", value: `${acceptanceRate}%`, icon: <TrendingUp size={13} /> },
+                {hasCreator && [
+                  ...(applications.length > 0 ? [
+                    { label: 'candidatures', value: applications.length, icon: <Calendar size={13} /> },
+                    { label: 'acceptées', value: acceptedApps.length, icon: <CheckCircle size={13} /> },
+                    { label: "taux d'acceptation", value: `${acceptanceRate}%`, icon: <TrendingUp size={13} /> },
+                  ] : []),
+                  { label: 'vues profil (30j)', value: profileViewCount, icon: <Eye size={13} /> },
                 ].map(s => (
                   <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
                     <span className="text-indigo-400">{s.icon}</span>
@@ -406,12 +429,12 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-12">
             {hasCreator && hasOrganizer ? (
               <>
-                {dashTab === 'creator' && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} userId={user.id} />}
+                {dashTab === 'creator' && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} userId={user.id} profileViewCount={profileViewCount} profileViewDays={profileViewDays} />}
                 {dashTab === 'organizer' && <OrganizerContent events={events} pendingApps={pendingApps} setPendingApps={setPendingApps} userId={user.id} />}
               </>
             ) : (
               <>
-                {hasCreator && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} userId={user.id} />}
+                {hasCreator && <CreatorContent applications={applications} creatorView={creatorView} setCreatorView={setCreatorView} userId={user.id} profileViewCount={profileViewCount} profileViewDays={profileViewDays} />}
                 {hasOrganizer && <OrganizerContent events={events} pendingApps={pendingApps} setPendingApps={setPendingApps} userId={user.id} />}
               </>
             )}
@@ -455,16 +478,70 @@ function VisitorContent() {
   )
 }
 
+function ProfileViewsWidget({ count, days }: { count: number; days: { date: string; count: number }[] }) {
+  const max = Math.max(...days.map(d => d.count), 1)
+  const trend = days.slice(-7).reduce((s, d) => s + d.count, 0) - days.slice(-14, -7).reduce((s, d) => s + d.count, 0)
+  return (
+    <div className="mb-6 p-5 rounded-2xl border border-gray-100 bg-white">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center">
+              <Eye size={15} className="text-indigo-600" />
+            </div>
+            <span className="text-sm font-bold text-gray-900">Vues de profil</span>
+          </div>
+          <p className="text-xs text-gray-400 pl-10">Ces 30 derniers jours</p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-bold text-gray-900">{count}</p>
+          {trend !== 0 && (
+            <p className={`text-xs font-semibold mt-0.5 ${trend > 0 ? 'text-emerald-600' : 'text-red-400'}`}>
+              {trend > 0 ? `+${trend}` : trend} cette semaine
+            </p>
+          )}
+        </div>
+      </div>
+      {/* Mini bar chart */}
+      <div className="flex items-end gap-0.5 h-12">
+        {days.map((d, i) => (
+          <div key={i} className="flex-1 flex flex-col justify-end" title={`${d.date}: ${d.count} vue${d.count !== 1 ? 's' : ''}`}>
+            <div
+              className="rounded-sm transition-all duration-300"
+              style={{
+                height: `${Math.max(d.count / max * 100, d.count > 0 ? 8 : 2)}%`,
+                backgroundColor: d.count > 0 ? '#6366F1' : '#E5E7EB',
+                opacity: i >= days.length - 7 ? 1 : 0.45,
+              }}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-[10px] text-gray-400">il y a 30j</span>
+        <span className="text-[10px] text-gray-400">aujourd'hui</span>
+      </div>
+      {count === 0 && (
+        <p className="text-xs text-gray-400 mt-3 text-center">Complétez votre profil pour attirer des organisateurs</p>
+      )}
+    </div>
+  )
+}
+
 function CreatorContent({
   applications,
   creatorView,
   setCreatorView,
   userId,
+  profileViewCount,
+  profileViewDays,
 }: {
   applications: (Application & { event?: Event })[]
   creatorView: 'list' | 'calendar'
   setCreatorView: (v: 'list' | 'calendar') => void
   userId: string
+  profileViewCount: number
+  profileViewDays: { date: string; count: number }[]
 }) {
   const [recommended, setRecommended] = useState<Event[]>([])
   const appliedEventIds = new Set(applications.map(a => a.event_id))
@@ -487,6 +564,7 @@ function CreatorContent({
 
   return (
     <div>
+      <ProfileViewsWidget count={profileViewCount} days={profileViewDays} />
       <CreditsWidget />
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
         <h2 className="text-xl font-bold text-gray-900">Mes candidatures ({applications.length})</h2>
