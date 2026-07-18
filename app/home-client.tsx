@@ -348,11 +348,14 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="bg-[#06060f] text-white overflow-x-hidden">
+    <div className="bg-[#06060f] text-white overflow-x-hidden" style={{ marginTop: '-58px' }}>
       <Grain />
 
       {/* ══ HERO ══════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ marginTop: '-58px', paddingTop: '58px' }}>
+      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: '#08081a' }}>
+
+        {/* Navbar spacer — pushes content below the fixed navbar */}
+        <div style={{ height: '58px', flexShrink: 0 }} />
 
         {/* Grid */}
         <div className="absolute inset-0 opacity-[0.14]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />

@@ -70,7 +70,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
         <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet" /></noscript>
       </head>
-      <body className="flex min-h-screen flex-col bg-white text-gray-900">
+      <body className="flex min-h-screen flex-col text-gray-900" style={{ backgroundColor: 'var(--bg-primary, #FFFFFF)' }}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-semibold">
           Aller au contenu principal
         </a>
