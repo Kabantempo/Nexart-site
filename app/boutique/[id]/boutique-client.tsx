@@ -64,7 +64,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
   if (loading) {
     return (
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -73,7 +73,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
       {/* En-tête créateur */}
-      <div style={{ backgroundColor: '#111827', padding: '40px 24px 32px' }}>
+      <div style={{ backgroundColor: 'var(--text-primary)', padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <Link href={`/creators/${creatorId}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', textDecoration: 'none', marginBottom: '20px' }}>
             <ArrowLeft size={12} /> Profil créateur
@@ -84,7 +84,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
               <Image src={creator.avatar_url} alt={creator?.full_name || ''} width={56} height={56}
                 style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
             ) : (
-              <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: 'var(--text-body, #374151)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShoppingBag size={24} color="rgba(255,255,255,0.5)" />
               </div>
             )}
@@ -214,7 +214,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <Link href={`/creators/${creatorId}`}
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: '#111827', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: 'var(--text-primary)', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
                   <ExternalLink size={13} /> Contacter le créateur
                 </Link>
                 <button onClick={() => setSelectedProduct(null)}

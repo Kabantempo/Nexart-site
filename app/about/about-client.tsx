@@ -147,7 +147,7 @@ export default function AboutPageClient() {
                     e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.1)'
                   }}
                   onMouseLeave={(e: any) => {
-                    e.currentTarget.style.borderColor = '#E5E7EB'
+                    e.currentTarget.style.borderColor = 'var(--border-color)'
                     e.currentTarget.style.boxShadow = 'none'
                   }}
                 >

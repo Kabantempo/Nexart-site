@@ -206,7 +206,7 @@ const fetchCampaigns = async () => {
                   disabled={sending === campaign.id}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
-                    backgroundColor: sending === campaign.id ? '#9CA3AF' : '#6366F1',
+                    backgroundColor: sending === campaign.id ? 'var(--text-tertiary)' : '#6366F1',
                     color: '#FFFFFF', border: 'none', borderRadius: '6px',
                     padding: '8px 12px', cursor: sending === campaign.id ? 'not-allowed' : 'pointer',
                     fontSize: '13px', fontWeight: '600',
@@ -233,7 +233,7 @@ const fetchCampaigns = async () => {
               border: '1px solid var(--border-color)',
             }}
           >
-            <Mail size={48} color='#9CA3AF' style={{ margin: '0 auto 16px' }} />
+            <Mail size={48} color='var(--text-tertiary)' style={{ margin: '0 auto 16px' }} />
             <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
               Aucune campagne. Créez-en une pour communiquer avec vos créateurs!
             </p>

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ success: true, new_balance: balance - cost })
   } catch (error: unknown) {
-    console.error('❌ Credits use error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur utilisation crédits', details: error?.message }, { status: 500 })
+    console.error('❌ Credits use error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur utilisation crédits', details: (error as Error)?.message }, { status: 500 })
   }
 }

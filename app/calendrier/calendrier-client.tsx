@@ -33,7 +33,7 @@ const STATUS_PILL_BG: Record<string, string> = {
 const STATUS_PILL_COLOR: Record<string, string> = {
   published: '#6366F1',
   draft:     '#F59E0B',
-  closed:    '#9CA3AF',
+  closed:    'var(--text-tertiary)',
 }
 
 function getDaysInMonth(year: number, month: number) {

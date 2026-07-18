@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ events: data || [] })
   } catch (error: unknown) {
-    console.error('❌ Events GET error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur chargement événements', details: error?.message }, { status: 500 })
+    console.error('❌ Events GET error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur chargement événements', details: (error as Error)?.message }, { status: 500 })
   }
 }
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ event: data }, { status: 201 })
   } catch (error: unknown) {
-    console.error('❌ Events POST error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur création événement', details: error?.message }, { status: 500 })
+    console.error('❌ Events POST error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur création événement', details: (error as Error)?.message }, { status: 500 })
   }
 }

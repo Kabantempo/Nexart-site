@@ -58,7 +58,7 @@ function SearchContent() {
     borderRadius: '8px',
     border: 'none',
     backgroundColor: tab === t ? '#6366F1' : 'transparent',
-    color: tab === t ? '#FFFFFF' : '#888888',
+    color: tab === t ? '#FFFFFF' : 'var(--text-secondary)',
     fontSize: '14px',
     fontWeight: '600' as const,
     cursor: 'pointer',
@@ -100,7 +100,7 @@ function SearchContent() {
               fontFamily: 'inherit',
             }}
             onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
           />
         </div>
 
@@ -137,7 +137,7 @@ function SearchContent() {
                     href={`/events/${event.id}`}
                     style={{ display: 'block', textDecoration: 'none', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden', backgroundColor: 'var(--bg-primary)', transition: 'all 300ms ease' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.1)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     <div style={{ width: '100%', height: '160px', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
                       {event.cover_image ? (
@@ -194,7 +194,7 @@ function SearchContent() {
                     href={`/creators/${creator.id}`}
                     style={{ display: 'flex', gap: '12px', padding: '16px', textDecoration: 'none', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', transition: 'all 300ms ease', alignItems: 'center' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.1)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', position: 'relative', backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
                       {creator.avatar_url ? (

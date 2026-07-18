@@ -51,7 +51,7 @@ export async function DELETE(req: Request) {
     }
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
-    const errorMsg = error?.message || 'Unknown error'
+    const errorMsg = (error as Error)?.message || 'Unknown error'
     console.error('❌ Delete account error:', {
       error: errorMsg,
       timestamp: new Date().toISOString(),

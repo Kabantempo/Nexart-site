@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
     await sendPushToUsers([notifiedId], '📄 Contrat signé', 'Un contrat vient d\'être signé pour votre événement.', '/dashboard')
     return NextResponse.json({ contract: data })
   } catch (error: unknown) {
-    console.error('❌ Contract sign error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur signature contrat', details: error?.message }, { status: 500 })
+    console.error('❌ Contract sign error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur signature contrat', details: (error as Error)?.message }, { status: 500 })
   }
 }
 

@@ -183,7 +183,7 @@ export function emailApplicationStatus(creatorName: string, eventTitle: string, 
     </p>
     ${accepted
       ? button('Voir mon tableau de bord →', 'https://nexart.fr/dashboard')
-      : button('Explorer les événements →', 'https://nexart.fr/tendances')
+      : button('Explorer les événements →', 'https://nexart.fr/events')
     }`
   )
 }
