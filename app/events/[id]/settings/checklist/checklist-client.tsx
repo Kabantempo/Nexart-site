@@ -273,7 +273,7 @@ const fetchChecklist = async () => {
                                 <p style={{
                                   fontSize: '14px',
                                   fontWeight: 500,
-                                  color: item.completed ? '#9CA3AF' : '#1A1A1A',
+                                  color: item.completed ? 'var(--text-tertiary)' : 'var(--text-primary)',
                                   margin: '0 0 4px 0',
                                   textDecoration: item.completed ? 'line-through' : 'none'
                                 }}>

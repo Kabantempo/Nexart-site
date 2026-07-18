@@ -23,11 +23,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getAdminClient()
-    const { user_ids, title, body, url } = await req.json()
-
-    if (!user_ids?.length || !title || !body) {
-      return NextResponse.json({ error: 'user_ids, title et body requis' }, { status: 400 })
-    }
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      user_ids: z.array(uuidSchema).min(1),
+      title: z.string().min(1).max(100),
+      body: z.string().min(1).max(500),
+      url: z.string().max(500).optional(),
+    })
+    const { data: parsed, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { user_ids, title, body, url } = parsed
 
     const { data: subs, error } = await admin
       .from('push_subscriptions')

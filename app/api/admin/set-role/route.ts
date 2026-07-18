@@ -18,13 +18,11 @@ export async function POST(req: NextRequest) {
     const { data: prof } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
     if (!prof?.is_admin) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
-    const { userId, field, value } = await req.json()
-    if (!userId || !field || typeof value !== 'boolean') {
-      return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 })
-    }
-    if (!['is_creator', 'is_organizer'].includes(field)) {
-      return NextResponse.json({ error: 'Champ invalide' }, { status: 400 })
-    }
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ userId: uuidSchema, field: z.enum(['is_creator', 'is_organizer']), value: z.boolean() })
+    const { data, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { userId, field, value } = data
 
     const admin = getAdminClient()
     const { error } = await admin.from('profiles').update({ [field]: value } as any).eq('id', userId)

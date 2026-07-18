@@ -4,6 +4,7 @@ import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { sendPushToUsers } from '@/lib/push'
 import { sendMail } from '@/lib/mailer'
+import { emailWaitlistPromotion } from '@/lib/email-templates'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -124,30 +125,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         await sendMail({
           to: creatorAuth.email,
           subject: `🎉 Une place s'est libérée — ${eventData?.title}`,
-          html: `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"/></head>
-<body style="margin:0;padding:0;background:#F4F4F8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F4F8;padding:40px 0;">
-<tr><td align="center">
-<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-  <tr><td style="background:linear-gradient(135deg,#6366F1,#4F46E5);padding:40px 48px;text-align:center;">
-    <h1 style="margin:0;color:#fff;font-size:22px;font-weight:800;">🎉 Une place s'est libérée !</h1>
-  </td></tr>
-  <tr><td style="padding:32px 48px;">
-    <p style="color:#374151;font-size:15px;line-height:1.6;">Bonne nouvelle ! Une place vient de se libérer pour <strong>${eventData?.title}</strong>.</p>
-    <p style="color:#374151;font-size:15px;line-height:1.6;">Vous étiez sur liste d'attente — vous pouvez maintenant compléter votre inscription.</p>
-    <table cellpadding="0" cellspacing="0" style="margin:24px auto 0;">
-      <tr><td style="background:#6366F1;border-radius:12px;">
-        <a href="https://nexart.fr/events/${params.id}" style="display:inline-block;padding:14px 36px;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">Voir l'événement →</a>
-      </td></tr>
-    </table>
-  </td></tr>
-  <tr><td style="padding:16px 48px 24px;border-top:1px solid #F1F5F9;">
-    <p style="margin:0;color:#94A3B8;font-size:12px;">© 2026 Nexart · <a href="https://nexart.fr" style="color:#6366F1;text-decoration:none;">nexart.fr</a></p>
-  </td></tr>
-</table>
-</td></tr>
-</table>
-</body></html>`,
+          html: emailWaitlistPromotion(eventData?.title || '', params.id as string),
         })
       }
     }

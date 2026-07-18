@@ -183,7 +183,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                   width: '40px',
                   height: '40px',
                   borderRadius: '50%',
-                  backgroundColor: '#E5E7EB',
+                  backgroundColor: 'var(--border-color)',
                   backgroundImage: entry.profiles?.avatar_url ? `url(${entry.profiles.avatar_url})` : 'none',
                   backgroundSize: 'cover',
                   flexShrink: 0,

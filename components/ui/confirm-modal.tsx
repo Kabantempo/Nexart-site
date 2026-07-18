@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, Info, Trash2, X } from 'lucide-react'
 
@@ -72,6 +72,33 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   const variant = state?.variant ?? 'default'
   const vs = VARIANT_STYLES[variant]
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  // Escape closes modal
+  useEffect(() => {
+    if (!state) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Focus trap: keep focus inside modal while open
+  useEffect(() => {
+    if (!state || !modalRef.current) return
+    const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last?.focus() } }
+      else { if (document.activeElement === last) { e.preventDefault(); first?.focus() } }
+    }
+    document.addEventListener('keydown', trap)
+    return () => document.removeEventListener('keydown', trap)
+  }, [state])
 
   return (
     <ConfirmContext.Provider value={{ confirm }}>
@@ -99,6 +126,10 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             {/* Modal */}
             <motion.div
               key="modal"
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-modal-title"
               initial={{ opacity: 0, scale: 0.92, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 16 }}
@@ -140,7 +171,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               </div>
 
               {/* Title */}
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <h3 id="confirm-modal-title" style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 {state.title}
               </h3>
 

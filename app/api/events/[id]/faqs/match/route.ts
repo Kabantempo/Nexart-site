@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       })
     }
   } catch (error: unknown) {
-    const errorMsg = error?.message || 'Unknown error'
+    const errorMsg = (error as Error)?.message || 'Unknown error'
     console.error('❌ FAQ matching error:', {
       event_id: params.id,
       error: errorMsg,

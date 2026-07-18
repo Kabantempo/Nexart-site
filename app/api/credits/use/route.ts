@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Session invalide' }, { status: 401 })
     }
 
-    const { type, ref_id } = await req.json()
+    const { validate, creditUseSchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = validate(creditUseSchema, await req.json())
+    if (validErr) return validErr
+    const { type, ref_id } = body
     const cost = COSTS[type]
     if (!cost) return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
 
@@ -45,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json({ success: true, new_balance: balance - cost })
   } catch (error: unknown) {
-    console.error('❌ Credits use error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur utilisation crédits', details: error?.message }, { status: 500 })
+    console.error('❌ Credits use error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur utilisation crédits', details: (error as Error)?.message }, { status: 500 })
   }
 }

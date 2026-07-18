@@ -30,26 +30,19 @@ export async function GET(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ events: data || [] })
   } catch (error: unknown) {
-    console.error('❌ Events GET error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur chargement événements', details: error?.message }, { status: 500 })
+    console.error('❌ Events GET error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur chargement événements', details: (error as Error)?.message }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+    const { validate: v, eventCreateSchema, uuidSchema, z } = await import('@/lib/validate')
+    const fullSchema = eventCreateSchema.extend({ organizer_id: uuidSchema, title: z.string().min(3).max(200) })
+    const { data: body, error: validErr } = v(fullSchema, await req.json())
+    if (validErr) return validErr
     const { organizer_id, title, description, event_type, start_date, end_date, location, city, region } = body
-
-    if (!organizer_id || !title || !start_date || !end_date) {
-      return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
-    }
-
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(organizer_id)) {
-      return NextResponse.json({ error: 'organizer_id doit être un UUID valide' }, { status: 400 })
-    }
 
     const { data, error } = await admin.from('events').insert({
       organizer_id,
@@ -67,7 +60,7 @@ export async function POST(req: NextRequest) {
     if (error) throw error
     return NextResponse.json({ event: data }, { status: 201 })
   } catch (error: unknown) {
-    console.error('❌ Events POST error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur création événement', details: error?.message }, { status: 500 })
+    console.error('❌ Events POST error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur création événement', details: (error as Error)?.message }, { status: 500 })
   }
 }

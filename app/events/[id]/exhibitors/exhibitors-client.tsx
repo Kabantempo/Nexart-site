@@ -357,7 +357,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
   const statusColors: Record<string, string> = {
     pending: '#FF6B6B',
     approved: '#10B981',
-    rejected: '#9CA3AF',
+    rejected: 'var(--text-tertiary)',
     paid: '#6366F1',
     cancelled: '#F59E0B'
   }
@@ -396,7 +396,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                 borderRadius: '6px',
                 border: filterStatus === status ? '2px solid #6366F1' : '1px solid #E5E7EB',
                 backgroundColor: filterStatus === status ? '#EEF2FF' : '#FFFFFF',
-                color: filterStatus === status ? '#6366F1' : '#1A1A1A',
+                color: filterStatus === status ? '#6366F1' : 'var(--text-primary)',
                 cursor: 'pointer',
                 fontWeight: 500
               }}
@@ -428,7 +428,8 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
 
       {/* Table */}
       <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Nom</th>
@@ -472,6 +473,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       {exhibitors.length === 0 && (

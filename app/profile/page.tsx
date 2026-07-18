@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
+import { PastEventsGallery } from '@/components/ui/past-events-gallery'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -86,6 +87,29 @@ type Analytics = {
   }
 }
 
+function getVideoEmbed(url: string): string | null {
+  try {
+    const u = new URL(url)
+    // YouTube: youtu.be/ID or youtube.com/watch?v=ID or youtube.com/shorts/ID
+    if (u.hostname.includes('youtu.be')) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`
+    if (u.hostname.includes('youtube.com')) {
+      const v = u.searchParams.get('v') || u.pathname.split('/').pop()
+      if (v) return `https://www.youtube.com/embed/${v}`
+    }
+    // TikTok: tiktok.com/@user/video/ID
+    if (u.hostname.includes('tiktok.com')) {
+      const m = u.pathname.match(/\/video\/(\d+)/)
+      if (m) return `https://www.tiktok.com/embed/v2/${m[1]}`
+    }
+    // Instagram: instagram.com/reel/CODE
+    if (u.hostname.includes('instagram.com')) {
+      const m = u.pathname.match(/\/reel\/([^/]+)/)
+      if (m) return `https://www.instagram.com/reel/${m[1]}/embed`
+    }
+    return null
+  } catch { return null }
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const DISCIPLINES = [
@@ -152,6 +176,8 @@ export default function ProfilePage() {
   const [applications, setApplications] = useState<Application[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [gridItems, setGridItems] = useState<GridItem[]>([])
+  const [portfolioVideos, setPortfolioVideos] = useState<string[]>([])
+  const [newVideoUrl, setNewVideoUrl] = useState('')
   const [tab, setTab] = useState<'profil' | 'portfolio' | 'candidatures' | 'avis' | 'posts'>('profil')
   const [myPosts, setMyPosts] = useState<{ id: string; content: string; image_url: string | null; created_at: string }[]>([])
   const [postContent, setPostContent] = useState('')
@@ -303,6 +329,7 @@ export default function ProfilePage() {
         setCreator(creat)
         if (creat?.portfolio_grid) setGridItems(creat.portfolio_grid as GridItem[])
         else if (creat?.portfolio_images?.length) setGridItems(creat.portfolio_images.map((url: string) => ({ url, colSpan: 1 as const, rowSpan: 1 as const })))
+        if ((creat as any)?.portfolio_videos?.length) setPortfolioVideos((creat as any).portfolio_videos)
         setApplications((apps as unknown as Application[]) ?? [])
         setReviews((revs as unknown as Review[]) ?? [])
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -695,6 +722,15 @@ export default function ProfilePage() {
 
   const toggleDisc = (d: string) =>
     setEditDisc(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
+
+  const addVideo = async () => {
+    const url = newVideoUrl.trim()
+    if (!url || portfolioVideos.includes(url) || portfolioVideos.length >= 6 || !user) return
+    const next = [...portfolioVideos, url]
+    setPortfolioVideos(next)
+    setNewVideoUrl('')
+    await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
+  }
 
   // ─── Admin handlers ─────────────────────────────────────────────────────────
 
@@ -2815,6 +2851,17 @@ export default function ProfilePage() {
               </>
             )}
 
+            {/* Éditions passées organisateur */}
+            {(profile?.role === 'organizer' || profile?.is_organizer) && user?.id && (
+              <>
+                <div className="h-px bg-gray-100" />
+                <div className="px-6 py-5">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Éditions passées</p>
+                  <PastEventsGallery organizerId={user.id} />
+                </div>
+              </>
+            )}
+
             {/* Déconnexion + Supprimer */}
             <div className="flex flex-col gap-2">
               <button onClick={async () => {
@@ -2855,15 +2902,67 @@ export default function ProfilePage() {
 
         {/* ── Tab: Portfolio ── */}
         {tab === 'portfolio' && user && (
-          <PortfolioGridEditor
-            items={gridItems}
-            userId={user.id}
-            maxPhotos={profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium' ? 30 : profile?.subscription_tier === 'boost' ? 30 : 10}
-            onChange={async (next) => {
-              setGridItems(next)
-              await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next }, { onConflict: 'user_id' })
-            }}
-          />
+          <>
+            <PortfolioGridEditor
+              items={gridItems}
+              userId={user.id}
+              maxPhotos={profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium' ? 30 : profile?.subscription_tier === 'boost' ? 30 : 10}
+              onChange={async (next) => {
+                setGridItems(next)
+                await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next }, { onConflict: 'user_id' })
+              }}
+            />
+
+            {/* Videos section */}
+            <div style={{ marginTop: '32px', padding: '24px', borderRadius: '16px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>Vidéos portfolio</h3>
+              <p style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>YouTube, TikTok ou Instagram Reels (max 6)</p>
+
+              {portfolioVideos.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                  {portfolioVideos.map((url, i) => {
+                    const embed = getVideoEmbed(url)
+                    return (
+                      <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB', backgroundColor: '#000', aspectRatio: '16/9' }}>
+                        {embed ? (
+                          <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '12px' }}>URL non reconnue</div>
+                        )}
+                        <button
+                          onClick={async () => {
+                            const next = portfolioVideos.filter((_, j) => j !== i)
+                            setPortfolioVideos(next)
+                            await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
+                          }}
+                          style={{ position: 'absolute', top: '6px', right: '6px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.7)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', lineHeight: 1 }}
+                        >×</button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {portfolioVideos.length < 6 && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="url"
+                    value={newVideoUrl}
+                    onChange={(e) => setNewVideoUrl(e.target.value)}
+                    placeholder="https://youtu.be/... ou tiktok.com/@..."
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
+                    onKeyDown={async (e) => { if (e.key === 'Enter') { e.preventDefault(); await addVideo() } }}
+                  />
+                  <button
+                    onClick={addVideo}
+                    style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#fff', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    Ajouter
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         {/* ── Tab: Candidatures ── */}

@@ -14,15 +14,13 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
     if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ contract_id: uuidSchema, signer_id: uuidSchema })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { contract_id, signer_id } = body
 
-    // L'utilisateur doit signer lui-même
     if (authUser.id !== signer_id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
-
-    if (!contract_id || !signer_id) {
-      return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
-    }
 
     const { data: contract } = await admin.from('contracts').select('*').eq('id', contract_id).single()
     if (!contract) return NextResponse.json({ error: 'Contrat introuvable' }, { status: 404 })
@@ -55,8 +53,8 @@ export async function POST(req: NextRequest) {
     await sendPushToUsers([notifiedId], '📄 Contrat signé', 'Un contrat vient d\'être signé pour votre événement.', '/dashboard')
     return NextResponse.json({ contract: data })
   } catch (error: unknown) {
-    console.error('❌ Contract sign error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur signature contrat', details: error?.message }, { status: 500 })
+    console.error('❌ Contract sign error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur signature contrat', details: (error as Error)?.message }, { status: 500 })
   }
 }
 

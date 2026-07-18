@@ -182,8 +182,8 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       padding: '8px 12px',
                       border: statusFilter === status ? 'none' : '1px solid #E5E7EB',
                       borderRadius: '6px',
-                      backgroundColor: statusFilter === status ? '#6366F1' : '#F9FAFB',
-                      color: statusFilter === status ? '#FFFFFF' : '#1A1A1A',
+                      backgroundColor: statusFilter === status ? '#6366F1' : 'var(--bg-secondary)',
+                      color: statusFilter === status ? '#FFFFFF' : 'var(--text-primary)',
                       cursor: 'pointer',
                       fontSize: '14px',
                       fontWeight: 500
@@ -380,8 +380,8 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                                 padding: '6px 12px',
                                 border: selectedTask.status === status ? 'none' : '1px solid #E5E7EB',
                                 borderRadius: '4px',
-                                backgroundColor: selectedTask.status === status ? '#6366F1' : '#F9FAFB',
-                                color: selectedTask.status === status ? '#FFFFFF' : '#1A1A1A',
+                                backgroundColor: selectedTask.status === status ? '#6366F1' : 'var(--bg-secondary)',
+                                color: selectedTask.status === status ? '#FFFFFF' : 'var(--text-primary)',
                                 cursor: 'pointer',
                                 fontSize: '12px',
                                 fontWeight: 500

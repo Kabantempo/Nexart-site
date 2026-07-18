@@ -198,7 +198,8 @@ const fetchWaitlist = async () => {
           <p>Aucun exposant en liste d\'attente</p>
         </div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '500px' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
               <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: 600 }}>Position</th>
@@ -226,6 +227,7 @@ const fetchWaitlist = async () => {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

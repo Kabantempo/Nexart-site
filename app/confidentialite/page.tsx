@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function ConfidentialitePage() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)', paddingTop: '60px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '60px 24px 40px' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <h1 style={{ fontSize: '42px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
           Politique de Confidentialité
         </h1>

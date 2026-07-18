@@ -51,7 +51,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!event) return NextResponse.json({ error: 'Événement introuvable' }, { status: 404 })
     if (event.organizer_id !== user.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
-    const body = await req.json()
+    const { validate: v, eventCreateSchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = v(eventCreateSchema.partial(), await req.json())
+    if (validErr) return validErr
 
     const { data, error } = await admin
       .from('events')

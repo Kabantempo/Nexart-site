@@ -20,12 +20,11 @@ export async function POST(req: NextRequest) {
   const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
   if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-  const body = await req.json()
+  const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+  const schema = z.object({ event_id: uuidSchema, creator_id: uuidSchema, organizer_id: uuidSchema, application_id: uuidSchema.optional() })
+  const { data: body, error: validErr } = v(schema, await req.json())
+  if (validErr) return validErr
   const { event_id, creator_id, organizer_id, application_id } = body
-
-  if (!event_id || !creator_id || !organizer_id) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
-  }
 
   // Récupérer les données
   const [{ data: event }, { data: creator }, { data: organizer }, { data: creatorProfile }] = await Promise.all([

@@ -6,6 +6,8 @@ import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Calendar, ArrowRight, Search, X, Users, SlidersHorizontal, Euro, Sparkles } from 'lucide-react'
+import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
+import { SaveSearchButton } from '@/components/ui/save-search-button'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -64,16 +66,16 @@ function Skeleton() {
     <div className="bg-white min-h-screen">
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
-        <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
-        <div className="h-20 bg-gray-100 rounded-2xl mb-8 animate-pulse" />
+        <div className="h-12 animate-shimmer rounded-2xl mb-4" />
+        <div className="h-20 animate-shimmer rounded-2xl mb-8" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden animate-pulse" style={{ animationDelay: `${i * 80}ms` }}>
-              <div className="h-52 bg-gray-100" />
+            <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden" style={{ animationDelay: `${i * 80}ms` }}>
+              <div className="h-52 animate-shimmer" />
               <div className="p-5 space-y-3">
-                <div className="h-5 bg-gray-100 rounded-lg" />
-                <div className="h-4 w-3/4 bg-gray-100 rounded-lg" />
-                <div className="h-4 w-1/2 bg-gray-100 rounded-lg" />
+                <div className="h-5 animate-shimmer rounded-lg" />
+                <div className="h-4 w-3/4 animate-shimmer rounded-lg" />
+                <div className="h-4 w-1/2 animate-shimmer rounded-lg" />
               </div>
             </div>
           ))}
@@ -339,6 +341,13 @@ function EventsContent() {
               {priceMax !== '' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">≤ {priceMax}€ <button onClick={() => setPriceMax('')}><X size={11} /></button></span>}
               {nearMe && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold"><MapPin size={10} /> Autour de moi <button onClick={() => setNearMe(false)}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
+              <div className="ml-auto">
+                <SaveSearchButton
+                  disciplines={discFilter !== 'all' ? [discFilter] : []}
+                  city={cityFilter !== 'all' ? cityFilter : undefined}
+                  query={searchTerm || undefined}
+                />
+              </div>
             </div>
           )}
         </div>
@@ -492,6 +501,7 @@ function EventsContent() {
                         <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-200">
                           Voir l'événement <ArrowRight size={14} />
                         </span>
+                        <PinButton event={{ id: event.id, title: event.title, start_date: event.start_date, city: event.city, stand_price: event.stand_price, stand_count: event.stand_count, discipline_tags: tags, cover_image: event.cover_image }} />
                       </div>
                     </div>
 
@@ -553,8 +563,11 @@ function EventsContent() {
 
 export default function EventsClient() {
   return (
-    <Suspense fallback={<Skeleton />}>
-      <EventsContent />
-    </Suspense>
+    <>
+      <Suspense fallback={<Skeleton />}>
+        <EventsContent />
+      </Suspense>
+      <ComparePanel />
+    </>
   )
 }

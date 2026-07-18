@@ -240,7 +240,7 @@ const fetchMarketingPlan = async () => {
                   border: 'none',
                   borderBottom: activeTab === tab.id ? '3px solid #6366F1' : 'none',
                   backgroundColor: 'transparent',
-                  color: activeTab === tab.id ? '#6366F1' : '#888888',
+                  color: activeTab === tab.id ? '#6366F1' : 'var(--text-secondary)',
                   cursor: 'pointer',
                   fontSize: '14px',
                   fontWeight: 500,
@@ -495,7 +495,7 @@ const fetchMarketingPlan = async () => {
                   </div>
                 ))}
               </div>
-              <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '16px' }}>* Estimations moyennes France 2026 — les prix varient selon la région et le prestataire.</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '16px' }}>* Estimations moyennes France 2026 — les prix varient selon la région et le prestataire.</p>
             </div>
           )}
 
@@ -618,7 +618,7 @@ const fetchMarketingPlan = async () => {
                           <p style={{
                             fontSize: '16px',
                             fontWeight: 600,
-                            color: item.status === 'completed' ? '#9CA3AF' : '#1A1A1A',
+                            color: item.status === 'completed' ? 'var(--text-tertiary)' : 'var(--text-primary)',
                             margin: '0 0 4px 0',
                             textDecoration: item.status === 'completed' ? 'line-through' : 'none'
                           }}>

@@ -50,15 +50,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getAdminClient()
-    const body = await req.json()
-    const { event_id, reviewed_id, reviewer_role, rating, comment, tags } = body
-
-    if (!event_id || !reviewed_id || !reviewer_role || !rating) {
-      return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
-    }
-    if (rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Note entre 1 et 5' }, { status: 400 })
-    }
+    const { validate: v, reviewSchema } = await import('@/lib/validate')
+    const { data, error: validErr } = v(reviewSchema, await req.json())
+    if (validErr) return validErr
+    const { event_id, reviewed_id, reviewer_role, rating, comment, tags } = data
 
     const reviewer_id = user.id
 
@@ -72,14 +67,14 @@ export async function POST(req: NextRequest) {
       if (!ev) return NextResponse.json({ error: "Seul l'organisateur peut noter les créateurs" }, { status: 403 })
     }
 
-    const { data, error } = await admin.from('reviews').insert({
+    const { data: review, error: insertErr } = await admin.from('reviews').insert({
       event_id, reviewer_id, reviewed_id, reviewer_role,
       rating, comment: comment || null, tags: tags || [],
     }).select().single()
 
-    if (error) {
-      if (error.code === '23505') return NextResponse.json({ error: 'Vous avez déjà noté cette personne pour cet événement' }, { status: 409 })
-      throw error
+    if (insertErr) {
+      if (insertErr.code === '23505') return NextResponse.json({ error: 'Vous avez déjà noté cette personne pour cet événement' }, { status: 409 })
+      throw insertErr
     }
 
     await admin.from('notifications').insert({
@@ -91,7 +86,7 @@ export async function POST(req: NextRequest) {
     })
 
     await sendPushToUsers([reviewed_id], '⭐ Nouvelle évaluation', `Vous avez reçu une note de ${rating}/5`, `/events/${event_id}`)
-    return NextResponse.json({ review: data }, { status: 201 })
+    return NextResponse.json({ review }, { status: 201 })
   } catch (error: unknown) {
     console.error('❌ Reviews POST error:', { error: (error as Error)?.message })
     return NextResponse.json({ error: 'Erreur création avis', details: (error as Error)?.message }, { status: 500 })

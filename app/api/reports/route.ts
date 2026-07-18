@@ -85,32 +85,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get request body
-    const body = await req.json()
-    const {
-      reported_user_id,
-      reported_post_id,
-      reported_event_id,
-      reason,
-      description,
-    } = body
-
-    // Validate: at least one thing reported
-    if (!reported_user_id && !reported_post_id && !reported_event_id) {
-      return NextResponse.json(
-        { error: 'Must report a user, post, or event' },
-        { status: 400 }
-      )
-    }
-
-    // Validate reason
-    const validReasons = ['spam', 'harassment', 'inappropriate', 'copyright', 'fraud', 'other']
-    if (!reason || !validReasons.includes(reason)) {
-      return NextResponse.json(
-        { error: `Reason must be one of: ${validReasons.join(', ')}` },
-        { status: 400 }
-      )
-    }
+    const { validate: v, z } = await import('@/lib/validate')
+    const reportPostSchema = z.object({
+      reported_user_id: z.string().uuid().optional(),
+      reported_post_id: z.string().uuid().optional(),
+      reported_event_id: z.string().uuid().optional(),
+      reason: z.enum(['spam', 'harassment', 'inappropriate', 'copyright', 'fraud', 'other']),
+      description: z.string().max(2000).optional(),
+    }).refine(d => d.reported_user_id || d.reported_post_id || d.reported_event_id, {
+      message: 'Must report a user, post, or event',
+    })
+    const { data: body, error: validErr } = v(reportPostSchema, await req.json())
+    if (validErr) return validErr
+    const { reported_user_id, reported_post_id, reported_event_id, reason, description } = body
 
     // Get reporter IP
     const ip =

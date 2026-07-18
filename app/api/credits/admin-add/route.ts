@@ -26,21 +26,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
-    const { user_id, amount, description } = await req.json()
-    if (!user_id || !amount) {
-      return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
-    }
+    const { validate, creditAdminSchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = validate(creditAdminSchema, await req.json())
+    if (validErr) return validErr
+    const { user_id, amount, description } = body
 
     const { error: insertError } = await admin.from('credits').insert({
       user_id,
-      amount: parseInt(amount),
+      amount,
       type: 'admin',
-      description: description || `Ajout manuel par admin`,
+      description: description || 'Ajout manuel par admin',
     })
     if (insertError) throw insertError
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
-    const errorMsg = error?.message || 'Unknown error'
+    const errorMsg = (error as Error)?.message || 'Unknown error'
     console.error('❌ Admin add credits error:', {
       error: errorMsg,
       timestamp: new Date().toISOString(),

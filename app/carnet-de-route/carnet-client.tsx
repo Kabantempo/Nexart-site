@@ -89,7 +89,7 @@ export default function CarnetDeRoutePage() {
 
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
-      <div style={{ backgroundColor: '#111827', padding: '40px 24px 32px' }}>
+      <div style={{ backgroundColor: 'var(--text-primary)', padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', textDecoration: 'none', marginBottom: '16px' }}>
             <ArrowLeft size={12} /> Tableau de bord
@@ -157,7 +157,7 @@ export default function CarnetDeRoutePage() {
             {error && <p style={{ fontSize: '12px', color: '#E05A5A', marginTop: '8px' }}>{error}</p>}
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button type="submit" disabled={submitting}
-                style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+                style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: 'var(--text-primary)', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
                 {submitting ? 'Ajout...' : 'Ajouter l\'étape'}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
@@ -170,7 +170,7 @@ export default function CarnetDeRoutePage() {
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-            <div style={{ width: 28, height: 28, border: '3px solid #E5E7EB', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <div style={{ width: 28, height: 28, border: '3px solid #E5E7EB', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
           </div>
         ) : entries.length === 0 ? (
@@ -181,7 +181,7 @@ export default function CarnetDeRoutePage() {
               Ajoutez vos prochains déplacements prévus. Les organisateurs de votre zone pourront vous contacter !
             </p>
             <button onClick={() => setShowForm(true)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', backgroundColor: 'var(--text-primary)', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
               <Plus size={13} /> Ajouter une étape
             </button>
           </div>
@@ -201,7 +201,7 @@ export default function CarnetDeRoutePage() {
                         <Calendar size={9} />
                         {new Date(entry.start_date).toLocaleDateString('fr-FR')} → {new Date(entry.end_date).toLocaleDateString('fr-FR')}
                       </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: entry.is_public ? '#10B981' : '#9CA3AF' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px', color: entry.is_public ? '#10B981' : 'var(--text-tertiary)' }}>
                         {entry.is_public ? <Eye size={9} /> : <EyeOff size={9} />}
                         {entry.is_public ? 'Public' : 'Privé'}
                       </span>

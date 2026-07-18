@@ -52,9 +52,16 @@ export default function OnboardingPage() {
   const [disciplines, setDisciplines] = useState<string[]>([])
   const [city, setCity] = useState('')
   const [saving, setSaving] = useState(false)
+  const [orgName, setOrgName] = useState('')
+  const [orgCity, setOrgCity] = useState('')
+  const [orgEventTypes, setOrgEventTypes] = useState<string[]>([])
 
   const [done, setDone] = useState(false)
-  const totalSteps = role === 'creator' ? 3 : 2
+  const totalSteps = role === 'creator' ? 3 : role === 'organizer' ? 4 : 2
+
+  const toggleOrgEventType = (t: string) => {
+    setOrgEventTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])
+  }
 
   const toggleDisc = (d: string) => {
     setDisciplines(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d])
@@ -85,6 +92,15 @@ export default function OnboardingPage() {
       }
     }
 
+    if (isOrganizer && orgName.trim()) {
+      const { data: existing } = await supabase.from('organizer_profiles').select('user_id').eq('user_id', user.id).maybeSingle()
+      if (existing) {
+        await supabase.from('organizer_profiles').update({ organization_name: orgName.trim() } as any).eq('user_id', user.id)
+      } else {
+        await supabase.from('organizer_profiles').insert({ user_id: user.id, organization_name: orgName.trim() } as any)
+      }
+    }
+
     setUser({ ...user, full_name: fullName.trim() || user.full_name, role: role!, is_creator: isCreator, is_organizer: isOrganizer })
     setSaving(false)
     setDone(true)
@@ -93,6 +109,7 @@ export default function OnboardingPage() {
   const canNext = () => {
     if (step === 0) return role !== null
     if (step === 1) return fullName.trim().length >= 2
+    if (step === 2 && role === 'organizer') return orgName.trim().length >= 2
     return true
   }
 
@@ -262,6 +279,45 @@ export default function OnboardingPage() {
                     className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
                   />
                 </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 2 && role === 'organizer' && (
+            <motion.div key="step-org2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+              <h1 className="text-2xl font-bold text-white mb-2 text-center">Votre organisation</h1>
+              <p className="text-white/40 text-sm text-center mb-8">Ces informations seront visibles sur votre profil public.</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-white/50 mb-2">Nom de l'organisation ou de l'événement *</label>
+                  <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Ex: Marché des Créateurs de Lyon"
+                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-white/50 mb-2"><MapPin size={12} className="inline mr-1 opacity-60" />Ville principale (optionnel)</label>
+                  <input type="text" value={orgCity} onChange={e => setOrgCity(e.target.value)} placeholder="Ex: Paris, Lyon, Bordeaux…"
+                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 3 && role === 'organizer' && (
+            <motion.div key="step-org3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+              <h1 className="text-2xl font-bold text-white mb-2 text-center">Types d'événements</h1>
+              <p className="text-white/40 text-sm text-center mb-8">Quels types de marchés organisez-vous ?</p>
+              <div className="flex flex-wrap gap-2">
+                {(['Pop-up', 'Salon', 'Foire', 'Saisonnier', 'Permanent', 'Marché de Noël', 'Marché fermier', 'Brocante', 'Autre'] as const).map(t => {
+                  const active = orgEventTypes.includes(t)
+                  return (
+                    <button key={t} onClick={() => toggleOrgEventType(t)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
+                        active ? 'bg-indigo-500 text-white' : 'bg-white/8 text-white/50 hover:bg-white/12 hover:text-white/70'
+                      }`}>
+                      {t}
+                    </button>
+                  )
+                })}
               </div>
             </motion.div>
           )}
