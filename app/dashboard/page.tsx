@@ -10,10 +10,19 @@ import { Application, Event } from '@/lib/types'
 import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   LogOut, MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
-  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap, Rss, Star,
+  MapPin, ShoppingBag, BarChart2, TrendingUp, Zap, Rss, Star, CreditCard, ExternalLink,
 } from 'lucide-react'
 import { CreditsWidget } from '@/components/credits-widget'
 import { BoostButton } from '@/components/boost-button'
+
+const TIER_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  free:       { label: 'Essentiel',  color: 'text-gray-600',    bg: 'bg-gray-100',    border: 'border-gray-200' },
+  boost:      { label: 'Boost',      color: 'text-indigo-700',  bg: 'bg-indigo-50',   border: 'border-indigo-200' },
+  pro:        { label: 'Pro',        color: 'text-violet-700',  bg: 'bg-violet-50',   border: 'border-violet-200' },
+  premium:    { label: 'Premium',    color: 'text-amber-700',   bg: 'bg-amber-50',    border: 'border-amber-200' },
+  org_pro:    { label: 'Org Pro',    color: 'text-emerald-700', bg: 'bg-emerald-50',  border: 'border-emerald-200' },
+  org_studio: { label: 'Studio',     color: 'text-rose-700',    bg: 'bg-rose-50',     border: 'border-rose-200' },
+}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; dot: string }> = {
   pending:  { label: 'En attente', color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',   dot: 'bg-amber-400' },
@@ -71,6 +80,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [creatorView, setCreatorView] = useState<'list' | 'calendar'>('list')
   const [missingProfileFields, setMissingProfileFields] = useState<string[]>([])
+  const [subscriptionTier, setSubscriptionTier] = useState<string>('free')
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null)
+  const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null)
+  const [paymentBanner, setPaymentBanner] = useState<'success' | 'cancelled' | null>(null)
+  const [portalLoading, setPortalLoading] = useState(false)
   const [dashTab, setDashTab] = useState<'creator' | 'organizer'>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab')
@@ -80,6 +94,13 @@ export default function DashboardPage() {
   })
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    const p = new URLSearchParams(window.location.search).get('payment')
+    if (p === 'success') { setPaymentBanner('success'); window.history.replaceState({}, '', '/dashboard') }
+    if (p === 'cancelled') { setPaymentBanner('cancelled'); window.history.replaceState({}, '', '/dashboard') }
+  }, [])
+
+  useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
@@ -87,6 +108,9 @@ export default function DashboardPage() {
         if (profile.is_banned) { await supabase.auth.signOut(); router.push('/banned'); return }
         setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
         if (!profile.onboarding_done) { router.push('/onboarding'); return }
+        setSubscriptionTier((profile as any).subscription_tier ?? 'free')
+        setSubscriptionStatus((profile as any).subscription_status ?? null)
+        setSubscriptionEndsAt((profile as any).subscription_ends_at ?? null)
       }
     })
   }, [router, setUser])
@@ -151,6 +175,22 @@ export default function DashboardPage() {
     router.push('/')
   }
 
+  const handleOpenPortal = async () => {
+    if (!user) return
+    setPortalLoading(true)
+    try {
+      const res = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, returnUrl: window.location.href }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
   if (!user) return <DashSkeleton />
 
   const hasCreator = user.is_creator || user.role === 'creator'
@@ -167,8 +207,25 @@ export default function DashboardPage() {
   const roleLabel = hasCreator && hasOrganizer ? 'Créateur · Organisateur' : hasCreator ? 'Créateur' : hasOrganizer ? 'Organisateur' : 'Visiteur'
   const roleSubtitle = hasCreator && hasOrganizer ? 'Votre espace Nexart — double rôle' : hasCreator ? 'Votre espace créateur Nexart' : hasOrganizer ? 'Votre espace organisateur Nexart' : 'Bienvenue sur Nexart'
 
+  const tierCfg = TIER_CONFIG[subscriptionTier] ?? TIER_CONFIG.free
+  const isPaid = subscriptionTier !== 'free'
+
   return (
     <div className="bg-white min-h-screen">
+
+      {/* Banners paiement */}
+      {paymentBanner === 'success' && (
+        <div className="bg-emerald-600 text-white text-sm font-semibold text-center py-3 px-4 flex items-center justify-center gap-3">
+          <CheckCircle size={16} /> Abonnement activé — bienvenue dans la nouvelle dimension Nexart !
+          <button onClick={() => setPaymentBanner(null)} className="ml-2 opacity-70 hover:opacity-100"><X size={14} /></button>
+        </div>
+      )}
+      {paymentBanner === 'cancelled' && (
+        <div className="bg-amber-500 text-white text-sm font-semibold text-center py-3 px-4 flex items-center justify-center gap-3">
+          Paiement annulé — votre abonnement n&apos;a pas été modifié.
+          <button onClick={() => setPaymentBanner(null)} className="ml-2 opacity-70 hover:opacity-100"><X size={14} /></button>
+        </div>
+      )}
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">
@@ -186,6 +243,11 @@ export default function DashboardPage() {
                     style={{ backgroundColor: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)', color: '#A5B4FC' }}>
                     {roleLabel}
                   </span>
+                  {isPaid && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20">
+                      <Zap size={10} className="text-yellow-300" /> {tierCfg.label}
+                    </span>
+                  )}
                 </div>
                 <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
                   {greeting}, {firstName}
@@ -259,6 +321,45 @@ export default function DashboardPage() {
             </div>
           </Link>
         )}
+
+        {/* Billing card */}
+        <div className="mb-6 p-5 rounded-2xl border flex items-center gap-4 flex-wrap"
+          style={{ borderColor: isPaid ? '#C7D2FE' : '#E5E7EB', backgroundColor: isPaid ? '#EEF2FF' : '#F9FAFB' }}>
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${isPaid ? 'bg-indigo-100' : 'bg-gray-100'}`}>
+            <CreditCard size={20} className={isPaid ? 'text-indigo-600' : 'text-gray-400'} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-sm font-bold text-gray-900">Abonnement</p>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${tierCfg.bg} ${tierCfg.color} ${tierCfg.border}`}>
+                {tierCfg.label}
+              </span>
+              {subscriptionStatus === 'active' && (
+                <span className="text-xs text-emerald-600 font-semibold">Actif</span>
+              )}
+            </div>
+            {isPaid && subscriptionEndsAt ? (
+              <p className="text-xs text-gray-400 mt-0.5">
+                Renouvellement le {new Date(subscriptionEndsAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-400 mt-0.5">Passez à un plan payant pour débloquer plus de fonctionnalités</p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {isPaid ? (
+              <button onClick={handleOpenPortal} disabled={portalLoading}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-colors disabled:opacity-60">
+                <ExternalLink size={13} /> {portalLoading ? 'Chargement…' : 'Gérer'}
+              </button>
+            ) : (
+              <Link href="/offres"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-indigo-200 text-indigo-600 text-xs font-bold hover:bg-indigo-50 transition-colors">
+                Voir les offres <ArrowRight size={13} />
+              </Link>
+            )}
+          </div>
+        </div>
 
         {/* Nav cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-12">
@@ -413,44 +514,99 @@ function CreatorContent({
           </Link>
         </div>
       ) : creatorView === 'list' ? (
-        <div className="flex flex-col gap-3">
-          {applications.map((app) => {
-            const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
+        <div className="flex flex-col gap-4">
+          {applications.map((app, i) => {
+            const status = app.status as 'pending' | 'accepted' | 'refused'
+            const steps = [
+              { key: 'sent',     label: 'Envoyée',          icon: <CheckCircle size={14} /> },
+              { key: 'review',   label: 'En cours d\'examen', icon: <Clock size={14} /> },
+              { key: 'decision', label: status === 'accepted' ? 'Acceptée' : status === 'refused' ? 'Refusée' : 'Décision', icon: status === 'accepted' ? <CheckCircle size={14} /> : status === 'refused' ? <X size={14} /> : <Clock size={14} /> },
+            ]
+            const activeStep = status === 'pending' ? 1 : 2
+
             return (
-              <div key={app.id}
-                className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-150 flex-wrap">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-gray-900 truncate mb-1">
-                    {app.event?.title || 'Événement inconnu'}
-                  </h3>
-                  {app.event?.start_date && (
-                    <p className="text-xs text-gray-400">
-                      {new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      {app.event.city ? ` · ${app.event.city}` : ''}
+              <motion.div key={app.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05, duration: 0.4 }}
+                style={{
+                  padding: '20px 24px',
+                  borderRadius: '16px',
+                  border: status === 'accepted' ? '1px solid #86EFAC' : status === 'refused' ? '1px solid #FCA5A5' : '1px solid #E5E7EB',
+                  backgroundColor: status === 'accepted' ? '#F0FDF4' : status === 'refused' ? '#FFF5F5' : '#FFFFFF',
+                  transition: 'box-shadow 150ms ease',
+                }}
+              >
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#111827', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {app.event?.title || 'Événement inconnu'}
+                    </h3>
+                    <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                      {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {app.event?.city ? ` · ${app.event.city}` : ''}
+                      {' · '} Candidature du {new Date(app.created_at).toLocaleDateString('fr-FR')}
                     </p>
-                  )}
-                  <p className="text-xs text-gray-300 mt-0.5">
-                    Candidature du {new Date(app.created_at).toLocaleDateString('fr-FR')}
-                  </p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    {app.status === 'accepted' && (
+                      <BoostButton
+                        type="boost_application"
+                        refId={app.id}
+                        boostedUntil={app.boosted_at ? new Date(new Date(app.boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
+                      />
+                    )}
+                    {app.event && (
+                      <Link href={`/events/${app.event_id}`}
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#6366F1', fontSize: '12px', fontWeight: 700 }}>
+                        Voir <ArrowRight size={12} />
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold ${sc.bg} ${sc.color}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
-                  {sc.label}
-                </span>
-                {app.status === 'accepted' && (
-                  <BoostButton
-                    type="boost_application"
-                    refId={app.id}
-                    boostedUntil={app.boosted_at ? new Date(new Date(app.boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
-                  />
-                )}
-                {app.event && (
-                  <Link href={`/events/${app.event_id}`}
-                    className="flex items-center gap-1 text-indigo-600 text-xs font-bold hover:gap-2 transition-all">
-                    Voir <ArrowRight size={13} />
-                  </Link>
-                )}
-              </div>
+
+                {/* Timeline */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                  {steps.map((step, idx) => {
+                    const done = idx < activeStep
+                    const active = idx === activeStep
+                    const isRefused = status === 'refused' && idx === 2
+                    const dotColor = isRefused ? '#EF4444' : done || active ? '#6366F1' : '#E5E7EB'
+                    const textColor = isRefused ? '#EF4444' : done || active ? '#6366F1' : '#9CA3AF'
+                    const bgColor = isRefused ? '#FEE2E2' : done || active ? '#EEF2FF' : '#F9FAFB'
+
+                    return (
+                      <React.Fragment key={step.key}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', flex: '0 0 auto' }}>
+                          <div style={{
+                            width: '32px', height: '32px', borderRadius: '50%',
+                            backgroundColor: bgColor,
+                            border: `2px solid ${dotColor}`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: dotColor,
+                            transition: 'all 300ms ease',
+                          }}>
+                            {step.icon}
+                          </div>
+                          <span style={{ fontSize: '10px', fontWeight: 600, color: textColor, whiteSpace: 'nowrap' }}>
+                            {step.label}
+                          </span>
+                        </div>
+                        {idx < steps.length - 1 && (
+                          <div style={{
+                            flex: 1,
+                            height: '2px',
+                            backgroundColor: idx < activeStep ? '#6366F1' : '#E5E7EB',
+                            marginBottom: '18px',
+                            transition: 'background-color 300ms ease',
+                          }} />
+                        )}
+                      </React.Fragment>
+                    )
+                  })}
+                </div>
+              </motion.div>
             )
           })}
         </div>
