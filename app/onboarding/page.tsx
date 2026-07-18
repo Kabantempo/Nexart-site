@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
-import { Palette, Building2, Eye, ArrowRight, Check, Sparkles, MapPin } from 'lucide-react'
+import { Palette, Building2, Eye, ArrowRight, Check, Sparkles, MapPin, Search, User, Calendar } from 'lucide-react'
 
 const DISCIPLINES = [
   'Tatouage','Céramique','Gravure','Joaillerie','Bijoux','Illustration',
@@ -53,6 +53,7 @@ export default function OnboardingPage() {
   const [city, setCity] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const [done, setDone] = useState(false)
   const totalSteps = role === 'creator' ? 3 : 2
 
   const toggleDisc = (d: string) => {
@@ -86,7 +87,7 @@ export default function OnboardingPage() {
 
     setUser({ ...user, full_name: fullName.trim() || user.full_name, role: role!, is_creator: isCreator, is_organizer: isOrganizer })
     setSaving(false)
-    router.push('/dashboard')
+    setDone(true)
   }
 
   const canNext = () => {
@@ -98,6 +99,86 @@ export default function OnboardingPage() {
   const next = () => {
     if (step < totalSteps - 1) setStep(s => s + 1)
     else handleFinish()
+  }
+
+  const NEXT_STEPS = role === 'creator' ? [
+    { icon: <Search size={18} />, label: 'Explorer les événements', href: '/events', desc: 'Trouvez les marchés qui vous correspondent' },
+    { icon: <User size={18} />, label: 'Compléter mon profil', href: '/profile', desc: 'Ajoutez vos photos, portfolio et tarifs' },
+    { icon: <Calendar size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Suivez vos candidatures en temps réel' },
+  ] : role === 'organizer' ? [
+    { icon: <Calendar size={18} />, label: 'Créer un événement', href: '/events/create', desc: 'Publiez votre marché en 5 minutes' },
+    { icon: <Search size={18} />, label: 'Trouver des créateurs', href: '/creators', desc: 'Parcourez les artisans disponibles' },
+    { icon: <User size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Gérez vos événements et candidatures' },
+  ] : [
+    { icon: <Search size={18} />, label: 'Explorer les événements', href: '/events', desc: 'Découvrez les marchés près de chez vous' },
+    { icon: <User size={18} />, label: 'Découvrir les créateurs', href: '/creators', desc: 'Parcourez les artisans inscrits' },
+    { icon: <Calendar size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Votre espace personnel Nexart' },
+  ]
+
+  if (done) {
+    return (
+      <div className="min-h-screen bg-[#06060f] flex flex-col items-center justify-center px-4 py-16">
+        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-[120px]" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-violet-600/10 blur-[120px]" />
+        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10 w-full max-w-lg text-center"
+        >
+          {/* Check animé */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+            className="w-20 h-20 rounded-full bg-indigo-500/15 border-2 border-indigo-500/40 flex items-center justify-center mx-auto mb-6"
+          >
+            <Check size={36} className="text-indigo-400" />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+            <h1 className="text-3xl font-black text-white mb-3">C'est parti ! 🎉</h1>
+            <p className="text-white/40 text-sm mb-10 leading-relaxed">
+              Votre profil Nexart est créé. Voici vos prochaines étapes pour en profiter au maximum.
+            </p>
+          </motion.div>
+
+          <div className="flex flex-col gap-3 mb-8">
+            {NEXT_STEPS.map((s, i) => (
+              <motion.a
+                key={s.href}
+                href={s.href}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.35 + i * 0.08 }}
+                className="flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-indigo-500/30 transition-all duration-150 text-left group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0 group-hover:bg-indigo-500/25 transition-colors">
+                  {s.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white">{s.label}</p>
+                  <p className="text-xs text-white/40 mt-0.5">{s.desc}</p>
+                </div>
+                <ArrowRight size={14} className="text-white/20 group-hover:text-indigo-400 transition-colors shrink-0" />
+              </motion.a>
+            ))}
+          </div>
+
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.65 }}
+            onClick={() => router.push('/dashboard')}
+            className="text-xs text-white/20 hover:text-white/40 transition-colors"
+          >
+            Accéder directement au dashboard →
+          </motion.button>
+        </motion.div>
+      </div>
+    )
   }
 
   return (

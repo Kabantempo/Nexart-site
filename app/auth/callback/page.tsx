@@ -32,8 +32,10 @@ export default function AuthCallbackPage() {
               avatar_url: user.user_metadata?.avatar_url ?? null,
               role: 'visitor' as const,
             })
+            router.push('/onboarding')
+          } else {
+            router.push('/dashboard')
           }
-          router.push('/')
         }
       } else {
         // Fallback : session déjà active (connexion email/password)
