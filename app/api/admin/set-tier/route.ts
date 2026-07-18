@@ -7,14 +7,11 @@ const VALID_TIERS = ['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']
 export async function POST(req: NextRequest) {
   const admin = getAdminClient()
   try {
-    const { user_id, tier } = await req.json()
-
-    if (!user_id || !tier) {
-      return NextResponse.json({ error: 'user_id et tier requis' }, { status: 400 })
-    }
-    if (!VALID_TIERS.includes(tier)) {
-      return NextResponse.json({ error: 'Tier invalide' }, { status: 400 })
-    }
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ user_id: uuidSchema, tier: z.enum(['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']) })
+    const { data, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { user_id, tier } = data
 
     const { error } = await admin
       .from('profiles')
