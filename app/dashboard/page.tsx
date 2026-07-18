@@ -699,6 +699,16 @@ function CreatorContent({
                   </div>
                 </div>
 
+                {/* Raison de refus */}
+                {status === 'refused' && (app as any).rejection_reason?.reasons?.length > 0 && (
+                  <div className="mt-2 mb-1 flex flex-wrap gap-1.5">
+                    {((app as any).rejection_reason.reasons as string[]).map((r: string) => {
+                      const labels: Record<string, string> = { full: 'Complet', discipline: 'Discipline hors-cible', profile: 'Profil incomplet', geo: 'Zone géographique', other: 'Autre' }
+                      return <span key={r} className="px-2 py-0.5 rounded-full bg-red-50 text-red-500 text-[11px] font-semibold border border-red-100">{labels[r] ?? r}</span>
+                    })}
+                  </div>
+                )}
+
                 {/* Timeline */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
                   {steps.map((step, idx) => {
@@ -852,6 +862,43 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
   const [recommendedCreators, setRecommendedCreators] = useState<{ id: string; full_name: string | null; avatar_url: string | null; disciplines: string[] }[]>([])
   const [pendingReviews, setPendingReviews] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string; creatorAvatar: string | null }[]>([])
   const [reviewModal, setReviewModal] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string } | null>(null)
+  const [refuseModal, setRefuseModal] = useState<{ appId: string; eventTitle?: string; creatorId?: string } | null>(null)
+  const [refuseReasons, setRefuseReasons] = useState<string[]>([])
+
+  const REFUSE_OPTIONS = [
+    { key: 'full',        label: 'Événement complet' },
+    { key: 'discipline',  label: 'Discipline hors-cible' },
+    { key: 'profile',     label: 'Profil incomplet' },
+    { key: 'geo',         label: 'Zone géographique' },
+    { key: 'other',       label: 'Autre raison' },
+  ]
+
+  const confirmRefuse = async () => {
+    if (!refuseModal) return
+    const { appId, eventTitle, creatorId } = refuseModal
+    setUpdatingId(appId)
+    await supabase.from('applications').update({
+      status: 'refused',
+      rejection_reason: refuseReasons.length ? { reasons: refuseReasons } : null,
+      updated_at: new Date().toISOString(),
+    }).eq('id', appId)
+    if (creatorId && eventTitle) {
+      const reasonLabel = refuseReasons.length
+        ? ` Raison : ${refuseReasons.map(r => REFUSE_OPTIONS.find(o => o.key === r)?.label ?? r).join(', ')}.`
+        : ''
+      await supabase.from('notifications').insert({
+        user_id: creatorId,
+        type: 'application_rejected',
+        title: 'Candidature non retenue',
+        body: `Votre candidature pour "${eventTitle}" n'a pas été retenue.${reasonLabel}`,
+        link: `/events/${pendingApps.find(a => a.id === appId)?.event_id}`,
+      })
+    }
+    setPendingApps(prev => prev.filter(a => a.id !== appId))
+    setUpdatingId(null)
+    setRefuseModal(null)
+    setRefuseReasons([])
+  }
   const [reviewRating, setReviewRating] = useState(0)
   const [reviewComment, setReviewComment] = useState('')
   const [reviewSubmitting, setReviewSubmitting] = useState(false)
@@ -1040,7 +1087,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-colors disabled:opacity-50">
                       Accepter
                     </button>
-                    <button onClick={() => handleStatus(app.id, 'refused', ev?.title, app.creator_id)} disabled={updatingId === app.id}
+                    <button onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }} disabled={updatingId === app.id}
                       className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-red-600 text-xs font-bold hover:bg-red-50 transition-colors disabled:opacity-50">
                       Refuser
                     </button>
@@ -1099,6 +1146,35 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal refus structuré */}
+      {refuseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setRefuseModal(null)}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-base font-bold text-gray-900 mb-1">Raison du refus</h3>
+            <p className="text-xs text-gray-400 mb-4">Optionnel — aide le créateur à améliorer sa candidature</p>
+            <div className="flex flex-col gap-2 mb-5">
+              {REFUSE_OPTIONS.map(opt => (
+                <label key={opt.key} className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/40 cursor-pointer transition-colors">
+                  <input type="checkbox" checked={refuseReasons.includes(opt.key)}
+                    onChange={e => setRefuseReasons(prev => e.target.checked ? [...prev, opt.key] : prev.filter(r => r !== opt.key))}
+                    className="w-4 h-4 rounded accent-red-500" />
+                  <span className="text-sm font-medium text-gray-700">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setRefuseModal(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+                Annuler
+              </button>
+              <button onClick={confirmRefuse} disabled={updatingId === refuseModal.appId}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors disabled:opacity-50">
+                Confirmer le refus
+              </button>
+            </div>
           </div>
         </div>
       )}
