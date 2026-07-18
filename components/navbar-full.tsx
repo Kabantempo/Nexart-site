@@ -148,11 +148,9 @@ export function NavbarFull() {
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           scrolled
             ? 'pointer-events-none'
-            : dark
-              ? 'border-b border-transparent'
-              : 'bg-white/95 border-b border-gray-200 shadow-sm'
+            : 'border-b border-transparent'
         }`}
-        style={!scrolled && dark ? { background: 'linear-gradient(to bottom, rgba(6,6,15,0.75) 0%, transparent 100%)' } : undefined}
+        style={!scrolled ? { background: dark ? 'linear-gradient(to bottom, rgba(6,6,15,0.75) 0%, transparent 100%)' : undefined } : undefined}
       >
         <div className={`transition-all duration-500 ${scrolled ? 'pointer-events-auto mx-3 sm:mx-6 mt-3' : ''}`}>
         <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
