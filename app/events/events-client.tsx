@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Calendar, ArrowRight, Search, X, Users, SlidersHorizontal, Euro, Sparkles } from 'lucide-react'
 import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
+import { SaveSearchButton } from '@/components/ui/save-search-button'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -340,6 +341,13 @@ function EventsContent() {
               {priceMax !== '' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">≤ {priceMax}€ <button onClick={() => setPriceMax('')}><X size={11} /></button></span>}
               {nearMe && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold"><MapPin size={10} /> Autour de moi <button onClick={() => setNearMe(false)}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
+              <div className="ml-auto">
+                <SaveSearchButton
+                  disciplines={discFilter !== 'all' ? [discFilter] : []}
+                  city={cityFilter !== 'all' ? cityFilter : undefined}
+                  query={searchTerm || undefined}
+                />
+              </div>
             </div>
           )}
         </div>
