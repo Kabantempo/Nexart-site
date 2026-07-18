@@ -352,7 +352,7 @@ export default function HomeClient() {
       <Grain />
 
       {/* ══ HERO ══════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ marginTop: '-58px', paddingTop: '58px' }}>
 
         {/* Grid */}
         <div className="absolute inset-0 opacity-[0.14]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
