@@ -16,6 +16,26 @@ import { useFavorites } from '@/lib/hooks'
 import { ReviewForm } from '@/components/review-form'
 import { useToast } from '@/components/ui/toast-provider'
 
+function getVideoEmbed(url: string): string | null {
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes('youtu.be')) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`
+    if (u.hostname.includes('youtube.com')) {
+      const v = u.searchParams.get('v') || u.pathname.split('/').pop()
+      if (v) return `https://www.youtube.com/embed/${v}`
+    }
+    if (u.hostname.includes('tiktok.com')) {
+      const m = u.pathname.match(/\/video\/(\d+)/)
+      if (m) return `https://www.tiktok.com/embed/v2/${m[1]}`
+    }
+    if (u.hostname.includes('instagram.com')) {
+      const m = u.pathname.match(/\/reel\/([^/]+)/)
+      if (m) return `https://www.instagram.com/reel/${m[1]}/embed`
+    }
+    return null
+  } catch { return null }
+}
+
 interface Props { id: string }
 
 interface CreatorData {
@@ -24,6 +44,7 @@ interface CreatorData {
   city?: string; region?: string; department?: string; travel_radius?: string
   disciplines?: string[]; portfolio_images?: string[]
   portfolio_grid?: { url: string; colSpan: 1|2|3; rowSpan: 1|2|3 }[]
+  portfolio_videos?: string[]
   website?: string; instagram?: string; etsy?: string
   siret_verified?: boolean; insurance_verified?: boolean; created_at?: string
   open_to_collab?: boolean
@@ -66,7 +87,7 @@ export function CreatorProfileClient({ id }: Props) {
     const load = async () => {
       const [{ data: p }, { data: cp }] = await Promise.all([
         supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', id).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...p, ...cp } as any)
@@ -492,6 +513,24 @@ export function CreatorProfileClient({ id }: Props) {
                 </section>
               )
             })()}
+
+            {/* Portfolio Videos */}
+            {creator.portfolio_videos && creator.portfolio_videos.length > 0 && (
+              <section className="mb-8">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">Vidéos</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px' }}>
+                  {creator.portfolio_videos.map((url, i) => {
+                    const embed = getVideoEmbed(url)
+                    if (!embed) return null
+                    return (
+                      <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB', aspectRatio: '16/9', backgroundColor: '#000' }}>
+                        <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
 
             {/* Carnet de route */}
             {itinerary.length > 0 && (

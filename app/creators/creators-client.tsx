@@ -359,9 +359,9 @@ function CreatorsContent() {
                           <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                         </div>
                       ) : (
-                        <div className="aspect-square w-full flex items-center justify-center bg-[#111827]">
-                          <span className="text-5xl font-bold text-white/70 select-none">
-                            {creator.full_name?.charAt(0)?.toUpperCase() || '?'}
+                        <div className="aspect-square w-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%)' }}>
+                          <span className="text-5xl font-bold select-none" style={{ color: '#6366F1', opacity: 0.85 }}>
+                            {creator.full_name?.slice(0, 2).toUpperCase() || '?'}
                           </span>
                         </div>
                       )}
