@@ -362,59 +362,96 @@ function EventsContent() {
         {/* Grid */}
         {visible.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
               {visible.map((event, idx) => {
-                const isFeatured = idx % 5 === 0
+                // Magazine pattern: positions 0 and 4 in each group of 7 are featured (span-2)
+                const posInGroup = idx % 7
+                const isFeatured = posInGroup === 0 || posInGroup === 4
+                // Alternate: 1st featured aligns left (default), 5th featured aligns right
+                const featuredRight = posInGroup === 4
+                const rem = (event as NexartEvent & { remaining_spots?: number }).remaining_spots
+                const tags = (event as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []
+
                 return (
-                <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)} className={isFeatured ? 'sm:col-span-2 lg:col-span-2' : ''}>
+                <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)}
+                  className={isFeatured ? 'sm:col-span-2 lg:col-span-2' : ''}
+                  style={featuredRight ? { gridColumnStart: 'auto' } as React.CSSProperties : undefined}>
                   <Link href={`/events/${event.id}`}
-                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
+                    className={`group flex overflow-hidden bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full ${
+                      isFeatured ? 'rounded-3xl flex-row sm:flex-col' : 'flex-col rounded-2xl'
+                    }`}
                   >
                     {/* Cover */}
-                    <div className={`relative bg-gray-100 shrink-0 overflow-hidden ${isFeatured ? 'h-72' : 'h-52'}`}>
+                    <div className={`relative bg-gray-100 shrink-0 overflow-hidden ${
+                      isFeatured
+                        ? 'w-40 sm:w-full h-full sm:h-72 rounded-2xl sm:rounded-none'
+                        : 'h-52'
+                    }`}>
                       {event.cover_image ? (
                         <Image src={event.cover_image} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-[#111827]">
-                          <Calendar size={48} className="text-white/40" />
+                        <div className="w-full h-full flex items-center justify-center bg-[#0f1117]">
+                          <Calendar size={isFeatured ? 56 : 40} className="text-white/20" />
                         </div>
                       )}
 
-                      {/* Gradient overlay on bottom */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                      {/* Gradient */}
+                      <div className={`absolute inset-0 ${isFeatured ? 'bg-gradient-to-t from-black/70 via-black/20 to-transparent' : 'bg-gradient-to-t from-black/50 via-black/5 to-transparent'}`} />
 
                       {/* Top badges */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                        {event.event_type && (() => {
-                          const badge = TYPE_BADGE[event.event_type]
-                          return (
-                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md"
-                              style={{ backgroundColor: badge?.bg ?? 'rgba(0,0,0,0.5)', color: badge?.text ?? '#fff' }}>
-                              {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
-                            </span>
-                          )
-                        })()}
+                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {isFeatured && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-600 text-white uppercase tracking-wide">À la une</span>
+                          )}
+                          {event.event_type && (() => {
+                            const badge = TYPE_BADGE[event.event_type]
+                            return (
+                              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md"
+                                style={{ backgroundColor: badge?.bg ?? 'rgba(0,0,0,0.5)', color: badge?.text ?? '#fff' }}>
+                                {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
+                              </span>
+                            )
+                          })()}
+                        </div>
                         {(event.stand_count ?? 0) > 0 && (
-                          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 ml-auto ${
-                            (event as NexartEvent & { remaining_spots?: number }).remaining_spots === 0
-                              ? 'bg-gray-500/70 text-white'
-                              : (event as NexartEvent & { remaining_spots?: number }).remaining_spots !== undefined && (event as NexartEvent & { remaining_spots?: number }).remaining_spots! <= 3
-                              ? 'bg-amber-500/80 text-white'
-                              : 'bg-black/50 text-white'
+                          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 shrink-0 ${
+                            rem === 0 ? 'bg-gray-500/70 text-white'
+                            : rem !== undefined && rem <= 3 ? 'bg-amber-500/80 text-white'
+                            : 'bg-black/50 text-white'
                           }`}>
                             <Users size={10} />
-                            {(event as NexartEvent & { remaining_spots?: number }).remaining_spots === 0
-                              ? 'Complet'
-                              : (event as NexartEvent & { remaining_spots?: number }).remaining_spots !== undefined
-                              ? `${(event as NexartEvent & { remaining_spots?: number }).remaining_spots} place${(event as NexartEvent & { remaining_spots?: number }).remaining_spots! > 1 ? 's' : ''}`
-                              : `${event.stand_count} stands`}
+                            {rem === 0 ? 'Complet' : rem !== undefined ? `${rem} place${rem > 1 ? 's' : ''}` : `${event.stand_count} stands`}
                           </span>
                         )}
                       </div>
 
-                      {/* Bottom: price */}
+                      {/* Featured: title + meta overlaid on image bottom */}
+                      {isFeatured && (
+                        <div className="absolute bottom-0 left-0 right-0 p-5 hidden sm:block">
+                          <h3 className="font-bold text-white text-xl leading-tight mb-2 group-hover:text-indigo-200 transition-colors line-clamp-2">
+                            {event.title}
+                          </h3>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            {event.start_date && (
+                              <span className="flex items-center gap-1.5 text-white/70 text-xs">
+                                <Calendar size={11} className="text-indigo-300" />
+                                {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                              </span>
+                            )}
+                            {event.location && (
+                              <span className="flex items-center gap-1.5 text-white/70 text-xs">
+                                <MapPin size={11} className="text-indigo-300" />
+                                {event.location}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Price badge */}
                       {event.stand_price != null && (
-                        <div className="absolute bottom-3 right-3">
+                        <div className={`absolute ${isFeatured ? 'top-3 right-3 hidden sm:block' : 'bottom-3 right-3'}`}>
                           {event.stand_price === 0
                             ? <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/90 text-gray-800 backdrop-blur-sm border border-gray-200">Gratuit</span>
                             : <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-black/60 text-white backdrop-blur-sm flex items-center gap-0.5"><Euro size={10} />{event.stand_price}</span>
@@ -423,9 +460,9 @@ function EventsContent() {
                       )}
                     </div>
 
-                    {/* Body */}
-                    <div className="flex flex-col flex-1 p-5">
-                      <h3 className="font-bold text-gray-900 text-base leading-snug mb-3 group-hover:text-indigo-700 transition-colors">{event.title}</h3>
+                    {/* Body — hidden on sm for featured (title is on image), always shown on mobile */}
+                    <div className={`flex flex-col flex-1 p-5 ${isFeatured ? 'sm:hidden' : ''}`}>
+                      <h3 className={`font-bold text-gray-900 leading-snug mb-3 group-hover:text-indigo-700 transition-colors ${isFeatured ? 'text-lg' : 'text-base'}`}>{event.title}</h3>
                       <div className="space-y-1.5 mb-3">
                         {event.start_date && (
                           <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -443,27 +480,35 @@ function EventsContent() {
                       {event.description && (
                         <p className="text-sm text-gray-400 leading-relaxed mb-3 flex-1 line-clamp-2">{event.description}</p>
                       )}
-                      {/* Discipline tags */}
-                      {(() => {
-                        const tags = (event as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []
-                        if (!tags.length) return null
-                        const shown = tags.slice(0, 2)
-                        const extra = tags.length - 2
-                        return (
-                          <div className="flex flex-wrap gap-1.5 mb-3">
-                            {shown.map(t => (
-                              <span key={t} className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-semibold">{t}</span>
-                            ))}
-                            {extra > 0 && <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold">+{extra}</span>}
-                          </div>
-                        )
-                      })()}
+                      {tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {tags.slice(0, 2).map(t => (
+                            <span key={t} className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-semibold">{t}</span>
+                          ))}
+                          {tags.length > 2 && <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold">+{tags.length - 2}</span>}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
                         <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-200">
                           Voir l'événement <ArrowRight size={14} />
                         </span>
                       </div>
                     </div>
+
+                    {/* Featured sm+ footer: tags + CTA below image */}
+                    {isFeatured && (
+                      <div className="hidden sm:flex items-center justify-between px-5 py-3 border-t border-gray-50">
+                        <div className="flex flex-wrap gap-1.5">
+                          {tags.slice(0, 3).map(t => (
+                            <span key={t} className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-semibold">{t}</span>
+                          ))}
+                          {tags.length > 3 && <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold">+{tags.length - 3}</span>}
+                        </div>
+                        <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-2 transition-all duration-200 shrink-0 ml-3">
+                          Voir <ArrowRight size={13} />
+                        </span>
+                      </div>
+                    )}
                   </Link>
                 </FadeUp>
               )})}
