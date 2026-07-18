@@ -650,12 +650,18 @@ function CreatorContent({
         <div className="flex flex-col gap-4">
           {applications.map((app, i) => {
             const status = app.status as 'pending' | 'accepted' | 'refused'
+            const viewedAt = (app as any).viewed_at
+            const processingAt = (app as any).processing_started_at
+            const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
             const steps = [
-              { key: 'sent',     label: 'Envoyée',          icon: <CheckCircle size={14} /> },
-              { key: 'review',   label: 'En cours d\'examen', icon: <Clock size={14} /> },
-              { key: 'decision', label: status === 'accepted' ? 'Acceptée' : status === 'refused' ? 'Refusée' : 'Décision', icon: status === 'accepted' ? <CheckCircle size={14} /> : status === 'refused' ? <X size={14} /> : <Clock size={14} /> },
+              { key: 'sent',       label: 'Envoyée',    sublabel: fmtDate(app.created_at),           icon: <CheckCircle size={13} /> },
+              { key: 'viewed',     label: 'Vue',        sublabel: viewedAt ? fmtDate(viewedAt) : '—', icon: <Eye size={13} /> },
+              { key: 'processing', label: 'En cours',   sublabel: processingAt ? fmtDate(processingAt) : '—', icon: <Clock size={13} /> },
+              { key: 'decision',   label: status === 'accepted' ? 'Acceptée' : status === 'refused' ? 'Refusée' : 'Décision',
+                sublabel: status !== 'pending' ? fmtDate(app.updated_at || app.created_at) : '—',
+                icon: status === 'accepted' ? <CheckCircle size={13} /> : status === 'refused' ? <X size={13} /> : <Clock size={13} /> },
             ]
-            const activeStep = status === 'pending' ? 1 : 2
+            const activeStep = !viewedAt ? 0 : !processingAt ? 1 : status === 'pending' ? 2 : 3
 
             return (
               <motion.div key={app.id}
@@ -734,6 +740,9 @@ function CreatorContent({
                           </div>
                           <span style={{ fontSize: '10px', fontWeight: 600, color: textColor, whiteSpace: 'nowrap' }}>
                             {step.label}
+                          </span>
+                          <span style={{ fontSize: '9px', color: '#D1D5DB', whiteSpace: 'nowrap' }}>
+                            {(step as any).sublabel}
                           </span>
                         </div>
                         {idx < steps.length - 1 && (
@@ -864,6 +873,14 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
   const [reviewModal, setReviewModal] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string } | null>(null)
   const [refuseModal, setRefuseModal] = useState<{ appId: string; eventTitle?: string; creatorId?: string } | null>(null)
   const [refuseReasons, setRefuseReasons] = useState<string[]>([])
+
+  // Marquer les candidatures comme vues dès que l'organisateur charge le dashboard
+  useEffect(() => {
+    const unviewed = pendingApps.filter(a => !(a as any).viewed_at).map(a => a.id)
+    if (!unviewed.length) return
+    const now = new Date().toISOString()
+    supabase.from('applications').update({ viewed_at: now }).in('id', unviewed).then(() => {})
+  }, [pendingApps])
 
   const REFUSE_OPTIONS = [
     { key: 'full',        label: 'Événement complet' },
