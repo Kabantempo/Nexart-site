@@ -51,7 +51,7 @@ export function GhostCard({ icon, title, description, cta, href, onAction }: Gho
         <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
           {title}
         </h3>
-        <p style={{ fontSize: '14px', color: '#888888', lineHeight: '1.6' }}>
+        <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6' }}>
           {description}
         </p>
       </div>

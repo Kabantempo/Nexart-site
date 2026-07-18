@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Session invalide' }, { status: 401 })
     }
 
-    const { type, ref_id } = await req.json()
+    const { validate, creditUseSchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = validate(creditUseSchema, await req.json())
+    if (validErr) return validErr
+    const { type, ref_id } = body
     const cost = COSTS[type]
     if (!cost) return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
 
