@@ -76,7 +76,7 @@ export default function DashboardPage() {
   const router = useRouter()
   const [applications, setApplications] = useState<(Application & { event?: Event })[]>([])
   const [events, setEvents] = useState<Event[]>([])
-  const [pendingApps, setPendingApps] = useState<{ id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
+  const [pendingApps, setPendingApps] = useState<{ id: string; creator_id: string; event_id: string; message: string | null; created_at: string; boosted_at?: string | null; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
   const [loading, setLoading] = useState(true)
   const [profileViewCount, setProfileViewCount] = useState<number>(0)
   const [profileViewDays, setProfileViewDays] = useState<{ date: string; count: number }[]>([])
@@ -176,7 +176,7 @@ export default function DashboardPage() {
           if (eventsData?.length) {
             const { data: pending } = await supabase
               .from('applications')
-              .select('id, creator_id, event_id, message, created_at, profiles(full_name, avatar_url)')
+              .select('id, creator_id, event_id, message, created_at, boosted_at, profiles(full_name, avatar_url)')
               .in('event_id', eventsData.map(e => e.id))
               .eq('status', 'pending')
               .order('created_at', { ascending: false })
@@ -820,7 +820,7 @@ function CalendarView({ applications }: { applications: (Application & { event?:
   )
 }
 
-type PendingApp = { id: string; creator_id: string; event_id: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }
+type PendingApp = { id: string; creator_id: string; event_id: string; message: string | null; created_at: string; boosted_at?: string | null; profiles: { full_name: string | null; avatar_url: string | null } | null }
 
 function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
   events: Event[]
@@ -990,12 +990,19 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
                 className="w-4 h-4 rounded accent-indigo-600" />
               <span className="text-xs font-semibold text-gray-400">Tout sélectionner</span>
             </label>
-            {pendingApps.map((app, i) => {
+            {[...pendingApps].sort((a, b) => {
+              const aBoosted = a.boosted_at && new Date(a.boosted_at).getTime() + 48 * 3600 * 1000 > Date.now() ? 1 : 0
+              const bBoosted = b.boosted_at && new Date(b.boosted_at).getTime() + 48 * 3600 * 1000 > Date.now() ? 1 : 0
+              return bBoosted - aBoosted
+            }).map((app, i) => {
               const ev = events.find(e => e.id === app.event_id)
               const isSelected = selected.has(app.id)
+              const isBoosted = app.boosted_at && new Date(app.boosted_at).getTime() + 48 * 3600 * 1000 > Date.now()
               return (
                 <motion.div key={app.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all duration-150 ${isSelected ? 'border-indigo-200 bg-indigo-50/50' : 'border-gray-100 bg-white'}`}>
+                  className={`flex items-center gap-3 p-4 rounded-2xl border transition-all duration-150 ${
+                    isBoosted ? 'border-indigo-200 bg-indigo-50/40' : isSelected ? 'border-indigo-100 bg-indigo-50/30' : 'border-gray-100 bg-white'
+                  }`}>
                   <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(app.id)}
                     className="w-4 h-4 rounded accent-indigo-600 shrink-0" />
                   <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0 overflow-hidden">
@@ -1008,6 +1015,11 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
                       <Link href={`/creators/${app.creator_id}`} className="text-sm font-bold text-gray-900 hover:text-indigo-700 transition-colors">
                         {app.profiles?.full_name || 'Créateur'}
                       </Link>
+                      {isBoosted && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-bold">
+                          <Zap size={9} fill="white" /> Boosté
+                        </span>
+                      )}
                       {ev && (
                         <span className="text-xs text-gray-400">· <Link href={`/events/${ev.id}`} className="hover:text-indigo-600 transition-colors">{ev.title}</Link></span>
                       )}

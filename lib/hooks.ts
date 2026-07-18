@@ -83,7 +83,7 @@ export function useCreators() {
       try {
         const { data: profiles, error: err } = await supabase
           .from('profiles')
-          .select('*')
+          .select('*, profile_boosted_until')
           .eq('role', 'creator')
 
         if (err) throw err
@@ -115,8 +115,13 @@ export function useCreators() {
             is_active: (creator as Record<string, unknown>).is_active_creator as boolean || false,
             disciplines: creator.disciplines ?? [],
             portfolio_images: creator.portfolio_images ?? [],
+            profile_boosted_until: profile?.profile_boosted_until ?? null,
           }
         }) || []).sort((a, b) => {
+          const now = Date.now()
+          const aBoosted = a.profile_boosted_until && new Date(a.profile_boosted_until).getTime() > now ? 1 : 0
+          const bBoosted = b.profile_boosted_until && new Date(b.profile_boosted_until).getTime() > now ? 1 : 0
+          if (bBoosted !== aBoosted) return bBoosted - aBoosted
           // Vérifiés (SIRET + RC Pro) d'abord, puis actifs, puis le reste
           const scoreA = (a.siret_verified && a.insurance_verified ? 2 : 0) + (a.is_active ? 1 : 0)
           const scoreB = (b.siret_verified && b.insurance_verified ? 2 : 0) + (b.is_active ? 1 : 0)

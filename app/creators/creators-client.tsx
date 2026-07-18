@@ -4,7 +4,7 @@ import { useCreators } from '@/lib/hooks'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck, Star, TrendingUp, Navigation } from 'lucide-react'
+import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck, Star, TrendingUp, Navigation, Zap } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -396,6 +396,12 @@ function CreatorsContent() {
 
                       {/* Badges */}
                       <div className="absolute top-2.5 right-2.5 flex flex-col gap-1 items-end">
+                        {(creator as any).profile_boosted_until && new Date((creator as any).profile_boosted_until) > new Date() && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-600 border border-indigo-500 shadow-sm shadow-indigo-300">
+                            <Zap size={9} className="text-white" fill="white" />
+                            <span className="text-[10px] font-bold text-white">Boosté</span>
+                          </div>
+                        )}
                         {creator.siret_verified && creator.insurance_verified && (
                           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-indigo-200">
                             <BadgeCheck size={10} className="text-indigo-600" />
