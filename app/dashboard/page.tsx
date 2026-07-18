@@ -14,6 +14,12 @@ import {
 } from 'lucide-react'
 import { CreditsWidget } from '@/components/credits-widget'
 import { BoostButton } from '@/components/boost-button'
+import { useCountUp } from '@/lib/hooks/use-count-up'
+
+function AnimatedNumber({ value }: { value: number }) {
+  const animated = useCountUp(value)
+  return <>{animated}</>
+}
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   free:       { label: 'Essentiel',  color: 'text-gray-600',    bg: 'bg-gray-100',    border: 'border-gray-200' },
@@ -285,26 +291,38 @@ export default function DashboardPage() {
             {/* Stats rapides */}
             {!loading && (hasCreator || hasOrganizer) && (
               <div className="flex flex-wrap gap-3 mt-8">
-                {hasCreator && [
-                  ...(applications.length > 0 ? [
-                    { label: 'candidatures', value: applications.length, icon: <Calendar size={13} /> },
-                    { label: 'acceptées', value: acceptedApps.length, icon: <CheckCircle size={13} /> },
-                    { label: "taux d'acceptation", value: `${acceptanceRate}%`, icon: <TrendingUp size={13} /> },
-                  ] : []),
-                  { label: 'vues profil (30j)', value: profileViewCount, icon: <Eye size={13} /> },
-                ].map(s => (
-                  <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-indigo-400">{s.icon}</span>
-                    <span className="text-white font-bold text-sm">{s.value}</span>
-                    <span className="text-white/40 text-xs">{s.label}</span>
-                  </div>
-                ))}
+                {hasCreator && (
+                  <>
+                    {applications.length > 0 && <>
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                        <span className="text-indigo-400"><Calendar size={13} /></span>
+                        <span className="text-white font-bold text-sm"><AnimatedNumber value={applications.length} /></span>
+                        <span className="text-white/40 text-xs">candidatures</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                        <span className="text-indigo-400"><CheckCircle size={13} /></span>
+                        <span className="text-white font-bold text-sm"><AnimatedNumber value={acceptedApps.length} /></span>
+                        <span className="text-white/40 text-xs">acceptées</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                        <span className="text-indigo-400"><TrendingUp size={13} /></span>
+                        <span className="text-white font-bold text-sm"><AnimatedNumber value={acceptanceRate} />%</span>
+                        <span className="text-white/40 text-xs">taux d'acceptation</span>
+                      </div>
+                    </>}
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                      <span className="text-indigo-400"><Eye size={13} /></span>
+                      <span className="text-white font-bold text-sm"><AnimatedNumber value={profileViewCount} /></span>
+                      <span className="text-white/40 text-xs">vues profil (30j)</span>
+                    </div>
+                  </>
+                )}
                 {hasOrganizer && [
                   { label: 'événements', value: events.length },
                   { label: 'publiés', value: publishedEvents.length },
                 ].map(s => (
                   <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <span className="text-white font-bold text-sm">{s.value}</span>
+                    <span className="text-white font-bold text-sm"><AnimatedNumber value={s.value} /></span>
                     <span className="text-white/40 text-xs">{s.label}</span>
                   </div>
                 ))}
