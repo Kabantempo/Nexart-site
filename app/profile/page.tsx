@@ -157,6 +157,7 @@ export default function ProfilePage() {
   const [postContent, setPostContent] = useState('')
   const [postImageFile, setPostImageFile] = useState<File | null>(null)
   const [postSaving, setPostSaving] = useState(false)
+  const [profileViews, setProfileViews] = useState<number>(0)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
@@ -185,6 +186,7 @@ export default function ProfilePage() {
   const [editInstagram, setEditInstagram] = useState('')
   const [editWebsite, setEditWebsite] = useState('')
   const [editEtsy, setEditEtsy] = useState('')
+  const [editBrandColor, setEditBrandColor] = useState('#6366F1')
   const [editSiret, setEditSiret] = useState(false)
   const [editInsurance, setEditInsurance] = useState(false)
   const [siretNumber, setSiretNumber] = useState('')
@@ -303,6 +305,9 @@ export default function ProfilePage() {
         else if (creat?.portfolio_images?.length) setGridItems(creat.portfolio_images.map((url: string) => ({ url, colSpan: 1 as const, rowSpan: 1 as const })))
         setApplications((apps as unknown as Application[]) ?? [])
         setReviews((revs as unknown as Review[]) ?? [])
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+        const { count: viewCount } = await supabase.from('profile_views').select('*', { count: 'exact', head: true }).eq('profile_id', u.id).gte('viewed_at', thirtyDaysAgo)
+        setProfileViews(viewCount ?? 0)
         const { data: postsData } = await supabase.from('creator_posts').select('id,content,image_url,created_at').eq('creator_id', u.id).order('created_at', { ascending: false }).limit(50)
         setMyPosts(postsData ?? [])
         setEditName(prof?.full_name ?? u.user_metadata?.full_name ?? '')
@@ -318,6 +323,7 @@ export default function ProfilePage() {
         setEditInstagram(creat?.instagram ?? '')
         setEditWebsite(creat?.website ?? '')
         setEditEtsy(creat?.etsy ?? '')
+        setEditBrandColor((creat as any)?.page_settings?.primary_color ?? '#6366F1')
         setEditSiret(creat?.siret_verified ?? false)
         setEditInsurance(creat?.insurance_verified ?? false)
         setSiretNumber((creat as Record<string, unknown>)?.siret_number as string ?? '')
@@ -368,6 +374,7 @@ export default function ProfilePage() {
         user_id: user.id, disciplines: editDisc,
         city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius as '5' | '10' | '25' | 'national',
         instagram: editInstagram, website: editWebsite, etsy: editEtsy,
+        page_settings: { primary_color: editBrandColor },
       }, { onConflict: 'user_id' })] : []),
     ]
     const results = await Promise.all(promises)
@@ -2270,12 +2277,13 @@ export default function ProfilePage() {
         <div className="max-w-[900px] mx-auto px-4 pb-20">
 
           {/* Stats row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-7 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-7 mb-8">
             {[
               { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} className="text-indigo-600" /> },
               { label: 'Acceptées',    value: acceptedCount,       icon: <CheckCircle size={18} className="text-indigo-600" /> },
               { label: 'Avis reçus',  value: reviews.length,      icon: <Star size={18} className="text-indigo-600" /> },
               { label: 'Note moy.',   value: avgRating ?? '—',    icon: <Award size={18} className="text-indigo-600" /> },
+              { label: 'Vues ce mois', value: profileViews,       icon: <Eye size={18} className="text-indigo-600" /> },
             ].map(s => (
               <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm">
                 <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3">{s.icon}</div>
@@ -2523,6 +2531,39 @@ export default function ProfilePage() {
               </div>
 
               <div className="h-px bg-gray-100" />
+
+              {/* Couleur de marque */}
+              <div className="px-6 py-5 border-t border-gray-50">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Couleur de marque</p>
+                {editing ? (
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={editBrandColor}
+                      onChange={e => setEditBrandColor(e.target.value)}
+                      className="w-10 h-10 rounded-xl border border-gray-200 cursor-pointer p-0.5 bg-white"
+                      style={{ appearance: 'none' }}
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{editBrandColor.toUpperCase()}</p>
+                      <p className="text-xs text-gray-400">Appliquée sur votre page publique</p>
+                    </div>
+                    <div className="ml-auto flex gap-2">
+                      {['#6366F1','#F59E0B','#10B981','#EF4444','#8B5CF6','#EC4899','#0EA5E9'].map(c => (
+                        <button key={c} onClick={() => setEditBrandColor(c)}
+                          className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+                          style={{ backgroundColor: c, borderColor: editBrandColor === c ? c : 'transparent', outline: editBrandColor === c ? `2px solid ${c}` : 'none', outlineOffset: '2px' }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: (creator as any)?.page_settings?.primary_color ?? '#6366F1' }} />
+                    <span className="text-sm text-gray-700">{((creator as any)?.page_settings?.primary_color ?? '#6366F1').toUpperCase()}</span>
+                  </div>
+                )}
+              </div>
 
               {/* Liens */}
               <div className="px-6 py-5">
@@ -2839,30 +2880,89 @@ export default function ProfilePage() {
                 </button>
               </div>
             ) : applications.map(app => {
-              const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const ev = app.events
+              const isAccepted = app.status === 'accepted'
+              const isRefused  = app.status === 'refused'
+              const isDone     = isAccepted || isRefused
+
+              type Step = { label: string; sublabel?: string; done: boolean; active: boolean; color: string }
+              const steps: Step[] = [
+                {
+                  label: 'Envoyée',
+                  sublabel: new Date(app.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+                  done: true, active: false, color: '#10B981',
+                },
+                {
+                  label: 'En examen',
+                  sublabel: isDone ? 'Examinée' : 'En attente',
+                  done: isDone, active: !isDone, color: isDone ? '#10B981' : '#F59E0B',
+                },
+                {
+                  label: isAccepted ? 'Acceptée ✓' : isRefused ? 'Refusée' : 'Décision',
+                  done: isDone, active: !isDone,
+                  color: isAccepted ? '#10B981' : isRefused ? '#EF4444' : '#9CA3AF',
+                },
+              ]
+
               return (
-                <div key={app.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex gap-4 items-start shadow-sm">
-                  <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                    {ev?.cover_image
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={ev.cover_image} alt={ev.title} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full flex items-center justify-center bg-indigo-600"><Calendar size={22} className="text-white" /></div>
-                    }
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start gap-2 flex-wrap">
-                      <p className="text-sm font-bold text-gray-900 mb-0.5">{ev?.title ?? 'Événement supprimé'}</p>
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold shrink-0" style={{ backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
+                <div key={app.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+                  {/* Header */}
+                  <div className="flex gap-3 items-start mb-5">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
+                      {ev?.cover_image
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={ev.cover_image} alt={ev.title} className="w-full h-full object-cover" />
+                        : <div className="w-full h-full flex items-center justify-center bg-indigo-600"><Calendar size={20} className="text-white" /></div>
+                      }
                     </div>
-                    {ev && (
-                      <p className="text-xs text-gray-400 mb-1.5">
-                        {ev.city ?? '—'} · {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </p>
-                    )}
-                    {app.message && <p className="text-xs text-gray-500 italic">"{app.message}"</p>}
-                    <p className="text-[11px] text-gray-300 mt-1">Envoyée le {new Date(app.created_at).toLocaleDateString('fr-FR')}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-900 truncate">{ev?.title ?? 'Événement supprimé'}</p>
+                      {ev && (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {ev.city ?? '—'} · {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </p>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Timeline */}
+                  <div className="flex items-start">
+                    {steps.map((step, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center">
+                        <div className="flex items-center w-full">
+                          {i > 0 && (
+                            <div className="flex-1 h-[2px]" style={{ backgroundColor: steps[i-1].done ? steps[i-1].color : '#E5E7EB' }} />
+                          )}
+                          <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0"
+                            style={{
+                              borderColor: step.done || step.active ? step.color : '#E5E7EB',
+                              backgroundColor: step.done ? step.color : 'white',
+                            }}>
+                            {step.done
+                              ? <CheckCircle size={12} color="white" fill="white" />
+                              : step.active
+                                ? <div className="w-2 h-2 rounded-full" style={{ backgroundColor: step.color }} />
+                                : null
+                            }
+                          </div>
+                          {i < steps.length - 1 && (
+                            <div className="flex-1 h-[2px]" style={{ backgroundColor: step.done ? step.color : '#E5E7EB' }} />
+                          )}
+                        </div>
+                        <p className="text-[10px] font-semibold text-center mt-1.5 leading-tight px-1"
+                          style={{ color: step.done || step.active ? step.color : '#9CA3AF' }}>
+                          {step.label}
+                        </p>
+                        {step.sublabel && (
+                          <p className="text-[9px] text-gray-400 text-center mt-0.5 px-1 leading-tight">{step.sublabel}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {app.message && (
+                    <p className="text-xs text-gray-500 italic mt-4 pt-4 border-t border-gray-100">&ldquo;{app.message}&rdquo;</p>
+                  )}
                 </div>
               )
             })}
