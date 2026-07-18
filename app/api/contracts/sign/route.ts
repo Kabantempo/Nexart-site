@@ -14,15 +14,13 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
     if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ contract_id: uuidSchema, signer_id: uuidSchema })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { contract_id, signer_id } = body
 
-    // L'utilisateur doit signer lui-même
     if (authUser.id !== signer_id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
-
-    if (!contract_id || !signer_id) {
-      return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
-    }
 
     const { data: contract } = await admin.from('contracts').select('*').eq('id', contract_id).single()
     if (!contract) return NextResponse.json({ error: 'Contrat introuvable' }, { status: 404 })
