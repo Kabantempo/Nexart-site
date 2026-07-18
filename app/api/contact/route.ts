@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { sendMail } from '@/lib/mailer'
 import { emailContactConfirmation, emailContactInternal } from '@/lib/email-templates'
+import { validate, contactSchema } from '@/lib/validate'
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, subject, message } = await req.json()
-
-    if (!name || !email || !subject || !message) {
-      return NextResponse.json({ error: 'Tous les champs sont obligatoires' }, { status: 400 })
-    }
+    const body = await req.json()
+    const { data, error } = validate(contactSchema, body)
+    if (error) return error
+    const { name, email, subject, message } = data
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

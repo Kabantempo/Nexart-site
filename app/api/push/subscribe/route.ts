@@ -20,10 +20,10 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    const { endpoint, keys } = await req.json()
-    if (!endpoint || !keys?.p256dh || !keys?.auth) {
-      return NextResponse.json({ error: 'endpoint et keys requis' }, { status: 400 })
-    }
+    const { validate: v, pushSubscribeSchema } = await import('@/lib/validate')
+    const { data: parsed, error: validErr } = v(pushSubscribeSchema, await req.json())
+    if (validErr) return validErr
+    const { endpoint, keys } = parsed.subscription
 
     const admin = getAdminClient()
     const { error } = await admin.from('push_subscriptions').upsert(

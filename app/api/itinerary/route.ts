@@ -52,12 +52,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+    const { validate: v, itinerarySchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = v(itinerarySchema, await req.json())
+    if (validErr) return validErr
     const { label, region, department, city, lat, lng, start_date, end_date, is_public } = body
-
-    if (!label || !start_date || !end_date) {
-      return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
-    }
 
     const { data, error } = await admin.from('itinerary').insert({
       creator_id: user.id, label, region, department, city,
