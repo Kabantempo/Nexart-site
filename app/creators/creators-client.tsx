@@ -408,6 +408,11 @@ function CreatorsContent() {
                             <span className="text-[10px] font-semibold text-indigo-600">Vérifié</span>
                           </div>
                         )}
+                        {creator.created_at && Date.now() - new Date(creator.created_at).getTime() < 30 * 24 * 3600 * 1000 && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/90 backdrop-blur-sm border border-amber-300">
+                            <span className="text-[10px] font-bold text-white">Nouveau</span>
+                          </div>
+                        )}
                         {(creator as { is_active?: boolean }).is_active && (
                           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 backdrop-blur-sm border border-emerald-200">
                             <span className="text-[10px] font-semibold text-emerald-600">● Actif</span>

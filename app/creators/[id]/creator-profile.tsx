@@ -57,6 +57,7 @@ export function CreatorProfileClient({ id }: Props) {
   const [marchesCount, setMarchesCount] = useState<number | null>(null)
   const [boutiqueCount, setBoutiqueCount] = useState<number | null>(null)
   const [isActive, setIsActive] = useState(false)
+  const [respondsQuickly, setRespondsQuickly] = useState(false)
   const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
@@ -103,6 +104,34 @@ export function CreatorProfileClient({ id }: Props) {
         .eq('creator_id', id)
         .eq('is_available', true)
       setBoutiqueCount(prodCount ?? 0)
+
+      // Badge "Répond rapidement" : délai moyen première réponse < 24h
+      const { data: convs } = await supabase
+        .from('conversations')
+        .select('id, created_at')
+        .eq('creator_id', id)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      if (convs && convs.length >= 3) {
+        const deltas: number[] = []
+        for (const conv of convs) {
+          const { data: firstReply } = await supabase
+            .from('messages')
+            .select('created_at')
+            .eq('conversation_id', conv.id)
+            .eq('sender_id', id)
+            .order('created_at', { ascending: true })
+            .limit(1)
+            .maybeSingle()
+          if (firstReply) {
+            deltas.push(new Date(firstReply.created_at).getTime() - new Date(conv.created_at).getTime())
+          }
+        }
+        if (deltas.length >= 2) {
+          const avgMs = deltas.reduce((a, b) => a + b, 0) / deltas.length
+          setRespondsQuickly(avgMs < 24 * 3600 * 1000)
+        }
+      }
 
       // Carnet de route public
       const today = new Date().toISOString().split('T')[0]
@@ -180,9 +209,31 @@ export function CreatorProfileClient({ id }: Props) {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <div className="bg-white min-h-screen">
+      {/* Banner skeleton */}
+      <div className="h-52 bg-gray-100 animate-pulse" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+        {/* Avatar + name skeleton */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5 -mt-12 mb-8">
+          <div className="w-24 h-24 rounded-2xl bg-gray-200 animate-pulse border-4 border-white shrink-0" />
+          <div className="flex-1 pb-1 space-y-2">
+            <div className="h-7 w-48 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-32 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+        </div>
+        {/* Content skeletons */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="h-4 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-4 w-4/5 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-4 w-3/5 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+            <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+          </div>
+        </div>
+      </div>
     </div>
   )
 
@@ -322,6 +373,11 @@ export function CreatorProfileClient({ id }: Props) {
                 {isActive && (
                   <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ADE80' }}>
                     ● Créateur actif
+                  </span>
+                )}
+                {respondsQuickly && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.35)', color: '#FCD34D' }}>
+                    ⚡ Répond rapidement
                   </span>
                 )}
                 {creator.created_at && (
