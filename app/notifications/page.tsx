@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Bell, CheckCircle, X, MessageCircle, Calendar, ArrowLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { GhostCard } from '@/components/ui/ghost-card'
 
 interface Notification {
   id: string
@@ -115,10 +116,11 @@ export default function NotificationsPage() {
 
         {/* List */}
         {notifications.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 20px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-            <Bell size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
-            <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>Aucune notification pour le moment</p>
-          </div>
+          <GhostCard
+            icon={<Bell size={32} color="#6366F1" />}
+            title="Aucune notification pour le moment"
+            description="Vous serez notifié des réponses à vos candidatures, nouveaux messages et mises à jour."
+          />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {notifications.map((n, i) => {
@@ -134,7 +136,7 @@ export default function NotificationsPage() {
                   style={{
                     display: 'flex', gap: '14px', padding: '16px 18px',
                     borderRadius: '12px',
-                    border: `1px solid ${isUnread ? '#E0E0FA' : '#E5E7EB'}`,
+                    border: `1px solid ${isUnread ? '#E0E0FA' : 'var(--border-color)'}`,
                     backgroundColor: isUnread ? '#FAFBFF' : '#FFFFFF',
                     cursor: n.link ? 'pointer' : 'default',
                     transition: 'all 150ms',

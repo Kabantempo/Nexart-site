@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { Heart, MessageCircle, ArrowRight, Rss } from 'lucide-react'
 import { ReportButton } from '@/components/ui/report-button'
+import { GhostCard } from '@/components/ui/ghost-card'
 
 type Post = {
   id: string
@@ -120,15 +121,13 @@ export default function FeedPage() {
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-24 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
-            <Rss size={40} className="text-gray-200 mx-auto mb-4" />
-            <p className="text-base font-semibold text-gray-500 mb-1">Aucune publication pour le moment</p>
-            <p className="text-sm text-gray-400 mb-6">Suivez des créateurs pour voir leurs actualités ici</p>
-            <Link href="/creators"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
-              Découvrir des créateurs <ArrowRight size={15} />
-            </Link>
-          </div>
+          <GhostCard
+            icon={<Rss size={32} color="#6366F1" />}
+            title="Aucune publication pour le moment"
+            description="Suivez des créateurs pour voir leurs actualités ici."
+            cta="Découvrir des créateurs"
+            href="/creators"
+          />
         ) : (
           <div className="flex flex-col gap-4">
             {posts.map((post, i) => (
@@ -162,7 +161,7 @@ export default function FeedPage() {
                 <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
                   <button onClick={() => toggleLike(post.id, post.liked ?? false)} disabled={likeUpdating === post.id}
                     className="flex items-center gap-1.5 text-sm font-semibold transition-colors disabled:opacity-50"
-                    style={{ color: post.liked ? '#E05A5A' : '#9CA3AF' }}>
+                    style={{ color: post.liked ? '#E05A5A' : 'var(--text-tertiary)' }}>
                     <Heart size={16} fill={post.liked ? '#E05A5A' : 'none'} />
                     {post.likes_count ?? 0}
                   </button>
