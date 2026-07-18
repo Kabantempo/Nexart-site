@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { useFavorites } from '@/lib/hooks'
 import { Heart, Calendar, MapPin, Users, Palette, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { GhostCard } from '@/components/ui/ghost-card'
 
 export default function FavoritesPage() {
   const router = useRouter()
@@ -25,7 +26,7 @@ export default function FavoritesPage() {
 
   if (authLoading || loading) {
     return (
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
         <p style={{ color: '#94A3B8', fontSize: '15px' }}>Chargement…</p>
       </div>
     )
@@ -34,7 +35,7 @@ export default function FavoritesPage() {
   const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '60px 16px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
         {/* Header */}
@@ -69,7 +70,7 @@ export default function FavoritesPage() {
         {/* Events tab */}
         {tab === 'events' && (
           favEvents.length === 0 ? (
-            <EmptyState
+            <GhostCard
               icon={<Calendar size={32} color="#6366F1" />}
               title="Aucun événement favori"
               description="Explorez les marchés et événements, puis cliquez sur le ❤️ pour les sauvegarder ici."
@@ -142,7 +143,7 @@ export default function FavoritesPage() {
         {/* Creators tab */}
         {tab === 'creators' && (
           favCreators.length === 0 ? (
-            <EmptyState
+            <GhostCard
               icon={<Palette size={32} color="#6366F1" />}
               title="Aucun créateur favori"
               description="Découvrez les artisans et créateurs, puis cliquez sur le ❤️ pour les retrouver ici."
@@ -210,28 +211,3 @@ export default function FavoritesPage() {
   )
 }
 
-function EmptyState({ icon, title, description, cta, href }: {
-  icon: React.ReactNode, title: string, description: string, cta: string, href: string
-}) {
-  return (
-    <div style={{ textAlign: 'center', padding: '80px 24px', borderRadius: '16px', border: '1px dashed #CBD5E1', backgroundColor: 'var(--bg-secondary)' }}>
-      <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-        {icon}
-      </div>
-      <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#0F172A', marginBottom: '8px' }}>{title}</h3>
-      <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '360px', margin: '0 auto 28px' }}>{description}</p>
-      <Link
-        href={href}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          padding: '12px 28px', borderRadius: '10px',
-          background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-          color: '#FFFFFF', textDecoration: 'none', fontSize: '14px', fontWeight: '700',
-          boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
-        }}
-      >
-        {cta} <ArrowRight size={15} />
-      </Link>
-    </div>
-  )
-}

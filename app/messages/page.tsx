@@ -8,6 +8,7 @@ import { MessageCircle, Trash2, Palette, Building2, Eye, Search, CheckCheck, X }
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { GhostCard } from '@/components/ui/ghost-card'
 
 type ConvRow = {
   id: string
@@ -258,21 +259,13 @@ export default function MessagesPage() {
 
         {filtered.length === 0 ? (
           conversations.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 24px', borderRadius: '16px', border: '1px dashed #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
-              <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#F0F0FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                <MessageCircle size={32} color="#6366F1" />
-              </div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>Aucun message pour l'instant</h3>
-              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '340px', margin: '0 auto 24px' }}>
-                Vos échanges avec les créateurs et organisateurs apparaîtront ici.
-              </p>
-              <button
-                onClick={() => router.push('/events')}
-                style={{ padding: '12px 28px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
-              >
-                Explorer les événements
-              </button>
-            </div>
+            <GhostCard
+              icon={<MessageCircle size={32} color="#6366F1" />}
+              title="Aucun message pour l'instant"
+              description="Vos échanges avec les créateurs et organisateurs apparaîtront ici."
+              cta="Explorer les événements"
+              onAction={() => router.push('/events')}
+            />
           ) : (
             <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '16px', border: '1px dashed #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
               <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Aucun message dans cette catégorie.</p>
@@ -326,7 +319,7 @@ export default function MessagesPage() {
                         width: '16px', height: '16px', borderRadius: '50%',
                         border: '2px solid #FFFFFF',
                         backgroundColor: conv.other.role === 'creator' || conv.other.role === 'artisan' ? '#6366F1'
-                          : conv.other.role === 'organizer' ? '#059669' : '#9CA3AF',
+                          : conv.other.role === 'organizer' ? '#059669' : 'var(--text-tertiary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {conv.other.role === 'creator' || conv.other.role === 'artisan'
@@ -352,7 +345,7 @@ export default function MessagesPage() {
                       <p style={{
                         fontSize: '13px', margin: 0, flex: 1,
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        color: conv.unreadCount > 0 ? '#374151' : '#9CA3AF',
+                        color: conv.unreadCount > 0 ? '#374151' : 'var(--text-tertiary)',
                         fontWeight: conv.unreadCount > 0 ? '600' : '400',
                       }}>
                         {conv.lastMessage

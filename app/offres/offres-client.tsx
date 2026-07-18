@@ -1,8 +1,17 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Check, Zap, Lock, ArrowRight } from 'lucide-react'
+import { Check, Zap, ArrowRight, Loader2 } from 'lucide-react'
+import { createClient } from '@supabase/supabase-js'
+import { STRIPE_PRICES, STRIPE_CREDIT_PRICES } from '@/lib/stripe'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 const CREATOR_PLANS = [
   {
@@ -10,7 +19,7 @@ const CREATOR_PLANS = [
     price: 'Gratuit',
     period: 'Pour toujours',
     featured: false,
-    comingSoon: false,
+    priceId: null,
     cta: 'Commencer gratuitement',
     ctaHref: '/register',
     features: [
@@ -26,9 +35,9 @@ const CREATOR_PLANS = [
     price: '5,99€',
     period: '/mois',
     featured: false,
-    comingSoon: true,
-    cta: 'Bientôt disponible',
-    ctaHref: '/contact',
+    priceId: STRIPE_PRICES.creator.boost.monthly,
+    cta: "S'abonner",
+    ctaHref: null,
     features: [
       '4 candidatures/mois',
       'Accès événements 24h avant les gratuits',
@@ -43,9 +52,9 @@ const CREATOR_PLANS = [
     price: '14,99€',
     period: '/mois',
     featured: true,
-    comingSoon: true,
-    cta: 'Bientôt disponible',
-    ctaHref: '/contact',
+    priceId: STRIPE_PRICES.creator.pro.monthly,
+    cta: "S'abonner",
+    ctaHref: null,
     features: [
       'Candidatures illimitées',
       'Accès événements 48h avant les gratuits',
@@ -61,9 +70,9 @@ const CREATOR_PLANS = [
     price: '29,99€',
     period: '/mois',
     featured: false,
-    comingSoon: true,
-    cta: 'Bientôt disponible',
-    ctaHref: '/contact',
+    priceId: STRIPE_PRICES.creator.premium.monthly,
+    cta: "S'abonner",
+    ctaHref: null,
     features: [
       'Tout le plan Pro',
       'Mise en avant homepage + newsletter',
@@ -81,7 +90,7 @@ const ORGANIZER_PLANS = [
     price: 'Gratuit',
     period: '',
     featured: false,
-    comingSoon: false,
+    priceId: null,
     cta: 'Commencer gratuitement',
     ctaHref: '/register',
     features: [
@@ -97,9 +106,9 @@ const ORGANIZER_PLANS = [
     price: '29€',
     period: '/mois',
     featured: true,
-    comingSoon: true,
-    cta: 'Bientôt disponible',
-    ctaHref: '/contact',
+    priceId: STRIPE_PRICES.organizer.pro.monthly,
+    cta: "S'abonner",
+    ctaHref: null,
     features: [
       'Événements illimités',
       '3 modèles de tarification (fixe, variable, %)',
@@ -115,9 +124,9 @@ const ORGANIZER_PLANS = [
     price: '79€',
     period: '/mois',
     featured: false,
-    comingSoon: true,
-    cta: 'Bientôt disponible',
-    ctaHref: '/contact',
+    priceId: STRIPE_PRICES.organizer.studio.monthly,
+    cta: "S'abonner",
+    ctaHref: null,
     features: [
       'Tout le plan Pro',
       'Calendrier multi-événements consolidé',
@@ -129,34 +138,74 @@ const ORGANIZER_PLANS = [
   },
 ]
 
-const CREDITS = [
-  { label: '1 boost candidature',     price: '2,99€',  economy: null },
-  { label: '5 boosts candidature',    price: '12,99€', economy: 'économie 13%' },
-  { label: '10 boosts candidature',   price: '24,99€', economy: 'économie 17%' },
-  { label: '20 boosts candidature',   price: '44,99€', economy: 'économie 25%' },
-  { label: '1 événement à la carte',  price: '9,99€',  economy: null },
-  { label: '3 événements à la carte', price: '24,99€', economy: 'économie 16%' },
+const CREDITS_LIST = [
+  { key: 'boost_x1',  label: '1 boost candidature',     price: '2,99€',  economy: null,           priceId: STRIPE_CREDIT_PRICES.boost_x1.id },
+  { key: 'boost_x5',  label: '5 boosts candidature',    price: '12,99€', economy: 'économie 13%', priceId: STRIPE_CREDIT_PRICES.boost_x5.id },
+  { key: 'boost_x10', label: '10 boosts candidature',   price: '24,99€', economy: 'économie 17%', priceId: STRIPE_CREDIT_PRICES.boost_x10.id },
+  { key: 'boost_x20', label: '20 boosts candidature',   price: '44,99€', economy: 'économie 25%', priceId: STRIPE_CREDIT_PRICES.boost_x20.id },
+  { key: 'event_x1',  label: '1 événement à la carte',  price: '9,99€',  economy: null,           priceId: STRIPE_CREDIT_PRICES.event_x1.id },
+  { key: 'event_x3',  label: '3 événements à la carte', price: '24,99€', economy: 'économie 16%', priceId: STRIPE_CREDIT_PRICES.event_x3.id },
 ]
 
-type Plan = typeof CREATOR_PLANS[0]
+const FAQ = [
+  { q: 'Puis-je annuler à tout moment ?', r: 'Oui, depuis votre tableau de bord → Facturation → Gérer mon abonnement. Aucun frais de résiliation.' },
+  { q: 'Les crédits expirent-ils ?', r: "Oui, les crédits pay-as-you-go ont une validité de 6 mois à partir de la date d'achat." },
+  { q: 'Puis-je changer de plan à tout moment ?', r: 'Oui, upgrade ou downgrade depuis votre tableau de bord. La différence est calculée au prorata.' },
+  { q: 'Les paiements sont-ils sécurisés ?', r: 'Oui, les paiements sont traités par Stripe, certifié PCI DSS niveau 1. Nexart ne stocke aucune donnée carte.' },
+]
 
-function PlanCard({ plan, delay = 0 }: { plan: Plan; delay?: number }) {
+type Plan = {
+  name: string
+  price: string
+  period: string
+  featured: boolean
+  priceId: string | null
+  cta: string
+  ctaHref: string | null
+  features: string[]
+}
+
+const PLAN_TIER_MAP: Record<string, string> = {
+  'Boost': 'boost', 'Pro': 'pro', 'Premium': 'premium',
+  'Studio': 'org_studio',
+}
+const ORG_PLAN_TIER_MAP: Record<string, string> = {
+  'Pro': 'org_pro', 'Studio': 'org_studio',
+}
+
+function PlanCard({ plan, delay = 0, onSubscribe, loading, currentTier, isOrganizer }: {
+  plan: Plan
+  delay?: number
+  onSubscribe: (priceId: string, mode: 'subscription' | 'payment') => void
+  loading: string | null
+  currentTier: string | null
+  isOrganizer?: boolean
+}) {
   const dark = plan.featured
+  const isLoading = loading === plan.priceId
+  const tierMap = isOrganizer ? ORG_PLAN_TIER_MAP : PLAN_TIER_MAP
+  const planTier = tierMap[plan.name] ?? null
+  const isCurrentPlan = !!(currentTier && planTier && currentTier === planTier)
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      style={dark ? {
+        transform: 'scale(1.04)',
+        boxShadow: '0 8px 40px rgba(99,102,241,0.35), 0 0 0 2px #6366F1',
+        zIndex: 1,
+      } : undefined}
       className={`relative flex flex-col gap-6 rounded-2xl p-7 ${
         dark
-          ? 'bg-[#0F0C29] border-2 border-indigo-500/40 shadow-xl shadow-indigo-900/20'
+          ? 'bg-[#0F0C29] border-2 border-indigo-500'
           : 'bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md'
       } transition-all duration-200`}
     >
       {plan.featured && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-600 text-white text-[11px] font-bold whitespace-nowrap shadow-sm">
-          Le plus populaire
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-indigo-600 text-white text-[11px] font-bold whitespace-nowrap shadow-lg" style={{ boxShadow: '0 4px 12px rgba(99,102,241,0.5)' }}>
+          ⭐ Le plus populaire
         </div>
       )}
 
@@ -177,14 +226,28 @@ function PlanCard({ plan, delay = 0 }: { plan: Plan; delay?: number }) {
         ))}
       </ul>
 
-      {plan.comingSoon ? (
-        <div className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-semibold ${
-          dark ? 'border-white/10 text-white/30 bg-white/5' : 'border-gray-100 text-gray-400 bg-gray-50'
-        }`}>
-          <Lock size={13} /> Bientôt disponible
-        </div>
+      {plan.priceId ? (
+        isCurrentPlan ? (
+          <div className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 ${
+            dark ? 'border-indigo-400 text-indigo-300 bg-indigo-500/10' : 'border-indigo-200 text-indigo-600 bg-indigo-50'
+          }`}>
+            <Check size={14} /> Plan actuel
+          </div>
+        ) : (
+        <button
+          onClick={() => onSubscribe(plan.priceId!, 'subscription')}
+          disabled={!!loading}
+          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
+            dark
+              ? 'bg-indigo-600 text-white hover:bg-indigo-500'
+              : 'bg-gray-900 text-white hover:bg-gray-800'
+          }`}
+        >
+          {isLoading ? <Loader2 size={14} className="animate-spin" /> : <>{plan.cta} <ArrowRight size={14} /></>}
+        </button>
+        )
       ) : (
-        <Link href={plan.ctaHref}
+        <Link href={plan.ctaHref!}
           className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
             dark
               ? 'bg-indigo-600 text-white hover:bg-indigo-500'
@@ -197,15 +260,54 @@ function PlanCard({ plan, delay = 0 }: { plan: Plan; delay?: number }) {
   )
 }
 
-const FAQ = [
-  { q: 'Quand les abonnements seront-ils disponibles ?', r: "Très prochainement — les paiements sont en cours d'activation. Vous serez notifié dès que c'est live." },
-  { q: 'Les crédits expirent-ils ?', r: 'Oui, les crédits pay-as-you-go ont une validité de 6 mois à partir de la date d\'achat.' },
-  { q: 'Puis-je changer de plan à tout moment ?', r: 'Oui, vous pouvez upgrader ou downgrader votre abonnement à tout moment depuis votre tableau de bord.' },
-]
-
 export default function OffresPageClient() {
+  const router = useRouter()
+  const [loading, setLoading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [currentTier, setCurrentTier] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
+      const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', session.user.id).maybeSingle()
+      if (profile) setCurrentTier((profile as any).subscription_tier ?? 'free')
+    })
+  }, [])
+
+  async function handleCheckout(priceId: string, mode: 'subscription' | 'payment') {
+    setError(null)
+    setLoading(priceId)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push(`/login?redirect=/offres`)
+        return
+      }
+
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          mode,
+          userId: session.user.id,
+          successUrl: `${window.location.origin}/dashboard?payment=success`,
+          cancelUrl: `${window.location.origin}/offres?payment=cancelled`,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || !data.url) throw new Error(data.error ?? 'Erreur lors de la création de la session')
+      window.location.href = data.url
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
+      setLoading(null)
+    }
+  }
+
   return (
-    <div className="bg-white min-h-screen">
+    <div style={{ backgroundColor: 'var(--bg-primary)' }} className="min-h-screen">
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">
@@ -222,14 +324,9 @@ export default function OffresPageClient() {
             <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-[1.1] mb-4">
               Simple, transparent, adapté
             </h1>
-            <p className="text-white/40 text-base max-w-md mx-auto leading-relaxed mb-8">
+            <p className="text-white/40 text-base max-w-md mx-auto leading-relaxed">
               Gratuit pour commencer. Passez au niveau supérieur quand vous êtes prêt.
             </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
-              style={{ backgroundColor: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
-              <Zap size={12} className="text-indigo-400" />
-              <span className="text-xs text-indigo-300 font-medium">Abonnements disponibles dès l&apos;activation de Stripe</span>
-            </div>
           </motion.div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
@@ -237,46 +334,63 @@ export default function OffresPageClient() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-24">
 
+        {error && (
+          <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
+            {error}
+          </div>
+        )}
+
         {/* Créateurs */}
         <section className="mt-16">
           <div className="mb-7">
-            <h2 className="text-2xl font-black text-gray-900 mb-1">Pour les créateurs</h2>
-            <p className="text-sm text-gray-400">Artisans, indépendants, créateurs de toutes disciplines.</p>
+            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Pour les créateurs</h2>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Artisans, indépendants, créateurs de toutes disciplines.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {CREATOR_PLANS.map((p, i) => <PlanCard key={p.name} plan={p} delay={i * 0.06} />)}
+            {CREATOR_PLANS.map((p, i) => (
+              <PlanCard key={p.name} plan={p} delay={i * 0.06} onSubscribe={handleCheckout} loading={loading} currentTier={currentTier} />
+            ))}
           </div>
         </section>
 
         {/* Organisateurs */}
         <section className="mt-16">
           <div className="mb-7">
-            <h2 className="text-2xl font-black text-gray-900 mb-1">Pour les organisateurs</h2>
-            <p className="text-sm text-gray-400">Marchés, pop-ups, salons, associations, collectivités.</p>
+            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Pour les organisateurs</h2>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Marchés, pop-ups, salons, associations, collectivités.</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-4">
-            {ORGANIZER_PLANS.map((p, i) => <PlanCard key={p.name} plan={p} delay={i * 0.08} />)}
+            {ORGANIZER_PLANS.map((p, i) => (
+              <PlanCard key={p.name} plan={p} delay={i * 0.08} onSubscribe={handleCheckout} loading={loading} currentTier={currentTier} isOrganizer />
+            ))}
           </div>
         </section>
 
         {/* Crédits */}
         <section className="mt-16">
           <div className="mb-7">
-            <h2 className="text-2xl font-black text-gray-900 mb-1">Sans abonnement — Crédits à l&apos;unité</h2>
-            <p className="text-sm text-gray-400">Payez uniquement ce que vous utilisez. Valables 6 mois.</p>
+            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Sans abonnement — Crédits à l&apos;unité</h2>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Payez uniquement ce que vous utilisez. Valables 6 mois.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {CREDITS.map((c, i) => (
-              <motion.div key={c.label}
+            {CREDITS_LIST.map((c, i) => (
+              <motion.div key={c.key}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                className="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm transition-all duration-150">
+                className="flex items-center justify-between p-4 rounded-xl border transition-all duration-150"
+                style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">{c.label}</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{c.label}</p>
                   {c.economy && <p className="text-xs text-emerald-600 font-medium mt-0.5">{c.economy}</p>}
                 </div>
-                <div className="text-right shrink-0 ml-3">
-                  <p className="text-base font-black text-gray-900">{c.price}</p>
-                  <p className="text-[10px] font-bold text-gray-300 uppercase tracking-wide mt-0.5">Bientôt</p>
+                <div className="text-right shrink-0 ml-3 flex flex-col items-end gap-1.5">
+                  <p className="text-base font-black" style={{ color: 'var(--text-primary)' }}>{c.price}</p>
+                  <button
+                    onClick={() => handleCheckout(c.priceId, 'payment')}
+                    disabled={!!loading}
+                    className="text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-500 px-2.5 py-1 rounded-lg uppercase tracking-wide transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1"
+                  >
+                    {loading === c.priceId ? <Loader2 size={10} className="animate-spin" /> : 'Acheter'}
+                  </button>
                 </div>
               </motion.div>
             ))}
@@ -285,13 +399,13 @@ export default function OffresPageClient() {
 
         {/* FAQ */}
         <section className="mt-16">
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-            <h2 className="text-xl font-black text-gray-900 mb-7">Questions fréquentes</h2>
-            <div className="flex flex-col divide-y divide-gray-50">
+          <div className="rounded-2xl border p-8 shadow-sm" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
+            <h2 className="text-xl font-black mb-7" style={{ color: 'var(--text-primary)' }}>Questions fréquentes</h2>
+            <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-color)' }}>
               {FAQ.map(({ q, r }) => (
                 <div key={q} className="py-5 first:pt-0 last:pb-0">
-                  <p className="text-sm font-bold text-gray-900 mb-1.5">{q}</p>
-                  <p className="text-sm text-gray-500 leading-relaxed">{r}</p>
+                  <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>{q}</p>
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{r}</p>
                 </div>
               ))}
             </div>
