@@ -4,12 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react'
+import { useToast } from '@/components/ui/toast-provider'
 
 export default function ContactPageClient() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
   const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -17,10 +17,9 @@ export default function ContactPageClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
 
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      setError('Tous les champs sont obligatoires')
+      toast.error('Tous les champs sont obligatoires')
       return
     }
 
@@ -35,11 +34,10 @@ export default function ContactPageClient() {
         const data = await res.json()
         throw new Error(data.error || 'Erreur lors de l\'envoi')
       }
-      setSubmitted(true)
+      toast.success('Message envoyé avec succès. Merci de nous avoir contactés !')
       setFormData({ name: '', email: '', subject: '', message: '' })
-      setTimeout(() => setSubmitted(false), 5000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi')
+      toast.error(err instanceof Error ? err.message : 'Erreur lors de l\'envoi')
     } finally {
       setLoading(false)
     }
@@ -181,20 +179,6 @@ export default function ContactPageClient() {
                   onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
-
-              {/* Error */}
-              {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#991B1B', fontSize: '14px', marginBottom: '24px' }}>
-                  {error}
-                </div>
-              )}
-
-              {/* Success */}
-              {submitted && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#F0FDF4', border: '1px solid #86EFAC', color: '#166534', fontSize: '14px', marginBottom: '24px' }}>
-                  ✓ Message envoyé avec succès. Merci de nous avoir contactés !
-                </div>
-              )}
 
               {/* Submit Button */}
               <button

@@ -4,16 +4,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Download, Trash2, ChevronRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useToast } from '@/components/ui/toast-provider'
 
 export default function SettingsClient() {
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   const handleExportData = async () => {
     setLoading(true)
-    setMessage('')
-    setError('')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -33,9 +31,9 @@ export default function SettingsClient() {
       a.click()
       window.URL.revokeObjectURL(url)
 
-      setMessage('✅ Données téléchargées')
+      toast.success('Données téléchargées')
     } catch (err: any) {
-      setError(err.message || 'Erreur téléchargement')
+      toast.error(err.message || 'Erreur téléchargement')
     } finally {
       setLoading(false)
     }
@@ -57,20 +55,6 @@ export default function SettingsClient() {
             Gestion compte, données et préférences
           </p>
         </motion.div>
-      </div>
-
-      {/* Messages */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px 24px' }}>
-        {message && (
-          <div style={{ backgroundColor: '#ECFDF5', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#166534', fontSize: '14px' }}>
-            {message}
-          </div>
-        )}
-        {error && (
-          <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#991B1B', fontSize: '14px' }}>
-            ❌ {error}
-          </div>
-        )}
       </div>
 
       {/* Content */}
@@ -250,16 +234,15 @@ function DeleteAccountButton() {
   const [step, setStep] = useState<'confirm' | 'email'>('confirm')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   const handleDelete = async () => {
     if (!email) {
-      setError('Email requis')
+      toast.error('Email requis')
       return
     }
 
     setLoading(true)
-    setError('')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -281,7 +264,7 @@ function DeleteAccountButton() {
       setStep('confirm')
       setEmail('')
     } catch (err: any) {
-      setError(err.message || 'Erreur serveur')
+      toast.error(err.message || 'Erreur serveur')
     } finally {
       setLoading(false)
     }
@@ -407,12 +390,6 @@ function DeleteAccountButton() {
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
                   Entrez votre email pour confirmer :
                 </p>
-
-                {error && (
-                  <div style={{ backgroundColor: '#FEF2F2', color: '#991B1B', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
-                    ❌ {error}
-                  </div>
-                )}
 
                 <input
                   type="email"

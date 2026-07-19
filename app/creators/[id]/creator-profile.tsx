@@ -68,6 +68,7 @@ export function CreatorProfileClient({ id }: Props) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [portfolioImgErrors, setPortfolioImgErrors] = useState<Set<number>>(new Set())
   const [showMsg, setShowMsg] = useState(false)
   const [msgText, setMsgText] = useState('')
   const [sending, setSending] = useState(false)
@@ -506,7 +507,20 @@ export function CreatorProfileClient({ id }: Props) {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(120px, 100%), 1fr))', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
                     {grid.map((item, idx) => (
                       <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative' }} className="group">
-                        <Image src={item.url} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
+                        {!portfolioImgErrors.has(idx) ? (
+                          <Image
+                            src={item.url}
+                            alt={`Portfolio ${idx + 1}`}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className="group-hover:scale-105 transition-transform duration-500"
+                            onError={() => setPortfolioImgErrors(prev => new Set([...prev, idx]))}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: '28px', opacity: 0.4 }}>🖼️</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

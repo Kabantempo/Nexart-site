@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { MapPin, Calendar, ArrowRight, Search, X, Users, SlidersHorizontal, Euro, Sparkles } from 'lucide-react'
 import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
 import { SaveSearchButton } from '@/components/ui/save-search-button'
+import { useToast } from '@/components/ui/toast-provider'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -88,6 +89,8 @@ function Skeleton() {
 function EventsContent() {
   const { events, loading, error } = useEvents()
   const searchParams = useSearchParams()
+  const toast = useToast()
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
 
   const getStoredFilters = () => {
     try {
@@ -135,7 +138,7 @@ function EventsContent() {
     navigator.geolocation.getCurrentPosition(pos => {
       setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude })
       setNearMe(true)
-    }, () => alert('Géolocalisation non disponible'))
+    }, () => toast.error('Géolocalisation non disponible'))
   }
 
   const uniqueCities = [...new Set(events.map((e) => e.city).filter(Boolean))].sort() as string[]
@@ -414,8 +417,14 @@ function EventsContent() {
                         ? 'w-40 sm:w-full h-full sm:h-72 rounded-2xl sm:rounded-none'
                         : 'h-52'
                     }`}>
-                      {event.cover_image ? (
-                        <Image src={event.cover_image} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                      {event.cover_image && !failedImages.has(event.id) ? (
+                        <Image
+                          src={event.cover_image}
+                          alt={event.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          onError={() => setFailedImages(prev => new Set([...prev, event.id]))}
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-[#0f1117]">
                           <Calendar size={isFeatured ? 56 : 40} className="text-white/20" />
