@@ -76,10 +76,12 @@ function CreatorsContent() {
   const [geoLoading,       setGeoLoading]       = useState(false)
   const [geoError,         setGeoError]         = useState<string | null>(null)
   const [showSuggestions,  setShowSuggestions]  = useState(false)
+  const [activeSuggestion, setActiveSuggestion] = useState(-1)
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
+  useEffect(() => { setActiveSuggestion(-1) }, [searchTerm, showSuggestions])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -252,6 +254,21 @@ function CreatorsContent() {
             value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true) }}
             onFocus={() => { if (searchTerm.length >= 2) setShowSuggestions(true) }}
+            onKeyDown={(e) => {
+              if (!showSuggestions || !suggestions.length) return
+              if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                setActiveSuggestion(i => Math.min(i + 1, suggestions.length - 1))
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault()
+                setActiveSuggestion(i => Math.max(i - 1, -1))
+              } else if (e.key === 'Enter' && activeSuggestion >= 0) {
+                e.preventDefault()
+                setSearchTerm(suggestions[activeSuggestion].value)
+                setShowSuggestions(false)
+                setActiveSuggestion(-1)
+              }
+            }}
             className="w-full pl-11 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
           />
           {searchTerm && (
@@ -260,23 +277,35 @@ function CreatorsContent() {
             </button>
           )}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
-              {(['creator', 'discipline', 'city'] as const).map(type => {
-                const group = suggestions.filter(s => s.type === type)
-                if (!group.length) return null
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden" role="listbox">
+              {(() => {
+                let globalIdx = -1
                 const labels: Record<string, string> = { creator: 'Créateurs', discipline: 'Disciplines', city: 'Villes' }
-                return (
-                  <div key={type}>
-                    <p className="px-4 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{labels[type]}</p>
-                    {group.map(s => (
-                      <button key={s.value} onMouseDown={() => { setSearchTerm(s.value); setShowSuggestions(false) }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                        {s.value}
-                      </button>
-                    ))}
-                  </div>
-                )
-              })}
+                return (['creator', 'discipline', 'city'] as const).map(type => {
+                  const group = suggestions.filter(s => s.type === type)
+                  if (!group.length) return null
+                  return (
+                    <div key={type}>
+                      <p className="px-4 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{labels[type]}</p>
+                      {group.map(s => {
+                        globalIdx++
+                        const idx = globalIdx
+                        const isActive = activeSuggestion === idx
+                        return (
+                          <button key={s.value}
+                            role="option"
+                            aria-selected={isActive}
+                            onMouseDown={() => { setSearchTerm(s.value); setShowSuggestions(false); setActiveSuggestion(-1) }}
+                            style={{ backgroundColor: isActive ? '#EEF2FF' : undefined, color: isActive ? '#4338CA' : undefined }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                            {s.value}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })
+              })()}
             </div>
           )}
         </div>

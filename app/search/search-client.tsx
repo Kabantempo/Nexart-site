@@ -10,6 +10,16 @@ import { Search, Calendar, MapPin, Users, ArrowRight } from 'lucide-react'
 
 type Tab = 'all' | 'events' | 'creators'
 
+function highlight(text: string | undefined, query: string): React.ReactNode {
+  if (!text || !query || query.length < 2) return text ?? ''
+  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase()
+      ? <mark key={i} style={{ backgroundColor: '#EEF2FF', color: '#4338CA', fontWeight: 600, borderRadius: '2px', padding: '0 2px' }}>{part}</mark>
+      : part
+  )
+}
+
 function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -149,7 +159,7 @@ function SearchContent() {
                       )}
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>{event.title}</h3>
+                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>{highlight(event.title, query)}</h3>
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         {event.start_date && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -162,7 +172,7 @@ function SearchContent() {
                         {event.city && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <MapPin size={12} color="#6366F1" />
-                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{event.city}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{highlight(event.city, query)}</span>
                           </div>
                         )}
                       </div>
@@ -206,14 +216,14 @@ function SearchContent() {
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '2px' }}>{creator.full_name}</p>
+                      <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '2px' }}>{highlight(creator.full_name, query)}</p>
                       {creator.disciplines?.length > 0 && (
                         <p style={{ fontSize: '12px', color: '#6366F1' }}>{creator.disciplines.slice(0, 2).join(' · ')}</p>
                       )}
                       {creator.city && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                           <MapPin size={12} color="#6B7280" />
-                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{creator.city}</span>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{highlight(creator.city, query)}</span>
                         </div>
                       )}
                     </div>
