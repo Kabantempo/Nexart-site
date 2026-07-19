@@ -56,8 +56,14 @@ export default function OnboardingPage() {
   const [orgCity, setOrgCity] = useState('')
   const [orgEventTypes, setOrgEventTypes] = useState<string[]>([])
 
+  const [eventsPerYear, setEventsPerYear] = useState('')
+  const [typicalCapacity, setTypicalCapacity] = useState('')
+  const [hasUpcomingEvent, setHasUpcomingEvent] = useState<boolean | null>(null)
+  const [upcomingEventTitle, setUpcomingEventTitle] = useState('')
+  const [upcomingEventDate, setUpcomingEventDate] = useState('')
+
   const [done, setDone] = useState(false)
-  const totalSteps = role === 'creator' ? 3 : role === 'organizer' ? 4 : 2
+  const totalSteps = role === 'creator' ? 3 : role === 'organizer' ? 5 : 2
 
   const toggleOrgEventType = (t: string) => {
     setOrgEventTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])
@@ -94,10 +100,16 @@ export default function OnboardingPage() {
 
     if (isOrganizer && orgName.trim()) {
       const { data: existing } = await supabase.from('organizer_profiles').select('user_id').eq('user_id', user.id).maybeSingle()
+      const orgPayload: Record<string, unknown> = {
+        organization_name: orgName.trim(),
+        event_types: orgEventTypes,
+        events_per_year: eventsPerYear || null,
+        typical_capacity: typicalCapacity || null,
+      }
       if (existing) {
-        await supabase.from('organizer_profiles').update({ organization_name: orgName.trim() } as any).eq('user_id', user.id)
+        await supabase.from('organizer_profiles').update(orgPayload as any).eq('user_id', user.id)
       } else {
-        await supabase.from('organizer_profiles').insert({ user_id: user.id, organization_name: orgName.trim() } as any)
+        await supabase.from('organizer_profiles').insert({ user_id: user.id, ...orgPayload } as any)
       }
     }
 
@@ -110,7 +122,15 @@ export default function OnboardingPage() {
     if (step === 0) return role !== null
     if (step === 1) return fullName.trim().length >= 2
     if (step === 2 && role === 'organizer') return orgName.trim().length >= 2
+    if (step === 4 && role === 'organizer' && hasUpcomingEvent === true) {
+      return upcomingEventTitle.trim().length >= 2
+    }
     return true
+  }
+
+  const handleCreateNow = async () => {
+    await handleFinish()
+    router.push('/events/create')
   }
 
   const next = () => {
@@ -133,36 +153,53 @@ export default function OnboardingPage() {
   ]
 
   if (done) {
+    const isOrgWelcome = role === 'organizer'
     return (
-      <div className="min-h-screen bg-[#06060f] flex flex-col items-center justify-center px-4 py-16">
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-[120px]" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-violet-600/10 blur-[120px]" />
+      <div style={{ minHeight: '100vh', backgroundColor: '#06060f', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 16px' }}>
+        <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-128px', left: '-128px', width: '384px', height: '384px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', filter: 'blur(120px)' }} />
+          <div style={{ position: 'absolute', bottom: '-128px', right: '-128px', width: '384px', height: '384px', borderRadius: '50%', background: 'rgba(139,92,246,0.10)', filter: 'blur(120px)' }} />
         </div>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 w-full max-w-lg text-center"
+          style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '512px', textAlign: 'center' }}
         >
           {/* Check animé */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
-            className="w-20 h-20 rounded-full bg-indigo-500/15 border-2 border-indigo-500/40 flex items-center justify-center mx-auto mb-6"
+            style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '2px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}
           >
-            <Check size={36} className="text-indigo-400" />
+            <Check size={36} style={{ color: '#818cf8' }} />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-            <h1 className="text-3xl font-black text-white mb-3">C'est parti ! 🎉</h1>
-            <p className="text-white/40 text-sm mb-10 leading-relaxed">
-              Votre profil Nexart est créé. Voici vos prochaines étapes pour en profiter au maximum.
-            </p>
+            {isOrgWelcome ? (
+              <>
+                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
+                  Bienvenue{fullName ? ` ${fullName.split(' ')[0]}` : ''} ! 🎉
+                </h1>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', lineHeight: '1.6', marginBottom: '8px' }}>
+                  {orgName ? `L'espace organisateur de ${orgName} est prêt.` : 'Votre espace organisateur est prêt.'}
+                </p>
+                <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: '13px', marginBottom: '32px' }}>
+                  Voici vos prochaines étapes pour publier votre premier marché.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#fff', marginBottom: '12px' }}>C'est parti ! 🎉</h1>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '40px', lineHeight: '1.6' }}>
+                  Votre profil Nexart est créé. Voici vos prochaines étapes pour en profiter au maximum.
+                </p>
+              </>
+            )}
           </motion.div>
 
-          <div className="flex flex-col gap-3 mb-8">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
             {NEXT_STEPS.map((s, i) => (
               <motion.a
                 key={s.href}
@@ -170,26 +207,40 @@ export default function OnboardingPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.35 + i * 0.08 }}
-                className="flex items-center gap-4 p-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/8 hover:border-indigo-500/30 transition-all duration-150 text-left group"
+                style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', textDecoration: 'none', textAlign: 'left' }}
               >
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0 group-hover:bg-indigo-500/25 transition-colors">
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818cf8', flexShrink: 0 }}>
                   {s.icon}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white">{s.label}</p>
-                  <p className="text-xs text-white/40 mt-0.5">{s.desc}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#fff', margin: 0 }}>{s.label}</p>
+                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{s.desc}</p>
                 </div>
-                <ArrowRight size={14} className="text-white/20 group-hover:text-indigo-400 transition-colors shrink-0" />
+                <ArrowRight size={14} style={{ color: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
               </motion.a>
             ))}
           </div>
 
+          {/* CTA principal pour orga */}
+          {isOrgWelcome && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ marginBottom: '20px' }}>
+              <button onClick={() => router.push('/events/create')} style={{
+                width: '100%', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1, #818cf8)',
+                color: '#fff', fontSize: '15px', fontWeight: 700, border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              }}>
+                <Calendar size={17} />
+                Créer mon premier événement
+              </button>
+            </motion.div>
+          )}
+
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.65 }}
+            transition={{ delay: 0.7 }}
             onClick={() => router.push('/dashboard')}
-            className="text-xs text-white/20 hover:text-white/40 transition-colors"
+            style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             Accéder directement au dashboard →
           </motion.button>
@@ -304,21 +355,119 @@ export default function OnboardingPage() {
 
           {step === 3 && role === 'organizer' && (
             <motion.div key="step-org3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-              <h1 className="text-2xl font-bold text-white mb-2 text-center">Types d'événements</h1>
-              <p className="text-white/40 text-sm text-center mb-8">Quels types de marchés organisez-vous ?</p>
-              <div className="flex flex-wrap gap-2">
-                {(['Pop-up', 'Salon', 'Foire', 'Saisonnier', 'Permanent', 'Marché de Noël', 'Marché fermier', 'Brocante', 'Autre'] as const).map(t => {
-                  const active = orgEventTypes.includes(t)
-                  return (
-                    <button key={t} onClick={() => toggleOrgEventType(t)}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
-                        active ? 'bg-indigo-500 text-white' : 'bg-white/8 text-white/50 hover:bg-white/12 hover:text-white/70'
-                      }`}>
-                      {t}
-                    </button>
-                  )
-                })}
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', textAlign: 'center', marginBottom: '8px' }}>Vos événements</h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Dites-nous en plus sur les marchés que vous organisez.</p>
+
+              {/* Types d'events */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Type d'événement <span style={{ fontWeight: 400, opacity: 0.6 }}>(plusieurs choix possibles)</span>
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {(['Marché artisanal', 'Pop-up', 'Salon', 'Festival', 'Autre']).map(t => {
+                    const active = orgEventTypes.includes(t)
+                    return (
+                      <button key={t} onClick={() => toggleOrgEventType(t)} style={{
+                        padding: '7px 16px', borderRadius: '999px', fontSize: '12px', fontWeight: 600,
+                        border: active ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.12)',
+                        background: active ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.05)',
+                        color: active ? '#a5b4fc' : 'rgba(255,255,255,0.5)',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}>
+                        {active && <Check size={11} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />}
+                        {t}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
+
+              {/* Fréquence */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Combien d'éditions par an ?
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {(['1', '2-3', '4+']).map(v => (
+                    <button key={v} onClick={() => setEventsPerYear(v)} style={{
+                      flex: 1, padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600,
+                      border: eventsPerYear === v ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.12)',
+                      background: eventsPerYear === v ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                      color: eventsPerYear === v ? '#a5b4fc' : 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}>{v}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Capacité */}
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Combien d'exposants en général ?
+                </label>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {([{ label: '< 20', value: '< 20' }, { label: '20 – 50', value: '20-50' }, { label: '50 – 100', value: '50-100' }, { label: '100+', value: '100+' }]).map(({ label, value }) => (
+                    <button key={value} onClick={() => setTypicalCapacity(value)} style={{
+                      flex: 1, minWidth: '80px', padding: '10px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 600,
+                      border: typicalCapacity === value ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.12)',
+                      background: typicalCapacity === value ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                      color: typicalCapacity === value ? '#a5b4fc' : 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}>{label}</button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 4 && role === 'organizer' && (
+            <motion.div key="step-org4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', textAlign: 'center', marginBottom: '8px' }}>Prochaine édition</h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Avez-vous un événement en cours ou à venir ?</p>
+
+              {/* Toggle Oui/Non */}
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                {([{ label: 'Oui', value: true }, { label: 'Non, pas encore', value: false }]).map(({ label, value }) => (
+                  <button key={label} onClick={() => setHasUpcomingEvent(value)} style={{
+                    flex: 1, padding: '14px', borderRadius: '14px', fontSize: '14px', fontWeight: 700,
+                    border: hasUpcomingEvent === value ? '2px solid #6366f1' : '2px solid rgba(255,255,255,0.1)',
+                    background: hasUpcomingEvent === value ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.04)',
+                    color: hasUpcomingEvent === value ? '#c7d2fe' : 'rgba(255,255,255,0.45)',
+                    cursor: 'pointer', transition: 'all 0.18s',
+                  }}>{label}</button>
+                ))}
+              </div>
+
+              {/* Champs si Oui */}
+              <AnimatePresence>
+                {hasUpcomingEvent === true && (
+                  <motion.div key="upcoming-fields" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>Titre de l'événement *</label>
+                        <input type="text" value={upcomingEventTitle} onChange={e => setUpcomingEventTitle(e.target.value)}
+                          placeholder="Ex: Marché de la Bastille — Édition Printemps"
+                          style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>Date <span style={{ fontWeight: 400, opacity: 0.6 }}>(optionnel)</span></label>
+                        <input type="date" value={upcomingEventDate} onChange={e => setUpcomingEventDate(e.target.value)}
+                          style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: '#fff', fontSize: '13px', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
+                    <button onClick={handleCreateNow} disabled={upcomingEventTitle.trim().length < 2 || saving} style={{
+                      width: '100%', padding: '14px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1, #818cf8)',
+                      color: '#fff', fontSize: '14px', fontWeight: 700, border: 'none', cursor: upcomingEventTitle.trim().length < 2 ? 'not-allowed' : 'pointer',
+                      opacity: upcomingEventTitle.trim().length < 2 ? 0.45 : 1, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    }}>
+                      <Calendar size={16} />
+                      Je le crée maintenant
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 

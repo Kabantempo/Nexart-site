@@ -81,8 +81,11 @@ export function CreatorProfileClient({ id }: Props) {
   const [isActive, setIsActive] = useState(false)
   const [respondsQuickly, setRespondsQuickly] = useState(false)
   const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
+  const [localPortfolioGrid, setLocalPortfolioGrid] = useState<NonNullable<CreatorData['portfolio_grid']>>([])
+  const [portfolioSaving, setPortfolioSaving] = useState(false)
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
+  const { success } = useToast()
 
   useEffect(() => {
     const load = async () => {
