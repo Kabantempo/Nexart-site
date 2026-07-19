@@ -26,13 +26,15 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      status: z.enum(['open', 'resolved', 'dismissed', 'reviewing']).optional(),
+      resolution_notes: z.string().max(2000).optional(),
+      action_taken: z.string().max(500).optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { status, resolution_notes, action_taken } = body
-
-    const validStatuses = ['open', 'resolved', 'dismissed', 'reviewing']
-    if (status && !validStatuses.includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-    }
 
     const updateData: Record<string, any> = {}
     if (status) updateData.status = status
