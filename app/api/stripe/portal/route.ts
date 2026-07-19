@@ -10,7 +10,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { userId, returnUrl } = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      userId: uuidSchema,
+      returnUrl: z.string().url(),
+    })
+    const { data: parsed, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { userId, returnUrl } = parsed
 
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

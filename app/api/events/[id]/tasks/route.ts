@@ -43,7 +43,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      title: z.string().min(1).max(200),
+      description: z.string().max(2000).optional(),
+      assignee_id: uuidSchema.optional(),
+      deadline: z.string().datetime().optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { title, description, assignee_id, deadline } = body
     const { data, error } = await admin
       .from('event_tasks')

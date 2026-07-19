@@ -39,7 +39,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const supabase = getAdminClient()
   try {
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      user_id: uuidSchema,
+      action: z.enum(['ban', 'unban', 'make_admin', 'remove_admin']),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { user_id, action } = body
 
     if (action === 'ban') {

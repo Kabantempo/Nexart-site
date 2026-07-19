@@ -13,11 +13,14 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await supabase.auth.getUser(authHeader.substring(7))
     if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { userId, email } = await req.json()
-
-    if (!userId || !email) {
-      return NextResponse.json({ error: 'userId et email requis' }, { status: 400 })
-    }
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      userId: z.string().uuid(),
+      email: z.string().email(),
+    })
+    const { data: parsed, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { userId, email } = parsed
 
     // Seul l'utilisateur lui-même peut demander la suppression
     if (authUser.id !== userId) {

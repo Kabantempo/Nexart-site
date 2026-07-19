@@ -87,7 +87,13 @@ export async function POST(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const postSchema = z.object({
+      checklist_type: z.string().min(1).max(50),
+      items: z.array(z.unknown()).optional(),
+    })
+    const { data: body, error: validErr } = v(postSchema, await req.json())
+    if (validErr) return validErr
     const { checklist_type, items } = body
 
     const template = CHECKLIST_TEMPLATES[checklist_type] || CHECKLIST_TEMPLATES.salon
@@ -119,7 +125,10 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const patchSchema = z.object({ items: z.array(z.unknown()) })
+    const { data: body, error: validErr } = v(patchSchema, await req.json())
+    if (validErr) return validErr
     const { items } = body
 
     const { data, error } = await admin

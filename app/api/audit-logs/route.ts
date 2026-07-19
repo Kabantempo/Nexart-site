@@ -99,25 +99,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get request body
-    const body = await req.json()
-    const {
-      action,
-      resource_type,
-      resource_id,
-      description,
-      changes,
-      accessed_sensitive_data,
-      sensitive_fields,
-    } = body
-
-    // Validate required fields
-    if (!action || !resource_type) {
-      return NextResponse.json(
-        { error: 'action and resource_type required' },
-        { status: 400 }
-      )
-    }
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      action: z.string().min(1).max(100),
+      resource_type: z.string().min(1).max(100),
+      resource_id: z.string().optional(),
+      description: z.string().max(1000).optional(),
+      changes: z.record(z.unknown()).optional(),
+      accessed_sensitive_data: z.boolean().optional(),
+      sensitive_fields: z.array(z.string()).optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { action, resource_type, resource_id, description, changes, accessed_sensitive_data, sensitive_fields } = body
 
     // Get client IP
     const ip =

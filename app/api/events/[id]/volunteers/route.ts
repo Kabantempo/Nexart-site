@@ -58,8 +58,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   try {
     const supabase = getAdminClient()
-    const body = await req.json()
-    const { name, email, shifts = [] } = body
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      name: z.string().min(1).max(200),
+      email: z.string().email().optional(),
+      shifts: z.array(z.string()).default([]),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { name, email, shifts } = body
     const { data, error } = await supabase
       .from('event_volunteers')
       .insert([{ event_id: params.id, name, email, shifts, status: 'active' }])

@@ -959,7 +959,7 @@ export function EventDetailClient({ id }: Props) {
                   border: `1px solid ${STATUS_STYLES[application.status]?.color || '#E5E7EB'}`,
                   textAlign: 'center',
                 }}>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || '#888888', margin: 0 }}>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || '#6B7280', margin: 0 }}>
                     {STATUS_STYLES[application.status]?.label || application.status}
                   </p>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>

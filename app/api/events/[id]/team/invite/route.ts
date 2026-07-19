@@ -22,12 +22,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     const eventId = params.id
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      email: z.string().email(),
+      role: z.enum(['co-organizer', 'staff', 'volunteer', 'admin']),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { email, role } = body
-
-    if (!email || !role) {
-      return NextResponse.json({ error: 'Email and role required' }, { status: 400 })
-    }
 
     const { data: invitedUser, error: userError } = await (supabase as any)
       .from('profiles')

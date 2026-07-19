@@ -80,7 +80,7 @@ function SearchContent() {
 
         {/* Search bar */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
-          <Search size={22} color="#888888" style={{ position: 'absolute', left: '16px', top: '14px' }} />
+          <Search size={22} color="#6B7280" style={{ position: 'absolute', left: '16px', top: '14px' }} />
           <input
             type="text"
             placeholder="Rechercher un événement, une ville, une discipline..."
@@ -212,7 +212,7 @@ function SearchContent() {
                       )}
                       {creator.city && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                          <MapPin size={12} color="#888888" />
+                          <MapPin size={12} color="#6B7280" />
                           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{creator.city}</span>
                         </div>
                       )}

@@ -69,15 +69,15 @@ export async function POST(
   try {
     const admin = getAdminClient()
 
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      exhibitor_email: z.string().email(),
+      exhibitor_name: z.string().max(200).optional(),
+      form_data: z.record(z.unknown()),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { exhibitor_email, exhibitor_name, form_data } = body
-
-    if (!exhibitor_email || !form_data) {
-      return NextResponse.json(
-        { error: 'exhibitor_email and form_data required' },
-        { status: 400 }
-      )
-    }
 
     // Create response (public endpoint)
     const { data, error } = await admin
