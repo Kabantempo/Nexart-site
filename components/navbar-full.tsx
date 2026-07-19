@@ -144,13 +144,20 @@ export function NavbarFull() {
   return (
     <>
       {/* ── Bar ── */}
-      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'pointer-events-none'
-          : dark
-            ? 'bg-transparent border-b border-transparent'
-            : 'bg-white border-b border-gray-100'
-      }`}>
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled ? 'pointer-events-none' : ''
+        }`}
+        style={dark && !scrolled ? {
+          '--bg-primary': 'rgba(255,255,255,0.08)',
+          '--bg-secondary': 'rgba(255,255,255,0.12)',
+          '--bg-tertiary': 'rgba(255,255,255,0.16)',
+          '--border-color': 'rgba(255,255,255,0.15)',
+          '--text-primary': '#ffffff',
+          '--text-secondary': 'rgba(255,255,255,0.7)',
+          '--navbar-bg': 'transparent',
+        } as React.CSSProperties : undefined}
+      >
         <div className={`transition-all duration-500 ${scrolled ? 'pointer-events-auto mx-3 sm:mx-6 mt-3' : ''}`}>
         <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
           scrolled
