@@ -207,13 +207,13 @@ export default function RegisterPage() {
         }} />
         <div style={{
           position: 'absolute', top: '-80px', right: '-80px',
-          width: '360px', height: '360px',
+          width: 'min(360px, 80vw)', height: 'min(360px, 80vw)',
           background: 'radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)',
           borderRadius: '50%',
         }} />
         <div style={{
           position: 'absolute', bottom: '-60px', left: '-60px',
-          width: '280px', height: '280px',
+          width: 'min(280px, 70vw)', height: 'min(280px, 70vw)',
           background: 'radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)',
           borderRadius: '50%',
         }} />

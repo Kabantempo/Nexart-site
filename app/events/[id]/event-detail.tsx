@@ -1043,7 +1043,7 @@ export function EventDetailClient({ id }: Props) {
               ) : user.role === 'organizer' && event?.organizer_id === user.id ? (
                 <div>
                   {/* Outils organisateur */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '8px', marginBottom: '20px' }}>
                     {[
                       { label: 'Exposants', href: `/events/${id}/exhibitors` },
                       { label: "Liste d'attente", href: `/events/${id}/waitlist` },
