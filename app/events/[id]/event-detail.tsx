@@ -12,6 +12,7 @@ import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
 import { ReportButton } from '@/components/ui/report-button'
+import StandPlanViewer from '@/components/ui/stand-plan-viewer'
 
 interface Props {
   id: string
@@ -950,6 +951,9 @@ export function EventDetailClient({ id }: Props) {
                 )
               })()}
 
+              {/* Stand plan viewer */}
+              <StandPlanViewer eventId={id} />
+
               {/* Already applied */}
               {application && !cancelled ? (
                 <div style={{
@@ -1051,6 +1055,7 @@ export function EventDetailClient({ id }: Props) {
                       { label: 'Équipe', href: `/events/${id}/team` },
                       { label: 'Bénévoles', href: `/events/${id}/volunteers` },
                       { label: 'Campagnes', href: `/events/${id}/campaigns` },
+                      { label: 'Plan stands', href: `/events/${id}/settings/stands` },
                       { label: 'Paramètres', href: `/events/${id}/settings/faqs` },
                     ].map(tool => (
                       <Link
