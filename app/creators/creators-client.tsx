@@ -404,15 +404,15 @@ function CreatorsContent() {
                         /* Mini gallery: 1 large + column of 2 */
                         <div className="flex h-48 gap-px">
                           <div className="relative flex-1 overflow-hidden">
-                            <Image src={creator.portfolio_images[0]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <Image src={creator.portfolio_images[0]} alt={`Portfolio de ${creator.full_name}`} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                           </div>
                           <div className="flex flex-col gap-px w-[38%]">
                             <div className="relative flex-1 overflow-hidden">
-                              <Image src={creator.portfolio_images[1]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                              <Image src={creator.portfolio_images[1]} alt={`Portfolio de ${creator.full_name}`} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                             </div>
                             {creator.portfolio_images[2] ? (
                               <div className="relative flex-1 overflow-hidden">
-                                <Image src={creator.portfolio_images[2]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <Image src={creator.portfolio_images[2]} alt={`Portfolio de ${creator.full_name}`} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                                 {creator.portfolio_images.length > 3 && (
                                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                     <span className="text-white font-bold text-sm">+{creator.portfolio_images.length - 3}</span>
@@ -444,7 +444,7 @@ function CreatorsContent() {
                       {/* Avatar circle (when showing portfolio) */}
                       {creator.portfolio_images?.length > 0 && creator.avatar_url && (
                         <div className="absolute bottom-3 left-3 w-9 h-9 rounded-full border-2 border-white overflow-hidden shadow-md">
-                          <Image src={creator.avatar_url} alt="" fill className="object-cover" />
+                          <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
                         </div>
                       )}
 

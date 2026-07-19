@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
@@ -137,7 +138,7 @@ export default function FeedPage() {
                 <Link href={`/creators/${post.creator_id}`} className="flex items-center gap-3 mb-4 group">
                   <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0 overflow-hidden">
                     {post.profiles?.avatar_url
-                      ? <img src={post.profiles.avatar_url} alt={`Photo de profil de ${post.profiles?.full_name || 'créateur'}`} className="w-full h-full object-cover" />
+                      ? <Image src={post.profiles.avatar_url} alt={`Photo de profil de ${post.profiles?.full_name || 'créateur'}`} width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                       : (post.profiles?.full_name?.[0] || '?')}
                   </div>
                   <div>
@@ -153,7 +154,7 @@ export default function FeedPage() {
                 {post.image_url && (
                   <div className="mb-4 rounded-xl overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.image_url} alt={`Image du post de ${post.profiles?.full_name || 'créateur'}`} className="w-full max-h-80 object-cover" />
+                    <Image src={post.image_url} alt={`Image du post de ${post.profiles?.full_name || 'créateur'}`} width={800} height={320} style={{ width: '100%', maxHeight: '320px', objectFit: 'cover' }} />
                   </div>
                 )}
 

@@ -268,7 +268,9 @@ export default function MessagesPage() {
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '16px', border: '1px dashed #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
-              <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>Aucun message dans cette catégorie.</p>
+              <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>🔍</span>
+              <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '6px' }}>Aucun résultat</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Aucun message dans cette catégorie.</p>
             </div>
           )
         ) : (

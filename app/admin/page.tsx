@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import {
   Users, Calendar, Shield, MessageSquare, Package,
@@ -639,8 +640,7 @@ export default function AdminPage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                               {c.profiles?.avatar_url
-                                // eslint-disable-next-line @next/next/no-img-element
-                                ? <img src={c.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <Image src={c.profiles.avatar_url} alt="" width={38} height={38} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <User size={16} color="#FFF" />}
                             </div>
                             <div>
@@ -834,8 +834,7 @@ export default function AdminPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                           <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                             {o.profiles?.avatar_url
-                              // eslint-disable-next-line @next/next/no-img-element
-                              ? <img src={o.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ? <Image src={o.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                               : <User size={16} color="#FFF" />}
                           </div>
                           <div>
@@ -966,8 +965,7 @@ export default function AdminPage() {
                 <div key={ev.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)', display: 'flex', gap: '14px', alignItems: 'center' }}>
                   <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: '#1F2937' }}>
                     {ev.cover_image
-                      // eslint-disable-next-line @next/next/no-img-element
-                      ? <img src={ev.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ? <Image src={ev.cover_image} alt="" width={52} height={52} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                       : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#374151" /></div>
                     }
                   </div>
@@ -1019,8 +1017,7 @@ export default function AdminPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(99,102,241,0.5)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                       {msgRecipient.avatar_url
-                        // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={msgRecipient.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ? <Image src={msgRecipient.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         : <span style={{ fontSize: '13px', fontWeight: '800', color: '#FFF' }}>{msgRecipient.full_name[0]?.toUpperCase()}</span>
                       }
                     </div>
@@ -1046,8 +1043,7 @@ export default function AdminPage() {
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
                             <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                               {s.avatar_url
-                                // eslint-disable-next-line @next/next/no-img-element
-                                ? <img src={s.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <Image src={s.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <span style={{ fontSize: '12px', fontWeight: '800', color: '#FFF' }}>{s.full_name[0]?.toUpperCase()}</span>
                               }
                             </div>
@@ -1108,8 +1104,7 @@ export default function AdminPage() {
                     <div key={msg.id} style={{ padding: '14px 18px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                       <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                         {msg.recipient?.avatar_url
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={msg.recipient.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ? <Image src={msg.recipient.avatar_url} alt="" width={38} height={38} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                           : <span style={{ fontSize: '14px', fontWeight: '800', color: '#FFF' }}>{msg.recipient?.full_name?.[0]?.toUpperCase() ?? '?'}</span>
                         }
                       </div>

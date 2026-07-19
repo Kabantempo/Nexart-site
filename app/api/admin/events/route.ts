@@ -21,9 +21,10 @@ export async function GET(req: NextRequest) {
   const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get('status') || 'draft'
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const rawStatus = searchParams.get('status') || 'draft'
+    const status = ['draft', 'published', 'closed'].includes(rawStatus) ? rawStatus : 'draft'
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 200)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
     const { data, error, count } = await supabase
       .from('events')

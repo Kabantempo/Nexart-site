@@ -135,7 +135,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
             }}
           >
             {/* Header */}
-            <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #F3F4F6' }}>
+            <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)' }}>
               <Sparkles size={16} color="#6366F1" />
               <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>Nouveautés</span>
             </div>
@@ -143,7 +143,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
             {/* Versions list */}
             <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
               {versions.map(v => (
-                <div key={v.id} style={{ padding: '16px 18px', borderBottom: '1px solid #F9FAFB' }}>
+                <div key={v.id} style={{ padding: '16px 18px', borderBottom: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '10px' }}>
                     <span style={{
                       fontSize: '12px', fontWeight: 700, color: '#6366F1',

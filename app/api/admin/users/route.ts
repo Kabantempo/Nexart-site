@@ -6,9 +6,9 @@ export async function GET(req: NextRequest) {
   const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
-    const search = searchParams.get('search') || ''
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const search = (searchParams.get('search') || '').slice(0, 200)
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 200)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
     let query = supabase
       .from('profiles')

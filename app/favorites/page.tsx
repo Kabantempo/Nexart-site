@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { useFavorites } from '@/lib/hooks'
 import { Heart, Calendar, MapPin, Users, Palette, ArrowRight } from 'lucide-react'
@@ -96,7 +97,7 @@ export default function FavoritesPage() {
                 >
                   {event.cover_image && (
                     <div style={{ height: '140px', overflow: 'hidden', position: 'relative' }}>
-                      <img src={event.cover_image} alt={event.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
                     </div>
                   )}
                   <div style={{ padding: '16px' }}>
@@ -169,7 +170,7 @@ export default function FavoritesPage() {
                 >
                   <div style={{ position: 'relative', display: 'inline-block', marginBottom: '12px' }}>
                     {creator.avatar_url ? (
-                      <img src={creator.avatar_url} alt={creator.full_name} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #EEF2FF' }} />
+                      <Image src={creator.avatar_url} alt={creator.full_name} width={64} height={64} style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid #EEF2FF' }} />
                     ) : (
                       <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: '700', color: '#6366F1' }}>
                         {creator.full_name?.[0] || '?'}

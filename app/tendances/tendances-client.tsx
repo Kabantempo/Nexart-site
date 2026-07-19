@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { TrendingUp, MapPin, Calendar, Users, ArrowRight } from 'lucide-react'
 
@@ -137,7 +138,7 @@ export default function TendancesPage() {
                       {ev.cover_image ? (
                         <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={ev.cover_image} alt={ev.title} className="w-full h-full object-cover" />
+                          <Image src={ev.cover_image} alt={ev.title} width={64} height={64} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         </div>
                       ) : (
                         <div className="w-16 h-16 rounded-xl bg-indigo-50 shrink-0 flex items-center justify-center">

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
@@ -53,7 +54,7 @@ const NAV_CARDS = (userId: string, isCreator: boolean, isOrganizer: boolean, isV
   ...(isCreator ? [
     { href: `/boutique/${userId}`, icon: <ShoppingBag size={22} className="text-indigo-600" />, label: 'Ma boutique',     sub: 'Mes créations' },
     { href: '/carnet-de-route',    icon: <MapPin size={22} className="text-indigo-600" />,      label: 'Carnet de route', sub: 'Mes déplacements' },
-    { href: '/feed',               icon: <Rss size={22} className="text-indigo-600" />,         label: 'Fil d\'actu',      sub: 'Créateurs suivis' },
+    { href: '/creators',            icon: <Rss size={22} className="text-indigo-600" />,         label: 'Créateurs',       sub: 'Parcourir les artisans' },
     ...(!isOrganizer ? [{ href: '/analytics', icon: <BarChart2 size={22} className="text-indigo-600" />, label: 'Analytiques', sub: 'Mes statistiques' }] : []),
   ] : []),
 ]
@@ -1191,7 +1192,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
                     className="w-4 h-4 rounded accent-indigo-600 shrink-0" />
                   <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500 shrink-0 overflow-hidden">
                     {app.profiles?.avatar_url
-                      ? <img src={app.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ? <Image src={app.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                       : (app.profiles?.full_name?.[0] || '?')}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -1243,7 +1244,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
                 <Link href={`/creators/${c.id}`}
                   className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm transition-all duration-150 group">
                   <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0 overflow-hidden">
-                    {c.avatar_url ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" /> : (c.full_name?.[0] || '?')}
+                    {c.avatar_url ? <Image src={c.avatar_url} alt="" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : (c.full_name?.[0] || '?')}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">{c.full_name || 'Créateur'}</p>
@@ -1265,7 +1266,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
             {pendingReviews.map(r => (
               <div key={`${r.eventId}:${r.creatorId}`} className="flex items-center gap-4 p-4 rounded-2xl border border-amber-100 bg-amber-50">
                 <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-700 text-sm shrink-0 overflow-hidden">
-                  {r.creatorAvatar ? <img src={r.creatorAvatar} alt="" className="w-full h-full object-cover" /> : r.creatorName[0]}
+                  {r.creatorAvatar ? <Image src={r.creatorAvatar} alt="" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : r.creatorName[0]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-gray-900">{r.creatorName}</p>

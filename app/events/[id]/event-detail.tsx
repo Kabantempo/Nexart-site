@@ -880,9 +880,9 @@ export function EventDetailClient({ id }: Props) {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '8px' }}>
                     {(event as unknown as { gallery_images: string[] }).gallery_images.map((url: string, i: number) => (
                       <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'block', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', backgroundColor: 'var(--bg-secondary)' }}>
+                        style={{ display: 'block', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 200ms ease' }}
+                        <Image src={url} alt={`Photo ${i + 1}`} fill style={{ objectFit: 'cover', transition: 'transform 200ms ease' }}
                           onMouseEnter={e => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.04)' }}
                           onMouseLeave={e => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)' }} />
                       </a>
@@ -1125,7 +1125,7 @@ export function EventDetailClient({ id }: Props) {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700', color: 'var(--text-secondary)' }}>
                               {app.profiles?.avatar_url
-                                ? <img src={app.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <Image src={app.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : (app.profiles?.full_name?.[0] || '?')}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1156,7 +1156,7 @@ export function EventDetailClient({ id }: Props) {
                                 <a key={i} href={url} target="_blank" rel="noopener noreferrer"
                                   style={{ display: 'block', width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  <Image src={url} alt="" width={56} height={56} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 </a>
                               ))}
                             </div>

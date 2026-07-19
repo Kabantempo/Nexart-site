@@ -322,7 +322,7 @@ export function CreatorProfileClient({ id }: Props) {
         {/* Banner image */}
         {creator.banner_url && (
           <div className="absolute inset-0 z-0">
-            <img src={creator.banner_url} alt="" className="w-full h-full object-cover opacity-30" />
+            <Image src={creator.banner_url} alt="" fill style={{ objectFit: 'cover', opacity: 0.3 }} />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/60 to-[#06060f]" />
           </div>
         )}

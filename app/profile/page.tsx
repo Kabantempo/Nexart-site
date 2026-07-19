@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { motion } from 'framer-motion'
@@ -976,7 +977,7 @@ export default function ProfilePage() {
               <div style={{ width: '88px', height: '88px', borderRadius: '50%', backgroundColor: '#374151', overflow: 'hidden', border: '3px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {profile?.avatar_url
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={profile.avatar_url} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ? <Image src={profile.avatar_url} alt={name} width={88} height={88} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                   : <span style={{ fontSize: '32px', fontWeight: '800', color: '#FFF' }}>{firstName[0]?.toUpperCase()}</span>
                 }
               </div>
@@ -1350,8 +1351,7 @@ export default function ProfilePage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           {c.profiles?.avatar_url
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={c.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ? <Image src={c.profiles.avatar_url} alt="" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                             : <User size={18} color="#FFF" />
                           }
                         </div>
@@ -1523,8 +1523,7 @@ export default function ProfilePage() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                               {o.profiles?.avatar_url
-                                // eslint-disable-next-line @next/next/no-img-element
-                                ? <img src={o.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <Image src={o.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <User size={16} color="#FFF" />}
                             </div>
                             <div>
@@ -1667,7 +1666,7 @@ export default function ProfilePage() {
                     <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: 'var(--border-color)' }}>
                       {ev.cover_image
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={ev.cover_image} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ? <Image src={ev.cover_image} alt={ev.title} width={52} height={52} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         : <div style={{ width: '100%', height: '100%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#FFF" /></div>
                       }
                     </div>
@@ -1725,8 +1724,7 @@ export default function ProfilePage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '2px solid #374151', backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                         {msgRecipient.avatar_url
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={msgRecipient.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ? <Image src={msgRecipient.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                           : <span style={{ fontSize: '13px', fontWeight: '800', color: '#FFF' }}>{msgRecipient.full_name[0]?.toUpperCase()}</span>
                         }
                       </div>
@@ -1757,8 +1755,7 @@ export default function ProfilePage() {
                               onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
                               <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                                 {s.avatar_url
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  ? <img src={s.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  ? <Image src={s.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                   : <span style={{ fontSize: '12px', fontWeight: '800', color: '#FFF' }}>{s.full_name[0]?.toUpperCase()}</span>
                                 }
                               </div>
@@ -1843,8 +1840,7 @@ export default function ProfilePage() {
                       <div key={msg.id} style={{ padding: '14px 18px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                         <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                           {msg.recipient?.avatar_url
-                            // eslint-disable-next-line @next/next/no-img-element
-                            ? <img src={msg.recipient.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ? <Image src={msg.recipient.avatar_url} alt="" width={38} height={38} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                             : <span style={{ fontSize: '14px', fontWeight: '800', color: '#FFF' }}>{msg.recipient?.full_name?.[0]?.toUpperCase() ?? '?'}</span>
                           }
                         </div>
@@ -2148,7 +2144,7 @@ export default function ProfilePage() {
           {/* Banner image */}
           {profile?.banner_url && (
             <div className="absolute inset-0 z-0">
-              <img src={profile.banner_url} alt="" className="w-full h-full object-cover opacity-25" />
+              <Image src={profile.banner_url} alt="" fill style={{ objectFit: 'cover', opacity: 0.25 }} />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/70 to-[#06060f]" />
             </div>
           )}
@@ -2182,7 +2178,7 @@ export default function ProfilePage() {
                 <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-white/20 bg-gray-900">
                   {profile?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={profile.avatar_url} alt={name} className="w-full h-full object-cover" />
+                    <Image src={profile.avatar_url} alt={name} width={112} height={112} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-indigo-600">
                       <span className="text-4xl font-black text-white">{firstName[0]?.toUpperCase()}</span>
@@ -3010,7 +3006,7 @@ export default function ProfilePage() {
                     <div className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                       {ev?.cover_image
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={ev.cover_image} alt={ev.title} className="w-full h-full object-cover" />
+                        ? <Image src={ev.cover_image} alt={ev.title} width={48} height={48} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         : <div className="w-full h-full flex items-center justify-center bg-indigo-600"><Calendar size={20} className="text-white" /></div>
                       }
                     </div>
@@ -3194,7 +3190,7 @@ export default function ProfilePage() {
                 {post.image_url && (
                   <div className="rounded-xl overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.image_url} alt="" className="w-full max-h-72 object-cover" />
+                    <Image src={post.image_url} alt="" width={800} height={288} style={{ width: '100%', maxHeight: '288px', objectFit: 'cover' }} />
                   </div>
                 )}
               </div>

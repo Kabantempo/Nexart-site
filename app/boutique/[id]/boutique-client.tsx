@@ -137,8 +137,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                   {/* Image */}
                   <div style={{ height: '160px', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
                     {product.images?.[0] ? (
-                      <img src={product.images[0]} alt={product.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <Image src={product.images[0]} alt={product.title} fill style={{ objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Package size={32} color="#E5E7EB" />
@@ -192,8 +191,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
           <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', maxWidth: '480px', width: '100%', overflow: 'hidden' }}
             onClick={e => e.stopPropagation()}>
             {selectedProduct.images?.[0] && (
-              <img src={selectedProduct.images[0]} alt={selectedProduct.title}
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+              <Image src={selectedProduct.images[0]} alt={selectedProduct.title} width={480} height={200} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
             )}
             <div style={{ padding: '24px' }}>
               <p style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 8px' }}>{selectedProduct.title}</p>
