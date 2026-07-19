@@ -265,12 +265,14 @@ export default function OffresPageClient() {
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [currentTier, setCurrentTier] = useState<string | null>(null)
+  const [tierLoading, setTierLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return
+      if (!session) { setTierLoading(false); return }
       const { data: profile } = await supabase.from('profiles').select('subscription_tier').eq('id', session.user.id).maybeSingle()
       if (profile) setCurrentTier((profile as any).subscription_tier ?? 'free')
+      setTierLoading(false)
     })
   }, [])
 

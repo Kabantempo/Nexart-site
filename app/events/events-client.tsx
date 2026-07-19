@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { MapPin, Calendar, ArrowRight, Search, X, Users, SlidersHorizontal, Euro, Sparkles } from 'lucide-react'
 import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
 import { SaveSearchButton } from '@/components/ui/save-search-button'
+import { useToast } from '@/components/ui/toast-provider'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
@@ -88,22 +89,42 @@ function Skeleton() {
 function EventsContent() {
   const { events, loading, error } = useEvents()
   const searchParams = useSearchParams()
+  const toast = useToast()
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
 
-  const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || '')
-  const [cityFilter,   setCityFilter]   = useState('all')
-  const [typeFilter,   setTypeFilter]   = useState('all')
-  const [discFilter,   setDiscFilter]   = useState('all')
-  const [priceMax,     setPriceMax]     = useState<number | ''>('')
-  const [freeOnly,     setFreeOnly]     = useState(false)
-  const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>('asc')
-  const [dateFrom,     setDateFrom]     = useState('')
-  const [dateTo,       setDateTo]       = useState('')
+  const getStoredFilters = () => {
+    try {
+      if (typeof window === 'undefined') return null
+      const raw = localStorage.getItem('nexart_event_filters')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  }
+
+  const stored = getStoredFilters()
+
+  const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || stored?.searchTerm || '')
+  const [cityFilter,   setCityFilter]   = useState(stored?.cityFilter || 'all')
+  const [typeFilter,   setTypeFilter]   = useState(stored?.typeFilter || 'all')
+  const [discFilter,   setDiscFilter]   = useState(stored?.discFilter || 'all')
+  const [priceMax,     setPriceMax]     = useState<number | ''>(stored?.priceMax ?? '')
+  const [freeOnly,     setFreeOnly]     = useState(stored?.freeOnly || false)
+  const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>(stored?.sortOrder || 'asc')
+  const [dateFrom,     setDateFrom]     = useState(stored?.dateFrom || '')
+  const [dateTo,       setDateTo]       = useState(stored?.dateTo || '')
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
-  const [nearMe, setNearMe] = useState(false)
+  const [nearMe, setNearMe] = useState(stored?.nearMe || false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
-  const [geoRadius] = useState(50) // km
+  const [geoRadius] = useState(stored?.geoRadius || 50) // km
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('nexart_event_filters', JSON.stringify({
+        searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius
+      }))
+    } catch { /* SSR or storage unavailable */ }
+  }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius])
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo])
 
   const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
@@ -117,7 +138,7 @@ function EventsContent() {
     navigator.geolocation.getCurrentPosition(pos => {
       setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude })
       setNearMe(true)
-    }, () => alert('Géolocalisation non disponible'))
+    }, () => toast.error('Géolocalisation non disponible'))
   }
 
   const uniqueCities = [...new Set(events.map((e) => e.city).filter(Boolean))].sort() as string[]
@@ -396,8 +417,14 @@ function EventsContent() {
                         ? 'w-40 sm:w-full h-full sm:h-72 rounded-2xl sm:rounded-none'
                         : 'h-52'
                     }`}>
-                      {event.cover_image ? (
-                        <Image src={event.cover_image} alt={event.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                      {event.cover_image && !failedImages.has(event.id) ? (
+                        <Image
+                          src={event.cover_image}
+                          alt={event.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          onError={() => setFailedImages(prev => new Set([...prev, event.id]))}
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-[#0f1117]">
                           <Calendar size={isFeatured ? 56 : 40} className="text-white/20" />

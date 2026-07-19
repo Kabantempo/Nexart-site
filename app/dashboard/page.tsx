@@ -225,6 +225,8 @@ export default function DashboardPage() {
 
   const firstName = user.full_name?.split(' ')[0]
   const acceptedApps = applications.filter(a => a.status === 'accepted')
+  const pendingAppsCreator = applications.filter(a => a.status === 'pending')
+  const refusedApps = applications.filter(a => a.status === 'refused')
   const acceptanceRate = applications.length > 0 ? Math.round((acceptedApps.length / applications.length) * 100) : 0
   const publishedEvents = events.filter(e => e.status === 'published')
   const hour = new Date().getHours()
@@ -689,11 +691,38 @@ function CreatorContent({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
+  const acceptedCount = applications.filter(a => a.status === 'accepted').length
+  const pendingCount = applications.filter(a => a.status === 'pending').length
+  const refusedCount = applications.filter(a => a.status === 'refused').length
+  const appRate = applications.length > 0 ? Math.round((acceptedCount / applications.length) * 100) : 0
+
   return (
     <div>
       <ActivationChecklist userId={userId} applications={applications} />
       <ProfileViewsWidget count={profileViewCount} days={profileViewDays} />
       <CreditsWidget />
+
+      {/* KPI candidatures */}
+      {applications.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+          {[
+            { label: 'Total', value: applications.length, color: '#6366F1', bg: '#EEF2FF', icon: '📋' },
+            { label: 'Acceptées', value: acceptedCount, color: '#16A34A', bg: '#F0FDF4', icon: '✅' },
+            { label: 'En attente', value: pendingCount, color: '#D97706', bg: '#FFFBEB', icon: '⏳' },
+            { label: 'Refusées', value: refusedCount, color: '#DC2626', bg: '#FFF5F5', icon: '❌' },
+          ].map(kpi => (
+            <div key={kpi.label} style={{ padding: '16px', borderRadius: '16px', backgroundColor: kpi.bg, border: `1px solid ${kpi.color}22`, textAlign: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: kpi.color }}>{kpi.value}</div>
+              <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '2px', fontWeight: 600 }}>{kpi.label}</div>
+            </div>
+          ))}
+          <div style={{ padding: '16px', borderRadius: '16px', backgroundColor: '#F5F3FF', border: '1px solid #6366F122', textAlign: 'center' }}>
+            <div style={{ fontSize: '22px', fontWeight: 800, color: '#6366F1' }}>{appRate}%</div>
+            <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '2px', fontWeight: 600 }}>Taux d'acc.</div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
         <h2 className="text-xl font-bold text-gray-900">Mes candidatures ({applications.length})</h2>
         <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
