@@ -60,9 +60,9 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {/* Copy link */}
       <button
         onClick={copyLink}
-        style={{ ...btnStyle, backgroundColor: copied ? '#ECFDF5' : '#FFFFFF', borderColor: copied ? '#86EFAC' : '#E5E7EB', color: copied ? '#15803D' : '#374151' }}
-        onMouseEnter={(e) => { if (!copied) e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-        onMouseLeave={(e) => { if (!copied) e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+        style={{ ...btnStyle, backgroundColor: copied ? '#ECFDF5' : 'var(--bg-primary)', borderColor: copied ? '#86EFAC' : 'var(--border-color)', color: copied ? '#15803D' : 'var(--text-primary)' }}
+        onMouseEnter={(e) => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+        onMouseLeave={(e) => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
       >
         <Link2 size={14} />
         {copied ? 'Copié !' : 'Copier le lien'}
@@ -74,8 +74,8 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
         target="_blank"
         rel="noopener noreferrer"
         style={btnStyle}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
       >
         {/* X logo */}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
@@ -90,8 +90,8 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
         target="_blank"
         rel="noopener noreferrer"
         style={btnStyle}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
       >
         {/* WhatsApp icon inline SVG */}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#25D366' }}>

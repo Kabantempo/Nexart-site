@@ -152,7 +152,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             }}
           >
             {/* Header */}
-            <div style={{ padding: '16px 18px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F3F4F6' }}>
+            <div style={{ padding: '16px 18px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)' }}>Notifications</span>
               {unread > 0 && (
                 <button
@@ -181,13 +181,13 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
                       onClick={() => { if (isUnread) markRead(n.id); setOpen(false) }}
                       style={{
                         display: 'flex', gap: '12px', padding: '14px 18px',
-                        borderBottom: '1px solid #F9FAFB',
-                        backgroundColor: isUnread ? '#FAFBFF' : '#FFFFFF',
+                        borderBottom: '1px solid var(--border-color)',
+                        backgroundColor: isUnread ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                         cursor: n.link ? 'pointer' : 'default',
                         transition: 'background-color 150ms',
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isUnread ? '#FAFBFF' : '#FFFFFF' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isUnread ? 'var(--bg-secondary)' : 'var(--bg-primary)' }}
                     >
                       <div style={{
                         width: '36px', height: '36px', borderRadius: '10px',
@@ -225,7 +225,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             </div>
 
             {notifications.length > 0 && (
-              <div style={{ padding: '10px 18px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
+              <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
                 <Link href="/notifications" onClick={() => setOpen(false)} style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
                   Voir toutes les notifications
                 </Link>

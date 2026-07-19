@@ -255,7 +255,7 @@ export function NavbarFull() {
                         {searchResults.events.map(ev => (
                           <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
                             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                           >
                             <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -273,12 +273,12 @@ export function NavbarFull() {
                       </div>
                     )}
                     {searchResults.creators.length > 0 && (
-                      <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid #F3F4F6' : 'none' }}>
+                      <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid var(--border-color)' : 'none' }}>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
                         {searchResults.creators.map(cr => (
                           <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
                             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F9FAFB')}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                           >
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -295,10 +295,10 @@ export function NavbarFull() {
                         ))}
                       </div>
                     )}
-                    <div style={{ borderTop: '1px solid #F3F4F6' }}>
+                    <div style={{ borderTop: '1px solid var(--border-color)' }}>
                       <Link href={`/search?q=${encodeURIComponent(searchValue.trim())}`} onClick={closeSearch}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: '600', color: '#6366F1' }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F5F5FF')}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: '600', color: 'var(--accent)' }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                       >
                         <Search size={13} /> Voir tous les résultats

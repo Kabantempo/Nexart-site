@@ -53,9 +53,9 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
     <div style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(o => !o)}
-        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#fff', color: 'var(--color-primary, #6366F1)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms' }}
+        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--accent)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms' }}
         onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#EEF2FF'; e.currentTarget.style.borderColor = '#C7D2FE' }}
-        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#E5E7EB' }}
+        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.borderColor = 'var(--border-color)' }}
         aria-label="Sauvegarder cette recherche"
       >
         <Bell size={14} /> Être notifié
@@ -70,32 +70,32 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
             transition={{ duration: 0.15 }}
             style={{
               position: 'absolute', top: '44px', right: 0, zIndex: 1000,
-              backgroundColor: '#fff', borderRadius: '14px', border: '1px solid #E5E7EB',
+              backgroundColor: 'var(--bg-primary)', borderRadius: '14px', border: '1px solid var(--border-color)',
               boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: '16px', width: 'min(300px, calc(100vw - 32px))',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Créer une alerte</p>
+              <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Créer une alerte</p>
               <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: '2px' }}><X size={16} /></button>
             </div>
 
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Nom de l'alerte</label>
+              <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Nom de l'alerte</label>
               <input
                 value={label}
                 onChange={e => setLabel(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
               />
             </div>
 
             {(disciplines.length > 0 || city || region) && (
-              <div style={{ marginBottom: '12px', padding: '8px 10px', borderRadius: '8px', backgroundColor: '#F9FAFB', fontSize: '12px', color: '#6B7280' }}>
+              <div style={{ marginBottom: '12px', padding: '8px 10px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', fontSize: '12px', color: 'var(--text-secondary)' }}>
                 {disciplines.length > 0 && <p style={{ margin: '0 0 2px' }}>📌 {disciplines.join(', ')}</p>}
                 {(city || region) && <p style={{ margin: 0 }}>📍 {city || region}</p>}
               </div>
             )}
 
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151', marginBottom: '14px', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-primary)', marginBottom: '14px', cursor: 'pointer' }}>
               <input type="checkbox" checked={notifyEmail} onChange={e => setNotifyEmail(e.target.checked)} style={{ accentColor: '#6366F1' }} />
               Recevoir les alertes par email
             </label>
