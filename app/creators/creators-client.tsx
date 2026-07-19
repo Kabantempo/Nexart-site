@@ -75,9 +75,23 @@ function CreatorsContent() {
   const [userCoords,       setUserCoords]       = useState<{ lat: number; lng: number } | null>(null)
   const [geoLoading,       setGeoLoading]       = useState(false)
   const [geoError,         setGeoError]         = useState<string | null>(null)
+  const [showSuggestions,  setShowSuggestions]  = useState(false)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSuggestions(false) }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => { document.removeEventListener('mousedown', handleClickOutside); document.removeEventListener('keydown', handleEscape) }
+  }, [])
 
   useEffect(() => {
     const loadStats = async () => {
@@ -101,6 +115,14 @@ function CreatorsContent() {
 
   const uniqueCities      = [...new Set(creators.map((c) => c.city).filter(Boolean))].sort() as string[]
   const uniqueDisciplines = [...new Set(creators.flatMap((c) => c.disciplines || []).filter(Boolean))].sort() as string[]
+
+  const suggestions = searchTerm.length >= 2 ? (() => {
+    const term = searchTerm.toLowerCase()
+    const matchedCreators = creators.filter(c => c.full_name?.toLowerCase().includes(term)).slice(0, 6).map(c => ({ type: 'creator' as const, value: c.full_name }))
+    const matchedDiscs = uniqueDisciplines.filter(d => d.toLowerCase().includes(term)).slice(0, 3).map(d => ({ type: 'discipline' as const, value: d }))
+    const matchedCities = uniqueCities.filter(c => c.toLowerCase().includes(term)).slice(0, 3).map(c => ({ type: 'city' as const, value: c }))
+    return [...matchedCreators, ...matchedDiscs, ...matchedCities].slice(0, 6)
+  })() : []
 
   const creatorsWithDist = userCoords
     ? creators.map(c => ({
@@ -222,19 +244,40 @@ function CreatorsContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
 
         {/* Search */}
-        <div className="relative mb-4">
+        <div className="relative mb-4" ref={searchContainerRef}>
           <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Nom, discipline, ville…"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true) }}
+            onFocus={() => { if (searchTerm.length >= 2) setShowSuggestions(true) }}
             className="w-full pl-11 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <button onClick={() => { setSearchTerm(''); setShowSuggestions(false) }} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
               <X size={16} />
             </button>
+          )}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
+              {(['creator', 'discipline', 'city'] as const).map(type => {
+                const group = suggestions.filter(s => s.type === type)
+                if (!group.length) return null
+                const labels: Record<string, string> = { creator: 'Créateurs', discipline: 'Disciplines', city: 'Villes' }
+                return (
+                  <div key={type}>
+                    <p className="px-4 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{labels[type]}</p>
+                    {group.map(s => (
+                      <button key={s.value} onMouseDown={() => { setSearchTerm(s.value); setShowSuggestions(false) }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                        {s.value}
+                      </button>
+                    ))}
+                  </div>
+                )
+              })}
+            </div>
           )}
         </div>
 

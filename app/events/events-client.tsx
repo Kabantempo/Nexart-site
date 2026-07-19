@@ -89,21 +89,39 @@ function EventsContent() {
   const { events, loading, error } = useEvents()
   const searchParams = useSearchParams()
 
-  const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || '')
-  const [cityFilter,   setCityFilter]   = useState('all')
-  const [typeFilter,   setTypeFilter]   = useState('all')
-  const [discFilter,   setDiscFilter]   = useState('all')
-  const [priceMax,     setPriceMax]     = useState<number | ''>('')
-  const [freeOnly,     setFreeOnly]     = useState(false)
-  const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>('asc')
-  const [dateFrom,     setDateFrom]     = useState('')
-  const [dateTo,       setDateTo]       = useState('')
+  const getStoredFilters = () => {
+    try {
+      if (typeof window === 'undefined') return null
+      const raw = localStorage.getItem('nexart_event_filters')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  }
+
+  const stored = getStoredFilters()
+
+  const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || stored?.searchTerm || '')
+  const [cityFilter,   setCityFilter]   = useState(stored?.cityFilter || 'all')
+  const [typeFilter,   setTypeFilter]   = useState(stored?.typeFilter || 'all')
+  const [discFilter,   setDiscFilter]   = useState(stored?.discFilter || 'all')
+  const [priceMax,     setPriceMax]     = useState<number | ''>(stored?.priceMax ?? '')
+  const [freeOnly,     setFreeOnly]     = useState(stored?.freeOnly || false)
+  const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>(stored?.sortOrder || 'asc')
+  const [dateFrom,     setDateFrom]     = useState(stored?.dateFrom || '')
+  const [dateTo,       setDateTo]       = useState(stored?.dateTo || '')
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
-  const [nearMe, setNearMe] = useState(false)
+  const [nearMe, setNearMe] = useState(stored?.nearMe || false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
-  const [geoRadius] = useState(50) // km
+  const [geoRadius] = useState(stored?.geoRadius || 50) // km
 
   useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('nexart_event_filters', JSON.stringify({
+        searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius
+      }))
+    } catch { /* SSR or storage unavailable */ }
+  }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius])
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo])
 
   const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
