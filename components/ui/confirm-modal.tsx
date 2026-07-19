@@ -41,9 +41,9 @@ const VARIANT_STYLES: Record<ConfirmVariant, {
     btnBg: '#D97706', btnHover: '#B45309', btnColor: '#FFFFFF',
   },
   default: {
-    iconBg: '#EEF2FF', iconColor: '#6366F1',
+    iconBg: '#EEF2FF', iconColor: 'var(--color-primary, #6366F1)',
     icon: <Info size={22} />,
-    btnBg: '#6366F1', btnHover: '#5B5BD6', btnColor: '#FFFFFF',
+    btnBg: 'var(--color-primary, #6366F1)', btnHover: 'var(--color-primary-dark, #5B5BD6)', btnColor: '#FFFFFF',
   },
 }
 

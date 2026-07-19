@@ -53,7 +53,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
     <div style={{ position: 'relative' }}>
       <button
         onClick={() => setOpen(o => !o)}
-        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#fff', color: '#6366F1', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms' }}
+        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#fff', color: 'var(--color-primary, #6366F1)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms' }}
         onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#EEF2FF'; e.currentTarget.style.borderColor = '#C7D2FE' }}
         onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#E5E7EB' }}
         aria-label="Sauvegarder cette recherche"
@@ -103,7 +103,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
             <button
               onClick={save}
               disabled={saving || !label.trim()}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: saving || !label.trim() ? '#C7D2FE' : '#6366F1', color: '#fff', fontSize: '14px', fontWeight: '700', cursor: saving || !label.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: saving || !label.trim() ? '#C7D2FE' : 'var(--color-primary, #6366F1)', color: '#fff', fontSize: '14px', fontWeight: '700', cursor: saving || !label.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
             >
               {saving ? 'Sauvegarde...' : 'Activer l\'alerte'}
             </button>
