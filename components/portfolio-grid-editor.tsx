@@ -264,13 +264,21 @@ export function PortfolioGridEditor({
     onChange(next)
   }
 
+  const handleMove = (i: number, dir: -1 | 1) => {
+    const j = i + dir
+    if (j < 0 || j >= items.length) return
+    const next = [...items]
+    ;[next[i], next[j]] = [next[j], next[i]]
+    onChange(next)
+  }
+
   const MAX = maxPhotos
 
   return (
     <>
       {/* Légende */}
       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-        {items.length}/{MAX} photos · Cliquez sur une photo pour la redimensionner ou la supprimer
+        {items.length}/{MAX} photos · Cliquez sur une photo pour la modifier · ◀ ▶ pour réordonner
         {items.length >= MAX && MAX <= 10 && (
           <span style={{ display: 'block', marginTop: '4px', color: '#F59E0B', fontWeight: '600' }}>
             Limite atteinte — passez au plan Boost pour 30 photos ou Pro pour un portfolio illimité
@@ -289,7 +297,6 @@ export function PortfolioGridEditor({
         {items.map((item, i) => (
           <div
             key={i}
-            onClick={() => setEditIdx(i)}
             style={{
               gridColumn: `span ${item.colSpan}`,
               gridRow: `span ${item.rowSpan}`,
@@ -310,7 +317,7 @@ export function PortfolioGridEditor({
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={item.url} alt="" onClick={() => setEditIdx(i)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             {/* Hover overlay */}
             <div className="hover-overlay" style={{
               position: 'absolute', inset: 0,
@@ -318,6 +325,7 @@ export function PortfolioGridEditor({
               opacity: 0, transition: 'opacity 150ms ease',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexDirection: 'column', gap: '4px',
+              pointerEvents: 'none',
             }}>
               <span style={{ fontSize: '13px', fontWeight: '700', color: '#FFF' }}>{item.colSpan}×{item.rowSpan}</span>
               <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)' }}>Cliquer pour modifier</span>
@@ -330,6 +338,23 @@ export function PortfolioGridEditor({
               fontSize: '11px', fontWeight: '700', color: '#FFF',
             }}>
               {item.colSpan}×{item.rowSpan}
+            </div>
+            {/* Reorder buttons */}
+            <div style={{ position: 'absolute', bottom: '5px', left: '5px', display: 'flex', gap: '3px' }}>
+              {i > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleMove(i, -1) }}
+                  title="Déplacer à gauche"
+                  style={{ width: '22px', height: '22px', borderRadius: '6px', border: 'none', backgroundColor: 'rgba(0,0,0,0.65)', color: '#FFF', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                >◀</button>
+              )}
+              {i < items.length - 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleMove(i, 1) }}
+                  title="Déplacer à droite"
+                  style={{ width: '22px', height: '22px', borderRadius: '6px', border: 'none', backgroundColor: 'rgba(0,0,0,0.65)', color: '#FFF', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
+                >▶</button>
+              )}
             </div>
           </div>
         ))}
