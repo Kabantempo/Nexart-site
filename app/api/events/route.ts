@@ -6,11 +6,12 @@ export async function GET(req: NextRequest) {
   try {
     const admin = getAdminClient()
     const searchParams = req.nextUrl.searchParams
-    const city = searchParams.get('city')
-    const region = searchParams.get('region')
-    const status = searchParams.get('status') || 'published'
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const city = searchParams.get('city')?.slice(0, 100) || null
+    const region = searchParams.get('region')?.slice(0, 100) || null
+    const rawStatus = searchParams.get('status') || 'published'
+    const status = ['draft', 'published', 'closed'].includes(rawStatus) ? rawStatus : 'published'
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 100)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
     let query = admin.from('events')
       .select(`
