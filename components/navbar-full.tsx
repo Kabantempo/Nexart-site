@@ -20,6 +20,7 @@ export function NavbarFull() {
   const [searchValue, setSearchValue] = useState('')
   const [searchResults, setSearchResults] = useState<{ events: {id:string;title:string;city?:string;cover_image?:string}[]; creators: {id:string;full_name:string;username?:string;avatar_url?:string;disciplines?:string[]}[] }>({ events: [], creators: [] })
   const [searchLoading, setSearchLoading] = useState(false)
+  const [searchActiveIdx, setSearchActiveIdx] = useState(-1)
   const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const [scrolled,    setScrolled]    = useState(false)
@@ -84,8 +85,35 @@ export function NavbarFull() {
     if (searchValue.trim()) { router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`); closeSearch() }
   }
 
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const total = searchResults.events.length + searchResults.creators.length + 1 // +1 = "Voir tous"
+    if (!searchValue.trim() || total === 1) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setSearchActiveIdx(i => (i + 1) % total)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setSearchActiveIdx(i => (i - 1 + total) % total)
+    } else if (e.key === 'Enter' && searchActiveIdx >= 0) {
+      e.preventDefault()
+      const events = searchResults.events
+      const creators = searchResults.creators
+      if (searchActiveIdx < events.length) {
+        router.push(`/events/${events[searchActiveIdx].id}`)
+      } else if (searchActiveIdx < events.length + creators.length) {
+        router.push(`/creators/${creators[searchActiveIdx - events.length].id}`)
+      } else {
+        router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`)
+      }
+      closeSearch()
+    } else if (e.key === 'Escape') {
+      closeSearch()
+    }
+  }
+
   const handleSearchChange = (val: string) => {
     setSearchValue(val)
+    setSearchActiveIdx(-1)
     if (searchDebounce.current) clearTimeout(searchDebounce.current)
     if (!val.trim()) { setSearchResults({ events: [], creators: [] }); return }
     setSearchLoading(true)
@@ -220,8 +248,12 @@ export function NavbarFull() {
                     className={`flex items-center gap-2 h-8 px-3 rounded-lg border overflow-hidden ${dark ? 'bg-white/8 border-white/12' : 'bg-gray-100 border-transparent'}`}
                   >
                     <Search size={12} className={dark ? 'text-white/40 shrink-0' : 'text-gray-400 shrink-0'} />
-                    <input ref={searchRef} value={searchValue} onChange={e => handleSearchChange(e.target.value)}
+                    <input ref={searchRef} value={searchValue}
+                      onChange={e => handleSearchChange(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
                       placeholder="Rechercher…"
+                      aria-autocomplete="list"
+                      aria-expanded={searchResults.events.length > 0 || searchResults.creators.length > 0}
                       className={`flex-1 bg-transparent text-[13px] outline-none min-w-0 ${dark ? 'text-white placeholder:text-white/30' : 'text-gray-900 placeholder:text-gray-400'}`}
                     />
                     {searchLoading
@@ -252,11 +284,11 @@ export function NavbarFull() {
                     {searchResults.events.length > 0 && (
                       <div>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Événements</p>
-                        {searchResults.events.map(ev => (
+                        {searchResults.events.map((ev, i) => (
                           <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
-                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms', backgroundColor: searchActiveIdx === i ? 'var(--bg-secondary)' : 'transparent' }}
+                            onMouseEnter={e => { setSearchActiveIdx(i); e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+                            onMouseLeave={e => { if (searchActiveIdx !== i) e.currentTarget.style.backgroundColor = 'transparent' }}
                           >
                             <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               {ev.cover_image
@@ -275,11 +307,13 @@ export function NavbarFull() {
                     {searchResults.creators.length > 0 && (
                       <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid var(--border-color)' : 'none' }}>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
-                        {searchResults.creators.map(cr => (
+                        {searchResults.creators.map((cr, i) => {
+                          const idx = searchResults.events.length + i
+                          return (
                           <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
-                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms' }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms', backgroundColor: searchActiveIdx === idx ? 'var(--bg-secondary)' : 'transparent' }}
+                            onMouseEnter={e => { setSearchActiveIdx(idx); e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+                            onMouseLeave={e => { if (searchActiveIdx !== idx) e.currentTarget.style.backgroundColor = 'transparent' }}
                           >
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               {cr.avatar_url
@@ -292,7 +326,8 @@ export function NavbarFull() {
                               {cr.username && <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{cr.full_name}</p>}
                             </div>
                           </Link>
-                        ))}
+                          )
+                        })}
                       </div>
                     )}
                     <div style={{ borderTop: '1px solid var(--border-color)' }}>

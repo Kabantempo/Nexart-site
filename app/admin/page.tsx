@@ -80,6 +80,13 @@ type Report = {
   reporter?: { full_name: string | null }
 }
 
+type SiretVerification = {
+  id: string; creator_id: string; siret: string; document_url: string | null
+  status: 'pending' | 'approved' | 'rejected'; rejection_reason: string | null
+  created_at: string
+  profiles?: { full_name: string; avatar_url: string | null } | null
+}
+
 type AdminTab = 'analytics' | 'verifications' | 'disciplines' | 'marches' | 'messages' | 'abonnements' | 'signalements'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -149,6 +156,13 @@ export default function AdminPage() {
   const [subSaving, setSubSaving] = useState<string | null>(null)
   const [subToast, setSubToast] = useState<string | null>(null)
 
+  // SIRET Verifications (creator_verifications table)
+  const [siretVerifs, setSiretVerifs] = useState<SiretVerification[]>([])
+  const [siretVerifsLoaded, setSiretVerifsLoaded] = useState(false)
+  const [siretVerifSaving, setSiretVerifSaving] = useState<string | null>(null)
+  const [siretRejectModal, setSiretRejectModal] = useState<{ id: string; name: string } | null>(null)
+  const [siretRejectReason, setSiretRejectReason] = useState('')
+
   // Signalements
   const [reports, setReports] = useState<Report[]>([])
   const [reportsLoaded, setReportsLoaded] = useState(false)
@@ -215,6 +229,21 @@ export default function AdminPage() {
       setLoading(false)
     })
   }, [router])
+
+  // Load SIRET verifications on tab switch
+  useEffect(() => {
+    if (tab === 'verifications' && !siretVerifsLoaded) {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (!session) return
+        const res = await fetch('/api/admin/verifications?status=all', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const json = await res.json()
+        setSiretVerifs((json.data as SiretVerification[]) ?? [])
+        setSiretVerifsLoaded(true)
+      })
+    }
+  }, [tab, siretVerifsLoaded])
 
   // Load reports on tab switch
   useEffect(() => {
@@ -368,6 +397,27 @@ export default function AdminPage() {
       .order('created_at', { ascending: false })
       .limit(50)
     setAdminMessages((msgs as unknown as AdminMessage[]) ?? [])
+  }
+
+  const handleSiretVerif = async (verification_id: string, action: 'approve' | 'reject', rejection_reason?: string) => {
+    setSiretVerifSaving(verification_id)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch('/api/admin/verifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ verification_id, action, rejection_reason }),
+      })
+      setSiretVerifs(prev => prev.map(v => v.id === verification_id
+        ? { ...v, status: action === 'approve' ? 'approved' : 'rejected', rejection_reason: rejection_reason ?? null }
+        : v
+      ))
+      showToast(action === 'approve' ? '✓ Demande approuvée' : '✓ Demande refusée')
+    } finally {
+      setSiretVerifSaving(null)
+      setSiretRejectModal(null)
+      setSiretRejectReason('')
+    }
   }
 
   // ─── Computed ─────────────────────────────────────────────────────────────
@@ -905,6 +955,73 @@ export default function AdminPage() {
                 )
               })()}
             </div>
+
+            {/* ── Demandes SIRET (creator_verifications) ── */}
+            <div style={{ marginTop: '40px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--bg-secondary)', margin: 0 }}>
+                  Demandes SIRET créateur
+                </h3>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  {siretVerifs.filter(v => v.status === 'pending').length} en attente
+                </span>
+              </div>
+
+              {!siretVerifsLoaded ? (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                  <div style={{ width: '24px', height: '24px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                </div>
+              ) : siretVerifs.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <CheckCircle size={32} color="#10B981" style={{ marginBottom: '8px' }} />
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Aucune demande SIRET</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {siretVerifs.map(v => (
+                    <div key={v.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <User size={16} color="#FFF" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--bg-secondary)', margin: 0 }}>
+                          {(v.profiles as { full_name?: string } | null)?.full_name ?? 'Créateur'}
+                        </p>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0', fontFamily: 'monospace', letterSpacing: '1px' }}>{v.siret}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: '2px 0 0' }}>
+                          {new Date(v.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                        {v.rejection_reason && (
+                          <p style={{ fontSize: '11px', color: '#EF4444', margin: '4px 0 0' }}>Raison : {v.rejection_reason}</p>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                        <a href={`https://pappers.fr/entreprise/${v.siret}`} target="_blank" rel="noopener noreferrer"
+                          style={{ fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
+                        {v.status === 'pending' ? (
+                          <>
+                            <button onClick={() => handleSiretVerif(v.id, 'approve')} disabled={siretVerifSaving === v.id}
+                              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 14px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                              <CheckCircle size={12} /> Approuver
+                            </button>
+                            <button onClick={() => { setSiretRejectModal({ id: v.id, name: (v.profiles as { full_name?: string } | null)?.full_name ?? 'ce créateur' }); setSiretRejectReason('') }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
+                              <XCircle size={12} />
+                            </button>
+                          </>
+                        ) : (
+                          <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px',
+                            backgroundColor: v.status === 'approved' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                            color: v.status === 'approved' ? '#10B981' : '#EF4444' }}>
+                            {v.status === 'approved' ? 'Approuvée' : 'Refusée'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -1315,6 +1432,29 @@ export default function AdminPage() {
                 Annuler
               </button>
               <button onClick={handleRefuse} style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                Confirmer le refus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal refus SIRET créateur ── */}
+      {siretRejectModal && (
+        <div onClick={() => setSiretRejectModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', padding: '28px', maxWidth: '420px', width: '100%' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--bg-secondary)', margin: '0 0 8px' }}>Refuser la demande SIRET</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+              Refuser la demande de <strong style={{ color: 'var(--bg-secondary)' }}>{siretRejectModal.name}</strong>
+            </p>
+            <textarea value={siretRejectReason} onChange={e => setSiretRejectReason(e.target.value)} placeholder="Raison du refus (optionnel)…" rows={3}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'rgba(255,255,255,0.06)', color: 'var(--bg-secondary)', resize: 'none', boxSizing: 'border-box', marginBottom: '16px' }} />
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setSiretRejectModal(null)} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                Annuler
+              </button>
+              <button onClick={() => handleSiretVerif(siretRejectModal.id, 'reject', siretRejectReason || undefined)}
+                style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
                 Confirmer le refus
               </button>
             </div>

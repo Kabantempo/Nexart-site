@@ -10,7 +10,7 @@ import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
 import { SaveSearchButton } from '@/components/ui/save-search-button'
 import { useToast } from '@/components/ui/toast-provider'
 import { useState, useEffect, Suspense, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 const ITEMS_PER_PAGE = 12
 
@@ -105,7 +105,7 @@ function EventsContent() {
   const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || stored?.searchTerm || '')
   const [cityFilter,   setCityFilter]   = useState(stored?.cityFilter || 'all')
   const [typeFilter,   setTypeFilter]   = useState(stored?.typeFilter || 'all')
-  const [discFilter,   setDiscFilter]   = useState(stored?.discFilter || 'all')
+  const [selectedDiscs, setSelectedDiscs] = useState<string[]>(stored?.selectedDiscs || [])
   const [priceMax,     setPriceMax]     = useState<number | ''>(stored?.priceMax ?? '')
   const [freeOnly,     setFreeOnly]     = useState(stored?.freeOnly || false)
   const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>(stored?.sortOrder || 'asc')
@@ -115,17 +115,35 @@ function EventsContent() {
   const [nearMe, setNearMe] = useState(stored?.nearMe || false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
   const [geoRadius] = useState(stored?.geoRadius || 50) // km
+  const [discDropdownOpen, setDiscDropdownOpen] = useState(false)
+  const discDropdownRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
-  useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
+  // Sync URL → state on mount
+  useEffect(() => {
+    const q = searchParams.get('q'); if (q) setSearchTerm(q)
+    const disc = searchParams.get('disc'); if (disc) setSelectedDiscs(disc.split(',').filter(Boolean))
+    const city = searchParams.get('city'); if (city) setCityFilter(city)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close disc dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (discDropdownRef.current && !discDropdownRef.current.contains(e.target as Node))
+        setDiscDropdownOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   useEffect(() => {
     try {
       localStorage.setItem('nexart_event_filters', JSON.stringify({
-        searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius
+        searchTerm, cityFilter, typeFilter, selectedDiscs, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius
       }))
     } catch { /* SSR or storage unavailable */ }
-  }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius])
-  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, discFilter, priceMax, freeOnly, sortOrder, dateFrom, dateTo])
+  }, [searchTerm, cityFilter, typeFilter, selectedDiscs, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius])
+  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, selectedDiscs, priceMax, freeOnly, sortOrder, dateFrom, dateTo])
 
   const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
     const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180
@@ -153,7 +171,7 @@ function EventsContent() {
     )
     .filter((e) => cityFilter === 'all' || e.city === cityFilter)
     .filter((e) => typeFilter === 'all' || e.event_type === typeFilter)
-    .filter((e) => discFilter === 'all' || ((e as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []).includes(discFilter))
+    .filter((e) => selectedDiscs.length === 0 || (e as NexartEvent & { discipline_tags?: string[] }).discipline_tags?.some(d => selectedDiscs.includes(d)))
     .filter((e) => !freeOnly || e.stand_price === 0)
     .filter((e) => priceMax === '' || (e.stand_price != null && e.stand_price <= priceMax))
     .filter((e) => !dateFrom || !e.start_date || new Date(e.start_date) >= new Date(dateFrom))
@@ -167,11 +185,27 @@ function EventsContent() {
 
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
-  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || discFilter !== 'all' || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe || !!dateFrom || !!dateTo
+  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || selectedDiscs.length > 0 || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe || !!dateFrom || !!dateTo
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const uniqueCitiesCount = new Set(events.map(e => e.city).filter(Boolean)).size
 
-  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setDiscFilter('all'); setSortOrder('asc'); setSearchTerm(''); setPriceMax(''); setFreeOnly(false); setNearMe(false); setDateFrom(''); setDateTo('') }
+  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setSelectedDiscs([]); setSortOrder('asc'); setSearchTerm(''); setPriceMax(''); setFreeOnly(false); setNearMe(false); setDateFrom(''); setDateTo('') }
+
+  const toggleDisc = (disc: string) => setSelectedDiscs(prev => prev.includes(disc) ? prev.filter(d => d !== disc) : [...prev, disc])
+
+  const shareFilters = () => {
+    const params = new URLSearchParams()
+    if (searchTerm) params.set('q', searchTerm)
+    if (cityFilter !== 'all') params.set('city', cityFilter)
+    if (selectedDiscs.length > 0) params.set('disc', selectedDiscs.join(','))
+    if (typeFilter !== 'all') params.set('type', typeFilter)
+    if (dateFrom) params.set('from', dateFrom)
+    if (dateTo) params.set('to', dateTo)
+    const url = `${window.location.pathname}?${params.toString()}`
+    router.push(url, { scroll: false })
+    navigator.clipboard.writeText(window.location.origin + url).catch(() => {})
+    toast.success('Lien copié dans le presse-papier !')
+  }
 
   if (loading) return <Skeleton />
 
@@ -320,13 +354,60 @@ function EventsContent() {
           {/* Row 3: Discipline + Tarif + Gratuit + NearMe */}
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
             {uniqueDiscs.length > 0 && (
-              <div className="w-full sm:w-auto">
-                <p className="text-[11px] font-bold text-gray-400 mb-2">Discipline</p>
-                <select value={discFilter} onChange={e => setDiscFilter(e.target.value)}
-                  className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${discFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`}>
-                  <option value="all">Toutes disciplines</option>
-                  {uniqueDiscs.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+              <div className="w-full sm:w-auto" ref={discDropdownRef} style={{ position: 'relative' }}>
+                <p className="text-[11px] font-bold text-gray-400 mb-2">Disciplines</p>
+                <button
+                  onClick={() => setDiscDropdownOpen(o => !o)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    padding: '8px 12px', borderRadius: '12px', border: '1px solid',
+                    borderColor: selectedDiscs.length > 0 ? '#a5b4fc' : '#e5e7eb',
+                    backgroundColor: selectedDiscs.length > 0 ? '#eef2ff' : '#ffffff',
+                    color: selectedDiscs.length > 0 ? '#4338ca' : '#374151',
+                    fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap'
+                  }}
+                >
+                  {selectedDiscs.length > 0 ? `Disciplines (${selectedDiscs.length})` : 'Toutes disciplines'}
+                  <span style={{ fontSize: '10px', opacity: 0.6 }}>▾</span>
+                </button>
+                {discDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    style={{
+                      position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100,
+                      backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '14px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '8px',
+                      minWidth: '220px', maxHeight: '280px', overflowY: 'auto'
+                    }}
+                  >
+                    {selectedDiscs.length > 0 && (
+                      <button onClick={() => setSelectedDiscs([])}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', fontSize: '11px', color: '#ef4444', fontWeight: 600, marginBottom: '4px', cursor: 'pointer', background: 'none', border: 'none' }}>
+                        Tout effacer
+                      </button>
+                    )}
+                    {uniqueDiscs.map(d => {
+                      const checked = selectedDiscs.includes(d)
+                      return (
+                        <label key={d}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            padding: '7px 10px', borderRadius: '8px', cursor: 'pointer',
+                            backgroundColor: checked ? '#eef2ff' : 'transparent',
+                            transition: 'background 0.1s'
+                          }}
+                        >
+                          <input type="checkbox" checked={checked} onChange={() => toggleDisc(d)}
+                            style={{ accentColor: '#6366f1', width: '14px', height: '14px', cursor: 'pointer' }} />
+                          <span style={{ fontSize: '13px', color: checked ? '#4338ca' : '#374151', fontWeight: checked ? 600 : 400 }}>{d}</span>
+                        </label>
+                      )
+                    })}
+                  </motion.div>
+                )}
               </div>
             )}
             <div className="w-full sm:w-auto">
@@ -355,16 +436,30 @@ function EventsContent() {
               {searchTerm && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">"{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button></span>}
               {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
               {typeFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{EVENT_TYPE_LABELS[typeFilter]} <button onClick={() => setTypeFilter('all')}><X size={11} /></button></span>}
-              {discFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{discFilter} <button onClick={() => setDiscFilter('all')}><X size={11} /></button></span>}
+              {selectedDiscs.map(d => (
+                <span key={d} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{d} <button onClick={() => toggleDisc(d)}><X size={11} /></button></span>
+              ))}
               {dateFrom && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">À partir du {new Date(dateFrom).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} <button onClick={() => setDateFrom('')}><X size={11} /></button></span>}
               {dateTo && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Jusqu'au {new Date(dateTo).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} <button onClick={() => setDateTo('')}><X size={11} /></button></span>}
               {freeOnly && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Gratuit <button onClick={() => setFreeOnly(false)}><X size={11} /></button></span>}
               {priceMax !== '' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">≤ {priceMax}€ <button onClick={() => setPriceMax('')}><X size={11} /></button></span>}
               {nearMe && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold"><MapPin size={10} /> Autour de moi <button onClick={() => setNearMe(false)}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                <button onClick={shareFilters}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
+                    backgroundColor: '#fff', color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    cursor: 'pointer', transition: 'all 0.15s'
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#a5b4fc'; (e.currentTarget as HTMLButtonElement).style.color = '#4338ca' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLButtonElement).style.color = '#6b7280' }}
+                >
+                  🔗 Partager ces filtres
+                </button>
                 <SaveSearchButton
-                  disciplines={discFilter !== 'all' ? [discFilter] : []}
+                  disciplines={selectedDiscs}
                   city={cityFilter !== 'all' ? cityFilter : undefined}
                   query={searchTerm || undefined}
                 />

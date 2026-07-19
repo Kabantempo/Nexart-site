@@ -2774,6 +2774,34 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* Vérification SIRET créateur */}
+            {isCreatorRole && (
+              <>
+                <div className="h-px bg-gray-100" />
+                <div className="px-6 py-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Vérification SIRET</p>
+                      {creator?.siret_verified ? (
+                        <p className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
+                          <BadgeCheck size={14} /> Vérifié
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400">Obtenez le badge créateur vérifié</p>
+                      )}
+                    </div>
+                    {!creator?.siret_verified && (
+                      <a href="/creator/verify"
+                        className="px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer no-underline"
+                        style={{ backgroundColor: '#EEF2FF', color: '#6366F1' }}>
+                        Obtenir la vérification
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Vérification organisateur */}
             {(profile?.role === 'organizer' || profile?.is_organizer) && (
               <>

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck, Star, TrendingUp, Navigation, Zap } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 const ITEMS_PER_PAGE = 12
@@ -77,10 +77,21 @@ function CreatorsContent() {
   const [geoError,         setGeoError]         = useState<string | null>(null)
   const [showSuggestions,  setShowSuggestions]  = useState(false)
   const [activeSuggestion, setActiveSuggestion] = useState(-1)
+  const [availableOnly,    setAvailableOnly]    = useState(false)
+  const [openToCollab,     setOpenToCollab]     = useState(false)
   const searchContainerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
-  useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
-  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
+  // Sync URL → state on mount
+  useEffect(() => {
+    const q = searchParams.get('q'); if (q) setSearchTerm(q)
+    const city = searchParams.get('city'); if (city) setCityFilter(city)
+    const disc = searchParams.get('disc'); if (disc) setDisciplineFilter(disc)
+    if (searchParams.get('available') === '1') setAvailableOnly(true)
+    if (searchParams.get('collab') === '1') setOpenToCollab(true)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder, availableOnly, openToCollab])
   useEffect(() => { setActiveSuggestion(-1) }, [searchTerm, showSuggestions])
 
   useEffect(() => {
@@ -143,6 +154,8 @@ function CreatorsContent() {
     )
     .filter((c) => cityFilter === 'all' || c.city === cityFilter)
     .filter((c) => disciplineFilter === 'all' || (c.disciplines || []).includes(disciplineFilter))
+    .filter((c) => !availableOnly || (c as any).availability === 'available')
+    .filter((c) => !openToCollab || (c as any).open_to_collab === true)
     .sort((a, b) => {
       if (userCoords)              return a._dist - b._dist
       if (sortOrder === 'alpha')   return (a.full_name || '').localeCompare(b.full_name || '', 'fr')
@@ -154,12 +167,24 @@ function CreatorsContent() {
 
   const visible     = filtered.slice(0, visibleCount)
   const hasMore     = visibleCount < filtered.length
-  const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm
+  const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm || availableOnly || openToCollab
   const sortLabels: Record<string, string> = { alpha: 'A → Z', newest: 'Récents', rating: 'Note', popular: 'Popularité' }
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const verifiedCount = creators.filter(c => c.siret_verified).length
 
-  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm(''); setUserCoords(null); setGeoError(null) }
+  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm(''); setUserCoords(null); setGeoError(null); setAvailableOnly(false); setOpenToCollab(false) }
+
+  const shareFilters = () => {
+    const params = new URLSearchParams()
+    if (searchTerm) params.set('q', searchTerm)
+    if (cityFilter !== 'all') params.set('city', cityFilter)
+    if (disciplineFilter !== 'all') params.set('disc', disciplineFilter)
+    if (availableOnly) params.set('available', '1')
+    if (openToCollab) params.set('collab', '1')
+    const url = `${window.location.pathname}?${params.toString()}`
+    router.push(url, { scroll: false })
+    navigator.clipboard.writeText(window.location.origin + url).catch(() => {})
+  }
 
   const handleGeolocate = () => {
     if (!navigator.geolocation) { setGeoError('Géolocalisation non supportée'); return }
@@ -350,6 +375,53 @@ function CreatorsContent() {
                 ))}
               </div>
             </div>
+            <div className="w-full sm:w-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-3">Disponibilité</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <div
+                    onClick={() => setAvailableOnly(v => !v)}
+                    style={{
+                      width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+                      backgroundColor: availableOnly ? '#10b981' : '#e5e7eb',
+                      position: 'relative', transition: 'background 0.2s', flexShrink: 0
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute', top: '2px',
+                      left: availableOnly ? '18px' : '2px',
+                      width: '16px', height: '16px', borderRadius: '50%',
+                      backgroundColor: '#fff', transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                    }} />
+                  </div>
+                  <span style={{ fontSize: '13px', color: availableOnly ? '#065f46' : '#4b5563', fontWeight: availableOnly ? 600 : 400 }}>
+                    Disponible pour événements
+                  </span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <div
+                    onClick={() => setOpenToCollab(v => !v)}
+                    style={{
+                      width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+                      backgroundColor: openToCollab ? '#6366f1' : '#e5e7eb',
+                      position: 'relative', transition: 'background 0.2s', flexShrink: 0
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute', top: '2px',
+                      left: openToCollab ? '18px' : '2px',
+                      width: '16px', height: '16px', borderRadius: '50%',
+                      backgroundColor: '#fff', transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                    }} />
+                  </div>
+                  <span style={{ fontSize: '13px', color: openToCollab ? '#3730a3' : '#4b5563', fontWeight: openToCollab ? 600 : 400 }}>
+                    Ouvert aux collaborations
+                  </span>
+                </label>
+              </div>
+            </div>
             <div className="w-full sm:w-auto sm:ml-auto">
               <p className="text-[11px] font-bold text-gray-400 mb-3">Proximité</p>
               <button
@@ -375,7 +447,21 @@ function CreatorsContent() {
               {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
               {disciplineFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{disciplineFilter} <button onClick={() => setDisciplineFilter('all')}><X size={11} /></button></span>}
               {sortOrder !== 'alpha' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{sortLabels[sortOrder]} <button onClick={() => setSortOrder('alpha')}><X size={11} /></button></span>}
+              {availableOnly && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Disponible <button onClick={() => setAvailableOnly(false)}><X size={11} /></button></span>}
+              {openToCollab && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Open collab <button onClick={() => setOpenToCollab(false)}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
+              <div className="ml-auto">
+                <button onClick={shareFilters}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
+                    backgroundColor: '#fff', color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔗 Partager ces filtres
+                </button>
+              </div>
             </div>
           )}
         </div>

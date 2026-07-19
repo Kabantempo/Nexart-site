@@ -48,7 +48,7 @@ const NAV_CARDS = (userId: string, isCreator: boolean, isOrganizer: boolean, isV
   ] : []),
   ...(isOrganizer ? [
     { href: '/events/create',      icon: <CalendarDays size={22} className="text-indigo-600" />, label: 'Créer un événement', sub: 'Nouveau marché' },
-    { href: '/analytics',          icon: <BarChart2 size={22} className="text-indigo-600" />,    label: 'Analytiques',        sub: 'Stats événements' },
+    { href: '/organizer/analytics', icon: <BarChart2 size={22} className="text-indigo-600" />,    label: 'Analytics',          sub: 'Stats événements' },
     { href: '/calendrier',         icon: <CalendarDays size={22} className="text-indigo-600" />, label: 'Calendrier',         sub: 'Vue multi-événements' },
   ] : []),
   ...(isCreator ? [
