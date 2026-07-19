@@ -959,7 +959,7 @@ export function EventDetailClient({ id }: Props) {
                   border: `1px solid ${STATUS_STYLES[application.status]?.color || '#E5E7EB'}`,
                   textAlign: 'center',
                 }}>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || '#888888', margin: 0 }}>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || '#6B7280', margin: 0 }}>
                     {STATUS_STYLES[application.status]?.label || application.status}
                   </p>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
@@ -1043,7 +1043,7 @@ export function EventDetailClient({ id }: Props) {
               ) : user.role === 'organizer' && event?.organizer_id === user.id ? (
                 <div>
                   {/* Outils organisateur */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '8px', marginBottom: '20px' }}>
                     {[
                       { label: 'Exposants', href: `/events/${id}/exhibitors` },
                       { label: "Liste d'attente", href: `/events/${id}/waitlist` },

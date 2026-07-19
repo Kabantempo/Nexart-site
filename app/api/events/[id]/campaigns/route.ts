@@ -46,7 +46,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const supabase = getAdminClient()
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      title: z.string().min(1).max(200),
+      subject: z.string().min(1).max(300),
+      message: z.string().min(1).max(10000),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { title, subject, message } = body
     const { data, error } = await supabase
       .from('event_campaigns')

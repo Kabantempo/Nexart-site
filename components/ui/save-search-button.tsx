@@ -71,7 +71,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
             style={{
               position: 'absolute', top: '44px', right: 0, zIndex: 1000,
               backgroundColor: '#fff', borderRadius: '14px', border: '1px solid #E5E7EB',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: '16px', width: '300px',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.12)', padding: '16px', width: 'min(300px, calc(100vw - 32px))',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>

@@ -71,7 +71,7 @@ export default function AboutPageClient() {
           <h2 style={{ fontSize: '32px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '24px' }}>
             Notre Mission
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 'clamp(20px, 5vw, 40px)', alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.8', marginBottom: '16px' }}>
                 Connecter les créateurs, artisans et designers français avec les marchés et événements

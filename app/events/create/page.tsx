@@ -344,7 +344,7 @@ export default function CreateEventPage() {
             </Field>
 
             <Field label="Modèle de tarification">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '10px' }}>
                 {([
                   { value: 'flat', label: 'Tarif fixe', desc: 'Un prix unique par stand' },
                   { value: 'variable', label: 'Tarif variable', desc: 'Fourchette min–max' },

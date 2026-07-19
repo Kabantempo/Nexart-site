@@ -14,7 +14,15 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
     if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { conversation_id, sender_id, content } = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      conversation_id: z.string().uuid(),
+      sender_id: z.string().uuid(),
+      content: z.string().max(10000).optional(),
+    })
+    const { data: parsed, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { conversation_id, sender_id, content } = parsed
     if (!conversation_id || !sender_id) return NextResponse.json({ ok: true })
 
     // L'expéditeur doit être l'utilisateur authentifié

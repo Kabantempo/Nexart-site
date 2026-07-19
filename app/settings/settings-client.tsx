@@ -202,7 +202,7 @@ export default function SettingsClient() {
                   </h3>
                   <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Lire nos engagements RGPD</p>
                 </div>
-                <ChevronRight size={20} color="#888888" />
+                <ChevronRight size={20} color="#6B7280" />
               </a>
 
               <a
@@ -235,7 +235,7 @@ export default function SettingsClient() {
                     Accès, rectification, portabilité (contact@nexart.fr)
                   </p>
                 </div>
-                <ChevronRight size={20} color="#888888" />
+                <ChevronRight size={20} color="#6B7280" />
               </a>
             </div>
           </motion.section>

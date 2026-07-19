@@ -9,7 +9,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { priceId, mode, userId, successUrl, cancelUrl } = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      priceId: z.string().min(1),
+      mode: z.enum(['payment', 'subscription']),
+      userId: uuidSchema,
+      successUrl: z.string().url(),
+      cancelUrl: z.string().url(),
+    })
+    const { data: parsed, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { priceId, mode, userId, successUrl, cancelUrl } = parsed
 
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

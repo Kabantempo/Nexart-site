@@ -248,7 +248,7 @@ function StatsTab({ stats }: { stats: Stats | null }) {
 
       <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px' }}>
         <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>Résumé rapide</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '12px' }}>
           {[
             { label: 'Total événements (toutes catégories)', value: stats.total_events ?? 0 },
             { label: 'Total utilisateurs inscrits', value: stats.total_users ?? 0 },
@@ -370,7 +370,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                   {selected?.id === report.id && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
                       <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '8px', marginBottom: '12px' }}>
                           <div style={{ padding: '10px', backgroundColor: '#F9FAFB', borderRadius: '6px' }}>
                             <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 2px 0' }}>Type ciblé</p>
                             <p style={{ fontSize: '13px', color: '#111827', margin: 0, fontWeight: 500 }}>{report.target_type || '—'}</p>

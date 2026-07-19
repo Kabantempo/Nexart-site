@@ -143,7 +143,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 backgroundColor: 'var(--bg-primary)',
                 borderRadius: '20px',
                 padding: '32px',
-                width: '420px',
+                width: 'min(420px, 90vw)',
                 maxWidth: 'calc(100vw - 32px)',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
               }}

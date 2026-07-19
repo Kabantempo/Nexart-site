@@ -240,7 +240,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '12px' }}>
                 <button
                   onClick={() => setShowInvite(false)}
                   style={{
