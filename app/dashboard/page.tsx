@@ -53,7 +53,7 @@ const NAV_CARDS = (userId: string, isCreator: boolean, isOrganizer: boolean, isV
   ...(isCreator ? [
     { href: `/boutique/${userId}`, icon: <ShoppingBag size={22} className="text-indigo-600" />, label: 'Ma boutique',     sub: 'Mes créations' },
     { href: '/carnet-de-route',    icon: <MapPin size={22} className="text-indigo-600" />,      label: 'Carnet de route', sub: 'Mes déplacements' },
-    { href: '/feed',               icon: <Rss size={22} className="text-indigo-600" />,         label: 'Fil d\'actu',      sub: 'Créateurs suivis' },
+    { href: '/creators',            icon: <Rss size={22} className="text-indigo-600" />,         label: 'Créateurs',       sub: 'Parcourir les artisans' },
     ...(!isOrganizer ? [{ href: '/analytics', icon: <BarChart2 size={22} className="text-indigo-600" />, label: 'Analytiques', sub: 'Mes statistiques' }] : []),
   ] : []),
 ]
