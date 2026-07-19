@@ -260,8 +260,7 @@ export function NavbarFull() {
                           >
                             <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               {ev.cover_image
-                                // eslint-disable-next-line @next/next/no-img-element
-                                ? <img src={ev.cover_image} alt={ev.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <Image src={ev.cover_image} alt={ev.title} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <Calendar size={16} color="#6366F1" />
                               }
                             </div>
@@ -284,8 +283,7 @@ export function NavbarFull() {
                           >
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               {cr.avatar_url
-                                // eslint-disable-next-line @next/next/no-img-element
-                                ? <img src={cr.avatar_url} alt={cr.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ? <Image src={cr.avatar_url} alt={cr.full_name} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <Palette size={14} color="#6366F1" />
                               }
                             </div>
@@ -345,8 +343,7 @@ export function NavbarFull() {
                   >
                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden">
                       {user.avatar_url
-                        // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} className="w-full h-full object-cover" />
+                        ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={24} height={24} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         : <span className="text-[9px] font-black text-white">{firstName?.[0]?.toUpperCase() ?? '?'}</span>
                       }
                     </div>
@@ -481,8 +478,7 @@ export function NavbarFull() {
                     <Link href="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden shrink-0">
                         {user.avatar_url
-                          // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} className="w-full h-full object-cover" />
+                          ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                           : <span className="text-xs font-black text-white">{firstName?.[0]?.toUpperCase()}</span>
                         }
                       </div>

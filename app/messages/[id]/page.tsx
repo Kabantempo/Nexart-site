@@ -116,7 +116,7 @@ function AttachmentPreview({ url, type, name, isMine }: { url: string; type: str
           style={{ display: 'block', marginBottom: '6px', borderRadius: '12px', overflow: 'hidden', maxWidth: '260px', cursor: 'zoom-in' }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt={name ?? 'image'} style={{ width: '100%', display: 'block', maxHeight: '200px', objectFit: 'cover' }} />
+          <Image src={url} alt={name ?? 'image'} width={260} height={200} style={{ width: '100%', display: 'block', maxHeight: '200px', objectFit: 'cover' }} />
         </div>
       </>
     )

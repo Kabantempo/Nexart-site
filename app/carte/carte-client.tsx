@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Event } from '@/lib/types'
 import { MapPin, Calendar, Users, SlidersHorizontal, X, Euro } from 'lucide-react'
@@ -222,7 +223,7 @@ export default function CarteClient() {
 
             {selected.cover_image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={selected.cover_image} alt={selected.title} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
+              <Image src={selected.cover_image} alt={selected.title} width={560} height={120} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
             ) : (
               <div style={{ width: '100%', height: '80px', background: 'linear-gradient(135deg,#1E1B4B,#2D1B69)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <MapPin size={28} color="rgba(165,180,252,0.3)" />
