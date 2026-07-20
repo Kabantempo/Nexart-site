@@ -116,7 +116,7 @@ export default function AdminClient() {
   ]
 
   return (
-    <div style={{ display: 'flex', backgroundColor: '#F9FAFB', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', backgroundColor: 'var(--bg-secondary)', minHeight: '100vh' }}>
       {/* Sidebar */}
       <div style={{
         width: sidebarOpen ? '260px' : '0',
@@ -135,7 +135,7 @@ export default function AdminClient() {
                 <Shield size={20} color="#6366F1" />
                 <span style={{ fontSize: '16px', fontWeight: 700, color: '#FFFFFF' }}>Admin Panel</span>
               </div>
-              <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Nexart — Tableau de bord</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>Nexart — Tableau de bord</p>
             </div>
             <nav style={{ padding: '16px 12px', flex: 1 }}>
               {tabs.map(tab => (
@@ -150,7 +150,7 @@ export default function AdminClient() {
                     padding: '10px 12px',
                     marginBottom: '4px',
                     backgroundColor: activeTab === tab.id ? '#6366F1' : 'transparent',
-                    color: activeTab === tab.id ? '#FFFFFF' : '#9CA3AF',
+                    color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-secondary)',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: 'pointer',
@@ -172,11 +172,11 @@ export default function AdminClient() {
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Topbar */}
-        <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button onClick={() => setSidebarOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: '4px' }}>
+        <div style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button onClick={() => setSidebarOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}>
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <h1 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
             {tabs.find(t => t.id === activeTab)?.label}
           </h1>
           <button onClick={fetchData} style={{ marginLeft: 'auto', padding: '8px 16px', backgroundColor: '#6366F1', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}>
@@ -187,7 +187,7 @@ export default function AdminClient() {
         {/* Tab Content */}
         <div style={{ flex: 1, padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 24px)', overflowY: 'auto' }}>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#6B7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: 'var(--text-secondary)' }}>
               Chargement...
             </div>
           ) : activeTab === 'stats' ? (
@@ -209,7 +209,7 @@ export default function AdminClient() {
 
 function StatsTab({ stats }: { stats: Stats | null }) {
   if (!stats) return (
-    <div style={{ color: '#6B7280', textAlign: 'center', padding: '60px' }}>
+    <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '60px' }}>
       Aucune donnée disponible
     </div>
   )
@@ -224,8 +224,8 @@ function StatsTab({ stats }: { stats: Stats | null }) {
 
   return (
     <div>
-      <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Dashboard KPI</h2>
-      <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '32px' }}>Vue d'ensemble de la plateforme</p>
+      <h2 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>Dashboard KPI</h2>
+      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '32px' }}>Vue d'ensemble de la plateforme</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '40px' }}>
         {kpis.map(kpi => (
@@ -233,21 +233,21 @@ function StatsTab({ stats }: { stats: Stats | null }) {
             key={kpi.label}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px' }}
+            style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <kpi.icon size={18} color={kpi.color} />
               </div>
-              <span style={{ fontSize: '13px', color: '#6B7280', fontWeight: 500 }}>{kpi.label}</span>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>{kpi.label}</span>
             </div>
             <p style={{ fontSize: '36px', fontWeight: 700, color: kpi.color, margin: 0 }}>{kpi.value}</p>
           </motion.div>
         ))}
       </div>
 
-      <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '24px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>Résumé rapide</h3>
+      <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>Résumé rapide</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '12px' }}>
           {[
             { label: 'Total événements (toutes catégories)', value: stats.total_events ?? 0 },
@@ -255,9 +255,9 @@ function StatsTab({ stats }: { stats: Stats | null }) {
             { label: 'Signalements en attente', value: stats.open_reports ?? 0 },
             { label: 'Signalements traités', value: (stats.total_reports ?? 0) - (stats.open_reports ?? 0) },
           ].map(item => (
-            <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: '#F9FAFB', borderRadius: '8px' }}>
-              <span style={{ fontSize: '13px', color: '#6B7280' }}>{item.label}</span>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{item.value}</span>
+            <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', backgroundColor: 'var(--bg-secondary)', borderRadius: '8px' }}>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item.label}</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>{item.value}</span>
             </div>
           ))}
         </div>
@@ -296,15 +296,15 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
   const statusColors: Record<string, { bg: string; color: string; label: string }> = {
     open: { bg: '#FEF2F2', color: '#EF4444', label: '⏳ Ouvert' },
     resolved: { bg: '#ECFDF5', color: '#10B981', label: '✅ Résolu' },
-    dismissed: { bg: '#F3F4F6', color: '#9CA3AF', label: '— Ignoré' },
+    dismissed: { bg: '#F3F4F6', color: 'var(--text-secondary)', label: '— Ignoré' },
   }
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>Signalements</h2>
-          <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>Signalements</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
             {reports.filter(r => r.status === 'open').length} en attente · {reports.length} total
           </p>
         </div>
@@ -323,7 +323,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: '#9CA3AF', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
           Aucun signalement dans cette catégorie
         </div>
       ) : (
@@ -332,8 +332,8 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
             const s = statusColors[report.status] || statusColors.open
             return (
               <div key={report.id} style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E7EB',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border-color)',
                 borderLeft: `4px solid ${s.color}`,
                 borderRadius: '10px',
                 padding: '16px 20px',
@@ -341,16 +341,16 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                 <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', gap: '12px' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>{report.type}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{report.type}</span>
                       <span style={{ fontSize: '11px', padding: '2px 8px', backgroundColor: s.bg, color: s.color, borderRadius: '4px', fontWeight: 500 }}>
                         {s.label}
                       </span>
                     </div>
-                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 4px 0' }}>{report.reason || report.description}</p>
-                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{new Date(report.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 4px 0' }}>{report.reason || report.description}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{new Date(report.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                    <button onClick={() => setSelected(selected?.id === report.id ? null : report)} style={{ padding: '6px 10px', backgroundColor: '#F3F4F6', color: '#374151', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <button onClick={() => setSelected(selected?.id === report.id ? null : report)} style={{ padding: '6px 10px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Eye size={12} /> Détail
                     </button>
                     {report.status === 'open' && (
@@ -358,7 +358,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                         <button onClick={() => handleAction(report.id, 'resolved')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
                           Résoudre
                         </button>
-                        <button onClick={() => handleAction(report.id, 'dismissed')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: '#F3F4F6', color: '#6B7280', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
+                        <button onClick={() => handleAction(report.id, 'dismissed')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
                           Ignorer
                         </button>
                       </>
@@ -369,19 +369,19 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                 <AnimatePresence>
                   {selected?.id === report.id && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
-                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '8px', marginBottom: '12px' }}>
-                          <div style={{ padding: '10px', backgroundColor: '#F9FAFB', borderRadius: '6px' }}>
-                            <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 2px 0' }}>Type ciblé</p>
-                            <p style={{ fontSize: '13px', color: '#111827', margin: 0, fontWeight: 500 }}>{report.target_type || '—'}</p>
+                          <div style={{ padding: '10px', backgroundColor: 'var(--bg-secondary)', borderRadius: '6px' }}>
+                            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 2px 0' }}>Type ciblé</p>
+                            <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0, fontWeight: 500 }}>{report.target_type || '—'}</p>
                           </div>
-                          <div style={{ padding: '10px', backgroundColor: '#F9FAFB', borderRadius: '6px' }}>
-                            <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 2px 0' }}>ID cible</p>
-                            <p style={{ fontSize: '11px', color: '#111827', margin: 0, fontFamily: 'monospace' }}>{report.target_id || '—'}</p>
+                          <div style={{ padding: '10px', backgroundColor: 'var(--bg-secondary)', borderRadius: '6px' }}>
+                            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 2px 0' }}>ID cible</p>
+                            <p style={{ fontSize: '11px', color: 'var(--text-primary)', margin: 0, fontFamily: 'monospace' }}>{report.target_id || '—'}</p>
                           </div>
                         </div>
                         {report.description && (
-                          <p style={{ fontSize: '13px', color: '#374151', backgroundColor: '#F9FAFB', padding: '10px', borderRadius: '6px', margin: '0 0 12px 0' }}>
+                          <p style={{ fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', padding: '10px', borderRadius: '6px', margin: '0 0 12px 0' }}>
                             {report.description}
                           </p>
                         )}
@@ -391,12 +391,12 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                               value={note}
                               onChange={e => setNote(e.target.value)}
                               placeholder="Note de résolution (optionnel)..."
-                              style={{ flex: 1, padding: '8px 12px', border: '1px solid #D1D5DB', borderRadius: '6px', fontSize: '13px', outline: 'none' }}
+                              style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '13px', outline: 'none' }}
                             />
                           </div>
                         )}
                         {report.resolution_notes && (
-                          <p style={{ fontSize: '12px', color: '#6B7280', margin: '8px 0 0 0', fontStyle: 'italic' }}>Note : {report.resolution_notes}</p>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '8px 0 0 0', fontStyle: 'italic' }}>Note : {report.resolution_notes}</p>
                         )}
                       </div>
                     </motion.div>
@@ -443,31 +443,31 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>Utilisateurs</h2>
-          <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>{users.length} comptes</p>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>Utilisateurs</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>{users.length} comptes</p>
         </div>
         <div style={{ position: 'relative' }}>
-          <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }} />
+          <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Rechercher nom / email…"
-            style={{ paddingLeft: '32px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', border: '1px solid #D1D5DB', borderRadius: '8px', fontSize: '13px', outline: 'none', width: 'min(240px, 100%)' }}
+            style={{ paddingLeft: '32px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '13px', outline: 'none', width: 'min(240px, 100%)' }}
           />
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: '#9CA3AF', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
           {search ? 'Aucun résultat' : 'Aucun utilisateur'}
         </div>
       ) : (
-        <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+              <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                 {['Nom', 'Email', 'Rôle', 'Inscrit le', 'Statut', 'Action'].map(h => (
-                  <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                  <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -481,15 +481,15 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <span style={{ fontSize: '13px', fontWeight: 600, color: '#6366F1' }}>{(user.full_name || '?')[0].toUpperCase()}</span>
                         </div>
-                        <span style={{ fontSize: '14px', fontWeight: 500, color: '#111827' }}>{user.full_name || '—'}</span>
+                        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{user.full_name || '—'}</span>
                         {user.is_admin && <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: '#FEF3C7', color: '#D97706', borderRadius: '4px', fontWeight: 600 }}>ADMIN</span>}
                       </div>
                     </td>
-                    <td style={{ padding: '14px 16px', fontSize: '13px', color: '#6B7280' }}>{user.email || '—'}</td>
+                    <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>{user.email || '—'}</td>
                     <td style={{ padding: '14px 16px' }}>
                       <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: '#EEF2FF', color: '#6366F1', borderRadius: '4px', fontWeight: 500 }}>{user.role || 'user'}</span>
                     </td>
-                    <td style={{ padding: '14px 16px', fontSize: '12px', color: '#9CA3AF' }}>
+                    <td style={{ padding: '14px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {user.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
@@ -553,15 +553,15 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
   const statusInfo: Record<string, { bg: string; color: string; label: string }> = {
     draft: { bg: '#FEF3C7', color: '#D97706', label: '⏳ Brouillon' },
     published: { bg: '#ECFDF5', color: '#10B981', label: '✓ Publié' },
-    closed: { bg: '#F3F4F6', color: '#9CA3AF', label: '— Fermé' },
+    closed: { bg: '#F3F4F6', color: 'var(--text-secondary)', label: '— Fermé' },
   }
 
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>Événements</h2>
-          <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>Événements</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
             {events.filter(e => e.status === 'draft').length} en attente · {events.length} total
           </p>
         </div>
@@ -580,7 +580,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: '#9CA3AF', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
           Aucun événement dans cette catégorie
         </div>
       ) : (
@@ -588,19 +588,19 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
           {filtered.map(event => {
             const s = statusInfo[event.status] || statusInfo.draft
             return (
-              <div key={event.id} style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '20px' }}>
+              <div key={event.id} style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', gap: '16px' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                      <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</h3>
+                      <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</h3>
                       <span style={{ flexShrink: 0, fontSize: '11px', padding: '2px 8px', backgroundColor: s.bg, color: s.color, borderRadius: '4px', fontWeight: 500 }}>{s.label}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                         {event.start_date ? new Date(event.start_date).toLocaleDateString('fr-FR') : '—'}
                         {event.end_date ? ` → ${new Date(event.end_date).toLocaleDateString('fr-FR')}` : ''}
                       </span>
-                      <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{event.stand_count} stands</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{event.stand_count} stands</span>
                       <span style={{ fontSize: '11px', color: '#D1D5DB', fontFamily: 'monospace' }}>{event.id.slice(0, 8)}…</span>
                     </div>
                   </div>
@@ -626,7 +626,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
                     <button
                       onClick={() => handleAction(event.id, 'reject')}
                       disabled={busy === event.id}
-                      style={{ padding: '8px 16px', backgroundColor: '#F3F4F6', color: '#EF4444', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: busy === event.id ? 0.6 : 1 }}
+                      style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: '#EF4444', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: busy === event.id ? 0.6 : 1 }}
                     >
                       Fermer
                     </button>

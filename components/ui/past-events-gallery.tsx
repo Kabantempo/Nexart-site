@@ -41,7 +41,7 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
     return (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
         {[...Array(3)].map((_, i) => (
-          <div key={i} style={{ height: '160px', borderRadius: '14px', backgroundColor: '#F3F4F6' }} className="animate-shimmer" />
+          <div key={i} style={{ height: '160px', borderRadius: '14px', backgroundColor: 'var(--bg-secondary)' }} className="animate-shimmer" />
         ))}
       </div>
     )
@@ -64,11 +64,11 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05, duration: 0.4 }}
         >
-          <Link href={`/events/${ev.id}`} style={{ display: 'block', borderRadius: '14px', overflow: 'hidden', border: '1px solid #E5E7EB', textDecoration: 'none', backgroundColor: '#fff', transition: 'box-shadow 200ms' }}
+          <Link href={`/events/${ev.id}`} style={{ display: 'block', borderRadius: '14px', overflow: 'hidden', border: '1px solid var(--border-color)', textDecoration: 'none', backgroundColor: 'var(--bg-primary)', transition: 'box-shadow 200ms' }}
             onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.10)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none' }}
           >
-            <div style={{ position: 'relative', height: '110px', backgroundColor: '#F3F4F6' }}>
+            <div style={{ position: 'relative', height: '110px', backgroundColor: 'var(--bg-secondary)' }}>
               {ev.cover_image ? (
                 <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
               ) : (

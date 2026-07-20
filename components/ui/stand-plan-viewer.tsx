@@ -31,7 +31,7 @@ export default function StandPlanViewer({ eventId }: { eventId: string }) {
   }, [eventId])
 
   if (loading) return (
-    <div style={{ height: '120px', backgroundColor: '#F3F4F6', borderRadius: '12px', animation: 'pulse 2s infinite' }} />
+    <div style={{ height: '120px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px', animation: 'pulse 2s infinite' }} />
   )
 
   if (!plan || !plan.stands?.length) return null
@@ -43,7 +43,7 @@ export default function StandPlanViewer({ eventId }: { eventId: string }) {
   return (
     <div style={{ marginTop: '24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#111827' }}>Plan des stands</h3>
+        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)' }}>Plan des stands</h3>
         <span style={{ fontSize: '13px', color: '#15803D', fontWeight: '600', backgroundColor: '#F0FDF4', padding: '4px 10px', borderRadius: '20px', border: '1px solid #86EFAC' }}>
           {available} disponible{available !== 1 ? 's' : ''}
         </span>

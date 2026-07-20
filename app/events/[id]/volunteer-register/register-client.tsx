@@ -98,17 +98,17 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
   )
 
   if (step === 'success') return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#F9FAFB', padding: '24px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', padding: '24px' }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '48px 40px', maxWidth: '460px', textAlign: 'center' }}
+        style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '48px 40px', maxWidth: '460px', textAlign: 'center' }}
       >
         <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
           <CheckCircle size={32} color="#10B981" />
         </div>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>Inscription confirmée !</h1>
-        <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>Inscription confirmée !</h1>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
           Merci {form.name} ! Votre inscription comme bénévole a bien été prise en compte.<br />
           Vous recevrez votre planning par email une fois les créneaux validés.
         </p>
@@ -118,20 +118,20 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
   )
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#F9FAFB', padding: '24px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', padding: '24px' }}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '40px', width: '100%', maxWidth: '540px' }}
+        style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '40px', width: '100%', maxWidth: '540px' }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid #F3F4F6' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Users size={22} color="#6366F1" />
           </div>
           <div>
-            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 3px 0' }}>Inscription bénévole</p>
-            <h1 style={{ fontSize: '17px', fontWeight: 700, color: '#111827', margin: 0 }}>{event?.title || 'Événement'}</h1>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 3px 0' }}>Inscription bénévole</p>
+            <h1 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{event?.title || 'Événement'}</h1>
             {event?.start_date && (
               <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '3px 0 0 0' }}>
                 {new Date(event.start_date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
@@ -143,25 +143,25 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
 
         {/* Infos personnelles */}
         <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>Vos informations</h2>
+          <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>Vos informations</h2>
           <div style={{ display: 'grid', gap: '10px' }}>
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 500, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Prénom et nom *</label>
+              <label style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Prénom et nom *</label>
               <input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="Marie Dupont"
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 500, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Email *</label>
+              <label style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Email *</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 placeholder="marie@exemple.fr"
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
 
         {/* Créneaux */}
         <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '12px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
             Créneaux disponibles <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({form.selectedShifts.length} sélectionné{form.selectedShifts.length > 1 ? 's' : ''})</span>
           </h2>
           {shifts.length === 0 ? (
@@ -188,8 +188,8 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: '12px',
                       padding: '12px 16px',
-                      backgroundColor: selected ? '#EEF2FF' : full ? '#F9FAFB' : '#FFFFFF',
-                      border: `1px solid ${selected ? '#A5B4FC' : '#E5E7EB'}`,
+                      backgroundColor: selected ? '#EEF2FF' : full ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+                      border: `1px solid ${selected ? '#A5B4FC' : 'var(--border-color)'}`,
                       borderRadius: '8px',
                       cursor: full ? 'not-allowed' : 'pointer',
                       opacity: full ? 0.6 : 1,
@@ -201,7 +201,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                     </div>
                     <Clock size={14} color={selected ? '#6366F1' : '#9CA3AF'} />
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '14px', fontWeight: 500, color: '#111827' }}>{shift.role}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{shift.role}</span>
                       <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: '8px' }}>
                         {shift.date ? new Date(shift.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : ''} · {shift.time}
                       </span>

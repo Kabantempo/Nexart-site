@@ -47,7 +47,7 @@ export function CreditsWidget() {
   return (
     <div style={{ borderRadius: '14px', border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: '16px' }}>
       {/* Header */}
-      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', backgroundColor: '#FAFAFA', border: 'none', cursor: 'pointer' }}>
+      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', border: 'none', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={18} color="#FFF" fill="#FFF" />

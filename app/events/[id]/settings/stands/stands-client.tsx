@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: str
   available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
   reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
   occupied:  { bg: '#EEF2FF', border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
-  blocked:   { bg: '#F3F4F6', border: '#D1D5DB', text: '#6B7280', label: 'Bloqué' },
+  blocked:   { bg: 'var(--bg-secondary)', border: '#D1D5DB', text: '#6B7280', label: 'Bloqué' },
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -141,7 +141,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
 
   if (loading) return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', padding: '32px' }}>
-      {[...Array(4)].map((_, i) => <div key={i} className="animate-pulse" style={{ height: '80px', backgroundColor: '#F3F4F6', borderRadius: '12px' }} />)}
+      {[...Array(4)].map((_, i) => <div key={i} className="animate-pulse" style={{ height: '80px', backgroundColor: 'var(--bg-secondary)', borderRadius: '12px' }} />)}
     </div>
   )
 
@@ -153,18 +153,18 @@ export default function StandsClient({ eventId }: { eventId: string }) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', margin: 0 }}>Plan de stands</h2>
-          <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0' }}>Cliquez un stand pour le modifier</p>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Plan de stands</h2>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>Cliquez un stand pour le modifier</p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           {isDirty && (
             <button onClick={() => { setPlan(p => ({ ...p })); setIsDirty(false) }}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#374151', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}>
               <RotateCcw size={14} /> Annuler
             </button>
           )}
           <button onClick={save} disabled={saving || !isDirty}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: isDirty ? '#6366F1' : '#E5E7EB', color: isDirty ? '#fff' : '#9CA3AF', fontSize: '13px', fontWeight: '600', cursor: isDirty ? 'pointer' : 'not-allowed', transition: 'all 150ms' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: isDirty ? '#6366F1' : '#E5E7EB', color: isDirty ? '#fff' : 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: isDirty ? 'pointer' : 'not-allowed', transition: 'all 150ms' }}>
             <Save size={14} /> {saving ? 'Sauvegarde…' : 'Sauvegarder'}
           </button>
         </div>
@@ -173,35 +173,35 @@ export default function StandsClient({ eventId }: { eventId: string }) {
       {/* Stats bar */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(110px, 100%), 1fr))', gap: '10px', marginBottom: '24px' }}>
         {[
-          { label: 'Total', value: stats.total, color: '#374151', bg: '#F9FAFB' },
+          { label: 'Total', value: stats.total, color: 'var(--text-primary)', bg: 'var(--bg-secondary)' },
           { label: 'Disponibles', value: stats.available, color: '#15803D', bg: '#F0FDF4' },
           { label: 'Occupés', value: stats.occupied, color: '#3730A3', bg: '#EEF2FF' },
           { label: 'Réservés', value: stats.reserved, color: '#854D0E', bg: '#FEF9C3' },
-          { label: 'Bloqués', value: stats.blocked, color: '#6B7280', bg: '#F3F4F6' },
+          { label: 'Bloqués', value: stats.blocked, color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
         ].map(s => (
           <div key={s.label} style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: s.bg, textAlign: 'center' }}>
             <div style={{ fontSize: '22px', fontWeight: '700', color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: '500' }}>{s.label}</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '500' }}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Grid size controls */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', padding: '14px 18px', backgroundColor: '#F9FAFB', borderRadius: '10px', border: '1px solid #E5E7EB', flexWrap: 'wrap' }}>
-        <Grid3X3 size={16} style={{ color: '#6B7280', flexShrink: 0 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', padding: '14px 18px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
+        <Grid3X3 size={16} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>Rangées</span>
-          <button onClick={() => updateGrid(Math.max(1, plan.rows - 1), plan.cols)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={12} /></button>
+          <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: '500' }}>Rangées</span>
+          <button onClick={() => updateGrid(Math.max(1, plan.rows - 1), plan.cols)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={12} /></button>
           <span style={{ fontSize: '14px', fontWeight: '700', minWidth: '24px', textAlign: 'center' }}>{plan.rows}</span>
-          <button onClick={() => updateGrid(Math.min(26, plan.rows + 1), plan.cols)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
+          <button onClick={() => updateGrid(Math.min(26, plan.rows + 1), plan.cols)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>Colonnes</span>
-          <button onClick={() => updateGrid(plan.rows, Math.max(1, plan.cols - 1))} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={12} /></button>
+          <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: '500' }}>Colonnes</span>
+          <button onClick={() => updateGrid(plan.rows, Math.max(1, plan.cols - 1))} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={12} /></button>
           <span style={{ fontSize: '14px', fontWeight: '700', minWidth: '24px', textAlign: 'center' }}>{plan.cols}</span>
-          <button onClick={() => updateGrid(plan.rows, Math.min(30, plan.cols + 1))} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #D1D5DB', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
+          <button onClick={() => updateGrid(plan.rows, Math.min(30, plan.cols + 1))} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
         </div>
-        <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{plan.rows * plan.cols} stands</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{plan.rows * plan.cols} stands</span>
       </div>
 
       <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
@@ -211,7 +211,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
           {/* Column headers */}
           <div style={{ display: 'flex', marginLeft: `${CELL * 0.4}px`, marginBottom: '4px' }}>
             {Array.from({ length: plan.cols }, (_, i) => (
-              <div key={i} style={{ width: CELL, flexShrink: 0, textAlign: 'center', fontSize: '11px', fontWeight: '600', color: '#9CA3AF' }}>
+              <div key={i} style={{ width: CELL, flexShrink: 0, textAlign: 'center', fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)' }}>
                 {i + 1}
               </div>
             ))}
@@ -223,7 +223,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
             return (
               <div key={r} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
                 {/* Row label */}
-                <div style={{ width: `${CELL * 0.4}px`, flexShrink: 0, textAlign: 'center', fontSize: '11px', fontWeight: '600', color: '#9CA3AF' }}>
+                <div style={{ width: `${CELL * 0.4}px`, flexShrink: 0, textAlign: 'center', fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)' }}>
                   {rowLetter}
                 </div>
                 {/* Cells */}
@@ -260,7 +260,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
           {/* Legend */}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px' }}>
             {Object.entries(STATUS_COLORS).map(([status, s]) => (
-              <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#374151' }}>
+              <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-primary)' }}>
                 <div style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: s.bg, border: `1.5px solid ${s.border}` }} />
                 {s.label}
               </div>
@@ -270,9 +270,9 @@ export default function StandsClient({ eventId }: { eventId: string }) {
 
         {/* Side panel */}
         {selected && (
-          <div style={{ width: 'min(280px, 100%)', flexShrink: 0, backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '14px', padding: '20px' }}>
+          <div style={{ width: 'min(280px, 100%)', flexShrink: 0, backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '14px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#111827' }}>Stand {selected.id}</h3>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>Stand {selected.id}</h3>
               <button onClick={() => { resetStand(selected.id); setSelected(null) }} title="Réinitialiser"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: '4px' }}>
                 <Trash2 size={15} />
@@ -282,21 +282,21 @@ export default function StandsClient({ eventId }: { eventId: string }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Label */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '6px' }}>LABEL</label>
+                <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>LABEL</label>
                 <input value={selected.label} onChange={e => updateStand({ ...selected, label: e.target.value })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
               {/* Status */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '6px' }}>STATUT</label>
+                <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>STATUT</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                   {(Object.keys(STATUS_COLORS) as StandStatus[]).map(st => {
                     const s = STATUS_COLORS[st]
                     const active = selected.status === st
                     return (
                       <button key={st} onClick={() => updateStand({ ...selected, status: st })}
-                        style={{ padding: '7px 10px', borderRadius: '8px', border: `1.5px solid ${active ? s.border : '#E5E7EB'}`, backgroundColor: active ? s.bg : '#fff', color: active ? s.text : '#374151', fontSize: '12px', fontWeight: active ? '600' : '400', cursor: 'pointer', transition: 'all 100ms' }}>
+                        style={{ padding: '7px 10px', borderRadius: '8px', border: `1.5px solid ${active ? s.border : '#E5E7EB'}`, backgroundColor: active ? s.bg : 'var(--bg-primary)', color: active ? s.text : 'var(--text-primary)', fontSize: '12px', fontWeight: active ? '600' : '400', cursor: 'pointer', transition: 'all 100ms' }}>
                         {s.label}
                       </button>
                     )
@@ -306,34 +306,34 @@ export default function StandsClient({ eventId }: { eventId: string }) {
 
               {/* Assignee */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '6px' }}>CRÉATEUR ASSIGNÉ</label>
+                <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>CRÉATEUR ASSIGNÉ</label>
                 <input value={selected.assignee ?? ''} onChange={e => updateStand({ ...selected, assignee: e.target.value || undefined })}
                   placeholder="Nom du créateur…"
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
               {/* Dimensions */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '6px' }}>LARGEUR (m)</label>
+                  <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>LARGEUR (m)</label>
                   <input type="number" min={1} max={10} value={selected.width}
                     onChange={e => updateStand({ ...selected, width: Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '6px' }}>PROFONDEUR (m)</label>
+                  <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>PROFONDEUR (m)</label>
                   <input type="number" min={1} max={10} value={selected.height}
                     onChange={e => updateStand({ ...selected, height: Number(e.target.value) })}
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
 
               {/* Price override */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '6px' }}>PRIX SPÉCIFIQUE (€) <span style={{ fontWeight: 400 }}>— optionnel</span></label>
+                <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>PRIX SPÉCIFIQUE (€) <span style={{ fontWeight: 400 }}>— optionnel</span></label>
                 <input type="number" min={0} value={selected.price ?? ''} placeholder="Prix événement par défaut"
                   onChange={e => updateStand({ ...selected, price: e.target.value ? Number(e.target.value) : undefined })}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
             </div>
           </div>

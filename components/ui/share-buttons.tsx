@@ -105,8 +105,8 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
         <button
           onClick={shareNative}
           style={btnStyle}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
         >
           <Share2 size={14} />
           Partager

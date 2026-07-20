@@ -42,14 +42,14 @@ export function ComparePanel() {
 
             {/* Cards */}
             {pinned.map((ev) => (
-              <div key={ev.id} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', minWidth: '200px', maxWidth: '240px', position: 'relative' }}>
+              <div key={ev.id} style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', minWidth: '200px', maxWidth: '240px', position: 'relative' }}>
                 {ev.cover_image && (
                   <div style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
                     <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                  <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                   <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
                     {ev.stand_price != null ? `${ev.stand_price === 0 ? 'Gratuit' : `${ev.stand_price}€`}` : '—'}
                     {ev.city ? ` · ${ev.city}` : ''}
@@ -63,7 +63,7 @@ export function ComparePanel() {
 
             {/* Empty slots */}
             {Array.from({ length: 3 - pinned.length }).map((_, i) => (
-              <div key={i} style={{ flexShrink: 0, width: '120px', height: '56px', borderRadius: '12px', border: '1.5px dashed #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div key={i} style={{ flexShrink: 0, width: '120px', height: '56px', borderRadius: '12px', border: '1.5px dashed var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <p style={{ fontSize: '11px', color: '#D1D5DB', textAlign: 'center' }}>+</p>
               </div>
             ))}
@@ -77,7 +77,7 @@ export function ComparePanel() {
                 Comparer <ArrowRight size={13} />
               </Link>
             )}
-            <button onClick={clear} style={{ flexShrink: 0, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', background: 'none', color: '#9CA3AF', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <button onClick={clear} style={{ flexShrink: 0, padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'none', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Tout effacer
             </button>
           </div>

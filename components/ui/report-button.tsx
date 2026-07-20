@@ -53,7 +53,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
         title="Signaler ce contenu"
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E05A5A' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
       >
         <Flag size={14} /> Signaler
       </button>
@@ -75,7 +75,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={handleSubmit} disabled={!reason || submitting}
-                style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !reason || submitting ? '#D1D5DB' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !reason || submitting ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !reason || submitting ? 'var(--border-color)' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !reason || submitting ? 'not-allowed' : 'pointer' }}>
                 {submitting ? 'Envoi…' : 'Envoyer'}
               </button>
               <button onClick={() => setOpen(false)}

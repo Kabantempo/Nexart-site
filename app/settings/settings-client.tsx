@@ -177,7 +177,7 @@ export default function SettingsClient() {
                   e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FFFFFF'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-primary)'
                 }}
               >
                 <div>
@@ -186,7 +186,7 @@ export default function SettingsClient() {
                   </h3>
                   <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Lire nos engagements RGPD</p>
                 </div>
-                <ChevronRight size={20} color="#6B7280" />
+                <ChevronRight size={20} color="var(--text-secondary)" />
               </a>
 
               <a
@@ -208,7 +208,7 @@ export default function SettingsClient() {
                   e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#FFFFFF'
+                  e.currentTarget.style.backgroundColor = 'var(--bg-primary)'
                 }}
               >
                 <div>
@@ -219,7 +219,7 @@ export default function SettingsClient() {
                     Accès, rectification, portabilité (contact@nexart.fr)
                   </p>
                 </div>
-                <ChevronRight size={20} color="#6B7280" />
+                <ChevronRight size={20} color="var(--text-secondary)" />
               </a>
             </div>
           </motion.section>
@@ -372,7 +372,7 @@ function DeleteAccountButton() {
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#D1D5DB'
+                      e.currentTarget.style.backgroundColor = 'var(--text-secondary)'
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = 'var(--border-color)'
@@ -451,7 +451,7 @@ function DeleteAccountButton() {
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#D1D5DB'
+                      e.currentTarget.style.backgroundColor = 'var(--text-secondary)'
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = 'var(--border-color)'

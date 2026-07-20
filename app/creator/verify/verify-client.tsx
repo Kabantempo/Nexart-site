@@ -81,17 +81,17 @@ export default function VerifyClient() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)' }}>
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '40px 16px 80px' }}>
         {/* Back */}
         <button
           onClick={() => router.push('/profile')}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '32px', background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: '14px', fontWeight: 600, padding: 0 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '32px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600, padding: 0 }}>
           <ArrowLeft size={16} /> Retour au profil
         </button>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#1A1A1A', marginBottom: '6px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
             Vérification SIRET
           </h1>
           <p style={{ fontSize: '15px', color: '#888888', marginBottom: '36px' }}>
@@ -128,9 +128,9 @@ export default function VerifyClient() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '36px' }}>
             {benefits.map((b, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                style={{ padding: '18px', borderRadius: '14px', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                style={{ padding: '18px', borderRadius: '14px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <div style={{ marginBottom: '8px' }}>{b.icon}</div>
-                <p style={{ fontSize: '13px', fontWeight: 700, color: '#1A1A1A', margin: '0 0 4px' }}>{b.title}</p>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>{b.title}</p>
                 <p style={{ fontSize: '12px', color: '#888888', margin: 0, lineHeight: '1.5' }}>{b.desc}</p>
               </motion.div>
             ))}
@@ -138,8 +138,8 @@ export default function VerifyClient() {
 
           {/* Form */}
           {verifStatus !== 'approved' && verifStatus !== 'pending' && (
-            <form onSubmit={handleSubmit} style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <p style={{ fontSize: '13px', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>
+            <form onSubmit={handleSubmit} style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-color)', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Numéro SIRET <span style={{ color: '#EF4444' }}>*</span>
               </p>
               <input
@@ -149,9 +149,9 @@ export default function VerifyClient() {
                 maxLength={14}
                 style={{
                   width: '100%', boxSizing: 'border-box', padding: '12px 16px',
-                  borderRadius: '10px', border: `1px solid ${siret.length > 0 && siret.length !== 14 ? '#FCA5A5' : '#E5E7EB'}`,
+                  borderRadius: '10px', border: `1px solid ${siret.length > 0 && siret.length !== 14 ? '#FCA5A5' : 'var(--border-color)'}`,
                   fontSize: '16px', fontFamily: 'monospace', letterSpacing: '2px',
-                  outline: 'none', color: '#1A1A1A', backgroundColor: '#F9FAFB',
+                  outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)',
                   marginBottom: '6px',
                 }}
               />
@@ -177,7 +177,7 @@ export default function VerifyClient() {
                 disabled={siret.length !== 14 || submitting}
                 style={{
                   width: '100%', padding: '13px', borderRadius: '10px', border: 'none',
-                  backgroundColor: siret.length === 14 && !submitting ? '#6366F1' : '#E5E7EB',
+                  backgroundColor: siret.length === 14 && !submitting ? '#6366F1' : 'var(--border-color)',
                   color: siret.length === 14 && !submitting ? '#FFFFFF' : '#9CA3AF',
                   fontSize: '15px', fontWeight: 700, cursor: siret.length === 14 && !submitting ? 'pointer' : 'not-allowed',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',

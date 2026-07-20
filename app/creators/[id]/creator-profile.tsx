@@ -540,7 +540,7 @@ export function CreatorProfileClient({ id }: Props) {
                     const embed = getVideoEmbed(url)
                     if (!embed) return null
                     return (
-                      <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB', aspectRatio: '16/9', backgroundColor: '#000' }}>
+                      <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', aspectRatio: '16/9', backgroundColor: '#000' }}>
                         <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                       </div>
                     )
@@ -556,7 +556,7 @@ export function CreatorProfileClient({ id }: Props) {
                 <div className="flex flex-col gap-2.5">
                   {itinerary.map(entry => (
                     <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <MapPin size={14} color="#6B7280" />
+                      <MapPin size={14} color="var(--text-secondary)" />
                       <div>
                         <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>{entry.label}</p>
                         <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
@@ -584,7 +584,7 @@ export function CreatorProfileClient({ id }: Props) {
                     {boutiqueCount} création{boutiqueCount > 1 ? 's' : ''} disponible{boutiqueCount > 1 ? 's' : ''}
                   </p>
                   <Link href={`/boutique/${id}`}
-                    style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}>
+                    style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}>
                     Voir la boutique
                   </Link>
                 </div>
@@ -620,7 +620,7 @@ export function CreatorProfileClient({ id }: Props) {
                           {/* Étoiles */}
                           <div className="flex items-center gap-0.5 shrink-0">
                             {[1,2,3,4,5].map(n => (
-                              <Star key={n} size={15} fill={n <= r.rating ? '#F59E0B' : 'none'} color={n <= r.rating ? '#F59E0B' : '#D1D5DB'} />
+                              <Star key={n} size={15} fill={n <= r.rating ? '#F59E0B' : 'none'} color={n <= r.rating ? '#F59E0B' : 'var(--border-color)'} />
                             ))}
                           </div>
                         </div>
@@ -669,7 +669,7 @@ export function CreatorProfileClient({ id }: Props) {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-2 mb-6">
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
+                <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
                   <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                     {marchesCount ?? '—'}
                   </p>
@@ -677,7 +677,7 @@ export function CreatorProfileClient({ id }: Props) {
                     Marchés
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
+                <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
                   <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                     {reviews.length}
                   </p>
@@ -685,7 +685,7 @@ export function CreatorProfileClient({ id }: Props) {
                     Avis
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
+                <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
                   <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
                     {boutiqueCount ?? '—'}
                   </p>
