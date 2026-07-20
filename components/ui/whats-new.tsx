@@ -110,7 +110,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
           <span style={{
             position: 'absolute', top: '-2px', right: '-2px',
             width: '9px', height: '9px', borderRadius: '9999px',
-            backgroundColor: '#6366F1', border: '2px solid #FFFFFF',
+            backgroundColor: '#6366F1', border: '2px solid var(--bg-primary)',
           }} />
         )}
       </button>

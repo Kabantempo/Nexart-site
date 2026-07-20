@@ -27,8 +27,8 @@ export function GhostCard({ icon, title, description, cta, href, onAction }: Gho
         gap: '16px',
         padding: '64px 32px',
         borderRadius: '20px',
-        border: '1px dashed #D1D5DB',
-        backgroundColor: '#FAFAFA',
+        border: '1px dashed var(--border-color)',
+        backgroundColor: 'var(--bg-secondary)',
         textAlign: 'center',
         width: '100%',
       }}
@@ -48,10 +48,10 @@ export function GhostCard({ icon, title, description, cta, href, onAction }: Gho
       </div>
 
       <div style={{ maxWidth: '320px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>
           {title}
         </h3>
-        <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6' }}>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
           {description}
         </p>
       </div>

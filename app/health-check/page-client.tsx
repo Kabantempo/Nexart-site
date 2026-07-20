@@ -48,7 +48,7 @@ export default function HealthCheckDashboard() {
 
   if (loading && !report) {
     return (
-      <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh', padding: '60px 20px' }}>
+      <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', padding: '60px 20px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{ animation: 'spin 2s linear infinite' }}>
             <RotateCw size={48} color="#FF6B6B" />
@@ -63,7 +63,7 @@ export default function HealthCheckDashboard() {
 
   if (!report) {
     return (
-      <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh', padding: '60px 20px' }}>
+      <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', padding: '60px 20px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#EF4444' }}>
             Failed to load health check
@@ -101,12 +101,12 @@ export default function HealthCheckDashboard() {
   };
 
   return (
-    <div style={{ backgroundColor: '#F9FAFB', minHeight: '100vh', padding: '40px 20px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', padding: '40px 20px' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
         <div
           style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-primary)',
             padding: '30px',
             borderRadius: '8px',
             marginBottom: '30px',
@@ -165,22 +165,22 @@ export default function HealthCheckDashboard() {
 
         {/* Summary Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #3B82F6' }}>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #3B82F6' }}>
             <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Total Tests</div>
             <div style={{ fontSize: '28px', fontWeight: 700 }}>{report.summary.total}</div>
           </div>
 
-          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #10B981' }}>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #10B981' }}>
             <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Passed</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981' }}>{report.summary.passed}</div>
           </div>
 
-          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #EF4444' }}>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #EF4444' }}>
             <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Failed</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#EF4444' }}>{report.summary.failed}</div>
           </div>
 
-          <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #8B5CF6' }}>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #8B5CF6' }}>
             <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Duration</div>
             <div style={{ fontSize: '28px', fontWeight: 700 }}>{report.summary.duration}ms</div>
           </div>
@@ -196,7 +196,7 @@ export default function HealthCheckDashboard() {
               <div
                 key={category}
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: 'var(--bg-primary)',
                   padding: '20px',
                   borderRadius: '8px',
                   borderTop: `4px solid ${testCategoryColor(category)}`,
@@ -246,7 +246,7 @@ export default function HealthCheckDashboard() {
                           <XCircle size={16} color="#EF4444" />
                         )}
                         <span style={{ fontWeight: 600 }}>{test.name}</span>
-                        <span style={{ color: '#888', marginLeft: 'auto' }}>{test.duration}ms</span>
+                        <span style={{ color: 'var(--text-secondary)', marginLeft: 'auto' }}>{test.duration}ms</span>
                       </div>
                       {test.error && (
                         <div style={{ marginTop: '5px', color: '#EF4444', fontSize: '12px' }}>
@@ -333,7 +333,7 @@ export default function HealthCheckDashboard() {
         )}
 
         {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: '40px', color: '#888', fontSize: '12px' }}>
+        <div style={{ textAlign: 'center', marginTop: '40px', color: 'var(--text-secondary)', fontSize: '12px' }}>
           <p>Environment: <strong>{report.environment}</strong></p>
           <p>Check Timestamp: {report.timestamp}</p>
         </div>

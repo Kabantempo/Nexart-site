@@ -14,7 +14,7 @@ type EventWithRating = Event & { avg_rating?: number; review_count?: number; dis
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'contents' }}>
-      <div style={{ padding: '14px 16px', fontWeight: '600', fontSize: '13px', color: '#6B7280', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#FAFAFA' }}>
+      <div style={{ padding: '14px 16px', fontWeight: '600', fontSize: '13px', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--bg-secondary)' }}>
         {label}
       </div>
       {children}
@@ -24,7 +24,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Cell({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ padding: '14px 16px', fontSize: '14px', color: '#1A1A1A', borderBottom: '1px solid #F3F4F6', borderLeft: '1px solid #F3F4F6' }}>
+    <div style={{ padding: '14px 16px', fontSize: '14px', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', borderLeft: '1px solid var(--border-color)' }}>
       {children}
     </div>
   )
@@ -56,7 +56,7 @@ function CompareContent() {
   if (!ids.length) {
     return (
       <div style={{ textAlign: 'center', padding: '80px 16px' }}>
-        <p style={{ fontSize: '18px', color: '#888', marginBottom: '16px' }}>Aucun événement sélectionné.</p>
+        <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Aucun événement sélectionné.</p>
         <Link href="/events" style={{ color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>← Retour aux événements</Link>
       </div>
     )
@@ -69,37 +69,37 @@ function CompareContent() {
   const gridCols = `160px repeat(${cols}, 1fr)`
 
   return (
-    <div style={{ backgroundColor: '#fff', minHeight: 'calc(100vh - 80px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 80px)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 16px 80px' }}>
         <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6366F1', fontSize: '14px', fontWeight: '600', textDecoration: 'none', marginBottom: '24px' }}>
           <ArrowLeft size={15} /> Retour aux événements
         </Link>
 
         <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-          style={{ fontSize: '32px', fontWeight: '800', color: '#1A1A1A', marginBottom: '8px' }}>
+          style={{ fontSize: '32px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px' }}>
           Comparaison
         </motion.h1>
-        <p style={{ color: '#888', marginBottom: '32px', fontSize: '15px' }}>{cols} marché{cols > 1 ? 's' : ''} sélectionné{cols > 1 ? 's' : ''}</p>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>{cols} marché{cols > 1 ? 's' : ''} sélectionné{cols > 1 ? 's' : ''}</p>
 
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 0, borderRadius: '16px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 0, borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
             {Array.from({ length: cols + 1 }).map((_, i) => (
-              <div key={i} style={{ height: '200px', backgroundColor: i === 0 ? '#FAFAFA' : '#fff', borderLeft: i > 0 ? '1px solid #E5E7EB' : 'none' }} className="animate-shimmer" />
+              <div key={i} style={{ height: '200px', backgroundColor: i === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)', borderLeft: i > 0 ? '1px solid var(--border-color)' : 'none' }} className="animate-shimmer" />
             ))}
           </div>
         ) : (
-          <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+          <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: gridCols }}>
               {/* Header row */}
-              <div style={{ padding: '20px 16px', backgroundColor: '#FAFAFA', fontWeight: '700', fontSize: '13px', color: '#9CA3AF' }}>Critère</div>
+              <div style={{ padding: '20px 16px', backgroundColor: 'var(--bg-secondary)', fontWeight: '700', fontSize: '13px', color: 'var(--text-secondary)' }}>Critère</div>
               {events.map(ev => (
-                <div key={ev.id} style={{ padding: '20px 16px', borderLeft: '1px solid #E5E7EB', backgroundColor: '#fff' }}>
+                <div key={ev.id} style={{ padding: '20px 16px', borderLeft: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
                   {ev.cover_image && (
                     <div style={{ width: '100%', height: '100px', borderRadius: '10px', overflow: 'hidden', marginBottom: '10px', position: 'relative' }}>
                       <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
                     </div>
                   )}
-                  <p style={{ fontWeight: '700', fontSize: '14px', color: '#1A1A1A', margin: '0 0 6px' }}>{ev.title}</p>
+                  <p style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-primary)', margin: '0 0 6px' }}>{ev.title}</p>
                   <Link href={`/events/${ev.id}`} style={{ fontSize: '12px', color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>Voir le détail →</Link>
                 </div>
               ))}
@@ -151,8 +151,8 @@ function CompareContent() {
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                         {tags.length > 0 ? tags.slice(0, 4).map(t => (
                           <span key={t} style={{ padding: '2px 8px', borderRadius: '9999px', backgroundColor: '#EEF2FF', color: '#6366F1', fontSize: '11px', fontWeight: '600' }}>{t}</span>
-                        )) : <span style={{ color: '#9CA3AF', fontSize: '13px' }}>—</span>}
-                        {tags.length > 4 && <span style={{ fontSize: '11px', color: '#9CA3AF' }}>+{tags.length - 4}</span>}
+                        )) : <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>—</span>}
+                        {tags.length > 4 && <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>+{tags.length - 4}</span>}
                       </div>
                     </Cell>
                   )
@@ -166,9 +166,9 @@ function CompareContent() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Star size={13} color="#F59E0B" fill="#F59E0B" />
                         <strong>{ev.avg_rating.toFixed(1)}</strong>
-                        <span style={{ color: '#9CA3AF', fontSize: '12px' }}>({ev.review_count} avis)</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>({ev.review_count} avis)</span>
                       </span>
-                    ) : <span style={{ color: '#9CA3AF' }}>Aucun avis</span>}
+                    ) : <span style={{ color: 'var(--text-secondary)' }}>Aucun avis</span>}
                   </Cell>
                 ))}
               </Row>
@@ -192,7 +192,7 @@ function CompareContent() {
 
 export default function CompareClient() {
   return (
-    <Suspense fallback={<div style={{ padding: '80px', textAlign: 'center', color: '#888' }}>Chargement...</div>}>
+    <Suspense fallback={<div style={{ padding: '80px', textAlign: 'center', color: 'var(--text-secondary)' }}>Chargement...</div>}>
       <CompareContent />
     </Suspense>
   )

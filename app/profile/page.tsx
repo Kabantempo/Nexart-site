@@ -126,7 +126,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   pending:   { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB' },
   accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
-  draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: '#F3F4F6' },
+  draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
   published: { label: 'Publié',     color: '#10B981', bg: '#ECFDF5' },
   closed:    { label: 'Fermé',      color: 'var(--text-secondary)', bg: '#F3F4F6' },
 }
@@ -2938,7 +2938,7 @@ export default function ProfilePage() {
             />
 
             {/* Videos section */}
-            <div style={{ marginTop: '32px', padding: '24px', borderRadius: '16px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+            <div style={{ marginTop: '32px', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>Vidéos portfolio</h3>
               <p style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>YouTube, TikTok ou Instagram Reels (max 6)</p>
 

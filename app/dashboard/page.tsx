@@ -369,7 +369,7 @@ export default function DashboardPage() {
 
         {/* Billing card */}
         <div className="mb-6 p-5 rounded-2xl border flex items-center gap-4 flex-wrap"
-          style={{ borderColor: isPaid ? '#C7D2FE' : '#E5E7EB', backgroundColor: isPaid ? '#EEF2FF' : '#F9FAFB' }}>
+          style={{ borderColor: isPaid ? '#C7D2FE' : 'var(--border-color)', backgroundColor: isPaid ? '#EEF2FF' : 'var(--bg-secondary)' }}>
           <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${isPaid ? 'bg-indigo-100' : 'bg-gray-100'}`}>
             <CreditCard size={20} className={isPaid ? 'text-indigo-600' : 'text-gray-400'} />
           </div>
@@ -532,7 +532,7 @@ function ProfileViewsWidget({ count, days }: { count: number; days: { date: stri
               className="rounded-sm transition-all duration-300"
               style={{
                 height: `${Math.max(d.count / max * 100, d.count > 0 ? 8 : 2)}%`,
-                backgroundColor: d.count > 0 ? '#6366F1' : '#E5E7EB',
+                backgroundColor: d.count > 0 ? '#6366F1' : 'var(--border-color)',
                 opacity: i >= days.length - 7 ? 1 : 0.45,
               }}
             />
@@ -715,12 +715,12 @@ function CreatorContent({
           ].map(kpi => (
             <div key={kpi.label} style={{ padding: '16px', borderRadius: '16px', backgroundColor: kpi.bg, border: `1px solid ${kpi.color}22`, textAlign: 'center' }}>
               <div style={{ fontSize: '22px', fontWeight: 800, color: kpi.color }}>{kpi.value}</div>
-              <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '2px', fontWeight: 600 }}>{kpi.label}</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', fontWeight: 600 }}>{kpi.label}</div>
             </div>
           ))}
           <div style={{ padding: '16px', borderRadius: '16px', backgroundColor: '#F5F3FF', border: '1px solid #6366F122', textAlign: 'center' }}>
             <div style={{ fontSize: '22px', fontWeight: 800, color: '#6366F1' }}>{appRate}%</div>
-            <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '2px', fontWeight: 600 }}>Taux d'acc.</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', fontWeight: 600 }}>Taux d'acc.</div>
           </div>
         </div>
       )}
@@ -775,18 +775,18 @@ function CreatorContent({
                 style={{
                   padding: '20px 24px',
                   borderRadius: '16px',
-                  border: status === 'accepted' ? '1px solid #86EFAC' : status === 'refused' ? '1px solid #FCA5A5' : '1px solid #E5E7EB',
-                  backgroundColor: status === 'accepted' ? '#F0FDF4' : status === 'refused' ? '#FFF5F5' : '#FFFFFF',
+                  border: status === 'accepted' ? '1px solid #86EFAC' : status === 'refused' ? '1px solid #FCA5A5' : '1px solid var(--border-color)',
+                  backgroundColor: status === 'accepted' ? '#F0FDF4' : status === 'refused' ? '#FFF5F5' : 'var(--bg-primary)',
                   transition: 'box-shadow 150ms ease',
                 }}
               >
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#111827', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {app.event?.title || 'Événement inconnu'}
                     </h3>
-                    <p style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                       {app.event?.city ? ` · ${app.event.city}` : ''}
                       {' · '} Candidature du {new Date(app.created_at).toLocaleDateString('fr-FR')}
@@ -825,9 +825,9 @@ function CreatorContent({
                     const done = idx < activeStep
                     const active = idx === activeStep
                     const isRefused = status === 'refused' && idx === 2
-                    const dotColor = isRefused ? '#EF4444' : done || active ? '#6366F1' : '#E5E7EB'
-                    const textColor = isRefused ? '#EF4444' : done || active ? '#6366F1' : '#9CA3AF'
-                    const bgColor = isRefused ? '#FEE2E2' : done || active ? '#EEF2FF' : '#F9FAFB'
+                    const dotColor = isRefused ? '#EF4444' : done || active ? '#6366F1' : 'var(--border-color)'
+                    const textColor = isRefused ? '#EF4444' : done || active ? '#6366F1' : 'var(--text-secondary)'
+                    const bgColor = isRefused ? '#FEE2E2' : done || active ? '#EEF2FF' : 'var(--bg-secondary)'
 
                     return (
                       <React.Fragment key={step.key}>
@@ -845,7 +845,7 @@ function CreatorContent({
                           <span style={{ fontSize: '10px', fontWeight: 600, color: textColor, whiteSpace: 'nowrap' }}>
                             {step.label}
                           </span>
-                          <span style={{ fontSize: '9px', color: '#D1D5DB', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '9px', color: 'var(--border-color)', whiteSpace: 'nowrap' }}>
                             {(step as any).sublabel}
                           </span>
                         </div>
@@ -853,7 +853,7 @@ function CreatorContent({
                           <div style={{
                             flex: 1,
                             height: '2px',
-                            backgroundColor: idx < activeStep ? '#6366F1' : '#E5E7EB',
+                            backgroundColor: idx < activeStep ? '#6366F1' : 'var(--border-color)',
                             marginBottom: '18px',
                             transition: 'background-color 300ms ease',
                           }} />
@@ -1322,7 +1322,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
               {[1,2,3,4,5].map(n => (
                 <button key={n} onClick={() => setReviewRating(n)}
                   className="transition-transform hover:scale-110">
-                  <Star size={28} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : '#D1D5DB'} />
+                  <Star size={28} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'var(--border-color)'} />
                 </button>
               ))}
               {reviewRating > 0 && <span className="text-sm text-gray-500 ml-2">{['','Insuffisant','Passable','Bien','Très bien','Excellent'][reviewRating]}</span>}

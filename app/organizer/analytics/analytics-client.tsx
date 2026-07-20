@@ -123,7 +123,7 @@ export default function AnalyticsClient() {
 
   if (loading) return <LoadingSkeleton />
   if (error) return (
-    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center', color: '#EF4444', fontSize: 16 }}>
         <BarChart2 size={40} style={{ marginBottom: 12, opacity: 0.4 }} />
         <p>{error}</p>
@@ -140,8 +140,8 @@ export default function AnalyticsClient() {
   const pieTotal = totalEvents || 1
   const pieSlices = [
     { label: 'Publié', value: eventsByStatus.published, color: '#6366F1' },
-    { label: 'Clôturé', value: eventsByStatus.closed, color: '#6B7280' },
-    { label: 'Brouillon', value: eventsByStatus.draft, color: '#9CA3AF' },
+    { label: 'Clôturé', value: eventsByStatus.closed, color: 'var(--text-secondary)' },
+    { label: 'Brouillon', value: eventsByStatus.draft, color: 'var(--text-secondary)' },
   ]
 
   // SVG Pie chart
@@ -164,7 +164,7 @@ export default function AnalyticsClient() {
   })
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 64px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 64px)' }}>
       <style>{`
         @keyframes pulse-skeleton {
           0% { background-position: 200% 0; }
@@ -175,7 +175,7 @@ export default function AnalyticsClient() {
       {/* Hero dark */}
       <div className="bg-[#06060f] relative overflow-hidden">
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 24px 48px', position: 'relative', zIndex: 10 }}>
-          <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#9CA3AF', fontSize: 13, marginBottom: 20, textDecoration: 'none' }}>
+          <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 13, marginBottom: 20, textDecoration: 'none' }}>
             <ArrowLeft size={14} /> Retour au dashboard
           </Link>
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -185,7 +185,7 @@ export default function AnalyticsClient() {
               </div>
               <h1 style={{ fontSize: 32, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Analytics</h1>
             </div>
-            <p style={{ fontSize: 15, color: '#9CA3AF', margin: 0 }}>Vue d'ensemble des performances de vos événements</p>
+            <p style={{ fontSize: 15, color: 'var(--text-secondary)', margin: 0 }}>Vue d'ensemble des performances de vos événements</p>
           </motion.div>
         </div>
       </div>
@@ -206,15 +206,15 @@ export default function AnalyticsClient() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, duration: 0.45 }}
-              style={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 16, padding: '20px 24px' }}
+              style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 16, padding: '20px 24px' }}
             >
               <div style={{ width: 36, height: 36, borderRadius: 10, background: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
                 {card.icon}
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#1A1A1A', lineHeight: 1 }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>
                 <AnimatedNumber value={card.value} />{card.suffix || ''}
               </div>
-              <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>{card.label}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{card.label}</div>
             </motion.div>
           ))}
         </div>
@@ -227,22 +227,22 @@ export default function AnalyticsClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            style={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 16, padding: '24px' }}
+            style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 16, padding: '24px' }}
           >
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 20, marginTop: 0 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, marginTop: 0 }}>
               Candidatures par événement
             </h2>
             {applicationsPerEvent.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#9CA3AF', padding: '32px 0', fontSize: 14 }}>Aucun événement trouvé</div>
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '32px 0', fontSize: 14 }}>Aucun événement trouvé</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {applicationsPerEvent.slice(0, 8).map(ev => (
                   <div key={ev.event_id}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, color: '#1A1A1A', maxWidth: '70%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</span>
-                      <span style={{ fontSize: 12, color: '#888' }}>{ev.total} candidature{ev.total !== 1 ? 's' : ''}</span>
+                      <span style={{ fontSize: 13, color: 'var(--text-primary)', maxWidth: '70%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ev.total} candidature{ev.total !== 1 ? 's' : ''}</span>
                     </div>
-                    <div style={{ background: '#F3F4F6', borderRadius: 6, height: 8, overflow: 'hidden' }}>
+                    <div style={{ background: 'var(--bg-secondary)', borderRadius: 6, height: 8, overflow: 'hidden' }}>
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${(ev.total / maxApps) * 100}%` }}
@@ -255,7 +255,7 @@ export default function AnalyticsClient() {
                       <span style={{ fontSize: 11, color: '#F59E0B' }}>{ev.pending} att.</span>
                       <span style={{ fontSize: 11, color: '#EF4444' }}>{ev.refused} ref.</span>
                       {ev.stand_count > 0 && (
-                        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                           {ev.fill_rate}% rempli
                         </span>
                       )}
@@ -271,15 +271,15 @@ export default function AnalyticsClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            style={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 16, padding: '24px' }}
+            style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 16, padding: '24px' }}
           >
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 16, marginTop: 0 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16, marginTop: 0 }}>
               Événements par statut
             </h2>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
               <svg viewBox="0 0 140 140" width={140} height={140}>
                 {totalEvents === 0 ? (
-                  <circle cx={cx} cy={cy} r={r} fill="#F3F4F6" />
+                  <circle cx={cx} cy={cy} r={r} fill="var(--bg-secondary)" />
                 ) : (
                   pieSegments.map((seg, i) => (
                     seg.d ? <path key={i} d={seg.d} fill={seg.color} stroke="#FFF" strokeWidth={2} /> : null
@@ -295,9 +295,9 @@ export default function AnalyticsClient() {
                 <div key={s.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 10, height: 10, borderRadius: 3, background: s.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: 13, color: '#1A1A1A' }}>{s.label}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{s.label}</span>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{s.value}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{s.value}</span>
                 </div>
               ))}
             </div>
@@ -311,19 +311,19 @@ export default function AnalyticsClient() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            style={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 16, padding: '24px', marginBottom: 40 }}
+            style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 16, padding: '24px', marginBottom: 40 }}
           >
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 20, marginTop: 0 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20, marginTop: 0 }}>
               Top disciplines (créateurs acceptés)
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
               {topDisciplines.map((d, i) => (
                 <div key={d.discipline}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 13, color: '#1A1A1A', textTransform: 'capitalize' }}>{d.discipline}</span>
-                    <span style={{ fontSize: 12, color: '#888' }}>{d.count}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-primary)', textTransform: 'capitalize' }}>{d.discipline}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.count}</span>
                   </div>
-                  <div style={{ background: '#F3F4F6', borderRadius: 6, height: 6, overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--bg-secondary)', borderRadius: 6, height: 6, overflow: 'hidden' }}>
                     <motion.div
                       initial={{ width: 0 }}
                       whileInView={{ width: `${(d.count / maxDiscipline) * 100}%` }}
@@ -344,30 +344,30 @@ export default function AnalyticsClient() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          style={{ background: '#FFF', border: '1px solid #E5E7EB', borderRadius: 16, overflow: 'hidden' }}
+          style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 16, overflow: 'hidden' }}
         >
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid #E5E7EB' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>Détail par événement</h2>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)' }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Détail par événement</h2>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: '#F9FAFB' }}>
+                <tr style={{ background: 'var(--bg-secondary)' }}>
                   {['Titre', 'Statut', 'Candidatures', 'Acceptées', 'En attente', 'Taux remplissage'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 12, fontWeight: 600, color: '#6B7280', whiteSpace: 'nowrap' }}>{h}</th>
+                    <th key={h} style={{ textAlign: 'left', padding: '10px 16px', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {applicationsPerEvent.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: '#9CA3AF', fontSize: 14 }}>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)', fontSize: 14 }}>
                       Aucun événement
                     </td>
                   </tr>
                 ) : applicationsPerEvent.map((ev, i) => (
-                  <tr key={ev.event_id} style={{ borderTop: '1px solid #F3F4F6', background: i % 2 === 0 ? '#FFF' : '#FAFAFA' }}>
-                    <td style={{ padding: '12px 16px', fontSize: 14, color: '#1A1A1A', maxWidth: 220 }}>
+                  <tr key={ev.event_id} style={{ borderTop: '1px solid var(--border-color)', background: i % 2 === 0 ? 'var(--bg-primary)' : 'var(--bg-secondary)' }}>
+                    <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--text-primary)', maxWidth: 220 }}>
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
                         {ev.title}
                       </span>
@@ -385,19 +385,19 @@ export default function AnalyticsClient() {
                         {STATUS_LABELS[ev.status] || ev.status}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: 14, color: '#1A1A1A', fontWeight: 600 }}>{ev.total}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--text-primary)', fontWeight: 600 }}>{ev.total}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: '#10B981', fontWeight: 600 }}>{ev.accepted}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: '#F59E0B', fontWeight: 600 }}>{ev.pending}</td>
                     <td style={{ padding: '12px 16px' }}>
                       {ev.stand_count > 0 ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ flex: 1, background: '#F3F4F6', borderRadius: 4, height: 6, minWidth: 60 }}>
+                          <div style={{ flex: 1, background: 'var(--bg-secondary)', borderRadius: 4, height: 6, minWidth: 60 }}>
                             <div style={{ width: `${Math.min(ev.fill_rate, 100)}%`, height: '100%', background: '#6366F1', borderRadius: 4, transition: 'width 0.5s' }} />
                           </div>
-                          <span style={{ fontSize: 12, color: '#888', whiteSpace: 'nowrap' }}>{ev.fill_rate}%</span>
+                          <span style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{ev.fill_rate}%</span>
                         </div>
                       ) : (
-                        <span style={{ fontSize: 12, color: '#9CA3AF' }}>—</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>—</span>
                       )}
                     </td>
                   </tr>
@@ -413,12 +413,12 @@ export default function AnalyticsClient() {
 
 function LoadingSkeleton() {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <div style={{ background: '#06060f', height: 160 }} />
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px 80px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
           {[...Array(4)].map((_, i) => (
-            <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: 16, padding: '20px 24px' }}>
+            <div key={i} style={{ border: '1px solid var(--border-color)', borderRadius: 16, padding: '20px 24px' }}>
               <Skeleton width={36} height={36} />
               <div style={{ marginTop: 12 }}><Skeleton width={80} height={28} /></div>
               <div style={{ marginTop: 6 }}><Skeleton width={120} height={14} /></div>
@@ -426,13 +426,13 @@ function LoadingSkeleton() {
           ))}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, marginBottom: 40 }}>
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: 16, padding: 24 }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: 16, padding: 24 }}>
             <Skeleton width={200} height={20} />
             <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[...Array(4)].map((_, i) => <div key={i} style={{ animationDelay: `${i * 80}ms` }}><Skeleton height={24} /></div>)}
             </div>
           </div>
-          <div style={{ border: '1px solid #E5E7EB', borderRadius: 16, padding: 24 }}>
+          <div style={{ border: '1px solid var(--border-color)', borderRadius: 16, padding: 24 }}>
             <Skeleton width={140} height={20} />
             <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}><Skeleton width={140} height={140} /></div>
           </div>

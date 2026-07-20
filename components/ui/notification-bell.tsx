@@ -25,7 +25,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   new_message:             { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
   verification_accepted:   { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
   verification_refused:    { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
-  default:                 { icon: <Bell size={16} />,         color: 'var(--text-secondary)', bg: '#F3F4F6' },
+  default:                 { icon: <Bell size={16} />,         color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
 }
 
 function relativeTime(dateStr: string): string {
@@ -168,7 +168,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
               {notifications.length === 0 ? (
                 <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                  <Bell size={32} color="#E5E7EB" style={{ marginBottom: '10px' }} />
+                  <Bell size={32} color="var(--border-color)" style={{ marginBottom: '10px' }} />
                   <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Aucune notification</p>
                 </div>
               ) : (

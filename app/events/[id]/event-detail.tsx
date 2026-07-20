@@ -160,7 +160,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
             {tagOptions.map(tag => (
               <button key={tag} onClick={() => toggleTag(tag)}
-                style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: '1px solid', borderColor: selectedTags.includes(tag) ? '#111827' : '#E5E7EB', backgroundColor: selectedTags.includes(tag) ? '#111827' : '#FFFFFF', color: selectedTags.includes(tag) ? '#FFFFFF' : '#6B7280' }}>
+                style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: '1px solid', borderColor: selectedTags.includes(tag) ? 'var(--text-primary)' : 'var(--border-color)', backgroundColor: selectedTags.includes(tag) ? 'var(--text-primary)' : 'var(--bg-primary)', color: selectedTags.includes(tag) ? 'var(--bg-primary)' : 'var(--text-secondary)' }}>
                 {tag}
               </button>
             ))}
@@ -171,7 +171,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
 
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={handleSubmit} disabled={submitting || rating === 0 || (userRole === 'organizer' && !reviewedId)}
-              style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: (submitting || rating === 0) ? '#D1D5DB' : '#111827', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+              style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: (submitting || rating === 0) ? 'var(--border-color)' : 'var(--text-primary)', color: 'var(--bg-primary)', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
               {submitting ? 'Envoi...' : 'Publier l\'avis'}
             </button>
             <button onClick={() => setShowForm(false)}
@@ -277,7 +277,7 @@ function StandsManager({ eventId }: { eventId: string }) {
   if (!open) {
     return (
       <button onClick={() => setOpen(true)}
-        style={{ width: '100%', marginTop: '16px', padding: '10px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+        style={{ width: '100%', marginTop: '16px', padding: '10px', borderRadius: '8px', border: '1px dashed var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
         Gérer les stands ({stands.length})
       </button>
     )
@@ -325,7 +325,7 @@ function FaqSection({ items }: { items: { q: string; a: string }[] }) {
         {items.map((item, i) => (
           <div key={i} style={{ border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
             <button onClick={() => setOpen(open === i ? null : i)}
-              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', backgroundColor: open === i ? '#F8F7FF' : '#FFFFFF', border: 'none', cursor: 'pointer', textAlign: 'left', gap: '12px' }}>
+              style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', backgroundColor: open === i ? 'var(--bg-secondary)' : 'var(--bg-primary)', border: 'none', cursor: 'pointer', textAlign: 'left', gap: '12px' }}>
               <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.q}</span>
               <span style={{ fontSize: '20px', color: '#6366F1', flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'none', transition: 'transform 150ms' }}>+</span>
             </button>
@@ -733,16 +733,16 @@ export function EventDetailClient({ id }: Props) {
         <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
             Accueil
           </Link>
-          <ChevronRight size={13} color="#D1D5DB" />
+          <ChevronRight size={13} color="var(--border-color)" />
           <Link href="/events" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
             onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#9CA3AF' }}>
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
             Événements
           </Link>
-          <ChevronRight size={13} color="#D1D5DB" />
+          <ChevronRight size={13} color="var(--border-color)" />
           <span style={{ color: 'var(--text-primary)', fontWeight: '600', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {event.title}
           </span>
@@ -839,7 +839,7 @@ export function EventDetailClient({ id }: Props) {
                     padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
                     backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)',
                     fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                    border: '1.5px solid #E2E8F0', marginTop: '28px',
+                    border: '1.5px solid var(--border-color)', marginTop: '28px',
                   }}
                 >
                   <Download size={16} /> Agenda (.ics)
@@ -852,9 +852,9 @@ export function EventDetailClient({ id }: Props) {
                       display: 'flex', alignItems: 'center', gap: '8px',
                       padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
                       backgroundColor: favEventIds.has(id) ? '#FFF1F2' : '#F8FAFC',
-                      color: favEventIds.has(id) ? '#BE123C' : '#64748B',
+                      color: favEventIds.has(id) ? '#BE123C' : 'var(--text-secondary)',
                       fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                      border: `1.5px solid ${favEventIds.has(id) ? '#FECDD3' : '#E2E8F0'}`,
+                      border: `1.5px solid ${favEventIds.has(id) ? '#FECDD3' : 'var(--border-color)'}`,
                       marginTop: '28px',
                     }}
                   >
@@ -958,7 +958,7 @@ export function EventDetailClient({ id }: Props) {
                 const pct = Math.min(100, Math.round((acceptedCount / (event.stand_count ?? 1)) * 100))
                 const full = remaining <= 0
                 return (
-                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? '#FEF2F2' : '#F9FAFB', border: `1px solid ${full ? '#FCA5A5' : '#E5E7EB'}` }}>
+                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? '#FEF2F2' : 'var(--bg-secondary)', border: `1px solid ${full ? '#FCA5A5' : 'var(--border-color)'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)' }}>
                         {full ? 'Complet' : `${remaining} stand${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
@@ -987,11 +987,11 @@ export function EventDetailClient({ id }: Props) {
                 <div style={{
                   padding: '16px',
                   borderRadius: '8px',
-                  backgroundColor: STATUS_STYLES[application.status]?.bg || '#F5F5F7',
-                  border: `1px solid ${STATUS_STYLES[application.status]?.color || '#E5E7EB'}`,
+                  backgroundColor: STATUS_STYLES[application.status]?.bg || 'var(--bg-secondary)',
+                  border: `1px solid ${STATUS_STYLES[application.status]?.color || 'var(--border-color)'}`,
                   textAlign: 'center',
                 }}>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || '#6B7280', margin: 0 }}>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || 'var(--text-secondary)', margin: 0 }}>
                     {STATUS_STYLES[application.status]?.label || application.status}
                   </p>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
@@ -1380,7 +1380,7 @@ export function EventDetailClient({ id }: Props) {
                       }} />
                     {appPortfolioFiles.length === 0 ? (
                       <button onClick={() => appPortfolioRef.current?.click()}
-                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                         + Ajouter des photos
                       </button>
                     ) : (
@@ -1397,7 +1397,7 @@ export function EventDetailClient({ id }: Props) {
                         ))}
                         {appPortfolioFiles.length < 4 && (
                           <button onClick={() => appPortfolioRef.current?.click()}
-                            style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px dashed #D1D5DB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '20px', cursor: 'pointer' }}>
+                            style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '20px', cursor: 'pointer' }}>
                             +
                           </button>
                         )}

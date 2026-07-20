@@ -90,7 +90,7 @@ function SearchContent() {
 
         {/* Search bar */}
         <div style={{ position: 'relative', marginBottom: '24px' }}>
-          <Search size={22} color="#6B7280" style={{ position: 'absolute', left: '16px', top: '14px' }} />
+          <Search size={22} color="var(--text-secondary)" style={{ position: 'absolute', left: '16px', top: '14px' }} />
           <input
             type="text"
             placeholder="Rechercher un événement, une ville, une discipline..."
@@ -222,7 +222,7 @@ function SearchContent() {
                       )}
                       {creator.city && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                          <MapPin size={12} color="#6B7280" />
+                          <MapPin size={12} color="var(--text-secondary)" />
                           <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{highlight(creator.city, query)}</span>
                         </div>
                       )}
@@ -245,15 +245,15 @@ function SearchContent() {
         {/* Empty state */}
         {!isLoading && q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
+            <Search size={48} color="var(--border-color)" style={{ marginBottom: '16px' }} />
             <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>Aucun résultat pour "{query}"</p>
-            <p style={{ fontSize: '14px', color: '#AAAAAA', marginTop: '8px' }}>Essayez avec des mots-clés différents</p>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '8px' }}>Essayez avec des mots-clés différents</p>
           </div>
         )}
 
         {!isLoading && !q && totalResults === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <Search size={48} color="#E5E7EB" style={{ marginBottom: '16px' }} />
+            <Search size={48} color="var(--border-color)" style={{ marginBottom: '16px' }} />
             <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>Commencez à taper pour rechercher</p>
           </div>
         )}

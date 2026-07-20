@@ -317,14 +317,25 @@ p, li, h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] :not(footer) .text-gray-600 { color: var(--text-secondary) !important; }
 
 /* Tailwind bg-white / bg-gray-* overrides (not footer) */
-[data-theme="dark"] :not(footer) > .bg-white { background-color: var(--bg-primary) !important; }
-[data-theme="dark"] :not(footer) > .bg-gray-50,
-[data-theme="dark"] :not(footer) > .bg-gray-100 { background-color: var(--bg-secondary) !important; }
+[data-theme="dark"] :not(footer) .bg-white { background-color: var(--bg-primary) !important; }
+[data-theme="dark"] :not(footer) .bg-white\/95 { background-color: rgba(26,26,26,0.95) !important; }
+[data-theme="dark"] :not(footer) .bg-gray-50,
+[data-theme="dark"] :not(footer) .bg-gray-100 { background-color: var(--bg-secondary) !important; }
 
 /* Tailwind border overrides (not footer) */
 [data-theme="dark"] :not(footer) .border-gray-100,
 [data-theme="dark"] :not(footer) .border-gray-200,
 [data-theme="dark"] :not(footer) .border-gray-300 { border-color: var(--border-color) !important; }
+
+/* Navbar scrolled — theme-aware pill */
+.nexart-navbar-scrolled {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+[data-theme="dark"] .nexart-navbar-scrolled {
+  background-color: rgba(26, 26, 26, 0.95);
+  border: 1px solid rgba(45, 45, 45, 0.8);
+}
 
 /* Tailwind shadow */
 [data-theme="dark"] .shadow-sm { box-shadow: 0 1px 4px rgba(0,0,0,0.4) !important; }

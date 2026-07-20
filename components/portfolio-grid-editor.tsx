@@ -135,7 +135,7 @@ function AddModal({
           style={{
             width: '100%', aspectRatio: `${col}/${row}`, maxHeight: '260px',
             borderRadius: '10px', border: '2px dashed #E5E7EB',
-            backgroundColor: '#FAFAFA', cursor: 'pointer', overflow: 'hidden',
+            backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', overflow: 'hidden',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             marginBottom: '20px', transition: 'border-color 150ms ease',
           }}
@@ -365,8 +365,8 @@ export function PortfolioGridEditor({
             onClick={() => setShowAdd(true)}
             style={{
               gridColumn: 'span 1', gridRow: 'span 1',
-              borderRadius: '8px', border: '2px dashed #E5E7EB',
-              backgroundColor: '#FAFAFA', cursor: 'pointer',
+              borderRadius: '8px', border: '2px dashed var(--border-color)',
+              backgroundColor: 'var(--bg-secondary)', cursor: 'pointer',
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
               gap: '6px', transition: 'border-color 150ms ease',
