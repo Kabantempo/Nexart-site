@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       resource_type: z.string().min(1).max(100),
       resource_id: z.string().optional(),
       description: z.string().max(1000).optional(),
-      changes: z.record(z.unknown()).optional(),
+      changes: z.record(z.string(), z.unknown()).optional(),
       accessed_sensitive_data: z.boolean().optional(),
       sensitive_fields: z.array(z.string()).optional(),
     })

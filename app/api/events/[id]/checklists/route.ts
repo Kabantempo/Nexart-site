@@ -104,7 +104,7 @@ export async function POST(
       .upsert({
         event_id: params.id,
         checklist_type,
-        items: items || defaultItems
+        items: (items || defaultItems) as any
       })
       .select()
 

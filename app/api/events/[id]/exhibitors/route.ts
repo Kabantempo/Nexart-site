@@ -73,7 +73,7 @@ export async function POST(
     const schema = z.object({
       exhibitor_email: z.string().email(),
       exhibitor_name: z.string().max(200).optional(),
-      form_data: z.record(z.unknown()),
+      form_data: z.record(z.string(), z.unknown()),
     })
     const { data: body, error: validErr } = v(schema, await req.json())
     if (validErr) return validErr
@@ -86,7 +86,7 @@ export async function POST(
         event_id: params.id,
         exhibitor_email,
         exhibitor_name: exhibitor_name || null,
-        form_data,
+        form_data: form_data as any,
         status: 'pending',
       })
       .select()

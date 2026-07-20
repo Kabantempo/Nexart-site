@@ -156,7 +156,7 @@ export default function DashboardPage() {
           const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
           const [{ data: apps }, { data: views }] = await Promise.all([
             supabase.from('applications').select('*').eq('creator_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('profile_views').select('viewed_at').eq('profile_id', user.id).gte('viewed_at', thirtyDaysAgo),
+            supabase.from('profile_views').select('viewed_at' as any).eq('profile_id', user.id).gte('viewed_at' as any, thirtyDaysAgo),
           ])
           if (apps?.length) {
             const { data: eventsData } = await supabase.from('events').select('*').in('id', apps.map(a => a.event_id))
@@ -166,7 +166,7 @@ export default function DashboardPage() {
             setProfileViewCount(views.length)
             const byDay: Record<string, number> = {}
             views.forEach(v => {
-              const day = v.viewed_at.slice(0, 10)
+              const day = (v as any).viewed_at.slice(0, 10)
               byDay[day] = (byDay[day] ?? 0) + 1
             })
             const days = Array.from({ length: 30 }, (_, i) => {
@@ -560,7 +560,7 @@ function ActivationChecklist({ userId, applications }: { userId: string; applica
     if (dismissed) return
     supabase.from('creator_profiles').select('disciplines, portfolio_images, portfolio_grid').eq('user_id', userId).maybeSingle().then(({ data: cp }) => {
       supabase.from('profiles').select('avatar_url, bio').eq('id', userId).maybeSingle().then(({ data: p }) => {
-        const photos = cp?.portfolio_grid?.length || cp?.portfolio_images?.length || 0
+        const photos = (cp?.portfolio_grid as any)?.length || cp?.portfolio_images?.length || 0
         setChecks({
           avatar: !!p?.avatar_url,
           bio: (p?.bio?.length ?? 0) > 20,
@@ -983,7 +983,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
     const unviewed = pendingApps.filter(a => !(a as any).viewed_at).map(a => a.id)
     if (!unviewed.length) return
     const now = new Date().toISOString()
-    supabase.from('applications').update({ viewed_at: now }).in('id', unviewed).then(() => {})
+    supabase.from('applications').update({ viewed_at: now } as any).in('id', unviewed).then(() => {})
   }, [pendingApps])
 
   const REFUSE_OPTIONS = [
@@ -998,7 +998,7 @@ function OrganizerContent({ events, pendingApps, setPendingApps, userId }: {
     if (!refuseModal) return
     const { appId, eventTitle, creatorId } = refuseModal
     setUpdatingId(appId)
-    await supabase.from('applications').update({
+    await (supabase.from('applications') as any).update({
       status: 'refused',
       rejection_reason: refuseReasons.length ? { reasons: refuseReasons } : null,
       updated_at: new Date().toISOString(),
