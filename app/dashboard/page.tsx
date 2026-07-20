@@ -186,6 +186,7 @@ export default function DashboardPage() {
               .select('id, creator_id, event_id, message, created_at, boosted_at, profiles(full_name, avatar_url)')
               .in('event_id', eventsData.map(e => e.id))
               .eq('status', 'pending')
+              .order('boosted_at', { ascending: false, nullsFirst: false })
               .order('created_at', { ascending: false })
             setPendingApps((pending as unknown as typeof pendingApps) || [])
           }

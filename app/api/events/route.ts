@@ -45,6 +45,24 @@ export async function POST(req: NextRequest) {
     if (validErr) return validErr
     const { organizer_id, title, description, event_type, start_date, end_date, location, city, region } = body
 
+    // Plan check: free organizers limited to 1 active event (draft or published)
+    const { data: profile } = await admin.from('profiles').select('subscription_tier').eq('id', organizer_id).single()
+    const tier = (profile as any)?.subscription_tier ?? 'free'
+    const isPro = ['org_pro', 'org_studio'].includes(tier)
+    if (!isPro) {
+      const { count } = await admin.from('events')
+        .select('id', { count: 'exact', head: true })
+        .eq('organizer_id', organizer_id)
+        .in('status', ['draft', 'published'])
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json({
+          error: 'Limite atteinte',
+          details: 'Le plan gratuit est limité à 1 événement actif. Passez au plan Pro pour en créer davantage.',
+          upgrade_url: '/offres',
+        }, { status: 403 })
+      }
+    }
+
     const { data, error } = await admin.from('events').insert({
       organizer_id,
       title,
