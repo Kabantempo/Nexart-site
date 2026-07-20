@@ -1284,6 +1284,30 @@ export function EventDetailClient({ id }: Props) {
                         </div>
                       ))}
                     </div>
+
+                    {/* Barre d'action fixe en bas quand ≥ 1 créateur sélectionné */}
+                    {selectedCreatorIds.length > 0 && (
+                      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                            {selectedCreatorIds.length} créateur{selectedCreatorIds.length > 1 ? 's' : ''} sélectionné{selectedCreatorIds.length > 1 ? 's' : ''}
+                          </span>
+                          <button
+                            onClick={() => setSelectedCreatorIds([])}
+                            style={{ fontSize: '12px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                          >
+                            Désélectionner
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                        >
+                          <Send size={14} /> Envoyer un message groupé
+                        </button>
+                      </div>
+                    )}
+                    </>
                   )}
                   {/* Gestion des stands */}
                   <StandsManager eventId={id} />
