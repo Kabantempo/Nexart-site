@@ -130,17 +130,51 @@ export function NavbarFull() {
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
+  // ── Dropdown keyboard navigation ──────────────────────────────────
+  const dropdownItemsRef = useRef<Map<string, HTMLAnchorElement[]>>(new Map())
+  const triggerRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
+
+  const registerDropdownItem = (dropdownId: string, el: HTMLAnchorElement | null, index: number) => {
+    if (!dropdownItemsRef.current.has(dropdownId)) {
+      dropdownItemsRef.current.set(dropdownId, [])
+    }
+    const arr = dropdownItemsRef.current.get(dropdownId)!
+    if (el) arr[index] = el
+  }
+
+  const handleDropdownKeyDown = (e: React.KeyboardEvent, dropdownId: string) => {
+    const items = dropdownItemsRef.current.get(dropdownId) ?? []
+    const focused = document.activeElement
+    const currentIdx = items.indexOf(focused as HTMLAnchorElement)
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      const next = items[(currentIdx + 1) % items.length]
+      next?.focus()
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const prev = items[(currentIdx - 1 + items.length) % items.length]
+      prev?.focus()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      setDropdown(null)
+      triggerRefs.current.get(dropdownId)?.focus()
+    }
+  }
+
   // ── Dropdown panel ────────────────────────────────────────────────
   const Panel = ({ id, children, align = 'left', width = 'w-52' }: { id: string; children: React.ReactNode; align?: 'left' | 'right' | 'center'; width?: string }) => (
     <AnimatePresence>
       {dropdown === id && (
         <motion.div
+          role="menu"
           initial={{ opacity: 0, y: 6, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 4, scale: 0.98 }}
           transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
           onMouseEnter={stay}
           onMouseLeave={() => go()}
+          onKeyDown={(e) => handleDropdownKeyDown(e, id)}
           className={`absolute top-full mt-2.5 ${width} bg-white border border-gray-100 rounded-2xl shadow-2xl shadow-black/[0.08] p-1.5 origin-top z-50 ${
             align === 'right'  ? 'right-0' :
             align === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0'
@@ -155,9 +189,24 @@ export function NavbarFull() {
   // ── Nav trigger ───────────────────────────────────────────────────
   const Trigger = ({ id, label, active }: { id: string; label: string; active: boolean }) => (
     <button
+      ref={(el) => { if (el) triggerRefs.current.set(id, el) }}
       onMouseEnter={() => { stay(); setDropdown(id) }}
       onMouseLeave={() => go()}
       onClick={() => setDropdown(d => d === id ? null : id)}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          setDropdown(id)
+          setTimeout(() => {
+            const items = dropdownItemsRef.current.get(id) ?? []
+            items[0]?.focus()
+          }, 50)
+        } else if (e.key === 'Escape') {
+          setDropdown(null)
+        }
+      }}
+      aria-haspopup="menu"
+      aria-expanded={dropdown === id}
       className={`flex items-center gap-1 text-[13.5px] font-medium px-3 py-2 transition-colors duration-150 select-none ${
         active
           ? dark ? 'text-white' : 'text-gray-900'
@@ -212,8 +261,10 @@ export function NavbarFull() {
                   { href: '/events',   label: 'Événements artisanaux', desc: 'Marchés, pop-ups, salons, festivals' },
                   { href: '/creators', label: 'Créateurs & Artisans',  desc: 'Parcourez les artisans inscrits' },
                   { href: '/carte',    label: 'Carte interactive',       desc: 'Événements près de chez vous' },
-                ].map(({ href, label, desc }) => (
+                ].map(({ href, label, desc }, idx) => (
                   <Link key={href} href={href} onClick={() => setDropdown(null)}
+                    role="menuitem"
+                    ref={(el) => registerDropdownItem('discover', el, idx)}
                     className={`group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-colors ${isActive(href) ? 'bg-gray-50' : 'hover:bg-gray-50/70'}`}
                   >
                     <div className="flex-1 min-w-0 pt-0.5">
@@ -373,7 +424,23 @@ export function NavbarFull() {
 
                 {/* Profile */}
                 <div className="relative ml-1" onMouseEnter={() => { stay(); setDropdown('profile') }} onMouseLeave={() => go()}>
-                  <button onClick={() => setDropdown(d => d === 'profile' ? null : 'profile')}
+                  <button
+                    ref={(el) => { if (el) triggerRefs.current.set('profile', el) }}
+                    onClick={() => setDropdown(d => d === 'profile' ? null : 'profile')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowDown') {
+                        e.preventDefault()
+                        setDropdown('profile')
+                        setTimeout(() => {
+                          const items = dropdownItemsRef.current.get('profile') ?? []
+                          items[0]?.focus()
+                        }, 50)
+                      } else if (e.key === 'Escape') {
+                        setDropdown(null)
+                      }
+                    }}
+                    aria-haspopup="menu"
+                    aria-expanded={dropdown === 'profile'}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-xl transition-colors ${dark ? 'hover:bg-white/8' : 'hover:bg-gray-100'}`}
                   >
                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden">
@@ -404,19 +471,19 @@ export function NavbarFull() {
                     {/* Dashboard(s) */}
                     {(user.is_creator || user.role === 'creator') && (user.is_organizer || user.role === 'organizer') ? (
                       <>
-                        <Link href="/dashboard?tab=creator" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                        <Link href="/dashboard?tab=creator" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, 0)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
                           <Brush size={13} className="text-indigo-400" /> Dashboard créateur
                         </Link>
-                        <Link href="/dashboard?tab=organizer" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors">
+                        <Link href="/dashboard?tab=organizer" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, 1)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors">
                           <Building2 size={13} className="text-violet-400" /> Dashboard organisateur
                         </Link>
                       </>
                     ) : (
-                      <Link href="/dashboard" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                      <Link href="/dashboard" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, 0)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                         <User size={13} className="text-gray-400" /> Mon dashboard
                       </Link>
                     )}
-                    <Link href="/profile" onClick={() => setDropdown(null)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                    <Link href="/profile" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, user.is_creator || user.is_organizer ? 2 : 1)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                       <User size={13} className="text-gray-400" /> Mon profil
                     </Link>
                     <div className="h-px bg-gray-100 my-1" />
