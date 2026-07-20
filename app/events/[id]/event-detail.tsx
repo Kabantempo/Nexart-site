@@ -361,6 +361,11 @@ export function EventDetailClient({ id }: Props) {
   const [bulkMsgSending, setBulkMsgSending] = useState(false)
   const [bulkMsgDone, setBulkMsgDone] = useState(false)
   const [showBulkMsg, setShowBulkMsg] = useState(false)
+  // Bulk message enhanced
+  const [selectedCreatorIds, setSelectedCreatorIds] = useState<string[]>([])
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [bulkSubject, setBulkSubject] = useState('')
+  const [bulkTemplate, setBulkTemplate] = useState('custom')
   const [cancelling, setCancelling] = useState(false)
   const [cancelled, setCancelled] = useState(false)
   const [onWaitlist, setOnWaitlist] = useState(false)
@@ -491,35 +496,58 @@ export function EventDetailClient({ id }: Props) {
   const handleBulkMessage = async () => {
     if (!bulkMsgText.trim() || !user || !event) return
     setBulkMsgSending(true)
-    const acceptedApps = applications.filter(a => a.status === 'accepted')
+    const targetIds = selectedCreatorIds.length > 0 ? selectedCreatorIds : applications.filter(a => a.status === 'accepted').map(a => a.creator_id)
     try {
-      await Promise.all(acceptedApps.map(async (app) => {
-        // Trouver ou créer la conversation
-        let { data: conv } = await supabase.from('conversations')
-          .select('id')
-          .eq('event_id', event.id)
-          .eq('creator_id', app.creator_id)
-          .eq('organizer_id', user.id)
-          .maybeSingle()
-        if (!conv) {
-          const { data: newConv } = await supabase.from('conversations').insert({
-            event_id: event.id,
-            creator_id: app.creator_id,
-            organizer_id: user.id,
-          }).select('id').single()
-          conv = newConv
-        }
-        if (conv) {
-          await supabase.from('messages').insert({ conversation_id: conv.id, sender_id: user.id, content: bulkMsgText.trim() })
-        }
-      }))
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const res = await fetch('/api/organizer/bulk-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          event_id: event.id,
+          creator_ids: targetIds,
+          subject: bulkSubject || `Message de l\'organisateur — ${event.title}`,
+          message: bulkMsgText.trim(),
+          template: bulkTemplate,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toastError(data.error || 'Erreur lors de l\'envoi')
+        return
+      }
       setBulkMsgDone(true)
       setBulkMsgText('')
+      setBulkSubject('')
+      setBulkTemplate('custom')
       setShowBulkMsg(false)
-      toastSuccess(`Message envoyé à ${acceptedApps.length} créateur${acceptedApps.length > 1 ? 's' : ''} ✓`)
+      setShowBulkModal(false)
+      setSelectedCreatorIds([])
+      toastSuccess(`Message envoyé à ${data.sent} créateur${data.sent > 1 ? 's' : ''} ✓`)
+    } catch {
+      toastError('Erreur réseau lors de l\'envoi')
     } finally {
       setBulkMsgSending(false)
     }
+  }
+
+  const BULK_TEMPLATES = [
+    { id: 'custom', label: 'Personnalisé', text: '' },
+    { id: 'reminder', label: 'Rappel', text: `Bonjour, nous vous rappelons que l'événement ${event?.title || '[NOM]'} aura lieu le ${event?.start_date ? new Date(event.start_date).toLocaleDateString('fr-FR') : '[DATE]'}. N'hésitez pas à nous contacter si vous avez des questions.` },
+    { id: 'info', label: 'Infos pratiques', text: `Bonjour, voici les informations pratiques pour l'événement ${event?.title || '[NOM]'} : installation à partir de [HEURE], emplacement [STAND].` },
+  ]
+
+  const handleTemplateChange = (templateId: string) => {
+    setBulkTemplate(templateId)
+    const tpl = BULK_TEMPLATES.find(t => t.id === templateId)
+    if (tpl && tpl.text) setBulkMsgText(tpl.text)
+    else if (templateId === 'custom') setBulkMsgText('')
+  }
+
+  const toggleCreatorSelection = (creatorId: string) => {
+    setSelectedCreatorIds(prev =>
+      prev.includes(creatorId) ? prev.filter(id => id !== creatorId) : [...prev, creatorId]
+    )
   }
 
   const handleCancelApplication = async () => {
@@ -1071,47 +1099,101 @@ export function EventDetailClient({ id }: Props) {
                     <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
                       Candidatures ({applications.length})
                     </h3>
-                    {applications.some(a => a.status === 'accepted') && (
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {applications.some(a => a.status === 'accepted' || a.status === 'pending') && (
+                        <button
+                          onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: '#FFF', color: '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                        >
+                          <Send size={13} /> Messagerie groupée
+                        </button>
+                      )}
                       <button
-                        onClick={() => setShowBulkMsg(s => !s)}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: showBulkMsg ? '#6366F1' : '#FFF', color: showBulkMsg ? '#FFF' : '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                        onClick={() => {
+                          const link = `${window.location.origin}/events/${id}?invite=1`
+                          navigator.clipboard.writeText(link).then(() => toastSuccess('Lien d\'invitation copié !'))
+                        }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
                       >
-                        <Send size={13} /> Messagerie groupée
-                      </button>
-                    )}
-                  <button
-                    onClick={() => {
-                      const link = `${window.location.origin}/events/${id}?invite=1`
-                      navigator.clipboard.writeText(link).then(() => toastSuccess('Lien d\'invitation copié !'))
-                    }}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                  >
-                    Inviter un créateur
-                  </button>
-                  </div>
-
-                  {/* Bulk message form */}
-                  {showBulkMsg && (
-                    <div style={{ padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: '#F8F9FF', marginBottom: '16px' }}>
-                      <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px' }}>
-                        Message à tous les créateurs acceptés ({applications.filter(a => a.status === 'accepted').length})
-                      </p>
-                      <textarea
-                        value={bulkMsgText}
-                        onChange={e => setBulkMsgText(e.target.value)}
-                        placeholder="Bonjour à toutes et à tous, voici les informations pratiques pour le jour J…"
-                        rows={3}
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }}
-                      />
-                      <button
-                        onClick={handleBulkMessage}
-                        disabled={bulkMsgSending || !bulkMsgText.trim()}
-                        style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
-                      >
-                        <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
+                        Inviter un créateur
                       </button>
                     </div>
+                  </div>
+
+                  {/* Modal messagerie groupée */}
+                  {showBulkModal && (
+                    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.18 }}
+                        style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '520px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
+                            Message groupé
+                          </h3>
+                          <button onClick={() => setShowBulkModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '20px', lineHeight: 1 }}>×</button>
+                        </div>
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+                          {selectedCreatorIds.length > 0
+                            ? `${selectedCreatorIds.length} créateur${selectedCreatorIds.length > 1 ? 's' : ''} sélectionné${selectedCreatorIds.length > 1 ? 's' : ''}`
+                            : `Tous les créateurs acceptés (${applications.filter(a => a.status === 'accepted').length})`}
+                        </p>
+                        {/* Template dropdown */}
+                        <div style={{ marginBottom: '12px' }}>
+                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Modèle</label>
+                          <select
+                            value={bulkTemplate}
+                            onChange={e => handleTemplateChange(e.target.value)}
+                            style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', cursor: 'pointer' }}
+                          >
+                            {BULK_TEMPLATES.map(t => (
+                              <option key={t.id} value={t.id}>{t.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        {/* Sujet */}
+                        <div style={{ marginBottom: '12px' }}>
+                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Sujet</label>
+                          <input
+                            type="text"
+                            value={bulkSubject}
+                            onChange={e => setBulkSubject(e.target.value)}
+                            placeholder={`Message de l'organisateur — ${event?.title || ''}`}
+                            style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', boxSizing: 'border-box' }}
+                          />
+                        </div>
+                        {/* Message */}
+                        <div style={{ marginBottom: '20px' }}>
+                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Message</label>
+                          <textarea
+                            value={bulkMsgText}
+                            onChange={e => setBulkMsgText(e.target.value)}
+                            placeholder="Votre message…"
+                            rows={5}
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box', outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button
+                            onClick={() => setShowBulkModal(false)}
+                            style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                          >
+                            Annuler
+                          </button>
+                          <button
+                            onClick={handleBulkMessage}
+                            disabled={bulkMsgSending || !bulkMsgText.trim()}
+                            style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
+                          >
+                            <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
+                          </button>
+                        </div>
+                      </motion.div>
+                    </div>
                   )}
+
                   {appsLoading ? (
                     <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)', fontSize: '14px' }}>Chargement...</div>
                   ) : applications.length === 0 ? (
@@ -1119,10 +1201,20 @@ export function EventDetailClient({ id }: Props) {
                       <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune candidature reçue</p>
                     </div>
                   ) : (
+                    <>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {applications.map(app => (
-                        <div key={app.id} style={{ borderRadius: '10px', border: '1px solid var(--border-color)', padding: '14px', backgroundColor: 'var(--bg-primary)' }}>
+                        <div key={app.id} style={{ borderRadius: '10px', border: selectedCreatorIds.includes(app.creator_id) ? '2px solid #6366F1' : '1px solid var(--border-color)', padding: '14px', backgroundColor: selectedCreatorIds.includes(app.creator_id) ? '#F8F9FF' : 'var(--bg-primary)', transition: 'border-color 0.15s, background-color 0.15s' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                            {/* Checkbox sélection */}
+                            {(app.status === 'accepted' || app.status === 'pending') && (
+                              <input
+                                type="checkbox"
+                                checked={selectedCreatorIds.includes(app.creator_id)}
+                                onChange={() => toggleCreatorSelection(app.creator_id)}
+                                style={{ width: '16px', height: '16px', accentColor: '#6366F1', cursor: 'pointer', flexShrink: 0 }}
+                              />
+                            )}
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700', color: 'var(--text-secondary)' }}>
                               {app.profiles?.avatar_url
                                 ? <Image src={app.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
