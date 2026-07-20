@@ -15,7 +15,7 @@ function highlight(text: string | undefined, query: string): React.ReactNode {
   const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase()
-      ? <mark key={i} style={{ backgroundColor: '#EEF2FF', color: '#4338CA', fontWeight: 600, borderRadius: '2px', padding: '0 2px' }}>{part}</mark>
+      ? <mark key={i} style={{ backgroundColor: 'rgba(99,102,241,0.2)', color: 'var(--accent)', fontWeight: 700, borderRadius: '2px', padding: '0 2px', fontStyle: 'inherit' }}>{part}</mark>
       : part
   )
 }
@@ -159,7 +159,12 @@ function SearchContent() {
                       )}
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>{highlight(event.title, query)}</h3>
+                      <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '6px' }}>{highlight(event.title, query)}</h3>
+                      {event.description && (
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '8px', lineHeight: '1.5', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {highlight(event.description, query)}
+                        </p>
+                      )}
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         {event.start_date && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -218,7 +223,12 @@ function SearchContent() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '2px' }}>{highlight(creator.full_name, query)}</p>
                       {creator.disciplines?.length > 0 && (
-                        <p style={{ fontSize: '12px', color: '#6366F1' }}>{creator.disciplines.slice(0, 2).join(' · ')}</p>
+                        <p style={{ fontSize: '12px', color: 'var(--accent)' }}>{creator.disciplines.slice(0, 2).join(' · ')}</p>
+                      )}
+                      {creator.bio && (
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '1.4' }}>
+                          {highlight(creator.bio, query)}
+                        </p>
                       )}
                       {creator.city && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
