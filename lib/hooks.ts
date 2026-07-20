@@ -83,7 +83,7 @@ export function useCreators() {
       try {
         const { data: profiles, error: err } = await supabase
           .from('profiles')
-          .select('*, profile_boosted_until')
+          .select('*')
           .eq('role', 'creator')
 
         if (err) throw err
@@ -115,7 +115,7 @@ export function useCreators() {
             is_active: (creator as Record<string, unknown>).is_active_creator as boolean || false,
             disciplines: creator.disciplines ?? [],
             portfolio_images: creator.portfolio_images ?? [],
-            profile_boosted_until: profile?.profile_boosted_until ?? null,
+            profile_boosted_until: (profile as any)?.profile_boosted_until ?? null,
           }
         }) || []).sort((a, b) => {
           const now = Date.now()

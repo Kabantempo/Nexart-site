@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     let creatorEmail = rawEmail
     if (!creatorEmail && creatorId) {
       const { data: { user } } = await adminClient.auth.admin.getUserById(creatorId)
-      creatorEmail = user?.email ?? null
+      creatorEmail = user?.email ?? undefined
     }
 
     if (!status || !eventTitle) {

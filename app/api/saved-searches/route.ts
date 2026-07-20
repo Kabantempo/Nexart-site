@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const admin = getAdminClient()
-    const { data, error } = await admin.from('saved_searches').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
+    const { data, error } = await admin.from('saved_searches' as any).select('*').eq('user_id', user.id).order('created_at', { ascending: false })
     if (error) throw error
     return NextResponse.json({ searches: data ?? [] })
   } catch (e: unknown) {
@@ -48,9 +48,9 @@ export async function POST(req: NextRequest) {
     if (validErr) return validErr
     const admin = getAdminClient()
     // Max 10 saved searches per user
-    const { count } = await admin.from('saved_searches').select('*', { count: 'exact', head: true }).eq('user_id', user.id)
+    const { count } = await admin.from('saved_searches' as any).select('*', { count: 'exact', head: true }).eq('user_id', user.id)
     if ((count ?? 0) >= 10) return NextResponse.json({ error: 'Maximum 10 alertes sauvegardées' }, { status: 400 })
-    const { data, error } = await admin.from('saved_searches').insert({ ...body, user_id: user.id }).select().single()
+    const { data, error } = await admin.from('saved_searches' as any).insert({ ...body, user_id: user.id }).select().single()
     if (error) throw error
     return NextResponse.json({ search: data }, { status: 201 })
   } catch (e: unknown) {
@@ -66,7 +66,7 @@ export async function DELETE(req: NextRequest) {
     const id = req.nextUrl.searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'id requis' }, { status: 400 })
     const admin = getAdminClient()
-    const { error } = await admin.from('saved_searches').delete().eq('id', id).eq('user_id', user.id)
+    const { error } = await admin.from('saved_searches' as any).delete().eq('id', id).eq('user_id', user.id)
     if (error) throw error
     return NextResponse.json({ success: true })
   } catch (e: unknown) {

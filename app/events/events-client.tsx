@@ -499,8 +499,7 @@ function EventsContent() {
 
                 return (
                 <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)}
-                  className={isFeatured ? 'sm:col-span-2 lg:col-span-2' : ''}
-                  style={featuredRight ? { gridColumnStart: 'auto' } as React.CSSProperties : undefined}>
+                  className={isFeatured ? 'sm:col-span-2 lg:col-span-2' : ''}>
                   <Link href={`/events/${event.id}`}
                     className={`group flex overflow-hidden bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full ${
                       isFeatured ? 'rounded-3xl flex-row sm:flex-col' : 'flex-col rounded-2xl'
@@ -623,7 +622,7 @@ function EventsContent() {
                         <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-200">
                           Voir l'événement <ArrowRight size={14} />
                         </span>
-                        <PinButton event={{ id: event.id, title: event.title, start_date: event.start_date, city: event.city, stand_price: event.stand_price, stand_count: event.stand_count, discipline_tags: tags, cover_image: event.cover_image }} />
+                        <PinButton event={{ id: event.id, title: event.title, start_date: event.start_date, city: event.city ?? undefined, stand_price: event.stand_price, stand_count: event.stand_count, discipline_tags: tags, cover_image: event.cover_image ?? undefined }} />
                       </div>
                     </div>
 

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .order('boosted_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
 
-    if (status) query = query.eq('status', status)
+    if (status) query = query.eq('status', status as 'pending' | 'accepted' | 'refused')
 
     const { data, error } = await query
     if (error) throw error

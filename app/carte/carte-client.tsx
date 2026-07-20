@@ -96,7 +96,7 @@ export default function CarteClient() {
     }
   }, [loading])
 
-  const clusterGroupRef = useRef<import('leaflet.markercluster').MarkerClusterGroup | null>(null)
+  const clusterGroupRef = useRef<any>(null)
 
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current) return
@@ -121,7 +121,7 @@ export default function CarteClient() {
       const MCG = (mc as any).default ?? mc
       const cluster = MCG.markerClusterGroup({
         maxClusterRadius: 50,
-        iconCreateFunction: (c: import('leaflet.markercluster').MarkerCluster) => {
+        iconCreateFunction: (c: any) => {
           const count = c.getChildCount()
           return L.divIcon({
             className: '',

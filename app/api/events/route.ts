@@ -68,11 +68,11 @@ export async function POST(req: NextRequest) {
       title,
       description,
       event_type,
-      start_date,
-      end_date,
+      start_date: (start_date ?? null) as any,
+      end_date: (end_date ?? null) as any,
       location,
-      city,
-      region,
+      city: city ?? null,
+      region: region ?? null,
       status: 'draft',
     }).select().single()
 

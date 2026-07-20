@@ -94,7 +94,7 @@ export function CreatorProfileClient({ id }: Props) {
         supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', id).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
-      setCreator({ ...p, ...cp } as any)
+      setCreator({ ...(p as Record<string, unknown>), ...(cp as Record<string, unknown> | null ?? {}) } as any)
       setLoading(false)
 
       // Enregistrer la vue de profil (anonyme ou connectée)

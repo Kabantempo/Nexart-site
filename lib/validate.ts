@@ -95,7 +95,7 @@ export const eventCreateSchema = z.object({
 export const applicationStatusSchema = z.object({
   application_id: uuidSchema,
   status: z.enum(['accepted', 'refused']),
-  rejection_reason: z.record(z.unknown()).optional(),
+  rejection_reason: z.record(z.string(), z.unknown()).optional(),
 })
 
 export const pushSubscribeSchema = z.object({
