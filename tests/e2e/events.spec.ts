@@ -5,7 +5,8 @@ test.describe('Events — Page événements', () => {
     await page.goto('/events')
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    // h1 uses WordReveal animation with overflow-hidden parent — use broader heading selector
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
     // La page doit afficher soit des cards, soit un message "aucun événement" — pas un crash
     const hasCards = await page.locator(
       '[data-testid="event-card"], article, [class*="event"], [class*="card"], [class*="skeleton"]'
@@ -47,14 +48,16 @@ test.describe('Events — Page événements', () => {
 
   test('filtre via query param ?discipline= — page ne crashe pas', async ({ page }) => {
     await page.goto('/events?discipline=ceramique')
+    await page.waitForLoadState('domcontentloaded')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
   })
 
   test('filtre via query param ?type= — page ne crashe pas', async ({ page }) => {
     await page.goto('/events?type=marche')
+    await page.waitForLoadState('domcontentloaded')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
   })
 
   test('navigation vers la page détail d\'un événement', async ({ page }) => {

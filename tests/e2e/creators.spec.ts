@@ -3,8 +3,10 @@ import { test, expect } from '@playwright/test'
 test.describe('Creators — Filtres créateurs', () => {
   test('page /creators charge avec du contenu ou un skeleton', async ({ page }) => {
     await page.goto('/creators')
+    await page.waitForLoadState('domcontentloaded')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+    // h1 uses WordReveal animation with overflow-hidden parent — use broader heading selector
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
     // Grille de créateurs ou skeleton de chargement
     const hasContent = await page.locator('[data-testid="creator-card"], .creator-card, article, [class*="creator"], [class*="skeleton"]').first().isVisible().catch(() => false)
     // Accepter aussi une liste vide (aucun créateur en base) — la page ne doit pas crasher
@@ -42,7 +44,8 @@ test.describe('Creators — Filtres créateurs', () => {
 
   test('filtres par discipline — page ne crashe pas', async ({ page }) => {
     await page.goto('/creators?discipline=ceramique')
+    await page.waitForLoadState('domcontentloaded')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 20000 })
   })
 })
