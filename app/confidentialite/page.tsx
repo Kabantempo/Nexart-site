@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Politique de Confidentialité — Nexart',
+  title: 'Politique de Confidentialité',
   description: 'Politique de confidentialité et protection des données personnelles RGPD/CNIL conforme.',
   alternates: { canonical: 'https://nexart.fr/confidentialite' },
   openGraph: {
-    title: 'Politique de Confidentialité — Nexart',
+    title: 'Politique de Confidentialité',
     description: 'Politique de confidentialité conforme RGPD.',
     url: 'https://nexart.fr/confidentialite',
     type: 'website',

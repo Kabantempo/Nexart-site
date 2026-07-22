@@ -21,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     if (!creator) return { title: 'Créateur non trouvé' }
 
     return {
-      title: `${creator.full_name} — Nexart`,
+      title: `${creator.full_name}`,
       description: creator.bio?.substring(0, 160) || 'Découvrez ce créateur sur Nexart',
       openGraph: {
         title: creator.full_name,

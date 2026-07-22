@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import ConditionsClient from './conditions-client'
 
 export const metadata: Metadata = {
-  title: 'Conditions d\'Utilisation — Nexart',
+  title: 'Conditions d\'Utilisation',
   description: 'Conditions générales d\'utilisation de la plateforme Nexart. Rôles, tarifs, responsabilités, droits des utilisateurs.',
   alternates: { canonical: 'https://nexart.fr/conditions' },
   openGraph: {
-    title: 'Conditions d\'Utilisation — Nexart',
+    title: 'Conditions d\'Utilisation',
     description: 'Conditions générales d\'utilisation de la plateforme Nexart',
     url: 'https://nexart.fr/conditions',
     type: 'website',
