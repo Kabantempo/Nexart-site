@@ -3,8 +3,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
+  if (!process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'CRON_SECRET_TOKEN non configuré' }, { status: 500 })
+  }
   const secret = req.headers.get('authorization')?.replace('Bearer ', '')
-  if (secret !== (process.env.CRON_SECRET_TOKEN || 'dev-token')) {
+  if (secret !== process.env.CRON_SECRET_TOKEN) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
