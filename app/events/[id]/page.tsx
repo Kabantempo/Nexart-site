@@ -20,15 +20,29 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     const { data: event } = await supabase.from('events').select('*').eq('id', params.id).single()
     if (!event) return { title: 'Événement non trouvé' }
 
+    const locationLabel = [event.city, event.region].filter(Boolean).join(', ')
+    const title = locationLabel ? `${event.title} — ${locationLabel}` : event.title
+    const description = event.description?.substring(0, 160) || `Marché artisanal${event.city ? ` à ${event.city}` : ''} — Nexart`
+
     return {
-      title: `${event.title}`,
-      description: event.description?.substring(0, 160) || 'Découvrez cet événement sur Nexart',
+      title,
+      description,
+      keywords: ['marché artisanal', event.city, event.region, ...(event.discipline_tags || [])].filter(Boolean) as string[],
       openGraph: {
-        title: event.title,
-        description: event.description?.substring(0, 160),
+        title,
+        description,
         type: 'website',
         url: `https://nexart.fr/events/${params.id}`,
         images: event.cover_image ? [{ url: event.cover_image, width: 1200, height: 630 }] : [],
+      },
+      other: event.lat && event.lng ? {
+        'geo.position': `${event.lat};${event.lng}`,
+        'ICBM': `${event.lat}, ${event.lng}`,
+        'geo.placename': event.city || event.region || 'France',
+        'geo.region': 'FR',
+      } : {
+        'geo.region': 'FR',
+        'geo.placename': event.city || event.region || 'France',
       },
     }
   } catch {
@@ -59,8 +73,20 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
       '@type': 'Place',
-      name: event.location || 'France',
-      address: (event as any).address,
+      name: event.location || event.city || 'France',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: event.city || undefined,
+        addressRegion: event.region || undefined,
+        addressCountry: 'FR',
+      },
+      ...(event.lat && event.lng ? {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: event.lat,
+          longitude: event.lng,
+        },
+      } : {}),
     },
     organizer: {
       '@type': 'Organization',
@@ -69,6 +95,12 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     },
     image: event.cover_image,
     url: `https://nexart.fr/events/${event.id}`,
+    keywords: [
+      'marché artisanal',
+      event.city,
+      event.region,
+      ...(event.discipline_tags || []),
+    ].filter(Boolean).join(', '),
   } : null
 
   return (

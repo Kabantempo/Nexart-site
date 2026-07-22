@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   authors: [{ name: 'Nexart', url: 'https://nexart.fr' }],
   creator: 'Nexart',
   publisher: 'Nexart',
+  other: {
+    'geo.region': 'FR',
+    'geo.placename': 'France',
+    'geo.position': '46.2276;2.2137',
+    'ICBM': '46.2276, 2.2137',
+  },
   robots: {
     index: true,
     follow: true,
