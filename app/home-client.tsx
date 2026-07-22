@@ -513,7 +513,7 @@ export default function HomeClient() {
                 title: 'Découvrez les marchés près de toi',
                 desc: "Trouvez les événements artisanaux autour de vous, réservez votre place et explorez les créateurs.",
                 items: ['Événements géolocalisés', 'Portfolios créateurs', 'Réservation en 2 clics'],
-                checkClass: 'text-emerald-400', ctaHref: '/events', ctaLabel: 'Explorer les événements', ctaClass: 'bg-emerald-700 hover:bg-emerald-600 shadow-emerald-500/25' },
+                checkClass: 'text-emerald-400', ctaHref: '/events', ctaLabel: 'Explorer les événements', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
             ].map(({ delay, glow, bg, border, badgeBg, badgeIcon, badgeLabel, title, desc, items, checkClass, ctaHref, ctaLabel, ctaClass }) => (
               <motion.div key={title}
                 initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}

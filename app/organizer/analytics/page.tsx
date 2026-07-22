@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import AnalyticsClient from './analytics-client'
 
 export const metadata: Metadata = {
-  title: 'Analytics — Nexart',
+  title: 'Analytics',
   description: 'Statistiques et performances de vos événements organisateur',
   alternates: { canonical: 'https://nexart.fr/organizer/analytics' },
   openGraph: {
-    title: 'Analytics — Nexart',
+    title: 'Analytics',
     description: 'Statistiques et performances de vos événements organisateur',
     url: 'https://nexart.fr/organizer/analytics',
     type: 'website',

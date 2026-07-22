@@ -21,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     if (!event) return { title: 'Événement non trouvé' }
 
     return {
-      title: `${event.title} — Nexart`,
+      title: `${event.title}`,
       description: event.description?.substring(0, 160) || 'Découvrez cet événement sur Nexart',
       openGraph: {
         title: event.title,
