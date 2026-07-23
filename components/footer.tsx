@@ -13,7 +13,7 @@ const NAV = {
     { label: 'Contact',                  href: '/contact' },
   ],
   'Pour organisateurs': [
-    { label: 'Créer un événement',    href: '/events' },
+    { label: 'Créer un événement',    href: '/events/create' },
     { label: 'Trouver des créateurs', href: '/creators' },
     { label: 'Offres & tarifs',       href: '/offres' },
     { label: "S'inscrire",            href: '/register' },
@@ -32,10 +32,8 @@ const NAV = {
 }
 
 const SOCIALS = [
-  { icon: Globe,         href: '#', label: 'Site web' },
-  { icon: Share2,        href: '#', label: 'Twitter / X' },
-  { icon: Heart,         href: '#', label: 'Instagram' },
-  { icon: MessageCircle, href: '#', label: 'Contact' },
+  { icon: Globe,         href: 'https://nexart.fr', label: 'Site web' },
+  { icon: MessageCircle, href: '/contact',           label: 'Contact' },
 ]
 
 const LEGAL = [

@@ -179,7 +179,7 @@ export default function CarteClient() {
           <span style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>Carte des événements</span>
           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{events.length} événements</span>
         </div>
-        <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px' }}>
+        <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <SlidersHorizontal size={13} color="rgba(255,255,255,0.3)" style={{ flexShrink: 0, marginTop: '3px' }} />
           {EVENT_TYPES.map(t => (
             <button key={t.key} onClick={() => setTypeFilter(t.key)}
