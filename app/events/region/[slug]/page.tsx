@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { REGIONS, slugToRegion } from '@/lib/regions'
 import RegionPageClient from './region-client'
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
   return Object.keys(REGIONS).map((slug) => ({ slug }))
 }
@@ -50,17 +52,25 @@ export default async function RegionPage(props: { params: Promise<{ slug: string
   const region = slugToRegion(slug)
   if (!region) notFound()
 
+  // Build OR filter covering accented + unaccented variants (ilike is accent-sensitive in Postgres)
+  const regionFilters = region.variants
+    .map((v) => `region.ilike.%${v}%`)
+    .join(',')
+
   let events: any[] = []
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('events')
       .select('id, title, city, region, start_date, end_date, cover_image, discipline_tags, lat, lng')
       .eq('status', 'published')
-      .ilike('region', `%${region.name}%`)
+      .or(regionFilters)
       .order('start_date', { ascending: true })
       .limit(50)
+    if (error) console.error('RegionPage fetch error:', error)
     events = data || []
-  } catch { /* ignore */ }
+  } catch (e) {
+    console.error('RegionPage unexpected error:', e)
+  }
 
   const jsonLd = {
     '@context': 'https://schema.org',

@@ -5,12 +5,15 @@ import { REGIONS } from '@/lib/regions'
 const BASE_URL = 'https://nexart.fr'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const regionRoutes: MetadataRoute.Sitemap = Object.keys(REGIONS).map((slug) => ({
-    url: `${BASE_URL}/events/region/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.85,
-  }))
+  let regionRoutes: MetadataRoute.Sitemap = []
+  try {
+    regionRoutes = Object.keys(REGIONS).map((slug) => ({
+      url: `${BASE_URL}/events/region/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.85,
+    }))
+  } catch { /* ignore */ }
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL,                    lastModified: new Date(), changeFrequency: 'weekly',  priority: 1.0 },
