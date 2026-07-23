@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get('user_id')
     const action = searchParams.get('action')
     const resourceType = searchParams.get('resource_type')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50') || 50, 500)
     const offset = parseInt(searchParams.get('offset') || '0')
     const sensitiveOnly = searchParams.get('sensitive_only') === 'true'
 
@@ -74,10 +74,7 @@ export async function GET(req: NextRequest) {
     })
   } catch (error: unknown) {
     console.error('Audit logs error:', error)
-    return NextResponse.json(
-      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch audit logs' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch audit logs' }, { status: 500 })
   }
 }
 
@@ -97,6 +94,17 @@ export async function POST(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Only admins can manually create audit logs
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile?.is_admin) {
+      return NextResponse.json({ error: 'Only admins can create audit logs' }, { status: 403 })
     }
 
     const { validate: v, z } = await import('@/lib/validate')
@@ -143,9 +151,6 @@ export async function POST(req: NextRequest) {
     )
   } catch (error: unknown) {
     console.error('Audit log creation error:', error)
-    return NextResponse.json(
-      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to create audit log' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create audit log' }, { status: 500 })
   }
 }

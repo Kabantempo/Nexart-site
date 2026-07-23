@@ -70,8 +70,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erreur suppression compte' }, { status: 500 })
     }
 
-    // Générer token d'annulation (valide 24h)
-    const cancelToken = Buffer.from(`${userId}:${Date.now()}`).toString('base64')
+    // Générer token d'annulation signé HMAC-SHA256 (valide 24h)
+    const { createHmac } = await import('crypto')
+    const tokenSecret = process.env.DELETION_TOKEN_SECRET || process.env.CRON_SECRET_TOKEN || 'fallback-dev-only'
+    const timestamp = Date.now().toString()
+    const sig = createHmac('sha256', tokenSecret).update(`${userId}:${timestamp}`).digest('hex')
+    const cancelToken = Buffer.from(`${userId}:${timestamp}:${sig}`).toString('base64')
     const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://nexart.fr'}/api/account/cancel-deletion?token=${cancelToken}`
 
     // Envoyer email de confirmation
