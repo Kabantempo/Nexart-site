@@ -10,8 +10,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   try {
     const { name, email, shifts: shiftIds } = await req.json()
 
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!name?.trim() || !email?.trim()) {
       return NextResponse.json({ error: 'Nom et email requis' }, { status: 400 })
+    }
+    if (!EMAIL_RE.test(email.trim())) {
+      return NextResponse.json({ error: 'Format email invalide' }, { status: 400 })
     }
     if (!Array.isArray(shiftIds) || shiftIds.length === 0) {
       return NextResponse.json({ error: 'Sélectionnez au moins un créneau' }, { status: 400 })

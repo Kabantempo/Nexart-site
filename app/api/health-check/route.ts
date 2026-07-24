@@ -15,9 +15,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
 
-const BASE_URL = process.env.NEXT_PUBLIC_VERCEL_URL
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  : 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL
+  || (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'http://localhost:3000');
 
 // ============================================================================
 // TYPES
@@ -335,6 +334,20 @@ async function checkDatabaseConnectivity(): Promise<TestResult[]> {
 
 export async function GET(request: NextRequest) {
   try {
+    // Require admin auth
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const { createClient: createSupabase } = await import('@supabase/supabase-js')
+    const supabase = createSupabase(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error: authErr } = await supabase.auth.getUser(authHeader.substring(7))
+    if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const { createClient: createAdmin } = await import('@supabase/supabase-js')
+    const adminClient = createAdmin(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    const { data: profile } = await adminClient.from('profiles').select('is_admin').eq('id', user.id).single()
+    if (!(profile as any)?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
     // Get query params
     const { searchParams } = new URL(request.url);
     const full = searchParams.get('full') === 'true';

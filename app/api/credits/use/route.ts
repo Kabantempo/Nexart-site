@@ -27,17 +27,14 @@ export async function POST(req: NextRequest) {
     if (!cost) return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
 
     const admin = getAdminClient()
-    const { data: rows, error: balanceError } = await admin.from('credits').select('amount').eq('user_id', user.id)
-    if (balanceError) throw balanceError
 
-    const balance = (rows || []).reduce((s, r) => s + r.amount, 0)
-    if (balance < cost) return NextResponse.json({ error: 'Crédits insuffisants', balance }, { status: 402 })
-
-    const { error: debitError } = await admin.from('credits').insert({
-      user_id: user.id, amount: -cost, type, ref_id: ref_id || null,
-      description: type === 'boost_application' ? 'Boost candidature 48h' : 'Boost profil 7 jours',
+    // Use atomic consume_credit() to prevent race conditions (uses FOR UPDATE internally)
+    const { data: consumed, error: consumeError } = await (admin as any).rpc('consume_credit', {
+      p_user_id: user.id,
+      p_type: type,
     })
-    if (debitError) throw debitError
+    if (consumeError) throw consumeError
+    if (!consumed) return NextResponse.json({ error: 'Crédits insuffisants' }, { status: 402 })
 
     if (type === 'boost_application' && ref_id) {
       await admin.from('applications').update({ boosted_at: new Date().toISOString() } as any).eq('id', ref_id).eq('creator_id', user.id)
@@ -46,9 +43,12 @@ export async function POST(req: NextRequest) {
       const until = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       await admin.from('profiles').update({ profile_boosted_until: until } as any).eq('id', user.id)
     }
-    return NextResponse.json({ success: true, new_balance: balance - cost })
+
+    const { data: balRows } = await admin.from('credits').select('amount').eq('user_id', user.id)
+    const new_balance = (balRows || []).reduce((s: number, r: { amount: number }) => s + r.amount, 0)
+    return NextResponse.json({ success: true, new_balance })
   } catch (error: unknown) {
     console.error('❌ Credits use error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur utilisation crédits', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur utilisation crédits' }, { status: 500 })
   }
 }

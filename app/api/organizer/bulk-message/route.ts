@@ -36,6 +36,15 @@ export async function POST(req: NextRequest) {
     const errors: string[] = []
     let sent = 0
 
+    const escapeHtml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+
+    // Fetch organizer profile once (avoid N+1 inside the loop)
+    const { data: orgProfile } = await admin.from('profiles').select('full_name').eq('id', authUser.id).single()
+    const orgName = escapeHtml(orgProfile?.full_name || 'Un organisateur')
+    const safeEventTitle = escapeHtml(event.title || '')
+    const safeMessage = escapeHtml(message)
+
     // Pour chaque créateur : trouver/créer la conversation, insérer le message
     await Promise.all(creator_ids.map(async (creator_id) => {
       try {
@@ -73,8 +82,6 @@ export async function POST(req: NextRequest) {
         sent++
 
         // Notification in-app
-        const { data: orgProfile } = await admin.from('profiles').select('full_name').eq('id', authUser.id).single()
-        const orgName = orgProfile?.full_name || 'Un organisateur'
         await admin.from('notifications').insert({
           user_id: creator_id,
           type: 'new_message',
@@ -98,8 +105,8 @@ export async function POST(req: NextRequest) {
                   subject,
                   html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px 24px">
                     <h2 style="color:#1A1A1A;margin-bottom:8px">Message de ${orgName}</h2>
-                    <p style="color:#888;font-size:14px;margin-bottom:24px">Concernant l'événement : <strong>${event.title}</strong></p>
-                    <div style="background:#F5F5F7;border-radius:10px;padding:20px;color:#1A1A1A;white-space:pre-wrap;font-size:15px;line-height:1.6">${message}</div>
+                    <p style="color:#888;font-size:14px;margin-bottom:24px">Concernant l'événement : <strong>${safeEventTitle}</strong></p>
+                    <div style="background:#F5F5F7;border-radius:10px;padding:20px;color:#1A1A1A;white-space:pre-wrap;font-size:15px;line-height:1.6">${safeMessage}</div>
                     <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://nexart.fr'}/messages/${conv.id}" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#6366F1;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">Répondre</a>
                   </div>`,
                 }),

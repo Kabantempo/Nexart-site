@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './database.types'
+import './env'
 
 let _admin: ReturnType<typeof createClient<Database>> | null = null
 

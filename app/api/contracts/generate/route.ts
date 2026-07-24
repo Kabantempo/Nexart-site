@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
   if (validErr) return validErr
   const { event_id, creator_id, organizer_id, application_id } = body
 
+  // Only the organizer or the creator may generate their own contract
+  if (authUser.id !== organizer_id && authUser.id !== creator_id) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+  }
+
   // Récupérer les données
   const [{ data: event }, { data: creator }, { data: organizer }, { data: creatorProfile }] = await Promise.all([
     admin.from('events').select('*').eq('id', event_id).single(),

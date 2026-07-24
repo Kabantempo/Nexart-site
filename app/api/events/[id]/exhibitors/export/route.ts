@@ -16,6 +16,13 @@ export async function GET(
   )
   const admin = getAdminClient()
   try {
+    const escapeCsv = (val: unknown): string => {
+      const s = String(val ?? '')
+      // Prefix formula-starting chars to prevent CSV injection
+      const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s
+      return `"${safe.replace(/"/g, '""')}"`
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
     )
@@ -55,19 +62,19 @@ export async function GET(
     const rows = (exhibitors || []).map((e: any) => {
       const profile = e.profiles
       const data = [
-        `"${e.id}"`,
-        `"${profile?.full_name || ''}"`,
-        `"${profile?.email || ''}"`,
-        `"${e.status}"`,
-        e.tables_count,
-        `"${new Date(e.submitted_at).toISOString()}"`
+        escapeCsv(e.id),
+        escapeCsv(profile?.full_name || ''),
+        escapeCsv(profile?.email || ''),
+        escapeCsv(e.status),
+        escapeCsv(e.tables_count),
+        escapeCsv(new Date(e.submitted_at).toISOString()),
       ]
 
       const responseData = e.response_data as Record<string, any>
       fieldLabels.forEach((label: string) => {
         const fieldName = (fields || []).find((f: any) => f.field_label === label)?.field_name
         const value = fieldName ? responseData?.[fieldName] : ''
-        data.push(`"${value || ''}"`)
+        data.push(escapeCsv(value || ''))
       })
 
       return data.join(',')

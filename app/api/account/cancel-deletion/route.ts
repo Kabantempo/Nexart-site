@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase-admin'
-import { createClient } from '@supabase/supabase-js'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { emailDeleteCancelled } from '@/lib/email-templates'
 
@@ -13,15 +13,25 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Token manquant' }, { status: 400 })
     }
 
-    // Décoder le token
+    // Décoder et vérifier le token HMAC-SHA256
     let userId: string
     let tokenTimestamp: number
 
     try {
       const decoded = Buffer.from(token, 'base64').toString('utf-8')
-      const [id, timestamp] = decoded.split(':')
+      const parts = decoded.split(':')
+      if (parts.length !== 3) throw new Error('format invalide')
+      const [id, timestamp, sig] = parts
       userId = id
       tokenTimestamp = parseInt(timestamp, 10)
+
+      const tokenSecret = process.env.DELETION_TOKEN_SECRET || process.env.CRON_SECRET_TOKEN || 'fallback-dev-only'
+      const expectedSig = createHmac('sha256', tokenSecret).update(`${userId}:${timestamp}`).digest('hex')
+      const sigBuf = Buffer.from(sig, 'hex')
+      const expectedBuf = Buffer.from(expectedSig, 'hex')
+      if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
+        throw new Error('signature invalide')
+      }
     } catch (e) {
       return NextResponse.json({ error: 'Token invalide' }, { status: 400 })
     }
