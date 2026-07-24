@@ -4,21 +4,19 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
+  if (!process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'CRON_SECRET_TOKEN non configuré' }, { status: 500 })
+  }
+  const authHeader = req.headers.get('authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: 'Token manquant' }, { status: 401 })
+  }
+  if (authHeader.substring(7) !== process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
+  }
+
   try {
     const supabase = getAdminClient()
-
-    const CRON_SECRET = process.env.CRON_SECRET_TOKEN || 'dev-token'
-
-    // Vérifier le token de sécurité
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Token manquant' }, { status: 401 })
-    }
-
-    const token = authHeader.substring(7)
-    if (token !== CRON_SECRET) {
-      return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
-    }
 
     // Trouver tous les utilisateurs supprimés depuis > 30 jours
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()

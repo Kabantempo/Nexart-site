@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+// NOTE: In-memory rate limiting — effective only within a single process/instance.
+// For multi-instance or serverless deployments, replace with Redis/Upstash.
 const rateLimit = new Map<string, { count: number; reset: number }>()
 
 const LIMITS = {
@@ -30,9 +32,11 @@ async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; u
     }
 
     const token = authHeader.substring(7)
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!serviceKey) return { isAdmin: false }
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      serviceKey,
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
