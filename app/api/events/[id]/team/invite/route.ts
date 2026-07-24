@@ -22,6 +22,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     const eventId = params.id
+
+    // Verify caller owns this event
+    const { data: eventCheck } = await supabase.from('events').select('organizer_id').eq('id', eventId).single()
+    if (!eventCheck || eventCheck.organizer_id !== user.id) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    }
+
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
       email: z.string().email(),
@@ -55,6 +62,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (error: unknown) {
     console.error('❌ Team invite error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur invitation équipe', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur invitation équipe' }, { status: 500 })
   }
 }

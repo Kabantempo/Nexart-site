@@ -5,6 +5,16 @@ import { emailWelcome } from '@/lib/email-templates'
 
 export async function POST(req: NextRequest) {
   try {
+    // Only callable by authenticated users (prevents email spam abuse)
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ ok: true })
+    }
+    const { createClient } = await import('@supabase/supabase-js')
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user } } = await anon.auth.getUser(authHeader.substring(7))
+    if (!user) return NextResponse.json({ ok: true })
+
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
       email: z.string().email(),

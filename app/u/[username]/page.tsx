@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect, notFound } from 'next/navigation'
-import { getAdminClient } from '@/lib/supabase-admin'
+import { supabase } from '@/lib/supabase'
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params
@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
 
 export default async function UsernamePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params
-  const { data } = await getAdminClient()
+  const { data } = await supabase
     .from('profiles')
     .select('id')
     .eq('username', username)

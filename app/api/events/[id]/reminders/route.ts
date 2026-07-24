@@ -190,7 +190,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       {
         success: false,
         error: 'Reminders cron failed',
-        details: errorMsg,
         event_id: params.id,
         timestamp: new Date().toISOString(),
       },
@@ -251,7 +250,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json(
       {
         error: 'Failed to update reminder settings',
-        details: errorMsg,
       },
       { status: 500 }
     )

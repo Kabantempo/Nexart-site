@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function GET(req: NextRequest) {
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
   const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)

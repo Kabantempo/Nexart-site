@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ contract: data })
   } catch (error: unknown) {
     console.error('❌ Contract sign error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur signature contrat', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur signature contrat' }, { status: 500 })
   }
 }
 

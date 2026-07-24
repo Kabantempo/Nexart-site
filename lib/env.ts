@@ -9,6 +9,8 @@ const RECOMMENDED = [
   'CRON_SECRET_TOKEN',
   'NEXT_PUBLIC_APP_URL',
   'DELETION_TOKEN_SECRET',
+  'NEXT_PUBLIC_VAPID_PUBLIC_KEY',
+  'VAPID_PRIVATE_KEY',
 ] as const
 
 export function validateEnv() {

@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ reviews: data })
   } catch (error: unknown) {
     console.error('❌ Reviews GET error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur chargement avis', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur chargement avis' }, { status: 500 })
   }
 }
 
@@ -89,6 +89,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ review }, { status: 201 })
   } catch (error: unknown) {
     console.error('❌ Reviews POST error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur création avis', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur création avis' }, { status: 500 })
   }
 }

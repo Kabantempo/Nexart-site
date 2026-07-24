@@ -5,6 +5,9 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
   const admin = getAdminClient()
 
   const q = req.nextUrl.searchParams.get('q')
@@ -34,6 +37,6 @@ export async function GET(req: NextRequest) {
       users: (data || []).map(u => ({ ...u, subscription_tier: u.subscription_tier ?? 'free' })),
     })
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? (err instanceof Error ? err.message : String(err)) : 'Erreur' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err)}, { status: 500 })
   }
 }

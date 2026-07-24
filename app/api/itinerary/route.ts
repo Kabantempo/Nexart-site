@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ itinerary: data })
   } catch (error: unknown) {
     console.error('❌ Itinerary GET error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur chargement itinéraire', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur chargement itinéraire' }, { status: 500 })
   }
 }
 
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ entry: data }, { status: 201 })
   } catch (error: unknown) {
     console.error('❌ Itinerary POST error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur création itinéraire', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur création itinéraire' }, { status: 500 })
   }
 }
 
@@ -101,6 +101,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
     console.error('❌ Itinerary DELETE error:', { error: (error as Error)?.message })
-    return NextResponse.json({ error: 'Erreur suppression itinéraire', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur suppression itinéraire' }, { status: 500 })
   }
 }

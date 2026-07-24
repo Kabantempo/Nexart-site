@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   try {
     // API data.gouv.fr — répertoire national des associations
     const res = await fetch(
-      `https://api.gouv.fr/api/rna/v1/full_text/${rna}`,
+      `https://entreprise.data.gouv.fr/api/rna/v1/full_text/${rna}`,
       { headers: { Accept: 'application/json' }, next: { revalidate: 0 } }
     )
 
