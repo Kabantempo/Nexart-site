@@ -10,10 +10,10 @@ export default function MentionsLegalesClient() {
       items: [
         { label: 'Raison Sociale', value: 'Nexart SAS' },
         { label: 'Forme Juridique', value: 'Société par Actions Simplifiée (SAS)' },
-        { label: 'SIRET', value: '[À mettre à jour avec SIRET réel]' },
+        { label: 'SIRET', value: 'En cours d\'immatriculation' },
         { label: 'Code NAF', value: '63.12Z - Traitement données & hébergement' },
         { label: 'Siège Social', value: 'Marseille, France' },
-        { label: 'Adresse Complète', value: '[À mettre à jour avec adresse réelle]' },
+        { label: 'Adresse Complète', value: 'Marseille, France' },
       ],
     },
     {
@@ -108,7 +108,7 @@ export default function MentionsLegalesClient() {
               {/* Section Header */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
                 <div style={{ marginTop: '4px' }}>
-                  <IconComponent size={32} color="#FF6B6B" strokeWidth={1.5} />
+                  <IconComponent size={32} color="#6366F1" strokeWidth={1.5} />
                 </div>
                 <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
                   {section.title}
@@ -152,12 +152,12 @@ export default function MentionsLegalesClient() {
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            color: '#FF6B6B',
+                            color: '#6366F1',
                             textDecoration: 'none',
                             transition: 'color 0.2s',
                           }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}
                         >
                           {item.value}
                         </a>
@@ -185,7 +185,7 @@ export default function MentionsLegalesClient() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
-            <AlertCircle size={32} color="#FF6B6B" strokeWidth={1.5} />
+            <AlertCircle size={32} color="#6366F1" strokeWidth={1.5} />
             <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Propriété Intellectuelle
             </h2>
@@ -213,7 +213,7 @@ export default function MentionsLegalesClient() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
-            <Shield size={32} color="#FF6B6B" strokeWidth={1.5} />
+            <Shield size={32} color="#6366F1" strokeWidth={1.5} />
             <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Protection des Données Personnelles
             </h2>
@@ -227,7 +227,7 @@ export default function MentionsLegalesClient() {
                 <strong>Responsable du traitement</strong> : Kalvin, kalvin@nexart.fr
               </li>
               <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
-                <strong>Politique de Confidentialité</strong> : <a href="/confidentialite" style={{ color: '#FF6B6B', textDecoration: 'none' }}>Lire la politique complète</a>
+                <strong>Politique de Confidentialité</strong> : <a href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none' }}>Lire la politique complète</a>
               </li>
               <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 <strong>Droits RGPD</strong> : accès, rectification, suppression, opposition, portabilité
@@ -247,7 +247,7 @@ export default function MentionsLegalesClient() {
           viewport={{ once: true }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '32px' }}>
-            <AlertCircle size={32} color="#FF6B6B" strokeWidth={1.5} />
+            <AlertCircle size={32} color="#6366F1" strokeWidth={1.5} />
             <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>
               Conformité Légale
             </h2>
@@ -287,17 +287,17 @@ export default function MentionsLegalesClient() {
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/conditions" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/conditions" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Conditions d'Utilisation
                   </a>
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/confidentialite" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Politique de Confidentialité
                   </a>
                 </li>
                 <li>
-                  <a href="/mentions-legales" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/mentions-legales" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Mentions Légales
                   </a>
                 </li>
@@ -309,12 +309,12 @@ export default function MentionsLegalesClient() {
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/contact" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/contact" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Contact Support
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:kalvin@nexart.fr" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="mailto:kalvin@nexart.fr" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Email: kalvin@nexart.fr
                   </a>
                 </li>

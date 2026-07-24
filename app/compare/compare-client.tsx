@@ -55,9 +55,24 @@ function CompareContent() {
 
   if (!ids.length) {
     return (
-      <div style={{ textAlign: 'center', padding: '80px 16px' }}>
-        <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '16px' }}>Aucun événement sélectionné.</p>
-        <Link href="/events" style={{ color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>← Retour aux événements</Link>
+      <div style={{ textAlign: 'center', padding: '80px 16px', maxWidth: '480px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '16px' }}>
+          Comparez des événements
+        </h1>
+        <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px', lineHeight: '1.6' }}>
+          Ajoutez des événements à comparer depuis la page des événements.
+        </p>
+        <Link
+          href="/events"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            backgroundColor: '#6366F1', color: '#FFFFFF', fontWeight: '700',
+            fontSize: '15px', padding: '12px 24px', borderRadius: '12px',
+            textDecoration: 'none', transition: 'background-color 0.2s',
+          }}
+        >
+          Parcourir les événements
+        </Link>
       </div>
     )
   }
