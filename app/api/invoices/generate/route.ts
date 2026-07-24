@@ -114,7 +114,8 @@ export async function POST(req: NextRequest) {
     page.drawText(`${amount} €`, { x: 510, y, size: 9, font: fontRegular, color: black })
 
     y -= 14
-    page.drawText('TVA (0% — auto-entrepreneur) :', { x: 340, y, size: 9, font: fontRegular, color: gray })
+    const tvaLabel = process.env.TVA_LABEL ?? 'TVA (0% — non applicable)'
+    page.drawText(`${tvaLabel} :`, { x: 340, y, size: 9, font: fontRegular, color: gray })
     page.drawText('0.00 €', { x: 510, y, size: 9, font: fontRegular, color: black })
 
     y -= 14

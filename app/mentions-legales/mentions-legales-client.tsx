@@ -10,7 +10,7 @@ export default function MentionsLegalesClient() {
       items: [
         { label: 'Raison Sociale', value: 'Nexart SAS' },
         { label: 'Forme Juridique', value: 'Société par Actions Simplifiée (SAS)' },
-        { label: 'SIRET', value: 'En cours d\'immatriculation' },
+        { label: 'SIRET', value: 'Disponible après immatriculation officielle' },
         { label: 'Code NAF', value: '63.12Z - Traitement données & hébergement' },
         { label: 'Siège Social', value: 'Marseille, France' },
         { label: 'Adresse Complète', value: 'Marseille, France' },

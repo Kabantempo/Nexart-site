@@ -18,12 +18,6 @@ interface EventItem {
   cover_image?: string
 }
 
-const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  published: { bg: 'bg-indigo-100',  text: 'text-indigo-700',  dot: 'bg-indigo-500' },
-  draft:     { bg: 'bg-amber-100',   text: 'text-amber-700',   dot: 'bg-amber-400' },
-  closed:    { bg: 'bg-gray-100',    text: 'text-gray-500',    dot: 'bg-gray-400' },
-}
-
 const STATUS_PILL_BG: Record<string, string> = {
   published: 'rgba(99,102,241,0.2)',
   draft:     'rgba(245,158,11,0.2)',
@@ -34,6 +28,12 @@ const STATUS_PILL_COLOR: Record<string, string> = {
   published: '#6366F1',
   draft:     '#F59E0B',
   closed:    'var(--text-tertiary)',
+}
+
+const STATUS_DOT_COLOR: Record<string, string> = {
+  published: '#6366F1',
+  draft:     '#F59E0B',
+  closed:    '#9CA3AF',
 }
 
 function getDaysInMonth(year: number, month: number) {
@@ -110,10 +110,11 @@ export default function CalendrierPage() {
   })
 
   if (!user || loading) return (
-    <div className="bg-white min-h-screen">
-      <div className="h-48 bg-[#06060f] animate-pulse" />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-20">
-        <div className="h-96 rounded-2xl bg-gray-100 animate-pulse" />
+    <div style={{ backgroundColor: '#fff', minHeight: '100vh' }}>
+      <style>{`@keyframes cal-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }`}</style>
+      <div style={{ height: '192px', backgroundColor: '#06060f', animation: 'cal-pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '40px 16px 80px' }}>
+        <div style={{ height: '384px', borderRadius: '16px', backgroundColor: '#F3F4F6', animation: 'cal-pulse 1.5s ease-in-out infinite' }} />
       </div>
     </div>
   )
@@ -121,66 +122,77 @@ export default function CalendrierPage() {
   const sidebarItems = selectedDay ? selectedEvents : monthEvents
 
   return (
-    <div className="bg-white min-h-screen">
+    <div style={{ backgroundColor: '#fff', minHeight: '100vh' }}>
+      <style>{`
+        @keyframes cal-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        .cal-main-grid { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start }
+        @media (min-width: 1024px) { .cal-main-grid { grid-template-columns: 1fr 260px } }
+        .cal-grid-7 { display: grid; grid-template-columns: repeat(7, 1fr) }
+        .cal-day-nav { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; transition: all 0.15s }
+        .cal-day-nav:hover { border-color: #D1D5DB; background: #F9FAFB }
+        .cal-hero-back { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.4); font-size: 14px; text-decoration: none; margin-bottom: 20px; transition: color 0.15s }
+        .cal-hero-back:hover { color: rgba(255,255,255,0.7) }
+        .cal-create-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; background: #4F46E5; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; transition: background 0.15s }
+        .cal-create-btn:hover { background: #4338CA }
+        .cal-sidebar-link { display: block; padding: 16px; border-radius: 12px; border: 1px solid #F3F4F6; background: #fff; text-decoration: none; transition: all 0.15s }
+        .cal-sidebar-link:hover { border-color: #C7D2FE; box-shadow: 0 1px 4px rgba(0,0,0,0.06) }
+        .cal-sidebar-link:hover .cal-ev-title { color: #4338CA }
+      `}</style>
 
       {/* Hero */}
-      <div className="bg-[#06060f] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.08]"
-          style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-orange-600/15 blur-[90px] pointer-events-none" />
-        <div className="absolute -bottom-16 left-0 w-72 h-72 rounded-full bg-indigo-600/15 blur-[80px] pointer-events-none" />
+      <div style={{ backgroundColor: '#06060f', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.08, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div style={{ position: 'absolute', top: '-96px', right: '-96px', width: '320px', height: '320px', borderRadius: '9999px', backgroundColor: 'rgba(234,88,12,0.15)', filter: 'blur(90px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-64px', left: 0, width: '288px', height: '288px', borderRadius: '9999px', backgroundColor: 'rgba(99,102,241,0.15)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 pb-14 relative z-10">
+        <div style={{ maxWidth: '896px', margin: '0 auto', padding: '64px 16px 56px', position: 'relative', zIndex: 10 }}>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-            <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-white/40 text-sm hover:text-white/70 transition-colors mb-5">
+            <Link href="/dashboard" className="cal-hero-back">
               <ArrowLeft size={14} /> Tableau de bord
             </Link>
-            <div className="flex items-start justify-between flex-wrap gap-4">
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">Calendrier</h1>
-                <p className="text-white/40 text-sm mt-2">
+                <h1 style={{ fontSize: '36px', fontWeight: 700, color: '#fff', letterSpacing: '-0.02em' }}>Calendrier</h1>
+                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginTop: '8px' }}>
                   {events.length} événement{events.length > 1 ? 's' : ''} · {monthEvents.length} ce mois-ci
                 </p>
               </div>
-              <Link href="/events/create"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+              <Link href="/events/create" className="cal-create-btn">
                 <Plus size={15} /> Créer un événement
               </Link>
             </div>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-24">
-        <div className="grid lg:grid-cols-[1fr_260px] gap-6 items-start">
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '32px 16px 96px' }}>
+        <div className="cal-main-grid">
 
           {/* Calendar */}
-          <div className="rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+          <div style={{ borderRadius: '16px', border: '1px solid #F3F4F6', backgroundColor: '#fff', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             {/* Month nav */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
-              <button onClick={prevMonth}
-                className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:border-gray-300 hover:bg-gray-50 transition-all">
-                <ChevronLeft size={16} className="text-gray-500" />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid #FAFAFA' }}>
+              <button onClick={prevMonth} className="cal-day-nav">
+                <ChevronLeft size={16} color="#6B7280" />
               </button>
-              <h2 className="text-base font-bold text-gray-900">{MONTHS_FR[month]} {year}</h2>
-              <button onClick={nextMonth}
-                className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:border-gray-300 hover:bg-gray-50 transition-all">
-                <ChevronRight size={16} className="text-gray-500" />
+              <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{MONTHS_FR[month]} {year}</h2>
+              <button onClick={nextMonth} className="cal-day-nav">
+                <ChevronRight size={16} color="#6B7280" />
               </button>
             </div>
 
             {/* Day headers */}
-            <div className="grid grid-cols-7 border-b border-gray-50">
+            <div className="cal-grid-7" style={{ borderBottom: '1px solid #FAFAFA' }}>
               {DAYS_FR.map(d => (
-                <div key={d} className="py-2.5 text-center text-[11px] font-bold text-gray-300 uppercase tracking-wider">{d}</div>
+                <div key={d} style={{ padding: '10px 0', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: '#D1D5DB', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{d}</div>
               ))}
             </div>
 
             {/* Days */}
-            <div className="grid grid-cols-7">
+            <div className="cal-grid-7">
               {Array.from({ length: firstDay }).map((_, i) => (
-                <div key={`e${i}`} className="min-h-[72px] bg-gray-50/50 border-r border-b border-gray-50" />
+                <div key={`e${i}`} style={{ minHeight: '72px', backgroundColor: 'rgba(249,250,251,0.5)', borderRight: '1px solid #FAFAFA', borderBottom: '1px solid #FAFAFA' }} />
               ))}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1
@@ -191,22 +203,20 @@ export default function CalendrierPage() {
                 return (
                   <div key={day}
                     onClick={() => dayEvs.length > 0 && setSelectedDay(isSelected ? null : day)}
-                    className={`min-h-[72px] p-1.5 border-r border-b border-gray-50 transition-colors duration-100 ${
-                      dayEvs.length > 0 ? 'cursor-pointer' : ''
-                    } ${isSelected ? 'bg-indigo-50/60' : 'hover:bg-gray-50/80'}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-semibold mb-1 ${
-                      isToday ? 'bg-indigo-600 text-white' : 'text-gray-700'
-                    }`}>{day}</div>
-                    <div className="flex flex-col gap-0.5">
+                    style={{ minHeight: '72px', padding: '6px', borderRight: '1px solid #FAFAFA', borderBottom: '1px solid #FAFAFA', cursor: dayEvs.length > 0 ? 'pointer' : 'default', backgroundColor: isSelected ? 'rgba(238,242,255,0.6)' : 'transparent', transition: 'background-color 100ms' }}
+                    onMouseEnter={e => { if (!isSelected && dayEvs.length > 0) (e.currentTarget as HTMLDivElement).style.backgroundColor = 'rgba(249,250,251,0.8)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.backgroundColor = isSelected ? 'rgba(238,242,255,0.6)' : 'transparent' }}
+                  >
+                    <div style={{ width: '28px', height: '28px', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 600, marginBottom: '4px', backgroundColor: isToday ? '#4F46E5' : 'transparent', color: isToday ? '#fff' : '#374151' }}>{day}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       {dayEvs.slice(0, 2).map(ev => (
                         <div key={ev.id}
-                          className="px-1 py-0.5 rounded text-[10px] font-semibold truncate"
-                          style={{ backgroundColor: STATUS_PILL_BG[ev.status] ?? 'rgba(99,102,241,0.15)', color: STATUS_PILL_COLOR[ev.status] ?? '#6366F1' }}>
+                          style={{ padding: '1px 4px', borderRadius: '4px', fontSize: '10px', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', backgroundColor: STATUS_PILL_BG[ev.status] ?? 'rgba(99,102,241,0.15)', color: STATUS_PILL_COLOR[ev.status] ?? '#6366F1' }}>
                           {ev.title}
                         </div>
                       ))}
                       {dayEvs.length > 2 && (
-                        <span className="text-[10px] text-gray-400 font-semibold pl-1">+{dayEvs.length - 2}</span>
+                        <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 600, paddingLeft: '4px' }}>+{dayEvs.length - 2}</span>
                       )}
                     </div>
                   </div>
@@ -216,36 +226,32 @@ export default function CalendrierPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h3 style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {selectedDay ? `${selectedDay} ${MONTHS_FR[month]}` : `${MONTHS_FR[month]} ${year}`}
             </h3>
 
             {sidebarItems.length === 0 ? (
-              <div className="py-8 rounded-2xl border border-dashed border-gray-200 text-center">
-                <Calendar size={24} className="text-gray-200 mx-auto mb-2" />
-                <p className="text-xs text-gray-400">Aucun événement</p>
+              <div style={{ padding: '32px 0', borderRadius: '16px', border: '1px dashed #E5E7EB', textAlign: 'center' }}>
+                <Calendar size={24} color="#E5E7EB" style={{ margin: '0 auto 8px' }} />
+                <p style={{ fontSize: '12px', color: '#9CA3AF' }}>Aucun événement</p>
               </div>
             ) : (
-              sidebarItems.map(ev => {
-                const sc = STATUS_COLORS[ev.status] ?? STATUS_COLORS.closed
-                return (
-                  <Link key={ev.id} href={`/events/${ev.id}`}
-                    className="block p-4 rounded-xl border border-gray-100 bg-white hover:border-indigo-200 hover:shadow-sm transition-all duration-150 group">
-                    <div className="flex items-start gap-2.5">
-                      <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${sc.dot}`} />
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 group-hover:text-indigo-700 transition-colors truncate">{ev.title}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
-                          {ev.start_date !== ev.end_date ? ` → ${new Date(ev.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` : ''}
-                        </p>
-                        {ev.city && <p className="text-xs text-indigo-400 mt-0.5">{ev.city}</p>}
-                      </div>
+              sidebarItems.map(ev => (
+                <Link key={ev.id} href={`/events/${ev.id}`} className="cal-sidebar-link">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '9999px', marginTop: '6px', flexShrink: 0, backgroundColor: STATUS_DOT_COLOR[ev.status] ?? '#9CA3AF' }} />
+                    <div style={{ minWidth: 0 }}>
+                      <p className="cal-ev-title" style={{ fontSize: '14px', fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', transition: 'color 0.15s' }}>{ev.title}</p>
+                      <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>
+                        {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                        {ev.start_date !== ev.end_date ? ` → ${new Date(ev.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}` : ''}
+                      </p>
+                      {ev.city && <p style={{ fontSize: '12px', color: '#818CF8', marginTop: '2px' }}>{ev.city}</p>}
                     </div>
-                  </Link>
-                )
-              })
+                  </div>
+                </Link>
+              ))
             )}
           </div>
         </div>

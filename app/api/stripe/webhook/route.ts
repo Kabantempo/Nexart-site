@@ -4,7 +4,7 @@ import { getStripe, isStripeConfigured, SubscriptionTier, STRIPE_PRICES, STRIPE_
 import { getAdminClient } from '@/lib/supabase-admin'
 import { sendPushToUsers } from '@/lib/push'
 import { sendMail } from '@/lib/mailer'
-import { emailPaymentFailed } from '@/lib/email-templates'
+import { emailPaymentFailed, emailCreditsPurchased } from '@/lib/email-templates'
 
 const PRICE_TO_TIER: Record<string, SubscriptionTier> = {
   [STRIPE_PRICES.creator.boost.monthly]:    STRIPE_PRICES.creator.boost.tier,
@@ -99,11 +99,24 @@ export async function POST(req: NextRequest) {
       const uid = userId ?? session.metadata?.supabase_user_id
       if (!uid) break
 
+      // Idempotence — skip if payment_intent already processed
+      if (session.payment_intent) {
+        const { data: existingTx } = await (admin as any).from('credit_transactions')
+          .select('id')
+          .eq('payment_intent_id', session.payment_intent)
+          .maybeSingle()
+        if (existingTx) break
+      }
+
       // Récupérer les line items pour identifier les crédits achetés
       const stripeSession = await getStripe().checkout.sessions.retrieve(
         (event.data.object as { id: string }).id,
         { expand: ['line_items'] }
       )
+
+      // Récupérer l'email de l'utilisateur pour confirmation
+      const { data: profile } = await admin.from('profiles').select('email').eq('id', uid).single() as { data: { email?: string } | null }
+      const userEmail = (profile as any)?.email
 
       for (const item of stripeSession.line_items?.data ?? []) {
         const priceId = item.price?.id ?? ''
@@ -137,6 +150,16 @@ export async function POST(req: NextRequest) {
           body: `Vos crédits sont disponibles dans votre tableau de bord.`,
           link: '/dashboard',
         })
+
+        // Email de confirmation d'achat
+        if (userEmail) {
+          const amountPaid = item.amount_total ? `${(item.amount_total / 100).toFixed(2)} €` : '—'
+          await sendMail({
+            to: userEmail,
+            subject: `✅ ${creditDef.amount} crédit${creditDef.amount > 1 ? 's' : ''} ajouté${creditDef.amount > 1 ? 's' : ''} — Nexart`,
+            html: emailCreditsPurchased(creditDef.type, creditDef.amount, amountPaid),
+          })
+        }
       }
       break
     }

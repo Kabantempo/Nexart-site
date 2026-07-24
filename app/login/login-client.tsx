@@ -67,8 +67,9 @@ export default function LoginPage() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
+      <style>{`@media (min-width: 1024px) { .login-panel-left { display: flex !important; } .login-mobile-logo { display: none !important; } }`}</style>
       {/* Panel gauche — branding */}
-      <div style={{
+      <div className="login-panel-left" style={{
         display: 'none',
         flex: '0 0 480px',
         background: 'linear-gradient(135deg, #0F0C29 0%, #1E1B4B 40%, #2D1B69 100%)',
@@ -78,7 +79,6 @@ export default function LoginPage() {
         justifyContent: 'space-between',
         padding: '48px',
       }}
-        className="lg:flex"
       >
         {/* Grid décoratif */}
         <div style={{
@@ -180,7 +180,7 @@ export default function LoginPage() {
         overflowY: 'auto',
       }}>
         {/* Mobile logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }} className="lg:hidden">
+        <div className="login-mobile-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }}>
           <Image src="/logo-mark.png" alt="Nexart" width={32} height={32} style={{ borderRadius: '8px' }} />
           <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>

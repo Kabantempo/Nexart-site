@@ -103,22 +103,24 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16">
+    <div style={{ maxWidth: '672px', margin: '0 auto', padding: '64px 16px' }}>
+      <style>{`@keyframes feed-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }`}</style>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-            <Rss size={18} className="text-indigo-600" />
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Rss size={18} color="#4F46E5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Fil d'actualités</h1>
-            <p className="text-sm text-gray-400">Les posts des créateurs que vous suivez</p>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Fil d&apos;actualités</h1>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Les posts des créateurs que vous suivez</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex flex-col gap-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-40 rounded-2xl bg-gray-100 animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
+              <div key={i} style={{ height: '160px', borderRadius: '16px', backgroundColor: '#F3F4F6', animation: `feed-pulse 1.5s ease-in-out ${i * 60}ms infinite` }} />
             ))}
           </div>
         ) : posts.length === 0 ? (
@@ -130,47 +132,49 @@ export default function FeedPage() {
             href="/creators"
           />
         ) : (
-          <div className="flex flex-col gap-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {posts.map((post, i) => (
               <motion.div key={post.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm">
+                style={{ padding: '20px', borderRadius: '16px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
                 {/* Author */}
-                <Link href={`/creators/${post.creator_id}`} className="flex items-center gap-3 mb-4 group">
-                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0 overflow-hidden">
+                <Link href={`/creators/${post.creator_id}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', textDecoration: 'none' }}
+                  onMouseEnter={e => { const name = e.currentTarget.querySelector('.feed-creator-name') as HTMLElement; if (name) name.style.color = '#4338CA' }}
+                  onMouseLeave={e => { const name = e.currentTarget.querySelector('.feed-creator-name') as HTMLElement; if (name) name.style.color = 'var(--text-primary)' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4338CA', fontWeight: 700, fontSize: '14px', flexShrink: 0, overflow: 'hidden' }}>
                     {post.profiles?.avatar_url
                       ? <Image src={post.profiles.avatar_url} alt={`Photo de profil de ${post.profiles?.full_name || 'créateur'}`} width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                       : (post.profiles?.full_name?.[0] || '?')}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">{post.profiles?.full_name || 'Créateur'}</p>
-                    <p className="text-xs text-gray-400">{relativeTime(post.created_at)}</p>
+                    <p className="feed-creator-name" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0, transition: 'color 0.15s' }}>{post.profiles?.full_name || 'Créateur'}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{relativeTime(post.created_at)}</p>
                   </div>
                 </Link>
 
                 {/* Content */}
-                <p className="text-sm text-gray-700 leading-relaxed mb-4 whitespace-pre-line">{post.content}</p>
+                <p style={{ fontSize: '14px', color: 'var(--text-body, #374151)', lineHeight: 1.6, marginBottom: '16px', whiteSpace: 'pre-line' }}>{post.content}</p>
 
                 {/* Image */}
                 {post.image_url && (
-                  <div className="mb-4 rounded-xl overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <div style={{ marginBottom: '16px', borderRadius: '12px', overflow: 'hidden' }}>
                     <Image src={post.image_url} alt={`Image du post de ${post.profiles?.full_name || 'créateur'}`} width={800} height={320} style={{ width: '100%', maxHeight: '320px', objectFit: 'cover' }} />
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingTop: '8px', borderTop: '1px solid #F3F4F6' }}>
                   <button onClick={() => toggleLike(post.id, post.liked ?? false)} disabled={likeUpdating === post.id}
-                    className="flex items-center gap-1.5 text-sm font-semibold transition-colors disabled:opacity-50"
-                    style={{ color: post.liked ? '#E05A5A' : 'var(--text-tertiary)' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: 600, color: post.liked ? '#E05A5A' : 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, opacity: likeUpdating === post.id ? 0.5 : 1, transition: 'color 0.15s' }}>
                     <Heart size={16} fill={post.liked ? '#E05A5A' : 'none'} />
                     {post.likes_count ?? 0}
                   </button>
                   <Link href={`/creators/${post.creator_id}`}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-indigo-600 transition-colors">
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#6366F1')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}>
                     <MessageCircle size={14} /> Voir le profil
                   </Link>
-                  <div className="ml-auto">
+                  <div style={{ marginLeft: 'auto' }}>
                     <ReportButton targetId={post.id} targetType="post" reporterId={userId ?? undefined} />
                   </div>
                 </div>

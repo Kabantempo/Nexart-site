@@ -262,7 +262,7 @@ export default function ConditionsClient() {
       ],
     },
     {
-      title: '12. Droit Applicable',
+      title: '14. Droit Applicable',
       icon: Scale,
       items: [
         'Droit français s\'applique',

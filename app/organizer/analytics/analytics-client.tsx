@@ -173,7 +173,7 @@ export default function AnalyticsClient() {
       `}</style>
 
       {/* Hero dark */}
-      <div className="bg-[#06060f] relative overflow-hidden">
+      <div style={{ backgroundColor: '#06060f', position: 'relative', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 24px 48px', position: 'relative', zIndex: 10 }}>
           <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 13, marginBottom: 20, textDecoration: 'none' }}>
             <ArrowLeft size={14} /> Retour au dashboard

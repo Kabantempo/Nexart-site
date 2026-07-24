@@ -112,6 +112,18 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
       </div>
 
       <div style={{ maxWidth: '900px', margin: '32px auto', padding: '0 24px' }}>
+
+        {/* Coming soon notice */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '16px 20px', borderRadius: '12px', backgroundColor: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', marginBottom: '24px' }}>
+          <ShoppingBag size={18} color="#6366F1" style={{ flexShrink: 0, marginTop: '1px' }} />
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '4px' }}>Boutique en cours de déploiement</p>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              La fonctionnalité d'achat en ligne sera disponible prochainement. Vous pouvez contacter le créateur directement pour passer commande.
+            </p>
+          </div>
+        </div>
+
         {products.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 24px' }}>
             <ShoppingBag size={48} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />

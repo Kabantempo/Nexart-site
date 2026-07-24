@@ -1,43 +1,27 @@
 'use client'
 
-import { motion, AnimatePresence, useScroll, useTransform, useInView, animate } from 'framer-motion'
+import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Users, Calendar, CheckCircle, ChevronRight, Zap, Target, Bell, Shield, BadgeCheck, MapPin, Search } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 
-// ── Grain overlay ──────────────────────────────────────────────────────
 function Grain() {
   return (
-    <div
-      className="fixed inset-0 z-[9998] pointer-events-none opacity-[0.035] mix-blend-overlay"
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: '180px 180px',
-      }}
-    />
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9998, pointerEvents: 'none',
+      opacity: 0.035, mixBlendMode: 'overlay' as const,
+      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+      backgroundRepeat: 'repeat', backgroundSize: '180px 180px',
+    }} />
   )
 }
 
-// ── Counter ────────────────────────────────────────────────────────────
-function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-40px' })
-  const [display, setDisplay] = useState(0)
-  useEffect(() => {
-    if (!inView) return
-    const ctrl = animate(0, to, { duration: 1.8, ease: 'easeOut', onUpdate: (v) => setDisplay(Math.round(v)) })
-    return ctrl.stop
-  }, [inView, to])
-  return <span ref={ref}>{display.toLocaleString('fr-FR')}{suffix}</span>
-}
-
-// ── Word reveal ────────────────────────────────────────────────────────
-function WordReveal({ children, delay = 0, className = '' }: { children: string; delay?: number; className?: string }) {
+function WordReveal({ children, delay = 0 }: { children: string; delay?: number }) {
   return (
-    <span className={className}>
+    <span>
       {children.split(' ').map((w, i) => (
-        <motion.span key={i} className="inline-block mr-[0.22em] last:mr-0"
+        <motion.span key={i}
+          style={{ display: 'inline-block', marginRight: '0.22em' }}
           initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.58, delay: delay + i * 0.075, ease: [0.22, 1, 0.36, 1] }}>
           {w}
@@ -47,7 +31,6 @@ function WordReveal({ children, delay = 0, className = '' }: { children: string;
   )
 }
 
-// ── Scroll fade ────────────────────────────────────────────────────────
 function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
@@ -59,102 +42,91 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
   )
 }
 
-// ── Phone mockup ───────────────────────────────────────────────────────
 const FAKE_EVENTS = [
-  { title: 'Marché de Noël — Paris 12e', date: '14–16 déc.', stands: 48, type: 'Marché', color: 'text-indigo-400' },
-  { title: 'Pop-up Créateurs Montmartre', date: '20 jan.',   stands: 24, type: 'Pop-up',  color: 'text-violet-400' },
-  { title: 'Salon du Fait Main Lyon',     date: '3–5 fév.',  stands: 120, type: 'Salon',  color: 'text-emerald-400' },
-  { title: 'Foire Artisanale Bordeaux',   date: '15 mar.',   stands: 60,  type: 'Foire',  color: 'text-amber-400' },
+  { title: 'Marché de Noël — Paris 12e', date: '14–16 déc.', type: 'Marché', color: '#818CF8' },
+  { title: 'Pop-up Créateurs Montmartre', date: '20 jan.',   type: 'Pop-up',  color: '#A78BFA' },
+  { title: 'Salon du Fait Main Lyon',     date: '3–5 fév.',  type: 'Salon',   color: '#34D399' },
 ]
 
 function PhoneMockup() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
+    <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="relative"
+      style={{ position: 'relative' }}
     >
-      {/* Glow */}
-      <div className="absolute inset-x-4 -bottom-10 h-32 bg-indigo-600/25 blur-[50px] rounded-full pointer-events-none" />
-
-      {/* Phone frame */}
-      <div className="relative w-[270px] mx-auto rounded-[3rem] border-[1.5px] border-white/12 bg-[#0c0c1a] shadow-2xl shadow-black/70 overflow-hidden" style={{ height: '580px' }}>
+      <div style={{ position: 'absolute', left: '16px', right: '16px', bottom: '-40px', height: '128px', backgroundColor: 'rgba(99,102,241,0.25)', filter: 'blur(50px)', borderRadius: '9999px', pointerEvents: 'none' }} />
+      <div style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: '1.5px solid rgba(255,255,255,0.12)', backgroundColor: '#0c0c1a', boxShadow: '0 25px 60px rgba(0,0,0,0.7)', overflow: 'hidden', height: '560px' }}>
 
         {/* Status bar */}
-        <div className="flex items-center justify-between px-6 pt-4 pb-1">
-          <span className="text-[11px] font-semibold text-white/60">9:41</span>
-          <div className="w-20 h-5 rounded-full bg-black mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
-          <div className="flex items-center gap-1">
-            <div className="flex gap-[2px] items-end h-3">
-              {[3,5,7,9].map((h,i) => <div key={i} className="w-[2.5px] rounded-sm bg-white/50" style={{height:`${h}px`}}/>)}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 4px', position: 'relative' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>9:41</span>
+          <div style={{ width: '80px', height: '20px', borderRadius: '9999px', backgroundColor: '#000', position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '12px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '12px' }}>
+              {[3,5,7,9].map((h,i) => <div key={i} style={{ width: '2.5px', borderRadius: '2px', backgroundColor: 'rgba(255,255,255,0.5)', height: `${h}px` }}/>)}
             </div>
-            <div className="w-4 h-2.5 rounded-sm border border-white/40 relative ml-0.5">
-              <div className="absolute inset-[2px] right-[3px] bg-white/50 rounded-[1px]" />
-              <div className="absolute -right-[2px] top-1/2 -translate-y-1/2 w-[2px] h-1.5 bg-white/30 rounded-r-sm" />
+            <div style={{ width: '16px', height: '10px', borderRadius: '2px', border: '1px solid rgba(255,255,255,0.4)', position: 'relative', marginLeft: '2px' }}>
+              <div style={{ position: 'absolute', top: '2px', left: '2px', bottom: '2px', right: '3px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '1px' }} />
+              <div style={{ position: 'absolute', right: '-2px', top: '50%', transform: 'translateY(-50%)', width: '2px', height: '6px', backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: '0 2px 2px 0' }} />
             </div>
           </div>
         </div>
 
-        {/* App header */}
-        <div className="px-5 pt-3 pb-4">
-          <p className="text-[11px] text-white/35 font-medium mb-0.5">Bonjour, Marie</p>
-          <h3 className="text-[18px] font-bold text-white leading-tight">Événements près de toi</h3>
+        {/* Header */}
+        <div style={{ padding: '12px 20px 16px' }}>
+          <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', fontWeight: 500, marginBottom: '2px' }}>Bonjour, Marie</p>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Événements près de toi</h3>
         </div>
 
-        {/* Search bar */}
-        <div className="px-5 mb-4">
-          <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-white/7 border border-white/8">
-            <Search size={14} className="text-white/30 shrink-0" />
-            <span className="text-[12px] text-white/25">Rechercher…</span>
+        {/* Search */}
+        <div style={{ padding: '0 20px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '16px', backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <Search size={14} color="rgba(255,255,255,0.3)" style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>Rechercher…</span>
           </div>
         </div>
 
-        {/* Section label */}
-        <div className="flex items-center justify-between px-5 mb-3">
-          <span className="text-[11px] font-bold text-white/40 uppercase tracking-widest">À proximité</span>
-          <span className="text-[11px] text-indigo-400 font-semibold">Voir tout</span>
+        {/* Label */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', marginBottom: '12px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>À proximité</span>
+          <span style={{ fontSize: '11px', color: '#818CF8', fontWeight: 600 }}>Voir tout</span>
         </div>
 
-        {/* Event cards — only 3 */}
-        <div className="px-5 flex flex-col gap-3">
-          {FAKE_EVENTS.slice(0, 3).map((ev, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
+        {/* Cards */}
+        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {FAKE_EVENTS.map((ev, i) => (
+            <motion.div key={i}
+              initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.45, delay: 0.7 + i * 0.12, ease: 'easeOut' }}
-              className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/[0.05] border border-white/7"
+              style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px', borderRadius: '16px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
             >
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                <Calendar size={15} className={ev.color} />
+              <div style={{ width: '38px', height: '38px', borderRadius: '10px', backgroundColor: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Calendar size={14} color={ev.color} />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-white leading-tight truncate">{ev.title}</p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className={`text-[10px] font-bold ${ev.color}`}>{ev.type}</span>
-                  <span className="text-white/20 text-[10px]">·</span>
-                  <span className="text-[10px] text-white/40">{ev.date}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: '#fff', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: ev.color }}>{ev.type}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '10px' }}>·</span>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)' }}>{ev.date}</span>
                 </div>
               </div>
-              <div className="shrink-0 px-2.5 py-1.5 rounded-xl bg-indigo-600/80 text-[10px] font-bold text-white">
-                Voir
-              </div>
+              <div style={{ flexShrink: 0, padding: '5px 10px', borderRadius: '10px', backgroundColor: 'rgba(79,70,229,0.8)', fontSize: '10px', fontWeight: 700, color: '#fff' }}>Voir</div>
             </motion.div>
           ))}
         </div>
 
-        {/* Bottom tab bar */}
-        <div className="absolute bottom-0 inset-x-0 flex items-center justify-around px-6 pb-6 pt-3.5 border-t border-white/6 bg-[#0c0c1a]">
+        {/* Tab bar */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '14px 24px 24px', borderTop: '1px solid rgba(255,255,255,0.06)', backgroundColor: '#0c0c1a' }}>
           {[
             { icon: <Search size={18} />, active: false },
             { icon: <MapPin size={18} />, active: true },
             { icon: <Bell size={18} />, active: false },
             { icon: <Users size={18} />, active: false },
           ].map((item, i) => (
-            <div key={i} className={`flex flex-col items-center gap-1 ${item.active ? 'text-indigo-400' : 'text-white/20'}`}>
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: item.active ? '#818CF8' : 'rgba(255,255,255,0.2)' }}>
               {item.icon}
-              {item.active && <div className="w-1 h-1 rounded-full bg-indigo-400" />}
+              {item.active && <div style={{ width: '4px', height: '4px', borderRadius: '9999px', backgroundColor: '#818CF8' }} />}
             </div>
           ))}
         </div>
@@ -163,7 +135,6 @@ function PhoneMockup() {
   )
 }
 
-// ── Testimonials marquee ───────────────────────────────────────────────
 const TESTIMONIALS_ROW1 = [
   { name: 'Marie L.',    role: 'Céramiste',    text: "Nexart m'a permis de remplir mon calendrier pour 6 mois. Incroyable." },
   { name: 'Théo R.',    role: 'Illustrateur',  text: "J'ai candidaté à 12 événements en une soirée. L'interface est parfaite." },
@@ -173,26 +144,26 @@ const TESTIMONIALS_ROW1 = [
   { name: 'Lucas P.',   role: 'Sculpteur',     text: "Candidature envoyée, réponse en 24h. Exactement ce qu'il me fallait." },
 ]
 const TESTIMONIALS_ROW2 = [
-  { name: 'Emma V.',   role: 'Potière',     text: "Mon stand était complet pour la première fois. Merci Nexart." },
-  { name: 'Jules H.',  role: 'Peintre',     text: "Interface impeccable, candidature en 2 minutes chrono." },
-  { name: 'Camille T.',role: 'Textilière',  text: "Nexart a changé ma façon de développer mon activité artisanale." },
-  { name: 'Hugo M.',   role: 'Graveur',     text: "La transparence sur les stands disponibles est vraiment appréciable." },
-  { name: 'Alice R.',  role: 'Broderie',    text: "Je recommande à tous les artisans qui cherchent à se développer." },
-  { name: 'Marc D.',   role: 'Luthier',     text: "Le suivi des candidatures est clair et bien fait. Top." },
+  { name: 'Emma V.',    role: 'Potière',    text: "Mon stand était complet pour la première fois. Merci Nexart." },
+  { name: 'Jules H.',   role: 'Peintre',    text: "Interface impeccable, candidature en 2 minutes chrono." },
+  { name: 'Camille T.', role: 'Textilière', text: "Nexart a changé ma façon de développer mon activité artisanale." },
+  { name: 'Hugo M.',    role: 'Graveur',    text: "La transparence sur les stands disponibles est vraiment appréciable." },
+  { name: 'Alice R.',   role: 'Broderie',   text: "Je recommande à tous les artisans qui cherchent à se développer." },
+  { name: 'Marc D.',    role: 'Luthier',    text: "Le suivi des candidatures est clair et bien fait. Top." },
 ]
 
 function TestimonialCard({ name, role, text }: { name: string; role: string; text: string }) {
   const initials = name.split(' ').map(n => n[0]).join('')
   return (
-    <div className="shrink-0 w-[280px] p-5 rounded-2xl border border-white/6 bg-white/[0.035] mx-2">
-      <p className="text-sm text-white/55 leading-relaxed mb-4">"{text}"</p>
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+    <div style={{ flexShrink: 0, width: '280px', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', backgroundColor: 'rgba(255,255,255,0.035)', margin: '0 8px' }}>
+      <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginBottom: '16px' }}>"{text}"</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '9999px', background: 'linear-gradient(to bottom right, #6366F1, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
           {initials}
         </div>
         <div>
-          <p className="text-sm font-semibold text-white leading-tight">{name}</p>
-          <p className="text-xs text-white/35">{role}</p>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#fff', lineHeight: 1.2 }}>{name}</p>
+          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>{role}</p>
         </div>
       </div>
     </div>
@@ -201,137 +172,101 @@ function TestimonialCard({ name, role, text }: { name: string; role: string; tex
 
 function TestimonialsMarquee() {
   return (
-    <section className="py-20 overflow-hidden" style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
-      {/* Row 1 — left */}
-      <div className="flex mb-4" style={{ animation: 'ticker 45s linear infinite', width: 'max-content' }}>
-        {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((t, i) => (
-          <TestimonialCard key={i} {...t} />
-        ))}
+    <section style={{ padding: '80px 0', overflow: 'hidden', WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
+      <div style={{ display: 'flex', marginBottom: '16px', animation: 'ticker 45s linear infinite', width: 'max-content' }}>
+        {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((t, i) => <TestimonialCard key={i} {...t} />)}
       </div>
-      {/* Row 2 — right */}
-      <div className="flex" style={{ animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
-        {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((t, i) => (
-          <TestimonialCard key={i} {...t} />
-        ))}
+      <div style={{ display: 'flex', animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
+        {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((t, i) => <TestimonialCard key={i} {...t} />)}
       </div>
     </section>
   )
 }
 
-// ── Data ───────────────────────────────────────────────────────────────
 const DISCIPLINES = [
   'Céramique', 'Illustration', 'Bijouterie', 'Maroquinerie', 'Textile',
   'Photographie', 'Sculpture', 'Peinture', 'Verrerie', 'Broderie',
   'Cosmétique', 'Papeterie', 'Lutherie', 'Gravure', 'Forge artisanale',
 ]
 
-const STATS = [
-  { value: 2400, suffix: '+',  label: 'Créateurs inscrits' },
-  { value: 380,  suffix: '+',  label: 'Événements référencés' },
-  { value: 94,   suffix: ' %', label: 'Taux de satisfaction' },
-]
-
-// ── 3 Faces section ────────────────────────────────────────────────────
 const FACES = [
   {
-    key: 'createurs',
-    label: 'Créateurs',
-    color: 'indigo',
-    accent: 'text-indigo-400',
-    border: 'border-indigo-500/30',
-    bg: 'bg-indigo-500/8',
-    activeBg: 'bg-indigo-500/15 border-indigo-500/40',
+    key: 'createurs', label: 'Créateurs',
+    accentColor: '#818CF8', borderColor: 'rgba(99,102,241,0.3)', bgColor: 'rgba(99,102,241,0.08)',
     tagline: 'Exposez sans galère.',
     desc: 'Un profil, toutes les opportunités. Candidatez en 2 minutes, suivez vos réponses en temps réel.',
     features: [
-      { Icon: Zap,       label: 'Candidature en 2 min', desc: 'Aucun email, aucun formulaire à rallonge.' },
-      { Icon: Target,    label: 'Matching intelligent',  desc: 'Les événements qui vous correspondent remontent en priorité.' },
-      { Icon: Bell,      label: 'Suivi en temps réel',   desc: 'Notifications et timeline de statut instantanés.' },
-      { Icon: BadgeCheck,label: 'Profil vérifiable',     desc: 'SIRET, portfolio, avis — tout en un seul endroit.' },
+      { Icon: Zap,        label: 'Candidature en 2 min', desc: 'Aucun email, aucun formulaire à rallonge.' },
+      { Icon: Target,     label: 'Matching intelligent',  desc: 'Les événements qui vous correspondent remontent en priorité.' },
+      { Icon: Bell,       label: 'Suivi en temps réel',   desc: 'Notifications et timeline de statut instantanés.' },
+      { Icon: BadgeCheck, label: 'Profil vérifiable',     desc: 'SIRET, portfolio, avis — tout en un seul endroit.' },
     ],
+    ctaHref: '/register', ctaLabel: 'Créer mon profil',
   },
   {
-    key: 'organisateurs',
-    label: 'Organisateurs',
-    color: 'violet',
-    accent: 'text-violet-400',
-    border: 'border-violet-500/30',
-    bg: 'bg-violet-500/8',
-    activeBg: 'bg-violet-500/15 border-violet-500/40',
+    key: 'organisateurs', label: 'Organisateurs',
+    accentColor: '#A78BFA', borderColor: 'rgba(139,92,246,0.3)', bgColor: 'rgba(139,92,246,0.08)',
     tagline: 'Remplissez vos stands.',
     desc: 'Publiez votre événement, recevez des candidatures qualifiées et gérez tout depuis votre tableau de bord.',
     features: [
-      { Icon: Calendar,  label: 'Publication en 5 min',  desc: 'Dates, stands, critères — votre événement est en ligne immédiatement.' },
-      { Icon: Users,     label: 'Candidatures triées',    desc: 'Filtrez par discipline, ville, profil vérifié.' },
-      { Icon: Shield,    label: 'Événement validé',       desc: "Notre équipe vérifie chaque publication. Zéro arnaque." },
-      { Icon: Zap,       label: 'Gestion centralisée',    desc: 'Acceptez, refusez, communiquez — tout depuis un seul dashboard.' },
+      { Icon: Calendar, label: 'Publication en 5 min',  desc: 'Dates, stands, critères — votre événement est en ligne immédiatement.' },
+      { Icon: Users,    label: 'Candidatures triées',    desc: 'Filtrez par discipline, ville, profil vérifié.' },
+      { Icon: Shield,   label: 'Événement validé',       desc: 'Notre équipe vérifie chaque publication. Zéro arnaque.' },
+      { Icon: Zap,      label: 'Gestion centralisée',    desc: 'Acceptez, refusez, communiquez — tout depuis un seul dashboard.' },
     ],
+    ctaHref: '/register', ctaLabel: 'Publier un événement',
   },
   {
-    key: 'visiteurs',
-    label: 'Visiteurs',
-    color: 'emerald',
-    accent: 'text-emerald-400',
-    border: 'border-emerald-500/30',
-    bg: 'bg-emerald-500/8',
-    activeBg: 'bg-emerald-500/15 border-emerald-500/40',
+    key: 'visiteurs', label: 'Visiteurs',
+    accentColor: '#34D399', borderColor: 'rgba(16,185,129,0.3)', bgColor: 'rgba(16,185,129,0.08)',
     tagline: 'Découvrez. Réservez. Soutenez.',
     desc: 'Trouvez les marchés et événements artisanaux près de chez vous, réservez votre place et explorez les créateurs.',
     features: [
-      { Icon: MapPin,    label: 'Événements près de toi', desc: 'Géolocalisation et filtres par type, date, distance.' },
-      { Icon: Users,     label: 'Portfolios créateurs',   desc: 'Parcourez les artisans inscrits avant même le jour J.' },
-      { Icon: CheckCircle, label: 'Réservation de place', desc: 'Réservez votre entrée en quelques secondes.' },
-      { Icon: Bell,      label: 'Alertes personnalisées', desc: 'Notifié dès qu\'un événement correspond à vos intérêts.' },
+      { Icon: MapPin,      label: 'Événements près de toi', desc: 'Géolocalisation et filtres par type, date, distance.' },
+      { Icon: Users,       label: 'Portfolios créateurs',   desc: 'Parcourez les artisans inscrits avant même le jour J.' },
+      { Icon: CheckCircle, label: 'Réservation de place',   desc: 'Réservez votre entrée en quelques secondes.' },
+      { Icon: Bell,        label: 'Alertes personnalisées', desc: "Notifié dès qu'un événement correspond à vos intérêts." },
     ],
+    ctaHref: '/events', ctaLabel: 'Explorer les événements',
   },
 ]
 
 function FacesSection() {
   return (
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-32">
-      <FadeUp className="mb-16">
-        <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-5">Créateurs · Organisateurs · Visiteurs</p>
-        <h2 className="text-[clamp(2.2rem,4.5vw,3.8rem)] font-black tracking-tight leading-[0.95] text-white max-w-2xl">
-          Pour qui est{' '}
-          <span className="text-white/30">Nexart ?</span>
+    <section className="hc-faces-section">
+      <FadeUp className="hc-faces-header">
+        <p style={{ color: '#818CF8', fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Créateurs · Organisateurs · Visiteurs</p>
+        <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 0.95, color: '#fff', maxWidth: '32rem' }}>
+          Pour qui est{' '}<span style={{ color: 'rgba(255,255,255,0.3)' }}>Nexart ?</span>
         </h2>
       </FadeUp>
-
-      <div className="grid md:grid-cols-3 gap-5">
-        {FACES.map(({ key, label, accent, border, bg, tagline, desc, features }, i) => (
+      <div className="hc-faces-grid">
+        {FACES.map(({ key, label, accentColor, borderColor, bgColor, tagline, desc, features, ctaHref, ctaLabel }, i) => (
           <motion.div key={key}
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className={`flex flex-col p-7 rounded-3xl border ${border} ${bg} hover:brightness-110 transition-all duration-300`}
+            className="hc-face-card"
+            style={{ border: `1px solid ${borderColor}`, backgroundColor: bgColor }}
           >
-            {/* Header */}
-            <p className={`text-[11px] font-black tracking-widest uppercase mb-4 ${accent}`}>{label}</p>
-            <h3 className="text-2xl font-black text-white leading-tight mb-3">{tagline}</h3>
-            <p className="text-white/40 text-sm leading-relaxed mb-8">{desc}</p>
-
-            {/* Features */}
-            <ul className="flex flex-col gap-3 flex-1">
+            <p style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', color: accentColor }}>{label}</p>
+            <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#fff', lineHeight: 1.2, marginBottom: '12px' }}>{tagline}</h3>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>{desc}</p>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
               {features.map(({ Icon, label: fl, desc: fd }) => (
-                <li key={fl} className="flex items-start gap-3">
-                  <div className={`w-7 h-7 rounded-lg ${bg} border ${border} flex items-center justify-center shrink-0 mt-0.5`}>
-                    <Icon size={13} className={accent} />
+                <li key={fl} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: bgColor, border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                    <Icon size={13} color={accentColor} />
                   </div>
                   <div>
-                    <p className="text-[12px] font-semibold text-white leading-tight">{fl}</p>
-                    <p className="text-[11px] text-white/30 leading-relaxed">{fd}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#fff', lineHeight: 1.2 }}>{fl}</p>
+                    <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>{fd}</p>
                   </div>
                 </li>
               ))}
             </ul>
-
-            {/* CTA */}
-            <Link
-              href={key === 'visiteurs' ? '/events' : '/register'}
-              className={`mt-8 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white border ${border} hover:opacity-80 transition-opacity`}
-            >
-              {key === 'visiteurs' ? 'Explorer les événements' : key === 'organisateurs' ? 'Publier un événement' : 'Créer mon profil'}
-              <ArrowRight size={13} />
+            <Link href={ctaHref} className="hc-face-cta" style={{ border: `1px solid ${borderColor}` }}>
+              {ctaLabel} <ArrowRight size={13} />
             </Link>
           </motion.div>
         ))}
@@ -340,7 +275,6 @@ function FacesSection() {
   )
 }
 
-// ── Page ───────────────────────────────────────────────────────────────
 export default function HomeClient() {
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
@@ -348,90 +282,139 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="bg-[#06060f] text-white overflow-x-hidden" style={{ marginTop: '-58px' }}>
+    <div style={{ backgroundColor: '#06060f', color: '#fff', overflowX: 'hidden', marginTop: '-58px' }}>
+      <style>{`
+        @keyframes ticker { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        @keyframes tickerReverse { from { transform: translateX(-50%) } to { transform: translateX(0) } }
+        @keyframes gradientShift { 0%,100% { background-position: 0% 50% } 50% { background-position: 100% 50% } }
+
+        .hc-faces-section { max-width: 72rem; margin: 0 auto; padding: 128px 16px }
+        @media (min-width: 640px) { .hc-faces-section { padding-left: 24px; padding-right: 24px } }
+        .hc-faces-header { margin-bottom: 64px }
+        .hc-faces-grid { display: grid; grid-template-columns: 1fr; gap: 20px }
+        @media (min-width: 768px) { .hc-faces-grid { grid-template-columns: repeat(3, 1fr) } }
+        .hc-face-card { display: flex; flex-direction: column; padding: 28px; border-radius: 24px; transition: filter 0.3s }
+        .hc-face-card:hover { filter: brightness(1.1) }
+        .hc-face-cta { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 0; border-radius: 12px; font-size: 13px; font-weight: 600; color: #fff; text-decoration: none; margin-top: 32px; transition: opacity 0.15s }
+        .hc-face-cta:hover { opacity: 0.8 }
+
+        .hc-hero-content { position: relative; z-index: 10; flex: 1; max-width: 56rem; width: 100%; margin: 0 auto; padding: 80px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center }
+        @media (min-width: 640px) { .hc-hero-content { padding: 80px 24px } }
+        .hc-hero-btns { display: flex; flex-direction: column; gap: 12px; justify-content: center; margin-bottom: 24px }
+        @media (min-width: 640px) { .hc-hero-btns { flex-direction: row } }
+        .hc-hero-btn-primary { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 28px; border-radius: 16px; background-color: #4F46E5; color: #fff; font-weight: 700; font-size: 14px; text-decoration: none; transition: all 200ms; box-shadow: 0 20px 60px rgba(99,102,241,0.3) }
+        .hc-hero-btn-primary:hover { background-color: #4338CA; box-shadow: 0 20px 60px rgba(99,102,241,0.5); transform: scale(1.03) }
+        .hc-hero-btn-secondary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); font-weight: 600; font-size: 14px; text-decoration: none; transition: all 200ms }
+        .hc-hero-btn-secondary:hover { color: #fff; background-color: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18) }
+
+        .hc-inner { max-width: 72rem; margin: 0 auto; padding: 0 16px }
+        @media (min-width: 640px) { .hc-inner { padding: 0 24px } }
+        .hc-steps-grid { display: grid; grid-template-columns: 1fr; gap: 32px; position: relative }
+        @media (min-width: 768px) { .hc-steps-grid { grid-template-columns: repeat(3, 1fr) } }
+        .hc-steps-connector { display: none; position: absolute; top: 38px; left: calc(16.67% + 28px); right: calc(16.67% + 28px); height: 1px; background: linear-gradient(to right, transparent, rgba(99,102,241,0.25), transparent) }
+        @media (min-width: 768px) { .hc-steps-connector { display: block } }
+
+        .hc-cta-grid { display: grid; grid-template-columns: 1fr; gap: 20px }
+        @media (min-width: 768px) { .hc-cta-grid { grid-template-columns: repeat(3, 1fr) } }
+        .hc-cta-card { position: relative; padding: 32px; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.22s }
+        .hc-cta-card:hover { transform: translateY(-6px) }
+        .hc-cta-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 16px; color: #fff; font-weight: 700; font-size: 14px; text-decoration: none; transition: all 200ms }
+        .hc-cta-btn:hover { transform: scale(1.03) }
+
+        .hc-app-split { display: flex; flex-direction: column; align-items: center; gap: 64px }
+        @media (min-width: 1024px) { .hc-app-split { flex-direction: row } }
+        .hc-app-text { position: relative; z-index: 10; flex: 1; text-align: center }
+        @media (min-width: 1024px) { .hc-app-text { text-align: left } }
+        .hc-store-btns { display: flex; flex-direction: column; gap: 12px; justify-content: center }
+        @media (min-width: 640px) { .hc-store-btns { flex-direction: row } }
+        @media (min-width: 1024px) { .hc-store-btns { justify-content: flex-start } }
+
+        .hc-final-inner { max-width: 48rem; margin: 0 auto; padding: 0 16px; text-align: center }
+        @media (min-width: 640px) { .hc-final-inner { padding: 0 24px } }
+        .hc-final-btns { display: flex; flex-direction: column; gap: 12px; justify-content: center }
+        @media (min-width: 640px) { .hc-final-btns { flex-direction: row } }
+        .hc-final-btn-primary { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 36px; border-radius: 16px; background: #4F46E5; color: #fff; font-weight: 700; text-decoration: none; transition: all 200ms; box-shadow: 0 20px 40px rgba(99,102,241,0.3) }
+        .hc-final-btn-primary:hover { background: #4338CA; box-shadow: 0 20px 40px rgba(99,102,241,0.5); transform: scale(1.03) }
+        .hc-final-btn-secondary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 36px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-weight: 600; text-decoration: none; transition: all 200ms }
+        .hc-final-btn-secondary:hover { color: #fff; background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2) }
+
+        .hc-testi-header { text-align: center; margin-bottom: 48px }
+        .hc-steps-header { margin-bottom: 80px; text-align: center }
+        .hc-cta-header { text-align: center; margin-bottom: 56px }
+      `}</style>
+
       <Grain />
 
-      {/* ══ HERO ══════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: '#08081a' }}>
-
-        {/* Navbar spacer — pushes content below the fixed navbar */}
+      {/* ── HERO ─────────────────────────────────────────────────── */}
+      <section ref={heroRef} style={{ position: 'relative', minHeight: '100svh', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: '#08081a' }}>
         <div style={{ height: '58px', flexShrink: 0 }} />
 
-        {/* Grid */}
-        <div className="absolute inset-0 opacity-[0.14]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.14, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
-        {/* Glows */}
         <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.18, 0.3, 0.18] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-40 -left-48 w-[800px] h-[800px] rounded-full bg-indigo-600/20 blur-[130px] pointer-events-none" />
+          style={{ position: 'absolute', top: '-160px', left: '-192px', width: '800px', height: '800px', borderRadius: '9999px', backgroundColor: 'rgba(99,102,241,0.2)', filter: 'blur(130px)', pointerEvents: 'none' }} />
         <motion.div animate={{ scale: [1, 1.12, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute top-1/3 -right-32 w-[500px] h-[500px] rounded-full bg-violet-600/15 blur-[100px] pointer-events-none" />
+          style={{ position: 'absolute', top: '33%', right: '-128px', width: '500px', height: '500px', borderRadius: '9999px', backgroundColor: 'rgba(139,92,246,0.15)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
-        {/* Split layout */}
-        <motion.div style={{ y: heroY, opacity: heroOpacity }}
-          className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 flex flex-col items-center justify-center py-20"
-        >
-          {/* Center — text */}
-          <div className="w-full text-center">
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="hc-hero-content">
+          <div style={{ width: '100%', textAlign: 'center' }}>
+
             <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-semibold tracking-widest uppercase mb-8"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(99,102,241,0.1)', color: '#c7d2fe', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
             >
               <Sparkles size={11} /> La plateforme des artisans
             </motion.div>
 
-            <h1 className="text-[clamp(3rem,7vw,5.5rem)] font-black leading-[0.9] tracking-[-0.04em] mb-7">
-              <span className="block overflow-hidden pb-1">
+            <h1 style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 900, lineHeight: 0.9, letterSpacing: '-0.04em', marginBottom: '28px' }}>
+              <span style={{ display: 'block', overflow: 'hidden', paddingBottom: '4px' }}>
                 <WordReveal delay={0.05}>Exposez vos</WordReveal>
               </span>
-              <span className="block overflow-hidden pb-1">
+              <span style={{ display: 'block', overflow: 'hidden', paddingBottom: '4px' }}>
                 <motion.span initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="inline-block bg-gradient-to-r from-indigo-400 via-violet-300 to-indigo-400 bg-clip-text text-transparent"
-                  style={{ backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
+                  style={{ display: 'inline-block', background: 'linear-gradient(to right, #818CF8, #c4b5fd, #818CF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                   créations
                 </motion.span>
               </span>
-              <span className="block text-white/35 text-[0.55em] font-bold tracking-[-0.01em] overflow-hidden pb-1">
+              <span style={{ display: 'block', color: 'rgba(255,255,255,0.35)', fontSize: '0.55em', fontWeight: 700, letterSpacing: '-0.01em', overflow: 'hidden', paddingBottom: '4px' }}>
                 <WordReveal delay={0.3}>dans les meilleurs événements</WordReveal>
               </span>
             </h1>
 
-            <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="text-white/80 text-base leading-relaxed mb-9"
+            <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5 }}
+              style={{ color: 'rgba(255,255,255,0.8)', fontSize: '16px', lineHeight: 1.75, marginBottom: '36px' }}
             >
               Nexart connecte créateurs et organisateurs d'événements artisanaux —{' '}
-              <span className="text-white">marchés, pop-ups, salons, festivals</span>.
+              <span style={{ color: '#fff' }}>marchés, pop-ups, salons, festivals</span>.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.62 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center mb-6"
+              className="hc-hero-btns"
             >
-              <Link href="/register" className="group flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-all duration-200 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
-                S'inscrire gratuitement <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+              <Link href="/register" className="hc-hero-btn-primary">
+                S'inscrire gratuitement <ArrowRight size={15} />
               </Link>
-              <Link href="/events" className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl border border-white/10 text-white/55 hover:text-white hover:bg-white/6 hover:border-white/18 font-semibold text-sm transition-all duration-200">
+              <Link href="/events" className="hc-hero-btn-secondary">
                 Explorer les événements
               </Link>
             </motion.div>
 
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
-              className="text-xs text-white/22 font-medium"
+              style={{ fontSize: '12px', color: 'rgba(255,255,255,0.22)', fontWeight: 500 }}
             >
               Gratuit pour les créateurs · Pas de carte bancaire requise
             </motion.p>
           </div>
-
         </motion.div>
 
         {/* Ticker */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-          className="relative z-10 w-full pb-10 overflow-hidden"
-          style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)' }}
+          style={{ position: 'relative', zIndex: 10, width: '100%', paddingBottom: '40px', overflow: 'hidden', WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)', maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)' }}
         >
-          <div className="flex flex-nowrap gap-3" style={{ animation: 'ticker 40s linear infinite', width: 'max-content' }}>
+          <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '12px', animation: 'ticker 40s linear infinite', width: 'max-content' }}>
             {[...DISCIPLINES, ...DISCIPLINES, ...DISCIPLINES].map((d, i) => (
-              <span key={i} className="inline-flex shrink-0 items-center gap-1.5 px-4 py-1.5 rounded-full border border-white/8 bg-white/[0.04] text-white/30 text-xs font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50 shrink-0" />
+              <span key={i} style={{ display: 'inline-flex', flexShrink: 0, alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.3)', fontSize: '12px', fontWeight: 500 }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '9999px', backgroundColor: 'rgba(99,102,241,0.5)', flexShrink: 0 }} />
                 {d}
               </span>
             ))}
@@ -439,29 +422,29 @@ export default function HomeClient() {
         </motion.div>
       </section>
 
-      {/* ══ 3 FACES ════════════════════════════════════════════════════ */}
+      {/* ── FACES ────────────────────────────────────────────────── */}
       <FacesSection />
 
-      {/* ══ TESTIMONIALS ═══════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 bg-white/[0.015]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-4">
-          <FadeUp className="text-center mb-12">
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-4">Ils nous font confiance</p>
-            <h2 className="text-[clamp(1.8rem,3.5vw,3rem)] font-black tracking-tight text-white">Ce qu'ils en disent</h2>
+      {/* ── TESTIMONIALS ─────────────────────────────────────────── */}
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', backgroundColor: 'rgba(255,255,255,0.015)' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '80px 16px 16px' }}>
+          <FadeUp className="hc-testi-header">
+            <p style={{ color: '#818CF8', fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>Ils nous font confiance</p>
+            <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 3rem)', fontWeight: 900, letterSpacing: '-0.02em', color: '#fff' }}>Ce qu'ils en disent</h2>
           </FadeUp>
         </div>
         <TestimonialsMarquee />
       </section>
 
-      {/* ══ STEPS ══════════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 py-32">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <FadeUp className="mb-20 text-center">
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-4">En 3 étapes</p>
-            <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight text-white">Simple comme bonjour</h2>
+      {/* ── STEPS ────────────────────────────────────────────────── */}
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '128px 0' }}>
+        <div className="hc-inner">
+          <FadeUp className="hc-steps-header">
+            <p style={{ color: '#818CF8', fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>En 3 étapes</p>
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: '#fff' }}>Simple comme bonjour</h2>
           </FadeUp>
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-[38px] left-[calc(16.67%+28px)] right-[calc(16.67%+28px)] h-px bg-gradient-to-r from-transparent via-indigo-500/25 to-transparent" />
+          <div className="hc-steps-grid">
+            <div className="hc-steps-connector" />
             {[
               { n: '01', title: 'Créez votre profil',      desc: 'Photos, disciplines, tarifs — en moins de 10 minutes.' },
               { n: '02', title: 'Explorez les événements', desc: 'Filtrez par type, date, ville ou nombre de stands.' },
@@ -470,153 +453,177 @@ export default function HomeClient() {
               <motion.div key={n}
                 initial={{ opacity: 0, y: 48 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay: i * 0.14, ease: [0.22, 1, 0.36, 1] }}
-                className="text-center"
+                style={{ textAlign: 'center' }}
               >
                 <motion.div whileInView={{ scale: [0.75, 1.06, 1] }} viewport={{ once: true }}
                   transition={{ duration: 0.55, delay: i * 0.14 + 0.15 }}
-                  className="w-20 h-20 mx-auto mb-7 rounded-2xl border border-indigo-500/20 bg-indigo-500/8 flex items-center justify-center"
+                  style={{ width: '80px', height: '80px', margin: '0 auto 28px', borderRadius: '16px', border: '1px solid rgba(99,102,241,0.2)', backgroundColor: 'rgba(99,102,241,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <span className="text-2xl font-black text-indigo-400 font-mono">{n}</span>
+                  <span style={{ fontSize: '24px', fontWeight: 900, color: '#818CF8', fontFamily: 'monospace' }}>{n}</span>
                 </motion.div>
-                <h3 className="text-lg font-bold text-white mb-3">{title}</h3>
-                <p className="text-white/35 text-sm leading-relaxed max-w-[210px] mx-auto">{desc}</p>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>{title}</h3>
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '14px', lineHeight: 1.6, maxWidth: '210px', margin: '0 auto' }}>{desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══ SPLIT CTA ══════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 bg-white/[0.015] py-32">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <FadeUp className="text-center mb-14">
-            <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white">
-              Pour qui est Nexart ?
-            </h2>
+      {/* ── SPLIT CTA ────────────────────────────────────────────── */}
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', backgroundColor: 'rgba(255,255,255,0.015)', padding: '128px 0' }}>
+        <div className="hc-inner">
+          <FadeUp className="hc-cta-header">
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, letterSpacing: '-0.02em', color: '#fff' }}>Pour qui est Nexart ?</h2>
           </FadeUp>
-          <div className="grid md:grid-cols-3 gap-5">
-            {[
-              { delay: 0, glow: 'bg-indigo-600/15 group-hover:bg-indigo-600/28', bg: 'from-indigo-600/18 to-indigo-950/30', border: 'border-indigo-500/18',
-                badgeBg: 'bg-indigo-500/12 border-indigo-500/22 text-indigo-300', badgeIcon: <Users size={11} />, badgeLabel: 'Créateurs',
-                title: 'Trouvez vos prochains événements',
-                desc: "Candidatez aux marchés, pop-ups et salons qui correspondent à votre univers créatif.",
-                items: ['Profil créateur en 10 min', 'Candidature en 2 clics', 'Suivi en temps réel'],
-                checkClass: 'text-indigo-400', ctaHref: '/register?role=creator', ctaLabel: 'Créer mon profil', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
-              { delay: 0.1, glow: 'bg-violet-600/12 group-hover:bg-violet-600/22', bg: 'from-violet-600/14 to-violet-950/25', border: 'border-violet-500/14',
-                badgeBg: 'bg-violet-500/10 border-violet-500/18 text-violet-300', badgeIcon: <Calendar size={11} />, badgeLabel: 'Organisateurs',
-                title: 'Remplissez vos événements',
-                desc: "Publiez votre événement et recevez des candidatures qualifiées en quelques heures.",
-                items: ["Publication en 5 min", 'Candidatures qualifiées auto', 'Gestion des stands simplifiée'],
-                checkClass: 'text-violet-400', ctaHref: '/register?role=organizer', ctaLabel: 'Publier un événement', ctaClass: 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/25' },
-              { delay: 0.2, glow: 'bg-emerald-600/12 group-hover:bg-emerald-600/22', bg: 'from-emerald-600/14 to-emerald-950/25', border: 'border-emerald-500/14',
-                badgeBg: 'bg-emerald-500/10 border-emerald-500/18 text-emerald-300', badgeIcon: <MapPin size={11} />, badgeLabel: 'Visiteurs',
-                title: 'Découvrez les marchés près de toi',
-                desc: "Trouvez les événements artisanaux autour de vous, réservez votre place et explorez les créateurs.",
-                items: ['Événements géolocalisés', 'Portfolios créateurs', 'Réservation en 2 clics'],
-                checkClass: 'text-emerald-400', ctaHref: '/events', ctaLabel: 'Explorer les événements', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
-            ].map(({ delay, glow, bg, border, badgeBg, badgeIcon, badgeLabel, title, desc, items, checkClass, ctaHref, ctaLabel, ctaClass }) => (
-              <motion.div key={title}
-                initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -6, transition: { duration: 0.22 } }}
-                className={`group relative p-8 rounded-3xl bg-gradient-to-br ${bg} border ${border} overflow-hidden flex flex-col`}
-              >
-                <div className={`absolute -top-24 -right-24 w-80 h-80 rounded-full ${glow} blur-[100px] transition-all duration-700 pointer-events-none`} />
-                <div className="relative z-10 flex flex-col flex-1">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badgeBg} text-xs font-semibold mb-7 w-fit`}>
-                    {badgeIcon} {badgeLabel}
-                  </div>
-                  <h3 className="text-[1.4rem] font-black text-white tracking-tight leading-tight mb-4">{title}</h3>
-                  <p className="text-white/42 text-sm leading-relaxed mb-7">{desc}</p>
-                  <ul className="space-y-3 mb-8 flex-1">
-                    {items.map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-white/52">
-                        <CheckCircle size={14} className={`${checkClass} shrink-0`} /> {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href={ctaHref} className={`group/btn inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl ${ctaClass} text-white font-bold text-sm transition-all duration-200 shadow-xl hover:scale-[1.03] active:scale-[0.97]`}>
-                    {ctaLabel} <ArrowRight size={14} className="group-hover/btn:translate-x-0.5 transition-transform" />
-                  </Link>
+          <div className="hc-cta-grid">
+
+            {/* Créateurs */}
+            <motion.div
+              initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay: 0, ease: [0.22, 1, 0.36, 1] }}
+              className="hc-cta-card"
+              style={{ background: 'linear-gradient(to bottom right, rgba(99,102,241,0.18), rgba(30,27,75,0.3))', border: '1px solid rgba(99,102,241,0.18)' }}
+            >
+              <div style={{ position: 'absolute', top: '-96px', right: '-96px', width: '320px', height: '320px', borderRadius: '9999px', backgroundColor: 'rgba(99,102,241,0.15)', filter: 'blur(100px)', transition: 'all 700ms', pointerEvents: 'none' }} />
+              <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '9999px', border: '1px solid rgba(99,102,241,0.22)', backgroundColor: 'rgba(99,102,241,0.12)', color: '#c7d2fe', fontSize: '12px', fontWeight: 600, marginBottom: '28px', width: 'fit-content' }}>
+                  <Users size={11} /> Créateurs
                 </div>
-              </motion.div>
-            ))}
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '16px' }}>Trouvez vos prochains événements</h3>
+                <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: '14px', lineHeight: 1.6, marginBottom: '28px' }}>Candidatez aux marchés, pop-ups et salons qui correspondent à votre univers créatif.</p>
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px', flex: 1 }}>
+                  {['Profil créateur en 10 min', 'Candidature en 2 clics', 'Suivi en temps réel'].map(item => (
+                    <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', color: 'rgba(255,255,255,0.52)' }}>
+                      <CheckCircle size={14} color="#818CF8" style={{ flexShrink: 0 }} /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/register?role=creator" className="hc-cta-btn" style={{ backgroundColor: '#4F46E5', boxShadow: '0 20px 60px rgba(99,102,241,0.25)' }}>
+                  Créer mon profil <ArrowRight size={14} />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Organisateurs */}
+            <motion.div
+              initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="hc-cta-card"
+              style={{ background: 'linear-gradient(to bottom right, rgba(139,92,246,0.14), rgba(46,16,101,0.25))', border: '1px solid rgba(139,92,246,0.14)' }}
+            >
+              <div style={{ position: 'absolute', top: '-96px', right: '-96px', width: '320px', height: '320px', borderRadius: '9999px', backgroundColor: 'rgba(139,92,246,0.12)', filter: 'blur(100px)', transition: 'all 700ms', pointerEvents: 'none' }} />
+              <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '9999px', border: '1px solid rgba(139,92,246,0.18)', backgroundColor: 'rgba(139,92,246,0.10)', color: '#ddd6fe', fontSize: '12px', fontWeight: 600, marginBottom: '28px', width: 'fit-content' }}>
+                  <Calendar size={11} /> Organisateurs
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '16px' }}>Remplissez vos événements</h3>
+                <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: '14px', lineHeight: 1.6, marginBottom: '28px' }}>Publiez votre événement et recevez des candidatures qualifiées en quelques heures.</p>
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px', flex: 1 }}>
+                  {['Publication en 5 min', 'Candidatures qualifiées auto', 'Gestion des stands simplifiée'].map(item => (
+                    <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', color: 'rgba(255,255,255,0.52)' }}>
+                      <CheckCircle size={14} color="#A78BFA" style={{ flexShrink: 0 }} /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/register?role=organizer" className="hc-cta-btn" style={{ backgroundColor: '#7C3AED', boxShadow: '0 20px 60px rgba(139,92,246,0.25)' }}>
+                  Publier un événement <ArrowRight size={14} />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Visiteurs */}
+            <motion.div
+              initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="hc-cta-card"
+              style={{ background: 'linear-gradient(to bottom right, rgba(16,185,129,0.14), rgba(6,78,59,0.25))', border: '1px solid rgba(16,185,129,0.14)' }}
+            >
+              <div style={{ position: 'absolute', top: '-96px', right: '-96px', width: '320px', height: '320px', borderRadius: '9999px', backgroundColor: 'rgba(16,185,129,0.12)', filter: 'blur(100px)', transition: 'all 700ms', pointerEvents: 'none' }} />
+              <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '9999px', border: '1px solid rgba(16,185,129,0.18)', backgroundColor: 'rgba(16,185,129,0.10)', color: '#6ee7b7', fontSize: '12px', fontWeight: 600, marginBottom: '28px', width: 'fit-content' }}>
+                  <MapPin size={11} /> Visiteurs
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '16px' }}>Découvrez les marchés près de toi</h3>
+                <p style={{ color: 'rgba(255,255,255,0.42)', fontSize: '14px', lineHeight: 1.6, marginBottom: '28px' }}>Trouvez les événements artisanaux autour de vous, réservez votre place et explorez les créateurs.</p>
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px', flex: 1 }}>
+                  {['Événements géolocalisés', 'Portfolios créateurs', 'Réservation en 2 clics'].map(item => (
+                    <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '14px', color: 'rgba(255,255,255,0.52)' }}>
+                      <CheckCircle size={14} color="#34D399" style={{ flexShrink: 0 }} /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/events" className="hc-cta-btn" style={{ backgroundColor: '#4F46E5', boxShadow: '0 20px 60px rgba(99,102,241,0.25)' }}>
+                  Explorer les événements <ArrowRight size={14} />
+                </Link>
+              </div>
+            </motion.div>
+
           </div>
         </div>
       </section>
 
-      {/* ══ APP DOWNLOAD ═══════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 py-28 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="relative flex flex-col lg:flex-row items-center gap-16">
-
-            {/* Glow bg */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full" />
-            </div>
-
-            {/* Left — text */}
-            <FadeUp className="relative z-10 flex-1 text-center lg:text-left">
-              <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-5">Bientôt disponible</p>
-              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight text-white leading-[1.05] mb-5">
+      {/* ── APP DOWNLOAD ─────────────────────────────────────────── */}
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '112px 0', overflow: 'hidden' }}>
+        <div className="hc-app-inner" style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 16px', position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '400px', backgroundColor: 'rgba(99,102,241,0.1)', filter: 'blur(120px)', borderRadius: '9999px' }} />
+          </div>
+          <div className="hc-app-split">
+            <FadeUp className="hc-app-text">
+              <p style={{ color: '#818CF8', fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Bientôt disponible</p>
+              <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.02em', color: '#fff', lineHeight: 1.05, marginBottom: '20px' }}>
                 Nexart dans<br />votre poche
               </h2>
-              <p className="text-white/35 text-base leading-relaxed mb-10 max-w-md mx-auto lg:mx-0">
+              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '16px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '28rem' }}>
                 Candidatez, suivez vos marchés et échangez avec les organisateurs — où que vous soyez.
               </p>
-
-              {/* Store buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <div className="flex items-center gap-3.5 px-6 py-3.5 rounded-2xl border border-white/12 bg-white/[0.04] text-left select-none">
+              <div className="hc-store-btns">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.12)', backgroundColor: 'rgba(255,255,255,0.04)' }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                   </svg>
                   <div>
-                    <p className="text-[10px] text-white/30 font-medium leading-none mb-0.5">Bientôt sur</p>
-                    <p className="text-[15px] font-bold text-white/50 leading-none">App Store</p>
+                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
+                    <p style={{ fontSize: '15px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', lineHeight: 1 }}>App Store</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3.5 px-6 py-3.5 rounded-2xl border border-white/12 bg-white/[0.04] text-left select-none">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.12)', backgroundColor: 'rgba(255,255,255,0.04)' }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.18 23.76c.3.17.65.19.97.08l12.49-7.17-2.64-2.64-10.82 9.73zm-1.14-20.3C1.73 3.83 1.5 4.28 1.5 4.85v14.3c0 .57.23 1.02.54 1.39l.07.07 8.01-8.01v-.19L2.11 3.39l-.07.07zM20.37 10.5l-2.61-1.5-2.94 2.94 2.94 2.94 2.64-1.52c.75-.43.75-1.43-.03-1.86zM4.14.24L16.63 7.41l-2.64 2.64L3.17.32C3.49.21 3.84.23 4.14.24z"/>
                   </svg>
                   <div>
-                    <p className="text-[10px] text-white/30 font-medium leading-none mb-0.5">Bientôt sur</p>
-                    <p className="text-[15px] font-bold text-white/50 leading-none">Google Play</p>
+                    <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
+                    <p style={{ fontSize: '15px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', lineHeight: 1 }}>Google Play</p>
                   </div>
                 </div>
               </div>
             </FadeUp>
-
-            {/* Right — phone */}
-            <div className="relative z-10 flex-shrink-0">
+            <div style={{ position: 'relative', zIndex: 10, flexShrink: 0 }}>
               <PhoneMockup />
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* ══ FINAL CTA ══════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 py-32">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      {/* ── FINAL CTA ────────────────────────────────────────────── */}
+      <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '128px 0' }}>
+        <div className="hc-final-inner">
           <FadeUp>
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-7">Rejoignez la communauté</p>
-            <h2 className="text-[clamp(2.8rem,6vw,5rem)] font-black tracking-tight text-white leading-[0.9] mb-7">
+            <p style={{ color: '#818CF8', fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '28px' }}>Rejoignez la communauté</p>
+            <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 0.9, marginBottom: '28px' }}>
               Prêt à exposer{' '}
-              <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-indigo-400 bg-clip-text text-transparent"
-                style={{ backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
+              <span style={{ background: 'linear-gradient(to right, #818CF8, #c4b5fd, #818CF8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                 vos créations ?
               </span>
             </h2>
-            <p className="text-white/35 text-lg leading-relaxed mb-12 max-w-lg mx-auto">
+            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '18px', lineHeight: 1.6, marginBottom: '48px', maxWidth: '32rem', margin: '0 auto 48px' }}>
               Rejoignez 2 400 créateurs et 380 événements qui font confiance à Nexart.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/register" className="group flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all duration-200 shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
-                S'inscrire gratuitement <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+            <div className="hc-final-btns">
+              <Link href="/register" className="hc-final-btn-primary">
+                S'inscrire gratuitement <ArrowRight size={16} />
               </Link>
-              <Link href="/events" className="flex items-center justify-center gap-2 px-9 py-4 rounded-2xl border border-white/10 text-white/50 hover:text-white hover:bg-white/5 hover:border-white/20 font-semibold transition-all duration-200">
+              <Link href="/events" className="hc-final-btn-secondary">
                 Explorer <ChevronRight size={15} />
               </Link>
             </div>

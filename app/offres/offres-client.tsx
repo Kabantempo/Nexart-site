@@ -192,35 +192,43 @@ function PlanCard({ plan, delay = 0, onSubscribe, loading, currentTier, isOrgani
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      style={dark ? {
-        transform: 'scale(1.04)',
-        boxShadow: '0 8px 40px rgba(99,102,241,0.35), 0 0 0 2px #6366F1',
-        zIndex: 1,
-      } : undefined}
-      className={`relative flex flex-col gap-6 rounded-2xl p-7 ${
-        dark
-          ? 'bg-[#0F0C29] border-2 border-indigo-500'
-          : 'bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md'
-      } transition-all duration-200`}
+      style={{
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+        borderRadius: '16px',
+        padding: '28px',
+        backgroundColor: dark ? '#0F0C29' : '#ffffff',
+        border: dark ? '2px solid #6366F1' : '1px solid #F3F4F6',
+        transition: 'all 200ms',
+        ...(dark ? {
+          transform: 'scale(1.04)',
+          boxShadow: '0 8px 40px rgba(99,102,241,0.35), 0 0 0 2px #6366F1',
+          zIndex: 1,
+        } : {}),
+      }}
+      onMouseEnter={e => { if (!dark) { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' } }}
+      onMouseLeave={e => { if (!dark) { (e.currentTarget as HTMLDivElement).style.borderColor = '#F3F4F6'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none' } }}
     >
       {plan.featured && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-indigo-600 text-white text-[11px] font-bold whitespace-nowrap shadow-lg" style={{ boxShadow: '0 4px 12px rgba(99,102,241,0.5)' }}>
+        <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '9999px', backgroundColor: '#4F46E5', color: '#fff', fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(99,102,241,0.5)' }}>
           ⭐ Le plus populaire
         </div>
       )}
 
       <div>
-        <p className={`text-[11px] font-bold uppercase tracking-wider mb-2 ${dark ? 'text-indigo-400' : 'text-gray-400'}`}>{plan.name}</p>
-        <div className="flex items-baseline gap-1">
-          <span className={`text-3xl font-black ${dark ? 'text-white' : 'text-gray-900'}`}>{plan.price}</span>
-          <span className={`text-sm ${dark ? 'text-white/40' : 'text-gray-400'}`}>{plan.period}</span>
+        <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', color: dark ? '#818CF8' : '#9CA3AF' }}>{plan.name}</p>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+          <span style={{ fontSize: '30px', fontWeight: 900, color: dark ? '#fff' : '#111827' }}>{plan.price}</span>
+          <span style={{ fontSize: '14px', color: dark ? 'rgba(255,255,255,0.4)' : '#9CA3AF' }}>{plan.period}</span>
         </div>
       </div>
 
-      <ul className="flex flex-col gap-2.5 flex-1">
+      <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, listStyle: 'none', margin: 0, padding: 0 }}>
         {plan.features.map(f => (
-          <li key={f} className={`flex items-start gap-2.5 text-sm ${dark ? 'text-white/75' : 'text-gray-600'}`}>
-            <Check size={14} className={`shrink-0 mt-0.5 ${dark ? 'text-indigo-400' : 'text-gray-900'}`} />
+          <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '14px', color: dark ? 'rgba(255,255,255,0.75)' : '#4B5563' }}>
+            <Check size={14} color={dark ? '#818CF8' : '#111827'} style={{ flexShrink: 0, marginTop: '2px' }} />
             {f}
           </li>
         ))}
@@ -228,31 +236,25 @@ function PlanCard({ plan, delay = 0, onSubscribe, loading, currentTier, isOrgani
 
       {plan.priceId ? (
         isCurrentPlan ? (
-          <div className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 ${
-            dark ? 'border-indigo-400 text-indigo-300 bg-indigo-500/10' : 'border-indigo-200 text-indigo-600 bg-indigo-50'
-          }`}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, border: `2px solid ${dark ? '#818CF8' : '#C7D2FE'}`, color: dark ? '#A5B4FC' : '#4F46E5', backgroundColor: dark ? 'rgba(99,102,241,0.1)' : '#EEF2FF' }}>
             <Check size={14} /> Plan actuel
           </div>
         ) : (
-        <button
-          onClick={() => onSubscribe(plan.priceId!, 'subscription')}
-          disabled={!!loading}
-          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
-            dark
-              ? 'bg-indigo-600 text-white hover:bg-indigo-500'
-              : 'bg-gray-900 text-white hover:bg-gray-800'
-          }`}
-        >
-          {isLoading ? <Loader2 size={14} className="animate-spin" /> : <>{plan.cta} <ArrowRight size={14} /></>}
-        </button>
+          <button
+            onClick={() => onSubscribe(plan.priceId!, 'subscription')}
+            disabled={!!loading}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1, transition: 'background-color 200ms', backgroundColor: dark ? '#4F46E5' : '#111827', color: '#fff' }}
+            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = dark ? '#4338CA' : '#1F2937' }}
+            onMouseLeave={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = dark ? '#4F46E5' : '#111827' }}
+          >
+            {isLoading ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <>{plan.cta} <ArrowRight size={14} /></>}
+          </button>
         )
       ) : (
         <Link href={plan.ctaHref!}
-          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
-            dark
-              ? 'bg-indigo-600 text-white hover:bg-indigo-500'
-              : 'bg-gray-900 text-white hover:bg-gray-800'
-          }`}>
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, textDecoration: 'none', transition: 'background-color 200ms', backgroundColor: dark ? '#4F46E5' : '#111827', color: '#fff' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = dark ? '#4338CA' : '#1F2937' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = dark ? '#4F46E5' : '#111827' }}>
           {plan.cta} <ArrowRight size={14} />
         </Link>
       )}
@@ -309,46 +311,56 @@ export default function OffresPageClient() {
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)' }} className="min-h-screen">
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+        .offres-creator-grid { display: grid; grid-template-columns: 1fr; gap: 16px }
+        @media (min-width: 640px) { .offres-creator-grid { grid-template-columns: repeat(2, 1fr) } }
+        @media (min-width: 1024px) { .offres-creator-grid { grid-template-columns: repeat(4, 1fr) } }
+        .offres-org-grid { display: grid; grid-template-columns: 1fr; gap: 16px }
+        @media (min-width: 640px) { .offres-org-grid { grid-template-columns: repeat(3, 1fr) } }
+        .offres-credits-grid { display: grid; grid-template-columns: 1fr; gap: 12px }
+        @media (min-width: 640px) { .offres-credits-grid { grid-template-columns: repeat(2, 1fr) } }
+        @media (min-width: 1024px) { .offres-credits-grid { grid-template-columns: repeat(3, 1fr) } }
+      `}</style>
 
       {/* Hero */}
-      <div className="bg-[#06060f] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.08]"
-          style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-indigo-600/15 blur-[100px] pointer-events-none" />
+      <div style={{ backgroundColor: '#06060f', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.08, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div style={{ position: 'absolute', top: '-128px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '300px', borderRadius: '9999px', backgroundColor: 'rgba(99,102,241,0.15)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-20 pb-16 relative z-10 text-center">
+        <div style={{ maxWidth: '896px', margin: '0 auto', padding: '80px 16px 64px', position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <div className="flex items-center justify-center gap-2 mb-5">
-              <Zap size={13} className="text-indigo-400" />
-              <span className="text-indigo-400 text-xs font-semibold uppercase tracking-wider">Tarifs</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}>
+              <Zap size={13} color="#818CF8" />
+              <span style={{ color: '#818CF8', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Tarifs</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-[1.1] mb-4">
+            <h1 style={{ fontSize: '48px', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '16px' }}>
               Simple, transparent, adapté
             </h1>
-            <p className="text-white/40 text-base max-w-md mx-auto leading-relaxed">
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px', maxWidth: '384px', margin: '0 auto', lineHeight: 1.6 }}>
               Gratuit pour commencer. Passez au niveau supérieur quand vous êtes prêt.
             </p>
           </motion.div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', backgroundColor: 'rgba(255,255,255,0.06)' }} />
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-24">
+      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '0 16px 96px' }}>
 
         {error && (
-          <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
+          <div style={{ marginTop: '24px', padding: '16px', borderRadius: '12px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#B91C1C', fontSize: '14px', textAlign: 'center' }}>
             {error}
           </div>
         )}
 
         {/* Créateurs */}
-        <section className="mt-16">
-          <div className="mb-7">
-            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Pour les créateurs</h2>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Artisans, indépendants, créateurs de toutes disciplines.</p>
+        <section style={{ marginTop: '64px' }}>
+          <div style={{ marginBottom: '28px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '4px', color: 'var(--text-primary)' }}>Pour les créateurs</h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Artisans, indépendants, créateurs de toutes disciplines.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="offres-creator-grid">
             {CREATOR_PLANS.map((p, i) => (
               <PlanCard key={p.name} plan={p} delay={i * 0.06} onSubscribe={handleCheckout} loading={loading} currentTier={currentTier} />
             ))}
@@ -356,12 +368,12 @@ export default function OffresPageClient() {
         </section>
 
         {/* Organisateurs */}
-        <section className="mt-16">
-          <div className="mb-7">
-            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Pour les organisateurs</h2>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Marchés, pop-ups, salons, associations, collectivités.</p>
+        <section style={{ marginTop: '64px' }}>
+          <div style={{ marginBottom: '28px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '4px', color: 'var(--text-primary)' }}>Pour les organisateurs</h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Marchés, pop-ups, salons, associations, collectivités.</p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="offres-org-grid">
             {ORGANIZER_PLANS.map((p, i) => (
               <PlanCard key={p.name} plan={p} delay={i * 0.08} onSubscribe={handleCheckout} loading={loading} currentTier={currentTier} isOrganizer />
             ))}
@@ -369,29 +381,33 @@ export default function OffresPageClient() {
         </section>
 
         {/* Crédits */}
-        <section className="mt-16">
-          <div className="mb-7">
-            <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Sans abonnement — Crédits à l&apos;unité</h2>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Payez uniquement ce que vous utilisez. Valables 6 mois.</p>
+        <section style={{ marginTop: '64px' }}>
+          <div style={{ marginBottom: '28px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '4px', color: 'var(--text-primary)' }}>Sans abonnement — Crédits à l&apos;unité</h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Payez uniquement ce que vous utilisez. Valables 6 mois.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="offres-credits-grid">
             {CREDITS_LIST.map((c, i) => (
               <motion.div key={c.key}
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                className="flex items-center justify-between p-4 rounded-xl border transition-all duration-150"
-                style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', transition: 'border-color 150ms' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#C7D2FE' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--border-color)' }}
+              >
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{c.label}</p>
-                  {c.economy && <p className="text-xs text-emerald-600 font-medium mt-0.5">{c.economy}</p>}
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{c.label}</p>
+                  {c.economy && <p style={{ fontSize: '12px', color: '#059669', fontWeight: 500, marginTop: '2px' }}>{c.economy}</p>}
                 </div>
-                <div className="text-right shrink-0 ml-3 flex flex-col items-end gap-1.5">
-                  <p className="text-base font-black" style={{ color: 'var(--text-primary)' }}>{c.price}</p>
+                <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: '12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                  <p style={{ fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>{c.price}</p>
                   <button
                     onClick={() => handleCheckout(c.priceId, 'payment')}
                     disabled={!!loading}
-                    className="text-[10px] font-bold text-white bg-indigo-600 hover:bg-indigo-500 px-2.5 py-1 rounded-lg uppercase tracking-wide transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1"
+                    style={{ fontSize: '10px', fontWeight: 700, color: '#fff', backgroundColor: '#4F46E5', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '4px', opacity: loading && loading !== c.priceId ? 0.6 : 1, transition: 'background-color 150ms' }}
+                    onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#4338CA' }}
+                    onMouseLeave={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#4F46E5' }}
                   >
-                    {loading === c.priceId ? <Loader2 size={10} className="animate-spin" /> : 'Acheter'}
+                    {loading === c.priceId ? <Loader2 size={10} style={{ animation: 'spin 1s linear infinite' }} /> : 'Acheter'}
                   </button>
                 </div>
               </motion.div>
@@ -400,14 +416,14 @@ export default function OffresPageClient() {
         </section>
 
         {/* FAQ */}
-        <section className="mt-16">
-          <div className="rounded-2xl border p-8 shadow-sm" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
-            <h2 className="text-xl font-black mb-7" style={{ color: 'var(--text-primary)' }}>Questions fréquentes</h2>
-            <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-color)' }}>
-              {FAQ.map(({ q, r }) => (
-                <div key={q} className="py-5 first:pt-0 last:pb-0">
-                  <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>{q}</p>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{r}</p>
+        <section style={{ marginTop: '64px' }}>
+          <div style={{ borderRadius: '16px', border: '1px solid var(--border-color)', padding: '32px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', backgroundColor: 'var(--card-bg)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '28px', color: 'var(--text-primary)' }}>Questions fréquentes</h2>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {FAQ.map(({ q, r }, i) => (
+                <div key={q} style={{ padding: '20px 0', borderTop: i === 0 ? 'none' : '1px solid var(--border-color)' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, marginBottom: '6px', color: 'var(--text-primary)' }}>{q}</p>
+                  <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{r}</p>
                 </div>
               ))}
             </div>

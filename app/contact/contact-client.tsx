@@ -64,7 +64,8 @@ export default function ContactPageClient() {
           Retour à l'accueil
         </Link>
 
-        <div className="contact-grid">
+        <style>{`.contact-two-col{display:grid;grid-template-columns:1fr 320px;gap:48px}@media(max-width:768px){.contact-two-col{grid-template-columns:1fr;gap:32px}}`}</style>
+        <div className="contact-two-col">
           {/* Main Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -24,7 +24,6 @@ export default function TendancesPage() {
         supabase.from('events').select('id, title, city, start_date, cover_image, region').eq('status', 'published').gte('start_date', new Date().toISOString()).order('start_date').limit(6),
       ])
 
-      // Disciplines les plus populaires
       const discMap: Record<string, number> = {}
       ;(creators ?? []).forEach(c => {
         ;(c.disciplines as string[] ?? []).forEach(d => { discMap[d] = (discMap[d] ?? 0) + 1 })
@@ -36,7 +35,6 @@ export default function TendancesPage() {
           .map(([name, count]) => ({ name, count }))
       )
 
-      // Régions les plus actives (créateurs + événements)
       const regMap: Record<string, { creators: number; events: number }> = {}
       ;(creators ?? []).forEach(c => {
         if (c.region) regMap[c.region] = { creators: (regMap[c.region]?.creators ?? 0) + 1, events: regMap[c.region]?.events ?? 0 }
@@ -61,108 +59,114 @@ export default function TendancesPage() {
   const maxDisc = disciplines[0]?.count ?? 1
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-16">
+    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '64px 16px' }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-            <TrendingUp size={18} className="text-indigo-600" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <TrendingUp size={18} color="#4F46E5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tendances</h1>
-            <p className="text-sm text-gray-400">Disciplines populaires, régions actives, événements à venir</p>
+            <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Tendances</h1>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Disciplines populaires, régions actives, événements à venir</p>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex flex-col gap-6">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-40 rounded-2xl bg-gray-100 animate-pulse" />)}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ height: '160px', borderRadius: '16px', backgroundColor: '#F3F4F6', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            ))}
+            <style>{`@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.5 } }`}</style>
           </div>
         ) : (
-          <div className="flex flex-col gap-10">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
 
             {/* Disciplines */}
             <section>
-              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Users size={16} className="text-indigo-600" /> Disciplines les plus représentées
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Users size={16} color="#6366F1" /> Disciplines les plus représentées
               </h2>
-              <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col gap-3">
+              <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid #F3F4F6', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {disciplines.map((d, i) => (
                   <motion.div key={d.name} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
                       <Link href={`/creators?discipline=${encodeURIComponent(d.name)}`}
-                        className="text-sm font-semibold text-gray-800 hover:text-indigo-600 transition-colors">
+                        style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = '#6366F1')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-primary)')}>
                         {d.name}
                       </Link>
-                      <span className="text-xs text-gray-400 font-semibold">{d.count} créateur{d.count > 1 ? 's' : ''}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>{d.count} créateur{d.count > 1 ? 's' : ''}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-700"
-                        style={{ width: `${Math.round((d.count / maxDisc) * 100)}%` }} />
+                    <div style={{ height: '8px', borderRadius: '9999px', backgroundColor: '#F3F4F6', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', borderRadius: '9999px', background: 'linear-gradient(to right, #6366F1, #8B5CF6)', width: `${Math.round((d.count / maxDisc) * 100)}%`, transition: 'width 0.7s ease' }} />
                     </div>
                   </motion.div>
                 ))}
-                {disciplines.length === 0 && <p className="text-sm text-gray-400">Aucune donnée disponible.</p>}
+                {disciplines.length === 0 && <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Aucune donnée disponible.</p>}
               </div>
             </section>
 
             {/* Régions */}
             <section>
-              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <MapPin size={16} className="text-indigo-600" /> Régions les plus actives
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MapPin size={16} color="#6366F1" /> Régions les plus actives
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
                 {regions.map((r, i) => (
                   <motion.div key={r.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                    className="p-4 rounded-2xl border border-gray-100 bg-white shadow-sm text-center">
-                    <p className="text-sm font-bold text-gray-900 mb-2 leading-tight">{r.name}</p>
-                    <p className="text-xs text-indigo-600 font-semibold">{r.count} créateur{r.count > 1 ? 's' : ''}</p>
-                    {r.eventCount > 0 && <p className="text-xs text-gray-400">{r.eventCount} événement{r.eventCount > 1 ? 's' : ''}</p>}
+                    style={{ padding: '16px', borderRadius: '16px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', textAlign: 'center' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px', lineHeight: 1.3 }}>{r.name}</p>
+                    <p style={{ fontSize: '12px', color: '#6366F1', fontWeight: 600, margin: 0 }}>{r.count} créateur{r.count > 1 ? 's' : ''}</p>
+                    {r.eventCount > 0 && <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{r.eventCount} événement{r.eventCount > 1 ? 's' : ''}</p>}
                   </motion.div>
                 ))}
-                {regions.length === 0 && <p className="col-span-4 text-sm text-gray-400">Aucune donnée disponible.</p>}
+                {regions.length === 0 && <p style={{ fontSize: '14px', color: 'var(--text-secondary)', gridColumn: '1/-1' }}>Aucune donnée disponible.</p>}
               </div>
             </section>
 
             {/* Événements à venir */}
             <section>
-              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Calendar size={16} className="text-indigo-600" /> Prochains événements
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={16} color="#6366F1" /> Prochains événements
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
                 {upcoming.map((ev, i) => (
                   <motion.div key={ev.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                    <Link href={`/events/${ev.id}`}
-                      className="flex gap-3 p-4 rounded-2xl border border-gray-100 bg-white shadow-sm hover:border-indigo-200 hover:-translate-y-px transition-all duration-150 group">
+                    <Link href={`/events/${ev.id}`} style={{ display: 'flex', gap: '12px', padding: '16px', borderRadius: '16px', border: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', textDecoration: 'none', transition: 'border-color 0.15s, transform 0.15s' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#A5B4FC'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#F3F4F6'; e.currentTarget.style.transform = 'none' }}>
                       {ev.cover_image ? (
-                        <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <div style={{ width: '64px', height: '64px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0 }}>
                           <Image src={ev.cover_image} alt={ev.title} width={64} height={64} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 rounded-xl bg-indigo-50 shrink-0 flex items-center justify-center">
-                          <Calendar size={20} className="text-indigo-400" />
+                        <div style={{ width: '64px', height: '64px', borderRadius: '12px', backgroundColor: '#EEF2FF', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Calendar size={20} color="#A5B4FC" />
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate group-hover:text-indigo-700 transition-colors">{ev.title}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{ev.city}</p>
-                        <p className="text-xs text-indigo-600 font-semibold mt-1">
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 4px' }}>{ev.city}</p>
+                        <p style={{ fontSize: '12px', color: '#6366F1', fontWeight: 600, margin: 0 }}>
                           {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </p>
                       </div>
-                      <ArrowRight size={14} className="text-indigo-300 group-hover:translate-x-0.5 transition-transform shrink-0 mt-1" />
+                      <ArrowRight size={14} color="#A5B4FC" style={{ flexShrink: 0, marginTop: '4px' }} />
                     </Link>
                   </motion.div>
                 ))}
                 {upcoming.length === 0 && (
-                  <p className="col-span-2 text-sm text-gray-400">Aucun événement à venir pour le moment.</p>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', gridColumn: '1/-1' }}>Aucun événement à venir pour le moment.</p>
                 )}
               </div>
               {upcoming.length > 0 && (
-                <div className="text-center mt-4">
-                  <Link href="/events" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500 transition-colors inline-flex items-center gap-1.5">
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <Link href="/events" style={{ fontSize: '14px', fontWeight: 600, color: '#6366F1', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#4F46E5')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#6366F1')}>
                     Voir tous les événements <ArrowRight size={14} />
                   </Link>
                 </div>

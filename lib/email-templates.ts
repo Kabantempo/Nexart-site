@@ -343,6 +343,35 @@ export function emailReminder(eventTitle: string, eventId: string, isLast: boole
   )
 }
 
+export function emailCreditsPurchased(creditType: string, amount: number, totalPaid: string): string {
+  const typeLabel = creditType === 'boost_candidature' ? 'Boost candidature' : creditType === 'event_creation' ? 'Création d\'événement' : creditType
+  return base(
+    `
+    ${badge('Achat confirmé ✅')}
+    <h1 style="margin:0 0 8px;color:#fff;font-size:24px;font-weight:800;">Vos crédits sont disponibles !</h1>
+    <p style="margin:0;color:${COLORS.indigoLight};font-size:14px;">${amount} crédit${amount > 1 ? 's' : ''} ${typeLabel}</p>`,
+    `
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;background:#F8FAFC;border-radius:10px;overflow:hidden;">
+      <tr><td style="padding:16px 20px;border-bottom:1px solid ${COLORS.border};">
+        <span style="color:${COLORS.textMuted};font-size:13px;font-weight:600;">Type de crédit :</span>
+        <span style="color:${COLORS.textBody};font-size:14px;margin-left:8px;font-weight:700;">${typeLabel}</span>
+      </td></tr>
+      <tr><td style="padding:16px 20px;border-bottom:1px solid ${COLORS.border};">
+        <span style="color:${COLORS.textMuted};font-size:13px;font-weight:600;">Crédits ajoutés :</span>
+        <span style="color:${COLORS.indigo};font-size:14px;margin-left:8px;font-weight:800;">${amount}</span>
+      </td></tr>
+      <tr><td style="padding:16px 20px;">
+        <span style="color:${COLORS.textMuted};font-size:13px;font-weight:600;">Montant payé :</span>
+        <span style="color:${COLORS.textBody};font-size:14px;margin-left:8px;font-weight:700;">${totalPaid}</span>
+      </td></tr>
+    </table>
+    <p style="margin:0 0 28px;color:${COLORS.textMuted};font-size:13px;line-height:1.6;">
+      Vos crédits sont valables 6 mois. Vous pouvez les utiliser depuis votre tableau de bord.
+    </p>
+    ${button('Utiliser mes crédits →', 'https://nexart.fr/dashboard')}`
+  )
+}
+
 export function emailPaymentFailed(amount: string): string {
   return base(
     `

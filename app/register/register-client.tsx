@@ -186,9 +186,10 @@ export default function RegisterPage() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <style>{`@media (min-width: 1024px) { .register-panel-left { display: flex !important; } .register-mobile-logo { display: none !important; } }`}</style>
 
       {/* Panel gauche — branding */}
-      <div style={{
+      <div className="register-panel-left" style={{
         display: 'none',
         flex: '0 0 480px',
         background: 'linear-gradient(135deg, #0F0C29 0%, #1E1B4B 40%, #2D1B69 100%)',
@@ -198,7 +199,6 @@ export default function RegisterPage() {
         justifyContent: 'space-between',
         padding: '48px',
       }}
-        className="lg:flex"
       >
         <div style={{
           position: 'absolute', inset: 0,
@@ -300,7 +300,7 @@ export default function RegisterPage() {
         overflowY: 'auto',
       }}>
         {/* Mobile logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px' }} className="lg:hidden">
+        <div className="register-mobile-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px' }}>
           <Image src="/logo-mark.png" alt="Nexart" width={32} height={32} style={{ borderRadius: '8px' }} />
           <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
