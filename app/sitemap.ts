@@ -1,9 +1,20 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
+import { REGIONS } from '@/lib/regions'
 
 const BASE_URL = 'https://nexart.fr'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  let regionRoutes: MetadataRoute.Sitemap = []
+  try {
+    regionRoutes = Object.keys(REGIONS).map((slug) => ({
+      url: `${BASE_URL}/events/region/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.85,
+    }))
+  } catch { /* ignore */ }
+
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL,                    lastModified: new Date(), changeFrequency: 'weekly',  priority: 1.0 },
     { url: `${BASE_URL}/events`,        lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
@@ -50,5 +61,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   } catch { /* ignore */ }
 
-  return [...staticRoutes, ...eventRoutes, ...creatorRoutes]
+  return [...staticRoutes, ...regionRoutes, ...eventRoutes, ...creatorRoutes]
 }

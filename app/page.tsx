@@ -23,11 +23,14 @@ const organizationJsonLd = {
   logo: 'https://nexart.fr/logo-full.png',
   description: 'Marketplace connectant créateurs artisanaux et organisateurs de marchés en France.',
   sameAs: [],
+  areaServed: { '@type': 'Country', name: 'France', sameAs: 'https://www.wikidata.org/wiki/Q142' },
+  knowsAbout: ['marché artisanal', 'artisanat', 'créateurs', 'pop-up', 'salon artisanat'],
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'contact@nexart.fr',
     contactType: 'customer support',
     availableLanguage: 'French',
+    areaServed: 'FR',
   },
 }
 
