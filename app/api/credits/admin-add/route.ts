@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
     })
     return NextResponse.json(
-      { error: 'Erreur ajout crédits', details: errorMsg },
+      { error: 'Erreur ajout crédits' },
       { status: 500 }
     )
   }

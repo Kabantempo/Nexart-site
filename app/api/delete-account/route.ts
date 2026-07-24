@@ -45,7 +45,7 @@ export async function DELETE(req: Request) {
         timestamp: new Date().toISOString(),
       })
       return NextResponse.json(
-        { error: 'Erreur suppression compte', details: deleteError.message },
+        { error: "Erreur suppression compte" },
         { status: 500 }
       )
     }
@@ -57,7 +57,7 @@ export async function DELETE(req: Request) {
       timestamp: new Date().toISOString(),
     })
     return NextResponse.json(
-      { error: 'Erreur suppression compte', details: errorMsg },
+      { error: 'Erreur suppression compte' },
       { status: 500 }
     )
   }

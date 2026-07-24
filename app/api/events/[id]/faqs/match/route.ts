@@ -117,7 +117,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       {
         matched: false,
         error: 'FAQ matching failed',
-        details: errorMsg,
         recommended_action: 'manual_review',
       },
       { status: 500 }

@@ -5,6 +5,9 @@ import { getAdminClient } from '@/lib/supabase-admin'
 const VALID_TIERS = ['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']
 
 export async function POST(req: NextRequest) {
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
   const admin = getAdminClient()
   try {
     const { validate: v, z, uuidSchema } = await import('@/lib/validate')
@@ -31,6 +34,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, tier })
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? (err instanceof Error ? err.message : String(err)) : 'Erreur inconnue' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err)}, { status: 500 })
   }
 }

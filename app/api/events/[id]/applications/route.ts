@@ -38,6 +38,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ applications: data })
   } catch (error: unknown) {
     console.error('❌ GET /api/events/[id]/applications:', (error as Error)?.message)
-    return NextResponse.json({ error: 'Erreur serveur', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

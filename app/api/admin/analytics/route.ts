@@ -172,6 +172,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (error: unknown) {
     console.error('❌ Admin analytics error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur chargement analytics', details: (error as Error)?.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur chargement analytics' }, { status: 500 })
   }
 }

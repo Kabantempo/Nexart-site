@@ -57,6 +57,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     })
   } catch (error: unknown) {
     console.error('Analytics error:', { error: (error instanceof Error ? error.message : String(error)), timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur chargement stats', details: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur chargement stats' }, { status: 500 })
   }
 }

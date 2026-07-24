@@ -42,3 +42,7 @@ next-env.d.ts
 
 # claude code (local docs + secrets)
 CLAUDE.md
+
+# Test artifacts
+test-results/
+*.canvas
