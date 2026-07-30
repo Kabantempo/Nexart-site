@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     description: 'Nexart connecte créateurs artisanaux et organisateurs de marchés en France.',
     url: 'https://nexart.fr/about',
     type: 'website',
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — À propos' }],
   },
 }
 

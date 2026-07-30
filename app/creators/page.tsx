@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     description: 'Découvrez les créateurs et artisans référencés sur Nexart.',
     url: 'https://nexart.fr/creators',
     type: 'website',
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Créateurs & artisans' }],
   },
 }
 

@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     description: 'Conditions générales d\'utilisation de la plateforme Nexart',
     url: 'https://nexart.fr/conditions',
     type: 'website',
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Conditions d\'utilisation' }],
   },
 }
 
