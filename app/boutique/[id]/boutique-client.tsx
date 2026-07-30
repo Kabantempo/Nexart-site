@@ -93,8 +93,8 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                 <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
                   Boutique de {creator?.full_name || 'ce créateur'}
                 </h1>
-                <span style={{ fontSize: '10px', fontWeight: '700', color: '#6366F1', backgroundColor: 'rgba(99,102,241,0.15)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(99,102,241,0.3)' }}>
-                  Pro
+                <span style={{ fontSize: '10px', fontWeight: '700', color: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.15)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(245,158,11,0.3)' }}>
+                  EN COURS
                 </span>
               </div>
               {creator?.city && (
@@ -111,7 +111,18 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: '900px', margin: '32px auto', padding: '0 24px' }}>
+      <div style={{ maxWidth: '900px', margin: '24px auto 0', padding: '0 24px' }}>
+        {/* Banner en cours */}
+        <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '16px' }}>🛠️</span>
+          <div>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#92400E', margin: 0 }}>Boutique en cours de développement</p>
+            <p style={{ fontSize: '12px', color: '#B45309', margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 24px' }}>
         {products.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 24px' }}>
             <ShoppingBag size={48} color="#E5E7EB" style={{ margin: '0 auto 16px' }} />
