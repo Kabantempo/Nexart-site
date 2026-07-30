@@ -105,7 +105,8 @@ export async function POST(req: NextRequest) {
           html,
         })
         sent++
-      } catch {
+      } catch (mailErr: unknown) {
+        console.error('[weekly-digest] email error', { email: profile.email, error: (mailErr as Error)?.message })
         errors++
       }
     }

@@ -27,13 +27,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const supabase = getAdminClient()
-    const { data, error } = await supabase
+    const rawLimit = parseInt(req.nextUrl.searchParams.get('limit') ?? '20', 10)
+    const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 100)
+    const rawOffset = parseInt(req.nextUrl.searchParams.get('offset') ?? '0', 10)
+    const offset = Math.max(0, isNaN(rawOffset) ? 0 : rawOffset)
+    const { data, error, count } = await supabase
       .from('event_campaigns')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('event_id', params.id)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
     if (error) throw error
-    return NextResponse.json(data || [])
+    return NextResponse.json({ data: data || [], total: count ?? 0, limit, offset })
   } catch (error: unknown) {
     console.error('❌ Campaigns GET error:', { error: (error as Error)?.message })
     return NextResponse.json({ error: 'Erreur chargement campagnes' }, { status: 500 })

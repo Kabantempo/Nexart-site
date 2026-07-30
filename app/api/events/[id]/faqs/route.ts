@@ -26,15 +26,20 @@ export async function GET(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const admin = getAdminClient()
   try {
-    const { data: faqs, error } = await (admin as any)
+    const rawLimit = parseInt(req.nextUrl.searchParams.get('limit') ?? '50', 10)
+    const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 50 : rawLimit), 200)
+    const rawOffset = parseInt(req.nextUrl.searchParams.get('offset') ?? '0', 10)
+    const offset = Math.max(0, isNaN(rawOffset) ? 0 : rawOffset)
+    const { data: faqs, error, count } = await (admin as any)
       .from('event_faqs')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('event_id', params.id)
       .order('faq_order', { ascending: true })
+      .range(offset, offset + limit - 1)
 
     if (error) throw error
 
-    return NextResponse.json({ faqs: faqs || [] })
+    return NextResponse.json({ data: faqs || [], total: count ?? 0, limit, offset })
   } catch (error: unknown) {
     return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
@@ -44,6 +49,9 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const admin = getAdminClient()
   try {
     const { validate: v, z } = await import('@/lib/validate')

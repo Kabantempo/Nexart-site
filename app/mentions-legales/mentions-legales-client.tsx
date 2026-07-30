@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Building2, User, Server, Mail, AlertCircle, Shield } from 'lucide-react'
 
@@ -227,7 +228,7 @@ export default function MentionsLegalesClient() {
                 <strong>Responsable du traitement</strong> : Kalvin, kalvin@nexart.fr
               </li>
               <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
-                <strong>Politique de Confidentialité</strong> : <a href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none' }}>Lire la politique complète</a>
+                <strong>Politique de Confidentialité</strong> : <Link href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none' }}>Lire la politique complète</Link>
               </li>
               <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 <strong>Droits RGPD</strong> : accès, rectification, suppression, opposition, portabilité

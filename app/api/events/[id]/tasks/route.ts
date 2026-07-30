@@ -18,9 +18,18 @@ async function getAuthUser(req: NextRequest) {
   } catch { return null }
 }
 
+async function requireOrganizer(req: NextRequest, eventId: string) {
+  const user = await getAuthUser(req)
+  if (!user) return null
+  const admin = getAdminClient()
+  const { data: event } = await admin.from('events').select('organizer_id').eq('id', eventId).single()
+  if (event?.organizer_id !== user.id) return null
+  return user
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
-  const user = await getAuthUser(req)
+  const user = await requireOrganizer(req, params.id)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const admin = getAdminClient()

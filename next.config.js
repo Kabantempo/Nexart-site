@@ -34,8 +34,9 @@ async function headers() {
 
 const nextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
   experimental: {
-    cpus: 1,
+    ...(process.env.NODE_ENV === 'production' && { cpus: 1 }),
     workerThreads: false,
   },
   headers,

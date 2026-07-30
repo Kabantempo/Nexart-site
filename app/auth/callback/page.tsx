@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthCallbackPage() {
@@ -55,7 +56,7 @@ export default function AuthCallbackPage() {
           <>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
             <p style={{ color: '#E05A5A', fontSize: '16px', marginBottom: '16px' }}>{error}</p>
-            <a href="/login" style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>Retour à la connexion</a>
+            <Link href="/login" style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>Retour à la connexion</Link>
           </>
         ) : (
           <>

@@ -99,10 +99,11 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET pour test/debug (dev seulement)
+// GET pour test/debug (protégé par CRON_SECRET)
 export async function GET(req: NextRequest) {
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Méthode GET interdite en production' }, { status: 405 })
+  const secret = req.headers.get('Authorization')?.replace('Bearer ', '')
+  if (!secret || secret !== process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
