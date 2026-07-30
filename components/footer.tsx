@@ -77,11 +77,11 @@ export function Footer() {
               <Image src="/logo-mark.png" alt="Nexart" width={30} height={30} className="rounded-lg" />
               <span className="text-xl font-bold text-white">Nexart</span>
             </Link>
-            <p className="text-white/40 text-sm leading-relaxed mb-7">
+            <p className="text-white/60 text-sm leading-relaxed mb-7">
               La plateforme qui connecte créateurs artisanaux et organisateurs d'événements en France.
             </p>
             {/* Newsletter */}
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3">Newsletter</p>
+            <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Newsletter</p>
             <form onSubmit={handleNewsletter} className="flex gap-2">
               <input
                 type="email"
@@ -93,6 +93,7 @@ export function Footer() {
               />
               <button
                 type="submit"
+                aria-label="S'inscrire à la newsletter"
                 disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
                 className="shrink-0 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50"
               >
@@ -110,10 +111,10 @@ export function Footer() {
           {/* Nav columns */}
           {Object.entries(NAV).map(([title, links]) => (
             <div key={title}>
-              <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-5">{title}</p>
+              <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-5">{title}</p>
               <nav className="flex flex-col gap-3">
                 {links.map(({ label, href }) => (
-                  <Link key={href + label} href={href} className="text-sm text-white/45 hover:text-white transition-colors duration-150">
+                  <Link key={href + label} href={href} className="text-sm text-white/65 hover:text-white transition-colors duration-150">
                     {label}
                   </Link>
                 ))}
@@ -123,7 +124,7 @@ export function Footer() {
 
           {/* Socials */}
           <div>
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-5">Nous suivre</p>
+            <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-5">Nous suivre</p>
             <div className="flex flex-wrap gap-2">
               {SOCIALS.map(({ icon: Icon, href, label }) => (
                 <Link
@@ -143,10 +144,10 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-white/6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/25">© 2026 Nexart. Tous droits réservés.</p>
+          <p className="text-xs text-white/50">© 2026 Nexart. Tous droits réservés.</p>
           <nav className="flex flex-wrap gap-6 justify-center">
             {LEGAL.map(({ label, href }) => (
-              <Link key={href} href={href} className="text-xs text-white/25 hover:text-white/55 transition-colors duration-150">
+              <Link key={href} href={href} className="text-xs text-white/50 hover:text-white/80 transition-colors duration-150">
                 {label}
               </Link>
             ))}

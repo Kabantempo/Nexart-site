@@ -207,7 +207,7 @@ export function NavbarFull() {
       }}
       aria-haspopup="menu"
       aria-expanded={dropdown === id}
-      className={`flex items-center gap-1 text-[13.5px] font-medium px-3 py-2 transition-colors duration-150 select-none ${
+      className={`flex items-center gap-1 text-[13.5px] font-medium px-3 py-3 transition-colors duration-150 select-none ${
         active
           ? dark ? 'text-white' : 'text-gray-900'
           : dark ? 'text-white/75 hover:text-white' : 'text-gray-600 hover:text-gray-900'
@@ -279,7 +279,7 @@ export function NavbarFull() {
 
             {/* Offres */}
             <Link href="/offres"
-              className={`px-3.5 py-2 text-[13px] font-semibold rounded-lg transition-colors duration-150 ${isActive('/offres') ? 'text-indigo-600 bg-indigo-50' : dark ? 'text-white/80 hover:text-white' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
+              className={`px-3.5 py-3 text-[13px] font-semibold rounded-lg transition-colors duration-150 ${isActive('/offres') ? 'text-indigo-600 bg-indigo-50' : dark ? 'text-white/80 hover:text-white' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
             >
               Offres
             </Link>
@@ -315,7 +315,8 @@ export function NavbarFull() {
                 ) : (
                   <motion.button key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     onClick={openSearch}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
+                    aria-label="Ouvrir la recherche"
+                    className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
                   >
                     <Search size={15} />
                   </motion.button>
@@ -402,10 +403,10 @@ export function NavbarFull() {
               <>
                 <NotificationBell userId={user.id} dark={dark} />
                 <PushNotificationButton />
-                <Link href="/favorites" title="Mes favoris" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
+                <Link href="/favorites" title="Mes favoris" className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
                   <Heart size={16} />
                 </Link>
-                <Link href="/messages" className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
+                <Link href="/messages" className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
                   <MessageCircle size={16} />
                 </Link>
 
@@ -496,12 +497,12 @@ export function NavbarFull() {
             ) : (
               <div className="flex items-center gap-1 ml-1">
                 <Link href="/login"
-                  className={`px-3.5 py-2 text-[13px] font-medium transition-colors duration-150 ${dark ? 'text-white/75 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`px-3.5 py-3 text-[13px] font-medium transition-colors duration-150 ${dark ? 'text-white hover:text-white/80' : 'text-gray-500 hover:text-gray-900'}`}
                 >
                   Connexion
                 </Link>
                 <Link href="/register"
-                  className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-150 ${
+                  className={`px-4 py-3 rounded-lg text-[13px] font-semibold transition-all duration-150 ${
                     dark
                       ? 'bg-white text-gray-900 hover:bg-white/90'
                       : 'bg-gray-900 text-white hover:bg-gray-700'

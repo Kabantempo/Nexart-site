@@ -38,10 +38,11 @@ export default function MentionsLegalesClient() {
       title: 'Hébergeur du Site',
       icon: Server,
       items: [
-        { label: 'Nom', value: 'Vercel Inc.' },
-        { label: 'Localisation', value: 'États-Unis / Régions EU' },
-        { label: 'Site Web', value: 'https://vercel.com' },
-        { label: 'Support', value: 'https://vercel.com/support' },
+        { label: 'Nom', value: 'Hostinger International Ltd.' },
+        { label: 'Localisation', value: 'Lituanie (EU)' },
+        { label: 'Site Web', value: 'https://www.hostinger.fr' },
+        { label: 'Support', value: 'https://support.hostinger.fr' },
+        { label: 'Serveur', value: '147.79.103.73 (EU)' },
       ],
     },
     {

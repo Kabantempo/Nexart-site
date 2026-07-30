@@ -73,14 +73,27 @@ export function ReportButton({
   }
 
   const iconSize = size === 'sm' ? 16 : size === 'md' ? 20 : 24
-  const buttonClass = size === 'sm' ? 'p-1.5' : size === 'md' ? 'p-2' : 'p-3'
 
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className={`${buttonClass} text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50`}
         title="Report this content"
+        style={{
+          minWidth: '44px',
+          minHeight: '44px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderRadius: '8px',
+          border: 'none',
+          backgroundColor: 'transparent',
+          color: '#9CA3AF',
+          cursor: 'pointer',
+          transition: 'all 0.15s ease',
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#EF4444'; (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#FEF2F2' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF'; (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent' }}
       >
         <Flag size={iconSize} />
       </button>
