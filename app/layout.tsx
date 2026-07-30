@@ -5,7 +5,6 @@ import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
 import { CookieConsent } from "@/components/CookieConsent";
 import { EmailConfirmationBanner } from "@/components/ui/email-confirmation-banner";
-import { PageTransition } from "@/components/page-transition";
 
 
 export const metadata: Metadata = {
@@ -84,7 +83,7 @@ export default function RootLayout({
           <NavbarFull />
           <EmailConfirmationBanner />
           <main id="main-content" className="flex-1 pt-[58px]">
-            <PageTransition>{children}</PageTransition>
+            {children}
           </main>
           <Footer />
           <CookieConsent />

@@ -45,9 +45,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const admin = getAdminClient()
   try {
-    const body = await req.json()
-    const { email, role = 'member' } = body
-    if (!email) return NextResponse.json({ error: 'email required' }, { status: 400 })
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      email: z.string().email(),
+      role: z.enum(['member', 'admin', 'viewer']).default('member'),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { email, role } = body
 
     const { data, error } = await (admin as any)
       .from('event_team')

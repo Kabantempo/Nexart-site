@@ -24,19 +24,24 @@ export async function GET(req: NextRequest) {
     const eventId = req.nextUrl.searchParams.get('event_id')
     const profileId = req.nextUrl.searchParams.get('profile_id')
 
+    const rawLimit = parseInt(req.nextUrl.searchParams.get('limit') ?? '20', 10)
+    const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 100)
+    const rawOffset = parseInt(req.nextUrl.searchParams.get('offset') ?? '0', 10)
+    const offset = Math.max(0, isNaN(rawOffset) ? 0 : rawOffset)
+
     let query = admin.from('reviews').select(`
       id, event_id, reviewer_id, reviewed_id, reviewer_role, rating, comment, tags, created_at,
       reviewer:profiles!reviewer_id(full_name, avatar_url),
       reviewed:profiles!reviewed_id(full_name, avatar_url)
-    `).order('created_at', { ascending: false })
+    `, { count: 'exact' }).order('created_at', { ascending: false })
 
     if (eventId) query = query.eq('event_id', eventId)
     else if (profileId) query = query.eq('reviewed_id', profileId)
     else return NextResponse.json({ error: 'event_id ou profile_id requis' }, { status: 400 })
 
-    const { data, error } = await query
+    const { data, count, error } = await query.range(offset, offset + limit - 1)
     if (error) throw error
-    return NextResponse.json({ reviews: data })
+    return NextResponse.json({ data, total: count ?? 0, limit, offset })
   } catch (error: unknown) {
     console.error('❌ Reviews GET error:', { error: (error as Error)?.message })
     return NextResponse.json({ error: 'Erreur chargement avis' }, { status: 500 })

@@ -53,7 +53,14 @@ export async function POST(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const admin = getAdminClient()
   try {
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      press_release: z.string().max(20000).optional(),
+      media_contacts: z.array(z.object({ name: z.string(), email: z.string().email(), outlet: z.string().optional() })).optional(),
+      deadlines_calendar: z.array(z.object({ date: z.string(), task: z.string() })).optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { press_release, media_contacts, deadlines_calendar } = body
 
     const { data, error } = await (admin as any)

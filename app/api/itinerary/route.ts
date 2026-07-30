@@ -29,7 +29,12 @@ export async function GET(req: NextRequest) {
       .gte('end_date', new Date().toISOString().split('T')[0])
 
     if (creatorId) {
-      query = query.eq('creator_id', creatorId)
+      const authUser = await getAuthUser(req)
+      if (!authUser || authUser.id !== creatorId) {
+        query = query.eq('creator_id', creatorId).eq('is_public', true)
+      } else {
+        query = query.eq('creator_id', creatorId)
+      }
     } else if (region) {
       query = query.eq('region', region).eq('is_public', true)
     } else {

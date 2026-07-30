@@ -48,14 +48,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-// POST: Add creator to waitlist
+// POST: Add creator to waitlist (auth required — creator adds themselves)
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const token = req.headers.get('Authorization')?.split(' ')[1]
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user: authUser } } = await anon.auth.getUser(token)
+  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const admin = getAdminClient()
   try {
     const body = await req.json()
-    const { creator_id, reason = 'Sold out' } = body
-    if (!creator_id) return NextResponse.json({ error: 'creator_id required' }, { status: 400 })
+    const creator_id = authUser.id
+    const { reason = 'Sold out' } = body
 
     const { data: maxPos } = await (admin as any)
       .from('event_exhibitor_waitlist')
@@ -130,7 +135,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       }
     }
 
-    // Reorder remaining waiting entries
+    // Reorder remaining waiting entries (batch)
     const { data: remaining } = await (admin as any)
       .from('event_exhibitor_waitlist')
       .select('id')
@@ -138,9 +143,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .eq('status', 'waiting')
       .order('position', { ascending: true })
 
-    for (let i = 0; i < (remaining?.length || 0); i++) {
-      await admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
-    }
+    await Promise.all((remaining || []).map((entry: { id: string }, i: number) =>
+      admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', entry.id)
+    ))
 
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
@@ -177,9 +182,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       .eq('status', 'waiting')
       .order('position', { ascending: true })
 
-    for (let i = 0; i < (remaining?.length || 0); i++) {
-      await admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', remaining![i].id)
-    }
+    await Promise.all((remaining || []).map((entry: { id: string }, i: number) =>
+      admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', entry.id)
+    ))
 
     return NextResponse.json({ success: true, remaining_count: remaining?.length })
   } catch (error: unknown) {

@@ -40,7 +40,7 @@ export const colors = {
   text: {
     primary:   '#1A1A1A',  // texte principal, titres
     secondary: '#6B7280',  // labels, descriptions — ratio 4.62:1 on white (WCAG AA ✓)
-    muted:     '#AAAAAA',  // placeholders, hints, disabled
+    muted:     '#767690',  // placeholders, hints, disabled (WCAG AA 4.5:1)
     onViolet:  '#FFFFFF',  // texte sur fond violet
     onDanger:  '#FFFFFF',  // texte sur fond rouge
   },

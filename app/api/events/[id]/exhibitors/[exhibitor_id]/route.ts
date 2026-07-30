@@ -16,7 +16,13 @@ export async function PATCH(
   )
   const admin = getAdminClient()
   try {
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      status: z.enum(['pending', 'accepted', 'refused', 'waitlisted']),
+      rejection_reason: z.string().max(1000).optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { status, rejection_reason } = body
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(

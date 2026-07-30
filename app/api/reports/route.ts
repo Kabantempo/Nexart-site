@@ -23,11 +23,11 @@ export async function GET(req: NextRequest) {
     // Check if admin
     const { data: profile } = await admin
       .from('profiles')
-      .select('role')
+      .select('is_admin')
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (!profile?.is_admin) {
       return NextResponse.json(
         { error: 'Only admins can view reports' },
         { status: 403 }

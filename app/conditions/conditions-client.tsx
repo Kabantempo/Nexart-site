@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { CheckCircle2, AlertCircle, Users, DollarSign, Scale, Mail } from 'lucide-react'
 

@@ -24,16 +24,16 @@ function getRateLimitKey(req: NextRequest): string {
   return `${ip}:${path}`
 }
 
-async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; userId?: string }> {
+async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; authenticated: boolean; userId?: string }> {
   try {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader?.startsWith('Bearer ')) {
-      return { isAdmin: false }
+      return { isAdmin: false, authenticated: false }
     }
 
     const token = authHeader.substring(7)
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (!serviceKey) return { isAdmin: false }
+    if (!serviceKey) return { isAdmin: false, authenticated: false }
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       serviceKey,
@@ -41,7 +41,7 @@ async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; u
     )
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) return { isAdmin: false }
+    if (authError || !user) return { isAdmin: false, authenticated: false }
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -51,10 +51,11 @@ async function checkAdminAccess(req: NextRequest): Promise<{ isAdmin: boolean; u
 
     return {
       isAdmin: profile?.is_admin === true,
+      authenticated: true,
       userId: user.id
     }
   } catch {
-    return { isAdmin: false }
+    return { isAdmin: false, authenticated: false }
   }
 }
 
@@ -63,7 +64,13 @@ export async function middleware(req: NextRequest) {
 
   // Admin auth check
   if (path.startsWith('/api/admin/')) {
-    const { isAdmin } = await checkAdminAccess(req)
+    const { isAdmin, authenticated } = await checkAdminAccess(req)
+    if (!authenticated) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
     if (!isAdmin) {
       return NextResponse.json(
         { error: 'Forbidden: Admin access required' },

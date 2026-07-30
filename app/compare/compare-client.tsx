@@ -40,13 +40,17 @@ function CompareContent() {
     if (!ids.length) { setLoading(false); return }
     supabase.from('events').select('*').in('id', ids).then(async ({ data }) => {
       if (!data) { setLoading(false); return }
-      const withRatings = await Promise.all(
-        data.map(async (ev) => {
-          const { data: reviews } = await supabase.from('reviews').select('rating').eq('event_id', ev.id)
-          const avg = reviews?.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : undefined
-          return { ...ev, avg_rating: avg, review_count: reviews?.length ?? 0 }
-        })
-      )
+      const { data: allReviews } = await supabase.from('reviews').select('event_id, rating').in('event_id', ids)
+      const reviewsByEvent = (allReviews || []).reduce<Record<string, number[]>>((acc, r) => {
+        if (!acc[r.event_id]) acc[r.event_id] = []
+        acc[r.event_id].push(r.rating)
+        return acc
+      }, {})
+      const withRatings = data.map((ev) => {
+        const ratings = reviewsByEvent[ev.id] || []
+        const avg = ratings.length ? ratings.reduce((s, r) => s + r, 0) / ratings.length : undefined
+        return { ...ev, avg_rating: avg, review_count: ratings.length }
+      })
       setEvents(withRatings as EventWithRating[])
       setLoading(false)
     })

@@ -309,7 +309,7 @@ export function NavbarFull() {
                     />
                     {searchLoading
                       ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
-                      : <button type="button" onClick={closeSearch}><X size={12} className={dark ? 'text-white/30 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'} /></button>
+                      : <button type="button" onClick={closeSearch} aria-label="Fermer la recherche"><X size={12} className={dark ? 'text-white/30 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'} /></button>
                     }
                   </motion.form>
                 ) : (
@@ -553,7 +553,7 @@ export function NavbarFull() {
                   placeholder="Rechercher événements, créateurs…"
                   className="flex-1 bg-transparent text-[14px] text-white placeholder:text-white/30 outline-none"
                 />
-                {searchValue && <button type="button" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}><X size={13} className="text-white/30" /></button>}
+                {searchValue && <button type="button" aria-label="Effacer la recherche" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}><X size={13} className="text-white/30" /></button>}
               </motion.form>
 
               {/* Nav links */}

@@ -21,11 +21,17 @@ export async function POST(req: NextRequest) {
     if (validErr) return validErr
     const { priceId, mode, userId, successUrl, cancelUrl } = parsed
 
+    // Verify the authenticated user matches the userId in the request
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
+
+    const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+    if (!authUser || authUser.id !== userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     // Récupérer ou créer le customer Stripe pour cet utilisateur
     const { data: profile } = await admin.from('profiles').select('stripe_customer_id, full_name').eq('id', userId).single()

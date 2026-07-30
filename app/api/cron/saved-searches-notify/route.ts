@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       // Get user email
       try {
         const { data: { user: authUser } } = await admin.auth.admin.getUserById(userId)
-        if (!authUser?.email || !process.env.SMTP_PASS) continue
+        if (!authUser?.email) continue
 
         const eventLines = matches.flatMap(({ search, events }) =>
           events.map((ev: any) =>

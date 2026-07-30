@@ -34,13 +34,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   try {
     const supabase = getAdminClient()
-    const { data, error } = await supabase
+    const rawLimit = parseInt(req.nextUrl.searchParams.get('limit') ?? '50', 10)
+    const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 50 : rawLimit), 200)
+    const rawOffset = parseInt(req.nextUrl.searchParams.get('offset') ?? '0', 10)
+    const offset = Math.max(0, isNaN(rawOffset) ? 0 : rawOffset)
+    const { data, error, count } = await supabase
       .from('event_volunteers')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('event_id', params.id)
       .eq('status', 'active')
+      .range(offset, offset + limit - 1)
     if (error) throw error
-    return NextResponse.json(data || [])
+    return NextResponse.json({ data: data || [], total: count ?? 0, limit, offset })
   } catch (error: unknown) {
     console.error('❌ Volunteers GET error:', { event_id: params.id, error: (error as Error)?.message })
     return NextResponse.json({ error: 'Erreur chargement bénévoles' }, { status: 500 })
