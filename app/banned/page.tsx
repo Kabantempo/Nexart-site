@@ -1,4 +1,17 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Compte suspendu — Nexart',
+  description: 'Votre compte a été suspendu. Contactez le support Nexart.',
+  alternates: { canonical: 'https://nexart.fr/banned' },
+  openGraph: {
+    title: 'Compte suspendu — Nexart',
+    description: 'Votre compte a été suspendu. Contactez le support Nexart.',
+    url: 'https://nexart.fr/banned',
+    type: 'website',
+  },
+}
 
 export default function BannedPage() {
   return (

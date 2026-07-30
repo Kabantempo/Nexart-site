@@ -49,9 +49,7 @@ const nextConfig = {
     ],
     minimumCacheTTL: 31536000,
   },
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
-  staticPageGenerationTimeout: 120,
+staticPageGenerationTimeout: 120,
 }
 
 module.exports = nextConfig
