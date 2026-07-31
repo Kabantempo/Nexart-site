@@ -492,7 +492,9 @@ footer {
 [data-theme="light"] [style*="background-color: rgb(15, 15, 15)"],
 [data-theme="light"] [style*="background-color: rgb(26, 26, 26)"],
 [data-theme="light"] [style*="background-color: rgb(17, 17, 17)"],
-[data-theme="light"] [style*="background-color: rgb(10, 10, 10)"] {
+[data-theme="light"] [style*="background-color: rgb(10, 10, 10)"],
+[data-theme="light"] [style*="background-color: rgb(6, 6, 15)"],
+[data-theme="light"] [style*="background-color: rgb(15, 12, 41)"] {
   background-color: var(--bg-secondary) !important;
 }
 
