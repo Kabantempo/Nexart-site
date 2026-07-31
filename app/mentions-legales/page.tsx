@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     description: 'Informations légales de Nexart SAS',
     url: 'https://nexart.fr/mentions-legales',
     type: 'website',
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Mentions légales' }],
   },
 }
 

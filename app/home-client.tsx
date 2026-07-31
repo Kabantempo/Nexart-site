@@ -340,6 +340,105 @@ function FacesSection() {
   )
 }
 
+// ── Email Capture ──────────────────────────────────────────────────────
+function EmailCaptureSection() {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(false)
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error('error')
+      setSuccess(true)
+      setEmail('')
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <FadeUp>
+      <div
+        style={{
+          background: 'rgba(99,102,241,0.05)',
+          borderRadius: '12px',
+          padding: '24px',
+          border: '1px solid rgba(99,102,241,0.15)',
+          maxWidth: '480px',
+          margin: '0 auto 0',
+        }}
+      >
+        <p style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Application mobile
+        </p>
+        <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.75)', marginBottom: '16px', lineHeight: 1.5 }}>
+          Soyez prévenu dès que l'app est disponible sur iOS et Android.
+        </p>
+        {success ? (
+          <p style={{ color: '#4CAF50', fontWeight: 600, fontSize: '14px' }}>
+            Super ! On vous préviendra dès le lancement.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <input
+              type="email"
+              required
+              placeholder="votre@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                flex: 1,
+                minWidth: '200px',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.12)',
+                background: 'rgba(255,255,255,0.06)',
+                color: '#fff',
+                fontSize: '14px',
+                outline: 'none',
+              }}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '8px',
+                background: '#6366F1',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '14px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {loading ? '...' : 'Être notifié'}
+            </button>
+          </form>
+        )}
+        {error && (
+          <p style={{ color: '#E05A5A', fontSize: '13px', marginTop: '8px' }}>
+            Une erreur est survenue.
+          </p>
+        )}
+      </div>
+    </FadeUp>
+  )
+}
+
 // ── Page ───────────────────────────────────────────────────────────────
 export default function HomeClient() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -564,6 +663,11 @@ export default function HomeClient() {
               <p className="text-white/35 text-base leading-relaxed mb-10 max-w-md mx-auto lg:mx-0">
                 Candidatez, suivez vos marchés et échangez avec les organisateurs — où que vous soyez.
               </p>
+
+              {/* Email capture */}
+              <div style={{ marginBottom: '32px' }}>
+                <EmailCaptureSection />
+              </div>
 
               {/* Store buttons */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
