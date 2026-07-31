@@ -11,7 +11,8 @@ export default function MentionsLegalesClient() {
       items: [
         { label: 'Raison Sociale', value: 'Nexart SAS' },
         { label: 'Forme Juridique', value: 'Société par Actions Simplifiée (SAS)' },
-        { label: 'SIRET', value: 'En cours d\'immatriculation' },
+        { label: 'SIRET', value: '108 170 655 00014' },
+        { label: 'SIREN', value: '108 170 655' },
         { label: 'Code NAF', value: '63.12Z - Traitement données & hébergement' },
         { label: 'Siège Social', value: 'Marseille, France' },
         { label: 'Adresse Complète', value: 'Marseille, France' },
@@ -84,7 +85,7 @@ export default function MentionsLegalesClient() {
               Informations légales requises de la plateforme Nexart. Consulter pour entreprise, contact légal et hébergeur.
             </p>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '24px' }}>
-              Dernière mise à jour : 11 juillet 2026
+              Dernière mise à jour : 31 juillet 2026
             </p>
           </motion.div>
         </div>
