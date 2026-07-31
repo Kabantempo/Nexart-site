@@ -95,6 +95,7 @@ export function NavbarFull() {
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const searchRef         = useRef<HTMLInputElement>(null)
   const closeTimer        = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const navRef            = useRef<HTMLElement>(null)
   const dropdownItemsRef  = useRef<Map<string, HTMLAnchorElement[]>>(new Map())
   const triggerRefs       = useRef<Map<string, HTMLButtonElement>>(new Map())
 
@@ -140,6 +141,14 @@ export function NavbarFull() {
       if (res.ok) { const j = await res.json(); setCreditBalance(j.balance ?? 0) }
     })
   }, [user])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setDropdown(null)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   const go   = (ms = 500) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
   const stay = () => { if (closeTimer.current) clearTimeout(closeTimer.current) }
@@ -209,8 +218,6 @@ export function NavbarFull() {
     <AnimatePresence>
       {dropdown === id && (
         <div
-          onMouseEnter={stay}
-          onMouseLeave={() => go()}
           onKeyDown={(e) => handleDropdownKeyDown(e, id)}
           style={{ ...s.panel(align, width), pointerEvents: 'auto' }}
         >
@@ -233,8 +240,7 @@ export function NavbarFull() {
   const Trigger = ({ id, label, active }: { id: string; label: string; active: boolean }) => (
     <button
       ref={(el) => { if (el) triggerRefs.current.set(id, el) }}
-      onMouseEnter={() => { stay(); setDropdown(id) }}
-      onMouseLeave={() => go()}
+      onMouseEnter={() => setDropdown(id)}
       onClick={() => setDropdown(d => d === id ? null : id)}
       onKeyDown={(e) => {
         if (e.key === 'ArrowDown') {
@@ -335,13 +341,17 @@ export function NavbarFull() {
             </Link>
 
             {/* Desktop nav */}
-            <nav style={{ display: 'none', alignItems: 'center', gap: 0, flex: 1 }} className="lg-flex">
+            <nav
+              ref={navRef}
+              style={{ display: 'none', alignItems: 'center', gap: 0, flex: 1 }}
+              className="lg-flex"
+              onMouseLeave={(e) => {
+                if (!navRef.current?.contains(e.relatedTarget as Node)) setDropdown(null)
+              }}
+            >
 
               {/* Découvrir */}
-              <div style={{ position: 'relative' }}
-                onMouseEnter={() => { stay(); setDropdown('discover') }}
-                onMouseLeave={() => go()}
-              >
+              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('discover')}>
                 <Trigger id="discover" label="Découvrir" active={isActive('/events') || isActive('/creators') || isActive('/carte')} />
                 <Panel id="discover" width={320}>
                   <RichItem panelId="discover" idx={0} href="/events"      icon={Ticket}   label="Événements artisanaux" desc="Marchés, pop-ups, salons, festivals" />
@@ -353,10 +363,7 @@ export function NavbarFull() {
               </div>
 
               {/* Communauté */}
-              <div style={{ position: 'relative' }}
-                onMouseEnter={() => { stay(); setDropdown('community') }}
-                onMouseLeave={() => go()}
-              >
+              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('community')}>
                 <Trigger id="community" label="Communauté" active={isActive('/feed') || isActive('/tendances') || isActive('/favorites')} />
                 <Panel id="community" width={240}>
                   <SimpleItem panelId="community" idx={0} href="/feed"      icon={Users}      label="Fil d'actualité" />
@@ -367,10 +374,7 @@ export function NavbarFull() {
               </div>
 
               {/* Organisateurs */}
-              <div style={{ position: 'relative' }}
-                onMouseEnter={() => { stay(); setDropdown('organizer') }}
-                onMouseLeave={() => go()}
-              >
+              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('organizer')}>
                 <Trigger id="organizer" label="Organisateurs" active={isActive('/events/create') || isActive('/offres') || isActive('/organizer')} />
                 <Panel id="organizer" width={280}>
                   <RichItem panelId="organizer" idx={0} href="/events/create"      icon={Plus}      label="Créer un événement"    desc="Publiez votre marché ou salon" />
@@ -380,10 +384,7 @@ export function NavbarFull() {
               </div>
 
               {/* Nexart */}
-              <div style={{ position: 'relative' }}
-                onMouseEnter={() => { stay(); setDropdown('about') }}
-                onMouseLeave={() => go()}
-              >
+              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('about')}>
                 <Trigger id="about" label="Nexart" active={isActive('/about') || isActive('/carnet-de-route') || isActive('/patch-notes')} />
                 <Panel id="about" width={220}>
                   <SimpleItem panelId="about" idx={0} href="/about"           icon={Users}    label="À propos" />
