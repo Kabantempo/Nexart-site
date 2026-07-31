@@ -78,7 +78,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
       {/* En-tête créateur */}
-      <div style={{ backgroundColor: 'var(--text-primary)', padding: '40px 24px 32px' }}>
+      <div style={{ backgroundColor: '#111827', padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <Link href={`/creators/${creatorId}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', textDecoration: 'none', marginBottom: '20px' }}>
             <ArrowLeft size={12} /> Profil créateur
@@ -228,7 +228,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <Link href={`/creators/${creatorId}`}
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: 'var(--text-primary)', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: '#111827', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
                   <ExternalLink size={13} /> Contacter le créateur
                 </Link>
                 <button onClick={() => setSelectedProduct(null)}

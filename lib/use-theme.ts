@@ -5,12 +5,11 @@ import { useEffect, useState } from 'react'
 type Theme = 'light' | 'dark'
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>('dark')
 
   useEffect(() => {
     const stored = localStorage.getItem('nexart-theme') as Theme | null
-    const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    const initial = stored || preferred
+    const initial: Theme = stored ?? 'dark'
     setTheme(initial)
     document.documentElement.setAttribute('data-theme', initial)
   }, [])

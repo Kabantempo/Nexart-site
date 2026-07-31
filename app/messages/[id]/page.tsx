@@ -126,9 +126,9 @@ function AttachmentPreview({ url, type, name, isMine }: { url: string; type: str
       style={{
         display: 'flex', alignItems: 'center', gap: '10px',
         padding: '10px 14px', borderRadius: '12px', marginBottom: '6px',
-        backgroundColor: isMine ? 'rgba(255,255,255,0.15)' : 'var(--border-color)',
+        backgroundColor: isMine ? 'rgba(99,102,241,0.15)' : 'var(--border-color)',
         textDecoration: 'none',
-        color: isMine ? '#FFF' : '#374151',
+        color: isMine ? 'var(--text-primary)' : '#374151',
       }}
     >
       <FileText size={20} style={{ flexShrink: 0 }} />

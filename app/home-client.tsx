@@ -379,10 +379,10 @@ function EmailCaptureSection() {
           margin: '0 auto 0',
         }}
       >
-        <p style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Application mobile
         </p>
-        <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.75)', marginBottom: '16px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '15px', color: 'var(--text-primary)', marginBottom: '16px', lineHeight: 1.5 }}>
           Soyez prévenu dès que l'app est disponible sur iOS et Android.
         </p>
         {success ? (
