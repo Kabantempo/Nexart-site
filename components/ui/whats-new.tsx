@@ -46,6 +46,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false)
   const [supported, setSupported] = useState(true)
   const [hasUnseen, setHasUnseen] = useState(false)
+  const [seenChecked, setSeenChecked] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const latestVersion = versions[0]?.version
@@ -75,6 +76,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
     if (!latestVersion) return
     const seen = typeof window !== 'undefined' ? window.localStorage.getItem(SEEN_KEY) : null
     setHasUnseen(seen !== latestVersion)
+    setSeenChecked(true)
   }, [latestVersion])
 
   // Close on outside click
@@ -96,6 +98,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
   }
 
   if (!supported || versions.length === 0) return null
+  if (seenChecked && !hasUnseen) return null
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
