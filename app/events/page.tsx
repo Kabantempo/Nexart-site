@@ -12,6 +12,12 @@ export const metadata: Metadata = {
     type: 'website',
     images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Événements artisanaux' }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Événements artisanaux — Marchés, pop-ups, salons',
+    description: 'Explorez tous les marchés artisanaux, pop-ups, salons et festivals en France.',
+    images: ['https://nexart.fr/og-image.png'],
+  },
 }
 
 export default function EventsPage() {

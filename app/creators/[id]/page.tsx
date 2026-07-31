@@ -20,15 +20,28 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     const { data: creator } = await supabase.from('profiles').select('*').eq('id', params.id).single()
     if (!creator) return { title: 'Créateur non trouvé' }
 
+    const title = creator.full_name
+    const description = creator.bio?.substring(0, 160) || 'Découvrez ce créateur sur Nexart'
+    const ogImages = creator.avatar_url
+      ? [{ url: creator.avatar_url, width: 500, height: 500, alt: `${title} — Artisan créateur sur Nexart` }]
+      : [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: `${title} — Artisan créateur sur Nexart` }]
+
     return {
-      title: `${creator.full_name}`,
-      description: creator.bio?.substring(0, 160) || 'Découvrez ce créateur sur Nexart',
+      title,
+      description,
+      alternates: { canonical: `https://nexart.fr/creators/${params.id}` },
       openGraph: {
-        title: creator.full_name,
-        description: creator.bio?.substring(0, 160),
+        title,
+        description,
         type: 'profile',
         url: `https://nexart.fr/creators/${params.id}`,
-        images: creator.avatar_url ? [{ url: creator.avatar_url, width: 500, height: 500 }] : [],
+        images: ogImages,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImages[0].url],
       },
     }
   } catch {
@@ -39,7 +52,6 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
 export default async function CreatorPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
 
-  // Fetch creator data for JSON-LD
   let creator = null
   try {
     const { data } = await supabase.from('profiles').select('*').eq('id', params.id).single()
@@ -48,7 +60,7 @@ export default async function CreatorPage(props: { params: Promise<{ id: string 
     console.error('Error fetching creator:', error)
   }
 
-  const jsonLd = creator ? {
+  const creatorJsonLd = creator ? {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: creator.full_name,
@@ -58,15 +70,30 @@ export default async function CreatorPage(props: { params: Promise<{ id: string 
     jobTitle: 'Artisan créateur',
   } : null
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://nexart.fr' },
+      { '@type': 'ListItem', position: 2, name: 'Créateurs', item: 'https://nexart.fr/creators' },
+      ...(creator ? [{ '@type': 'ListItem', position: 3, name: creator.full_name, item: `https://nexart.fr/creators/${creator.id}` }] : []),
+    ],
+  }
+
   return (
     <>
-      {jsonLd && (
+      {creatorJsonLd && (
         <Script
           id="creator-schema"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(creatorJsonLd) }}
         />
       )}
+      <Script
+        id="breadcrumb-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <CreatorProfileClient id={params.id} />
     </>
   )
