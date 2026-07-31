@@ -51,15 +51,11 @@ export default function CreatorAnalyticsClient() {
       const data = await response.json()
       setStats(data)
     } catch (err: any) {
-<<<<<<< HEAD
       if (err.name === 'AbortError') {
         setError('Le chargement a pris trop de temps. Réessayez.')
       } else {
         setError(err.message || 'Erreur inconnue')
       }
-=======
-      setError(err.message || 'Erreur inconnue')
->>>>>>> cdc0a40 (fix(analytics): corrige page blanche et spinner infini dashboard créateur)
     } finally {
       setLoading(false)
     }
