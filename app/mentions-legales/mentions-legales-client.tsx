@@ -61,6 +61,16 @@ export default function MentionsLegalesClient() {
       ],
     },
     {
+      title: 'Service Emails Transactionnels',
+      icon: Mail,
+      items: [
+        { label: 'Nom', value: 'Resend (Plus Five Five, Inc.)' },
+        { label: 'Localisation', value: 'États-Unis (EU SCCs applicables)' },
+        { label: 'Site Web', value: 'https://resend.com' },
+        { label: 'DPA Signé', value: '31 juillet 2026' },
+      ],
+    },
+    {
       title: 'Contact Support',
       icon: Mail,
       items: [
