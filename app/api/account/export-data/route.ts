@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,6 +50,19 @@ export async function GET(req: NextRequest) {
       rights_notice:
         'Cet export contient toutes vos données personnelles stockées sur Nexart. Droits RGPD Articles 15-21 appliqués.',
     }
+
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId,
+      action: 'EXPORT',
+      resourceType: 'profiles',
+      resourceId: userId,
+      description: 'Export RGPD — téléchargement de toutes les données personnelles',
+      accessedSensitiveData: true,
+      sensitiveFields: ['email', 'full_name', 'bio', 'messages', 'applications'],
+      ipAddress: ip,
+      userAgent,
+    })
 
     // Retourner le JSON comme téléchargement
     return new NextResponse(JSON.stringify(exportData, null, 2), {

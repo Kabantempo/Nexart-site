@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +28,19 @@ export async function POST(req: NextRequest) {
     const admin = getAdminClient()
     const { error } = await admin.from('profiles').update({ [field]: value } as any).eq('id', userId)
     if (error) throw error
+
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId: user.id,
+      action: 'UPDATE',
+      resourceType: 'profiles',
+      resourceId: userId,
+      description: `Admin — modification rôle ${field} → ${value} pour l'utilisateur ${userId}`,
+      changes: { [field]: { new: value } },
+      ipAddress: ip,
+      userAgent,
+    })
+
     return NextResponse.json({ ok: true })
   } catch (error: unknown) {
     console.error('❌ Set-role error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })

@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 const VALID_TIERS = ['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']
 
@@ -22,7 +23,6 @@ export async function POST(req: NextRequest) {
       .eq('id', user_id)
 
     if (error) {
-      // Colonne pas encore créée → migration Stripe pas encore exécutée
       if (error.code === '42703' || (error instanceof Error ? error.message : String(error))?.includes('subscription_tier')) {
         return NextResponse.json({
           error: 'Colonne subscription_tier manquante. Exécutez la migration stripe_skeleton.sql dans Supabase SQL Editor.',
@@ -31,6 +31,18 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
     }
+
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId: check.userId,
+      action: 'UPDATE',
+      resourceType: 'profiles',
+      resourceId: user_id,
+      description: `Admin — modification subscription_tier → ${tier} pour l'utilisateur ${user_id}`,
+      changes: { subscription_tier: { new: tier } },
+      ipAddress: ip,
+      userAgent,
+    })
 
     return NextResponse.json({ success: true, tier })
   } catch (err) {
