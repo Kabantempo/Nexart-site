@@ -7,8 +7,23 @@
   --font-geist-mono: 'JetBrains Mono', monospace;
 }
 
-/* ── Dark mode CSS variables ── */
+/* ── CSS variables — dark par défaut ── */
 :root {
+  --bg-primary: #0F0F0F;
+  --bg-secondary: #1A1A1A;
+  --bg-tertiary: #111111;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --border-color: #2D2D2D;
+  --accent: #818CF8;
+  --accent-red: #FF8585;
+  --card-bg: #1A1A1A;
+  --navbar-bg: rgba(15, 15, 15, 0.95);
+  --input-bg: #1A1A1A;
+}
+
+[data-theme="light"] {
   --bg-primary: #FFFFFF;
   --bg-secondary: #F9FAFB;
   --bg-tertiary: #F4F4F8;
@@ -301,6 +316,48 @@ p, li, h1, h2, h3, h4, h5, h6 {
   z-index: 1;
 }
 
+/* ── Theme — body overrides ── */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ── Light mode — Tailwind class overrides ── */
+[data-theme="light"] :not(footer) .text-gray-900,
+[data-theme="light"] :not(footer) .text-gray-800,
+[data-theme="light"] :not(footer) .text-gray-700 { color: #1A1A1A !important; }
+
+[data-theme="light"] :not(footer) .text-gray-500,
+[data-theme="light"] :not(footer) .text-gray-400,
+[data-theme="light"] :not(footer) .text-gray-600 { color: #6B7280 !important; }
+
+[data-theme="light"] :not(footer) .bg-white { background-color: #FFFFFF !important; }
+[data-theme="light"] :not(footer) .bg-white\/95 { background-color: rgba(255,255,255,0.95) !important; }
+[data-theme="light"] :not(footer) .bg-gray-50,
+[data-theme="light"] :not(footer) .bg-gray-100 { background-color: #F9FAFB !important; }
+
+[data-theme="light"] :not(footer) .border-gray-100,
+[data-theme="light"] :not(footer) .border-gray-200,
+[data-theme="light"] :not(footer) .border-gray-300 { border-color: #E5E7EB !important; }
+
+[data-theme="light"] :not(footer) input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] :not(footer) select,
+[data-theme="light"] :not(footer) textarea {
+  background-color: #FFFFFF !important;
+  color: #1A1A1A !important;
+  border-color: #E5E7EB !important;
+}
+
+[data-theme="light"] [style*="background-color: rgb(15, 15, 15)"],
+[data-theme="light"] [style*="background-color: rgb(26, 26, 26)"] {
+  background-color: #FFFFFF !important;
+}
+
+[data-theme="light"] [style*="color: rgb(249, 250, 251)"],
+[data-theme="light"] [style*="color: rgb(156, 163, 175)"] {
+  color: #1A1A1A !important;
+}
+
 /* ── Dark mode — Tailwind class overrides ── */
 [data-theme="dark"] body {
   background-color: var(--bg-primary);
@@ -329,6 +386,10 @@ p, li, h1, h2, h3, h4, h5, h6 {
 
 /* Navbar scrolled — theme-aware pill */
 .nexart-navbar-scrolled {
+  background-color: rgba(26, 26, 26, 0.95);
+  border: 1px solid rgba(45, 45, 45, 0.8);
+}
+[data-theme="light"] .nexart-navbar-scrolled {
   background-color: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(229, 231, 235, 0.8);
 }
@@ -374,9 +435,13 @@ footer {
   100% { background-position: 200% 0; }
 }
 .animate-shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e8 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+[data-theme="light"] .animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
 }
 
 /* ── Aggressive dark mode inline style overrides ── */
