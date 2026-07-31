@@ -67,14 +67,14 @@ export function CookieBanner() {
         left: 0,
         right: 0,
         zIndex: 9999,
-        backgroundColor: '#1A1A1A',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
+        backgroundColor: 'var(--card-bg)',
+        borderTop: '1px solid var(--border-color)',
       }}
     >
       {/* Main banner */}
       {!customizing ? (
         <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between' }}>
-          <p style={{ color: '#D1D5DB', fontSize: '14px', lineHeight: '1.5', margin: 0, flex: '1 1 300px', maxWidth: 640 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.5', margin: 0, flex: '1 1 300px', maxWidth: 640 }}>
             Nexart utilise des cookies essentiels pour le fonctionnement du site et des cookies analytiques pour améliorer votre expérience.{' '}
             <Link href="/confidentialite" style={{ color: '#818CF8', textDecoration: 'underline' }}>
               En savoir plus
@@ -83,7 +83,7 @@ export function CookieBanner() {
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', flexShrink: 0 }}>
             <button
               onClick={() => setCustomizing(true)}
-              style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'transparent', color: '#9CA3AF', fontSize: '13px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '500', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <Settings2 size={14} /> Personnaliser
             </button>

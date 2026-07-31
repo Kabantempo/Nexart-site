@@ -472,3 +472,59 @@ footer {
   border-color: var(--border-color);
 }
 
+/* ── Aggressive light mode inline style overrides ── */
+/* Covers dashboard/admin pages built with dark-first inline styles */
+
+/* White rgba text → dark text */
+[data-theme="light"] [style*="color: rgba(255, 255, 255"] {
+  color: var(--text-secondary) !important;
+}
+
+/* White rgba backgrounds → near-transparent light bg */
+[data-theme="light"] [style*="background-color: rgba(255, 255, 255, 0.0"],
+[data-theme="light"] [style*="background-color: rgba(255, 255, 255, 0.1"],
+[data-theme="light"] [style*="background-color: rgba(255, 255, 255, 0.2"] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Hardcoded dark backgrounds → light */
+[data-theme="light"] [style*="background-color: rgb(15, 15, 26)"],
+[data-theme="light"] [style*="background-color: rgb(15, 15, 15)"],
+[data-theme="light"] [style*="background-color: rgb(26, 26, 26)"],
+[data-theme="light"] [style*="background-color: rgb(17, 17, 17)"],
+[data-theme="light"] [style*="background-color: rgb(10, 10, 10)"] {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* White rgba borders → light border */
+[data-theme="light"] [style*="border: 1px solid rgba(255, 255, 255"] {
+  border-color: var(--border-color) !important;
+}
+[data-theme="light"] [style*="border-bottom: 1px solid rgba(255, 255, 255"] {
+  border-bottom-color: var(--border-color) !important;
+}
+
+/* Inputs in dark-built pages */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+[data-theme="light"] option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Cookie banner — always uses CSS vars */
+.cookie-banner-wrapper {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+

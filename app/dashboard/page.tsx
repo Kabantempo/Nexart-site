@@ -299,12 +299,12 @@ export default function DashboardPage() {
           .kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
         input, textarea, select {
-          color: #f0f0f0 !important;
-          background-color: #0f0f1a !important;
-          border-color: rgba(255,255,255,0.1) !important;
+          color: var(--text-primary) !important;
+          background-color: var(--bg-secondary) !important;
+          border-color: var(--border-color) !important;
         }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3) !important; }
-        option { background-color: #0f0f1a; color: #f0f0f0; }
+        input::placeholder, textarea::placeholder { color: var(--text-tertiary) !important; }
+        option { background-color: var(--bg-secondary); color: var(--text-primary); }
       `}</style>
 
       {/* Payment banners */}
