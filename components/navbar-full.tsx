@@ -16,7 +16,7 @@ import { PushNotificationButton } from '@/components/push-notifications'
 // ── Styles helpers ──────────────────────────────────────────────────────────
 
 const s = {
-  navLink: (active: boolean, dark: boolean): React.CSSProperties => ({
+  navLink: (active: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
@@ -29,23 +29,26 @@ const s = {
     border: 'none',
     transition: 'color 0.15s',
     userSelect: 'none',
-    color: active
-      ? (dark ? '#fff' : '#111827')
-      : (dark ? 'rgba(255,255,255,0.72)' : '#4B5563'),
+    color: active ? '#111827' : '#4B5563',
     textDecoration: 'none',
   }),
   panel: (align: 'left' | 'right' | 'center', width: number): React.CSSProperties => ({
     position: 'absolute',
-    top: 'calc(100% + 10px)',
+    // paddingTop crée un pont transparent entre le trigger et le panel
+    // pour que la souris ne quitte pas le sous-arbre React lors du survol
+    top: '100%',
+    paddingTop: '10px',
     width: `${width}px`,
+    zIndex: 50,
+    ...(align === 'right' ? { right: 0 } : align === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { left: 0 }),
+  }),
+  panelInner: (): React.CSSProperties => ({
     backgroundColor: '#fff',
     border: '1px solid #F3F4F6',
     borderRadius: '18px',
     boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
     padding: '6px',
-    zIndex: 50,
     transformOrigin: 'top',
-    ...(align === 'right' ? { right: 0 } : align === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { left: 0 }),
   }),
   panelItem: (active: boolean): React.CSSProperties => ({
     display: 'flex',
@@ -100,8 +103,6 @@ export function NavbarFull() {
   const router   = useRouter()
   const pathname = usePathname()
   const firstName = user?.full_name?.split(' ')[0] ?? null
-  const isHero   = pathname === '/'
-  const dark     = isHero && !scrolled
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 24)
@@ -202,22 +203,28 @@ export function NavbarFull() {
   }
 
   // ── Panel ─────────────────────────────────────────────────────────────────
+  // Le wrapper transparent (paddingTop) crée un pont entre trigger et panel
+  // pour que onMouseLeave du parent ne fire pas dans le gap de 10px.
   const Panel = ({ id, children, align = 'left', width = 220 }: { id: string; children: React.ReactNode; align?: 'left' | 'right' | 'center'; width?: number }) => (
     <AnimatePresence>
       {dropdown === id && (
-        <motion.div
-          role="menu"
-          initial={{ opacity: 0, y: 6, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 4, scale: 0.98 }}
-          transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+        <div
           onMouseEnter={stay}
           onMouseLeave={() => go()}
           onKeyDown={(e) => handleDropdownKeyDown(e, id)}
           style={s.panel(align, width)}
         >
-          {children}
-        </motion.div>
+          <motion.div
+            role="menu"
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+            style={s.panelInner()}
+          >
+            {children}
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   )
@@ -239,7 +246,7 @@ export function NavbarFull() {
       }}
       aria-haspopup="menu"
       aria-expanded={dropdown === id}
-      style={s.navLink(active, dark)}
+      style={s.navLink(active)}
     >
       {label}
       <ChevronDown size={12} style={{ opacity: 0.45, transition: 'transform 0.2s', transform: dropdown === id ? 'rotate(180deg)' : 'rotate(0deg)' }} />
@@ -289,7 +296,7 @@ export function NavbarFull() {
   const iconBtn: React.CSSProperties = {
     width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: '10px', background: 'none', border: 'none', cursor: 'pointer',
-    color: dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF', transition: 'color 0.15s, background 0.15s',
+    color: '#9CA3AF', transition: 'color 0.15s, background 0.15s',
   }
 
   return (
@@ -322,7 +329,7 @@ export function NavbarFull() {
             {/* Logo */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
               <Image src="/logo-mark.png" alt="Nexart" width={26} height={26} style={{ borderRadius: '8px' }} priority />
-              <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '-0.02em', color: dark ? '#fff' : '#111827', transition: 'color 0.3s' }}>
+              <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '-0.02em', color: '#111827' }}>
                 Nexart
               </span>
             </Link>
@@ -398,18 +405,18 @@ export function NavbarFull() {
                       initial={{ width: 32, opacity: 0 }} animate={{ width: 260, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
                       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                       onSubmit={submitSearch}
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', borderRadius: '10px', border: `1px solid ${dark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`, backgroundColor: dark ? 'rgba(255,255,255,0.08)' : '#F9FAFB', overflow: 'hidden' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', overflow: 'hidden' }}
                     >
-                      <Search size={12} color={dark ? 'rgba(255,255,255,0.4)' : '#9CA3AF'} style={{ flexShrink: 0 }} />
+                      <Search size={12} color="#9CA3AF" style={{ flexShrink: 0 }} />
                       <input ref={searchRef} value={searchValue}
                         onChange={e => handleSearchChange(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
                         placeholder="Rechercher…"
-                        style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: dark ? '#fff' : '#111827', minWidth: 0 }}
+                        style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: '#111827', minWidth: 0 }}
                       />
                       {searchLoading
                         ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
-                        : <button type="button" onClick={closeSearch} aria-label="Fermer" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: dark ? 'rgba(255,255,255,0.3)' : '#9CA3AF' }}><X size={12} /></button>
+                        : <button type="button" onClick={closeSearch} aria-label="Fermer" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#9CA3AF' }}><X size={12} /></button>
                       }
                     </motion.form>
                   ) : (
@@ -417,8 +424,8 @@ export function NavbarFull() {
                       onClick={openSearch}
                       aria-label="Ouvrir la recherche"
                       style={{ ...iconBtn }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = dark ? '#fff' : '#374151' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
                     >
                       <Search size={15} />
                     </motion.button>
@@ -490,22 +497,22 @@ export function NavbarFull() {
                 </AnimatePresence>
               </div>
 
-              <WhatsNew dark={dark} />
+              <WhatsNew dark={false} />
               <ThemeToggle />
 
               {user ? (
                 <>
-                  <NotificationBell userId={user.id} dark={dark} />
+                  <NotificationBell userId={user.id} dark={false} />
                   <PushNotificationButton />
                   <Link href="/favorites" title="Mes favoris" style={iconBtn}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = dark ? '#fff' : '#374151' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
                   >
                     <Heart size={16} />
                   </Link>
                   <Link href="/messages" style={iconBtn}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = dark ? '#fff' : '#374151' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
                   >
                     <MessageCircle size={16} />
                   </Link>
@@ -537,8 +544,8 @@ export function NavbarFull() {
                       }}
                       aria-haspopup="menu"
                       aria-expanded={dropdown === 'profile'}
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '12px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s', ...(dark ? {} : {}) }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '12px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                     >
                       <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -547,7 +554,7 @@ export function NavbarFull() {
                           : <span style={{ fontSize: '9px', fontWeight: 900, color: '#fff' }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
                         }
                       </div>
-                      <span style={{ fontSize: '13px', fontWeight: 500, color: dark ? 'rgba(255,255,255,0.7)' : '#4B5563' }}>{firstName ?? 'Moi'}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: '#4B5563' }}>{firstName ?? 'Moi'}</span>
                       <ChevronDown size={11} style={{ opacity: 0.4, transition: 'transform 0.2s', transform: dropdown === 'profile' ? 'rotate(180deg)' : 'rotate(0)' }} />
                     </button>
 
@@ -594,14 +601,14 @@ export function NavbarFull() {
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
                   <Link href="/login"
-                    style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: dark ? '#fff' : '#4B5563', textDecoration: 'none', borderRadius: '10px', transition: 'all 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6' }}
+                    style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: '#4B5563', textDecoration: 'none', borderRadius: '10px', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                   >
                     Connexion
                   </Link>
                   <Link href="/register"
-                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: dark ? '#fff' : '#111827', color: dark ? '#111827' : '#fff' }}
+                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: '#111827', color: '#fff' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
                   >
@@ -615,17 +622,17 @@ export function NavbarFull() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Menu"
-              style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center', alignItems: 'center', width: '36px', height: '36px', borderRadius: '10px', background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer' }}
+              style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center', alignItems: 'center', width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer' }}
               className="lg-hidden"
             >
               <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
-                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: dark ? '#fff' : '#1F2937' }}
+                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: '#1F2937' }}
               />
               <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }}
-                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: dark ? '#fff' : '#1F2937' }}
+                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: '#1F2937' }}
               />
               <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
-                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: dark ? '#fff' : '#1F2937' }}
+                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: '#1F2937' }}
               />
             </button>
           </div>
