@@ -212,7 +212,7 @@ export function NavbarFull() {
           onMouseEnter={stay}
           onMouseLeave={() => go()}
           onKeyDown={(e) => handleDropdownKeyDown(e, id)}
-          style={s.panel(align, width)}
+          style={{ ...s.panel(align, width), pointerEvents: 'auto' }}
         >
           <motion.div
             role="menu"
