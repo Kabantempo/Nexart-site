@@ -97,6 +97,7 @@ export default function DashboardPage() {
   const [profileViewDays, setProfileViewDays] = useState<{ date: string; count: number }[]>([])
   const [missingStepKeys, setMissingStepKeys] = useState<string[]>([])
   const [subscriptionTier, setSubscriptionTier] = useState('free')
+  const [selectedEventId, setSelectedEventId] = useState<string>('')
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null)
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null)
   const [paymentBanner, setPaymentBanner] = useState<'success' | 'cancelled' | null>(null)
@@ -455,6 +456,8 @@ export default function DashboardPage() {
                 setPendingApps={setPendingApps}
                 lateApps={lateApps}
                 userId={user.id}
+                selectedEventId={selectedEventId}
+                setSelectedEventId={setSelectedEventId}
               />
             ) : (
               <VisitorContent />
@@ -468,7 +471,7 @@ export default function DashboardPage() {
             ) : hasCreator && (dashTab === 'creator' || !hasOrganizer) ? (
               <CreatorSidebar userId={user.id} nextEvent={nextAcceptedEvent} />
             ) : hasOrganizer && (dashTab === 'organizer' || !hasCreator) ? (
-              <OrganizerSidebar events={events} nextEvent={nextEvent} />
+              <OrganizerSidebar events={events} nextEvent={nextEvent} selectedEventId={selectedEventId} />
             ) : null}
           </div>
         </div>
@@ -777,12 +780,16 @@ function OrganizerMainContent({
   setPendingApps,
   lateApps,
   userId,
+  selectedEventId,
+  setSelectedEventId,
 }: {
   events: Event[]
   pendingApps: PendingApp[]
   setPendingApps: React.Dispatch<React.SetStateAction<PendingApp[]>>
   lateApps: PendingApp[]
   userId: string
+  selectedEventId: string
+  setSelectedEventId: React.Dispatch<React.SetStateAction<string>>
 }) {
   const [tab, setTab] = useState<'candidatures' | 'retard' | 'messages'>('candidatures')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -793,7 +800,6 @@ function OrganizerMainContent({
   const [reviewComment, setReviewComment] = useState('')
   const [reviewSubmitting, setReviewSubmitting] = useState(false)
   const [pendingReviews, setPendingReviews] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string; creatorAvatar: string | null }[]>([])
-  const [selectedEventId, setSelectedEventId] = useState<string>(events[0]?.id ?? '')
 
   // Marquer candidatures comme vues
   useEffect(() => {
@@ -802,12 +808,12 @@ function OrganizerMainContent({
     supabase.from('applications').update({ viewed_at: new Date().toISOString() } as any).in('id', unviewed).then(() => {})
   }, [pendingApps])
 
-  // Default selected event = prochain événement
+  // Default selected event = prochain événement (only when not yet set from parent)
   useEffect(() => {
-    if (!events.length) return
+    if (!events.length || selectedEventId) return
     const next = events.filter(e => e.start_date && new Date(e.start_date) > new Date()).sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())[0]
     setSelectedEventId(next?.id ?? events[0].id)
-  }, [events])
+  }, [events, selectedEventId, setSelectedEventId])
 
   // Pending reviews
   useEffect(() => {
@@ -1144,7 +1150,51 @@ function OrganizerMainContent({
 
 // ─── Organizer sidebar ────────────────────────────────────────────────────────
 
-function OrganizerSidebar({ events, nextEvent }: { events: Event[]; nextEvent?: Event }) {
+function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Event[]; nextEvent?: Event; selectedEventId: string }) {
+  const [bulkModal, setBulkModal] = useState(false)
+  const [bulkSubject, setBulkSubject] = useState('')
+  const [bulkMessage, setBulkMessage] = useState('')
+  const [bulkSending, setBulkSending] = useState(false)
+  const [bulkDone, setBulkDone] = useState(false)
+  const [checklist, setChecklist] = useState<{ title: string; description?: string; completed?: boolean }[]>([])
+
+  useEffect(() => {
+    if (!selectedEventId) return
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
+      const res = await fetch(`/api/events/${selectedEventId}/checklists`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) return
+      const json = await res.json()
+      setChecklist(json.checklist?.items ?? [])
+    })
+  }, [selectedEventId])
+
+  const handleBulkSend = async () => {
+    if (!selectedEventId || !bulkSubject.trim() || !bulkMessage.trim()) return
+    setBulkSending(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setBulkSending(false); return }
+    const { data: accepted } = await supabase
+      .from('applications')
+      .select('creator_id')
+      .eq('event_id', selectedEventId)
+      .eq('status', 'accepted')
+    const creatorIds = (accepted ?? []).map((a: any) => a.creator_id)
+    if (!creatorIds.length) { setBulkSending(false); return }
+    await fetch('/api/organizer/bulk-message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ event_id: selectedEventId, creator_ids: creatorIds, subject: bulkSubject, message: bulkMessage }),
+    })
+    setBulkSending(false)
+    setBulkDone(true)
+    setTimeout(() => { setBulkModal(false); setBulkDone(false); setBulkSubject(''); setBulkMessage('') }, 1500)
+  }
+
+  const pending = checklist.filter(i => !i.completed).slice(0, 4)
+
   const QUICK_ACTIONS = [
     { href: '/events/create',      icon: <Plus size={15} />,       label: 'Créer événement' },
     { href: '/organizer/analytics', icon: <BarChart2 size={15} />, label: 'Analytics' },
@@ -1163,7 +1213,34 @@ function OrganizerSidebar({ events, nextEvent }: { events: Event[]; nextEvent?: 
             </Link>
           ))}
         </div>
+        {selectedEventId && (
+          <button
+            onClick={() => setBulkModal(true)}
+            style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', backgroundColor: 'rgba(99,102,241,0.06)', color: '#6366F1', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+          >
+            <MessageSquare size={13} /> Message groupé
+          </button>
+        )}
       </SidebarCard>
+
+      {selectedEventId && pending.length > 0 && (
+        <SidebarCard title="Checklist">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {pending.map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <div style={{ width: '14px', height: '14px', borderRadius: '4px', border: '1.5px solid #D1D5DB', flexShrink: 0, marginTop: '1px' }} />
+                <div>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>{item.title}</p>
+                  {item.description && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{item.description}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+          <Link href={`/events/${selectedEventId}/settings/checklist`} style={{ display: 'inline-block', marginTop: '10px', fontSize: '11px', color: '#6366F1', fontWeight: 600, textDecoration: 'none' }}>
+            Tout voir →
+          </Link>
+        </SidebarCard>
+      )}
 
       {nextEvent && (
         <SidebarCard title="Prochain événement">
@@ -1177,6 +1254,51 @@ function OrganizerSidebar({ events, nextEvent }: { events: Event[]; nextEvent?: 
             <CountdownBadge date={nextEvent.start_date} />
           </Link>
         </SidebarCard>
+      )}
+
+      {/* Bulk message modal */}
+      {bulkModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={e => { if (e.target === e.currentTarget) setBulkModal(false) }}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1A1A1A' }}>Message groupé</h3>
+              <button onClick={() => setBulkModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: '20px', lineHeight: 1 }}>×</button>
+            </div>
+            {bulkDone ? (
+              <p style={{ textAlign: 'center', color: '#16A34A', fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
+            ) : (
+              <>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', display: 'block', marginBottom: '6px' }}>Sujet</label>
+                  <input
+                    value={bulkSubject}
+                    onChange={e => setBulkSubject(e.target.value)}
+                    placeholder="Ex : Informations importantes"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', display: 'block', marginBottom: '6px' }}>Message</label>
+                  <textarea
+                    value={bulkMessage}
+                    onChange={e => setBulkMessage(e.target.value)}
+                    rows={5}
+                    placeholder="Écrivez votre message à tous les créateurs acceptés…"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <button
+                  onClick={handleBulkSend}
+                  disabled={bulkSending || !bulkSubject.trim() || !bulkMessage.trim()}
+                  style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
+                >
+                  {bulkSending ? 'Envoi en cours…' : 'Envoyer à tous les créateurs acceptés'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
