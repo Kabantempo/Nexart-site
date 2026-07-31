@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 import { emailDeleteRequest } from '@/lib/email-templates'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -96,6 +97,19 @@ export async function POST(req: NextRequest) {
     if (!emailResponse.ok) {
       console.error('Email error:', await emailResponse.text())
     }
+
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId,
+      action: 'DELETE',
+      resourceType: 'profiles',
+      resourceId: userId,
+      description: 'Demande de suppression de compte (soft-delete)',
+      accessedSensitiveData: true,
+      sensitiveFields: ['email', 'full_name', 'avatar_url'],
+      ipAddress: ip,
+      userAgent,
+    })
 
     return NextResponse.json(
       {

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,13 +33,22 @@ export async function POST(req: NextRequest) {
 
     const admin = getAdminClient()
 
-    if (table === 'organizer_profiles') {
-      const { error } = await admin.from('organizer_profiles').update({ [field]: value } as any).eq('user_id', userId)
-      if (error) throw error
-    } else {
-      const { error } = await admin.from('creator_profiles').update({ [field]: value } as any).eq('user_id', userId)
-      if (error) throw error
-    }
+    const targetTable = table === 'organizer_profiles' ? 'organizer_profiles' : 'creator_profiles'
+    const { error } = await admin.from(targetTable as any).update({ [field]: value } as any).eq('user_id', userId)
+    if (error) throw error
+
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId: user.id,
+      action: 'UPDATE',
+      resourceType: targetTable,
+      resourceId: userId,
+      description: `Admin — vérification ${field} → ${value} sur ${targetTable} pour l'utilisateur ${userId}`,
+      changes: { [field]: { new: value } },
+      ipAddress: ip,
+      userAgent,
+    })
+
     return NextResponse.json({ ok: true })
   } catch (error: unknown) {
     console.error('❌ Verify-creator error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
