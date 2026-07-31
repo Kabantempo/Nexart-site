@@ -37,8 +37,9 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
 
   useEffect(() => {
     const load = async () => {
+      try {
       const [{ data: profile }, { data: cp }, { data: prods }] = await Promise.all([
-        supabase.from('profiles').select('full_name, avatar_url, bio').eq('id', creatorId).single(),
+        supabase.from('profiles').select('full_name, avatar_url, bio').eq('id', creatorId).maybeSingle(),
         supabase.from('creator_profiles').select('city').eq('user_id', creatorId).maybeSingle(),
         supabase.from('products').select('*').eq('creator_id', creatorId).eq('is_available', true).order('created_at', { ascending: false }),
       ])
@@ -55,7 +56,11 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
           setFeaturedEvents(map)
         }
       }
-      setLoading(false)
+      } catch (e) {
+        console.error('Boutique load error:', e)
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   // eslint-disable-next-line react-hooks/exhaustive-deps
