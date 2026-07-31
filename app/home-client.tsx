@@ -541,17 +541,6 @@ export default function HomeClient() {
       {/* ══ 3 FACES ════════════════════════════════════════════════════ */}
       <FacesSection />
 
-      {/* ══ TESTIMONIALS ═══════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 bg-white/[0.015]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-4">
-          <FadeUp className="text-center mb-12">
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-4">Ils nous font confiance</p>
-            <h2 className="text-[clamp(1.8rem,3.5vw,3rem)] font-black tracking-tight text-white">Ce qu'ils en disent</h2>
-          </FadeUp>
-        </div>
-        <TestimonialsMarquee />
-      </section>
-
       {/* ══ STEPS ══════════════════════════════════════════════════════ */}
       <section className="border-t border-white/6 py-32">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">

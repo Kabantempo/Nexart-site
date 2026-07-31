@@ -558,9 +558,9 @@ export default function RegisterPage() {
 
           <p style={{ marginTop: '24px', fontSize: '13px', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: '1.6' }}>
             En vous inscrivant, vous acceptez nos{' '}
-            <Link href="/legal/terms" style={{ color: '#6366F1', textDecoration: 'none' }}>CGU</Link>
+            <Link href="/conditions" style={{ color: '#6366F1', textDecoration: 'none' }}>CGU</Link>
             {' '}et notre{' '}
-            <Link href="/legal/privacy" style={{ color: '#6366F1', textDecoration: 'none' }}>politique de confidentialité</Link>.
+            <Link href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none' }}>politique de confidentialité</Link>.
           </p>
         </motion.div>
       </div>

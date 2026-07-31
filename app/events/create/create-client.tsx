@@ -108,9 +108,9 @@ export default function CreateEventClient() {
       if (!user) {
         const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
         profile = data
-        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url })
-        if (profile?.role !== 'organizer') { router.push('/dashboard'); return }
-      } else if (user.role !== 'organizer') {
+        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_organizer: profile.is_organizer, is_creator: profile.is_creator })
+        if (profile?.role !== 'organizer' && !profile?.is_organizer) { router.push('/dashboard'); return }
+      } else if (user.role !== 'organizer' && !user.is_organizer) {
         router.push('/dashboard')
         return
       }
