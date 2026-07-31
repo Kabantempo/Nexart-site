@@ -29,14 +29,33 @@ export default function CreatorAnalyticsClient() {
       setLoading(true)
       const { data: { session } } = await supabase.auth.getSession()
       const token = session?.access_token
-      const response = await fetch('/api/creator/analytics', {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
-      if (!response.ok) throw new Error('Erreur chargement stats')
+      if (!token) {
+        setError('Vous devez être connecté pour voir vos statistiques.')
+        return
+      }
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 10000)
+      let response: Response
+      try {
+        response = await fetch('/api/creator/analytics', {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}))
+        throw new Error(body?.error || `Erreur ${response.status}`)
+      }
       const data = await response.json()
       setStats(data)
     } catch (err: any) {
-      setError(err.message)
+      if (err.name === 'AbortError') {
+        setError('Le chargement a pris trop de temps. Réessayez.')
+      } else {
+        setError(err.message || 'Erreur inconnue')
+      }
     } finally {
       setLoading(false)
     }
@@ -62,7 +81,15 @@ export default function CreatorAnalyticsClient() {
     )
   }
 
-  if (!stats) return null
+  if (!stats) {
+    return (
+      <div style={{ minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', color: '#888888' }}>
+          Aucune donnée disponible pour le moment.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
@@ -149,7 +176,7 @@ export default function CreatorAnalyticsClient() {
               <Star size={20} color='#F59E0B' />
             </div>
             <div style={{ fontSize: '42px', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
-              {stats.averageRating.toFixed(1)}
+              {(stats.averageRating ?? 0).toFixed(1)}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               {stats.reviewCount} avis
