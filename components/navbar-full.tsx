@@ -438,7 +438,7 @@ export function NavbarFull() {
                     <motion.div
                       initial={{ opacity: 0, y: 6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 4, scale: 0.97 }}
                       transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-                      style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: '#fff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid #F3F4F6', overflow: 'hidden', zIndex: 999 }}
+                      style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: '#fff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid #F3F4F6', overflow: 'hidden', zIndex: 999, pointerEvents: 'auto' }}
                     >
                       {searchResults.events.length > 0 && (
                         <div>
