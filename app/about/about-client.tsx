@@ -224,14 +224,14 @@ export default function AboutPageClient() {
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              S'inscrire
+              Rejoindre Nexart
             </Link>
             <Link
-              href="/login"
+              href="/events"
               style={{
                 padding: '12px 32px',
                 borderRadius: '8px',
-                backgroundColor: 'var(--bg-primary)',
+                backgroundColor: 'rgba(99, 102, 241, 0.05)',
                 color: '#6366F1',
                 textDecoration: 'none',
                 fontSize: '16px',
@@ -242,13 +242,13 @@ export default function AboutPageClient() {
                 display: 'inline-block',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)'
+                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.1)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#FFFFFF'
+                e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)'
               }}
             >
-              Se connecter
+              Voir les marchés
             </Link>
           </div>
         </motion.div>

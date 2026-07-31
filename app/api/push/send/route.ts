@@ -3,11 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import webpush from 'web-push'
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || 'mailto:noreply@nexart.fr',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-)
+function initVapid() {
+  if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || 'mailto:noreply@nexart.fr',
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    )
+  }
+}
 
 // POST — send push notification to one or multiple users (cron/internal use)
 // Header: Authorization: Bearer <CRON_SECRET_TOKEN>
@@ -20,6 +24,7 @@ export async function POST(req: NextRequest) {
   if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
     return NextResponse.json({ error: 'VAPID keys not configured' }, { status: 500 })
   }
+  initVapid()
 
   try {
     const admin = getAdminClient()

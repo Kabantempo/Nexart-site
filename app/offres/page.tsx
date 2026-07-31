@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     description: 'Découvrez les offres Nexart pour créateurs et organisateurs.',
     url: 'https://nexart.fr/offres',
     type: 'website',
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Tarifs & offres' }],
   },
 }
 

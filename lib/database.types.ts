@@ -141,37 +141,49 @@ export type Database = {
       }
       applications: {
         Row: {
+          boosted_at: string | null
           created_at: string
           creator_id: string
           event_id: string
           id: string
           message: string | null
           portfolio_images: string[] | null
+          processing_started_at: string | null
+          rejection_reason: Json | null
           status: Database["public"]["Enums"]["application_status"]
           stripe_payment_id: string | null
           updated_at: string
+          viewed_at: string | null
         }
         Insert: {
+          boosted_at?: string | null
           created_at?: string
           creator_id: string
           event_id: string
           id?: string
           message?: string | null
           portfolio_images?: string[] | null
+          processing_started_at?: string | null
+          rejection_reason?: Json | null
           status?: Database["public"]["Enums"]["application_status"]
           stripe_payment_id?: string | null
           updated_at?: string
+          viewed_at?: string | null
         }
         Update: {
+          boosted_at?: string | null
           created_at?: string
           creator_id?: string
           event_id?: string
           id?: string
           message?: string | null
           portfolio_images?: string[] | null
+          processing_started_at?: string | null
+          rejection_reason?: Json | null
           status?: Database["public"]["Enums"]["application_status"]
           stripe_payment_id?: string | null
           updated_at?: string
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -536,10 +548,12 @@ export type Database = {
           is_active_creator: boolean
           lat: number | null
           lng: number | null
+          notify_weekly: boolean | null
           open_to_collab: boolean
           page_settings: Json | null
           portfolio_grid: Json | null
           portfolio_images: string[]
+          portfolio_videos: string[] | null
           postal_code: string | null
           region: string | null
           siret: string | null
@@ -563,10 +577,12 @@ export type Database = {
           is_active_creator?: boolean
           lat?: number | null
           lng?: number | null
+          notify_weekly?: boolean | null
           open_to_collab?: boolean
           page_settings?: Json | null
           portfolio_grid?: Json | null
           portfolio_images?: string[]
+          portfolio_videos?: string[] | null
           postal_code?: string | null
           region?: string | null
           siret?: string | null
@@ -590,10 +606,12 @@ export type Database = {
           is_active_creator?: boolean
           lat?: number | null
           lng?: number | null
+          notify_weekly?: boolean | null
           open_to_collab?: boolean
           page_settings?: Json | null
           portfolio_grid?: Json | null
           portfolio_images?: string[]
+          portfolio_videos?: string[] | null
           postal_code?: string | null
           region?: string | null
           siret?: string | null
@@ -608,6 +626,57 @@ export type Database = {
             foreignKeyName: "creator_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_verifications: {
+        Row: {
+          created_at: string | null
+          creator_id: string | null
+          document_url: string | null
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          siret: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_id?: string | null
+          document_url?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          siret: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_id?: string | null
+          document_url?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          siret?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_verifications_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_verifications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1457,6 +1526,7 @@ export type Database = {
           rules: string | null
           stand_count: number
           stand_dimensions: string | null
+          stand_plan: Json | null
           stand_price: number | null
           start_date: string
           start_time: string | null
@@ -1494,6 +1564,7 @@ export type Database = {
           rules?: string | null
           stand_count?: number
           stand_dimensions?: string | null
+          stand_plan?: Json | null
           stand_price?: number | null
           start_date: string
           start_time?: string | null
@@ -1531,6 +1602,7 @@ export type Database = {
           rules?: string | null
           stand_count?: number
           stand_dimensions?: string | null
+          stand_plan?: Json | null
           stand_price?: number | null
           start_date?: string
           start_time?: string | null
@@ -1960,11 +2032,15 @@ export type Database = {
       organizer_profiles: {
         Row: {
           cover_image: string | null
+          event_types: string[] | null
+          events_per_year: string | null
           id: string
           instagram: string | null
           organization_name: string
+          past_events: Json | null
           siret_number: string | null
           siret_verified: boolean
+          typical_capacity: string | null
           user_id: string
           verification_doc_url: string | null
           verification_doc_verified: boolean
@@ -1974,11 +2050,15 @@ export type Database = {
         }
         Insert: {
           cover_image?: string | null
+          event_types?: string[] | null
+          events_per_year?: string | null
           id?: string
           instagram?: string | null
           organization_name: string
+          past_events?: Json | null
           siret_number?: string | null
           siret_verified?: boolean
+          typical_capacity?: string | null
           user_id: string
           verification_doc_url?: string | null
           verification_doc_verified?: boolean
@@ -1988,11 +2068,15 @@ export type Database = {
         }
         Update: {
           cover_image?: string | null
+          event_types?: string[] | null
+          events_per_year?: string | null
           id?: string
           instagram?: string | null
           organization_name?: string
+          past_events?: Json | null
           siret_number?: string | null
           siret_verified?: boolean
+          typical_capacity?: string | null
           user_id?: string
           verification_doc_url?: string | null
           verification_doc_verified?: boolean
@@ -2434,6 +2518,56 @@ export type Database = {
           },
         ]
       }
+      saved_searches: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          disciplines: string[] | null
+          id: string
+          label: string
+          last_notified_at: string | null
+          notify_email: boolean | null
+          notify_push: boolean | null
+          radius_km: number | null
+          region: string | null
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          disciplines?: string[] | null
+          id?: string
+          label: string
+          last_notified_at?: string | null
+          notify_email?: boolean | null
+          notify_push?: boolean | null
+          radius_km?: number | null
+          region?: string | null
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          disciplines?: string[] | null
+          id?: string
+          label?: string
+          last_notified_at?: string | null
+          notify_email?: boolean | null
+          notify_push?: boolean | null
+          radius_km?: number | null
+          region?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_searches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_comments: {
         Row: {
           content: string
@@ -2675,6 +2809,8 @@ export type Database = {
         }
         Returns: string
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       application_status: "pending" | "accepted" | "refused"

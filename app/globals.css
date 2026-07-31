@@ -38,9 +38,9 @@
   --input-bg: #1A1A1A;
 }
 
-/* ── Syne display font pour H1/H2 ── */
-h1, h2 {
-  font-family: 'Syne', system-ui, sans-serif;
+/* ── Syne display font pour H1/H2/H3 ── */
+h1, h2, h3 {
+  font-family: var(--font-syne), 'Syne', system-ui, sans-serif;
 }
 
 /* ── Sélection de texte violet ── */
