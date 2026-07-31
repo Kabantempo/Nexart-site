@@ -12,6 +12,12 @@ export const metadata: Metadata = {
     type: 'website',
     images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Créateurs & artisans' }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Créateurs & artisans — Portfolios',
+    description: 'Découvrez les créateurs et artisans référencés sur Nexart.',
+    images: ['https://nexart.fr/og-image.png'],
+  },
 }
 
 export default function CreatorsPage() {

@@ -23,17 +23,27 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     const locationLabel = [event.city, event.region].filter(Boolean).join(', ')
     const title = locationLabel ? `${event.title} — ${locationLabel}` : event.title
     const description = event.description?.substring(0, 160) || `Marché artisanal${event.city ? ` à ${event.city}` : ''} — Nexart`
+    const ogImages = event.cover_image
+      ? [{ url: event.cover_image, width: 1200, height: 630, alt: title }]
+      : [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: title }]
 
     return {
       title,
       description,
+      alternates: { canonical: `https://nexart.fr/events/${params.id}` },
       keywords: ['marché artisanal', event.city, event.region, ...(event.discipline_tags || [])].filter(Boolean) as string[],
       openGraph: {
         title,
         description,
         type: 'website',
         url: `https://nexart.fr/events/${params.id}`,
-        images: event.cover_image ? [{ url: event.cover_image, width: 1200, height: 630 }] : [],
+        images: ogImages,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImages[0].url],
       },
       other: event.lat && event.lng ? {
         'geo.position': `${event.lat};${event.lng}`,
@@ -53,7 +63,6 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
 export default async function EventPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
 
-  // Fetch event data for JSON-LD
   let event = null
   try {
     const { data } = await supabase.from('events').select('*').eq('id', params.id).single()
@@ -62,7 +71,7 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     console.error('Error fetching event:', error)
   }
 
-  const jsonLd = event ? {
+  const eventJsonLd = event ? {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: event.title,
@@ -93,7 +102,9 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
       name: 'Nexart',
       url: 'https://nexart.fr',
     },
-    image: event.cover_image,
+    image: event.cover_image
+      ? { '@type': 'ImageObject', url: event.cover_image, width: 1200, height: 630 }
+      : undefined,
     url: `https://nexart.fr/events/${event.id}`,
     keywords: [
       'marché artisanal',
@@ -103,15 +114,30 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     ].filter(Boolean).join(', '),
   } : null
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://nexart.fr' },
+      { '@type': 'ListItem', position: 2, name: 'Événements', item: 'https://nexart.fr/events' },
+      ...(event ? [{ '@type': 'ListItem', position: 3, name: event.title, item: `https://nexart.fr/events/${event.id}` }] : []),
+    ],
+  }
+
   return (
     <>
-      {jsonLd && (
+      {eventJsonLd && (
         <Script
           id="event-schema"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
         />
       )}
+      <Script
+        id="breadcrumb-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <EventDetailClient id={params.id} />
     </>
   )
