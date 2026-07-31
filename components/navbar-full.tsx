@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { NotificationBell } from '@/components/ui/notification-bell'
@@ -13,29 +13,95 @@ import { WhatsNew } from '@/components/ui/whats-new'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { PushNotificationButton } from '@/components/push-notifications'
 
+// ── Styles helpers ──────────────────────────────────────────────────────────
+
+const s = {
+  navLink: (active: boolean, dark: boolean): React.CSSProperties => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize: '13.5px',
+    fontWeight: 500,
+    padding: '12px 12px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    transition: 'color 0.15s',
+    userSelect: 'none',
+    color: active
+      ? (dark ? '#fff' : '#111827')
+      : (dark ? 'rgba(255,255,255,0.72)' : '#4B5563'),
+    textDecoration: 'none',
+  }),
+  panel: (align: 'left' | 'right' | 'center', width: number): React.CSSProperties => ({
+    position: 'absolute',
+    top: 'calc(100% + 10px)',
+    width: `${width}px`,
+    backgroundColor: '#fff',
+    border: '1px solid #F3F4F6',
+    borderRadius: '18px',
+    boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+    padding: '6px',
+    zIndex: 50,
+    transformOrigin: 'top',
+    ...(align === 'right' ? { right: 0 } : align === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { left: 0 }),
+  }),
+  panelItem: (active: boolean): React.CSSProperties => ({
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '12px',
+    padding: '12px 14px',
+    borderRadius: '12px',
+    textDecoration: 'none',
+    backgroundColor: active ? '#F9FAFB' : 'transparent',
+    transition: 'background 0.12s',
+    cursor: 'pointer',
+  }),
+  panelItemSimple: (active: boolean): React.CSSProperties => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '10px 14px',
+    borderRadius: '12px',
+    textDecoration: 'none',
+    backgroundColor: active ? '#EEF2FF' : 'transparent',
+    color: active ? '#6366F1' : '#374151',
+    fontSize: '13px',
+    fontWeight: 500,
+    transition: 'all 0.12s',
+    cursor: 'pointer',
+  }),
+}
+
 export function NavbarFull() {
-  const [mobileOpen,  setMobileOpen]  = useState(false)
-  const [dropdown,    setDropdown]    = useState<string | null>(null)
-  const [searchOpen,  setSearchOpen]  = useState(false)
-  const [searchValue, setSearchValue] = useState('')
-  const [searchResults, setSearchResults] = useState<{ events: {id:string;title:string;city?:string;cover_image?:string}[]; creators: {id:string;full_name:string;username?:string;avatar_url?:string;disciplines?:string[]}[] }>({ events: [], creators: [] })
-  const [searchLoading, setSearchLoading] = useState(false)
+  const [mobileOpen,    setMobileOpen]    = useState(false)
+  const [dropdown,      setDropdown]      = useState<string | null>(null)
+  const [searchOpen,    setSearchOpen]    = useState(false)
+  const [searchValue,   setSearchValue]   = useState('')
+  const [searchResults, setSearchResults] = useState<{
+    events: { id: string; title: string; city?: string; cover_image?: string }[]
+    creators: { id: string; full_name: string; username?: string; avatar_url?: string }[]
+  }>({ events: [], creators: [] })
+  const [searchLoading,   setSearchLoading]   = useState(false)
   const [searchActiveIdx, setSearchActiveIdx] = useState(-1)
-  const searchDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [scrolled,        setScrolled]        = useState(false)
+  const [creditBalance,   setCreditBalance]   = useState<number | null>(null)
+
+  const searchDebounce    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
-  const [scrolled,    setScrolled]    = useState(false)
-  const searchRef  = useRef<HTMLInputElement>(null)
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchRef         = useRef<HTMLInputElement>(null)
+  const closeTimer        = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dropdownItemsRef  = useRef<Map<string, HTMLAnchorElement[]>>(new Map())
+  const triggerRefs       = useRef<Map<string, HTMLButtonElement>>(new Map())
 
-  const [creditBalance, setCreditBalance] = useState<number | null>(null)
-
-  const user      = useAuthStore((s) => s.user)
-  const setUser   = useAuthStore((s) => s.setUser)
-  const router    = useRouter()
-  const pathname  = usePathname()
+  const user     = useAuthStore((s) => s.user)
+  const setUser  = useAuthStore((s) => s.setUser)
+  const router   = useRouter()
+  const pathname = usePathname()
   const firstName = user?.full_name?.split(' ')[0] ?? null
-  const isHero    = pathname === '/'
-  const dark      = isHero && !scrolled
+  const isHero   = pathname === '/'
+  const dark     = isHero && !scrolled
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 24)
@@ -74,37 +140,28 @@ export function NavbarFull() {
     })
   }, [user])
 
-  const go = (ms = 500) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
+  const go   = (ms = 500) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
   const stay = () => { if (closeTimer.current) clearTimeout(closeTimer.current) }
 
-  const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); router.push('/') }
-  const openSearch   = () => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50) }
-  const closeSearch  = () => { setSearchOpen(false); setSearchValue(''); setSearchResults({ events: [], creators: [] }) }
-  const submitSearch = (e: React.FormEvent) => {
+  const handleLogout  = async () => { await supabase.auth.signOut(); setUser(null); router.push('/') }
+  const openSearch    = () => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 50) }
+  const closeSearch   = () => { setSearchOpen(false); setSearchValue(''); setSearchResults({ events: [], creators: [] }) }
+  const submitSearch  = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchValue.trim()) { router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`); closeSearch() }
   }
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const total = searchResults.events.length + searchResults.creators.length + 1 // +1 = "Voir tous"
+    const total = searchResults.events.length + searchResults.creators.length + 1
     if (!searchValue.trim() || total === 1) return
-    if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown')  { e.preventDefault(); setSearchActiveIdx(i => (i + 1) % total) }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setSearchActiveIdx(i => (i - 1 + total) % total) }
+    else if (e.key === 'Enter' && searchActiveIdx >= 0) {
       e.preventDefault()
-      setSearchActiveIdx(i => (i + 1) % total)
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setSearchActiveIdx(i => (i - 1 + total) % total)
-    } else if (e.key === 'Enter' && searchActiveIdx >= 0) {
-      e.preventDefault()
-      const events = searchResults.events
-      const creators = searchResults.creators
-      if (searchActiveIdx < events.length) {
-        router.push(`/events/${events[searchActiveIdx].id}`)
-      } else if (searchActiveIdx < events.length + creators.length) {
-        router.push(`/creators/${creators[searchActiveIdx - events.length].id}`)
-      } else {
-        router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`)
-      }
+      const { events, creators } = searchResults
+      if (searchActiveIdx < events.length) router.push(`/events/${events[searchActiveIdx].id}`)
+      else if (searchActiveIdx < events.length + creators.length) router.push(`/creators/${creators[searchActiveIdx - events.length].id}`)
+      else router.push(`/search?q=${encodeURIComponent(searchValue.trim())}`)
       closeSearch()
     } else if (e.key === 'Escape') {
       closeSearch()
@@ -120,8 +177,8 @@ export function NavbarFull() {
     searchDebounce.current = setTimeout(async () => {
       const q = val.trim().toLowerCase()
       const [{ data: events }, { data: profiles }] = await Promise.all([
-        supabase.from('events').select('id,title,city,cover_image').eq('status','published').ilike('title', `%${q}%`).limit(4),
-        supabase.from('profiles').select('id,full_name,username,avatar_url').eq('role','creator').ilike('full_name', `%${q}%`).limit(4),
+        supabase.from('events').select('id,title,city,cover_image').eq('status', 'published').ilike('title', `%${q}%`).limit(4),
+        supabase.from('profiles').select('id,full_name,username,avatar_url').eq('role', 'creator').ilike('full_name', `%${q}%`).limit(4),
       ])
       setSearchResults({ events: (events ?? []) as any, creators: (profiles ?? []) as any })
       setSearchLoading(false)
@@ -130,40 +187,22 @@ export function NavbarFull() {
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
-  // ── Dropdown keyboard navigation ──────────────────────────────────
-  const dropdownItemsRef = useRef<Map<string, HTMLAnchorElement[]>>(new Map())
-  const triggerRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
-
-  const registerDropdownItem = (dropdownId: string, el: HTMLAnchorElement | null, index: number) => {
-    if (!dropdownItemsRef.current.has(dropdownId)) {
-      dropdownItemsRef.current.set(dropdownId, [])
-    }
-    const arr = dropdownItemsRef.current.get(dropdownId)!
-    if (el) arr[index] = el
+  const registerItem = (id: string, el: HTMLAnchorElement | null, idx: number) => {
+    if (!dropdownItemsRef.current.has(id)) dropdownItemsRef.current.set(id, [])
+    const arr = dropdownItemsRef.current.get(id)!
+    if (el) arr[idx] = el
   }
 
-  const handleDropdownKeyDown = (e: React.KeyboardEvent, dropdownId: string) => {
-    const items = dropdownItemsRef.current.get(dropdownId) ?? []
-    const focused = document.activeElement
-    const currentIdx = items.indexOf(focused as HTMLAnchorElement)
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      const next = items[(currentIdx + 1) % items.length]
-      next?.focus()
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      const prev = items[(currentIdx - 1 + items.length) % items.length]
-      prev?.focus()
-    } else if (e.key === 'Escape') {
-      e.preventDefault()
-      setDropdown(null)
-      triggerRefs.current.get(dropdownId)?.focus()
-    }
+  const handleDropdownKeyDown = (e: React.KeyboardEvent, id: string) => {
+    const items = dropdownItemsRef.current.get(id) ?? []
+    const cur   = items.indexOf(document.activeElement as HTMLAnchorElement)
+    if (e.key === 'ArrowDown')  { e.preventDefault(); items[(cur + 1) % items.length]?.focus() }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(cur - 1 + items.length) % items.length]?.focus() }
+    else if (e.key === 'Escape') { e.preventDefault(); setDropdown(null); triggerRefs.current.get(id)?.focus() }
   }
 
-  // ── Dropdown panel ────────────────────────────────────────────────
-  const Panel = ({ id, children, align = 'left', width = 'w-52' }: { id: string; children: React.ReactNode; align?: 'left' | 'right' | 'center'; width?: string }) => (
+  // ── Panel ─────────────────────────────────────────────────────────────────
+  const Panel = ({ id, children, align = 'left', width = 220 }: { id: string; children: React.ReactNode; align?: 'left' | 'right' | 'center'; width?: number }) => (
     <AnimatePresence>
       {dropdown === id && (
         <motion.div
@@ -175,10 +214,7 @@ export function NavbarFull() {
           onMouseEnter={stay}
           onMouseLeave={() => go()}
           onKeyDown={(e) => handleDropdownKeyDown(e, id)}
-          className={`absolute top-full mt-2.5 ${width} bg-white border border-gray-100 rounded-2xl shadow-2xl shadow-black/[0.08] p-1.5 origin-top z-50 ${
-            align === 'right'  ? 'right-0' :
-            align === 'center' ? 'left-1/2 -translate-x-1/2' : 'left-0'
-          }`}
+          style={s.panel(align, width)}
         >
           {children}
         </motion.div>
@@ -186,7 +222,7 @@ export function NavbarFull() {
     </AnimatePresence>
   )
 
-  // ── Nav trigger ───────────────────────────────────────────────────
+  // ── Trigger button ────────────────────────────────────────────────────────
   const Trigger = ({ id, label, active }: { id: string; label: string; active: boolean }) => (
     <button
       ref={(el) => { if (el) triggerRefs.current.set(id, el) }}
@@ -195,377 +231,453 @@ export function NavbarFull() {
       onClick={() => setDropdown(d => d === id ? null : id)}
       onKeyDown={(e) => {
         if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setDropdown(id)
-          setTimeout(() => {
-            const items = dropdownItemsRef.current.get(id) ?? []
-            items[0]?.focus()
-          }, 50)
+          e.preventDefault(); setDropdown(id)
+          setTimeout(() => { dropdownItemsRef.current.get(id)?.[0]?.focus() }, 50)
         } else if (e.key === 'Escape') {
           setDropdown(null)
         }
       }}
       aria-haspopup="menu"
       aria-expanded={dropdown === id}
-      className={`flex items-center gap-1 text-[13.5px] font-medium px-3 py-3 transition-colors duration-150 select-none ${
-        active
-          ? dark ? 'text-white' : 'text-gray-900'
-          : dark ? 'text-white/75 hover:text-white' : 'text-gray-600 hover:text-gray-900'
-      }`}
+      style={s.navLink(active, dark)}
     >
       {label}
-      <ChevronDown size={12} className={`transition-transform duration-200 opacity-50 ${dropdown === id ? 'rotate-180' : ''}`} />
+      <ChevronDown size={12} style={{ opacity: 0.45, transition: 'transform 0.2s', transform: dropdown === id ? 'rotate(180deg)' : 'rotate(0deg)' }} />
     </button>
   )
+
+  // ── Panel rich item (with desc) ───────────────────────────────────────────
+  const RichItem = ({ href, icon: Icon, label, desc, idx, panelId }: { href: string; icon: React.ElementType; label: string; desc: string; idx: number; panelId: string }) => {
+    const active = isActive(href)
+    return (
+      <Link href={href} onClick={() => setDropdown(null)}
+        role="menuitem"
+        ref={(el) => registerItem(panelId, el, idx)}
+        style={s.panelItem(active)}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? '#F9FAFB' : 'transparent' }}
+      >
+        <div style={{ width: 34, height: 34, borderRadius: '10px', backgroundColor: active ? '#EEF2FF' : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={16} color={active ? '#6366F1' : '#9CA3AF'} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0, paddingTop: '1px' }}>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: active ? '#6366F1' : '#111827', margin: 0, lineHeight: 1.2, marginBottom: '2px' }}>{label}</p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{desc}</p>
+        </div>
+        <ArrowUpRight size={13} style={{ color: '#D1D5DB', marginTop: '2px', flexShrink: 0 }} />
+      </Link>
+    )
+  }
+
+  // ── Panel simple item ─────────────────────────────────────────────────────
+  const SimpleItem = ({ href, icon: Icon, label, idx, panelId, color = '#9CA3AF' }: { href: string; icon: React.ElementType; label: string; idx: number; panelId: string; color?: string }) => {
+    const active = isActive(href)
+    return (
+      <Link href={href} onClick={() => setDropdown(null)}
+        role="menuitem"
+        ref={(el) => registerItem(panelId, el, idx)}
+        style={s.panelItemSimple(active)}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB'; (e.currentTarget as HTMLElement).style.color = '#111827' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? '#EEF2FF' : 'transparent'; (e.currentTarget as HTMLElement).style.color = active ? '#6366F1' : '#374151' }}
+      >
+        <Icon size={14} color={active ? '#6366F1' : color} />
+        {label}
+      </Link>
+    )
+  }
+
+  const iconBtn: React.CSSProperties = {
+    width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: '10px', background: 'none', border: 'none', cursor: 'pointer',
+    color: dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF', transition: 'color 0.15s, background 0.15s',
+  }
 
   return (
     <>
       {/* ── Bar ── */}
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled ? 'pointer-events-none' : ''
-        }`}
-        style={dark && !scrolled ? {
-          '--bg-primary': 'rgba(255,255,255,0.08)',
-          '--bg-secondary': 'rgba(255,255,255,0.12)',
-          '--bg-tertiary': 'rgba(255,255,255,0.16)',
-          '--border-color': 'rgba(255,255,255,0.15)',
-          '--text-primary': '#ffffff',
-          '--text-secondary': 'rgba(255,255,255,0.7)',
-          '--navbar-bg': 'transparent',
-        } as React.CSSProperties : undefined}
+        style={{
+          position: 'fixed', inset: '0 0 auto 0', zIndex: 50,
+          transition: 'all 0.5s',
+          pointerEvents: scrolled ? 'none' : 'auto',
+        }}
       >
-        <div className={`transition-all duration-500 ${scrolled ? 'pointer-events-auto mx-3 sm:mx-6 mt-3' : ''}`}>
-        <div className={`max-w-7xl mx-auto px-5 sm:px-8 h-[58px] flex items-center gap-8 transition-all duration-500 ${
-          scrolled
-            ? 'nexart-navbar-scrolled backdrop-blur-md rounded-2xl shadow-lg shadow-black/5'
-            : ''
-        }`}>
+        <div style={{ transition: 'all 0.5s', ...(scrolled ? { pointerEvents: 'auto', margin: '12px 24px 0' } : {}) }}>
+          <div style={{
+            maxWidth: '1280px', margin: '0 auto', padding: '0 20px',
+            height: '58px', display: 'flex', alignItems: 'center', gap: '32px',
+            transition: 'all 0.5s',
+            ...(scrolled ? {
+              backgroundColor: 'rgba(255,255,255,0.92)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              borderRadius: '18px',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+              border: '1px solid rgba(0,0,0,0.06)',
+            } : {
+              backgroundColor: 'transparent',
+            }),
+          }}>
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <Image src="/logo-mark.png" alt="Nexart" width={26} height={26} className="rounded-lg" priority />
-            <span className={`text-[15px] font-semibold tracking-tight transition-colors duration-300 ${dark ? 'text-white' : 'text-gray-900'}`}>
-              Nexart
-            </span>
-          </Link>
-
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-0 flex-1">
-
-            {/* Découvrir */}
-            <div className="relative" onMouseEnter={() => { stay(); setDropdown('discover') }} onMouseLeave={() => go()}>
-              <Trigger id="discover" label="Découvrir" active={isActive('/events') || isActive('/creators')} />
-              <Panel id="discover" width="w-[300px]">
-                {[
-                  { href: '/events',   label: 'Événements artisanaux', desc: 'Marchés, pop-ups, salons, festivals' },
-                  { href: '/creators', label: 'Créateurs & Artisans',  desc: 'Parcourez les artisans inscrits' },
-                  { href: '/carte',    label: 'Carte interactive',       desc: 'Événements près de chez vous' },
-                ].map(({ href, label, desc }, idx) => (
-                  <Link key={href} href={href} onClick={() => setDropdown(null)}
-                    role="menuitem"
-                    ref={(el) => registerDropdownItem('discover', el, idx)}
-                    className={`group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-colors ${isActive(href) ? 'bg-gray-50' : 'hover:bg-gray-50/70'}`}
-                  >
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <p className={`text-[13px] font-semibold leading-none mb-1 ${isActive(href) ? 'text-indigo-600' : 'text-gray-800'}`}>{label}</p>
-                      <p className="text-[12px] text-gray-400">{desc}</p>
-                    </div>
-                    <ArrowUpRight size={13} className="text-gray-300 group-hover:text-gray-500 mt-0.5 transition-colors shrink-0" />
-                  </Link>
-                ))}
-              </Panel>
-            </div>
-
-            {/* Offres */}
-            <Link href="/offres"
-              className={`px-3.5 py-3 text-[13px] font-semibold rounded-lg transition-colors duration-150 ${isActive('/offres') ? 'text-indigo-600 bg-indigo-50' : dark ? 'text-white/80 hover:text-white' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'}`}
-            >
-              Offres
+            {/* Logo */}
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
+              <Image src="/logo-mark.png" alt="Nexart" width={26} height={26} style={{ borderRadius: '8px' }} priority />
+              <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '-0.02em', color: dark ? '#fff' : '#111827', transition: 'color 0.3s' }}>
+                Nexart
+              </span>
             </Link>
-          </nav>
 
-          {/* Desktop right */}
-          <div className="hidden lg:flex items-center gap-1 ml-auto">
+            {/* Desktop nav */}
+            <nav style={{ display: 'none', alignItems: 'center', gap: 0, flex: 1 }} className="lg-flex">
 
-            {/* Search */}
-            <div ref={searchContainerRef} className="relative">
-              <AnimatePresence mode="wait">
-                {searchOpen ? (
-                  <motion.form key="open"
-                    initial={{ width: 32, opacity: 0 }} animate={{ width: 260, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                    onSubmit={submitSearch}
-                    className={`flex items-center gap-2 h-8 px-3 rounded-lg border overflow-hidden ${dark ? 'bg-white/8 border-white/12' : 'bg-gray-100 border-transparent'}`}
-                  >
-                    <Search size={12} className={dark ? 'text-white/40 shrink-0' : 'text-gray-400 shrink-0'} />
-                    <input ref={searchRef} value={searchValue}
-                      onChange={e => handleSearchChange(e.target.value)}
-                      onKeyDown={handleSearchKeyDown}
-                      placeholder="Rechercher…"
-                      aria-autocomplete="list"
-                      aria-expanded={searchResults.events.length > 0 || searchResults.creators.length > 0}
-                      className={`flex-1 bg-transparent text-[13px] outline-none min-w-0 ${dark ? 'text-white placeholder:text-white/30' : 'text-gray-900 placeholder:text-gray-400'}`}
-                    />
-                    {searchLoading
-                      ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
-                      : <button type="button" onClick={closeSearch} aria-label="Fermer la recherche"><X size={12} className={dark ? 'text-white/30 hover:text-white/60' : 'text-gray-400 hover:text-gray-600'} /></button>
-                    }
-                  </motion.form>
-                ) : (
-                  <motion.button key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    onClick={openSearch}
-                    aria-label="Ouvrir la recherche"
-                    className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
-                  >
-                    <Search size={15} />
-                  </motion.button>
-                )}
-              </AnimatePresence>
+              {/* Découvrir */}
+              <div style={{ position: 'relative' }}
+                onMouseEnter={() => { stay(); setDropdown('discover') }}
+                onMouseLeave={() => go()}
+              >
+                <Trigger id="discover" label="Découvrir" active={isActive('/events') || isActive('/creators') || isActive('/carte')} />
+                <Panel id="discover" width={320}>
+                  <RichItem panelId="discover" idx={0} href="/events"      icon={Ticket}   label="Événements artisanaux" desc="Marchés, pop-ups, salons, festivals" />
+                  <RichItem panelId="discover" idx={1} href="/creators"    icon={Palette}  label="Créateurs & Artisans"  desc="Parcourez les artisans inscrits" />
+                  <RichItem panelId="discover" idx={2} href="/carte"       icon={MapPin}   label="Carte interactive"      desc="Événements près de chez vous" />
+                  <RichItem panelId="discover" idx={3} href="/calendrier"  icon={Calendar} label="Calendrier"             desc="Tous les événements à venir" />
+                  <RichItem panelId="discover" idx={4} href="/search"      icon={Search}   label="Recherche avancée"      desc="Filtrer par discipline, région…" />
+                </Panel>
+              </div>
 
-              {/* Live results dropdown */}
-              <AnimatePresence>
-                {searchOpen && searchValue.trim() && (searchResults.events.length > 0 || searchResults.creators.length > 0) && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 4, scale: 0.97 }}
-                    transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: 'var(--bg-primary)', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid var(--border-color)', overflow: 'hidden', zIndex: 999 }}
-                  >
-                    {searchResults.events.length > 0 && (
-                      <div>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Événements</p>
-                        {searchResults.events.map((ev, i) => (
-                          <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
-                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms', backgroundColor: searchActiveIdx === i ? 'var(--bg-secondary)' : 'transparent' }}
-                            onMouseEnter={e => { setSearchActiveIdx(i); e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
-                            onMouseLeave={e => { if (searchActiveIdx !== i) e.currentTarget.style.backgroundColor = 'transparent' }}
-                          >
-                            <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              {ev.cover_image
-                                ? <Image src={ev.cover_image} alt={ev.title} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                                : <Calendar size={16} color="#6366F1" />
-                              }
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
-                              {ev.city && <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{ev.city}</p>}
-                            </div>
-                          </Link>
-                        ))}
+              {/* Communauté */}
+              <div style={{ position: 'relative' }}
+                onMouseEnter={() => { stay(); setDropdown('community') }}
+                onMouseLeave={() => go()}
+              >
+                <Trigger id="community" label="Communauté" active={isActive('/feed') || isActive('/tendances') || isActive('/favorites')} />
+                <Panel id="community" width={240}>
+                  <SimpleItem panelId="community" idx={0} href="/feed"      icon={Users}      label="Fil d'actualité" />
+                  <SimpleItem panelId="community" idx={1} href="/tendances" icon={TrendingUp}  label="Tendances" />
+                  <SimpleItem panelId="community" idx={2} href="/favorites" icon={Heart}       label="Mes favoris" />
+                  <SimpleItem panelId="community" idx={3} href="/messages"  icon={MessageCircle} label="Messagerie" />
+                </Panel>
+              </div>
+
+              {/* Organisateurs */}
+              <div style={{ position: 'relative' }}
+                onMouseEnter={() => { stay(); setDropdown('organizer') }}
+                onMouseLeave={() => go()}
+              >
+                <Trigger id="organizer" label="Organisateurs" active={isActive('/events/create') || isActive('/offres') || isActive('/organizer')} />
+                <Panel id="organizer" width={280}>
+                  <RichItem panelId="organizer" idx={0} href="/events/create"      icon={Plus}      label="Créer un événement"    desc="Publiez votre marché ou salon" />
+                  <RichItem panelId="organizer" idx={1} href="/offres"             icon={Zap}       label="Offres & tarifs"        desc="Plans créateurs et organisateurs" />
+                  <RichItem panelId="organizer" idx={2} href="/organizer/analytics" icon={BarChart2} label="Analytiques"            desc="Stats de vos événements" />
+                </Panel>
+              </div>
+
+              {/* Nexart */}
+              <div style={{ position: 'relative' }}
+                onMouseEnter={() => { stay(); setDropdown('about') }}
+                onMouseLeave={() => go()}
+              >
+                <Trigger id="about" label="Nexart" active={isActive('/about') || isActive('/carnet-de-route') || isActive('/patch-notes')} />
+                <Panel id="about" width={220}>
+                  <SimpleItem panelId="about" idx={0} href="/about"           icon={Users}    label="À propos" />
+                  <SimpleItem panelId="about" idx={1} href="/carnet-de-route" icon={BookOpen} label="Carnet de route" />
+                  <SimpleItem panelId="about" idx={2} href="/patch-notes"     icon={FileText} label="Patch Notes" />
+                  <SimpleItem panelId="about" idx={3} href="/contact"         icon={MessageCircle} label="Contact" />
+                </Panel>
+              </div>
+            </nav>
+
+            {/* Desktop right */}
+            <div style={{ display: 'none', alignItems: 'center', gap: '2px', marginLeft: 'auto' }} className="lg-flex">
+
+              {/* Search */}
+              <div ref={searchContainerRef} style={{ position: 'relative' }}>
+                <AnimatePresence mode="wait">
+                  {searchOpen ? (
+                    <motion.form key="open"
+                      initial={{ width: 32, opacity: 0 }} animate={{ width: 260, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      onSubmit={submitSearch}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', borderRadius: '10px', border: `1px solid ${dark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`, backgroundColor: dark ? 'rgba(255,255,255,0.08)' : '#F9FAFB', overflow: 'hidden' }}
+                    >
+                      <Search size={12} color={dark ? 'rgba(255,255,255,0.4)' : '#9CA3AF'} style={{ flexShrink: 0 }} />
+                      <input ref={searchRef} value={searchValue}
+                        onChange={e => handleSearchChange(e.target.value)}
+                        onKeyDown={handleSearchKeyDown}
+                        placeholder="Rechercher…"
+                        style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: dark ? '#fff' : '#111827', minWidth: 0 }}
+                      />
+                      {searchLoading
+                        ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+                        : <button type="button" onClick={closeSearch} aria-label="Fermer" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: dark ? 'rgba(255,255,255,0.3)' : '#9CA3AF' }}><X size={12} /></button>
+                      }
+                    </motion.form>
+                  ) : (
+                    <motion.button key="closed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      onClick={openSearch}
+                      aria-label="Ouvrir la recherche"
+                      style={{ ...iconBtn }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = dark ? '#fff' : '#374151' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
+                    >
+                      <Search size={15} />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                {/* Live results */}
+                <AnimatePresence>
+                  {searchOpen && searchValue.trim() && (searchResults.events.length > 0 || searchResults.creators.length > 0) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 4, scale: 0.97 }}
+                      transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: '#fff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid #F3F4F6', overflow: 'hidden', zIndex: 999 }}
+                    >
+                      {searchResults.events.length > 0 && (
+                        <div>
+                          <p style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Événements</p>
+                          {searchResults.events.map((ev, i) => (
+                            <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
+                              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', backgroundColor: searchActiveIdx === i ? '#F9FAFB' : 'transparent' }}
+                              onMouseEnter={e => { setSearchActiveIdx(i); (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+                              onMouseLeave={e => { if (searchActiveIdx !== i) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+                            >
+                              <div style={{ width: 36, height: 36, borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {ev.cover_image ? <Image src={ev.cover_image} alt={ev.title} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Calendar size={16} color="#6366F1" />}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                                {ev.city && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{ev.city}</p>}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                      {searchResults.creators.length > 0 && (
+                        <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid #F3F4F6' : 'none' }}>
+                          <p style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
+                          {searchResults.creators.map((cr, i) => {
+                            const idx = searchResults.events.length + i
+                            return (
+                              <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
+                                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', backgroundColor: searchActiveIdx === idx ? '#F9FAFB' : 'transparent' }}
+                                onMouseEnter={e => { setSearchActiveIdx(idx); (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+                                onMouseLeave={e => { if (searchActiveIdx !== idx) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+                              >
+                                <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {cr.avatar_url ? <Image src={cr.avatar_url} alt={cr.full_name} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Palette size={14} color="#6366F1" />}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0 }}>{cr.username ?? cr.full_name}</p>
+                                  {cr.username && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{cr.full_name}</p>}
+                                </div>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      )}
+                      <div style={{ borderTop: '1px solid #F3F4F6' }}>
+                        <Link href={`/search?q=${encodeURIComponent(searchValue.trim())}`} onClick={closeSearch}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, color: '#6366F1' }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+                        >
+                          <Search size={13} /> Voir tous les résultats
+                        </Link>
                       </div>
-                    )}
-                    {searchResults.creators.length > 0 && (
-                      <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid var(--border-color)' : 'none' }}>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
-                        {searchResults.creators.map((cr, i) => {
-                          const idx = searchResults.events.length + i
-                          return (
-                          <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
-                            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', transition: 'background 100ms', backgroundColor: searchActiveIdx === idx ? 'var(--bg-secondary)' : 'transparent' }}
-                            onMouseEnter={e => { setSearchActiveIdx(idx); e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
-                            onMouseLeave={e => { if (searchActiveIdx !== idx) e.currentTarget.style.backgroundColor = 'transparent' }}
-                          >
-                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              {cr.avatar_url
-                                ? <Image src={cr.avatar_url} alt={cr.full_name} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                                : <Palette size={14} color="#6366F1" />
-                              }
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{cr.username ?? cr.full_name}</p>
-                              {cr.username && <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{cr.full_name}</p>}
-                            </div>
-                          </Link>
-                          )
-                        })}
-                      </div>
-                    )}
-                    <div style={{ borderTop: '1px solid var(--border-color)' }}>
-                      <Link href={`/search?q=${encodeURIComponent(searchValue.trim())}`} onClick={closeSearch}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: '600', color: 'var(--accent)' }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
-                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <WhatsNew dark={dark} />
+              <ThemeToggle />
+
+              {user ? (
+                <>
+                  <NotificationBell userId={user.id} dark={dark} />
+                  <PushNotificationButton />
+                  <Link href="/favorites" title="Mes favoris" style={iconBtn}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = dark ? '#fff' : '#374151' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
+                  >
+                    <Heart size={16} />
+                  </Link>
+                  <Link href="/messages" style={iconBtn}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = dark ? '#fff' : '#374151' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = dark ? 'rgba(255,255,255,0.65)' : '#9CA3AF' }}
+                  >
+                    <MessageCircle size={16} />
+                  </Link>
+
+                  {/* Credits badge */}
+                  {creditBalance !== null && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
+                      <Zap size={11} color="#FFF" fill="#FFF" />
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#FFF', lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
+                      <Link href="/dashboard?tab=credits" title="Acheter des crédits"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)', marginLeft: '4px', flexShrink: 0 }}
                       >
-                        <Search size={13} /> Voir tous les résultats
+                        <Plus size={9} color="#FFF" strokeWidth={3} />
                       </Link>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  )}
+
+                  {/* Profile dropdown */}
+                  <div style={{ position: 'relative', marginLeft: '4px' }}
+                    onMouseEnter={() => { stay(); setDropdown('profile') }}
+                    onMouseLeave={() => go()}
+                  >
+                    <button
+                      ref={(el) => { if (el) triggerRefs.current.set('profile', el) }}
+                      onClick={() => setDropdown(d => d === 'profile' ? null : 'profile')}
+                      onKeyDown={(e) => {
+                        if (e.key === 'ArrowDown') { e.preventDefault(); setDropdown('profile'); setTimeout(() => dropdownItemsRef.current.get('profile')?.[0]?.focus(), 50) }
+                        else if (e.key === 'Escape') setDropdown(null)
+                      }}
+                      aria-haspopup="menu"
+                      aria-expanded={dropdown === 'profile'}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '12px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s', ...(dark ? {} : {}) }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+                    >
+                      <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        {user.avatar_url
+                          ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={26} height={26} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                          : <span style={{ fontSize: '9px', fontWeight: 900, color: '#fff' }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
+                        }
+                      </div>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: dark ? 'rgba(255,255,255,0.7)' : '#4B5563' }}>{firstName ?? 'Moi'}</span>
+                      <ChevronDown size={11} style={{ opacity: 0.4, transition: 'transform 0.2s', transform: dropdown === 'profile' ? 'rotate(180deg)' : 'rotate(0)' }} />
+                    </button>
+
+                    <Panel id="profile" align="right" width={200}>
+                      <div style={{ padding: '12px 14px 10px', marginBottom: '4px', borderBottom: '1px solid #F3F4F6' }}>
+                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#111827', margin: '0 0 2px' }}>{firstName}</p>
+                        <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {(user.is_creator || user.role === 'creator') && (
+                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: '#EEF2FF', color: '#6366F1', border: '1px solid #E0E7FF' }}>Créateur</span>
+                          )}
+                          {(user.is_organizer || user.role === 'organizer') && (
+                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: '#F5F3FF', color: '#7C3AED', border: '1px solid #EDE9FE' }}>Organisateur</span>
+                          )}
+                          {!user.is_creator && !user.is_organizer && user.role === 'visitor' && (
+                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: '#F9FAFB', color: '#9CA3AF', border: '1px solid #F3F4F6' }}>Visiteur</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {(user.is_creator || user.role === 'creator') && (user.is_organizer || user.role === 'organizer') ? (
+                        <>
+                          <SimpleItem panelId="profile" idx={0} href="/dashboard?tab=creator"   icon={Brush}     label="Dashboard créateur" />
+                          <SimpleItem panelId="profile" idx={1} href="/dashboard?tab=organizer" icon={Building2} label="Dashboard organisateur" />
+                        </>
+                      ) : (
+                        <SimpleItem panelId="profile" idx={0} href="/dashboard" icon={User} label="Mon dashboard" />
+                      )}
+                      <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 2 : 1} href="/profile"       icon={User}  label="Mon profil" />
+                      <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 3 : 2} href="/notifications" icon={Bell}  label="Notifications" />
+                      <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 4 : 3} href="/settings"      icon={User}  label="Paramètres" />
+
+                      <div style={{ height: '1px', backgroundColor: '#F3F4F6', margin: '4px 0' }} />
+                      <button onClick={handleLogout}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#FEF2F2'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
+                      >
+                        <LogOut size={14} /> Déconnexion
+                      </button>
+                    </Panel>
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+                  <Link href="/login"
+                    style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: dark ? '#fff' : '#4B5563', textDecoration: 'none', borderRadius: '10px', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = dark ? 'rgba(255,255,255,0.08)' : '#F3F4F6' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+                  >
+                    Connexion
+                  </Link>
+                  <Link href="/register"
+                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: dark ? '#fff' : '#111827', color: dark ? '#111827' : '#fff' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+                  >
+                    S'inscrire
+                  </Link>
+                </div>
+              )}
             </div>
 
-            <WhatsNew dark={dark} />
-            <ThemeToggle />
-
-            {user ? (
-              <>
-                <NotificationBell userId={user.id} dark={dark} />
-                <PushNotificationButton />
-                <Link href="/favorites" title="Mes favoris" className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
-                  <Heart size={16} />
-                </Link>
-                <Link href="/messages" className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}>
-                  <MessageCircle size={16} />
-                </Link>
-
-                {/* Credits badge */}
-                {creditBalance !== null && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
-                    <Zap size={11} color="#FFF" fill="#FFF" />
-                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFF', lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
-                    <Link href="/dashboard?tab=credits" title="Acheter des crédits"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)', marginLeft: '4px', flexShrink: 0 }}
-                    >
-                      <Plus size={9} color="#FFF" strokeWidth={3} />
-                    </Link>
-                  </div>
-                )}
-
-                {/* Profile */}
-                <div className="relative ml-1" onMouseEnter={() => { stay(); setDropdown('profile') }} onMouseLeave={() => go()}>
-                  <button
-                    ref={(el) => { if (el) triggerRefs.current.set('profile', el) }}
-                    onClick={() => setDropdown(d => d === 'profile' ? null : 'profile')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'ArrowDown') {
-                        e.preventDefault()
-                        setDropdown('profile')
-                        setTimeout(() => {
-                          const items = dropdownItemsRef.current.get('profile') ?? []
-                          items[0]?.focus()
-                        }, 50)
-                      } else if (e.key === 'Escape') {
-                        setDropdown(null)
-                      }
-                    }}
-                    aria-haspopup="menu"
-                    aria-expanded={dropdown === 'profile'}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-xl transition-colors ${dark ? 'hover:bg-white/8' : 'hover:bg-gray-100'}`}
-                  >
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden">
-                      {user.avatar_url
-                        ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={24} height={24} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                        : <span className="text-[9px] font-black text-white">{firstName?.[0]?.toUpperCase() ?? '?'}</span>
-                      }
-                    </div>
-                    <span className={`text-[13px] font-medium transition-colors ${dark ? 'text-white/70' : 'text-gray-600'}`}>{firstName ?? 'Moi'}</span>
-                    <ChevronDown size={11} className={`opacity-40 transition-transform ${dropdown === 'profile' ? 'rotate-180' : ''}`} />
-                  </button>
-                  <Panel id="profile" align="right" width="w-[190px]">
-                    <div className="px-3.5 py-2.5 mb-1 border-b border-gray-100">
-                      <p className="text-[12px] font-semibold text-gray-900">{firstName}</p>
-                      <p className="text-[11px] text-gray-400 truncate mb-1.5">{user.email}</p>
-                      <div className="flex gap-1 flex-wrap">
-                        {(user.is_creator || user.role === 'creator') && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">Créateur</span>
-                        )}
-                        {(user.is_organizer || user.role === 'organizer') && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-600 border border-violet-100">Organisateur</span>
-                        )}
-                        {!user.is_creator && !user.is_organizer && user.role === 'visitor' && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-50 text-gray-400 border border-gray-100">Visiteur</span>
-                        )}
-                      </div>
-                    </div>
-                    {/* Dashboard(s) */}
-                    {(user.is_creator || user.role === 'creator') && (user.is_organizer || user.role === 'organizer') ? (
-                      <>
-                        <Link href="/dashboard?tab=creator" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, 0)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
-                          <Brush size={13} className="text-indigo-400" /> Dashboard créateur
-                        </Link>
-                        <Link href="/dashboard?tab=organizer" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, 1)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-violet-50 hover:text-violet-700 transition-colors">
-                          <Building2 size={13} className="text-violet-400" /> Dashboard organisateur
-                        </Link>
-                      </>
-                    ) : (
-                      <Link href="/dashboard" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, 0)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                        <User size={13} className="text-gray-400" /> Mon dashboard
-                      </Link>
-                    )}
-                    <Link href="/profile" onClick={() => setDropdown(null)} role="menuitem" ref={(el) => registerDropdownItem('profile', el, user.is_creator || user.is_organizer ? 2 : 1)} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                      <User size={13} className="text-gray-400" /> Mon profil
-                    </Link>
-                    <div className="h-px bg-gray-100 my-1" />
-                    <button onClick={handleLogout} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-[13px] text-red-500 hover:bg-red-50 transition-colors text-left">
-                      <LogOut size={13} /> Déconnexion
-                    </button>
-                  </Panel>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center gap-1 ml-1">
-                <Link href="/login"
-                  className={`px-3.5 py-3 text-[13px] font-medium transition-colors duration-150 ${dark ? 'text-white hover:text-white/80' : 'text-gray-500 hover:text-gray-900'}`}
-                >
-                  Connexion
-                </Link>
-                <Link href="/register"
-                  className={`px-4 py-3 rounded-lg text-[13px] font-semibold transition-all duration-150 ${
-                    dark
-                      ? 'bg-white text-gray-900 hover:bg-white/90'
-                      : 'bg-gray-900 text-white hover:bg-gray-700'
-                  }`}
-                >
-                  S'inscrire
-                </Link>
-              </div>
-            )}
+            {/* Mobile burger */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Menu"
+              style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center', alignItems: 'center', width: '36px', height: '36px', borderRadius: '10px', background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer' }}
+              className="lg-hidden"
+            >
+              <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
+                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: dark ? '#fff' : '#1F2937' }}
+              />
+              <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }}
+                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: dark ? '#fff' : '#1F2937' }}
+              />
+              <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
+                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: dark ? '#fff' : '#1F2937' }}
+              />
+            </button>
           </div>
-
-          {/* Mobile burger */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Menu"
-            className="lg:hidden ml-auto flex flex-col gap-[5px] justify-center w-9 h-9 rounded-lg transition-colors bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20"
-          >
-            <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[2px] w-5 mx-auto rounded-full ${dark ? 'bg-white' : 'bg-gray-800'}`} />
-            <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }} className={`block h-[2px] w-5 mx-auto rounded-full ${dark ? 'bg-white' : 'bg-gray-800'}`} />
-            <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }} className={`block h-[2px] w-5 mx-auto rounded-full ${dark ? 'bg-white' : 'bg-gray-800'}`} />
-          </button>
-        </div>
         </div>
       </header>
-
 
       {/* ── Mobile overlay ── */}
       <AnimatePresence>
         {mobileOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-[#06060f]/96 backdrop-blur-2xl lg:hidden"
+              style={{ position: 'fixed', inset: 0, zIndex: 40, backgroundColor: 'rgba(6,6,15,0.96)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
               onClick={() => setMobileOpen(false)}
+              className="lg-hidden"
             />
             <motion.nav
               initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-x-0 top-[58px] z-40 lg:hidden flex flex-col px-5 pt-6 pb-10 gap-1 overflow-y-auto max-h-[calc(100vh-58px)]"
+              style={{ position: 'fixed', left: 0, right: 0, top: '58px', zIndex: 40, display: 'flex', flexDirection: 'column', padding: '24px 20px 40px', gap: '4px', overflowY: 'auto', maxHeight: 'calc(100vh - 58px)' }}
+              className="lg-hidden"
             >
-              {/* Search mobile */}
+              {/* Search */}
               <motion.form initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}
                 onSubmit={submitSearch}
-                className="flex items-center gap-2 h-11 px-4 rounded-xl bg-white/8 border border-white/10 mb-4"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '44px', padding: '0 16px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '16px' }}
               >
-                <Search size={14} className="text-white/40 shrink-0" />
-                <input
-                  value={searchValue} onChange={e => handleSearchChange(e.target.value)}
+                <Search size={14} color="rgba(255,255,255,0.4)" style={{ flexShrink: 0 }} />
+                <input value={searchValue} onChange={e => handleSearchChange(e.target.value)}
                   placeholder="Rechercher événements, créateurs…"
-                  className="flex-1 bg-transparent text-[14px] text-white placeholder:text-white/30 outline-none"
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#fff' }}
                 />
-                {searchValue && <button type="button" aria-label="Effacer la recherche" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}><X size={13} className="text-white/30" /></button>}
+                {searchValue && (
+                  <button type="button" aria-label="Effacer" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', display: 'flex' }}
+                  ><X size={13} /></button>
+                )}
               </motion.form>
 
-              {/* Nav links */}
+              {/* Main links */}
               {[
                 { href: '/events',   label: 'Événements' },
                 { href: '/creators', label: 'Créateurs' },
                 { href: '/carte',    label: 'Carte' },
                 { href: '/offres',   label: 'Offres' },
+                { href: '/feed',     label: 'Communauté' },
+                { href: '/calendrier', label: 'Calendrier' },
               ].map(({ href, label }, i) => (
                 <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>
                   <Link href={href} onClick={() => setMobileOpen(false)}
-                    className={`block py-3 text-[22px] font-bold tracking-tight transition-colors ${isActive(href) ? 'text-white' : 'text-white/35 hover:text-white/80'}`}
+                    style={{ display: 'block', padding: '10px 0', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', textDecoration: 'none', transition: 'color 0.15s', color: isActive(href) ? '#fff' : 'rgba(255,255,255,0.3)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.8)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = isActive(href) ? '#fff' : 'rgba(255,255,255,0.3)'}
                   >
                     {label}
                   </Link>
@@ -573,57 +685,65 @@ export function NavbarFull() {
               ))}
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-                className="mt-6 pt-6 border-t border-white/8 flex flex-col gap-2"
+                style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '8px' }}
               >
                 {user ? (
                   <>
-                    {/* User profile row */}
-                    <Link href="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center overflow-hidden shrink-0">
+                    <Link href="/profile" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', textDecoration: 'none' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                         {user.avatar_url
                           ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                          : <span className="text-xs font-black text-white">{firstName?.[0]?.toUpperCase()}</span>
+                          : <span style={{ fontSize: '12px', fontWeight: 900, color: '#fff' }}>{firstName?.[0]?.toUpperCase()}</span>
                         }
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white">{firstName ?? 'Mon compte'}</p>
-                        <p className="text-xs text-white/35 truncate">{user.email}</p>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: '14px', fontWeight: 600, color: '#fff', margin: 0 }}>{firstName ?? 'Mon compte'}</p>
+                        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                       </div>
                     </Link>
 
-                    {/* Quick links row */}
-                    <div className="grid grid-cols-3 gap-2 mb-2">
-                      <Link href="/messages" onClick={() => setMobileOpen(false)}
-                        className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/6 hover:bg-white/10 transition-colors">
-                        <MessageCircle size={18} className="text-white/70" />
-                        <span className="text-[11px] text-white/50 font-medium">Messages</span>
-                      </Link>
-                      <Link href="/favorites" onClick={() => setMobileOpen(false)}
-                        className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/6 hover:bg-white/10 transition-colors">
-                        <Heart size={18} className="text-white/70" />
-                        <span className="text-[11px] text-white/50 font-medium">Favoris</span>
-                      </Link>
-                      <Link href="/notifications" onClick={() => setMobileOpen(false)}
-                        className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/6 hover:bg-white/10 transition-colors">
-                        <Calendar size={18} className="text-white/70" />
-                        <span className="text-[11px] text-white/50 font-medium">Notifs</span>
-                      </Link>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '8px' }}>
+                      {[
+                        { href: '/messages',     icon: MessageCircle, label: 'Messages' },
+                        { href: '/favorites',    icon: Heart,         label: 'Favoris' },
+                        { href: '/notifications',icon: Bell,          label: 'Notifs' },
+                      ].map(({ href, icon: Icon, label }) => (
+                        <Link key={href} href={href} onClick={() => setMobileOpen(false)}
+                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 8px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.06)', textDecoration: 'none', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.06)'}
+                        >
+                          <Icon size={18} color="rgba(255,255,255,0.65)" />
+                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{label}</span>
+                        </Link>
+                      ))}
                     </div>
 
                     <Link href="/dashboard" onClick={() => setMobileOpen(false)}
-                      className="flex items-center justify-center py-3 rounded-xl bg-white/10 text-white text-[15px] font-bold">
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+                    >
                       Mon dashboard
                     </Link>
-                    <button onClick={() => { setMobileOpen(false); handleLogout() }} className="text-left text-sm text-white/35 hover:text-red-400 transition-colors py-2">
+                    <button onClick={() => { setMobileOpen(false); handleLogout() }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '14px', color: 'rgba(255,255,255,0.3)', padding: '8px 0', transition: 'color 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#F87171'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.3)'}
+                    >
                       Se déconnecter
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link href="/register" onClick={() => setMobileOpen(false)} className="flex items-center justify-center py-3.5 rounded-xl bg-white text-gray-900 text-[15px] font-bold">
+                    <Link href="/register" onClick={() => setMobileOpen(false)}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: '#fff', color: '#111827', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+                    >
                       S'inscrire gratuitement
                     </Link>
-                    <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center text-sm text-white/35 hover:text-white/60 transition-colors py-2">
+                    <Link href="/login" onClick={() => setMobileOpen(false)}
+                      style={{ textAlign: 'center', fontSize: '14px', color: 'rgba(255,255,255,0.35)', padding: '8px', textDecoration: 'none', transition: 'color 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'}
+                    >
                       Déjà un compte ? Se connecter
                     </Link>
                   </>
@@ -633,6 +753,18 @@ export function NavbarFull() {
           </>
         )}
       </AnimatePresence>
+
+      {/* ── CSS helpers (desktop show/hide) ── */}
+      <style>{`
+        @media (min-width: 1024px) {
+          .lg-flex { display: flex !important; }
+          .lg-hidden { display: none !important; }
+        }
+        @media (max-width: 1023px) {
+          .lg-flex { display: none !important; }
+          .lg-hidden { display: flex !important; }
+        }
+      `}</style>
     </>
   )
 }
