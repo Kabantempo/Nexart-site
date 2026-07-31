@@ -304,7 +304,9 @@ export default function ProfilePage() {
             .select('id,title,city,start_date,event_type,status,cover_image,stand_count,stand_price,profiles(full_name)')
             .order('created_at', { ascending: false })
             .limit(50),
-          fetch('/api/admin/analytics').then(r => r.json()),
+          fetch('/api/admin/analytics', {
+            headers: { 'Authorization': `Bearer ${session.access_token}` },
+          }).then(r => r.json()).then(d => d?.users ? d : null),
           supabase.from('discipline_proposals')
             .select('id,name,status,created_at,creator_id,profiles!creator_id(full_name)')
             .order('created_at', { ascending: false }),
