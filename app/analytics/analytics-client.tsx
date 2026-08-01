@@ -45,7 +45,7 @@ export default function AnalyticsClient() {
       if (!session) { router.push('/login'); return }
       if (!user) {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
-        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url })
+        if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
       }
     })
   }, [router, user, setUser])
@@ -54,11 +54,13 @@ export default function AnalyticsClient() {
     if (!user) return
     const load = async () => {
       setLoading(true)
-      if (user.role === 'organizer') {
+      const isOrganizer = user.role === 'organizer' || user.is_organizer
+      const isCreator = user.role === 'creator' || user.role === 'artisan' || user.is_creator
+      if (isOrganizer) {
         const { data } = await supabase.from('event_analytics').select('*').eq('organizer_id', user.id).order('start_date', { ascending: false })
         setEventStats((data || []) as unknown as EventStat[])
-      } else if (user.role === 'creator') {
-        const { data } = await supabase.from('creator_analytics').select('*').eq('creator_id', user.id).single()
+      } else if (isCreator) {
+        const { data } = await supabase.from('creator_analytics').select('*').eq('creator_id', user.id).maybeSingle()
         setCreatorStats(data as CreatorStat | null)
       }
       setLoading(false)
@@ -105,7 +107,7 @@ export default function AnalyticsClient() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-24">
 
         {/* Organizer */}
-        {user.role === 'organizer' && (
+        {(user.role === 'organizer' || user.is_organizer) && (
           eventStats.length === 0 ? (
             <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
               <BarChart2 size={40} className="text-gray-200 mx-auto mb-4" />
@@ -222,7 +224,7 @@ export default function AnalyticsClient() {
         )}
 
         {/* Creator */}
-        {user.role === 'creator' && (
+        {(user.role === 'creator' || user.role === 'artisan' || user.is_creator) && (
           !creatorStats ? (
             <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
               <TrendingUp size={40} className="text-gray-200 mx-auto mb-4" />
