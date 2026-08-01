@@ -102,6 +102,7 @@ export default function DashboardPage() {
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null)
   const [paymentBanner, setPaymentBanner] = useState<'success' | 'cancelled' | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
+  const [dashTab, setDashTab] = useState<'creator' | 'organizer' | 'admin'>('creator')
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -357,8 +358,28 @@ export default function DashboardPage() {
 
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
 
+        {/* Tab switcher */}
+        {(hasCreator || hasOrganizer || isAdmin) && (() => {
+          const tabs = [
+            hasCreator  && { key: 'creator',   icon: <Users size={13} />,    label: 'Créateur' },
+            hasOrganizer && { key: 'organizer', icon: <Calendar size={13} />, label: 'Organisateur' },
+            isAdmin      && { key: 'admin',     icon: <Zap size={13} />,      label: 'Admin' },
+          ].filter(Boolean) as { key: string; icon: React.ReactNode; label: string }[]
+          if (tabs.length <= 1) return null
+          return (
+            <div style={{ display: 'flex', gap: '2px', backgroundColor: '#0d0d1a', padding: '4px', borderRadius: '10px', width: 'fit-content', marginBottom: '20px' }}>
+              {tabs.map(tab => (
+                <button key={tab.key} onClick={() => setDashTab(tab.key as typeof dashTab)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', backgroundColor: dashTab === tab.key ? '#fff' : 'transparent', color: dashTab === tab.key ? (tab.key === 'admin' ? '#d97706' : '#6366F1') : '#6B7280', boxShadow: dashTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
+                  {tab.icon} {tab.label}
+                </button>
+              ))}
+            </div>
+          )
+        })()}
+
         {/* Profile completion banner (creator only) */}
-        {hasCreator && firstMissingStep && (
+        {hasCreator && dashTab === 'creator' && firstMissingStep && (
           <Link href={firstMissingStep.link} style={{ display: 'block', textDecoration: 'none', marginBottom: '16px' }}>
             <div style={{ padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
@@ -407,16 +428,16 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* KPI rows */}
-        {!loading && hasCreator && (
-          <div className="kpi-grid" style={{ marginBottom: '10px' }}>
+        {/* KPI row — per tab */}
+        {!loading && dashTab === 'creator' && hasCreator && (
+          <div className="kpi-grid" style={{ marginBottom: '20px' }}>
             <KpiCard label="Candidatures" value={applications.length} color="#6366F1" />
             <KpiCard label="Acceptées" value={acceptedApps.length} color="#16A34A" />
             <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color="#D97706" />
             <KpiCard label="Vues profil (30j)" value={profileViewCount} color="#6366F1" />
           </div>
         )}
-        {!loading && hasOrganizer && (
+        {!loading && dashTab === 'organizer' && hasOrganizer && (
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
             <KpiCard label="Événements" value={events.length} color="#6366F1" />
             <KpiCard label="Publiés" value={publishedEvents.length} color="#16A34A" />
@@ -426,85 +447,65 @@ export default function DashboardPage() {
         )}
         {loading && <KpiRowSkeleton />}
 
-        {/* Creator section */}
-        {(hasCreator || (!hasCreator && !hasOrganizer)) && (
-          <div style={{ marginBottom: hasOrganizer || isAdmin ? '32px' : 0 }}>
-            {hasCreator && hasOrganizer && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <Users size={14} color="#6366F1" />
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Espace Créateur</span>
-              </div>
-            )}
-            <div className="dash-grid">
-              <div>
-                {loading ? <FeedSkeleton /> : hasCreator ? (
-                  <CreatorMainContent
-                    applications={applications}
-                    userId={user.id}
-                    profileViewCount={profileViewCount}
-                    profileViewDays={profileViewDays}
-                  />
-                ) : <VisitorContent />}
-              </div>
-              <div>
-                {loading ? <SidebarSkeleton /> : hasCreator ? (
-                  <CreatorSidebar userId={user.id} nextEvent={nextAcceptedEvent} />
-                ) : null}
-              </div>
+        {/* Creator tab */}
+        {(dashTab === 'creator' || (!hasOrganizer && !isAdmin)) && (
+          <div className="dash-grid">
+            <div>
+              {loading ? <FeedSkeleton /> : hasCreator ? (
+                <CreatorMainContent
+                  applications={applications}
+                  userId={user.id}
+                  profileViewCount={profileViewCount}
+                  profileViewDays={profileViewDays}
+                />
+              ) : <VisitorContent />}
+            </div>
+            <div>
+              {loading ? <SidebarSkeleton /> : hasCreator ? (
+                <CreatorSidebar userId={user.id} nextEvent={nextAcceptedEvent} />
+              ) : null}
             </div>
           </div>
         )}
 
-        {/* Organizer section */}
-        {hasOrganizer && (
-          <div style={{ marginBottom: isAdmin ? '32px' : 0 }}>
-            {hasCreator && hasOrganizer && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                <Calendar size={14} color="#6366F1" />
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Espace Organisateur</span>
-              </div>
-            )}
-            <div className="dash-grid">
-              <div>
-                {loading ? <FeedSkeleton /> : (
-                  <OrganizerMainContent
-                    events={events}
-                    pendingApps={pendingApps}
-                    setPendingApps={setPendingApps}
-                    lateApps={lateApps}
-                    userId={user.id}
-                    selectedEventId={selectedEventId}
-                    setSelectedEventId={setSelectedEventId}
-                  />
-                )}
-              </div>
-              <div>
-                {loading ? <SidebarSkeleton /> : (
-                  <OrganizerSidebar events={events} nextEvent={nextEvent} selectedEventId={selectedEventId} />
-                )}
-              </div>
+        {/* Organizer tab */}
+        {dashTab === 'organizer' && hasOrganizer && (
+          <div className="dash-grid">
+            <div>
+              {loading ? <FeedSkeleton /> : (
+                <OrganizerMainContent
+                  events={events}
+                  pendingApps={pendingApps}
+                  setPendingApps={setPendingApps}
+                  lateApps={lateApps}
+                  userId={user.id}
+                  selectedEventId={selectedEventId}
+                  setSelectedEventId={setSelectedEventId}
+                />
+              )}
+            </div>
+            <div>
+              {loading ? <SidebarSkeleton /> : (
+                <OrganizerSidebar events={events} nextEvent={nextEvent} selectedEventId={selectedEventId} />
+              )}
             </div>
           </div>
         )}
 
-        {/* Admin section */}
-        {isAdmin && (
-          <div style={{ paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Zap size={14} color="#f59e0b" />
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Espace Admin</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+        {/* Admin tab */}
+        {dashTab === 'admin' && isAdmin && (
+          <div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '24px' }}>
               {[
-                { href: '/admin', icon: <BarChart2 size={16} />, label: 'Vue globale', sub: 'Stats & activité' },
-                { href: '/admin/users', icon: <Users size={16} />, label: 'Utilisateurs', sub: 'Gérer les comptes' },
-                { href: '/admin/events', icon: <Calendar size={16} />, label: 'Événements', sub: 'Modération' },
+                { href: '/admin',         icon: <BarChart2 size={16} />,  label: 'Vue globale',   sub: 'Stats & activité' },
+                { href: '/admin/users',   icon: <Users size={16} />,      label: 'Utilisateurs',  sub: 'Gérer les comptes' },
+                { href: '/admin/events',  icon: <Calendar size={16} />,   label: 'Événements',    sub: 'Modération' },
                 { href: '/admin/reports', icon: <AlertCircle size={16} />, label: 'Signalements', sub: 'Rapports' },
               ].map(tool => (
-                <Link key={tool.href} href={tool.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '14px 12px', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.25)', backgroundColor: 'rgba(245,158,11,0.06)' }}>
+                <Link key={tool.href} href={tool.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '6px', padding: '18px 14px', borderRadius: '12px', border: '1px solid rgba(245,158,11,0.25)', backgroundColor: 'rgba(245,158,11,0.06)' }}>
                   <span style={{ color: '#f59e0b' }}>{tool.icon}</span>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#f0f0f0' }}>{tool.label}</span>
-                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.32)' }}>{tool.sub}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0' }}>{tool.label}</span>
+                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)' }}>{tool.sub}</span>
                 </Link>
               ))}
             </div>

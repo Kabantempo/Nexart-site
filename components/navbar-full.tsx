@@ -576,14 +576,7 @@ export function NavbarFull() {
                         </div>
                       </div>
 
-                      {(user.is_creator || user.role === 'creator') && (user.is_organizer || user.role === 'organizer') ? (
-                        <>
-                          <SimpleItem panelId="profile" idx={0} href="/dashboard?tab=creator"   icon={Brush}     label="Dashboard créateur" />
-                          <SimpleItem panelId="profile" idx={1} href="/dashboard?tab=organizer" icon={Building2} label="Dashboard organisateur" />
-                        </>
-                      ) : (
-                        <SimpleItem panelId="profile" idx={0} href="/dashboard" icon={User} label="Mon dashboard" />
-                      )}
+                      <SimpleItem panelId="profile" idx={0} href="/dashboard" icon={User} label="Mon dashboard" />
                       <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 2 : 1} href="/profile"       icon={User}  label="Mon profil" />
                       <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 3 : 2} href="/notifications" icon={Bell}  label="Notifications" />
                       <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 4 : 3} href="/settings"      icon={User}  label="Paramètres" />
