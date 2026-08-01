@@ -334,7 +334,7 @@ export function NavbarFull() {
 
             {/* Logo */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
-              <Image src="/logo-mark.png" alt="Nexart" width={26} height={26} style={{ borderRadius: '8px' }} priority />
+              <Image src="/logo-mark-64.png" alt="Nexart" width={26} height={26} style={{ borderRadius: '8px' }} priority />
               <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '-0.02em', color: '#111827' }}>
                 Nexart
               </span>
