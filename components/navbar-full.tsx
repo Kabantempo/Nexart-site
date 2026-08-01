@@ -8,10 +8,8 @@ import { useRouter, usePathname } from 'next/navigation'
 import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
-import { NotificationBell } from '@/components/ui/notification-bell'
 import { WhatsNew } from '@/components/ui/whats-new'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { PushNotificationButton } from '@/components/push-notifications'
 
 // ── Styles helpers ──────────────────────────────────────────────────────────
 
@@ -503,8 +501,6 @@ export function NavbarFull() {
 
               {user ? (
                 <>
-                  <NotificationBell userId={user.id} dark={false} />
-                  <PushNotificationButton />
                   <Link href="/favorites" title="Mes favoris" style={iconBtn}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}

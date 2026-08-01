@@ -1,10 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Trash2, ChevronRight } from 'lucide-react'
+import { Download, Trash2, ChevronRight, Bell, BellOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ui/toast-provider'
+
+const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = atob(base64)
+  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
+}
 
 export default function SettingsClient() {
   const [loading, setLoading] = useState(false)
@@ -145,6 +154,20 @@ export default function SettingsClient() {
             </div>
           </motion.section>
 
+          {/* Section: Notifications */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Notifications
+            </h2>
+            <PushNotificationSection />
+          </motion.section>
+
           {/* Section: RGPD */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -225,6 +248,104 @@ export default function SettingsClient() {
           </motion.section>
         </div>
       </div>
+    </div>
+  )
+}
+
+function PushNotificationSection() {
+  const [subscribed, setSubscribed] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [supported, setSupported] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window && VAPID_PUBLIC) {
+      setSupported(true)
+      navigator.serviceWorker.ready.then(reg => reg.pushManager.getSubscription()).then(sub => setSubscribed(!!sub)).catch(() => {})
+    }
+  }, [])
+
+  async function toggle() {
+    if (!VAPID_PUBLIC) return
+    setLoading(true)
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js')
+      await navigator.serviceWorker.ready
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      if (subscribed) {
+        const sub = await reg.pushManager.getSubscription()
+        if (sub) {
+          await fetch('/api/push/subscribe', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+            body: JSON.stringify({ endpoint: sub.endpoint }),
+          })
+          await sub.unsubscribe()
+          setSubscribed(false)
+        }
+      } else {
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC),
+        })
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({
+            endpoint: sub.endpoint,
+            keys: {
+              p256dh: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')!))),
+              auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')!))),
+            },
+          }),
+        })
+        setSubscribed(true)
+      }
+    } catch (err) {
+      console.error('Push toggle error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+      <div>
+        <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+          Notifications push
+        </h3>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+          {supported
+            ? subscribed ? 'Activées — vous recevez les notifications en temps réel' : 'Désactivées — activez pour recevoir des alertes'
+            : 'Non supporté par votre navigateur'}
+        </p>
+      </div>
+      {supported && (
+        <button
+          onClick={toggle}
+          disabled={loading}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            backgroundColor: subscribed ? '#6366F1' : 'var(--border-color)',
+            color: subscribed ? '#FFFFFF' : 'var(--text-primary)',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '10px 16px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.6 : 1,
+            fontSize: '14px',
+            fontWeight: 600,
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {subscribed ? <Bell size={16} /> : <BellOff size={16} />}
+          {loading ? '...' : subscribed ? 'Désactiver' : 'Activer'}
+        </button>
+      )}
     </div>
   )
 }
