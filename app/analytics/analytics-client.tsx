@@ -43,7 +43,7 @@ export default function AnalyticsClient() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
-      if (!user) {
+      if (!user || user.is_creator === undefined) {
         const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
         if (profile) setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
       }
