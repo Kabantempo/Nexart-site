@@ -343,6 +343,57 @@ export function emailReminder(eventTitle: string, eventId: string, isLast: boole
   )
 }
 
+export function emailStandPaymentConfirmed(creatorName: string, eventTitle: string, amount: string, eventId: string): string {
+  return base(
+    `
+    <p style="margin:0 0 12px;display:inline-block;background:rgba(16,185,129,0.2);border:1px solid #10B981;border-radius:999px;padding:5px 16px;color:#10B981;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Paiement confirmé</p>
+    <h1 style="margin:0 0 8px;color:#fff;font-size:24px;font-weight:800;">✅ Votre stand est réservé !</h1>
+    <p style="margin:0;color:rgba(255,255,255,0.6);font-size:14px;">${eventTitle}</p>`,
+    `
+    <p style="margin:0 0 16px;color:${COLORS.textBody};font-size:15px;line-height:1.7;">
+      Bonjour ${creatorName} ! Votre paiement de <strong>${amount}</strong> pour le stand à l'événement <strong>${eventTitle}</strong> a bien été reçu.
+    </p>
+    <p style="margin:0 0 28px;color:${COLORS.textBody};font-size:15px;line-height:1.7;">
+      Votre participation est confirmée. Retrouvez tous les détails de l'événement dans votre espace.
+    </p>
+    ${button('Voir l\'événement →', `https://nexart.fr/events/${eventId}`)}`
+  )
+}
+
+export function emailWelcomeOrganizer(name: string, eventTitle: string, eventId: string): string {
+  return base(
+    `
+    <p style="margin:0 0 12px;display:inline-block;background:rgba(99,102,241,0.2);border:1px solid ${COLORS.indigo};border-radius:999px;padding:5px 16px;color:${COLORS.indigoLight};font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Bienvenue !</p>
+    <h1 style="margin:0 0 8px;color:#fff;font-size:24px;font-weight:800;">🎉 Votre premier marché est en ligne</h1>
+    <p style="margin:0;color:rgba(255,255,255,0.6);font-size:14px;">${eventTitle}</p>`,
+    `
+    <p style="margin:0 0 16px;color:${COLORS.textBody};font-size:15px;line-height:1.7;">
+      Bonjour ${name} ! Félicitations — votre premier marché <strong>${eventTitle}</strong> est maintenant publié sur Nexart.
+    </p>
+    <p style="margin:0 0 16px;color:${COLORS.textBody};font-size:15px;line-height:1.7;">
+      Les créateurs pourront bientôt découvrir votre événement et envoyer leurs candidatures. Pensez à compléter les informations de votre marché pour maximiser votre visibilité.
+    </p>
+    ${button('Gérer mon marché →', `https://nexart.fr/events/${eventId}/manage`)}`
+  )
+}
+
+export function emailStandReminder7Days(creatorName: string, eventTitle: string, eventDate: string, eventId: string): string {
+  return base(
+    `
+    <p style="margin:0 0 12px;display:inline-block;background:rgba(245,158,11,0.2);border:1px solid #F59E0B;border-radius:999px;padding:5px 16px;color:#F59E0B;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Rappel J-7</p>
+    <h1 style="margin:0 0 8px;color:#fff;font-size:24px;font-weight:800;">⏳ Plus que 7 jours !</h1>
+    <p style="margin:0;color:rgba(255,255,255,0.6);font-size:14px;">${eventTitle}</p>`,
+    `
+    <p style="margin:0 0 16px;color:${COLORS.textBody};font-size:15px;line-height:1.7;">
+      Bonjour ${creatorName} ! Votre stand à <strong>${eventTitle}</strong> commence dans 7 jours (le <strong>${eventDate}</strong>).
+    </p>
+    <p style="margin:0 0 28px;color:${COLORS.textBody};font-size:15px;line-height:1.7;">
+      Pensez à préparer vos produits, votre installation et à vérifier les informations pratiques de l'événement.
+    </p>
+    ${button('Voir les détails →', `https://nexart.fr/events/${eventId}`)}`
+  )
+}
+
 export function emailPaymentFailed(amount: string): string {
   return base(
     `

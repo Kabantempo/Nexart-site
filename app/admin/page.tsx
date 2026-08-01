@@ -87,7 +87,14 @@ type SiretVerification = {
   profiles?: { full_name: string; avatar_url: string | null } | null
 }
 
-type AdminTab = 'analytics' | 'verifications' | 'disciplines' | 'marches' | 'messages' | 'abonnements' | 'signalements'
+type AdminTab = 'analytics' | 'verifications' | 'disciplines' | 'marches' | 'messages' | 'abonnements' | 'signalements' | 'revenue'
+
+type StandPayment = {
+  id: string; amount_cents: number; commission_cents: number; created_at: string; status: string
+  stripe_payment_id: string | null
+  creator?: { full_name: string | null } | null
+  event?: { title: string | null } | null
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -148,6 +155,10 @@ export default function AdminPage() {
   const [msgSending, setMsgSending] = useState(false)
   const [msgSent, setMsgSent] = useState(false)
   const [msgSearchTimeout, setMsgSearchTimeout] = useState<ReturnType<typeof setTimeout> | null>(null)
+
+  // Revenue
+  const [standPayments, setStandPayments] = useState<StandPayment[]>([])
+  const [revenueLoaded, setRevenueLoaded] = useState(false)
 
   // Abonnements
   const [subSearch, setSubSearch] = useState('')
@@ -258,6 +269,21 @@ export default function AdminPage() {
         })
     }
   }, [tab, reportsLoaded])
+
+  // Load revenue lazily
+  useEffect(() => {
+    if (tab === 'revenue' && !revenueLoaded) {
+      supabase
+        .from('stand_payments' as any)
+        .select('id, amount_cents, commission_cents, created_at, status, stripe_payment_id, creator:creator_id(full_name), event:event_id(title)')
+        .order('created_at', { ascending: false })
+        .limit(200)
+        .then(({ data }) => {
+          setStandPayments((data as StandPayment[]) ?? [])
+          setRevenueLoaded(true)
+        })
+    }
+  }, [tab, revenueLoaded]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load analytics lazily if needed
   useEffect(() => {
@@ -435,6 +461,7 @@ export default function AdminPage() {
     { k: 'messages',       label: `Messages (${adminMessages.length})` },
     { k: 'abonnements',    label: 'Abonnements' },
     { k: 'signalements',   label: 'Signalements',  badge: pendingReports.length || undefined },
+    { k: 'revenue',        label: 'Revenue' },
   ]
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -1410,6 +1437,83 @@ export default function AdminPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'revenue' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.2s ease' }}>
+            {(() => {
+              const total = standPayments.reduce((s, p) => s + (p.status !== 'refunded' ? p.amount_cents : 0), 0)
+              const commission = standPayments.reduce((s, p) => s + (p.status !== 'refunded' ? p.commission_cents : 0), 0)
+              const count = standPayments.filter(p => p.status !== 'refunded').length
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
+                  {[
+                    { label: 'Encaissé total', value: `${(total / 100).toFixed(2)} €`, color: '#4ade80' },
+                    { label: 'Commission Nexart (8%)', value: `${(commission / 100).toFixed(2)} €`, color: '#818CF8' },
+                    { label: 'Transactions', value: String(count), color: '#F59E0B' },
+                  ].map(kpi => (
+                    <div key={kpi.label} style={{ padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', backgroundColor: '#111827' }}>
+                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.label}</p>
+                      <p style={{ fontSize: '24px', fontWeight: '800', color: kpi.color, margin: 0 }}>{kpi.value}</p>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {!revenueLoaded ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                <div style={{ width: '28px', height: '28px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              </div>
+            ) : standPayments.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                <TrendingUp size={36} color="#374151" style={{ marginBottom: '10px' }} />
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune transaction pour le moment</p>
+              </div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                  <thead>
+                    <tr>
+                      {['Date', 'Créateur', 'Événement', 'Montant', 'Commission', 'Statut'].map(h => (
+                        <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: '600', borderBottom: '1px solid rgba(255,255,255,0.1)', whiteSpace: 'nowrap' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {standPayments.map(p => (
+                      <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                        <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                          {new Date(p.created_at).toLocaleDateString('fr-FR')}
+                        </td>
+                        <td style={{ padding: '10px 12px', color: 'var(--bg-secondary)', fontWeight: '500' }}>
+                          {(p.creator as any)?.full_name ?? '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px', color: 'var(--bg-secondary)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {(p.event as any)?.title ?? '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px', color: '#4ade80', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                          {(p.amount_cents / 100).toFixed(2)} €
+                        </td>
+                        <td style={{ padding: '10px 12px', color: '#818CF8', whiteSpace: 'nowrap' }}>
+                          {(p.commission_cents / 100).toFixed(2)} €
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{
+                            fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '6px',
+                            backgroundColor: p.status === 'refunded' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
+                            color: p.status === 'refunded' ? '#f87171' : '#4ade80',
+                          }}>
+                            {p.status === 'refunded' ? 'Remboursé' : 'Payé'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

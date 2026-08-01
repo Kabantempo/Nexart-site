@@ -56,11 +56,26 @@ export default function NotificationsClient() {
   }, [])
 
   useEffect(() => {
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       setUserId(session.user.id)
       fetchNotifications(session.user.id)
+
+      // Realtime: new notifications
+      channel = supabase
+        .channel(`notifications:${session.user.id}`)
+        .on('postgres_changes', {
+          event: 'INSERT', schema: 'public', table: 'notifications',
+          filter: `user_id=eq.${session.user.id}`,
+        }, (payload) => {
+          setNotifications(prev => [payload.new as Notification, ...prev])
+        })
+        .subscribe()
     })
+
+    return () => { if (channel) supabase.removeChannel(channel) }
   }, [router, fetchNotifications])
 
   const markAllRead = async () => {
