@@ -74,7 +74,7 @@ export default function MentionsLegalesClient() {
       title: 'Contact Support',
       icon: Mail,
       items: [
-        { label: 'Email Principal', value: 'kalvin@nexart.fr' },
+        { label: 'Email Principal', value: 'contact@nexart.fr' },
         { label: 'Formulaire Contact', value: 'https://nexart.fr/contact' },
         { label: 'Délai de Réponse', value: 'Sous 24-48 heures' },
       ],
