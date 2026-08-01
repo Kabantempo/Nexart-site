@@ -986,22 +986,52 @@ export function EventDetailClient({ id }: Props) {
               {application && !cancelled ? (
                 <div style={{
                   padding: '16px',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   backgroundColor: STATUS_STYLES[application.status]?.bg || 'var(--bg-secondary)',
                   border: `1px solid ${STATUS_STYLES[application.status]?.color || 'var(--border-color)'}`,
-                  textAlign: 'center',
                 }}>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || 'var(--text-secondary)', margin: 0 }}>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || 'var(--text-secondary)', margin: '0 0 12px 0', textAlign: 'center' }}>
                     {STATUS_STYLES[application.status]?.label || application.status}
                   </p>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+
+                  {/* Timeline visuelle — uniquement en attente */}
+                  {application.status === 'pending' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: '12px' }}>
+                      {[
+                        { label: 'Envoyée', done: true },
+                        { label: 'En révision', done: false },
+                        { label: 'Décision', done: false },
+                      ].map((step, i, arr) => (
+                        <div key={step.label} style={{ display: 'flex', alignItems: 'center', flex: i < arr.length - 1 ? 1 : undefined }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                            <div style={{
+                              width: '20px', height: '20px', borderRadius: '50%',
+                              backgroundColor: step.done ? '#FF9800' : 'var(--bg-primary)',
+                              border: `2px solid ${step.done ? '#FF9800' : 'var(--border-color)'}`,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              {step.done && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FFF' }} />}
+                            </div>
+                            <span style={{ fontSize: '10px', fontWeight: 600, color: step.done ? '#FF9800' : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
+                              {step.label}
+                            </span>
+                          </div>
+                          {i < arr.length - 1 && (
+                            <div style={{ flex: 1, height: '2px', backgroundColor: 'var(--border-color)', margin: '0 4px', marginBottom: '16px' }} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
                     Candidature envoyée le {new Date(application.created_at).toLocaleDateString('fr-FR')}
                   </p>
                   {application.status === 'pending' && (
                     <button
                       onClick={handleCancelApplication}
                       disabled={cancelling}
-                      style={{ marginTop: '12px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '600', cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1 }}
+                      style={{ marginTop: '12px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '600', cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1, width: '100%' }}
                     >
                       {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
                     </button>

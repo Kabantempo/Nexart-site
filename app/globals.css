@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --font-geist-sans: 'Inter', sans-serif;
-  --font-geist-mono: 'JetBrains Mono', monospace;
+  --font-geist-sans: var(--font-inter, 'Inter', sans-serif);
+  --font-geist-mono: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+body {
+  font-family: var(--font-inter, 'Inter', system-ui, sans-serif);
 }
 
 /* ── CSS variables — dark par défaut ── */
@@ -530,3 +534,15 @@ footer {
   border-color: var(--border-color) !important;
 }
 
+
+/* ── Hero LCP — CSS-native word reveal (no JS blocking) ── */
+@keyframes wordReveal {
+  from { opacity: 0; transform: translateY(110%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-word {
+  display: inline-block;
+  margin-right: 0.22em;
+  animation: wordReveal 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-word:last-child { margin-right: 0; }
