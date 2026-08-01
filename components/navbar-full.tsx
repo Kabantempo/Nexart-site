@@ -312,7 +312,7 @@ export function NavbarFull() {
         style={{
           position: 'fixed', inset: '0 0 auto 0', zIndex: 50,
           transition: 'all 0.5s',
-          pointerEvents: scrolled ? 'none' : 'auto',
+          pointerEvents: 'auto',
         }}
       >
         <div style={{ transition: 'all 0.5s', pointerEvents: 'auto', ...(scrolled ? { margin: '12px 24px 0' } : {}) }}>
@@ -320,15 +320,15 @@ export function NavbarFull() {
             maxWidth: '1280px', margin: '0 auto', padding: '0 20px',
             height: '58px', display: 'flex', alignItems: 'center', gap: '32px',
             transition: 'all 0.5s',
+            backgroundColor: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.85)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
             ...(scrolled ? {
-              backgroundColor: 'rgba(255,255,255,0.92)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
               borderRadius: '18px',
               boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
               border: '1px solid rgba(0,0,0,0.06)',
             } : {
-              backgroundColor: 'transparent',
+              borderBottom: '1px solid rgba(0,0,0,0.06)',
             }),
           }}>
 
