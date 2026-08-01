@@ -315,7 +315,7 @@ export function NavbarFull() {
           pointerEvents: scrolled ? 'none' : 'auto',
         }}
       >
-        <div style={{ transition: 'all 0.5s', ...(scrolled ? { pointerEvents: 'auto', margin: '12px 24px 0' } : {}) }}>
+        <div style={{ transition: 'all 0.5s', pointerEvents: 'auto', ...(scrolled ? { margin: '12px 24px 0' } : {}) }}>
           <div style={{
             maxWidth: '1280px', margin: '0 auto', padding: '0 20px',
             height: '58px', display: 'flex', alignItems: 'center', gap: '32px',

@@ -102,13 +102,6 @@ export default function DashboardPage() {
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null)
   const [paymentBanner, setPaymentBanner] = useState<'success' | 'cancelled' | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
-  const [dashTab, setDashTab] = useState<'creator' | 'organizer'>(() => {
-    if (typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search).get('tab')
-      if (p === 'organizer') return 'organizer'
-    }
-    return 'creator'
-  })
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -123,7 +116,7 @@ export default function DashboardPage() {
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
       if (profile) {
         if (profile.is_banned) { await supabase.auth.signOut(); router.push('/banned'); return }
-        setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer })
+        setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer, is_admin: profile.is_admin })
         if (!profile.onboarding_done) { router.push('/onboarding'); return }
         setSubscriptionTier((profile as any).subscription_tier ?? 'free')
         setSubscriptionStatus((profile as any).subscription_status ?? null)
@@ -248,7 +241,12 @@ export default function DashboardPage() {
   const firstName = user.full_name?.split(' ')[0] ?? 'vous'
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir'
-  const roleLabel = hasCreator && hasOrganizer ? 'Créateur · Organisateur' : hasCreator ? 'Créateur' : hasOrganizer ? 'Organisateur' : 'Visiteur'
+  const isAdmin = user.is_admin === true
+  const roleLabel = [
+    hasCreator && 'Créateur',
+    hasOrganizer && 'Organisateur',
+    isAdmin && 'Admin',
+  ].filter(Boolean).join(' · ') || 'Visiteur'
 
   const acceptedApps = applications.filter(a => a.status === 'accepted')
   const pendingAppsCreator = applications.filter(a => a.status === 'pending')
@@ -359,20 +357,8 @@ export default function DashboardPage() {
 
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
 
-        {/* Double role tabs */}
-        {hasCreator && hasOrganizer && (
-          <div style={{ display: 'flex', gap: '2px', backgroundColor: '#0d0d1a', padding: '4px', borderRadius: '10px', width: 'fit-content', marginBottom: '20px' }}>
-            {(['creator', 'organizer'] as const).map(tab => (
-              <button key={tab} onClick={() => { setDashTab(tab); router.replace(`/dashboard?tab=${tab}`, { scroll: false }) }}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', backgroundColor: dashTab === tab ? '#fff' : 'transparent', color: dashTab === tab ? '#6366F1' : '#6B7280', boxShadow: dashTab === tab ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
-                {tab === 'creator' ? <><Users size={13} /> Créateur</> : <><Calendar size={13} /> Organisateur</>}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Profile completion banner (creator only) */}
-        {hasCreator && (dashTab === 'creator' || !hasOrganizer) && firstMissingStep && (
+        {hasCreator && firstMissingStep && (
           <Link href={firstMissingStep.link} style={{ display: 'block', textDecoration: 'none', marginBottom: '16px' }}>
             <div style={{ padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
@@ -421,67 +407,109 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* KPI row */}
-        {!loading && (
+        {/* KPI rows */}
+        {!loading && hasCreator && (
+          <div className="kpi-grid" style={{ marginBottom: '10px' }}>
+            <KpiCard label="Candidatures" value={applications.length} color="#6366F1" />
+            <KpiCard label="Acceptées" value={acceptedApps.length} color="#16A34A" />
+            <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color="#D97706" />
+            <KpiCard label="Vues profil (30j)" value={profileViewCount} color="#6366F1" />
+          </div>
+        )}
+        {!loading && hasOrganizer && (
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
-            {(hasCreator && (dashTab === 'creator' || !hasOrganizer)) ? (
-              <>
-                <KpiCard label="Candidatures" value={applications.length} color="#6366F1" />
-                <KpiCard label="Acceptées" value={acceptedApps.length} color="#16A34A" />
-                <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color="#D97706" />
-                <KpiCard label="Vues profil (30j)" value={profileViewCount} color="#6366F1" />
-              </>
-            ) : (
-              <>
-                <KpiCard label="Événements" value={events.length} color="#6366F1" />
-                <KpiCard label="Publiés" value={publishedEvents.length} color="#16A34A" />
-                <KpiCard label="En attente" value={pendingApps.length} color="#D97706" />
-                <KpiCard label="Candidatures tardives" value={lateApps.length} color={lateApps.length > 0 ? '#DC2626' : '#9CA3AF'} />
-              </>
-            )}
+            <KpiCard label="Événements" value={events.length} color="#6366F1" />
+            <KpiCard label="Publiés" value={publishedEvents.length} color="#16A34A" />
+            <KpiCard label="En attente" value={pendingApps.length} color="#D97706" />
+            <KpiCard label="Candidatures tardives" value={lateApps.length} color={lateApps.length > 0 ? '#DC2626' : '#9CA3AF'} />
           </div>
         )}
         {loading && <KpiRowSkeleton />}
 
-        {/* 2-column main layout */}
-        <div className="dash-grid">
-          {/* LEFT: main content */}
-          <div>
-            {loading ? (
-              <FeedSkeleton />
-            ) : hasCreator && (dashTab === 'creator' || !hasOrganizer) ? (
-              <CreatorMainContent
-                applications={applications}
-                userId={user.id}
-                profileViewCount={profileViewCount}
-                profileViewDays={profileViewDays}
-              />
-            ) : hasOrganizer && (dashTab === 'organizer' || !hasCreator) ? (
-              <OrganizerMainContent
-                events={events}
-                pendingApps={pendingApps}
-                setPendingApps={setPendingApps}
-                lateApps={lateApps}
-                userId={user.id}
-                selectedEventId={selectedEventId}
-                setSelectedEventId={setSelectedEventId}
-              />
-            ) : (
-              <VisitorContent />
+        {/* Creator section */}
+        {(hasCreator || (!hasCreator && !hasOrganizer)) && (
+          <div style={{ marginBottom: hasOrganizer || isAdmin ? '32px' : 0 }}>
+            {hasCreator && hasOrganizer && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <Users size={14} color="#6366F1" />
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Espace Créateur</span>
+              </div>
             )}
+            <div className="dash-grid">
+              <div>
+                {loading ? <FeedSkeleton /> : hasCreator ? (
+                  <CreatorMainContent
+                    applications={applications}
+                    userId={user.id}
+                    profileViewCount={profileViewCount}
+                    profileViewDays={profileViewDays}
+                  />
+                ) : <VisitorContent />}
+              </div>
+              <div>
+                {loading ? <SidebarSkeleton /> : hasCreator ? (
+                  <CreatorSidebar userId={user.id} nextEvent={nextAcceptedEvent} />
+                ) : null}
+              </div>
+            </div>
           </div>
+        )}
 
-          {/* RIGHT: sidebar */}
-          <div>
-            {loading ? (
-              <SidebarSkeleton />
-            ) : hasCreator && (dashTab === 'creator' || !hasOrganizer) ? (
-              <CreatorSidebar userId={user.id} nextEvent={nextAcceptedEvent} />
-            ) : hasOrganizer && (dashTab === 'organizer' || !hasCreator) ? (
-              <OrganizerSidebar events={events} nextEvent={nextEvent} selectedEventId={selectedEventId} />
-            ) : null}
+        {/* Organizer section */}
+        {hasOrganizer && (
+          <div style={{ marginBottom: isAdmin ? '32px' : 0 }}>
+            {hasCreator && hasOrganizer && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                <Calendar size={14} color="#6366F1" />
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Espace Organisateur</span>
+              </div>
+            )}
+            <div className="dash-grid">
+              <div>
+                {loading ? <FeedSkeleton /> : (
+                  <OrganizerMainContent
+                    events={events}
+                    pendingApps={pendingApps}
+                    setPendingApps={setPendingApps}
+                    lateApps={lateApps}
+                    userId={user.id}
+                    selectedEventId={selectedEventId}
+                    setSelectedEventId={setSelectedEventId}
+                  />
+                )}
+              </div>
+              <div>
+                {loading ? <SidebarSkeleton /> : (
+                  <OrganizerSidebar events={events} nextEvent={nextEvent} selectedEventId={selectedEventId} />
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Admin section */}
+        {isAdmin && (
+          <div style={{ paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <Zap size={14} color="#f59e0b" />
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Espace Admin</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+              {[
+                { href: '/admin', icon: <BarChart2 size={16} />, label: 'Vue globale', sub: 'Stats & activité' },
+                { href: '/admin/users', icon: <Users size={16} />, label: 'Utilisateurs', sub: 'Gérer les comptes' },
+                { href: '/admin/events', icon: <Calendar size={16} />, label: 'Événements', sub: 'Modération' },
+                { href: '/admin/reports', icon: <AlertCircle size={16} />, label: 'Signalements', sub: 'Rapports' },
+              ].map(tool => (
+                <Link key={tool.href} href={tool.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '14px 12px', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.25)', backgroundColor: 'rgba(245,158,11,0.06)' }}>
+                  <span style={{ color: '#f59e0b' }}>{tool.icon}</span>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#f0f0f0' }}>{tool.label}</span>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.32)' }}>{tool.sub}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
