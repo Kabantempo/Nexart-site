@@ -368,6 +368,7 @@ export function EventDetailClient({ id }: Props) {
   const [bulkTemplate, setBulkTemplate] = useState('custom')
   const [cancelling, setCancelling] = useState(false)
   const [cancelled, setCancelled] = useState(false)
+  const [payingStand, setPayingStand] = useState(false)
   const [onWaitlist, setOnWaitlist] = useState(false)
   const [joiningWaitlist, setJoiningWaitlist] = useState(false)
   const [appPortfolioFiles, setAppPortfolioFiles] = useState<File[]>([])
@@ -583,6 +584,27 @@ export function EventDetailClient({ id }: Props) {
       toastError('Erreur lors du retrait de la candidature')
     }
     setCancelling(false)
+  }
+
+  const handlePayStand = async () => {
+    if (!user || !application) return
+    setPayingStand(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { toastError('Session expirée, reconnectez-vous'); return }
+      const res = await fetch('/api/stripe/stand-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ application_id: application.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) { toastError(data.error ?? 'Erreur paiement'); return }
+      window.location.href = data.url
+    } catch {
+      toastError('Erreur lors du paiement')
+    } finally {
+      setPayingStand(false)
+    }
   }
 
   // Vérifier si le créateur est déjà en waitlist
@@ -1036,8 +1058,23 @@ export function EventDetailClient({ id }: Props) {
                       {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
                     </button>
                   )}
+                  {application.status === 'paid' && (
+                    <div style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', backgroundColor: '#ECFDF5', border: '1px solid #10B981', textAlign: 'center' }}>
+                      <p style={{ fontSize: '13px', fontWeight: 700, color: '#10B981', margin: 0 }}>✅ Stand payé — réservation confirmée</p>
+                    </div>
+                  )}
                   {application.status === 'accepted' && user && event && (
-                    <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {event.stand_price && (
+                        <button
+                          onClick={handlePayStand}
+                          disabled={payingStand}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', border: 'none', backgroundColor: '#10B981', color: '#FFF', fontSize: '14px', fontWeight: 700, cursor: payingStand ? 'wait' : 'pointer', opacity: payingStand ? 0.7 : 1, width: '100%' }}
+                        >
+                          💳 {payingStand ? 'Redirection…' : `Payer mon stand — ${event.stand_price}€`}
+                        </button>
+                      )}
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                       {existingContract ? (
                         <>
                           <a
@@ -1072,6 +1109,7 @@ export function EventDetailClient({ id }: Props) {
                           {contractLoading === application.id ? 'Génération…' : 'Générer le contrat PDF'}
                         </button>
                       )}
+                      </div>
                     </div>
                   )}
                 </div>

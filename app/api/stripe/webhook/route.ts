@@ -91,19 +91,47 @@ export async function POST(req: NextRequest) {
       break
     }
 
-    // ── Paiement one-shot réussi (crédits pay-as-you-go) ─────────────────────
+    // ── Paiement one-shot réussi (stand ou crédits) ──────────────────────────
     case 'checkout.session.completed': {
-      const session = event.data.object as { mode: string; line_items?: { data: { price: { id: string } }[] }; metadata?: { supabase_user_id?: string }; payment_intent?: string }
+      const session = event.data.object as { id: string; mode: string; payment_intent?: string; metadata?: Record<string, string> }
       if (session.mode !== 'payment') break
 
+      // ── Paiement stand ────────────────────────────────────────────────────
+      if (session.metadata?.type === 'stand_payment') {
+        const { application_id, creator_id, amount_cents, commission_cents } = session.metadata ?? {}
+        if (application_id) {
+          await (admin as any).from('applications').update({
+            status: 'paid',
+            stripe_payment_id: session.payment_intent ?? session.id,
+          }).eq('id', application_id)
+
+          await admin.from('notifications').insert({
+            user_id: creator_id,
+            type: 'stand_paid',
+            title: '✅ Paiement confirmé',
+            body: 'Votre stand est réservé ! Retrouvez les détails dans votre tableau de bord.',
+            link: `/events/${session.metadata?.event_id}`,
+          })
+
+          // Log de la transaction pour le suivi revenue
+          await (admin as any).from('stand_payments').insert({
+            application_id,
+            creator_id,
+            event_id: session.metadata?.event_id,
+            organizer_id: session.metadata?.organizer_id,
+            amount_cents: Number(amount_cents ?? 0),
+            commission_cents: Number(commission_cents ?? 0),
+            stripe_payment_id: session.payment_intent ?? session.id,
+          }).catch(() => null) // table optionnelle — pas critique si elle n'existe pas encore
+        }
+        break
+      }
+
+      // ── Crédits pay-as-you-go ─────────────────────────────────────────────
       const uid = userId ?? session.metadata?.supabase_user_id
       if (!uid) break
 
-      // Récupérer les line items pour identifier les crédits achetés
-      const stripeSession = await getStripe().checkout.sessions.retrieve(
-        (event.data.object as { id: string }).id,
-        { expand: ['line_items'] }
-      )
+      const stripeSession = await getStripe().checkout.sessions.retrieve(session.id, { expand: ['line_items'] })
 
       for (const item of stripeSession.line_items?.data ?? []) {
         const priceId = item.price?.id ?? ''
