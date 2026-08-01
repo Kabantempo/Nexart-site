@@ -93,6 +93,7 @@ export function NavbarFull() {
   const searchRef         = useRef<HTMLInputElement>(null)
   const closeTimer        = useRef<ReturnType<typeof setTimeout> | null>(null)
   const navRef            = useRef<HTMLElement>(null)
+  const profileRef        = useRef<HTMLDivElement>(null)
   const dropdownItemsRef  = useRef<Map<string, HTMLAnchorElement[]>>(new Map())
   const triggerRefs       = useRef<Map<string, HTMLButtonElement>>(new Map())
 
@@ -141,7 +142,9 @@ export function NavbarFull() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) setDropdown(null)
+      const inNav     = navRef.current?.contains(e.target as Node)
+      const inProfile = profileRef.current?.contains(e.target as Node)
+      if (!inNav && !inProfile) setDropdown(null)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -526,7 +529,7 @@ export function NavbarFull() {
                   )}
 
                   {/* Profile dropdown */}
-                  <div style={{ position: 'relative', marginLeft: '4px' }}
+                  <div ref={profileRef} style={{ position: 'relative', marginLeft: '4px' }}
                     onMouseEnter={() => { stay(); setDropdown('profile') }}
                     onMouseLeave={() => go()}
                   >
