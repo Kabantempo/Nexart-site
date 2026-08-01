@@ -37,11 +37,10 @@ function WordReveal({ children, delay = 0, className = '' }: { children: string;
   return (
     <span className={className}>
       {children.split(' ').map((w, i) => (
-        <motion.span key={i} className="inline-block mr-[0.22em] last:mr-0"
-          initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.58, delay: delay + i * 0.075, ease: [0.22, 1, 0.36, 1] }}>
+        <span key={i} className="hero-word"
+          style={{ animationDelay: `${delay + i * 0.075}s` }}>
           {w}
-        </motion.span>
+        </span>
       ))}
     </span>
   )

@@ -9,6 +9,7 @@ import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Hear
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { WhatsNew } from '@/components/ui/whats-new'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 // ── Styles helpers ──────────────────────────────────────────────────────────
 
@@ -300,7 +301,7 @@ export function NavbarFull() {
   }
 
   const iconBtn: React.CSSProperties = {
-    width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: '10px', background: 'none', border: 'none', cursor: 'pointer',
     color: '#9CA3AF', transition: 'color 0.15s, background 0.15s',
   }
@@ -498,6 +499,7 @@ export function NavbarFull() {
                 </AnimatePresence>
               </div>
 
+              <ThemeToggle />
               <WhatsNew dark={false} />
 
               {user ? (
@@ -613,7 +615,7 @@ export function NavbarFull() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Menu"
-              style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center', alignItems: 'center', width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer' }}
+              style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center', alignItems: 'center', width: '44px', height: '44px', borderRadius: '10px', background: 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer' }}
               className="lg-hidden"
             >
               <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
