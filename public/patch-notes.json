@@ -1,6 +1,25 @@
 {
   "versions": [
     {
+      "version": "1.3.0",
+      "date": "2026-08-01",
+      "name": "v1.3.0 — Dashboard Admin & Stabilité",
+      "features": [
+        "Onglet Admin dans le dashboard (visible uniquement pour les admins)",
+        "Raccourcis admin : Vue globale, Utilisateurs, Événements, Signalements",
+        "Error boundary sur /dashboard et /profil : écran de récupération au lieu d'une page blanche"
+      ],
+      "improvements": [
+        "Navbar toujours visible avec fond frosted-glass (même en haut de page)",
+        "Liens de la navbar entièrement cliquables (fix pointer-events)",
+        "Dashboard : 3 onglets distincts — Créateur / Organisateur / Admin"
+      ],
+      "fixes": [
+        "Liens du menu profil (navbar) pointaient vers ?tab=creator/organizer — remplacés par /dashboard",
+        "Éléments de navigation inaccessibles sur les pages sombres (texte invisible + pointer-events bloquants)"
+      ]
+    },
+    {
       "version": "1.2.0",
       "date": "2026-07-12",
       "name": "v1.2.0 — Tableau de Bord Organisateur",
