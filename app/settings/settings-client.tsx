@@ -268,40 +268,47 @@ export default function SettingsClient() {
 }
 
 function ThemeSection() {
-  const { isDark, toggle } = useTheme()
+  const { theme, setMode } = useTheme()
+
+  const options: { value: 'light' | 'dark' | 'system'; label: string; desc: string; icon: React.ReactNode }[] = [
+    { value: 'light', label: 'Clair', desc: 'Interface toujours en mode clair', icon: <Sun size={18} /> },
+    { value: 'dark', label: 'Sombre', desc: 'Interface toujours en mode sombre', icon: <Moon size={18} /> },
+    { value: 'system', label: 'Système', desc: 'Suit les préférences de votre appareil', icon: <span style={{ fontSize: '18px', lineHeight: 1 }}>⚙️</span> },
+  ]
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
-      <div>
-        <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-          Mode {isDark ? 'sombre' : 'clair'}
-        </h3>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-          {isDark ? 'Interface en mode sombre activée' : 'Interface en mode clair activée'}
-        </p>
-      </div>
-      <button
-        onClick={toggle}
-        aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          backgroundColor: isDark ? '#1F2937' : '#F9FAFB',
-          color: 'var(--text-primary)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '8px',
-          padding: '10px 16px',
-          cursor: 'pointer',
-          fontSize: '14px',
-          fontWeight: 600,
-          transition: 'all 0.2s',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {isDark ? <Sun size={16} /> : <Moon size={16} />}
-        {isDark ? 'Mode clair' : 'Mode sombre'}
-      </button>
+    <div style={{ display: 'grid', gap: '12px' }}>
+      {options.map(opt => {
+        const active = theme === opt.value
+        return (
+          <button
+            key={opt.value}
+            onClick={() => setMode(opt.value)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              backgroundColor: active ? (opt.value === 'dark' ? '#1F2937' : opt.value === 'light' ? '#F9FAFB' : 'var(--bg-secondary)') : 'var(--bg-primary)',
+              border: active ? '2px solid #6366F1' : '1px solid var(--border-color)',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              cursor: 'pointer',
+              textAlign: 'left',
+              transition: 'all 0.2s',
+              width: '100%',
+            }}
+          >
+            <span style={{ color: active ? '#6366F1' : 'var(--text-secondary)', flexShrink: 0 }}>{opt.icon}</span>
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: active ? '#6366F1' : 'var(--text-primary)', marginBottom: '2px' }}>{opt.label}</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{opt.desc}</div>
+            </div>
+            {active && (
+              <span style={{ marginLeft: 'auto', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0 }} />
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }

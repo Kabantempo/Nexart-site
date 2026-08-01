@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from 'react'
 
-type Theme = 'light' | 'dark'
+type Theme = 'light' | 'dark' | 'system'
+
+function applyTheme(theme: Theme) {
+  if (theme === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light')
+  } else {
+    document.documentElement.setAttribute('data-theme', theme)
+  }
+}
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>('dark')
@@ -11,15 +20,28 @@ export function useTheme() {
     const stored = localStorage.getItem('nexart-theme') as Theme | null
     const initial: Theme = stored ?? 'dark'
     setTheme(initial)
-    document.documentElement.setAttribute('data-theme', initial)
+    applyTheme(initial)
+
+    if (initial === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      const handler = () => applyTheme('system')
+      mq.addEventListener('change', handler)
+      return () => mq.removeEventListener('change', handler)
+    }
   }, [])
 
-  const toggle = () => {
-    const next: Theme = theme === 'light' ? 'dark' : 'light'
+  const setMode = (next: Theme) => {
     setTheme(next)
     localStorage.setItem('nexart-theme', next)
-    document.documentElement.setAttribute('data-theme', next)
+    applyTheme(next)
   }
 
-  return { theme, toggle, isDark: theme === 'dark' }
+  const toggle = () => {
+    const next: Theme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+    setMode(next)
+  }
+
+  const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  return { theme, toggle, setMode, isDark }
 }
