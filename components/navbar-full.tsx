@@ -9,7 +9,6 @@ import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Hear
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { WhatsNew } from '@/components/ui/whats-new'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 // ── Styles helpers ──────────────────────────────────────────────────────────
 
@@ -497,7 +496,6 @@ export function NavbarFull() {
               </div>
 
               <WhatsNew dark={false} />
-              <ThemeToggle />
 
               {user ? (
                 <>

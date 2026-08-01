@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Trash2, ChevronRight, Bell, BellOff } from 'lucide-react'
+import { Download, Trash2, ChevronRight, Bell, BellOff, Moon, Sun } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ui/toast-provider'
+import { useTheme } from '@/lib/use-theme'
 
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
@@ -154,6 +155,20 @@ export default function SettingsClient() {
             </div>
           </motion.section>
 
+          {/* Section: Apparence */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Apparence
+            </h2>
+            <ThemeSection />
+          </motion.section>
+
           {/* Section: Notifications */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -248,6 +263,45 @@ export default function SettingsClient() {
           </motion.section>
         </div>
       </div>
+    </div>
+  )
+}
+
+function ThemeSection() {
+  const { isDark, toggle } = useTheme()
+
+  return (
+    <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+      <div>
+        <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+          Mode {isDark ? 'sombre' : 'clair'}
+        </h3>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+          {isDark ? 'Interface en mode sombre activée' : 'Interface en mode clair activée'}
+        </p>
+      </div>
+      <button
+        onClick={toggle}
+        aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          backgroundColor: isDark ? '#1F2937' : '#F9FAFB',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px',
+          padding: '10px 16px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: 600,
+          transition: 'all 0.2s',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        {isDark ? 'Mode clair' : 'Mode sombre'}
+      </button>
     </div>
   )
 }
