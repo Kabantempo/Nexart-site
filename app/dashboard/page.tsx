@@ -25,18 +25,18 @@ function AnimatedNumber({ value }: { value: number }) {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-  pending:  { label: 'En attente', color: '#F59E0B',   bg: 'rgba(217,119,6,0.15)',    dot: '#F59E0B' },
-  accepted: { label: 'Acceptée',   color: '#4ade80',   bg: 'rgba(22,163,74,0.15)',    dot: '#4ade80' },
-  refused:  { label: 'Refusée',    color: '#f87171',   bg: 'rgba(220,38,38,0.15)',    dot: '#f87171' },
+  pending:  { label: 'En attente', color: '#D97706', bg: '#FEF3C7',    dot: '#F59E0B' },
+  accepted: { label: 'Acceptée',   color: '#16A34A', bg: '#DCFCE7',    dot: '#4ade80' },
+  refused:  { label: 'Refusée',    color: '#DC2626', bg: '#FEE2E2',    dot: '#f87171' },
 }
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  free:       { label: 'Essentiel',  color: 'rgba(255,255,255,0.5)',  bg: 'rgba(255,255,255,0.07)' },
-  boost:      { label: 'Boost',      color: '#818CF8',                bg: 'rgba(99,102,241,0.2)'   },
-  pro:        { label: 'Pro',        color: '#a78bfa',                bg: 'rgba(124,58,237,0.2)'   },
-  premium:    { label: 'Premium',    color: '#fbbf24',                bg: 'rgba(217,119,6,0.2)'    },
-  org_pro:    { label: 'Org Pro',    color: '#34d399',                bg: 'rgba(5,150,105,0.2)'    },
-  org_studio: { label: 'Studio',     color: '#fb7185',                bg: 'rgba(225,29,72,0.2)'    },
+  free:       { label: 'Essentiel',  color: '#9CA3AF',  bg: '#E5E7EB' },
+  boost:      { label: 'Boost',      color: '#6366F1', bg: '#EEF2FF'   },
+  pro:        { label: 'Pro',        color: '#7C3AED', bg: '#EDE9FE'   },
+  premium:    { label: 'Premium',    color: '#D97706', bg: '#FEF3C7'    },
+  org_pro:    { label: 'Org Pro',    color: '#059669', bg: '#D1FAE5'    },
+  org_studio: { label: 'Studio',     color: '#E11D48', bg: '#FFE4E6'    },
 }
 
 const PROFILE_STEPS = [
@@ -54,7 +54,7 @@ function KpiRowSkeleton() {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
       {[...Array(4)].map((_, i) => (
-        <div key={i} style={{ height: '80px', borderRadius: '10px', backgroundColor: '#0d0d1a', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div key={i} style={{ height: '80px', borderRadius: '10px', backgroundColor: '#F3F4F6', animation: 'pulse 1.5s ease-in-out infinite' }} />
       ))}
     </div>
   )
@@ -64,11 +64,11 @@ function FeedSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {[...Array(3)].map((_, i) => (
-        <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px 16px', borderRadius: '10px', backgroundColor: '#0f0f1a', animation: 'pulse 1.5s ease-in-out infinite' }}>
-          <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.1)', flexShrink: 0, marginTop: '6px' }} />
+        <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px 16px', borderRadius: '10px', backgroundColor: '#F5F5F7', animation: 'pulse 1.5s ease-in-out infinite' }}>
+          <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#E5E7EB', flexShrink: 0, marginTop: '6px' }} />
           <div style={{ flex: 1 }}>
-            <div style={{ height: '12px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', width: '60%', marginBottom: '6px' }} />
-            <div style={{ height: '10px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '4px', width: '40%' }} />
+            <div style={{ height: '12px', backgroundColor: '#E5E7EB', borderRadius: '4px', width: '60%', marginBottom: '6px' }} />
+            <div style={{ height: '10px', backgroundColor: '#E5E7EB', borderRadius: '4px', width: '40%' }} />
           </div>
         </div>
       ))}
@@ -79,8 +79,8 @@ function FeedSkeleton() {
 function SidebarSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <div style={{ height: '120px', borderRadius: '10px', backgroundColor: '#0d0d1a', animation: 'pulse 1.5s ease-in-out infinite' }} />
-      <div style={{ height: '100px', borderRadius: '10px', backgroundColor: '#0d0d1a', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ height: '120px', borderRadius: '10px', backgroundColor: '#F3F4F6', animation: 'pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ height: '100px', borderRadius: '10px', backgroundColor: '#F3F4F6', animation: 'pulse 1.5s ease-in-out infinite' }} />
     </div>
   )
 }
@@ -226,7 +226,7 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div style={{ backgroundColor: '#06060f', minHeight: '100vh', padding: '24px' }}>
+      <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh', padding: '24px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <KpiRowSkeleton />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '20px' }}>
@@ -278,7 +278,7 @@ export default function DashboardPage() {
   const lateApps = pendingApps.filter(a => new Date(a.created_at).getTime() < sevenDaysAgo)
 
   return (
-    <div style={{ backgroundColor: '#06060f', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
         .dash-grid {
@@ -322,12 +322,12 @@ export default function DashboardPage() {
       )}
 
       {/* Header */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '20px 0' }}>
+      <div style={{ borderBottom: '1px solid #E5E7EB', padding: '20px 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 500, color: 'rgba(255,255,255,0.32)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
+            <div style={{ fontSize: '11px', fontWeight: 500, color: '#888888', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ fontSize: '20px', fontWeight: 500, color: '#f0f0f0', margin: 0 }}>{greeting}, {firstName}</h1>
+              <h1 style={{ fontSize: '20px', fontWeight: 500, color: '#1A1A1A', margin: 0 }}>{greeting}, {firstName}</h1>
               <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', flexShrink: 0 }}>{roleLabel}</span>
               {isPaid && (
                 <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color, flexShrink: 0 }}>
@@ -337,7 +337,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>
+            <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', textDecoration: 'none' }}>
               <Bell size={16} />
             </Link>
             {hasCreator && (
@@ -350,7 +350,7 @@ export default function DashboardPage() {
                 <Plus size={13} /> Créer un événement
               </Link>
             )}
-            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', color: 'rgba(255,255,255,0.32)', fontSize: '12px', cursor: 'pointer' }}>
+            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', color: '#888888', fontSize: '12px', cursor: 'pointer' }}>
               <LogOut size={13} /> Déco
             </button>
           </div>
@@ -368,7 +368,7 @@ export default function DashboardPage() {
           ].filter(Boolean) as { key: string; icon: React.ReactNode; label: string }[]
           if (tabs.length <= 1) return null
           return (
-            <div style={{ display: 'flex', gap: '2px', backgroundColor: '#0d0d1a', padding: '4px', borderRadius: '10px', width: 'fit-content', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', gap: '2px', backgroundColor: '#F3F4F6', padding: '4px', borderRadius: '10px', width: 'fit-content', marginBottom: '20px' }}>
               {tabs.map(tab => (
                 <button key={tab.key} onClick={() => setDashTab(tab.key as typeof dashTab)}
                   style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', backgroundColor: dashTab === tab.key ? '#fff' : 'transparent', color: dashTab === tab.key ? (tab.key === 'admin' ? '#d97706' : '#6366F1') : '#6B7280', boxShadow: dashTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
@@ -386,8 +386,8 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <AlertCircle size={15} color="#6366F1" />
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0' }}>Profil incomplet — {profilePct}%</span>
-                  <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>Étape suivante : {firstMissingStep.label}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A' }}>Profil incomplet — {profilePct}%</span>
+                  <span style={{ fontSize: '12px', color: '#6B7280' }}>Étape suivante : {firstMissingStep.label}</span>
                 </div>
                 <span style={{ fontSize: '12px', fontWeight: 600, color: '#6366F1' }}>Compléter →</span>
               </div>
@@ -399,22 +399,22 @@ export default function DashboardPage() {
         )}
 
         {/* Billing card */}
-        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.07)'}`, backgroundColor: isPaid ? 'rgba(99,102,241,0.12)' : '#0f0f1a', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isPaid ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)', flexShrink: 0 }}>
+        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`, backgroundColor: isPaid ? '#EEF2FF' : '#F5F5F7', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isPaid ? 'rgba(99,102,241,0.25)' : '#E5E7EB', flexShrink: 0 }}>
             <CreditCard size={16} color={isPaid ? '#6366F1' : '#9CA3AF'} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0' }}>Abonnement</span>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A' }}>Abonnement</span>
               <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 7px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color }}>{tierCfg.label}</span>
               {subscriptionStatus === 'active' && <span style={{ fontSize: '11px', color: '#16A34A', fontWeight: 600 }}>Actif</span>}
             </div>
             {isPaid && subscriptionEndsAt ? (
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0' }}>
                 Renouvellement le {new Date(subscriptionEndsAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             ) : (
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '2px 0 0' }}>Passez à un plan payant pour débloquer plus de fonctionnalités</p>
+              <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0' }}>Passez à un plan payant pour débloquer plus de fonctionnalités</p>
             )}
           </div>
           {isPaid ? (
@@ -505,8 +505,8 @@ export default function DashboardPage() {
               ].map(tool => (
                 <Link key={tool.href} href={tool.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '6px', padding: '18px 14px', borderRadius: '12px', border: '1px solid rgba(245,158,11,0.25)', backgroundColor: 'rgba(245,158,11,0.06)' }}>
                   <span style={{ color: '#f59e0b' }}>{tool.icon}</span>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0' }}>{tool.label}</span>
-                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)' }}>{tool.sub}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A' }}>{tool.label}</span>
+                  <span style={{ fontSize: '11px', color: '#888888' }}>{tool.sub}</span>
                 </Link>
               ))}
             </div>
@@ -521,11 +521,11 @@ export default function DashboardPage() {
 
 function KpiCard({ label, value, color }: { label: string; value: number | string; color: string }) {
   return (
-    <div style={{ backgroundColor: '#0f0f1a', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div style={{ backgroundColor: '#F5F5F7', borderRadius: '10px', padding: '14px', border: '1px solid #E5E7EB' }}>
       <div style={{ fontSize: '24px', fontWeight: 500, color, lineHeight: 1, marginBottom: '4px' }}>
         {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
       </div>
-      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)' }}>{label}</div>
+      <div style={{ fontSize: '11px', color: '#888888' }}>{label}</div>
     </div>
   )
 }
@@ -597,7 +597,7 @@ function CreatorMainContent({
   return (
     <div>
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.07)', marginBottom: '16px', gap: '0' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB', marginBottom: '16px', gap: '0' }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
             style={{ padding: '8px 16px', fontSize: '13px', fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? '#6366F1' : '#6B7280', border: 'none', borderBottom: tab === t.key ? '2px solid #6366F1' : '2px solid transparent', backgroundColor: 'transparent', cursor: 'pointer', marginBottom: '-0.5px' }}>
@@ -613,8 +613,8 @@ function CreatorMainContent({
         <CalendarView applications={applications} />
       )}
       {tab === 'messages' && (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>
-          <MessageSquare size={32} color="rgba(255,255,255,0.15)" style={{ margin: '0 auto 12px' }} />
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#888888', fontSize: '13px' }}>
+          <MessageSquare size={32} color="#F3F4F6" style={{ margin: '0 auto 12px' }} />
           <p>Vos conversations apparaîtront ici</p>
           <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             Ouvrir la messagerie
@@ -624,17 +624,17 @@ function CreatorMainContent({
       {tab === 'paiements' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {paidApps.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>
-              <CreditCard size={32} color="rgba(255,255,255,0.15)" style={{ margin: '0 auto 12px' }} />
+            <div style={{ textAlign: 'center', padding: '40px 0', color: '#888888', fontSize: '13px' }}>
+              <CreditCard size={32} color="#F3F4F6" style={{ margin: '0 auto 12px' }} />
               <p>Aucun paiement de stand pour le moment</p>
             </div>
           ) : paidApps.map(a => (
-            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#f0f0f0', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {a.event?.title ?? 'Événement'}
                 </p>
-                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
                   {a.event?.start_date ? new Date(a.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
                   {a.event?.stand_price ? ` · ${a.event.stand_price} €` : ''}
                 </p>
@@ -656,17 +656,17 @@ function CreatorMainContent({
         <div style={{ marginTop: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
             <div>
-              <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#f0f0f0', margin: 0 }}>Pour vous</h2>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '2px 0 0' }}>Sélectionnés selon vos disciplines</p>
+              <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>Pour vous</h2>
+              <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0' }}>Sélectionnés selon vos disciplines</p>
             </div>
             <Link href="/events" style={{ fontSize: '12px', fontWeight: 600, color: '#6366F1', textDecoration: 'none' }}>Voir tout →</Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recommended.map(ev => (
-              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
-                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                  <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0' }}>
                     {ev.start_date && new Date(ev.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
                     {ev.city ? ` · ${ev.city}` : ''}
                   </p>
@@ -689,10 +689,10 @@ function CreatorMainContent({
 function ApplicationsFeed({ applications }: { applications: (Application & { event?: Event })[] }) {
   if (applications.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.1)', backgroundColor: '#0f0f1a' }}>
-        <Calendar size={36} color="rgba(255,255,255,0.15)" style={{ margin: '0 auto 12px' }} />
-        <p style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Aucune candidature pour le moment</p>
-        <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.32)', margin: '4px 0 16px' }}>Explorez les événements disponibles et postulez</p>
+      <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed #E5E7EB', backgroundColor: '#F5F5F7' }}>
+        <Calendar size={36} color="#F3F4F6" style={{ margin: '0 auto 12px' }} />
+        <p style={{ fontSize: '14px', fontWeight: 600, color: '#6B7280', margin: 0 }}>Aucune candidature pour le moment</p>
+        <p style={{ fontSize: '12px', color: '#888888', margin: '4px 0 16px' }}>Explorez les événements disponibles et postulez</p>
         <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
           Voir les événements <ArrowRight size={13} />
         </Link>
@@ -707,13 +707,13 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
         const sc = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
         const isBoosted = (app as any).boosted_at && new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000) > new Date()
         return (
-          <div key={app.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : 'rgba(255,255,255,0.07)'}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : '#0f0f1a' }}>
+          <div key={app.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : '#E5E7EB'}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : '#F5F5F7' }}>
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {app.event?.title || 'Événement inconnu'}
               </p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0' }}>
                 {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
                 {app.event?.city ? ` · ${app.event.city}` : ''}
               </p>
@@ -760,7 +760,7 @@ function CalendarView({ applications }: { applications: (Application & { event?:
   })
 
   if (Object.keys(grouped).length === 0) {
-    return <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>Aucune candidature avec date d&apos;événement</div>
+    return <div style={{ textAlign: 'center', padding: '40px 0', color: '#888888', fontSize: '13px' }}>Aucune candidature avec date d&apos;événement</div>
   }
 
   return (
@@ -768,23 +768,23 @@ function CalendarView({ applications }: { applications: (Application & { event?:
       {Object.entries(grouped).map(([month, apps]) => (
         <div key={month}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-            <div style={{ flex: 1, height: '0.5px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.32)', padding: '3px 10px', borderRadius: '20px', backgroundColor: '#0f0f1a', textTransform: 'capitalize' }}>{month}</span>
-            <div style={{ flex: 1, height: '0.5px', backgroundColor: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ flex: 1, height: '0.5px', backgroundColor: '#E5E7EB' }} />
+            <span style={{ fontSize: '11px', fontWeight: 600, color: '#888888', padding: '3px 10px', borderRadius: '20px', backgroundColor: '#F5F5F7', textTransform: 'capitalize' }}>{month}</span>
+            <div style={{ flex: 1, height: '0.5px', backgroundColor: '#E5E7EB' }} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingLeft: '12px', borderLeft: '2px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingLeft: '12px', borderLeft: '2px solid #E5E7EB' }}>
             {apps.map(app => {
               const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const d = new Date(app.event!.start_date)
               return (
-                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
                   <div style={{ width: '40px', flexShrink: 0, textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.15)', borderRadius: '8px', padding: '6px' }}>
                     <div style={{ fontSize: '16px', fontWeight: 800, color: '#6366F1', lineHeight: 1 }}>{d.getDate()}</div>
-                    <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.32)', fontWeight: 600, textTransform: 'capitalize' }}>{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
+                    <div style={{ fontSize: '9px', color: '#888888', fontWeight: 600, textTransform: 'capitalize' }}>{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{app.event?.title}</p>
-                    {app.event?.city && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '2px 0 0' }}>{app.event.city}</p>}
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{app.event?.title}</p>
+                    {app.event?.city && <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0' }}>{app.event.city}</p>}
                   </div>
                   <span style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color, flexShrink: 0 }}>
                     {sc.label}
@@ -817,7 +817,7 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
       <SidebarCard title="Actions rapides">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
           {QUICK_ACTIONS.map(a => (
-            <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', color: 'rgba(255,255,255,0.45)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+            <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', color: '#6B7280', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
               <span style={{ color: '#6366F1' }}>{a.icon}</span>
               {a.label}
             </Link>
@@ -832,9 +832,9 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
       {nextEvent?.event && (
         <SidebarCard title="Prochain marché">
           <Link href={`/events/${nextEvent.event_id}`} style={{ textDecoration: 'none' }}>
-            <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: '0 0 4px' }}>{nextEvent.event.title}</p>
+            <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px' }}>{nextEvent.event.title}</p>
             {nextEvent.event.start_date && (
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.32)', margin: '0 0 8px' }}>
+              <p style={{ fontSize: '12px', color: '#888888', margin: '0 0 8px' }}>
                 {new Date(nextEvent.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             )}
@@ -993,7 +993,7 @@ function OrganizerMainContent({
       {/* Avis à laisser */}
       {pendingReviews.length > 0 && (
         <div style={{ marginBottom: '20px', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.3)', backgroundColor: 'rgba(217,119,6,0.1)' }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: '0 0 10px' }}>Avis à laisser ({pendingReviews.length})</p>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 10px' }}>Avis à laisser ({pendingReviews.length})</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {pendingReviews.slice(0, 3).map(r => (
               <div key={`${r.eventId}:${r.creatorId}`} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1001,8 +1001,8 @@ function OrganizerMainContent({
                   {r.creatorAvatar ? <Image src={r.creatorAvatar} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : r.creatorName[0]}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#f0f0f0', margin: 0 }}>{r.creatorName}</p>
-                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.eventTitle}</p>
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>{r.creatorName}</p>
+                  <p style={{ fontSize: '11px', color: '#888888', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.eventTitle}</p>
                 </div>
                 <button onClick={() => { setReviewModal(r); setReviewRating(0); setReviewComment('') }}
                   style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', backgroundColor: '#6366F1', color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
@@ -1015,7 +1015,7 @@ function OrganizerMainContent({
       )}
 
       {/* Candidatures tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.07)', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB', marginBottom: '16px' }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
             style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 16px', fontSize: '13px', fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? '#6366F1' : '#6B7280', border: 'none', borderBottom: tab === t.key ? '2px solid #6366F1' : '2px solid transparent', backgroundColor: 'transparent', cursor: 'pointer', marginBottom: '-0.5px' }}>
@@ -1028,15 +1028,15 @@ function OrganizerMainContent({
       </div>
 
       {tab === 'messages' ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>
-          <MessageSquare size={32} color="rgba(255,255,255,0.15)" style={{ margin: '0 auto 12px' }} />
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#888888', fontSize: '13px' }}>
+          <MessageSquare size={32} color="#F3F4F6" style={{ margin: '0 auto 12px' }} />
           <p>Ouvrez la messagerie pour communiquer avec vos exposants</p>
           <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             Messagerie
           </Link>
         </div>
       ) : displayApps.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.1)', backgroundColor: '#0f0f1a', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>
+        <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed #E5E7EB', backgroundColor: '#F5F5F7', color: '#888888', fontSize: '13px' }}>
           {tab === 'retard' ? 'Aucune candidature en retard ✓' : 'Aucune candidature en attente'}
         </div>
       ) : (
@@ -1047,7 +1047,7 @@ function OrganizerMainContent({
             const daysPending = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (24 * 60 * 60 * 1000))
             return (
               <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.07)'}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : '#0f0f1a' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : '#F5F5F7' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#6366F1', flexShrink: 0, overflow: 'hidden' }}>
                   {app.profiles?.avatar_url
                     ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
@@ -1055,7 +1055,7 @@ function OrganizerMainContent({
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    <Link href={`/creators/${app.creator_id}`} style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', textDecoration: 'none' }}>
+                    <Link href={`/creators/${app.creator_id}`} style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', textDecoration: 'none' }}>
                       {app.profiles?.full_name || 'Créateur'}
                     </Link>
                     {isBoosted && (
@@ -1069,8 +1069,8 @@ function OrganizerMainContent({
                       </span>
                     )}
                   </div>
-                  {ev && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>}
-                  {app.message && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: 'italic' }}>&ldquo;{app.message}&rdquo;</p>}
+                  {ev && <p style={{ fontSize: '11px', color: '#888888', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>}
+                  {app.message && <p style={{ fontSize: '11px', color: '#888888', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: 'italic' }}>&ldquo;{app.message}&rdquo;</p>}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => handleStatus(app.id, 'accepted', ev?.title, app.creator_id)} disabled={updatingId === app.id}
@@ -1078,7 +1078,7 @@ function OrganizerMainContent({
                     Accepter
                   </button>
                   <button onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', color: '#DC2626', fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                    style={{ padding: '5px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', color: '#DC2626', fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
                     Refuser
                   </button>
                 </div>
@@ -1086,7 +1086,7 @@ function OrganizerMainContent({
             )
           })}
           {pendingApps.length > 10 && tab !== 'retard' && (
-            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', color: '#6366F1', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', color: '#6366F1', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
               Tout voir ({pendingApps.length}) →
             </Link>
           )}
@@ -1097,10 +1097,10 @@ function OrganizerMainContent({
       {events.length > 0 && (
         <div style={{ marginTop: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#f0f0f0', margin: 0 }}>Outils événement</h2>
+            <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>Outils événement</h2>
             {events.length > 1 && (
               <select value={selectedEventId} onChange={e => setSelectedEventId(e.target.value)}
-                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', color: '#f0f0f0', cursor: 'pointer' }}>
+                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', color: '#1A1A1A', cursor: 'pointer' }}>
                 {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
               </select>
             )}
@@ -1116,10 +1116,10 @@ function OrganizerMainContent({
               { href: `/events/${selectedEventId}/analytics`,  icon: <BarChart2 size={16} />,    label: 'Analytics', sub: '' },
               { href: `/api/events/${selectedEventId}/exhibitors/export`, icon: <ArrowRight size={16} />, label: 'Export CSV', sub: '', target: '_blank' },
             ].map(tool => (
-              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
                 <span style={{ color: '#6366F1' }}>{tool.icon}</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: '#f0f0f0' }}>{tool.label}</span>
-                {tool.sub && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.32)' }}>{tool.sub}</span>}
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#1A1A1A' }}>{tool.label}</span>
+                {tool.sub && <span style={{ fontSize: '10px', color: '#888888' }}>{tool.sub}</span>}
               </Link>
             ))}
           </div>
@@ -1127,27 +1127,27 @@ function OrganizerMainContent({
           {/* Events list */}
           <div style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#f0f0f0', margin: 0 }}>Mes événements</h2>
+              <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>Mes événements</h2>
               <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
                 <Plus size={12} /> Créer
               </Link>
             </div>
             {events.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>Aucun événement créé</div>
+              <div style={{ textAlign: 'center', padding: '30px', borderRadius: '10px', border: '1px dashed #E5E7EB', color: '#888888', fontSize: '13px' }}>Aucun événement créé</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {events.slice(0, 5).map(event => {
                   const statusCfg = {
-                    published: { label: 'Publié', color: '#4ade80', bg: 'rgba(22,163,74,0.15)', dot: '#4ade80' },
-                    draft: { label: 'Brouillon', color: '#fbbf24', bg: 'rgba(217,119,6,0.15)', dot: '#fbbf24' },
-                    closed: { label: 'Fermé', color: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.05)', dot: 'rgba(255,255,255,0.3)' },
-                  }[event.status] ?? { label: event.status, color: 'rgba(255,255,255,0.45)', bg: '#F9FAFB', dot: '#9CA3AF' }
+                    published: { label: 'Publié', color: '#16A34A', bg: '#DCFCE7', dot: '#16A34A' },
+                    draft: { label: 'Brouillon', color: '#D97706', bg: '#FEF3C7', dot: '#D97706' },
+                    closed: { label: 'Fermé', color: '#9CA3AF', bg: '#F3F4F6', dot: '#9CA3AF' },
+                  }[event.status] ?? { label: event.status, color: '#6B7280', bg: '#F9FAFB', dot: '#9CA3AF' }
                   const ep = pendingApps.filter(a => a.event_id === event.id).length
                   return (
-                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
-                        {event.start_date && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
+                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
+                        {event.start_date && <p style={{ fontSize: '11px', color: '#888888', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                         {ep > 0 && <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: 'rgba(217,119,6,0.15)', color: '#fbbf24' }}>{ep} en attente</span>}
@@ -1173,20 +1173,20 @@ function OrganizerMainContent({
       {/* Modals */}
       {refuseModal && (
         <div onClick={() => setRefuseModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#0f0f1a', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#f0f0f0', margin: '0 0 4px' }}>Raison du refus</h3>
-            <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.32)', margin: '0 0 16px' }}>Optionnel — aide le créateur à améliorer sa candidature</p>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#F5F5F7', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#1A1A1A', margin: '0 0 4px' }}>Raison du refus</h3>
+            <p style={{ fontSize: '12px', color: '#888888', margin: '0 0 16px' }}>Optionnel — aide le créateur à améliorer sa candidature</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
               {REFUSE_OPTIONS.map(opt => (
-                <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', cursor: 'pointer' }}>
+                <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', cursor: 'pointer' }}>
                   <input type="checkbox" checked={refuseReasons.includes(opt.key)}
                     onChange={e => setRefuseReasons(prev => e.target.checked ? [...prev, opt.key] : prev.filter(r => r !== opt.key))} />
-                  <span style={{ fontSize: '13px', color: '#f0f0f0' }}>{opt.label}</span>
+                  <span style={{ fontSize: '13px', color: '#1A1A1A' }}>{opt.label}</span>
                 </label>
               ))}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', fontSize: '13px', fontWeight: 600, color: '#6B7280', cursor: 'pointer' }}>Annuler</button>
               <button onClick={confirmRefuse} disabled={updatingId === refuseModal.appId}
                 style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#DC2626', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: updatingId === refuseModal.appId ? 0.5 : 1 }}>
                 Confirmer
@@ -1198,20 +1198,20 @@ function OrganizerMainContent({
 
       {reviewModal && (
         <div onClick={() => setReviewModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#0f0f1a', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#f0f0f0', margin: '0 0 4px' }}>Laisser un avis</h3>
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.32)', margin: '0 0 16px' }}>Pour <strong style={{ color: '#f0f0f0' }}>{reviewModal.creatorName}</strong> — {reviewModal.eventTitle}</p>
+          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#F5F5F7', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1A1A1A', margin: '0 0 4px' }}>Laisser un avis</h3>
+            <p style={{ fontSize: '13px', color: '#888888', margin: '0 0 16px' }}>Pour <strong style={{ color: '#1A1A1A' }}>{reviewModal.creatorName}</strong> — {reviewModal.eventTitle}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
               {[1,2,3,4,5].map(n => (
                 <button key={n} onClick={() => setReviewRating(n)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-                  <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'rgba(255,255,255,0.15)'} />
+                  <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : '#F3F4F6'} />
                 </button>
               ))}
             </div>
             <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} placeholder="Commentaire optionnel…" rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', fontSize: '13px', resize: 'none', outline: 'none', marginBottom: '14px', boxSizing: 'border-box', color: '#f0f0f0' }} />
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', fontSize: '13px', resize: 'none', outline: 'none', marginBottom: '14px', boxSizing: 'border-box', color: '#1A1A1A' }} />
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setReviewModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', cursor: 'pointer' }}>Annuler</button>
+              <button onClick={() => setReviewModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', fontSize: '13px', fontWeight: 600, color: '#6B7280', cursor: 'pointer' }}>Annuler</button>
               <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
                 style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
                 {reviewSubmitting ? 'Envoi…' : 'Publier'}
@@ -1283,7 +1283,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
       <SidebarCard title="Actions rapides">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
           {QUICK_ACTIONS.map(a => (
-            <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a', color: 'rgba(255,255,255,0.45)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+            <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7', color: '#6B7280', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
               <span style={{ color: '#6366F1' }}>{a.icon}</span>
               {a.label}
             </Link>
@@ -1304,10 +1304,10 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {pending.map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <div style={{ width: '14px', height: '14px', borderRadius: '4px', border: '1.5px solid rgba(255,255,255,0.2)', flexShrink: 0, marginTop: '1px' }} />
+                <div style={{ width: '14px', height: '14px', borderRadius: '4px', border: '1.5px solid #D1D5DB', flexShrink: 0, marginTop: '1px' }} />
                 <div>
-                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#f0f0f0', margin: 0 }}>{item.title}</p>
-                  {item.description && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: 0 }}>{item.description}</p>}
+                  <p style={{ fontSize: '12px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>{item.title}</p>
+                  {item.description && <p style={{ fontSize: '11px', color: '#888888', margin: 0 }}>{item.description}</p>}
                 </div>
               </div>
             ))}
@@ -1321,9 +1321,9 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
       {nextEvent && (
         <SidebarCard title="Prochain événement">
           <Link href={`/events/${nextEvent.id}`} style={{ textDecoration: 'none' }}>
-            <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: '0 0 4px' }}>{nextEvent.title}</p>
+            <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: '0 0 4px' }}>{nextEvent.title}</p>
             {nextEvent.start_date && (
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.32)', margin: '0 0 8px' }}>
+              <p style={{ fontSize: '12px', color: '#888888', margin: '0 0 8px' }}>
                 {new Date(nextEvent.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             )}
@@ -1336,32 +1336,32 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
       {bulkModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
           onClick={e => { if (e.target === e.currentTarget) setBulkModal(false) }}>
-          <div style={{ backgroundColor: '#0f0f1a', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+          <div style={{ backgroundColor: '#F5F5F7', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#f0f0f0' }}>Message groupé</h3>
-              <button onClick={() => setBulkModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.32)', fontSize: '20px', lineHeight: 1 }}>×</button>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1A1A1A' }}>Message groupé</h3>
+              <button onClick={() => setBulkModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#888888', fontSize: '20px', lineHeight: 1 }}>×</button>
             </div>
             {bulkDone ? (
               <p style={{ textAlign: 'center', color: '#16A34A', fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
             ) : (
               <>
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: '6px' }}>Sujet</label>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', display: 'block', marginBottom: '6px' }}>Sujet</label>
                   <input
                     value={bulkSubject}
                     onChange={e => setBulkSubject(e.target.value)}
                     placeholder="Ex : Informations importantes"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: '6px' }}>Message</label>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', display: 'block', marginBottom: '6px' }}>Message</label>
                   <textarea
                     value={bulkMessage}
                     onChange={e => setBulkMessage(e.target.value)}
                     rows={5}
                     placeholder="Écrivez votre message à tous les créateurs acceptés…"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.07)', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
                   />
                 </div>
                 <button
@@ -1384,11 +1384,11 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
 function SidebarCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: '10px', border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
-        <p style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.32)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</p>
+    <div style={{ borderRadius: '10px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+      <div style={{ padding: '10px 14px', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
+        <p style={{ fontSize: '11px', fontWeight: 600, color: '#888888', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</p>
       </div>
-      <div style={{ padding: '12px 14px', backgroundColor: '#0f0f1a' }}>
+      <div style={{ padding: '12px 14px', backgroundColor: '#F5F5F7' }}>
         {children}
       </div>
     </div>
@@ -1415,7 +1415,7 @@ function CountdownBadge({ date }: { date: string }) {
 function VisitorContent() {
   return (
     <div>
-      <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#f0f0f0', marginBottom: '14px' }}>Explorer Nexart</h2>
+      <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '14px' }}>Explorer Nexart</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
         {[
           { href: '/events',   icon: <Calendar size={16} />, title: 'Événements',    desc: 'Parcourir le calendrier' },
@@ -1425,11 +1425,11 @@ function VisitorContent() {
           { href: '/favorites',icon: <Heart size={16} />,    title: 'Favoris',       desc: 'Mes coups de cœur' },
           { href: '/messages', icon: <MessageSquare size={16} />, title: 'Messages', desc: 'Mes conversations' },
         ].map(card => (
-          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F5F5F7' }}>
             <span style={{ color: '#6366F1' }}>{card.icon}</span>
             <div>
-              <p style={{ fontSize: '13px', fontWeight: 600, color: '#f0f0f0', margin: 0 }}>{card.title}</p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.32)', margin: 0 }}>{card.desc}</p>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>{card.title}</p>
+              <p style={{ fontSize: '11px', color: '#888888', margin: 0 }}>{card.desc}</p>
             </div>
           </Link>
         ))}
