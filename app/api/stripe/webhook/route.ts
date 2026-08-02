@@ -4,7 +4,7 @@ import { getStripe, isStripeConfigured, SubscriptionTier, STRIPE_PRICES, STRIPE_
 import { getAdminClient } from '@/lib/supabase-admin'
 import { sendPushToUsers } from '@/lib/push'
 import { sendMail } from '@/lib/mailer'
-import { emailPaymentFailed } from '@/lib/email-templates'
+import { emailPaymentFailed, emailStandPaymentConfirmed } from '@/lib/email-templates'
 
 const PRICE_TO_TIER: Record<string, SubscriptionTier> = {
   [STRIPE_PRICES.creator.boost.monthly]:    STRIPE_PRICES.creator.boost.tier,
@@ -99,10 +99,21 @@ export async function POST(req: NextRequest) {
       // ── Paiement stand ────────────────────────────────────────────────────
       if (session.metadata?.type === 'stand_payment') {
         const { application_id, creator_id, amount_cents, commission_cents } = session.metadata ?? {}
+        const paymentId = session.payment_intent ?? session.id
+
         if (application_id) {
+          // Idempotency: skip if already processed
+          const { data: existing } = await (admin as any)
+            .from('applications')
+            .select('id, status, stripe_payment_id')
+            .eq('id', application_id)
+            .maybeSingle()
+
+          if (existing?.stripe_payment_id && existing.stripe_payment_id === paymentId) break
+
           await (admin as any).from('applications').update({
             status: 'paid',
-            stripe_payment_id: session.payment_intent ?? session.id,
+            stripe_payment_id: paymentId,
           }).eq('id', application_id)
 
           await admin.from('notifications').insert({
@@ -113,7 +124,7 @@ export async function POST(req: NextRequest) {
             link: `/events/${session.metadata?.event_id}`,
           })
 
-          // Log de la transaction pour le suivi revenue
+          // Log transaction
           await (admin as any).from('stand_payments').insert({
             application_id,
             creator_id,
@@ -121,8 +132,34 @@ export async function POST(req: NextRequest) {
             organizer_id: session.metadata?.organizer_id,
             amount_cents: Number(amount_cents ?? 0),
             commission_cents: Number(commission_cents ?? 0),
-            stripe_payment_id: session.payment_intent ?? session.id,
-          }).catch(() => null) // table optionnelle — pas critique si elle n'existe pas encore
+            stripe_payment_id: paymentId,
+          }).catch(() => null)
+
+          // Email confirmation au créateur
+          const { data: creatorProfile } = await (admin as any)
+            .from('profiles')
+            .select('full_name, email')
+            .eq('id', creator_id)
+            .maybeSingle()
+          const { data: eventData } = await (admin as any)
+            .from('events')
+            .select('title')
+            .eq('id', session.metadata?.event_id)
+            .maybeSingle()
+
+          if (creatorProfile?.email) {
+            const amount = `${(Number(amount_cents ?? 0) / 100).toFixed(2)} €`
+            await sendMail({
+              to: creatorProfile.email,
+              subject: `✅ Paiement confirmé — ${eventData?.title ?? 'votre stand'}`,
+              html: emailStandPaymentConfirmed(
+                creatorProfile.full_name?.split(' ')[0] ?? 'vous',
+                eventData?.title ?? '',
+                amount,
+                session.metadata?.event_id ?? '',
+              ),
+            }).catch(() => null)
+          }
         }
         break
       }
@@ -164,6 +201,38 @@ export async function POST(req: NextRequest) {
           title: `${creditDef.amount} crédit${creditDef.amount > 1 ? 's' : ''} ajouté${creditDef.amount > 1 ? 's' : ''}`,
           body: `Vos crédits sont disponibles dans votre tableau de bord.`,
           link: '/dashboard',
+        })
+      }
+      break
+    }
+
+    // ── Remboursement stand ───────────────────────────────────────────────────
+    case 'charge.refunded': {
+      const charge = event.data.object as { payment_intent?: string; id: string }
+      const paymentId = charge.payment_intent ?? charge.id
+
+      const { data: app } = await (admin as any)
+        .from('applications')
+        .select('id, creator_id, event_id')
+        .eq('stripe_payment_id', paymentId)
+        .maybeSingle()
+
+      if (app) {
+        await (admin as any).from('applications').update({
+          status: 'refunded',
+          refunded_at: new Date().toISOString(),
+        }).eq('id', app.id)
+
+        await (admin as any).from('stand_payments').update({
+          status: 'refunded',
+        }).eq('stripe_payment_id', paymentId).catch(() => null)
+
+        await admin.from('notifications').insert({
+          user_id: app.creator_id,
+          type: 'stand_refunded',
+          title: '↩️ Remboursement effectué',
+          body: 'Votre paiement de stand a été remboursé.',
+          link: `/events/${app.event_id}`,
         })
       }
       break

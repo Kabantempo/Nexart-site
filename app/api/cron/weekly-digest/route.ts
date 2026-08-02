@@ -3,19 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { sendMail } from '@/lib/mailer'
 
-// POST: Weekly cron — send digest of new events to creators
-// Called every Monday 08:00 UTC by EasyCron
-// Header: Authorization: Bearer <CRON_SECRET_TOKEN>
-export async function POST(req: NextRequest) {
-  if (!process.env.CRON_SECRET_TOKEN) {
-    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
-  }
-  if (!process.env.SMTP_PASS) {
-    return NextResponse.json({ ok: true, skipped: 'no_smtp' })
-  }
+// Weekly cron — send digest of new events to creators
+// Called every Monday 08:00 UTC by EasyCron (GET or POST with ?token= or Authorization header)
+async function handler(req: NextRequest) {
+  const token = process.env.CRON_SECRET_TOKEN
+  if (!token) return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
 
-  const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET_TOKEN}`) {
+  const authHeader = req.headers.get('authorization')
+  const tokenParam = req.nextUrl.searchParams.get('token')
+  if (authHeader !== `Bearer ${token}` && tokenParam !== token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -117,3 +113,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message ?? 'Unknown error' }, { status: 500 })
   }
 }
+
+export const GET = handler
+export const POST = handler

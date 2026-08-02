@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendMail } from '@/lib/mailer'
+import { emailWelcomeOrganizer } from '@/lib/email-templates'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -55,6 +57,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const { data: body, error: validErr } = v(eventCreateSchema.partial(), await req.json())
     if (validErr) return validErr
 
+    const prevStatus = event.organizer_id ? (await admin.from('events').select('status').eq('id', params.id).single()).data?.status : null
+
     const { data, error } = await admin
       .from('events')
       .update(body)
@@ -63,6 +67,36 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       .single()
 
     if (error) throw error
+
+    // Send welcome email on first publish
+    if (body.status === 'published' && prevStatus !== 'published') {
+      const { count } = await admin
+        .from('events')
+        .select('id', { count: 'exact', head: true })
+        .eq('organizer_id', user.id)
+        .eq('status', 'published')
+
+      if ((count ?? 0) === 1) {
+        const { data: profile } = await admin
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (profile?.email) {
+          await sendMail({
+            to: profile.email,
+            subject: `🎉 Votre marché "${data.title}" est en ligne !`,
+            html: emailWelcomeOrganizer(
+              profile.full_name?.split(' ')[0] ?? 'vous',
+              data.title,
+              params.id,
+            ),
+          }).catch(() => null)
+        }
+      }
+    }
+
     return NextResponse.json({ event: data })
   } catch (error: unknown) {
     console.error('❌ Event PUT error:', { id: params.id, error: (error instanceof Error ? error.message : String(error)) })

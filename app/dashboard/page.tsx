@@ -14,8 +14,9 @@ import {
   MapPin, ShoppingBag, BarChart2, Zap, Star, ExternalLink, Eye,
   Bell, Plus, CreditCard, LogOut,
 } from 'lucide-react'
-import { CreditsWidget } from '@/components/credits-widget'
-import { BoostButton } from '@/components/boost-button'
+import dynamic from 'next/dynamic'
+const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m => ({ default: m.CreditsWidget })), { ssr: false })
+const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
 import { useCountUp } from '@/lib/hooks/use-count-up'
 
 function AnimatedNumber({ value }: { value: number }) {
@@ -542,8 +543,9 @@ function CreatorMainContent({
   profileViewCount: number
   profileViewDays: { date: string; count: number }[]
 }) {
-  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'messages'>('candidatures')
+  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'messages' | 'paiements'>('candidatures')
   const [recommended, setRecommended] = useState<(Event & { _score?: number; _reason?: string })[]>([])
+  const [paidApps, setPaidApps] = useState<(Application & { event?: Event })[]>([])
   const appliedEventIds = new Set(applications.map(a => a.event_id))
   const appliedOrgaIds = new Set(applications.map(a => (a.event as any)?.organizer_id).filter(Boolean))
 
@@ -577,10 +579,19 @@ function CreatorMainContent({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
+  const paidCount = applications.filter(a => a.status === 'paid').length
+
+  useEffect(() => {
+    if (tab === 'paiements' && !paidApps.length) {
+      setPaidApps(applications.filter(a => a.status === 'paid' || a.status === 'refunded'))
+    }
+  }, [tab, applications, paidApps.length])
+
   const tabs = [
     { key: 'candidatures', label: `Candidatures (${applications.length})` },
     { key: 'calendrier', label: 'Calendrier' },
     { key: 'messages', label: 'Messages' },
+    ...(paidCount > 0 ? [{ key: 'paiements', label: `Mes paiements (${paidCount})` }] : []),
   ] as const
 
   return (
@@ -608,6 +619,35 @@ function CreatorMainContent({
           <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             Ouvrir la messagerie
           </Link>
+        </div>
+      )}
+      {tab === 'paiements' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {paidApps.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(255,255,255,0.32)', fontSize: '13px' }}>
+              <CreditCard size={32} color="rgba(255,255,255,0.15)" style={{ margin: '0 auto 12px' }} />
+              <p>Aucun paiement de stand pour le moment</p>
+            </div>
+          ) : paidApps.map(a => (
+            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.07)', backgroundColor: '#0f0f1a' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#f0f0f0', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {a.event?.title ?? 'Événement'}
+                </p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+                  {a.event?.start_date ? new Date(a.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+                  {a.event?.stand_price ? ` · ${a.event.stand_price} €` : ''}
+                </p>
+              </div>
+              <span style={{
+                fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '8px',
+                backgroundColor: a.status === 'refunded' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
+                color: a.status === 'refunded' ? '#f87171' : '#4ade80',
+              }}>
+                {a.status === 'refunded' ? 'Remboursé' : 'Payé ✓'}
+              </span>
+            </Link>
+          ))}
         </div>
       )}
 

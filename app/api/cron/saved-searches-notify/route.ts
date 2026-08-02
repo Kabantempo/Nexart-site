@@ -3,16 +3,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { sendMail } from '@/lib/mailer'
 
-// POST: Daily cron — notify users with saved searches of new matching events
-// Called daily by EasyCron: POST https://nexart.fr/api/cron/saved-searches-notify
-// Header: Authorization: Bearer <CRON_SECRET_TOKEN>
-export async function POST(req: NextRequest) {
-  if (!process.env.CRON_SECRET_TOKEN) {
-    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
-  }
+// Daily cron — notify users with saved searches of new matching events
+// Called daily by EasyCron (GET or POST with ?token= or Authorization header)
+async function handler(req: NextRequest) {
+  const token = process.env.CRON_SECRET_TOKEN
+  if (!token) return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
 
-  const auth = req.headers.get('authorization')
-  if (auth !== `Bearer ${process.env.CRON_SECRET_TOKEN}`) {
+  const authHeader = req.headers.get('authorization')
+  const tokenParam = req.nextUrl.searchParams.get('token')
+  if (authHeader !== `Bearer ${token}` && tokenParam !== token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -112,3 +111,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }
+
+export const GET = handler
+export const POST = handler
