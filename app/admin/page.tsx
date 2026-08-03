@@ -122,7 +122,7 @@ export default function AdminPage() {
 
   // Tab — initialise depuis ?tab= si présent
   const [tab, setTab] = useState<AdminTab>(() => {
-    const t = searchParams.get('tab')
+    const t = searchParams?.get('tab')
     const valid: AdminTab[] = ['analytics','verifications','disciplines','marches','messages','abonnements','signalements','revenue']
     return (valid.includes(t as AdminTab) ? t : 'analytics') as AdminTab
   })
@@ -290,7 +290,7 @@ export default function AdminPage() {
         .order('created_at', { ascending: false })
         .limit(200)
         .then(({ data }) => {
-          setStandPayments((data as StandPayment[]) ?? [])
+          setStandPayments((data as unknown as StandPayment[]) ?? [])
           setRevenueLoaded(true)
         })
     }

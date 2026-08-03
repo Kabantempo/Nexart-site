@@ -199,7 +199,7 @@ export function NavbarFull() {
     }, 250)
   }
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
+  const isActive = (href: string) => pathname != null && (pathname === href || pathname.startsWith(href + '/'))
 
   const registerItem = (id: string, el: HTMLAnchorElement | null, idx: number) => {
     if (!dropdownItemsRef.current.has(id)) dropdownItemsRef.current.set(id, [])

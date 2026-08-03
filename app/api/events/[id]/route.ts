@@ -77,7 +77,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         .eq('status', 'published')
 
       if ((count ?? 0) === 1) {
-        const { data: profile } = await admin
+        const { data: profile } = await (admin as any)
           .from('profiles')
           .select('full_name, email')
           .eq('id', user.id)

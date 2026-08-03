@@ -26,7 +26,7 @@ function SearchContent() {
   const { events, loading: eventsLoading } = useEvents()
   const { creators, loading: creatorsLoading } = useCreators()
   const isLoading = eventsLoading || creatorsLoading
-  const [query, setQuery] = useState(searchParams.get('q') ?? '')
+  const [query, setQuery] = useState(searchParams?.get('q') ?? '')
   const [tab, setTab] = useState<Tab>('all')
 
   // Keep URL in sync with query

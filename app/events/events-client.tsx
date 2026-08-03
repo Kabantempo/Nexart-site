@@ -102,7 +102,7 @@ function EventsContent() {
 
   const stored = getStoredFilters()
 
-  const [searchTerm,   setSearchTerm]   = useState(searchParams.get('q') || stored?.searchTerm || '')
+  const [searchTerm,   setSearchTerm]   = useState(searchParams?.get('q') || stored?.searchTerm || '')
   const [cityFilter,   setCityFilter]   = useState(stored?.cityFilter || 'all')
   const [typeFilter,   setTypeFilter]   = useState(stored?.typeFilter || 'all')
   const [selectedDiscs, setSelectedDiscs] = useState<string[]>(stored?.selectedDiscs || [])
@@ -121,9 +121,9 @@ function EventsContent() {
 
   // Sync URL → state on mount
   useEffect(() => {
-    const q = searchParams.get('q'); if (q) setSearchTerm(q)
-    const disc = searchParams.get('disc'); if (disc) setSelectedDiscs(disc.split(',').filter(Boolean))
-    const city = searchParams.get('city'); if (city) setCityFilter(city)
+    const q = searchParams?.get('q'); if (q) setSearchTerm(q)
+    const disc = searchParams?.get('disc'); if (disc) setSelectedDiscs(disc.split(',').filter(Boolean))
+    const city = searchParams?.get('city'); if (city) setCityFilter(city)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close disc dropdown on outside click
