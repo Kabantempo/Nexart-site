@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -115,12 +115,17 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const router = useRouter()
+  const router       = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [adminId, setAdminId] = useState<string | null>(null)
 
-  // Tab
-  const [tab, setTab] = useState<AdminTab>('analytics')
+  // Tab — initialise depuis ?tab= si présent
+  const [tab, setTab] = useState<AdminTab>(() => {
+    const t = searchParams.get('tab')
+    const valid: AdminTab[] = ['analytics','verifications','disciplines','marches','messages','abonnements','signalements','revenue']
+    return (valid.includes(t as AdminTab) ? t : 'analytics') as AdminTab
+  })
 
   // Analytics
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
