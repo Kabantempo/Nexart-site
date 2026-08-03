@@ -196,8 +196,8 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                     cursor: 'pointer', transition: 'background-color 200ms',
                     fontFamily: 'inherit',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
                 >
                   {state.cancelLabel ?? 'Annuler'}
                 </button>

@@ -297,12 +297,12 @@ export default function MessagesClient() {
                     display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px',
                     paddingRight: hoveredConv === conv.id ? '52px' : '16px',
                     borderRadius: '12px', textDecoration: 'none',
-                    backgroundColor: conv.unreadCount > 0 ? '#F8F7FF' : '#FFFFFF',
-                    border: `1px solid ${conv.unreadCount > 0 ? '#E0E0FA' : '#F3F4F6'}`,
+                    backgroundColor: conv.unreadCount > 0 ? 'rgba(99,102,241,0.06)' : 'var(--card-bg)',
+                    border: `1px solid ${conv.unreadCount > 0 ? 'rgba(99,102,241,0.2)' : 'var(--border-color)'}`,
                     transition: 'all 150ms ease',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#F5F5FF'; e.currentTarget.style.borderColor = '#C7C7F0' }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = conv.unreadCount > 0 ? '#F8F7FF' : '#FFFFFF'; e.currentTarget.style.borderColor = conv.unreadCount > 0 ? '#E0E0FA' : '#F3F4F6' }}
+                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)' }}
+                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = conv.unreadCount > 0 ? 'rgba(99,102,241,0.06)' : 'var(--card-bg)'; e.currentTarget.style.borderColor = conv.unreadCount > 0 ? 'rgba(99,102,241,0.2)' : 'var(--border-color)' }}
                 >
                   <div style={{ position: 'relative', flexShrink: 0 }}>
                     <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#6366F1', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>

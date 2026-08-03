@@ -438,15 +438,15 @@ export default function ConversationPage() {
                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginRight: '8px', alignSelf: 'center' }}>
                       <button onClick={() => startEdit(m)} title="Modifier"
                         style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#E0E0FA'; e.currentTarget.style.color = '#6366F1' }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = '#6B7280' }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = '#6366F1' }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
                       >
                         <Pencil size={13} />
                       </button>
                       <button onClick={() => deleteMessage(m.id)} title="Supprimer"
                         style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FEF2F2'; e.currentTarget.style.color = '#E05A5A' }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = '#6B7280' }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(224,90,90,0.12)'; e.currentTarget.style.color = '#E05A5A' }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
                       >
                         <Trash2 size={13} />
                       </button>
@@ -588,13 +588,13 @@ export default function ConversationPage() {
           title="Joindre un fichier"
           style={{
             width: '40px', height: '40px', borderRadius: '50%', border: 'none', flexShrink: 0,
-            backgroundColor: pendingFile ? '#EEF2FF' : '#F3F4F6',
+            backgroundColor: pendingFile ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)',
             color: pendingFile ? '#6366F1' : 'var(--text-tertiary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', transition: 'all 200ms ease',
           }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#EEF2FF'; e.currentTarget.style.color = '#6366F1' }}
-          onMouseLeave={e => { if (!pendingFile) { e.currentTarget.style.backgroundColor = '#F3F4F6'; e.currentTarget.style.color = 'var(--text-tertiary)' } }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = '#6366F1' }}
+          onMouseLeave={e => { if (!pendingFile) { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-tertiary)' } }}
         >
           {pendingFile ? <ImageIcon size={16} /> : <Paperclip size={16} />}
         </button>
