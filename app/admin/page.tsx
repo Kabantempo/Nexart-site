@@ -217,7 +217,7 @@ export default function AdminPage() {
           .select('id,title,city,start_date,event_type,status,cover_image,stand_count,stand_price,profiles(full_name)')
           .order('created_at', { ascending: false })
           .limit(50),
-        fetch('/api/admin/analytics').then(r => r.json()),
+        fetch('/api/admin/analytics', { headers: { Authorization: `Bearer ${session.access_token}` } }).then(r => r.json()),
         supabase.from('discipline_proposals')
           .select('id,name,status,created_at,creator_id,profiles!creator_id(full_name)')
           .order('created_at', { ascending: false }),
@@ -289,9 +289,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab === 'analytics' && !analytics && !analyticsLoading) {
       setAnalyticsLoading(true)
-      fetch('/api/admin/analytics').then(r => r.json()).then(d => {
-        setAnalytics(d)
-        setAnalyticsLoading(false)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        fetch('/api/admin/analytics', { headers: { Authorization: `Bearer ${session?.access_token}` } })
+          .then(r => r.json())
+          .then(d => { setAnalytics(d); setAnalyticsLoading(false) })
       })
     }
   }, [tab, analytics, analyticsLoading])
