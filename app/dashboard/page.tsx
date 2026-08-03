@@ -519,10 +519,10 @@ export default function DashboardPage() {
 
 // ─── KPI card ────────────────────────────────────────────────────────────────
 
-function KpiCard({ label, value, color }: { label: string; value: number | string; color: string }) {
+function KpiCard({ label, value }: { label: string; value: number | string; color?: string }) {
   return (
-    <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '14px', border: '1px solid #E5E7EB' }}>
-      <div style={{ fontSize: '24px', fontWeight: 500, color, lineHeight: 1, marginBottom: '4px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border-color)' }}>
+      <div style={{ fontSize: '24px', fontWeight: 500, color: 'var(--text-primary)', lineHeight: 1, marginBottom: '4px' }}>
         {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
       </div>
       <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{label}</div>
