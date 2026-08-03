@@ -103,7 +103,7 @@ export default function DashboardPage() {
   const [subscriptionEndsAt, setSubscriptionEndsAt] = useState<string | null>(null)
   const [paymentBanner, setPaymentBanner] = useState<'success' | 'cancelled' | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
-  const [dashTab, setDashTab] = useState<'creator' | 'organizer' | 'admin'>('creator')
+  const [dashTab, setDashTab] = useState<'creator' | 'organizer'>('creator')
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -364,7 +364,6 @@ export default function DashboardPage() {
           const tabs = [
             hasCreator  && { key: 'creator',   icon: <Users size={13} />,    label: 'Créateur' },
             hasOrganizer && { key: 'organizer', icon: <Calendar size={13} />, label: 'Organisateur' },
-            isAdmin      && { key: 'admin',     icon: <Zap size={13} />,      label: 'Admin' },
           ].filter(Boolean) as { key: string; icon: React.ReactNode; label: string }[]
           if (tabs.length <= 1) return null
           return (
@@ -493,25 +492,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Admin tab */}
-        {dashTab === 'admin' && isAdmin && (
-          <div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '24px' }}>
-              {[
-                { href: '/admin',         icon: <BarChart2 size={16} />,  label: 'Vue globale',   sub: 'Stats & activité' },
-                { href: '/admin/users',   icon: <Users size={16} />,      label: 'Utilisateurs',  sub: 'Gérer les comptes' },
-                { href: '/admin/events',  icon: <Calendar size={16} />,   label: 'Événements',    sub: 'Modération' },
-                { href: '/admin/reports', icon: <AlertCircle size={16} />, label: 'Signalements', sub: 'Rapports' },
-              ].map(tool => (
-                <Link key={tool.href} href={tool.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '6px', padding: '18px 14px', borderRadius: '12px', border: '1px solid rgba(245,158,11,0.25)', backgroundColor: 'rgba(245,158,11,0.06)' }}>
-                  <span style={{ color: '#f59e0b' }}>{tool.icon}</span>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{tool.label}</span>
-                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{tool.sub}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

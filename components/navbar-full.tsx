@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell, Shield } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { WhatsNew } from '@/components/ui/whats-new'
@@ -578,10 +578,13 @@ export function NavbarFull() {
                         </div>
                       </div>
 
-                      <SimpleItem panelId="profile" idx={0} href="/dashboard" icon={User} label="Mon dashboard" />
-                      <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 2 : 1} href="/profile"       icon={User}  label="Mon profil" />
-                      <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 3 : 2} href="/notifications" icon={Bell}  label="Notifications" />
-                      <SimpleItem panelId="profile" idx={user.is_creator || user.is_organizer ? 4 : 3} href="/settings"      icon={User}  label="Paramètres" />
+                      <SimpleItem panelId="profile" idx={0} href="/dashboard"     icon={User} label="Mon dashboard" />
+                      <SimpleItem panelId="profile" idx={1} href="/profile"       icon={User} label="Mon profil" />
+                      <SimpleItem panelId="profile" idx={2} href="/notifications" icon={Bell} label="Notifications" />
+                      <SimpleItem panelId="profile" idx={3} href="/settings"      icon={User} label="Paramètres" />
+                      {(user as any).is_admin && (
+                        <SimpleItem panelId="profile" idx={4} href="/admin" icon={Shield} label="Admin" color="#F59E0B" />
+                      )}
 
                       <div style={{ height: '1px', backgroundColor: '#F3F4F6', margin: '4px 0' }} />
                       <button onClick={handleLogout}
