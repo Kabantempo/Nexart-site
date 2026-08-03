@@ -202,42 +202,48 @@ export default function AdminPage() {
 
       setAdminId(uid)
 
-      const [
-        { data: creatorsData },
-        { data: eventsData },
-        analyticsRes,
-        { data: discProps },
-        { data: orgaData },
-        { data: msgs },
-      ] = await Promise.all([
-        supabase.from('creator_profiles')
-          .select('user_id,siret_number,siret_verified,insurance_verified,insurance_doc_url,profiles(full_name,avatar_url,is_banned,is_creator,is_organizer,role)')
-          .order('user_id'),
-        supabase.from('events')
-          .select('id,title,city,start_date,event_type,status,cover_image,stand_count,stand_price,profiles(full_name)')
-          .order('created_at', { ascending: false })
-          .limit(50),
-        fetch('/api/admin/analytics', { headers: { Authorization: `Bearer ${session.access_token}` } }).then(r => r.json()),
-        supabase.from('discipline_proposals')
-          .select('id,name,status,created_at,creator_id,profiles!creator_id(full_name)')
-          .order('created_at', { ascending: false }),
-        supabase.from('organizer_profiles')
-          .select('user_id,siret_number,siret_verified,verification_doc_url,verification_doc_verified,profiles!user_id(full_name,avatar_url)')
-          .order('user_id'),
-        supabase.from('admin_messages')
-          .select('id,content,subject,created_at,read_at,recipient:recipient_id(full_name,avatar_url,role)')
-          .eq('sender_id', uid)
-          .order('created_at', { ascending: false })
-          .limit(50),
-      ])
+      try {
+        const [
+          { data: creatorsData },
+          { data: eventsData },
+          analyticsRes,
+          { data: discProps },
+          { data: orgaData },
+          { data: msgs },
+        ] = await Promise.all([
+          supabase.from('creator_profiles')
+            .select('user_id,siret_number,siret_verified,insurance_verified,insurance_doc_url,profiles(full_name,avatar_url,is_banned,is_creator,is_organizer,role)')
+            .order('user_id'),
+          supabase.from('events')
+            .select('id,title,city,start_date,event_type,status,cover_image,stand_count,stand_price,profiles(full_name)')
+            .order('created_at', { ascending: false })
+            .limit(50),
+          fetch('/api/admin/analytics', { headers: { Authorization: `Bearer ${session.access_token}` } })
+            .then(r => r.ok ? r.json() : {}).catch(() => ({})),
+          supabase.from('discipline_proposals')
+            .select('id,name,status,created_at,creator_id,profiles!creator_id(full_name)')
+            .order('created_at', { ascending: false }),
+          supabase.from('organizer_profiles')
+            .select('user_id,siret_number,siret_verified,verification_doc_url,verification_doc_verified,profiles!user_id(full_name,avatar_url)')
+            .order('user_id'),
+          supabase.from('admin_messages')
+            .select('id,content,subject,created_at,read_at,recipient:recipient_id(full_name,avatar_url,role)')
+            .eq('sender_id', uid)
+            .order('created_at', { ascending: false })
+            .limit(50),
+        ])
 
-      setCreators((creatorsData as unknown as AdminCreator[]) ?? [])
-      setEvents((eventsData as unknown as AdminEvent[]) ?? [])
-      setAnalytics(analyticsRes as Analytics)
-      setDiscProposals((discProps as unknown as DisciplineProposal[]) ?? [])
-      setOrgaVerifs((orgaData as unknown as AdminOrgaVerif[]) ?? [])
-      setAdminMessages((msgs as unknown as AdminMessage[]) ?? [])
-      setLoading(false)
+        setCreators((creatorsData as unknown as AdminCreator[]) ?? [])
+        setEvents((eventsData as unknown as AdminEvent[]) ?? [])
+        setAnalytics(analyticsRes as Analytics)
+        setDiscProposals((discProps as unknown as DisciplineProposal[]) ?? [])
+        setOrgaVerifs((orgaData as unknown as AdminOrgaVerif[]) ?? [])
+        setAdminMessages((msgs as unknown as AdminMessage[]) ?? [])
+      } catch (e) {
+        console.error('Admin load error:', e)
+      } finally {
+        setLoading(false)
+      }
     })
   }, [router])
 
