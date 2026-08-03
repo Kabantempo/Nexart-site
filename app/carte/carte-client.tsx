@@ -176,7 +176,7 @@ export default function CarteClient() {
       <div style={{ padding: '12px 20px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <MapPin size={16} color="#A5B4FC" />
-          <span style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>Carte des événements</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Carte des événements</span>
           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{events.length} événements</span>
         </div>
         <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>

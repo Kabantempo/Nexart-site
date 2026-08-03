@@ -54,7 +54,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
       <button
         onClick={() => setOpen(o => !o)}
         style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--accent)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', transition: 'all 150ms' }}
-        onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#EEF2FF'; e.currentTarget.style.borderColor = '#C7D2FE' }}
+        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)' }}
         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)'; e.currentTarget.style.borderColor = 'var(--border-color)' }}
         aria-label="Sauvegarder cette recherche"
       >
