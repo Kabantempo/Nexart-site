@@ -55,7 +55,7 @@ export default function AnalyticsClient() {
     const load = async () => {
       setLoading(true)
       const isOrganizer = user.role === 'organizer' || user.is_organizer
-      const isCreator = user.role === 'creator' || user.role === 'artisan' || user.is_creator
+      const isCreator = user.role === 'creator' || (user.role as string) === 'artisan' || user.is_creator
       if (isOrganizer) {
         const { data } = await supabase.from('event_analytics').select('*').eq('organizer_id', user.id).order('start_date', { ascending: false })
         setEventStats((data || []) as unknown as EventStat[])
@@ -224,7 +224,7 @@ export default function AnalyticsClient() {
         )}
 
         {/* Creator */}
-        {(user.role === 'creator' || user.role === 'artisan' || user.is_creator) && (
+        {(user.role === 'creator' || (user.role as string) === 'artisan' || user.is_creator) && (
           !creatorStats ? (
             <div className="text-center py-20 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
               <TrendingUp size={40} className="text-gray-200 mx-auto mb-4" />

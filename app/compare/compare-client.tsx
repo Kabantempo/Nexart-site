@@ -32,7 +32,7 @@ function Cell({ children }: { children: React.ReactNode }) {
 
 function CompareContent() {
   const params = useSearchParams()
-  const ids = params.get('ids')?.split(',').filter(Boolean) ?? []
+  const ids = params?.get('ids')?.split(',').filter(Boolean) ?? []
   const [events, setEvents] = useState<EventWithRating[]>([])
   const [loading, setLoading] = useState(true)
 

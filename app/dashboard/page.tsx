@@ -370,7 +370,7 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', gap: '2px', backgroundColor: 'var(--bg-secondary)', padding: '4px', borderRadius: '10px', width: 'fit-content', marginBottom: '20px' }}>
               {tabs.map(tab => (
                 <button key={tab.key} onClick={() => setDashTab(tab.key as typeof dashTab)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', backgroundColor: dashTab === tab.key ? '#fff' : 'transparent', color: dashTab === tab.key ? (tab.key === 'admin' ? '#d97706' : '#6366F1') : '#6B7280', boxShadow: dashTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', backgroundColor: dashTab === tab.key ? '#fff' : 'transparent', color: dashTab === tab.key ? '#6366F1' : '#6B7280', boxShadow: dashTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
                   {tab.icon} {tab.label}
                 </button>
               ))}
@@ -1429,15 +1429,18 @@ function CarnetDeNotes({ userId }: { userId: string }) {
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    supabase.from('creator_notes').select('content').eq('creator_id', userId).maybeSingle()
-      .then(({ data }) => { if (data) setContent(data.content) })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(supabase as any).from('creator_notes').select('content').eq('creator_id', userId).maybeSingle()
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .then(({ data }: { data: any }) => { if (data) setContent(data.content) })
   }, [userId])
 
   const save = (value: string) => {
     if (debounce.current) clearTimeout(debounce.current)
     setStatus('saving')
     debounce.current = setTimeout(async () => {
-      await supabase.from('creator_notes').upsert({ creator_id: userId, content: value, updated_at: new Date().toISOString() }, { onConflict: 'creator_id' })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('creator_notes').upsert({ creator_id: userId, content: value, updated_at: new Date().toISOString() }, { onConflict: 'creator_id' })
       setStatus('saved')
       setTimeout(() => setStatus('idle'), 2000)
     }, 800)

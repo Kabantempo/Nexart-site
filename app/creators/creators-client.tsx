@@ -65,7 +65,7 @@ function CreatorsContent() {
   const { creators, loading, error } = useCreators()
   const searchParams = useSearchParams()
 
-  const [searchTerm,       setSearchTerm]       = useState(searchParams.get('q') || '')
+  const [searchTerm,       setSearchTerm]       = useState(searchParams?.get('q') || '')
   const [cityFilter,       setCityFilter]       = useState('all')
   const [disciplineFilter, setDisciplineFilter] = useState('all')
   const [sortOrder,        setSortOrder]        = useState<'alpha' | 'newest' | 'rating' | 'popular'>('alpha')
@@ -84,11 +84,11 @@ function CreatorsContent() {
 
   // Sync URL → state on mount
   useEffect(() => {
-    const q = searchParams.get('q'); if (q) setSearchTerm(q)
-    const city = searchParams.get('city'); if (city) setCityFilter(city)
-    const disc = searchParams.get('disc'); if (disc) setDisciplineFilter(disc)
-    if (searchParams.get('available') === '1') setAvailableOnly(true)
-    if (searchParams.get('collab') === '1') setOpenToCollab(true)
+    const q = searchParams?.get('q'); if (q) setSearchTerm(q)
+    const city = searchParams?.get('city'); if (city) setCityFilter(city)
+    const disc = searchParams?.get('disc'); if (disc) setDisciplineFilter(disc)
+    if (searchParams?.get('available') === '1') setAvailableOnly(true)
+    if (searchParams?.get('collab') === '1') setOpenToCollab(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder, availableOnly, openToCollab])

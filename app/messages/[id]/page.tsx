@@ -139,7 +139,8 @@ function AttachmentPreview({ url, type, name, isMine }: { url: string; type: str
 }
 
 export default function ConversationPage() {
-  const { id } = useParams<{ id: string }>()
+  const routeParams = useParams<{ id: string }>()
+  const id = routeParams?.id ?? ''
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
   const [messages, setMessages] = useState<Message[]>([])
