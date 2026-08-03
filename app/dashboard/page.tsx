@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -523,7 +523,7 @@ function CreatorMainContent({
   profileViewCount: number
   profileViewDays: { date: string; count: number }[]
 }) {
-  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'messages' | 'paiements'>('candidatures')
+  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'messages' | 'paiements' | 'carnet'>('candidatures')
   const [recommended, setRecommended] = useState<(Event & { _score?: number; _reason?: string })[]>([])
   const [paidApps, setPaidApps] = useState<(Application & { event?: Event })[]>([])
   const appliedEventIds = new Set(applications.map(a => a.event_id))
@@ -572,6 +572,7 @@ function CreatorMainContent({
     { key: 'calendrier', label: 'Calendrier' },
     { key: 'messages', label: 'Messages' },
     ...(paidCount > 0 ? [{ key: 'paiements', label: `Mes paiements (${paidCount})` }] : []),
+    { key: 'carnet', label: '📓 Carnet' },
   ] as const
 
   return (
@@ -630,6 +631,8 @@ function CreatorMainContent({
           ))}
         </div>
       )}
+
+      {tab === 'carnet' && <CarnetDeNotes userId={userId} />}
 
       {/* Recommandations */}
       {recommended.length > 0 && (
@@ -1414,6 +1417,54 @@ function VisitorContent() {
           </Link>
         ))}
       </div>
+    </div>
+  )
+}
+
+// ─── Carnet de notes ─────────────────────────────────────────────────────────
+
+function CarnetDeNotes({ userId }: { userId: string }) {
+  const [content, setContent] = useState('')
+  const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    supabase.from('creator_notes').select('content').eq('creator_id', userId).maybeSingle()
+      .then(({ data }) => { if (data) setContent(data.content) })
+  }, [userId])
+
+  const save = (value: string) => {
+    if (debounce.current) clearTimeout(debounce.current)
+    setStatus('saving')
+    debounce.current = setTimeout(async () => {
+      await supabase.from('creator_notes').upsert({ creator_id: userId, content: value, updated_at: new Date().toISOString() }, { onConflict: 'creator_id' })
+      setStatus('saved')
+      setTimeout(() => setStatus('idle'), 2000)
+    }, 800)
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Carnet de notes</h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Privé — visible uniquement par vous</p>
+        </div>
+        {status === 'saving' && <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Enregistrement…</span>}
+        {status === 'saved'  && <span style={{ fontSize: '12px', color: '#10B981', fontWeight: 600 }}>✓ Sauvegardé</span>}
+      </div>
+      <textarea
+        value={content}
+        onChange={e => { setContent(e.target.value); save(e.target.value) }}
+        placeholder="Tes idées, notes de marchés, contacts, inspirations…"
+        style={{
+          width: '100%', minHeight: '320px', padding: '16px', borderRadius: '12px',
+          border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)',
+          color: 'var(--text-primary)', fontSize: '14px', lineHeight: '1.7',
+          resize: 'vertical', outline: 'none', fontFamily: 'inherit',
+          boxSizing: 'border-box',
+        }}
+      />
     </div>
   )
 }
