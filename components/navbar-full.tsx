@@ -30,7 +30,7 @@ const s = {
     appearance: 'none',
     transition: 'color 0.15s',
     userSelect: 'none',
-    color: active ? '#111827' : '#4B5563',
+    color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
     textDecoration: 'none',
   }),
   panel: (align: 'left' | 'right' | 'center', width: number): React.CSSProperties => ({
@@ -44,8 +44,8 @@ const s = {
     ...(align === 'right' ? { right: 0 } : align === 'center' ? { left: '50%', transform: 'translateX(-50%)' } : { left: 0 }),
   }),
   panelInner: (): React.CSSProperties => ({
-    backgroundColor: '#fff',
-    border: '1px solid #F3F4F6',
+    backgroundColor: 'var(--card-bg)',
+    border: '1px solid var(--border-color)',
     borderRadius: '18px',
     boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
     padding: '6px',
@@ -58,7 +58,7 @@ const s = {
     padding: '12px 14px',
     borderRadius: '12px',
     textDecoration: 'none',
-    backgroundColor: active ? '#F9FAFB' : 'transparent',
+    backgroundColor: active ? 'rgba(99,102,241,0.1)' : 'transparent',
     transition: 'background 0.12s',
     cursor: 'pointer',
   }),
@@ -69,8 +69,8 @@ const s = {
     padding: '10px 14px',
     borderRadius: '12px',
     textDecoration: 'none',
-    backgroundColor: active ? '#EEF2FF' : 'transparent',
-    color: active ? '#6366F1' : '#374151',
+    backgroundColor: active ? 'rgba(99,102,241,0.1)' : 'transparent',
+    color: active ? 'var(--accent)' : 'var(--text-primary)',
     fontSize: '13px',
     fontWeight: 500,
     transition: 'all 0.12s',
@@ -271,14 +271,14 @@ export function NavbarFull() {
         role="menuitem"
         ref={(el) => registerItem(panelId, el, idx)}
         style={s.panelItem(active)}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? '#F9FAFB' : 'transparent' }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? 'var(--bg-secondary)' : 'transparent' }}
       >
-        <div style={{ width: 34, height: 34, borderRadius: '10px', backgroundColor: active ? '#EEF2FF' : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon size={16} color={active ? '#6366F1' : '#9CA3AF'} />
+        <div style={{ width: 34, height: 34, borderRadius: '10px', backgroundColor: active ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={16} color={active ? '#6366F1' : 'var(--text-tertiary)'} />
         </div>
         <div style={{ flex: 1, minWidth: 0, paddingTop: '1px' }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: active ? '#6366F1' : '#111827', margin: 0, lineHeight: 1.2, marginBottom: '2px' }}>{label}</p>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: active ? '#6366F1' : 'var(--text-primary)', margin: 0, lineHeight: 1.2, marginBottom: '2px' }}>{label}</p>
           <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{desc}</p>
         </div>
         <ArrowUpRight size={13} style={{ color: '#D1D5DB', marginTop: '2px', flexShrink: 0 }} />
@@ -294,8 +294,8 @@ export function NavbarFull() {
         role="menuitem"
         ref={(el) => registerItem(panelId, el, idx)}
         style={s.panelItemSimple(active)}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB'; (e.currentTarget as HTMLElement).style.color = '#111827' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? '#EEF2FF' : 'transparent'; (e.currentTarget as HTMLElement).style.color = active ? '#6366F1' : '#374151' }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? 'rgba(99,102,241,0.1)' : 'transparent'; (e.currentTarget as HTMLElement).style.color = active ? 'var(--accent)' : 'var(--text-primary)' }}
       >
         <Icon size={14} color={active ? '#6366F1' : color} />
         {label}
@@ -324,24 +324,21 @@ export function NavbarFull() {
             maxWidth: '1280px', margin: '0 auto', padding: '0 20px',
             height: '58px', display: 'flex', alignItems: 'center', gap: '32px',
             transition: 'all 0.5s',
-            backgroundColor: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.85)',
+            backgroundColor: 'var(--navbar-bg)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             ...(scrolled ? {
               borderRadius: '18px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-              border: '1px solid rgba(0,0,0,0.06)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+              border: '1px solid var(--border-color)',
             } : {
-              borderBottom: '1px solid rgba(0,0,0,0.06)',
+              borderBottom: '1px solid var(--border-color)',
             }),
           }}>
 
             {/* Logo */}
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
               <Image src="/logo-mark-64.png" alt="Nexart" width={26} height={26} style={{ borderRadius: '8px' }} priority />
-              <span style={{ fontSize: '15px', fontWeight: 600, letterSpacing: '-0.02em', color: '#111827' }}>
-                Nexart
-              </span>
             </Link>
 
             {/* Desktop nav */}
@@ -410,14 +407,14 @@ export function NavbarFull() {
                       initial={{ width: 32, opacity: 0 }} animate={{ width: 260, opacity: 1 }} exit={{ width: 32, opacity: 0 }}
                       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                       onSubmit={submitSearch}
-                      style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', overflow: 'hidden' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}
                     >
                       <Search size={12} color="#9CA3AF" style={{ flexShrink: 0 }} />
                       <input ref={searchRef} value={searchValue}
                         onChange={e => handleSearchChange(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
                         placeholder="Rechercher…"
-                        style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: '#111827', minWidth: 0 }}
+                        style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: 'var(--text-primary)', minWidth: 0 }}
                       />
                       {searchLoading
                         ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
@@ -429,7 +426,7 @@ export function NavbarFull() {
                       onClick={openSearch}
                       aria-label="Ouvrir la recherche"
                       style={{ ...iconBtn }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
                     >
                       <Search size={15} />
@@ -443,7 +440,7 @@ export function NavbarFull() {
                     <motion.div
                       initial={{ opacity: 0, y: 6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 4, scale: 0.97 }}
                       transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-                      style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: '#fff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid #F3F4F6', overflow: 'hidden', zIndex: 999, pointerEvents: 'auto' }}
+                      style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: 'var(--card-bg)', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid var(--border-color)', overflow: 'hidden', zIndex: 999, pointerEvents: 'auto' }}
                     >
                       {searchResults.events.length > 0 && (
                         <div>
@@ -451,14 +448,14 @@ export function NavbarFull() {
                           {searchResults.events.map((ev, i) => (
                             <Link key={ev.id} href={`/events/${ev.id}`} onClick={closeSearch}
                               style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', backgroundColor: searchActiveIdx === i ? '#F9FAFB' : 'transparent' }}
-                              onMouseEnter={e => { setSearchActiveIdx(i); (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+                              onMouseEnter={e => { setSearchActiveIdx(i); (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)' }}
                               onMouseLeave={e => { if (searchActiveIdx !== i) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                             >
                               <div style={{ width: 36, height: 36, borderRadius: '8px', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {ev.cover_image ? <Image src={ev.cover_image} alt={ev.title} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Calendar size={16} color="#6366F1" />}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                                <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                                 {ev.city && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{ev.city}</p>}
                               </div>
                             </Link>
@@ -466,21 +463,21 @@ export function NavbarFull() {
                         </div>
                       )}
                       {searchResults.creators.length > 0 && (
-                        <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid #F3F4F6' : 'none' }}>
+                        <div style={{ borderTop: searchResults.events.length > 0 ? '1px solid var(--border-color)' : 'none' }}>
                           <p style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', padding: '10px 14px 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Créateurs</p>
                           {searchResults.creators.map((cr, i) => {
                             const idx = searchResults.events.length + i
                             return (
                               <Link key={cr.id} href={`/creators/${cr.id}`} onClick={closeSearch}
                                 style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textDecoration: 'none', backgroundColor: searchActiveIdx === idx ? '#F9FAFB' : 'transparent' }}
-                                onMouseEnter={e => { setSearchActiveIdx(idx); (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+                                onMouseEnter={e => { setSearchActiveIdx(idx); (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)' }}
                                 onMouseLeave={e => { if (searchActiveIdx !== idx) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                               >
                                 <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   {cr.avatar_url ? <Image src={cr.avatar_url} alt={cr.full_name} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Palette size={14} color="#6366F1" />}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0 }}>{cr.username ?? cr.full_name}</p>
+                                  <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{cr.username ?? cr.full_name}</p>
                                   {cr.username && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>{cr.full_name}</p>}
                                 </div>
                               </Link>
@@ -488,10 +485,10 @@ export function NavbarFull() {
                           })}
                         </div>
                       )}
-                      <div style={{ borderTop: '1px solid #F3F4F6' }}>
+                      <div style={{ borderTop: '1px solid var(--border-color)' }}>
                         <Link href={`/search?q=${encodeURIComponent(searchValue.trim())}`} onClick={closeSearch}
                           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, color: '#6366F1' }}
-                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB'}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)'}
                           onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                         >
                           <Search size={13} /> Voir tous les résultats
@@ -508,13 +505,13 @@ export function NavbarFull() {
               {user ? (
                 <>
                   <Link href="/favorites" title="Mes favoris" style={iconBtn}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
                   >
                     <Heart size={16} />
                   </Link>
                   <Link href="/messages" style={iconBtn}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#9CA3AF' }}
                   >
                     <MessageCircle size={16} />
@@ -548,7 +545,7 @@ export function NavbarFull() {
                       aria-haspopup="menu"
                       aria-expanded={dropdown === 'profile'}
                       style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '12px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)'}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                     >
                       <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -557,13 +554,13 @@ export function NavbarFull() {
                           : <span style={{ fontSize: '9px', fontWeight: 900, color: '#fff' }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
                         }
                       </div>
-                      <span style={{ fontSize: '13px', fontWeight: 500, color: '#4B5563' }}>{firstName ?? 'Moi'}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>{firstName ?? 'Moi'}</span>
                       <ChevronDown size={11} style={{ opacity: 0.4, transition: 'transform 0.2s', transform: dropdown === 'profile' ? 'rotate(180deg)' : 'rotate(0)' }} />
                     </button>
 
                     <Panel id="profile" align="right" width={200}>
-                      <div style={{ padding: '12px 14px 10px', marginBottom: '4px', borderBottom: '1px solid #F3F4F6' }}>
-                        <p style={{ fontSize: '12px', fontWeight: 600, color: '#111827', margin: '0 0 2px' }}>{firstName}</p>
+                      <div style={{ padding: '12px 14px 10px', marginBottom: '4px', borderBottom: '1px solid var(--border-color)' }}>
+                        <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px' }}>{firstName}</p>
                         <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                           {(user.is_creator || user.role === 'creator') && (
@@ -573,7 +570,7 @@ export function NavbarFull() {
                             <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: '#F5F3FF', color: '#7C3AED', border: '1px solid #EDE9FE' }}>Organisateur</span>
                           )}
                           {!user.is_creator && !user.is_organizer && user.role === 'visitor' && (
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: '#F9FAFB', color: '#9CA3AF', border: '1px solid #F3F4F6' }}>Visiteur</span>
+                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>Visiteur</span>
                           )}
                         </div>
                       </div>
@@ -586,7 +583,7 @@ export function NavbarFull() {
                         <SimpleItem panelId="profile" idx={4} href="/admin" icon={Shield} label="Admin" color="#F59E0B" />
                       )}
 
-                      <div style={{ height: '1px', backgroundColor: '#F3F4F6', margin: '4px 0' }} />
+                      <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }} />
                       <button onClick={handleLogout}
                         style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s' }}
                         onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#FEF2F2'}
@@ -600,8 +597,8 @@ export function NavbarFull() {
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
                   <Link href="/login"
-                    style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: '#4B5563', textDecoration: 'none', borderRadius: '10px', transition: 'all 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6' }}
+                    style={{ padding: '8px 14px', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', textDecoration: 'none', borderRadius: '10px', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.08)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                   >
                     Connexion
@@ -741,7 +738,7 @@ export function NavbarFull() {
                 ) : (
                   <>
                     <Link href="/register" onClick={() => setMobileOpen(false)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: '#fff', color: '#111827', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
                     >
                       S'inscrire gratuitement
                     </Link>

@@ -151,13 +151,13 @@ export default function NotificationsClient() {
                   style={{
                     display: 'flex', gap: '14px', padding: '16px 18px',
                     borderRadius: '12px',
-                    border: `1px solid ${isUnread ? '#E0E0FA' : 'var(--border-color)'}`,
-                    backgroundColor: isUnread ? '#FAFBFF' : '#FFFFFF',
+                    border: `1px solid ${isUnread ? 'rgba(99,102,241,0.3)' : 'var(--border-color)'}`,
+                    backgroundColor: isUnread ? 'rgba(99,102,241,0.06)' : 'var(--card-bg)',
                     cursor: n.link ? 'pointer' : 'default',
                     transition: 'all 150ms',
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = '#F5F5FF' }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = isUnread ? '#FAFBFF' : '#FFFFFF' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(99,102,241,0.1)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = isUnread ? 'rgba(99,102,241,0.06)' : 'var(--card-bg)' }}
                 >
                   <div style={{
                     width: '42px', height: '42px', borderRadius: '12px',

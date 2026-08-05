@@ -40,6 +40,36 @@ body {
   --card-bg: #FFFFFF;
   --navbar-bg: rgba(255, 255, 255, 0.95);
   --input-bg: #FFFFFF;
+  --hero-bg: #F8F8FF;
+}
+
+/* ── Homepage light mode overrides ─────────────────────────────────────────── */
+[data-theme="light"] .home-page {
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+}
+[data-theme="light"] .home-page section {
+  background-color: #FFFFFF !important;
+}
+[data-theme="light"] .home-page [class*="text-white"] {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .home-page [class*="border-white"] {
+  border-color: #E5E7EB !important;
+}
+[data-theme="light"] .home-page [class*="bg-white/"] {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+[data-theme="light"] .home-page .text-indigo-400,
+[data-theme="light"] .home-page .text-indigo-300 {
+  color: #6366F1 !important;
+}
+[data-theme="light"] .home-page [class*="bg-indigo-500\/"],
+[data-theme="light"] .home-page [class*="bg-indigo-600\/"] {
+  background-color: rgba(99,102,241,0.08) !important;
+}
+[data-theme="light"] .home-page [class*="border-indigo-500\/"] {
+  border-color: rgba(99,102,241,0.3) !important;
 }
 
 [data-theme="dark"] {
