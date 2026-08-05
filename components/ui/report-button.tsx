@@ -22,19 +22,24 @@ const REASONS = [
 export function ReportButton({ targetId, targetType, reporterId }: Props) {
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState('')
+  const [customText, setCustomText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const { success, error } = useToast()
 
   if (!reporterId) return null
 
+  const isAutreSelected = reason === 'Autre'
+  const canSubmit = reason && (!isAutreSelected || customText.trim().length > 0)
+  const finalReason = isAutreSelected && customText.trim() ? `Autre : ${customText.trim()}` : reason
+
   const handleSubmit = async () => {
-    if (!reason) return
+    if (!canSubmit) return
     setSubmitting(true)
     const { error: err } = await supabase.from('reports').insert({
       reporter_id: reporterId,
       target_id: targetId,
       target_type: targetType,
-      reason,
+      reason: finalReason,
     })
     if (err) {
       error('Erreur lors du signalement')
@@ -42,6 +47,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
       success('Signalement envoyé — merci')
       setOpen(false)
       setReason('')
+      setCustomText('')
     }
     setSubmitting(false)
   }
@@ -72,10 +78,21 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
                   <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: reason === r ? '600' : '400' }}>{r}</span>
                 </label>
               ))}
+              {isAutreSelected && (
+                <textarea
+                  value={customText}
+                  onChange={e => setCustomText(e.target.value)}
+                  placeholder="Décrivez le problème…"
+                  maxLength={500}
+                  rows={3}
+                  autoFocus
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                />
+              )}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleSubmit} disabled={!reason || submitting}
-                style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !reason || submitting ? 'var(--border-color)' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !reason || submitting ? 'not-allowed' : 'pointer' }}>
+              <button onClick={handleSubmit} disabled={!canSubmit || submitting}
+                style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
                 {submitting ? 'Envoi…' : 'Envoyer'}
               </button>
               <button onClick={() => setOpen(false)}
