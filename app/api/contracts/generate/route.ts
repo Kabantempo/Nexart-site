@@ -46,14 +46,15 @@ export async function POST(req: NextRequest) {
   // Numéro de contrat unique
   const contractNumber = `NXRT-${event_id.slice(0, 6).toUpperCase()}-${creator_id.slice(0, 6).toUpperCase()}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
 
-  // ─── Génération PDF ─────────────────────────────────────────────────────────
+  // ─── Génération PDF multi-pages ──────────────────────────────────────────────
   const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage([595, 842])
-  const { width, height } = page.getSize()
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  const W = 595
+  const H_PAGE = 842
+  const FOOTER_Y = 90
+  const BODY_MIN = FOOTER_Y + 30
 
-  // Palette Nexart
   const C = {
     indigo:   rgb(0.388, 0.400, 0.945),
     dark:     rgb(0.102, 0.102, 0.102),
@@ -64,49 +65,68 @@ export async function POST(req: NextRequest) {
     indigoFd: rgb(0.800, 0.820, 1.000),
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
-  const H = 68
-  page.drawRectangle({ x: 0, y: height - H, width, height: H, color: C.indigo })
-  page.drawText('NEXART', { x: 40, y: height - 38, size: 19, font: fontBold, color: C.white })
-  page.drawText('nexart.fr', { x: 40, y: height - 52, size: 8, font: fontRegular, color: C.indigoFd })
-  const docTitle = 'CONTRAT DE PARTICIPATION'
-  page.drawText(docTitle, { x: width - 40 - docTitle.length * 6.6, y: height - 40, size: 12, font: fontBold, color: C.white })
-  const lineY = height - H - 10
-  page.drawLine({ start: { x: 40, y: lineY }, end: { x: width - 40, y: lineY }, thickness: 0.5, color: C.border })
-  page.drawText(`N° Contrat : ${contractNumber}  ·  Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart`, {
-    x: 40, y: lineY - 14, size: 8, font: fontRegular, color: C.gray,
-  })
+  const addHeader = (pg: ReturnType<typeof pdfDoc.addPage>, pageNum: number) => {
+    const H = 68
+    pg.drawRectangle({ x: 0, y: H_PAGE - H, width: W, height: H, color: C.indigo })
+    pg.drawText('NEXART', { x: 40, y: H_PAGE - 38, size: 19, font: fontBold, color: C.white })
+    pg.drawText('nexart.fr', { x: 40, y: H_PAGE - 52, size: 8, font: fontRegular, color: C.indigoFd })
+    const title = 'CONTRAT DE PARTICIPATION'
+    pg.drawText(title, { x: W - 40 - title.length * 6.6, y: H_PAGE - 40, size: 12, font: fontBold, color: C.white })
+    const lY = H_PAGE - H - 10
+    pg.drawLine({ start: { x: 40, y: lY }, end: { x: W - 40, y: lY }, thickness: 0.5, color: C.border })
+    if (pageNum === 1) {
+      pg.drawText(`N° Contrat : ${contractNumber}  ·  Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart`, { x: 40, y: lY - 14, size: 8, font: fontRegular, color: C.gray })
+    }
+    return lY - (pageNum === 1 ? 34 : 22)
+  }
 
-  let y = lineY - 34
+  const addFooter = (pg: ReturnType<typeof pdfDoc.addPage>, pageNum: number, totalPages: number) => {
+    const fY = FOOTER_Y
+    pg.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: W - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
+    pg.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
+    const right = `Page ${pageNum}/${totalPages} · ${contractNumber}`
+    pg.drawText(right, { x: W - 40 - right.length * 4.2, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
+    pg.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} · Archivé 6 ans (art. 1366 Code civil)`, { x: 40, y: fY - 8, size: 7, font: fontRegular, color: C.gray })
+  }
+
+  let page = pdfDoc.addPage([W, H_PAGE])
+  let y = addHeader(page, 1)
   let rowIdx = 0
+  let currentPageNum = 1
 
-  // helpers locaux
+  const checkPage = () => {
+    if (y <= BODY_MIN) {
+      addFooter(page, currentPageNum, 2)
+      page = pdfDoc.addPage([W, H_PAGE])
+      currentPageNum++
+      y = addHeader(page, currentPageNum)
+      rowIdx = 0
+    }
+  }
+
   const section = (title: string) => {
-    y -= 16
+    y -= 16; checkPage()
     page.drawText(title, { x: 40, y, size: 10, font: fontBold, color: C.indigo })
     y -= 5
-    page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
+    page.drawLine({ start: { x: 40, y }, end: { x: W - 40, y }, thickness: 0.5, color: C.border })
     y -= 13
   }
 
   const row = (label: string, value: string) => {
-    if (rowIdx % 2 === 0) page.drawRectangle({ x: 40, y: y - 4, width: width - 80, height: 17, color: C.rowEven })
+    checkPage()
+    if (rowIdx % 2 === 0) page.drawRectangle({ x: 40, y: y - 4, width: W - 80, height: 17, color: C.rowEven })
     page.drawText(`${label} :`, { x: 48, y, size: 9, font: fontBold, color: C.gray })
     page.drawText(value || '—', { x: 200, y, size: 10, font: fontBold, color: C.dark })
-    y -= 17
-    rowIdx++
+    y -= 17; rowIdx++
   }
 
   const wrapClause = (text: string, maxLen = 92) => {
-    const words = text.split(' ')
-    const lines: string[] = []
-    let cur = ''
+    const words = text.split(' '); const lines: string[] = []; let cur = ''
     for (const w of words) {
       if ((cur + w).length > maxLen) { if (cur.trim()) lines.push(cur.trim()); cur = w + ' ' }
       else cur += w + ' '
     }
-    if (cur.trim()) lines.push(cur.trim())
-    return lines
+    if (cur.trim()) lines.push(cur.trim()); return lines
   }
 
   // ── Corps ─────────────────────────────────────────────────────────────────
@@ -150,18 +170,26 @@ export async function POST(req: NextRequest) {
   ]
 
   for (const clause of clauses) {
+    checkPage()
     page.drawText(clause.num, { x: 48, y, size: 8.5, font: fontBold, color: C.dark })
     y -= 12
     for (const wrapped of wrapClause(clause.body)) {
+      checkPage()
       page.drawText(wrapped, { x: 56, y, size: 8, font: fontRegular, color: C.dark })
       y -= 11
     }
-    y -= 5
+    y -= 3
   }
 
-  // ── Signatures ────────────────────────────────────────────────────────────
+  // ── Signatures (nouvelle page si pas assez de place) ──────────────────────
+  if (y <= BODY_MIN + 80) {
+    addFooter(page, currentPageNum, 2)
+    page = pdfDoc.addPage([W, H_PAGE])
+    currentPageNum++
+    y = addHeader(page, currentPageNum)
+  }
   y -= 8
-  page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
+  page.drawLine({ start: { x: 40, y }, end: { x: W - 40, y }, thickness: 0.5, color: C.border })
   y -= 16
   page.drawText('SIGNATURES', { x: 40, y, size: 10, font: fontBold, color: C.indigo })
   y -= 14
@@ -175,13 +203,8 @@ export async function POST(req: NextRequest) {
   y -= 12
   page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
 
-  // ── Footer ────────────────────────────────────────────────────────────────
-  const fY = 90
-  page.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: width - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
-  page.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
-  const right = `Page 1/1 · ${contractNumber}`
-  page.drawText(right, { x: width - 40 - right.length * 4.2, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
-  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} · Archivé 6 ans (art. 1366 Code civil)`, { x: 40, y: fY - 8, size: 7, font: fontRegular, color: C.gray })
+  // Footer dernière page
+  addFooter(page, currentPageNum, currentPageNum)
 
   const pdfBytes = await pdfDoc.save()
   const pdfBuffer = Buffer.from(pdfBytes)

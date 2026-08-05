@@ -36,10 +36,12 @@ const FAKE_ORGANIZER = {
 async function generateContratPdf(): Promise<Buffer> {
   const { PDFDocument: PD, StandardFonts: SF, rgb: c } = await import('pdf-lib')
   const pdfDoc = await PD.create()
-  const page = pdfDoc.addPage([595, 842])
-  const { width, height } = page.getSize()
   const fontRegular = await pdfDoc.embedFont(SF.Helvetica)
   const fontBold = await pdfDoc.embedFont(SF.HelveticaBold)
+  const W = 595
+  const H_PAGE = 842
+  const FOOTER_Y = 90
+  const BODY_MIN = FOOTER_Y + 30 // zone interdite (footer)
 
   const C = {
     indigo:   c(0.388, 0.400, 0.945),
@@ -52,33 +54,58 @@ async function generateContratPdf(): Promise<Buffer> {
   }
 
   const contractNumber = `NXRT-PREVIEW-EXEMPLE-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
+  const totalPages = 2
 
-  // Header
-  const H = 68
-  page.drawRectangle({ x: 0, y: height - H, width, height: H, color: C.indigo })
-  page.drawText('NEXART', { x: 40, y: height - 38, size: 19, font: fontBold, color: C.white })
-  page.drawText('nexart.fr', { x: 40, y: height - 52, size: 8, font: fontRegular, color: C.indigoFd })
-  const docTitle = 'CONTRAT DE PARTICIPATION [EXEMPLE]'
-  page.drawText(docTitle, { x: width - 40 - docTitle.length * 5.2, y: height - 40, size: 10, font: fontBold, color: C.white })
-  const lineY = height - H - 10
-  page.drawLine({ start: { x: 40, y: lineY }, end: { x: width - 40, y: lineY }, thickness: 0.5, color: C.border })
-  page.drawText(`N° Contrat : ${contractNumber}  ·  Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart`, {
-    x: 40, y: lineY - 14, size: 8, font: fontRegular, color: C.gray,
-  })
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  const addHeader = (pg: ReturnType<typeof pdfDoc.addPage>, pageNum: number) => {
+    const H = 68
+    pg.drawRectangle({ x: 0, y: H_PAGE - H, width: W, height: H, color: C.indigo })
+    pg.drawText('NEXART', { x: 40, y: H_PAGE - 38, size: 19, font: fontBold, color: C.white })
+    pg.drawText('nexart.fr', { x: 40, y: H_PAGE - 52, size: 8, font: fontRegular, color: C.indigoFd })
+    const title = 'CONTRAT DE PARTICIPATION [EXEMPLE]'
+    pg.drawText(title, { x: W - 40 - title.length * 5.2, y: H_PAGE - 40, size: 10, font: fontBold, color: C.white })
+    const lY = H_PAGE - H - 10
+    pg.drawLine({ start: { x: 40, y: lY }, end: { x: W - 40, y: lY }, thickness: 0.5, color: C.border })
+    if (pageNum === 1) {
+      pg.drawText(`N° Contrat : ${contractNumber}  ·  Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart`, { x: 40, y: lY - 14, size: 8, font: fontRegular, color: C.gray })
+    }
+    return lY - (pageNum === 1 ? 34 : 22)
+  }
 
-  let y = lineY - 34
+  const addFooter = (pg: ReturnType<typeof pdfDoc.addPage>, pageNum: number) => {
+    const fY = FOOTER_Y
+    pg.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: W - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
+    pg.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
+    const right = `Page ${pageNum}/${totalPages} · ${contractNumber}`
+    pg.drawText(right, { x: W - 40 - right.length * 4.2, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
+    pg.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} · Archivé 6 ans (art. 1366 Code civil)`, { x: 40, y: fY - 8, size: 7, font: fontRegular, color: C.gray })
+  }
+
+  // ── Page 1 ────────────────────────────────────────────────────────────────
+  let page = pdfDoc.addPage([W, H_PAGE])
+  let y = addHeader(page, 1)
   let rowIdx = 0
 
+  const checkPage = () => {
+    if (y <= BODY_MIN) {
+      addFooter(page, 1)
+      page = pdfDoc.addPage([W, H_PAGE])
+      y = addHeader(page, 2)
+      rowIdx = 0
+    }
+  }
+
   const section = (title: string) => {
-    y -= 16
+    y -= 16; checkPage()
     page.drawText(title, { x: 40, y, size: 10, font: fontBold, color: C.indigo })
     y -= 5
-    page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
+    page.drawLine({ start: { x: 40, y }, end: { x: W - 40, y }, thickness: 0.5, color: C.border })
     y -= 13
   }
 
   const row = (label: string, value: string) => {
-    if (rowIdx % 2 === 0) page.drawRectangle({ x: 40, y: y - 4, width: width - 80, height: 17, color: C.rowEven })
+    checkPage()
+    if (rowIdx % 2 === 0) page.drawRectangle({ x: 40, y: y - 4, width: W - 80, height: 17, color: C.rowEven })
     page.drawText(`${label} :`, { x: 48, y, size: 9, font: fontBold, color: C.gray })
     page.drawText(value || '—', { x: 200, y, size: 10, font: fontBold, color: C.dark })
     y -= 17; rowIdx++
@@ -92,6 +119,7 @@ async function generateContratPdf(): Promise<Buffer> {
     if (cur.trim()) lines.push(cur.trim()); return lines
   }
 
+  // ── Contenu ───────────────────────────────────────────────────────────────
   section('ORGANISATEUR')
   row('Nom / Structure', 'Association Créateurs Lyon')
   row('SIRET / RNA', '12345678900010')
@@ -126,38 +154,38 @@ async function generateContratPdf(): Promise<Buffer> {
   ]
 
   for (const clause of clauses) {
+    checkPage()
     page.drawText(clause.num, { x: 48, y, size: 8.5, font: fontBold, color: C.dark })
     y -= 12
     for (const wrapped of wrapClause(clause.body)) {
+      checkPage()
       page.drawText(wrapped, { x: 56, y, size: 8, font: fontRegular, color: C.dark })
       y -= 11
     }
-    y -= 2
+    y -= 3
   }
 
-  // Signatures — seulement si on a la place (au-dessus du footer)
-  if (y > 140) {
-    y -= 6
-    page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
-    y -= 14
-    page.drawText('SIGNATURES', { x: 40, y, size: 10, font: fontBold, color: C.indigo })
-    y -= 12
-    page.drawText('Organisateur : Association Créateurs Lyon', { x: 48, y, size: 9, font: fontBold, color: C.dark })
-    page.drawText('Créateur : Marie Dupont', { x: 310, y, size: 9, font: fontBold, color: C.dark })
-    y -= 12
-    page.drawText('Signé électroniquement via Nexart', { x: 48, y, size: 8, font: fontRegular, color: C.gray })
-    page.drawText('Accusé de réception par email', { x: 310, y, size: 8, font: fontRegular, color: C.gray })
-    y -= 11
-    page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
+  // ── Signatures ────────────────────────────────────────────────────────────
+  if (y <= BODY_MIN + 80) { // besoin de place pour les signatures
+    addFooter(page, 1)
+    page = pdfDoc.addPage([W, H_PAGE])
+    y = addHeader(page, 2)
   }
+  y -= 8
+  page.drawLine({ start: { x: 40, y }, end: { x: W - 40, y }, thickness: 0.5, color: C.border })
+  y -= 14
+  page.drawText('SIGNATURES', { x: 40, y, size: 10, font: fontBold, color: C.indigo })
+  y -= 12
+  page.drawText('Organisateur : Association Créateurs Lyon', { x: 48, y, size: 9, font: fontBold, color: C.dark })
+  page.drawText('Créateur : Marie Dupont', { x: 310, y, size: 9, font: fontBold, color: C.dark })
+  y -= 12
+  page.drawText('Signé électroniquement via Nexart', { x: 48, y, size: 8, font: fontRegular, color: C.gray })
+  page.drawText('Accusé de réception par email', { x: 310, y, size: 8, font: fontRegular, color: C.gray })
+  y -= 11
+  page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
 
-  // Footer — toujours à position fixe, jamais recouvert
-  const fY = 90
-  page.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: width - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
-  page.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
-  const right = `Page 1/1 · ${contractNumber}`
-  page.drawText(right, { x: width - 40 - right.length * 4.2, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
-  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} · Archivé 6 ans (art. 1366 Code civil)`, { x: 40, y: fY - 8, size: 7, font: fontRegular, color: C.gray })
+  // Footer dernière page
+  addFooter(page, pdfDoc.getPageCount())
 
   return Buffer.from(await pdfDoc.save())
 }
