@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Données introuvables' }, { status: 404 })
   }
 
+  // Numéro de contrat unique
+  const contractNumber = `NXRT-${event_id.slice(0, 6).toUpperCase()}-${creator_id.slice(0, 6).toUpperCase()}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
+
   // Générer le PDF
   const pdfDoc = await PDFDocument.create()
   const page = pdfDoc.addPage([595, 842]) // A4
@@ -68,7 +71,8 @@ export async function POST(req: NextRequest) {
   page.drawText('CONTRAT DE PARTICIPATION — EMPLACEMENT MARCHÉ', {
     x: 50, y, size: 14, font: fontBold, color: dark,
   })
-
+  y -= 14
+  page.drawText(`N° Contrat : ${contractNumber}`, { x: 50, y, size: 9, font: fontBold, color: gray })
   y -= 12
   page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart (nexart.fr)`, {
     x: 50, y, size: 9, font: fontRegular, color: gray,
@@ -86,6 +90,22 @@ export async function POST(req: NextRequest) {
     page.drawText(`${label} :`, { x: 60, y, size: 9, font: fontBold, color: gray })
     page.drawText(value || '—', { x: 200, y, size: 9, font: fontRegular, color: black })
     y -= 14
+  }
+
+  const wrapClause = (text: string, maxLen = 90) => {
+    const words = text.split(' ')
+    const lines: string[] = []
+    let current = ''
+    for (const word of words) {
+      if ((current + word).length > maxLen) {
+        if (current.trim()) lines.push(current.trim())
+        current = word + ' '
+      } else {
+        current += word + ' '
+      }
+    }
+    if (current.trim()) lines.push(current.trim())
+    return lines
   }
 
   // Organisateur
@@ -118,49 +138,54 @@ export async function POST(req: NextRequest) {
   line('Dimensions stand', event.stand_dimensions || '—')
   line('Modalité paiement', 'À la signature du contrat ou selon accord organisateur')
 
-  // Conditions générales
+  // 8 clauses légales complètes
   section('CONDITIONS GÉNÉRALES')
   const clauses = [
-    '1. Le créateur s\'engage à être présent aux horaires convenus et à respecter son emplacement.',
-    '2. L\'organisateur s\'engage à fournir un emplacement conforme à la description.',
-    '3. Toute annulation doit être notifiée par écrit via Nexart au moins 7 jours avant l\'événement.',
-    '4. En cas d\'annulation de l\'événement par l\'organisateur, le tarif sera remboursé intégralement.',
-    '5. Les deux parties s\'engagent à respecter les réglementations sanitaires et de sécurité en vigueur.',
+    { num: '1. PRÉSENCE ET HORAIRES', body: 'Le créateur s\'engage à être présent sur son emplacement durant toutes les heures d\'ouverture de l\'événement. Tout abandon de poste sans accord préalable de l\'organisateur pourra entraîner l\'exclusion des éditions futures.' },
+    { num: '2. EMPLACEMENT ET MATÉRIEL', body: 'L\'organisateur fournit un emplacement conforme aux dimensions indiquées. Le créateur est responsable de son installation, de son matériel et de sa caisse. L\'organisateur décline toute responsabilité en cas de vol, perte ou dommage sur le stand du créateur.' },
+    { num: '3. ANNULATION', body: 'Toute annulation doit être notifiée par écrit (email) au moins 7 jours avant l\'événement. En deçà de ce délai, aucun remboursement ne sera effectué. En cas d\'annulation par l\'organisateur (force majeure incluse), le créateur sera remboursé intégralement dans un délai de 30 jours.' },
+    { num: '4. ASSURANCE', body: 'Le créateur est seul responsable de son activité professionnelle. Il est fortement recommandé de souscrire une assurance responsabilité civile professionnelle couvrant la période de l\'événement. L\'organisateur ne saurait être tenu responsable des dommages causés par le créateur à des tiers.' },
+    { num: '5. DROITS À L\'IMAGE', body: 'Des photos et vidéos pourront être prises lors de l\'événement à des fins de communication (réseaux sociaux, site internet). Le créateur autorise l\'utilisation de ces images incluant ses œuvres exposées. Toute opposition doit être signalée par écrit avant l\'événement.' },
+    { num: '6. PROPRIÉTÉ INTELLECTUELLE', body: 'Le présent contrat ne confère aucun droit de propriété sur les œuvres du créateur à l\'organisateur. Les œuvres restent la propriété exclusive du créateur. Aucune reproduction commerciale sans accord écrit préalable.' },
+    { num: '7. INDÉPENDANCE', body: 'Le créateur intervient en qualité de professionnel indépendant. Le présent contrat ne crée aucun lien de subordination, de salariat ou d\'exclusivité entre les parties. Le créateur reste libre de sa tarification et de ses conditions de vente.' },
+    { num: '8. DROIT APPLICABLE', body: 'Le présent contrat est soumis au droit français. Tout litige sera soumis aux tribunaux compétents du ressort du lieu de l\'événement.' },
   ]
-  clauses.forEach(clause => {
-    const words = clause.split(' ')
-    let currentLine = ''
-    words.forEach(word => {
-      if ((currentLine + word).length > 75) {
-        page.drawText(currentLine.trim(), { x: 60, y, size: 8.5, font: fontRegular, color: black })
-        y -= 12
-        currentLine = word + ' '
-      } else {
-        currentLine += word + ' '
-      }
-    })
-    if (currentLine.trim()) {
-      page.drawText(currentLine.trim(), { x: 60, y, size: 8.5, font: fontRegular, color: black })
-      y -= 16
-    }
-  })
 
-  // Signature (SES simple)
-  y -= 20
+  for (const clause of clauses) {
+    page.drawText(clause.num, { x: 60, y, size: 8.5, font: fontBold, color: dark })
+    y -= 12
+    for (const wrapped of wrapClause(clause.body)) {
+      page.drawText(wrapped, { x: 70, y, size: 8, font: fontRegular, color: black })
+      y -= 11
+    }
+    y -= 6
+  }
+
+  // Section signatures
+  y -= 10
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: rgb(0.85, 0.85, 0.85) })
-  y -= 20
-  page.drawText('SIGNATURE ÉLECTRONIQUE SIMPLE (SES)', { x: 50, y, size: 10, font: fontBold, color: dark })
+  y -= 18
+  page.drawText('SIGNATURES', { x: 50, y, size: 11, font: fontBold, color: dark })
+  y -= 16
+
+  const orgName = orgProfile?.organization_name || organizer.full_name || 'Organisateur'
+  const creatorName = creator.full_name || 'Créateur'
+  page.drawText(`Organisateur : ${orgName}`, { x: 60, y, size: 9, font: fontBold, color: black })
+  page.drawText(`Créateur : ${creatorName}`, { x: 320, y, size: 9, font: fontBold, color: black })
+  y -= 13
+  page.drawText('Signé électroniquement via Nexart', { x: 60, y, size: 8, font: fontRegular, color: gray })
+  page.drawText('Accusé de réception par email', { x: 320, y, size: 8, font: fontRegular, color: gray })
+  y -= 16
+  page.drawText(`Horodatage : ${new Date().toISOString()}`, { x: 60, y, size: 8, font: fontRegular, color: gray })
+  y -= 12
+  page.drawText(`N° contrat : ${contractNumber}`, { x: 60, y, size: 8, font: fontBold, color: gray })
   y -= 14
-  page.drawText('Par action sur Nexart, les parties acceptent les termes du présent contrat.', {
-    x: 50, y, size: 8.5, font: fontRegular, color: gray,
+  page.drawText('Ce document a valeur de contrat conformément à l\'article 1366 du Code civil.', {
+    x: 60, y, size: 8, font: fontRegular, color: gray,
   })
-  y -= 12
-  page.drawText(`Horodatage de génération : ${new Date().toISOString()}`, {
-    x: 50, y, size: 8, font: fontRegular, color: gray,
-  })
-  y -= 12
-  page.drawText('Ce document vaut accord contractuel au sens de l\'article 1366 du Code civil.', {
-    x: 50, y, size: 8, font: fontRegular, color: gray,
+  y -= 11
+  page.drawText('Généré et archivé via Nexart (nexart.fr) — Conservation 6 ans.', {
+    x: 60, y, size: 8, font: fontRegular, color: gray,
   })
 
   const pdfBytes = await pdfDoc.save()
@@ -216,6 +241,7 @@ export async function POST(req: NextRequest) {
     pdf_url: signedUrl,
     file_name: eventDocFileName,
     sent_at: new Date().toISOString(),
+    contract_number: contractNumber,
   }).select().single()
 
   // Envoyer le PDF par email au créateur via Resend
