@@ -90,7 +90,7 @@ function drawPageFooter(
   docNumber?: string,
 ) {
   const { width } = page.getSize()
-  const fY = 48
+  const fY = 90
 
   // Ligne fine violette
   page.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: width - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
@@ -319,7 +319,7 @@ export async function generateConvocationPdf(
     const qrImage = await pdfDoc.embedPng(Buffer.from(qrBase64, 'base64'))
     const qrSize = 90
     const qrX = width - 40 - qrSize - 10
-    const qrY = 66
+    const qrY = 120
 
     // Encadré blanc avec bordure grise (effet ombre simulé)
     page.drawRectangle({ x: qrX - 6, y: qrY - 6, width: qrSize + 12, height: qrSize + 22, color: rgb(0.92, 0.92, 0.92) })

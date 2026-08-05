@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
   page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
 
   // ── Footer ────────────────────────────────────────────────────────────────
-  const fY = 48
+  const fY = 90
   page.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: width - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
   page.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
   const right = `Page 1/1 · ${contractNumber}`

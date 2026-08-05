@@ -132,25 +132,27 @@ async function generateContratPdf(): Promise<Buffer> {
       page.drawText(wrapped, { x: 56, y, size: 8, font: fontRegular, color: C.dark })
       y -= 11
     }
-    y -= 5
+    y -= 2
   }
 
-  // Signatures
-  y -= 8
-  page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
-  y -= 16
-  page.drawText('SIGNATURES', { x: 40, y, size: 10, font: fontBold, color: C.indigo })
-  y -= 14
-  page.drawText('Organisateur : Association Créateurs Lyon', { x: 48, y, size: 9, font: fontBold, color: C.dark })
-  page.drawText('Créateur : Marie Dupont', { x: 310, y, size: 9, font: fontBold, color: C.dark })
-  y -= 13
-  page.drawText('Signé électroniquement via Nexart', { x: 48, y, size: 8, font: fontRegular, color: C.gray })
-  page.drawText('Accusé de réception par email', { x: 310, y, size: 8, font: fontRegular, color: C.gray })
-  y -= 12
-  page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
+  // Signatures — seulement si on a la place (au-dessus du footer)
+  if (y > 140) {
+    y -= 6
+    page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
+    y -= 14
+    page.drawText('SIGNATURES', { x: 40, y, size: 10, font: fontBold, color: C.indigo })
+    y -= 12
+    page.drawText('Organisateur : Association Créateurs Lyon', { x: 48, y, size: 9, font: fontBold, color: C.dark })
+    page.drawText('Créateur : Marie Dupont', { x: 310, y, size: 9, font: fontBold, color: C.dark })
+    y -= 12
+    page.drawText('Signé électroniquement via Nexart', { x: 48, y, size: 8, font: fontRegular, color: C.gray })
+    page.drawText('Accusé de réception par email', { x: 310, y, size: 8, font: fontRegular, color: C.gray })
+    y -= 11
+    page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
+  }
 
-  // Footer
-  const fY = 48
+  // Footer — toujours à position fixe, jamais recouvert
+  const fY = 90
   page.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: width - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
   page.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
   const right = `Page 1/1 · ${contractNumber}`
