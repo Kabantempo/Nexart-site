@@ -40,23 +40,40 @@ async function generateContratPdf(): Promise<Buffer> {
   const { width, height } = page.getSize()
   const fontRegular = await pdfDoc.embedFont(SF.Helvetica)
   const fontBold = await pdfDoc.embedFont(SF.HelveticaBold)
+  const indigo = c(0.388, 0.4, 0.945)
   const gray = c(0.4, 0.4, 0.4)
+  const grayLight = c(0.88, 0.88, 0.88)
   const black = c(0, 0, 0)
   const dark = c(0.07, 0.07, 0.07)
+  const white = c(1, 1, 1)
 
-  let y = height - 60
+  const contractNumber = `NXRT-PREVIEW-EXEMPLE-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
 
-  page.drawText('NEXART', { x: 50, y, size: 22, font: fontBold, color: dark })
-  page.drawText('[EXEMPLE — non contractuel]', { x: width - 250, y, size: 9, font: fontBold, color: c(0.8, 0.2, 0.2) })
-  y -= 30
-  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: c(0.85, 0.85, 0.85) })
-  y -= 30
-  page.drawText('CONTRAT DE PARTICIPATION — EMPLACEMENT MARCHÉ', { x: 50, y, size: 14, font: fontBold, color: dark })
-  y -= 14
-  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart (nexart.fr)`, { x: 50, y, size: 9, font: fontRegular, color: gray })
+  // Header violet Nexart
+  page.drawRectangle({ x: 0, y: height - 72, width, height: 72, color: indigo })
+  page.drawText('NEXART', { x: 50, y: height - 44, size: 20, font: fontBold, color: white })
+  page.drawText('[EXEMPLE]', { x: width - 110, y: height - 44, size: 9, font: fontBold, color: c(1, 0.7, 0.7) })
+  page.drawText('nexart.fr', { x: width - 100, y: height - 56, size: 8, font: fontRegular, color: c(0.8, 0.82, 1) })
+  page.drawText('CONTRAT DE PARTICIPATION — EMPLACEMENT MARCHÉ', { x: 50, y: height - 100, size: 14, font: fontBold, color: dark })
+  page.drawText(`N° Contrat : ${contractNumber}`, { x: 50, y: height - 116, size: 9, font: fontBold, color: gray })
+  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart (nexart.fr)`, { x: 50, y: height - 128, size: 8.5, font: fontRegular, color: gray })
 
-  const section = (title: string) => { y -= 28; page.drawText(title, { x: 50, y, size: 11, font: fontBold, color: dark }); y -= 4; page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.5, color: c(0.8, 0.8, 0.8) }); y -= 12 }
+  let y = height - 152
+
+  const section = (title: string) => { y -= 18; page.drawRectangle({ x: 50, y: y - 2, width: 3, height: 14, color: indigo }); page.drawText(title, { x: 58, y, size: 11, font: fontBold, color: dark }); y -= 4; page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.4, color: grayLight }); y -= 12 }
   const line = (label: string, value: string) => { page.drawText(`${label} :`, { x: 60, y, size: 9, font: fontBold, color: gray }); page.drawText(value || '—', { x: 200, y, size: 9, font: fontRegular, color: black }); y -= 14 }
+
+  const wrapClause = (text: string, maxLen = 90) => {
+    const words = text.split(' ')
+    const lines: string[] = []
+    let current = ''
+    for (const word of words) {
+      if ((current + word).length > maxLen) { if (current.trim()) lines.push(current.trim()); current = word + ' ' }
+      else { current += word + ' ' }
+    }
+    if (current.trim()) lines.push(current.trim())
+    return lines
+  }
 
   section('ORGANISATEUR')
   line('Nom / Structure', 'Association Créateurs Lyon')
@@ -80,22 +97,44 @@ async function generateContratPdf(): Promise<Buffer> {
 
   section('CONDITIONS GÉNÉRALES')
   const clauses = [
-    "1. Le créateur s'engage à être présent aux horaires convenus.",
-    "2. L'organisateur fournit un emplacement conforme à la description.",
-    "3. Toute annulation doit être notifiée 7 jours avant l'événement.",
-    "4. Les deux parties respectent les réglementations en vigueur.",
+    { num: '1. PRÉSENCE ET HORAIRES', body: 'Le créateur s\'engage à être présent sur son emplacement durant toutes les heures d\'ouverture de l\'événement. Tout abandon de poste sans accord préalable de l\'organisateur pourra entraîner l\'exclusion des éditions futures.' },
+    { num: '2. EMPLACEMENT ET MATÉRIEL', body: 'L\'organisateur fournit un emplacement conforme aux dimensions indiquées. Le créateur est responsable de son installation, de son matériel et de sa caisse. L\'organisateur décline toute responsabilité en cas de vol, perte ou dommage sur le stand du créateur.' },
+    { num: '3. ANNULATION', body: 'Toute annulation doit être notifiée par écrit (email) au moins 7 jours avant l\'événement. En deçà de ce délai, aucun remboursement ne sera effectué. En cas d\'annulation par l\'organisateur, le créateur sera remboursé intégralement dans un délai de 30 jours.' },
+    { num: '4. ASSURANCE', body: 'Le créateur est seul responsable de son activité professionnelle. Il est fortement recommandé de souscrire une assurance responsabilité civile professionnelle couvrant la période de l\'événement.' },
+    { num: '5. DROITS À L\'IMAGE', body: 'Des photos et vidéos pourront être prises lors de l\'événement à des fins de communication. Le créateur autorise l\'utilisation de ces images incluant ses œuvres. Toute opposition doit être signalée par écrit avant l\'événement.' },
+    { num: '6. PROPRIÉTÉ INTELLECTUELLE', body: 'Le présent contrat ne confère aucun droit de propriété sur les œuvres du créateur à l\'organisateur. Les œuvres restent la propriété exclusive du créateur.' },
+    { num: '7. INDÉPENDANCE', body: 'Le créateur intervient en qualité de professionnel indépendant. Le présent contrat ne crée aucun lien de subordination, de salariat ou d\'exclusivité entre les parties.' },
+    { num: '8. DROIT APPLICABLE', body: 'Le présent contrat est soumis au droit français. Tout litige sera soumis aux tribunaux compétents du ressort du lieu de l\'événement.' },
   ]
+
   for (const clause of clauses) {
-    page.drawText(clause, { x: 60, y, size: 8.5, font: fontRegular, color: black })
-    y -= 14
+    page.drawText(clause.num, { x: 60, y, size: 8.5, font: fontBold, color: dark })
+    y -= 12
+    for (const wrapped of wrapClause(clause.body)) {
+      page.drawText(wrapped, { x: 70, y, size: 8, font: fontRegular, color: black })
+      y -= 11
+    }
+    y -= 6
   }
 
-  y -= 20
-  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: c(0.85, 0.85, 0.85) })
-  y -= 20
-  page.drawText('SIGNATURE ÉLECTRONIQUE SIMPLE (SES)', { x: 50, y, size: 10, font: fontBold, color: dark })
-  y -= 14
-  page.drawText(`Horodatage : ${new Date().toISOString()}`, { x: 50, y, size: 8, font: fontRegular, color: gray })
+  y -= 10
+  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: grayLight })
+  y -= 18
+  page.drawText('SIGNATURES', { x: 50, y, size: 11, font: fontBold, color: dark })
+  y -= 16
+  page.drawText('Organisateur : Association Créateurs Lyon', { x: 60, y, size: 9, font: fontBold, color: black })
+  page.drawText('Créateur : Marie Dupont', { x: 320, y, size: 9, font: fontBold, color: black })
+  y -= 13
+  page.drawText('Signé électroniquement via Nexart', { x: 60, y, size: 8, font: fontRegular, color: gray })
+  page.drawText('Accusé de réception par email', { x: 320, y, size: 8, font: fontRegular, color: gray })
+  y -= 16
+  page.drawText(`Horodatage : ${new Date().toISOString()}`, { x: 60, y, size: 8, font: fontRegular, color: gray })
+  y -= 12
+  page.drawText(`N° contrat : ${contractNumber}`, { x: 60, y, size: 8, font: fontBold, color: gray })
+  y -= 12
+  page.drawText('Ce document a valeur de contrat conformément à l\'article 1366 du Code civil.', { x: 60, y, size: 8, font: fontRegular, color: gray })
+  y -= 11
+  page.drawText('Généré et archivé via Nexart (nexart.fr) — Conservation 6 ans.', { x: 60, y, size: 8, font: fontRegular, color: gray })
 
   return Buffer.from(await pdfDoc.save())
 }
@@ -121,7 +160,10 @@ export async function GET(req: NextRequest) {
       pdfBuffer = await generateReglementPdf(FAKE_EVENT)
       filename = 'exemple_reglement_interieur.pdf'
     } else if (type === 'convocation') {
-      pdfBuffer = await generateConvocationPdf(FAKE_EVENT, FAKE_CREATOR)
+      pdfBuffer = await generateConvocationPdf(FAKE_EVENT, FAKE_CREATOR, {
+        verificationToken: '00000000-0000-0000-0000-000000000000',
+        standNumber: 'A-12',
+      })
       filename = 'exemple_convocation.pdf'
     } else {
       pdfBuffer = await generateContratPdf()

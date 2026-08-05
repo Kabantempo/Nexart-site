@@ -54,35 +54,29 @@ export async function POST(req: NextRequest) {
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
 
+  const indigo = rgb(0.388, 0.4, 0.945)
   const gray = rgb(0.4, 0.4, 0.4)
+  const grayLight = rgb(0.88, 0.88, 0.88)
   const black = rgb(0, 0, 0)
   const dark = rgb(0.07, 0.07, 0.07)
+  const white = rgb(1, 1, 1)
 
-  let y = height - 60
+  // Header violet Nexart
+  page.drawRectangle({ x: 0, y: height - 72, width, height: 72, color: indigo })
+  page.drawText('NEXART', { x: 50, y: height - 44, size: 20, font: fontBold, color: white })
+  page.drawText('nexart.fr', { x: width - 100, y: height - 44, size: 9, font: fontRegular, color: rgb(0.8, 0.82, 1) })
+  page.drawText('CONTRAT DE PARTICIPATION — EMPLACEMENT MARCHÉ', { x: 50, y: height - 100, size: 14, font: fontBold, color: dark })
+  page.drawText(`N° Contrat : ${contractNumber}`, { x: 50, y: height - 116, size: 9, font: fontBold, color: gray })
+  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart (nexart.fr)`, { x: 50, y: height - 128, size: 8.5, font: fontRegular, color: gray })
 
-  // En-tête
-  page.drawText('NEXART', { x: 50, y, size: 22, font: fontBold, color: dark })
-  page.drawText('nexart.fr', { x: width - 150, y, size: 10, font: fontRegular, color: gray })
-
-  y -= 30
-  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: rgb(0.85, 0.85, 0.85) })
-
-  y -= 30
-  page.drawText('CONTRAT DE PARTICIPATION — EMPLACEMENT MARCHÉ', {
-    x: 50, y, size: 14, font: fontBold, color: dark,
-  })
-  y -= 14
-  page.drawText(`N° Contrat : ${contractNumber}`, { x: 50, y, size: 9, font: fontBold, color: gray })
-  y -= 12
-  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart (nexart.fr)`, {
-    x: 50, y, size: 9, font: fontRegular, color: gray,
-  })
+  let y = height - 152
 
   const section = (title: string) => {
-    y -= 28
-    page.drawText(title, { x: 50, y, size: 11, font: fontBold, color: dark })
+    y -= 18
+    page.drawRectangle({ x: 50, y: y - 2, width: 3, height: 14, color: indigo })
+    page.drawText(title, { x: 58, y, size: 11, font: fontBold, color: dark })
     y -= 4
-    page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) })
+    page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.4, color: grayLight })
     y -= 12
   }
 
@@ -163,7 +157,7 @@ export async function POST(req: NextRequest) {
 
   // Section signatures
   y -= 10
-  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: rgb(0.85, 0.85, 0.85) })
+  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: grayLight })
   y -= 18
   page.drawText('SIGNATURES', { x: 50, y, size: 11, font: fontBold, color: dark })
   y -= 16
