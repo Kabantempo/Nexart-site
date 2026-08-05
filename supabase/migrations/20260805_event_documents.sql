@@ -29,4 +29,17 @@ CREATE POLICY "organizer_inserts_docs" ON event_documents
 CREATE INDEX IF NOT EXISTS idx_event_documents_event_id ON event_documents(event_id);
 CREATE INDEX IF NOT EXISTS idx_event_documents_creator_id ON event_documents(creator_id);
 
+-- Colonnes QR vérification + numéro contrat
+ALTER TABLE event_documents ADD COLUMN IF NOT EXISTS verification_token TEXT UNIQUE;
+ALTER TABLE event_documents ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
+ALTER TABLE event_documents ADD COLUMN IF NOT EXISTS contract_number TEXT;
+ALTER TABLE event_documents ADD COLUMN IF NOT EXISTS stand_number TEXT;
+
+-- Index pour lookup rapide par token (page /verify/[token])
+CREATE INDEX IF NOT EXISTS idx_event_documents_token ON event_documents(verification_token);
+
+-- Policy publique lecture par token (aucune auth requise pour la page verify)
+CREATE POLICY IF NOT EXISTS "public_verify_by_token" ON event_documents
+  FOR SELECT USING (verification_token IS NOT NULL);
+
 -- Bucket "documents" à créer manuellement dans Supabase Storage (privé, signed URLs)
