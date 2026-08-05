@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
 
   // Insérer dans event_documents
   const eventDocFileName = `contrat_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`
-  const { data: eventDoc } = await admin.from('event_documents').insert({
+  const { data: eventDoc } = await (admin as any).from('event_documents').insert({
     event_id,
     creator_id,
     organizer_id,
@@ -221,7 +221,9 @@ export async function POST(req: NextRequest) {
   // Envoyer le PDF par email au créateur via Resend
   try {
     const RESEND_API_KEY = process.env.RESEND_API_KEY
-    if (RESEND_API_KEY && creator.email) {
+    const { data: { user: creatorAuthUser } } = await admin.auth.admin.getUserById(creator_id)
+    const creatorEmail = creatorAuthUser?.email
+    if (RESEND_API_KEY && creatorEmail) {
       const base64Pdf = pdfBuffer.toString('base64')
       const safeTitle = (event.title || 'evenement').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '')
       await fetch('https://api.resend.com/emails', {
@@ -229,7 +231,7 @@ export async function POST(req: NextRequest) {
         headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: 'Nexart <noreply@nexart.fr>',
-          to: creator.email,
+          to: creatorEmail,
           subject: `Votre contrat — ${event.title}`,
           html: `<p>Bonjour ${creator.full_name || 'Créateur'},</p><p>Veuillez trouver ci-joint votre contrat de participation à <strong>${event.title}</strong>.</p><p>Vous pouvez également le consulter depuis votre tableau de bord Nexart.</p><p>— L'équipe Nexart</p>`,
           attachments: [{ filename: `contrat_${safeTitle}.pdf`, content: base64Pdf }],

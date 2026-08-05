@@ -280,7 +280,7 @@ function CreatorView() {
   }
 
   async function markDownloaded(docId: string) {
-    await supabase.from('event_documents').update({ downloaded_at: new Date().toISOString() }).eq('id', docId)
+    await (supabase as any).from('event_documents').update({ downloaded_at: new Date().toISOString() }).eq('id', docId)
     setDocuments(prev => prev.map(d => d.id === docId ? { ...d, downloaded_at: new Date().toISOString() } : d))
   }
 

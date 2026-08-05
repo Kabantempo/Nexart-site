@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await admin.auth.getUser(authHeader.substring(7))
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { data, error } = await admin
+    const { data, error } = await (admin as any)
       .from('event_documents')
       .select('*, event:events!event_id(title, start_date, city)')
       .eq('creator_id', user.id)

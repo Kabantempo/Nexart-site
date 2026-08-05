@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (!event) return NextResponse.json({ error: 'Événement introuvable' }, { status: 404 })
     if (event.organizer_id !== user.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
-    const { data, error } = await admin
+    const { data, error } = await (admin as any)
       .from('event_documents')
       .select('*, creator:profiles!creator_id(full_name, email, avatar_url)')
       .eq('event_id', params.id)
