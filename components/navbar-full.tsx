@@ -502,7 +502,7 @@ export function NavbarFull() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
                       <Zap size={11} color="#FFF" fill="#FFF" />
                       <span style={{ fontSize: '12px', fontWeight: 700, color: '#FFF', lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
-                      <Link href="/dashboard?tab=credits" title="Acheter des crédits"
+                      <Link href="/offres#credits-unite" title="Acheter des crédits"
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)', marginLeft: '4px', flexShrink: 0 }}
                       >
                         <Plus size={9} color="#FFF" strokeWidth={3} />
