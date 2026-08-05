@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { generateReglementPdf, generateConvocationPdf } from '@/lib/pdf-generators'
+import { randomUUID } from 'crypto'
 
 // POST /api/events/[id]/documents/send
 // Auth: organisateur de l'événement
@@ -59,15 +60,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     let pdfBuffer: Buffer
     let docLabel: string
     let emailSubject: string
+    let extraFields: Record<string, string> = {}
 
     if (type === 'reglement') {
       pdfBuffer = await generateReglementPdf(event)
       docLabel = 'reglement'
       emailSubject = `Règlement intérieur — ${event.title}`
     } else {
-      pdfBuffer = await generateConvocationPdf(event, creator)
+      const verificationToken = randomUUID()
+      pdfBuffer = await generateConvocationPdf(event, creator, { verificationToken })
       docLabel = 'convocation'
       emailSubject = `Confirmation de participation — ${event.title}`
+      // Stocker le token pour lookup QR
+      extraFields = { verification_token: verificationToken }
     }
 
     const timestamp = Date.now()
@@ -96,6 +101,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       pdf_url: pdfUrl,
       file_name: `${docLabel}_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`,
       sent_at: new Date().toISOString(),
+      ...extraFields,
     }).select().single()
 
     if (insertErr) throw insertErr

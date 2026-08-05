@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import QRCode from 'qrcode'
 
 const gray = rgb(0.4, 0.4, 0.4)
 const black = rgb(0, 0, 0)
@@ -129,6 +130,7 @@ export async function generateReglementPdf(event: Record<string, any>): Promise<
 export async function generateConvocationPdf(
   event: Record<string, any>,
   creator: Record<string, any>,
+  options: { verificationToken?: string; standNumber?: string } = {},
 ): Promise<Buffer> {
   const pdfDoc = await PDFDocument.create()
   const page = pdfDoc.addPage([595, 842])
@@ -148,13 +150,13 @@ export async function generateConvocationPdf(
   page.drawText(event.title || '', { x: 50, y, size: 12, font: fontRegular, color: dark })
   y -= 40
 
-  const row = (label: string, value: string) => {
+  const rowFn = (label: string, value: string) => {
     page.drawText(`${label} :`, { x: 60, y, size: 9, font: fontBold, color: gray })
     page.drawText(value || '—', { x: 220, y, size: 9, font: fontRegular, color: black })
     y -= 16
   }
 
-  const section = (title: string) => {
+  const sectionFn = (title: string) => {
     y -= 8
     page.drawText(title, { x: 50, y, size: 10, font: fontBold, color: dark })
     y -= 4
@@ -162,22 +164,38 @@ export async function generateConvocationPdf(
     y -= 14
   }
 
-  section('CRÉATEUR')
-  row('Nom', creator.full_name || '')
-  row('Email', creator.email || '')
+  sectionFn('CRÉATEUR')
+  rowFn('Nom', creator.full_name || '')
+  rowFn('Email', creator.email || '')
 
-  section('ÉVÉNEMENT')
-  row('Titre', event.title || '')
-  row('Lieu', `${event.location || ''}, ${event.city || ''}`)
-  row('Date début', formatDate(event.start_date))
-  row('Date fin', formatDate(event.end_date))
-  if (event.start_time) row('Horaires', `${event.start_time}${event.end_time ? ` — ${event.end_time}` : ''}`)
+  sectionFn('ÉVÉNEMENT')
+  rowFn('Titre', event.title || '')
+  rowFn('Lieu', `${event.location || ''}, ${event.city || ''}`)
+  rowFn('Date début', formatDate(event.start_date))
+  rowFn('Date fin', formatDate(event.end_date))
+  if (event.start_time) rowFn('Horaires', `${event.start_time}${event.end_time ? ` — ${event.end_time}` : ''}`)
+  rowFn('Numéro de stand', options.standNumber || 'À confirmer par l\'organisateur')
 
-  section('CONDITIONS FINANCIÈRES')
-  row('Montant emplacement', event.stand_price ? `${(event.stand_price / 100).toFixed(2)} €` : 'Voir contrat')
-  row('Dimensions stand', event.stand_dimensions || 'Voir contrat')
+  sectionFn('CONDITIONS FINANCIÈRES')
+  rowFn('Montant emplacement', event.stand_price ? `${(event.stand_price / 100).toFixed(2)} €` : 'Voir contrat')
+  rowFn('Dimensions stand', event.stand_dimensions || 'Voir contrat')
 
-  y -= 30
+  // Instructions pratiques
+  sectionFn('INFORMATIONS PRATIQUES')
+  const mountHour = event.start_time
+    ? `${String(Math.max(0, parseInt(event.start_time.split(':')[0]) - 2)).padStart(2, '0')}:00`
+    : 'heure communiquée par l\'organisateur'
+  const infoLines = [
+    `Montage : à partir de ${formatDate(event.start_date)} à ${mountHour}`,
+    `Démontage : ${formatDate(event.end_date)} après ${event.end_time || 'la fermeture'}`,
+    `Présentez ce document (papier ou téléphone) à l'accueil.`,
+  ]
+  for (const line of infoLines) {
+    page.drawText(`• ${line}`, { x: 60, y, size: 9, font: fontRegular, color: black })
+    y -= 14
+  }
+
+  y -= 20
   page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: rgb(0.85, 0.85, 0.85) })
   y -= 16
   page.drawText('Ce document confirme votre participation. Présentez-le à l\'entrée.', {
@@ -191,6 +209,29 @@ export async function generateConvocationPdf(
   page.drawText(`Horodatage : ${new Date().toISOString()}`, {
     x: 50, y, size: 8, font: fontRegular, color: gray,
   })
+
+  // QR code si verificationToken fourni
+  if (options.verificationToken) {
+    const qrUrl = `https://nexart.fr/verify/${options.verificationToken}`
+    const qrDataUrl = await QRCode.toDataURL(qrUrl, { width: 120, margin: 1 })
+    const qrBase64 = qrDataUrl.split(',')[1]
+    const qrImageBytes = Buffer.from(qrBase64, 'base64')
+    const qrImage = await pdfDoc.embedPng(qrImageBytes)
+    const qrDims = qrImage.scale(0.4)
+    page.drawImage(qrImage, {
+      x: width - qrDims.width - 50,
+      y: 60,
+      width: qrDims.width,
+      height: qrDims.height,
+    })
+    page.drawText('Scanner pour vérifier', {
+      x: width - qrDims.width - 50,
+      y: 48,
+      size: 8,
+      font: fontRegular,
+      color: rgb(0.5, 0.5, 0.5),
+    })
+  }
 
   return Buffer.from(await pdfDoc.save())
 }
