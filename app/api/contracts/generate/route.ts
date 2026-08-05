@@ -166,38 +166,87 @@ export async function POST(req: NextRequest) {
   const pdfBytes = await pdfDoc.save()
   const pdfBuffer = Buffer.from(pdfBytes)
   const documentHash = createHash('sha256').update(pdfBuffer).digest('hex')
+  const timestamp = Date.now()
 
-  // Upload dans Supabase Storage
-  const fileName = `contracts/${event_id}/${creator_id}-${Date.now()}.pdf`
+  // Upload dans Supabase Storage (bucket contracts — legacy)
+  const fileName = `contracts/${event_id}/${creator_id}-${timestamp}.pdf`
   const { error: uploadError } = await admin.storage
     .from('contracts')
     .upload(fileName, pdfBuffer, { contentType: 'application/pdf', upsert: true })
 
-  if (uploadError) {
-    // Retourner le PDF en direct si l'upload échoue
-    return new NextResponse(pdfBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="contrat-nexart-${event.title?.replace(/\s+/g, '-')}.pdf"`,
-      },
-    })
+  let publicUrl = ''
+  if (!uploadError) {
+    const { data: { publicUrl: url } } = admin.storage.from('contracts').getPublicUrl(fileName)
+    publicUrl = url
   }
 
-  const { data: { publicUrl } } = admin.storage.from('contracts').getPublicUrl(fileName)
+  // Upload dans le bucket documents (signed URL — accès privé)
+  const docFileName = `${event_id}/${creator_id}/contrat_${timestamp}.pdf`
+  const { error: docUploadError } = await admin.storage
+    .from('documents')
+    .upload(docFileName, pdfBuffer, { contentType: 'application/pdf', upsert: false })
 
-  // Enregistrer le contrat en base
+  let signedUrl = publicUrl
+  if (!docUploadError) {
+    const { data: signedData } = await admin.storage
+      .from('documents')
+      .createSignedUrl(docFileName, 60 * 60 * 24 * 365)
+    if (signedData?.signedUrl) signedUrl = signedData.signedUrl
+  }
+
+  // Enregistrer le contrat en base (table contracts)
   const { data: contract } = await admin.from('contracts').upsert({
     event_id,
     creator_id,
     organizer_id,
     application_id: application_id || null,
     status: 'draft',
-    pdf_url: publicUrl,
+    pdf_url: publicUrl || signedUrl,
     document_hash: documentHash,
   }, { onConflict: 'event_id,creator_id' }).select().single()
 
-  return NextResponse.json({ contract, pdf_url: publicUrl, document_hash: documentHash }, { status: 201 })
+  // Insérer dans event_documents
+  const eventDocFileName = `contrat_${new Date().toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`
+  const { data: eventDoc } = await admin.from('event_documents').insert({
+    event_id,
+    creator_id,
+    organizer_id,
+    candidature_id: application_id || null,
+    type: 'contrat',
+    pdf_url: signedUrl,
+    file_name: eventDocFileName,
+    sent_at: new Date().toISOString(),
+  }).select().single()
+
+  // Envoyer le PDF par email au créateur via Resend
+  try {
+    const RESEND_API_KEY = process.env.RESEND_API_KEY
+    if (RESEND_API_KEY && creator.email) {
+      const base64Pdf = pdfBuffer.toString('base64')
+      const safeTitle = (event.title || 'evenement').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '')
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Nexart <noreply@nexart.fr>',
+          to: creator.email,
+          subject: `Votre contrat — ${event.title}`,
+          html: `<p>Bonjour ${creator.full_name || 'Créateur'},</p><p>Veuillez trouver ci-joint votre contrat de participation à <strong>${event.title}</strong>.</p><p>Vous pouvez également le consulter depuis votre tableau de bord Nexart.</p><p>— L'équipe Nexart</p>`,
+          attachments: [{ filename: `contrat_${safeTitle}.pdf`, content: base64Pdf }],
+        }),
+      })
+    }
+  } catch (emailErr) {
+    console.error('[contracts/generate] email error (non-blocking):', emailErr)
+  }
+
+  return NextResponse.json({
+    success: true,
+    contract,
+    document_id: (eventDoc as any)?.id || null,
+    pdf_url: signedUrl,
+    document_hash: documentHash,
+  }, { status: 201 })
   } catch (err) {
     console.error('[contracts/generate]', err)
     return NextResponse.json({ error: 'Erreur interne' }, { status: 500 })
