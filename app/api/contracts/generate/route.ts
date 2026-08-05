@@ -46,141 +46,142 @@ export async function POST(req: NextRequest) {
   // Numéro de contrat unique
   const contractNumber = `NXRT-${event_id.slice(0, 6).toUpperCase()}-${creator_id.slice(0, 6).toUpperCase()}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
 
-  // Générer le PDF
+  // ─── Génération PDF ─────────────────────────────────────────────────────────
   const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage([595, 842]) // A4
+  const page = pdfDoc.addPage([595, 842])
   const { width, height } = page.getSize()
-
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
 
-  const indigo = rgb(0.388, 0.4, 0.945)
-  const gray = rgb(0.4, 0.4, 0.4)
-  const grayLight = rgb(0.88, 0.88, 0.88)
-  const black = rgb(0, 0, 0)
-  const dark = rgb(0.07, 0.07, 0.07)
-  const white = rgb(1, 1, 1)
+  // Palette Nexart
+  const C = {
+    indigo:   rgb(0.388, 0.400, 0.945),
+    dark:     rgb(0.102, 0.102, 0.102),
+    gray:     rgb(0.533, 0.533, 0.533),
+    border:   rgb(0.898, 0.906, 0.922),
+    rowEven:  rgb(0.976, 0.980, 0.984),
+    white:    rgb(1, 1, 1),
+    indigoFd: rgb(0.800, 0.820, 1.000),
+  }
 
-  // Header violet Nexart
-  page.drawRectangle({ x: 0, y: height - 72, width, height: 72, color: indigo })
-  page.drawText('NEXART', { x: 50, y: height - 44, size: 20, font: fontBold, color: white })
-  page.drawText('nexart.fr', { x: width - 100, y: height - 44, size: 9, font: fontRegular, color: rgb(0.8, 0.82, 1) })
-  page.drawText('CONTRAT DE PARTICIPATION — EMPLACEMENT MARCHÉ', { x: 50, y: height - 100, size: 14, font: fontBold, color: dark })
-  page.drawText(`N° Contrat : ${contractNumber}`, { x: 50, y: height - 116, size: 9, font: fontBold, color: gray })
-  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart (nexart.fr)`, { x: 50, y: height - 128, size: 8.5, font: fontRegular, color: gray })
+  // ── Header ────────────────────────────────────────────────────────────────
+  const H = 68
+  page.drawRectangle({ x: 0, y: height - H, width, height: H, color: C.indigo })
+  page.drawText('NEXART', { x: 40, y: height - 38, size: 19, font: fontBold, color: C.white })
+  page.drawText('nexart.fr', { x: 40, y: height - 52, size: 8, font: fontRegular, color: C.indigoFd })
+  const docTitle = 'CONTRAT DE PARTICIPATION'
+  page.drawText(docTitle, { x: width - 40 - docTitle.length * 6.6, y: height - 40, size: 12, font: fontBold, color: C.white })
+  const lineY = height - H - 10
+  page.drawLine({ start: { x: 40, y: lineY }, end: { x: width - 40, y: lineY }, thickness: 0.5, color: C.border })
+  page.drawText(`N° Contrat : ${contractNumber}  ·  Généré le ${new Date().toLocaleDateString('fr-FR')} via Nexart`, {
+    x: 40, y: lineY - 14, size: 8, font: fontRegular, color: C.gray,
+  })
 
-  let y = height - 152
+  let y = lineY - 34
+  let rowIdx = 0
 
+  // helpers locaux
   const section = (title: string) => {
-    y -= 18
-    page.drawRectangle({ x: 50, y: y - 2, width: 3, height: 14, color: indigo })
-    page.drawText(title, { x: 58, y, size: 11, font: fontBold, color: dark })
-    y -= 4
-    page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.4, color: grayLight })
-    y -= 12
+    y -= 16
+    page.drawText(title, { x: 40, y, size: 10, font: fontBold, color: C.indigo })
+    y -= 5
+    page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
+    y -= 13
   }
 
-  const line = (label: string, value: string) => {
-    page.drawText(`${label} :`, { x: 60, y, size: 9, font: fontBold, color: gray })
-    page.drawText(value || '—', { x: 200, y, size: 9, font: fontRegular, color: black })
-    y -= 14
+  const row = (label: string, value: string) => {
+    if (rowIdx % 2 === 0) page.drawRectangle({ x: 40, y: y - 4, width: width - 80, height: 17, color: C.rowEven })
+    page.drawText(`${label} :`, { x: 48, y, size: 9, font: fontBold, color: C.gray })
+    page.drawText(value || '—', { x: 200, y, size: 10, font: fontBold, color: C.dark })
+    y -= 17
+    rowIdx++
   }
 
-  const wrapClause = (text: string, maxLen = 90) => {
+  const wrapClause = (text: string, maxLen = 92) => {
     const words = text.split(' ')
     const lines: string[] = []
-    let current = ''
-    for (const word of words) {
-      if ((current + word).length > maxLen) {
-        if (current.trim()) lines.push(current.trim())
-        current = word + ' '
-      } else {
-        current += word + ' '
-      }
+    let cur = ''
+    for (const w of words) {
+      if ((cur + w).length > maxLen) { if (cur.trim()) lines.push(cur.trim()); cur = w + ' ' }
+      else cur += w + ' '
     }
-    if (current.trim()) lines.push(current.trim())
+    if (cur.trim()) lines.push(cur.trim())
     return lines
   }
 
-  // Organisateur
-  section('ORGANISATEUR')
+  // ── Corps ─────────────────────────────────────────────────────────────────
   const orgProfile = (organizer as { organizer_profiles?: { organization_name?: string; siret?: string } }).organizer_profiles
-  line('Nom / Structure', orgProfile?.organization_name || organizer.full_name || '')
-  line('SIRET / RNA', orgProfile?.siret || '—')
-  line('Contact', `(via Nexart)`)
 
-  // Créateur
+  section('ORGANISATEUR')
+  row('Nom / Structure', orgProfile?.organization_name || organizer.full_name || '')
+  row('SIRET / RNA', orgProfile?.siret || '—')
+  row('Contact', '(via Nexart)')
+
   section('CRÉATEUR / EXPOSANT')
-  line('Nom', creator.full_name || '')
-  line('Disciplines', creatorProfile?.disciplines?.join(', ') || '—')
-  line('Ville', creatorProfile?.city || '—')
-  line('SIRET / Statut', creatorProfile?.siret || 'Micro-entreprise')
+  row('Nom', creator.full_name || '')
+  row('Disciplines', creatorProfile?.disciplines?.join(', ') || '—')
+  row('Ville', creatorProfile?.city || '—')
+  row('SIRET / Statut', creatorProfile?.siret || 'Micro-entreprise')
 
-  // Événement
   section('ÉVÉNEMENT')
-  line('Intitulé', event.title || '')
-  line('Type', event.event_type || '')
-  line('Lieu', `${event.location}, ${event.city}`)
-  line('Date de début', formatDate(event.start_date))
-  line('Date de fin', formatDate(event.end_date))
-  if (event.start_time) line('Horaires', `${event.start_time} — ${event.end_time || '—'}`)
-  line('Thèmes', Array.isArray(event.theme) ? event.theme.join(', ') : event.theme || '—')
+  row('Intitulé', event.title || '')
+  row('Type', event.event_type || '')
+  row('Lieu', `${event.location}, ${event.city}`)
+  row('Date de début', formatDate(event.start_date))
+  row('Date de fin', formatDate(event.end_date))
+  if (event.start_time) row('Horaires', `${event.start_time} — ${event.end_time || '—'}`)
+  row('Thèmes', Array.isArray(event.theme) ? event.theme.join(', ') : event.theme || '—')
 
-  // Conditions financières
   section('CONDITIONS FINANCIÈRES')
-  line('Tarif emplacement', event.stand_price ? `${(event.stand_price / 100).toFixed(2)} €` : '—')
-  line('Dimensions stand', event.stand_dimensions || '—')
-  line('Modalité paiement', 'À la signature du contrat ou selon accord organisateur')
+  row('Tarif emplacement', event.stand_price ? `${(event.stand_price / 100).toFixed(2)} €` : '—')
+  row('Dimensions stand', event.stand_dimensions || '—')
+  row('Modalité paiement', 'À la signature du contrat ou selon accord organisateur')
 
-  // 8 clauses légales complètes
   section('CONDITIONS GÉNÉRALES')
   const clauses = [
     { num: '1. PRÉSENCE ET HORAIRES', body: 'Le créateur s\'engage à être présent sur son emplacement durant toutes les heures d\'ouverture de l\'événement. Tout abandon de poste sans accord préalable de l\'organisateur pourra entraîner l\'exclusion des éditions futures.' },
     { num: '2. EMPLACEMENT ET MATÉRIEL', body: 'L\'organisateur fournit un emplacement conforme aux dimensions indiquées. Le créateur est responsable de son installation, de son matériel et de sa caisse. L\'organisateur décline toute responsabilité en cas de vol, perte ou dommage sur le stand du créateur.' },
     { num: '3. ANNULATION', body: 'Toute annulation doit être notifiée par écrit (email) au moins 7 jours avant l\'événement. En deçà de ce délai, aucun remboursement ne sera effectué. En cas d\'annulation par l\'organisateur (force majeure incluse), le créateur sera remboursé intégralement dans un délai de 30 jours.' },
     { num: '4. ASSURANCE', body: 'Le créateur est seul responsable de son activité professionnelle. Il est fortement recommandé de souscrire une assurance responsabilité civile professionnelle couvrant la période de l\'événement. L\'organisateur ne saurait être tenu responsable des dommages causés par le créateur à des tiers.' },
-    { num: '5. DROITS À L\'IMAGE', body: 'Des photos et vidéos pourront être prises lors de l\'événement à des fins de communication (réseaux sociaux, site internet). Le créateur autorise l\'utilisation de ces images incluant ses œuvres exposées. Toute opposition doit être signalée par écrit avant l\'événement.' },
+    { num: '5. DROITS À L\'IMAGE', body: 'Des photos et vidéos pourront être prises lors de l\'événement à des fins de communication. Le créateur autorise l\'utilisation de ces images incluant ses œuvres. Toute opposition doit être signalée par écrit avant l\'événement.' },
     { num: '6. PROPRIÉTÉ INTELLECTUELLE', body: 'Le présent contrat ne confère aucun droit de propriété sur les œuvres du créateur à l\'organisateur. Les œuvres restent la propriété exclusive du créateur. Aucune reproduction commerciale sans accord écrit préalable.' },
     { num: '7. INDÉPENDANCE', body: 'Le créateur intervient en qualité de professionnel indépendant. Le présent contrat ne crée aucun lien de subordination, de salariat ou d\'exclusivité entre les parties. Le créateur reste libre de sa tarification et de ses conditions de vente.' },
     { num: '8. DROIT APPLICABLE', body: 'Le présent contrat est soumis au droit français. Tout litige sera soumis aux tribunaux compétents du ressort du lieu de l\'événement.' },
   ]
 
   for (const clause of clauses) {
-    page.drawText(clause.num, { x: 60, y, size: 8.5, font: fontBold, color: dark })
+    page.drawText(clause.num, { x: 48, y, size: 8.5, font: fontBold, color: C.dark })
     y -= 12
     for (const wrapped of wrapClause(clause.body)) {
-      page.drawText(wrapped, { x: 70, y, size: 8, font: fontRegular, color: black })
+      page.drawText(wrapped, { x: 56, y, size: 8, font: fontRegular, color: C.dark })
       y -= 11
     }
-    y -= 6
+    y -= 5
   }
 
-  // Section signatures
-  y -= 10
-  page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: grayLight })
-  y -= 18
-  page.drawText('SIGNATURES', { x: 50, y, size: 11, font: fontBold, color: dark })
+  // ── Signatures ────────────────────────────────────────────────────────────
+  y -= 8
+  page.drawLine({ start: { x: 40, y }, end: { x: width - 40, y }, thickness: 0.5, color: C.border })
   y -= 16
-
+  page.drawText('SIGNATURES', { x: 40, y, size: 10, font: fontBold, color: C.indigo })
+  y -= 14
   const orgName = orgProfile?.organization_name || organizer.full_name || 'Organisateur'
   const creatorName = creator.full_name || 'Créateur'
-  page.drawText(`Organisateur : ${orgName}`, { x: 60, y, size: 9, font: fontBold, color: black })
-  page.drawText(`Créateur : ${creatorName}`, { x: 320, y, size: 9, font: fontBold, color: black })
+  page.drawText(`Organisateur : ${orgName}`, { x: 48, y, size: 9, font: fontBold, color: C.dark })
+  page.drawText(`Créateur : ${creatorName}`, { x: 310, y, size: 9, font: fontBold, color: C.dark })
   y -= 13
-  page.drawText('Signé électroniquement via Nexart', { x: 60, y, size: 8, font: fontRegular, color: gray })
-  page.drawText('Accusé de réception par email', { x: 320, y, size: 8, font: fontRegular, color: gray })
-  y -= 16
-  page.drawText(`Horodatage : ${new Date().toISOString()}`, { x: 60, y, size: 8, font: fontRegular, color: gray })
+  page.drawText('Signé électroniquement via Nexart', { x: 48, y, size: 8, font: fontRegular, color: C.gray })
+  page.drawText('Accusé de réception par email', { x: 310, y, size: 8, font: fontRegular, color: C.gray })
   y -= 12
-  page.drawText(`N° contrat : ${contractNumber}`, { x: 60, y, size: 8, font: fontBold, color: gray })
-  y -= 14
-  page.drawText('Ce document a valeur de contrat conformément à l\'article 1366 du Code civil.', {
-    x: 60, y, size: 8, font: fontRegular, color: gray,
-  })
-  y -= 11
-  page.drawText('Généré et archivé via Nexart (nexart.fr) — Conservation 6 ans.', {
-    x: 60, y, size: 8, font: fontRegular, color: gray,
-  })
+  page.drawText(`Horodatage : ${new Date().toISOString()}  ·  N° : ${contractNumber}`, { x: 48, y, size: 7.5, font: fontRegular, color: C.gray })
+
+  // ── Footer ────────────────────────────────────────────────────────────────
+  const fY = 48
+  page.drawLine({ start: { x: 40, y: fY + 16 }, end: { x: width - 40, y: fY + 16 }, thickness: 0.8, color: C.indigo })
+  page.drawText('nexart.fr · contact@nexart.fr', { x: 40, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
+  const right = `Page 1/1 · ${contractNumber}`
+  page.drawText(right, { x: width - 40 - right.length * 4.2, y: fY + 4, size: 7.5, font: fontRegular, color: C.gray })
+  page.drawText(`Généré le ${new Date().toLocaleDateString('fr-FR')} · Archivé 6 ans (art. 1366 Code civil)`, { x: 40, y: fY - 8, size: 7, font: fontRegular, color: C.gray })
 
   const pdfBytes = await pdfDoc.save()
   const pdfBuffer = Buffer.from(pdfBytes)
