@@ -196,7 +196,9 @@ function EventCard({ event }: { event: FeedEvent }) {
 
 export default function FeedPage() {
   const router = useRouter()
-  const [items, setItems] = useState<FeedItem[]>([])
+  const [posts, setPosts] = useState<FeedPost[]>([])
+  const [creators, setCreators] = useState<FeedCreator[]>([])
+  const [events, setEvents] = useState<FeedEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const [likeUpdating, setLikeUpdating] = useState<string | null>(null)
@@ -210,7 +212,6 @@ export default function FeedPage() {
     const followedIds = (follows ?? []).map((f: { creator_id: string }) => f.creator_id)
 
     // Posts des créateurs suivis
-    let posts: FeedPost[] = []
     if (followedIds.length > 0) {
       const { data: postsData } = await supabase
         .from('creator_posts')
@@ -228,26 +229,29 @@ export default function FeedPage() {
         const likesMap: Record<string, number> = {}
         ;(likes ?? []).forEach((l: { post_id: string }) => { likesMap[l.post_id] = (likesMap[l.post_id] ?? 0) + 1 })
         const myLikeSet = new Set((myLikes ?? []).map((l: { post_id: string }) => l.post_id))
-        posts = (postsData as unknown as FeedPost[]).map(p => ({
+        setPosts((postsData as unknown as FeedPost[]).map(p => ({
           ...p,
           kind: 'post' as const,
           likes_count: likesMap[p.id] ?? 0,
           liked: myLikeSet.has(p.id),
-        }))
+        })))
       }
     }
 
-    // Créateurs récents (pas encore suivis)
-    const { data: creatorsData } = await supabase
+    // Créateurs récents — tous sauf l'utilisateur connecté
+    const creatorsQuery = supabase
       .from('profiles')
       .select('id, full_name, avatar_url, created_at, creator_profiles(disciplines, city, portfolio_images)')
       .eq('role', 'creator')
-      .not('id', 'in', followedIds.length > 0 ? `(${followedIds.join(',')})` : '(00000000-0000-0000-0000-000000000000)')
       .neq('id', uid)
       .order('created_at', { ascending: false })
       .limit(6)
 
-    const creators: FeedCreator[] = (creatorsData ?? []).map((c: Record<string, unknown>) => ({ ...(c as Omit<FeedCreator, 'kind'>), kind: 'creator' as const }))
+    const { data: creatorsData } = followedIds.length > 0
+      ? await creatorsQuery.not('id', 'in', `(${followedIds.join(',')})`)
+      : await creatorsQuery
+
+    setCreators((creatorsData ?? []).map((c: Record<string, unknown>) => ({ ...(c as Omit<FeedCreator, 'kind'>), kind: 'creator' as const })))
 
     // Événements à venir publiés
     const today = new Date().toISOString().slice(0, 10)
@@ -259,38 +263,8 @@ export default function FeedPage() {
       .order('start_date', { ascending: true })
       .limit(6)
 
-    const events: FeedEvent[] = (eventsData ?? []).map((e: Record<string, unknown>) => ({ ...(e as Omit<FeedEvent, 'kind'>), kind: 'event' as const }))
+    setEvents((eventsData ?? []).map((e: Record<string, unknown>) => ({ ...(e as Omit<FeedEvent, 'kind'>), kind: 'event' as const })))
 
-    // Mélange : intercaler créateurs et événements tous les 3 posts
-    const merged: FeedItem[] = []
-    const allPosts = [...posts]
-    const allCreators = [...creators]
-    const allEvents = [...events]
-    let ci = 0
-    let ei = 0
-
-    for (let i = 0; i < allPosts.length; i++) {
-      merged.push(allPosts[i])
-      // Après chaque 3e post : insérer un créateur ou un événement alternativement
-      if ((i + 1) % 3 === 0) {
-        if (ei < allEvents.length) { merged.push(allEvents[ei++]) }
-        else if (ci < allCreators.length) { merged.push(allCreators[ci++]) }
-      }
-    }
-
-    // Ajouter les créateurs et événements restants à la fin (si peu de posts)
-    while (ei < allEvents.length) merged.push(allEvents[ei++])
-    while (ci < allCreators.length) merged.push(allCreators[ci++])
-
-    // Si aucun post suivi, montrer quand même créateurs + events
-    if (allPosts.length === 0) {
-      for (let i = 0; i < Math.max(allCreators.length, allEvents.length); i++) {
-        if (allEvents[i]) merged.push(allEvents[i])
-        if (allCreators[i]) merged.push(allCreators[i])
-      }
-    }
-
-    setItems(merged)
     setLoading(false)
   }, [])
 
@@ -310,13 +284,28 @@ export default function FeedPage() {
     } else {
       await supabase.from('post_likes').insert({ post_id: postId, user_id: userId })
     }
-    setItems(prev => prev.map(item =>
-      item.kind === 'post' && item.id === postId
-        ? { ...item, liked: !liked, likes_count: item.likes_count + (liked ? -1 : 1) }
-        : item
+    setPosts(prev => prev.map(p =>
+      p.id === postId ? { ...p, liked: !liked, likes_count: p.likes_count + (liked ? -1 : 1) } : p
     ))
     setLikeUpdating(null)
   }
+
+  // Intercalage : 1 event ou creator tous les 3 posts
+  const buildFeed = (): FeedItem[] => {
+    const result: FeedItem[] = []
+    let ci = 0, ei = 0
+    for (let i = 0; i < posts.length; i++) {
+      result.push(posts[i])
+      if ((i + 1) % 3 === 0) {
+        if (ei < events.length) result.push(events[ei++])
+        else if (ci < creators.length) result.push(creators[ci++])
+      }
+    }
+    return result
+  }
+
+  const feedItems = buildFeed()
+  const hasContent = posts.length > 0 || creators.length > 0 || events.length > 0
 
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '64px 16px 40px' }}>
@@ -337,21 +326,13 @@ export default function FeedPage() {
               <div key={i} style={{ height: '140px', borderRadius: '16px', backgroundColor: 'var(--bg-secondary)', animationDelay: `${i * 60}ms` }} className="animate-pulse" />
             ))}
           </div>
-        ) : items.length === 0 ? (
-          <GhostCard
-            icon={<Rss size={32} color="#6366F1" />}
-            title="Aucun contenu pour le moment"
-            description="Suivez des créateurs pour voir leurs actualités ici."
-            cta="Découvrir des créateurs"
-            href="/creators"
-          />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {items.map((item, i) => (
+
+            {/* Posts intercalés avec events/creators */}
+            {feedItems.map((item, i) => (
               <motion.div key={`${item.kind}-${item.id}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.035 }}>
-                {item.kind === 'post' && (
-                  <PostCard post={item} userId={userId} onLike={toggleLike} />
-                )}
+                {item.kind === 'post' && <PostCard post={item} userId={userId} onLike={toggleLike} />}
                 {item.kind === 'creator' && (
                   <>
                     <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', paddingLeft: '4px' }}>Créateur à découvrir</p>
@@ -366,6 +347,45 @@ export default function FeedPage() {
                 )}
               </motion.div>
             ))}
+
+            {/* Section Créateurs — toujours affichée */}
+            {creators.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '12px 0 10px 4px' }}>Créateurs à découvrir</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {creators.map((c, i) => (
+                    <motion.div key={c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                      <CreatorCard creator={c} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Section Événements — toujours affichée */}
+            {events.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '12px 0 10px 4px' }}>Événements à venir</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {events.map((e, i) => (
+                    <motion.div key={e.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                      <EventCard event={e} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Vide total */}
+            {!hasContent && (
+              <GhostCard
+                icon={<Rss size={32} color="#6366F1" />}
+                title="Aucun contenu pour le moment"
+                description="Suivez des créateurs pour voir leurs actualités ici."
+                cta="Découvrir des créateurs"
+                href="/creators"
+              />
+            )}
           </div>
         )}
       </motion.div>
