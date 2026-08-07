@@ -844,7 +844,7 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
     <div className="mt-3">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-violet-200 bg-violet-50 text-violet-700 text-sm font-bold hover:bg-violet-100 transition-colors">
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: '#1A1A1A', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <Handshake size={16} /> Proposer une collaboration
         </button>
       ) : (
@@ -935,7 +935,7 @@ function DevisForm({ creatorId, requesterId }: { creatorId: string; requesterId:
     <div className="mt-5">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          className="w-full py-3 rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-bold hover:bg-indigo-100 transition-colors">
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           Demander un devis
         </button>
       ) : (
