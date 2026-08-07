@@ -485,17 +485,31 @@ export function CreatorProfileClient({ id }: Props) {
             )}
           </div>
 
-          {/* QR code toggle */}
-          {showQR && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              className="mt-5 inline-flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <div className="p-3 bg-white rounded-xl">
-                <QRCodeSVG value={profileUrl} size={120} level="M" />
-              </div>
-              <p className="text-white/40 text-xs text-center">Scannez pour voir le profil de {creator.full_name}</p>
-            </motion.div>
-          )}
         </div>
+
+        {/* QR panel — positionné en absolu à droite, toute la hauteur du hero */}
+        {showQR && (
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            style={{
+              position: 'absolute', top: 0, right: 0, bottom: 0,
+              width: '140px', zIndex: 20,
+              backgroundColor: 'rgba(255,255,255,0.04)',
+              borderLeft: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: '12px'
+            }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '10px' }}>
+              <QRCodeSVG value={profileUrl} size={90} level="M" />
+            </div>
+            <p style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.5, padding: '0 12px' }}>
+              nexart.fr/creators/<br />{creator.username || creator.id.slice(0, 8)}
+            </p>
+          </motion.div>
+        )}
+
         <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
       </div>
 
