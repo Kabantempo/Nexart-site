@@ -78,6 +78,8 @@ export function CreatorProfileClient({ id }: Props) {
   const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const [marchesCount, setMarchesCount] = useState<number | null>(null)
   const [boutiqueCount, setBoutiqueCount] = useState<number | null>(null)
+  const [followersCount, setFollowersCount] = useState<number>(0)
+  const [isFollowing, setIsFollowing] = useState(false)
   const [isActive, setIsActive] = useState(false)
   const [respondsQuickly, setRespondsQuickly] = useState(false)
   const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
@@ -121,6 +123,22 @@ export function CreatorProfileClient({ id }: Props) {
         .eq('status', 'accepted')
         .gte('updated_at', sixMonthsAgo)
       setIsActive((recentCount ?? 0) > 0)
+
+      // Follower count + follow status
+      const { count: fCount } = await supabase
+        .from('follows')
+        .select('id', { count: 'exact', head: true })
+        .eq('followed_id', id)
+      setFollowersCount(fCount ?? 0)
+      if (session?.user?.id) {
+        const { data: fRow } = await supabase
+          .from('follows')
+          .select('id')
+          .eq('follower_id', session.user.id)
+          .eq('followed_id', id)
+          .maybeSingle()
+        setIsFollowing(!!fRow)
+      }
 
       // Boutique count
       const { count: prodCount } = await supabase
@@ -215,6 +233,19 @@ export function CreatorProfileClient({ id }: Props) {
     }
     checkSharedEvent()
   }, [id, user])
+
+  const toggleFollow = async () => {
+    if (!user) return
+    if (isFollowing) {
+      await supabase.from('follows').delete().eq('follower_id', user.id).eq('followed_id', id)
+      setIsFollowing(false)
+      setFollowersCount(c => Math.max(0, c - 1))
+    } else {
+      await supabase.from('follows').insert({ follower_id: user.id, followed_id: id })
+      setIsFollowing(true)
+      setFollowersCount(c => c + 1)
+    }
+  }
 
   const sendMessage = async () => {
     if (!msgText.trim() || !user) return
@@ -665,35 +696,52 @@ export function CreatorProfileClient({ id }: Props) {
           {/* Sidebar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:sticky lg:top-20 h-fit">
-            <div className="rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <div style={{ borderRadius: '20px', border: '2px solid #6366F1', boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: '#FFFFFF', padding: '24px' }}>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mb-6">
-                <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '24px' }}>
+                <div style={{ padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {marchesCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Marchés
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {reviews.length}
                   </p>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Avis
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {boutiqueCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Créations
                   </p>
                 </div>
               </div>
+
+              {/* Abonnés + Follow / Message */}
+              <p style={{ fontSize: '12px', color: '#6B7280', fontWeight: '500', marginBottom: '12px' }}>
+                <span style={{ fontWeight: '800', color: '#1A1A1A', fontSize: '13px' }}>{followersCount.toLocaleString('fr-FR')}</span> abonné{followersCount !== 1 ? 's' : ''}
+              </p>
+              {user && !isOwn && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+                  <button onClick={toggleFollow}
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? '#6366F1' : '#E0E1FF', color: isFollowing ? '#fff' : '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    {isFollowing ? 'Abonné(e)' : 'S\'abonner'}
+                  </button>
+                  <button onClick={() => { setShowMsg(true); setSent(false) }}
+                    style={{ padding: '10px', borderRadius: '12px', border: '1.5px solid #E5E7EB', backgroundColor: '#F5F5FF', color: '#1A1A1A', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}>
+                    <MessageCircle size={13} /> Message
+                  </button>
+                </div>
+              )}
 
               {/* Links */}
               {(creator.website || creator.instagram || creator.etsy) && (
