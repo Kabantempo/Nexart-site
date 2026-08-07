@@ -87,7 +87,10 @@ type Review = {
   profiles?: { full_name: string; avatar_url?: string | null } | null
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export function CreatorProfileClient({ id }: Props) {
+  const [resolvedId, setResolvedId] = useState<string>(id)
   const [creator, setCreator] = useState<CreatorData | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
@@ -115,9 +118,18 @@ export function CreatorProfileClient({ id }: Props) {
 
   useEffect(() => {
     const load = async () => {
+      // Résolution username → UUID si nécessaire
+      let uid = id
+      if (!UUID_RE.test(id)) {
+        const { data: byUsername } = await supabase.from('profiles').select('id').eq('username', id).maybeSingle()
+        if (!byUsername) { setError(true); setLoading(false); return }
+        uid = byUsername.id
+        setResolvedId(uid)
+      }
+
       const [{ data: p }, { data: cp }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', id).maybeSingle(),
+        supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', uid).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', uid).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...(p as Record<string, unknown>), ...(cp as Record<string, unknown> | null ?? {}) } as any)
@@ -126,15 +138,15 @@ export function CreatorProfileClient({ id }: Props) {
       // Enregistrer la vue de profil (anonyme ou connectée)
       const { data: { session } } = await supabase.auth.getSession()
       const viewerId = session?.user?.id ?? null
-      if (!viewerId || viewerId !== id) {
-        supabase.from('profile_views').insert({ profile_id: id, viewer_id: viewerId }).then(() => {})
+      if (!viewerId || viewerId !== uid) {
+        supabase.from('profile_views').insert({ profile_id: uid, viewer_id: viewerId }).then(() => {})
       }
 
       // Nombre de marchés participés (candidatures acceptées)
       const { count } = await supabase
         .from('applications')
         .select('id', { count: 'exact', head: true })
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('status', 'accepted')
       setMarchesCount(count ?? 0)
 
@@ -143,7 +155,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { count: recentCount } = await supabase
         .from('applications')
         .select('id', { count: 'exact', head: true })
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('status', 'accepted')
         .gte('updated_at', sixMonthsAgo)
       setIsActive((recentCount ?? 0) > 0)
@@ -152,14 +164,14 @@ export function CreatorProfileClient({ id }: Props) {
       const { count: fCount } = await supabase
         .from('follows')
         .select('id', { count: 'exact', head: true })
-        .eq('followed_id', id)
+        .eq('followed_id', uid)
       setFollowersCount(fCount ?? 0)
       if (session?.user?.id) {
         const { data: fRow } = await supabase
           .from('follows')
           .select('id')
           .eq('follower_id', session.user.id)
-          .eq('followed_id', id)
+          .eq('followed_id', uid)
           .maybeSingle()
         setIsFollowing(!!fRow)
       }
@@ -168,7 +180,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { count: prodCount } = await supabase
         .from('products')
         .select('id', { count: 'exact', head: true })
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('is_available', true)
       setBoutiqueCount(prodCount ?? 0)
 
@@ -176,7 +188,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { data: convs } = await supabase
         .from('conversations')
         .select('id, created_at')
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .order('created_at', { ascending: false })
         .limit(10)
       if (convs && convs.length >= 3) {
@@ -186,7 +198,7 @@ export function CreatorProfileClient({ id }: Props) {
             .from('messages')
             .select('created_at')
             .eq('conversation_id', conv.id)
-            .eq('sender_id', id)
+            .eq('sender_id', uid)
             .order('created_at', { ascending: true })
             .limit(1)
             .maybeSingle()
@@ -205,7 +217,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { data: itin } = await supabase
         .from('itinerary')
         .select('id, label, city, start_date, end_date')
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('is_public', true)
         .gte('end_date', today)
         .order('start_date', { ascending: true })
@@ -216,7 +228,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { data: rv, error: rvErr } = await supabase
         .from('reviews')
         .select('id, rating, comment, tags, created_at, reviewer:profiles!reviewer_id(full_name, avatar_url)')
-        .eq('reviewed_id', id)
+        .eq('reviewed_id', uid)
         .order('created_at', { ascending: false })
 
       if (!rvErr && rv?.length) {
@@ -237,7 +249,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { data: apps } = await supabase
         .from('applications')
         .select('event_id, events!inner(organizer_id)')
-        .eq('creator_id', id)
+        .eq('creator_id', resolvedId)
         .eq('status', 'accepted')
         .eq('events.organizer_id', user.id)
         .limit(1)
@@ -245,27 +257,26 @@ export function CreatorProfileClient({ id }: Props) {
       if (!apps) return
       const eventId = apps.event_id as string
       setSharedEventId(eventId)
-      // Vérifier si l'avis existe déjà
       const { data: existing } = await supabase
         .from('reviews')
         .select('id')
         .eq('event_id', eventId)
         .eq('reviewer_id', user.id)
-        .eq('reviewed_id', id)
+        .eq('reviewed_id', resolvedId)
         .maybeSingle()
       setAlreadyReviewed(!!existing)
     }
     checkSharedEvent()
-  }, [id, user])
+  }, [resolvedId, user])
 
   const toggleFollow = async () => {
     if (!user) return
     if (isFollowing) {
-      await supabase.from('follows').delete().eq('follower_id', user.id).eq('followed_id', id)
+      await supabase.from('follows').delete().eq('follower_id', user.id).eq('followed_id', resolvedId)
       setIsFollowing(false)
       setFollowersCount(c => Math.max(0, c - 1))
     } else {
-      await supabase.from('follows').insert({ follower_id: user.id, followed_id: id })
+      await supabase.from('follows').insert({ follower_id: user.id, followed_id: resolvedId })
       setIsFollowing(true)
       setFollowersCount(c => c + 1)
     }
@@ -275,10 +286,10 @@ export function CreatorProfileClient({ id }: Props) {
     if (!msgText.trim() || !user) return
     setSending(true)
     let convId: string | null = null
-    const { data: existing } = await supabase.from('conversations').select('id').eq('creator_id', id).eq('organizer_id', user.id).maybeSingle()
+    const { data: existing } = await supabase.from('conversations').select('id').eq('creator_id', resolvedId).eq('organizer_id', user.id).maybeSingle()
     if (existing) { convId = existing.id }
     else {
-      const { data: created } = await supabase.from('conversations').insert({ creator_id: id, organizer_id: user.id }).select('id').single()
+      const { data: created } = await supabase.from('conversations').insert({ creator_id: resolvedId, organizer_id: user.id }).select('id').single()
       convId = created?.id ?? null
     }
     if (convId) {
@@ -324,8 +335,9 @@ export function CreatorProfileClient({ id }: Props) {
     </div>
   )
 
-  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${id}` : `https://nexart.fr/creators/${id}`
-  const isOwn = user?.id === id
+  const creatorSlug = creator.username || resolvedId
+  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${creatorSlug}` : `https://nexart.fr/creators/${creatorSlug}`
+  const isOwn = user?.id === resolvedId
   const displayName = creator.username || creator.full_name
   const showReal = creator.show_real_name !== false
 
@@ -488,7 +500,7 @@ export function CreatorProfileClient({ id }: Props) {
             )}
 
             {user && !isOwn && (
-              <button onClick={() => toggleCreatorFav(id)}
+              <button onClick={() => toggleCreatorFav(resolvedId)}
                 className={`flex items-center justify-center px-3 py-2.5 rounded-xl border transition-all ${
                   favCreatorIds.has(id)
                     ? 'bg-rose-500/15 border-rose-500/30 text-rose-400'
@@ -504,7 +516,7 @@ export function CreatorProfileClient({ id }: Props) {
             </button>
             {user && user.id !== id && (
               <div className="flex items-center">
-                <ReportButton targetId={id} targetType="creator" reporterId={user.id} />
+                <ReportButton targetId={resolvedId} targetType="creator" reporterId={user.id} />
               </div>
             )}
           </div>
@@ -643,7 +655,7 @@ export function CreatorProfileClient({ id }: Props) {
               <section className="mb-8">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-lg font-bold text-gray-900">Boutique</h2>
-                  <Link href={`/boutique/${id}`} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                  <Link href={`/boutique/${resolvedId}`} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
                     Voir tout ({boutiqueCount}) →
                   </Link>
                 </div>
@@ -651,7 +663,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
                     {boutiqueCount} création{boutiqueCount > 1 ? 's' : ''} disponible{boutiqueCount > 1 ? 's' : ''}
                   </p>
-                  <Link href={`/boutique/${id}`}
+                  <Link href={`/boutique/${resolvedId}`}
                     style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}>
                     Voir la boutique
                   </Link>
@@ -813,11 +825,11 @@ export function CreatorProfileClient({ id }: Props) {
               )}
 
               {/* Demande de devis */}
-              {user && !isOwn && <DevisForm creatorId={id} requesterId={user.id} />}
+              {user && !isOwn && <DevisForm creatorId={resolvedId} requesterId={user.id} />}
 
               {/* Proposition de collab — visible seulement si le créateur l'a activé et le visiteur est aussi créateur */}
               {user && !isOwn && (
-                <CollabForm creatorId={id} requesterId={user.id} requesterName={user.full_name ?? 'Créateur'} />
+                <CollabForm creatorId={resolvedId} requesterId={user.id} requesterName={user.full_name ?? 'Créateur'} />
               )}
             </div>
           </motion.div>
