@@ -135,6 +135,11 @@ export function CreatorProfileClient({ id }: Props) {
       setCreator({ ...(p as Record<string, unknown>), ...(cp as Record<string, unknown> | null ?? {}) } as any)
       setLoading(false)
 
+      // Remplacer l'UUID dans l'URL par le username sans recharger la page
+      if (typeof window !== 'undefined' && p.username && UUID_RE.test(window.location.pathname.split('/').pop() ?? '')) {
+        window.history.replaceState(null, '', `/creators/${p.username}`)
+      }
+
       // Enregistrer la vue de profil (anonyme ou connectée)
       const { data: { session } } = await supabase.auth.getSession()
       const viewerId = session?.user?.id ?? null
