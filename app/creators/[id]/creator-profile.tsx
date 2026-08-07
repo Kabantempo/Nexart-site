@@ -16,6 +16,30 @@ import { useFavorites } from '@/lib/hooks'
 import { ReviewForm } from '@/components/review-form'
 import { useToast } from '@/components/ui/toast-provider'
 
+function displayWebsite(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, '') }
+  catch { return url.replace(/^https?:\/\/(www\.)?/, '') }
+}
+
+function displayInstagram(val: string): string {
+  try {
+    const u = new URL(val)
+    if (u.hostname.includes('instagram.com')) {
+      const seg = u.pathname.split('/').filter(Boolean)[0]
+      return seg ? `@${seg}` : `@${val}`
+    }
+  } catch {}
+  return `@${val.replace('@', '')}`
+}
+
+function instagramHref(val: string): string {
+  try {
+    const u = new URL(val)
+    if (u.hostname.includes('instagram.com')) return val
+  } catch {}
+  return `https://instagram.com/${val.replace('@', '')}`
+}
+
 function getVideoEmbed(url: string): string | null {
   try {
     const u = new URL(url)
@@ -765,21 +789,21 @@ export function CreatorProfileClient({ id }: Props) {
                       <a href={creator.website} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Globe size={15} className="shrink-0" />
-                        <span className="truncate">{creator.website.replace(/^https?:\/\//, '')}</span>
+                        <span className="truncate">{displayWebsite(creator.website)}</span>
                       </a>
                     )}
                     {creator.instagram && (
-                      <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
+                      <a href={instagramHref(creator.instagram)} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Link2 size={15} className="shrink-0" />
-                        @{creator.instagram.replace('@', '')}
+                        {displayInstagram(creator.instagram)}
                       </a>
                     )}
                     {creator.etsy && (
                       <a href={`https://etsy.com/shop/${creator.etsy}`} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Link2 size={15} className="shrink-0" />
-                        Etsy : {creator.etsy}
+                        {creator.etsy}
                       </a>
                     )}
                   </div>
