@@ -777,7 +777,7 @@ export function CreatorProfileClient({ id }: Props) {
               {user && !isOwn && <DevisForm creatorId={id} requesterId={user.id} />}
 
               {/* Proposition de collab — visible seulement si le créateur l'a activé et le visiteur est aussi créateur */}
-              {user && !isOwn && creator.open_to_collab && (user.is_creator || user.role === 'creator') && (
+              {user && !isOwn && (
                 <CollabForm creatorId={id} requesterId={user.id} requesterName={user.full_name ?? 'Créateur'} />
               )}
             </div>
