@@ -349,16 +349,7 @@ export function CreatorProfileClient({ id }: Props) {
       )}
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <div className="bg-[#06060f] relative overflow-hidden" style={{ display: 'flex' }}>
-        {/* QR code permanent à droite */}
-        <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: '140px', background: 'rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', zIndex: 20 }}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '10px' }}>
-            <QRCodeSVG value={profileUrl} size={90} level="M" />
-          </div>
-          <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.5, padding: '0 12px', fontWeight: 600 }}>
-            Scannez pour partager ce profil
-          </p>
-        </div>
+      <div className="bg-[#06060f] relative overflow-hidden">
         {/* Banner image */}
         {creator.banner_url && (
           <div className="absolute inset-0 z-0">
@@ -376,7 +367,7 @@ export function CreatorProfileClient({ id }: Props) {
             <ArrowLeft size={15} /> Retour aux créateurs
           </Link>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="flex flex-col items-center gap-6 text-center">
             {/* Avatar */}
             <div className="relative shrink-0">
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: '#1e1b4b' }}>
@@ -404,7 +395,7 @@ export function CreatorProfileClient({ id }: Props) {
                 )}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="flex flex-wrap justify-center items-center gap-2 mb-3">
                 {creator.city && (
                   <div className="flex items-center gap-1.5 text-white/50 text-sm">
                     <MapPin size={13} className="text-white/40 shrink-0" />
@@ -419,7 +410,7 @@ export function CreatorProfileClient({ id }: Props) {
               </div>
 
               {/* Verification badges */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 {creator.siret_verified && (
                   <span style={{ padding: '3px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)', fontSize: '11px', fontWeight: 600 }}>
                     SIRET vérifié
@@ -455,7 +446,7 @@ export function CreatorProfileClient({ id }: Props) {
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap gap-3 mt-7">
+          <div className="flex flex-wrap justify-center gap-3 mt-7">
             {!user ? (
               <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ backgroundColor: '#6366F1' }}>
                 <MessageCircle size={15} /> Contacter
@@ -483,6 +474,10 @@ export function CreatorProfileClient({ id }: Props) {
               </button>
             )}
 
+            <button onClick={() => setShowQR(!showQR)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 text-sm font-semibold transition-all">
+              <QrCode size={15} /> QR code
+            </button>
             {user && user.id !== id && (
               <div className="flex items-center" style={{ opacity: 0.5 }}>
                 <ReportButton targetId={id} targetType="creator" reporterId={user.id} />
@@ -490,6 +485,16 @@ export function CreatorProfileClient({ id }: Props) {
             )}
           </div>
 
+          {/* QR code toggle */}
+          {showQR && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="mt-5 inline-flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className="p-3 bg-white rounded-xl">
+                <QRCodeSVG value={profileUrl} size={120} level="M" />
+              </div>
+              <p className="text-white/40 text-xs text-center">Scannez pour voir le profil de {creator.full_name}</p>
+            </motion.div>
+          )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
       </div>
