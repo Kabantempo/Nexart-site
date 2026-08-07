@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Script from 'next/script'
+import { redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { CreatorProfileClient } from './creator-profile'
 
@@ -71,6 +72,11 @@ export default async function CreatorPage(props: { params: Promise<{ id: string 
     creator = data
   } catch (error) {
     console.error('Error fetching creator:', error)
+  }
+
+  // Redirect UUID → username si le créateur a un username
+  if (UUID_RE.test(params.id) && creator?.username) {
+    redirect(`/creators/${creator.username}`)
   }
 
   const creatorJsonLd = creator ? {
