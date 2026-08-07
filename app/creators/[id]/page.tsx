@@ -8,8 +8,13 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 async function resolveCreatorId(idOrUsername: string): Promise<string> {
   if (UUID_RE.test(idOrUsername)) return idOrUsername
-  const { data } = await supabase.from('profiles').select('id').eq('username', idOrUsername).eq('role', 'creator').maybeSingle()
-  return data?.id ?? idOrUsername
+  const decoded = decodeURIComponent(idOrUsername)
+  // Essai par username
+  const { data: byUsername } = await supabase.from('profiles').select('id').eq('username', decoded).eq('role', 'creator').maybeSingle()
+  if (byUsername) return byUsername.id
+  // Fallback par full_name (insensible à la casse)
+  const { data: byName } = await supabase.from('profiles').select('id').ilike('full_name', decoded).eq('role', 'creator').maybeSingle()
+  return byName?.id ?? idOrUsername
 }
 
 export async function generateStaticParams() {
