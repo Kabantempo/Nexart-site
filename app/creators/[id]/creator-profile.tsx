@@ -856,15 +856,15 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
 
           {/* Type de collab */}
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Type de collaboration</p>
-          <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="flex flex-col gap-2 mb-4">
             {COLLAB_TYPES.map(t => (
               <button key={t.value} onClick={() => setCollabType(t.value)}
-                className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-all ${
+                className={`flex items-center p-3 rounded-xl border text-sm font-semibold transition-all ${
                   collabType === t.value
                     ? 'border-violet-400 bg-violet-100 text-violet-800'
                     : 'border-gray-200 bg-white text-gray-600 hover:border-violet-200 hover:bg-violet-50'
                 }`}>
-                <span className="text-base">{t.emoji}</span> {t.label}
+                {t.label}
               </button>
             ))}
           </div>
