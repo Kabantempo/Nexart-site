@@ -446,11 +446,11 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="bg-[#06060f] text-white overflow-x-hidden" style={{ marginTop: '-58px' }}>
+    <div className="home-page overflow-x-hidden" style={{ marginTop: '-58px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <Grain />
 
       {/* ══ HERO ══════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: '#08081a' }}>
+      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--hero-bg, #08081a)' }}>
 
         {/* Navbar spacer — pushes content below the fixed navbar */}
         <div style={{ height: '58px', flexShrink: 0 }} />
@@ -701,9 +701,6 @@ export default function HomeClient() {
                 vos créations ?
               </span>
             </h2>
-            <p className="text-white/35 text-lg leading-relaxed mb-12 max-w-lg mx-auto">
-              Rejoignez 2 400 créateurs et 380 événements qui font confiance à Nexart.
-            </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/register" className="group flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all duration-200 shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
                 S'inscrire gratuitement <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />

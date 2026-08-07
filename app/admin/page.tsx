@@ -517,7 +517,7 @@ export default function AdminPage() {
             <button key={t.k} onClick={() => setTab(t.k)} style={{
               padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer',
               fontSize: '13px', fontWeight: tab === t.k ? '700' : '500',
-              color: tab === t.k ? 'var(--bg-secondary)' : '#6B7280',
+              color: tab === t.k ? 'var(--text-primary)' : 'var(--text-secondary)',
               borderBottom: tab === t.k ? '2px solid #6366F1' : '2px solid transparent',
               marginBottom: '-1px', whiteSpace: 'nowrap',
               display: 'flex', alignItems: 'center', gap: '6px',
