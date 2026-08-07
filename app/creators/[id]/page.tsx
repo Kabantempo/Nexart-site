@@ -107,7 +107,7 @@ export default async function CreatorPage(props: { params: Promise<{ id: string 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <CreatorProfileClient id={params.id} />
+      <CreatorProfileClient id={resolvedId} />
     </>
   )
 }
