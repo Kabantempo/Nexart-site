@@ -17,8 +17,8 @@ import { ReviewForm } from '@/components/review-form'
 import { useToast } from '@/components/ui/toast-provider'
 
 function displayWebsite(url: string): string {
-  try { return new URL(url).hostname.replace(/^www\./, '') }
-  catch { return url.replace(/^https?:\/\/(www\.)?/, '') }
+  try { return new URL(url).hostname.replace(/^www\./i, '') }
+  catch { return url.replace(/^https?:\/\/(www\.)?/i, '').replace(/^www\./i, '') }
 }
 
 function displayInstagram(val: string): string {
