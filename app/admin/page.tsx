@@ -87,7 +87,7 @@ type SiretVerification = {
   profiles?: { full_name: string; avatar_url: string | null } | null
 }
 
-type AdminTab = 'analytics' | 'verifications' | 'disciplines' | 'marches' | 'messages' | 'abonnements' | 'signalements' | 'revenue'
+type AdminTab = 'analytics' | 'verifications' | 'disciplines' | 'marches' | 'messages' | 'abonnements' | 'signalements' | 'revenue' | 'documents'
 
 type StandPayment = {
   id: string; amount_cents: number; commission_cents: number; created_at: string; status: string
@@ -123,7 +123,7 @@ export default function AdminPage() {
   // Tab — initialise depuis ?tab= si présent
   const [tab, setTab] = useState<AdminTab>(() => {
     const t = searchParams?.get('tab')
-    const valid: AdminTab[] = ['analytics','verifications','disciplines','marches','messages','abonnements','signalements','revenue']
+    const valid: AdminTab[] = ['analytics','verifications','disciplines','marches','messages','abonnements','signalements','revenue','documents']
     return (valid.includes(t as AdminTab) ? t : 'analytics') as AdminTab
   })
 
@@ -474,6 +474,7 @@ export default function AdminPage() {
     { k: 'abonnements',    label: 'Abonnements' },
     { k: 'signalements',   label: 'Signalements',  badge: pendingReports.length || undefined },
     { k: 'revenue',        label: 'Revenue' },
+    { k: 'documents',      label: 'PDFs exemples' },
   ]
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -517,7 +518,7 @@ export default function AdminPage() {
             <button key={t.k} onClick={() => setTab(t.k)} style={{
               padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer',
               fontSize: '13px', fontWeight: tab === t.k ? '700' : '500',
-              color: tab === t.k ? 'var(--text-primary)' : 'var(--text-secondary)',
+              color: tab === t.k ? '#1A1A1A' : '#6B7280',
               borderBottom: tab === t.k ? '2px solid #6366F1' : '2px solid transparent',
               marginBottom: '-1px', whiteSpace: 'nowrap',
               display: 'flex', alignItems: 'center', gap: '6px',
@@ -1531,6 +1532,10 @@ export default function AdminPage() {
           </div>
         )}
 
+        {tab === 'documents' && (
+          <PdfPreviewTab />
+        )}
+
       </div>
 
       {/* ── Modale refus ── */}
@@ -1584,6 +1589,140 @@ export default function AdminPage() {
           {toast}
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── Composant PDFs exemples ──────────────────────────────────────────────────
+
+function PdfPreviewTab() {
+  const [loading, setLoading] = useState<string | null>(null)
+  const [session, setSession] = useState<string | null>(null)
+
+  useEffect(() => {
+    import('@/lib/supabase').then(({ supabase }) => {
+      supabase.auth.getSession().then(({ data: { session: s } }) => {
+        if (s?.access_token) setSession(s.access_token)
+      })
+    })
+  }, [])
+
+  const docs = [
+    {
+      type: 'contrat',
+      label: 'Contrat de participation',
+      description: 'Contrat signé entre l\'organisateur et le créateur. Inclut les conditions financières, les clauses générales et la signature électronique simple (SES).',
+      color: '#6366F1',
+      bg: '#EEF2FF',
+      icon: '📄',
+    },
+    {
+      type: 'reglement',
+      label: 'Règlement intérieur',
+      description: 'Document remis à tous les créateurs acceptés. Couvre les horaires, emplacements, interdictions, sécurité et sanctions.',
+      color: '#059669',
+      bg: '#ECFDF5',
+      icon: '📋',
+    },
+    {
+      type: 'convocation',
+      label: 'Convocation / Confirmation',
+      description: 'Document de confirmation de participation à présenter à l\'entrée. Récapitule les infos créateur, événement, stand et montant réglé.',
+      color: '#D97706',
+      bg: '#FFFBEB',
+      icon: '🎟️',
+    },
+  ]
+
+  async function openPreview(type: string) {
+    if (!session) return
+    setLoading(type)
+    try {
+      const res = await fetch(`/api/admin/pdf-preview?type=${type}`, {
+        headers: { Authorization: `Bearer ${session}` },
+      })
+      if (!res.ok) throw new Error(await res.text())
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => URL.revokeObjectURL(url), 30000)
+    } catch (err) {
+      console.error('pdf-preview error', err)
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.2s ease' }}>
+      <div style={{ padding: '16px 20px', borderRadius: '10px', backgroundColor: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
+          Ces PDFs utilisent des données fictives pour tester le rendu. Ils ne sont pas stockés et ne génèrent aucun email.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+        {docs.map(doc => (
+          <div key={doc.type} style={{ borderRadius: '14px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', overflow: 'hidden' }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', backgroundColor: doc.bg, display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '28px' }}>{doc.icon}</span>
+              <div>
+                <p style={{ fontSize: '15px', fontWeight: 700, color: doc.color, margin: 0 }}>{doc.label}</p>
+                <p style={{ fontSize: '11px', color: '#888888', margin: '2px 0 0', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>type : {doc.type}</p>
+              </div>
+            </div>
+            <div style={{ padding: '16px 20px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 16px' }}>
+                {doc.description}
+              </p>
+              <button
+                onClick={() => openPreview(doc.type)}
+                disabled={loading === doc.type || !session}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  padding: '9px 18px', borderRadius: '8px', border: 'none',
+                  backgroundColor: loading === doc.type || !session ? '#374151' : doc.color,
+                  color: '#FFFFFF', fontSize: '13px', fontWeight: 600,
+                  cursor: loading === doc.type || !session ? 'not-allowed' : 'pointer',
+                  width: '100%', justifyContent: 'center',
+                  opacity: loading === doc.type || !session ? 0.6 : 1,
+                }}
+              >
+                {loading === doc.type ? (
+                  <>
+                    <span style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                    Génération…
+                  </>
+                ) : (
+                  <>
+                    <span style={{ fontSize: '16px' }}>👁️</span>
+                    Prévisualiser le PDF
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
+        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>Données utilisées pour les exemples</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 20px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+          {[
+            ['Événement', 'Marché des Créateurs — Exemple'],
+            ['Lieu', 'Salle des fêtes, Lyon'],
+            ['Dates', '15–16 septembre 2026'],
+            ['Créateur', 'Marie Dupont'],
+            ['Stand', '3m × 2m — 45,00 €'],
+            ['Organisateur', 'Association Créateurs Lyon'],
+          ].map(([k, v]) => (
+            <div key={k} style={{ display: 'flex', gap: '6px', padding: '3px 0' }}>
+              <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{k} :</span>
+              <span>{v}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

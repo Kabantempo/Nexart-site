@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Download, Filter, X, Check, AlertCircle, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import DocumentsPanel from '@/components/documents-panel'
 
 interface ExhibitorField {
   id: string
@@ -24,7 +25,7 @@ interface Exhibitor {
 }
 
 export default function ExhibitorsClient({ eventId }: { eventId: string }) {
-  const [view, setView] = useState<'form-setup' | 'dashboard'>('form-setup')
+  const [view, setView] = useState<'form-setup' | 'dashboard' | 'documents'>('form-setup')
   const [fields, setFields] = useState<ExhibitorField[]>([])
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([])
   const [filterStatus, setFilterStatus] = useState<string>('all')
@@ -128,8 +129,37 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
             Gestion Exposants
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-            {view === 'form-setup' ? 'Personnalisez votre formulaire de candidature' : 'Gérez vos candidatures et approuvez les exposants'}
+            {view === 'form-setup' ? 'Personnalisez votre formulaire de candidature'
+              : view === 'documents' ? 'Générez et envoyez les documents aux créateurs acceptés'
+              : 'Gérez vos candidatures et approuvez les exposants'}
           </p>
+
+          {/* Onglets */}
+          <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid #E5E7EB' }}>
+            {([
+              { key: 'form-setup', label: 'Formulaire' },
+              { key: 'dashboard', label: 'Candidatures' },
+              { key: 'documents', label: 'Documents' },
+            ] as const).map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setView(tab.key)}
+                style={{
+                  padding: '8px 18px',
+                  fontSize: '13px',
+                  fontWeight: view === tab.key ? 700 : 400,
+                  color: view === tab.key ? '#6366F1' : '#6B7280',
+                  border: 'none',
+                  borderBottom: view === tab.key ? '2px solid #6366F1' : '2px solid transparent',
+                  backgroundColor: 'transparent',
+                  cursor: 'pointer',
+                  marginBottom: '-2px',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </motion.div>
       </div>
 
@@ -137,6 +167,8 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 16px' }}>
         {view === 'form-setup' ? (
           <FormSetup fields={fields} onSave={handleSaveFields} loading={loading} />
+        ) : view === 'documents' ? (
+          <DocumentsPanel eventId={eventId} role="organizer" />
         ) : (
           <ExhibitorsDashboard
             exhibitors={exhibitors}

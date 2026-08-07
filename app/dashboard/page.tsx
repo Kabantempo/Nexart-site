@@ -15,6 +15,7 @@ import {
   Bell, Plus, CreditCard, LogOut,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import DocumentsPanel from '@/components/documents-panel'
 const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m => ({ default: m.CreditsWidget })), { ssr: false })
 const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
 import { useCountUp } from '@/lib/hooks/use-count-up'
@@ -631,6 +632,11 @@ function CreatorMainContent({
         </div>
       )}
 
+
+      {/* Mes documents */}
+      <div style={{ marginTop: '32px' }}>
+        <DocumentsPanel eventId="" role="creator" />
+      </div>
 
       {/* Recommandations */}
       {recommended.length > 0 && (

@@ -369,7 +369,7 @@ export default function OffresPageClient() {
         </section>
 
         {/* Crédits */}
-        <section className="mt-16">
+        <section id="credits-unite" className="mt-16">
           <div className="mb-7">
             <h2 className="text-2xl font-black mb-1" style={{ color: 'var(--text-primary)' }}>Sans abonnement — Crédits à l&apos;unité</h2>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Payez uniquement ce que vous utilisez. Valables 6 mois.</p>

@@ -479,7 +479,7 @@ export function CreatorProfileClient({ id }: Props) {
               <QrCode size={15} /> QR code
             </button>
             {user && user.id !== id && (
-              <div className="flex items-center" style={{ opacity: 0.5 }}>
+              <div className="flex items-center">
                 <ReportButton targetId={id} targetType="creator" reporterId={user.id} />
               </div>
             )}
