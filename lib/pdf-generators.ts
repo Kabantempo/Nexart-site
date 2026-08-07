@@ -248,7 +248,7 @@ export async function generateConvocationPdf(
     const badgeW = 200
     const badgeH = 48
     const badgeX = width / 2 - badgeW / 2
-    page.drawRectangle({ x: badgeX, y: y - badgeH, width: badgeW, height: badgeH, color: C.indigo, borderRadius: 4 })
+    page.drawRectangle({ x: badgeX, y: y - badgeH, width: badgeW, height: badgeH, color: C.indigo })
     const standLabel = `STAND N° ${options.standNumber}`
     page.drawText(standLabel, {
       x: badgeX + badgeW / 2 - standLabel.length * 6.5,
