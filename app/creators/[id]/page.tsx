@@ -7,7 +7,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 async function resolveCreatorId(idOrUsername: string): Promise<string> {
   if (UUID_RE.test(idOrUsername)) return idOrUsername
-  const { data } = await supabase.from('profiles').select('id').eq('username', idOrUsername).maybeSingle()
+  const { data } = await supabase.from('profiles').select('id').eq('username', idOrUsername).eq('role', 'creator').maybeSingle()
   return data?.id ?? idOrUsername
 }
 

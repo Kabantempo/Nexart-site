@@ -121,7 +121,7 @@ export function CreatorProfileClient({ id }: Props) {
       // Résolution username → UUID si nécessaire
       let uid = id
       if (!UUID_RE.test(id)) {
-        const { data: byUsername } = await supabase.from('profiles').select('id').eq('username', id).maybeSingle()
+        const { data: byUsername } = await supabase.from('profiles').select('id').eq('username', id).eq('role', 'creator').maybeSingle()
         if (!byUsername) { setError(true); setLoading(false); return }
         uid = byUsername.id
         setResolvedId(uid)
