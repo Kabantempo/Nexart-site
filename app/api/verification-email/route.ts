@@ -5,9 +5,17 @@ import { getAdminClient } from '@/lib/supabase-admin'
 import { emailVerificationApproved, emailVerificationRequested } from '@/lib/email-templates'
 
 export async function POST(req: NextRequest) {
+  const secret = process.env.ADMIN_API_SECRET
+  if (!secret || req.headers.get('x-admin-secret') !== secret) {
+    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  }
+
   const admin = getAdminClient()
   try {
     const { user_id, field, accepted, comment } = await req.json()
+    if (!user_id || !field) {
+      return NextResponse.json({ error: 'user_id et field requis' }, { status: 400 })
+    }
     const label = field === 'siret_verified' ? 'SIRET' : 'RC Pro'
 
     const { data: { user } } = await admin.auth.admin.getUserById(user_id)
