@@ -481,7 +481,7 @@ function CreatorsContent() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {visible.map((creator, idx) => (
                 <FadeUp key={creator.id} delay={Math.min(idx * 0.04, 0.3)}>
-                  <Link href={`/creators/${creator.username || creator.id}`}
+                  <Link href={`/creators/${creator.id}`}
                     className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
                   >
                     {/* Media header — portfolio if available, avatar fallback */}
