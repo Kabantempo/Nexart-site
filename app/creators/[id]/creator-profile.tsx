@@ -421,13 +421,13 @@ export function CreatorProfileClient({ id }: Props) {
               {/* Verification badges */}
               <div className="flex flex-wrap gap-2">
                 {creator.siret_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
-                    <CheckCircle size={12} /> SIRET vérifié
+                  <span style={{ padding: '3px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)', fontSize: '11px', fontWeight: 600 }}>
+                    SIRET vérifié
                   </span>
                 )}
                 {creator.insurance_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
-                    <CheckCircle size={12} /> Assurance RC
+                  <span style={{ padding: '3px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)', fontSize: '11px', fontWeight: 600 }}>
+                    Assurance RC
                   </span>
                 )}
                 {creator.siret_verified && creator.insurance_verified && (
