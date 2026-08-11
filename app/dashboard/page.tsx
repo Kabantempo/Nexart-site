@@ -1160,8 +1160,8 @@ function OrganizerMainContent({
       {/* Modals */}
       {refuseModal && (
         <div onClick={() => setRefuseModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>Raison du refus</h3>
+          <div role="dialog" aria-modal="true" aria-labelledby="refuse-modal-title" onClick={e => e.stopPropagation()} onKeyDown={e => e.key === 'Escape' && setRefuseModal(null)} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
+            <h3 id="refuse-modal-title" style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>Raison du refus</h3>
             <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>Optionnel — aide le créateur à améliorer sa candidature</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
               {REFUSE_OPTIONS.map(opt => (
@@ -1185,13 +1185,13 @@ function OrganizerMainContent({
 
       {reviewModal && (
         <div onClick={() => setReviewModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>Laisser un avis</h3>
+          <div role="dialog" aria-modal="true" aria-labelledby="review-modal-title" onClick={e => e.stopPropagation()} onKeyDown={e => e.key === 'Escape' && setReviewModal(null)} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
+            <h3 id="review-modal-title" style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>Laisser un avis</h3>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>Pour <strong style={{ color: 'var(--text-primary)' }}>{reviewModal.creatorName}</strong> — {reviewModal.eventTitle}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
               {[1,2,3,4,5].map(n => (
-                <button key={n} onClick={() => setReviewRating(n)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-                  <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'var(--bg-secondary)'} />
+                <button key={n} onClick={() => setReviewRating(n)} aria-label={`${n} étoile${n > 1 ? 's' : ''}`} aria-pressed={n <= reviewRating} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
+                  <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'var(--bg-secondary)'} aria-hidden="true" />
                 </button>
               ))}
             </div>
