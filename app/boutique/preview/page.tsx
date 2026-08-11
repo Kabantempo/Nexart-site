@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { ShoppingBag, ArrowLeft, Euro, Package, Calendar, ExternalLink, X } from 'lucide-react'
+import { ShoppingBag, ArrowLeft, Euro, Package, Calendar, ExternalLink } from 'lucide-react'
+import { NexModal } from '@/components/ui/nex-modal'
 
 
 const MOCK_CREATOR = {
@@ -164,44 +165,45 @@ export default function BoutiquePreviewPage() {
       </div>
 
       {/* Modal */}
-      {selected && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
-          onClick={() => setSelected(null)}>
-          <div style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', maxWidth: '480px', width: '100%', overflow: 'hidden' }}
-            onClick={e => e.stopPropagation()}>
-            <div style={{ position: 'relative', height: '220px' }}>
-              <Image src={selected.images[0]} alt={selected.title} fill style={{ objectFit: 'cover' }} />
-              <button onClick={() => setSelected(null)} style={{ position: 'absolute', top: '12px', right: '12px', width: 32, height: 32, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.5)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <X size={16} color="#FFFFFF" />
-              </button>
-            </div>
-            <div style={{ padding: '24px' }}>
-              <p style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>{selected.category}</p>
-              <p style={{ fontSize: '18px', fontWeight: 800, color: '#1A1A1A', margin: '0 0 8px' }}>{selected.title}</p>
-              <p style={{ fontSize: '13px', color: '#888', lineHeight: 1.6, margin: '0 0 16px' }}>{selected.description}</p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#1A1A1A' }}>{(selected.price / 100).toFixed(2)} €</span>
-                {selected.stock > 0
-                  ? <span style={{ fontSize: '12px', color: '#10B981', fontWeight: 600 }}>En stock ({selected.stock})</span>
-                  : <span style={{ fontSize: '12px', color: '#888', fontWeight: 600 }}>Épuisé</span>
-                }
-              </div>
-              <div style={{ backgroundColor: '#F5F5F7', borderRadius: '10px', padding: '12px', fontSize: '12px', color: '#888', marginBottom: '16px' }}>
-                <p style={{ margin: 0, fontWeight: 600, color: '#1A1A1A', marginBottom: '4px' }}>Comment acheter ?</p>
-                <p style={{ margin: 0 }}>Contactez ce créateur via la messagerie Nexart pour commander cette création.</p>
-              </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: '#1A1A1A', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                  <ExternalLink size={13} /> Contacter le créateur
-                </button>
-                <button onClick={() => setSelected(null)} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF', cursor: 'pointer', fontSize: '13px', color: '#888' }}>
-                  Fermer
-                </button>
-              </div>
-            </div>
+      <NexModal
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        title={selected?.title ?? ''}
+        subtitle={selected?.category}
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: 'var(--text-primary)', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+              <ExternalLink size={13} /> Contacter le créateur
+            </button>
+            <button onClick={() => setSelected(null)} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-secondary)' }}>
+              Fermer
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        {selected && (
+          <>
+            {selected.images[0] && (
+              <div style={{ position: 'relative', height: '200px', margin: '-20px -24px 16px', overflow: 'hidden' }}>
+                <Image src={selected.images[0]} alt={selected.title} fill style={{ objectFit: 'cover' }} />
+              </div>
+            )}
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 16px' }}>{selected.description}</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <span style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>{(selected.price / 100).toFixed(2)} €</span>
+              {selected.stock > 0
+                ? <span style={{ fontSize: '12px', color: '#10B981', fontWeight: 600 }}>En stock ({selected.stock})</span>
+                : <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>Épuisé</span>
+              }
+            </div>
+            <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '12px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+              <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>Comment acheter ?</p>
+              <p style={{ margin: 0 }}>Contactez ce créateur via la messagerie Nexart pour commander cette création.</p>
+            </div>
+          </>
+        )}
+      </NexModal>
     </div>
   )
 }
