@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
 import { ReportButton } from '@/components/ui/report-button'
 import StandPlanViewer from '@/components/ui/stand-plan-viewer'
+import { NexModal } from '@/components/ui/nex-modal'
 
 interface Props {
   id: string
@@ -1189,78 +1190,70 @@ export function EventDetailClient({ id }: Props) {
                   </div>
 
                   {/* Modal messagerie groupée */}
-                  {showBulkModal && (
-                    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.18 }}
-                        style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '520px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
-                            Message groupé
-                          </h3>
-                          <button onClick={() => setShowBulkModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '20px', lineHeight: 1 }}>×</button>
-                        </div>
-                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
-                          {selectedCreatorIds.length > 0
-                            ? `${selectedCreatorIds.length} créateur${selectedCreatorIds.length > 1 ? 's' : ''} sélectionné${selectedCreatorIds.length > 1 ? 's' : ''}`
-                            : `Tous les créateurs acceptés (${applications.filter(a => a.status === 'accepted').length})`}
-                        </p>
-                        {/* Template dropdown */}
-                        <div style={{ marginBottom: '12px' }}>
-                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Modèle</label>
-                          <select
-                            value={bulkTemplate}
-                            onChange={e => handleTemplateChange(e.target.value)}
-                            style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', cursor: 'pointer' }}
-                          >
-                            {BULK_TEMPLATES.map(t => (
-                              <option key={t.id} value={t.id}>{t.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                        {/* Sujet */}
-                        <div style={{ marginBottom: '12px' }}>
-                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Sujet</label>
-                          <input
-                            type="text"
-                            value={bulkSubject}
-                            onChange={e => setBulkSubject(e.target.value)}
-                            placeholder={`Message de l'organisateur — ${event?.title || ''}`}
-                            style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', boxSizing: 'border-box' }}
+                  <NexModal
+                    isOpen={showBulkModal}
+                    onClose={() => setShowBulkModal(false)}
+                    title="Message groupé"
+                    subtitle={selectedCreatorIds.length > 0
+                      ? `${selectedCreatorIds.length} créateur${selectedCreatorIds.length > 1 ? 's' : ''} sélectionné${selectedCreatorIds.length > 1 ? 's' : ''}`
+                      : `Tous les créateurs acceptés (${applications.filter(a => a.status === 'accepted').length})`}
+                    size="md"
+                    footer={
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          onClick={() => setShowBulkModal(false)}
+                          style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          onClick={handleBulkMessage}
+                          disabled={bulkMsgSending || !bulkMsgText.trim()}
+                          style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
+                        >
+                          <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
+                        </button>
+                      </div>
+                    }
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {/* Template dropdown */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Modèle</label>
+                        <select
+                          value={bulkTemplate}
+                          onChange={e => handleTemplateChange(e.target.value)}
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', cursor: 'pointer' }}
+                        >
+                          {BULK_TEMPLATES.map(t => (
+                            <option key={t.id} value={t.id}>{t.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {/* Sujet */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Sujet</label>
+                        <input
+                          type="text"
+                          value={bulkSubject}
+                          onChange={e => setBulkSubject(e.target.value)}
+                          placeholder={`Message de l'organisateur — ${event?.title || ''}`}
+                          style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', boxSizing: 'border-box' }}
                           />
-                        </div>
-                        {/* Message */}
-                        <div style={{ marginBottom: '20px' }}>
-                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Message</label>
-                          <textarea
-                            value={bulkMsgText}
-                            onChange={e => setBulkMsgText(e.target.value)}
-                            placeholder="Votre message…"
-                            rows={5}
-                            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box', outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
-                          />
-                        </div>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                          <button
-                            onClick={() => setShowBulkModal(false)}
-                            style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
-                          >
-                            Annuler
-                          </button>
-                          <button
-                            onClick={handleBulkMessage}
-                            disabled={bulkMsgSending || !bulkMsgText.trim()}
-                            style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
-                          >
-                            <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
-                          </button>
-                        </div>
-                      </motion.div>
+                      </div>
+                      {/* Message */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Message</label>
+                        <textarea
+                          value={bulkMsgText}
+                          onChange={e => setBulkMsgText(e.target.value)}
+                          placeholder="Votre message…"
+                          rows={5}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box', outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
+                        />
+                      </div>
                     </div>
-                  )}
+                  </NexModal>
 
                   {appsLoading ? (
                     <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)', fontSize: '14px' }}>Chargement...</div>

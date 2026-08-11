@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
 import { Shield, Search, Filter, RefreshCw, Download, ChevronLeft, ChevronRight, Eye, Trash2, FileDown, Lock } from 'lucide-react'
+import { NexModal } from '@/components/ui/nex-modal'
 
 type AuditLog = {
   id: string
@@ -289,19 +290,15 @@ export default function AuditLogsClient() {
       </div>
 
       {/* Detail Modal */}
-      {selected && (
-        <div
-          onClick={() => setSelected(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '16px', maxWidth: '640px', width: '100%', maxHeight: '80vh', overflow: 'auto', padding: '24px' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>Détail du log</h2>
-              <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.text.secondary, fontSize: '20px' }}>×</button>
-            </div>
+      <NexModal
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        title="Détail du log"
+        size="md"
+        maxContentHeight="60vh"
+      >
+        {selected && (
+          <>
             {([
               ['ID', selected.id],
               ['Action', selected.action],
@@ -326,9 +323,9 @@ export default function AuditLogsClient() {
                 </pre>
               </div>
             )}
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </NexModal>
     </div>
   )
 }
