@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, Plus, Trash2, Clock, CheckCircle, Mail, Download, Calendar, Link, ChevronRight, X, Shuffle, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { NexTabs } from '@/components/ui/nex-tabs'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -148,29 +149,14 @@ export default function VolunteersClient({ eventId }: { eventId: string }) {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '28px', borderBottom: '1px solid var(--border-color)', paddingBottom: '0' }}>
-        {tabs.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '10px 18px',
-              backgroundColor: 'transparent',
-              color: tab === t.id ? '#6366F1' : 'var(--text-secondary)',
-              border: 'none',
-              borderBottom: tab === t.id ? '2px solid #6366F1' : '2px solid transparent',
-              marginBottom: '-1px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: tab === t.id ? 600 : 400,
-              transition: 'all 0.15s',
-            }}
-          >
-            <t.icon size={15} />
-            {t.label}
-          </button>
-        ))}
+      <div style={{ marginBottom: '28px' }}>
+        <NexTabs
+          tabs={tabs.map(t => ({ key: t.id, label: t.label, icon: <t.icon size={15} /> }))}
+          activeTab={tab}
+          onChange={k => setTab(k as typeof tab)}
+          variant="underline"
+          ariaLabel="Sections bénévoles"
+        />
       </div>
 
       {/* Content */}

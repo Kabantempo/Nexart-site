@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Flag } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from './toast-provider'
+import { NexModal } from './nex-modal'
 
 interface Props {
   targetId: string
@@ -64,45 +65,45 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
         <Flag size={14} /> Signaler
       </button>
 
-      {open && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
-          onClick={() => setOpen(false)}>
-          <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
-            onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 16px' }}>Signaler ce contenu</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>Pourquoi signalez-vous ce contenu ?</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-              {REASONS.map(r => (
-                <label key={r} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${reason === r ? '#6366F1' : 'var(--border-color)'}`, backgroundColor: reason === r ? '#F0F4FF' : 'var(--bg-secondary)' }}>
-                  <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} style={{ accentColor: '#6366F1' }} />
-                  <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: reason === r ? '600' : '400' }}>{r}</span>
-                </label>
-              ))}
-              {isAutreSelected && (
-                <textarea
-                  value={customText}
-                  onChange={e => setCustomText(e.target.value)}
-                  placeholder="Décrivez le problème…"
-                  maxLength={500}
-                  rows={3}
-                  autoFocus
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
-                />
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleSubmit} disabled={!canSubmit || submitting}
-                style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
-                {submitting ? 'Envoi…' : 'Envoyer'}
-              </button>
-              <button onClick={() => setOpen(false)}
-                style={{ padding: '11px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer' }}>
-                Annuler
-              </button>
-            </div>
+      <NexModal
+        isOpen={open}
+        onClose={() => { setOpen(false); setReason(''); setCustomText('') }}
+        title="Signaler ce contenu"
+        subtitle="Pourquoi signalez-vous ce contenu ?"
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={handleSubmit} disabled={!canSubmit || submitting}
+              style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
+              {submitting ? 'Envoi…' : 'Envoyer'}
+            </button>
+            <button onClick={() => { setOpen(false); setReason(''); setCustomText('') }}
+              style={{ padding: '11px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer' }}>
+              Annuler
+            </button>
           </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {REASONS.map(r => (
+            <label key={r} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${reason === r ? '#6366F1' : 'var(--border-color)'}`, backgroundColor: reason === r ? '#F0F4FF' : 'var(--bg-secondary)' }}>
+              <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} style={{ accentColor: '#6366F1' }} />
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: reason === r ? '600' : '400' }}>{r}</span>
+            </label>
+          ))}
+          {isAutreSelected && (
+            <textarea
+              value={customText}
+              onChange={e => setCustomText(e.target.value)}
+              placeholder="Décrivez le problème…"
+              maxLength={500}
+              rows={3}
+              autoFocus
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            />
+          )}
         </div>
-      )}
+      </NexModal>
     </>
   )
 }
