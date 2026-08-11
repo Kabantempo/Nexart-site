@@ -200,19 +200,25 @@ function TestimonialCard({ name, role, text }: { name: string; role: string; tex
 
 function TestimonialsMarquee() {
   return (
-    <section className="py-20 overflow-hidden" style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
+    <section aria-label="Témoignages illustratifs" className="py-20 overflow-hidden" style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
       {/* Row 1 — left */}
-      <div className="flex mb-4" style={{ animation: 'ticker 45s linear infinite', width: 'max-content' }}>
+      <div aria-hidden="true" className="flex mb-4" style={{ animation: 'ticker 45s linear infinite', width: 'max-content' }}>
         {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((t, i) => (
           <TestimonialCard key={i} {...t} />
         ))}
       </div>
       {/* Row 2 — right */}
-      <div className="flex" style={{ animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
+      <div aria-hidden="true" className="flex" style={{ animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
         {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((t, i) => (
           <TestimonialCard key={i} {...t} />
         ))}
       </div>
+      {/* Contenu accessible pour screen readers */}
+      <ul className="sr-only">
+        {TESTIMONIALS_ROW1.map(t => (
+          <li key={t.name}><q>{t.text}</q> — {t.name}, {t.role}</li>
+        ))}
+      </ul>
     </section>
   )
 }

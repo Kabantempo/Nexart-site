@@ -357,6 +357,8 @@ export default function RegisterPage() {
 
           {error && (
             <motion.div
+              role="alert"
+              aria-live="assertive"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               style={{
@@ -366,7 +368,7 @@ export default function RegisterPage() {
                 display: 'flex', alignItems: 'center', gap: '8px',
               }}
             >
-              <span>⚠️</span> {error}
+              <span aria-hidden="true">⚠️</span> {error}
             </motion.div>
           )}
 
@@ -374,12 +376,13 @@ export default function RegisterPage() {
 
             {/* Nom */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <label htmlFor="register-name" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Nom complet
               </label>
               <div style={{ position: 'relative' }}>
-                <User size={16} color={focused === 'name' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <User size={16} color={focused === 'name' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
+                  id="register-name"
                   type="text"
                   placeholder="Votre prénom et nom"
                   value={name}
@@ -401,12 +404,13 @@ export default function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <label htmlFor="register-email" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
+                  id="register-email"
                   type="email"
                   placeholder="vous@exemple.fr"
                   value={email}
@@ -468,12 +472,13 @@ export default function RegisterPage() {
 
             {/* Mot de passe */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <label htmlFor="register-password" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Mot de passe
               </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
+                  id="register-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Minimum 6 caractères"
                   value={password}
@@ -522,12 +527,13 @@ export default function RegisterPage() {
 
             {/* Confirmer mot de passe */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <label htmlFor="register-confirm-password" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Confirmer le mot de passe
               </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'confirmPassword' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'confirmPassword' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
+                  id="register-confirm-password"
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Retapez votre mot de passe"
                   value={confirmPassword}

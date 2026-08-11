@@ -418,6 +418,9 @@ export function NavbarFull() {
                 <AnimatePresence>
                   {searchOpen && searchValue.trim() && (searchResults.events.length > 0 || searchResults.creators.length > 0) && (
                     <motion.div
+                      role="listbox"
+                      aria-label="Résultats de recherche"
+                      aria-live="polite"
                       initial={{ opacity: 0, y: 6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 4, scale: 0.97 }}
                       transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
                       style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: '320px', backgroundColor: 'var(--bg-primary)', borderRadius: '14px', boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.14)', border: '1px solid var(--border-color)', overflow: 'hidden', zIndex: 999, pointerEvents: 'auto' }}

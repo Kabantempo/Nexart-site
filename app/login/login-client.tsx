@@ -241,6 +241,8 @@ export default function LoginPage() {
 
           {error && (
             <motion.div
+              role="alert"
+              aria-live="assertive"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               style={{
@@ -256,12 +258,13 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
+              <label htmlFor="login-email" style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
+                  id="login-email"
                   type="email"
                   placeholder="vous@exemple.fr"
                   value={email}
@@ -283,7 +286,7 @@ export default function LoginPage() {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                <label htmlFor="login-password" style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
                   Mot de passe
                 </label>
                 <Link href="/forgot-password" style={{ fontSize: '13px', color: '#6366F1', fontWeight: '500', textDecoration: 'none' }}>
@@ -293,6 +296,7 @@ export default function LoginPage() {
               <div style={{ position: 'relative' }}>
                 <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   autoComplete="current-password"
