@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 function GoogleIcon() {
@@ -27,6 +27,7 @@ const features = [
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -58,7 +59,8 @@ export default function LoginPage() {
       setError(supabaseErrors[err.message] ?? 'Une erreur est survenue. Veuillez réessayer.')
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      const next = searchParams?.get('next')
+      router.push(next && next.startsWith('/') ? next : '/dashboard')
     }
   }
 

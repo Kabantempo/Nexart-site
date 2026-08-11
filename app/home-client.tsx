@@ -225,9 +225,9 @@ const DISCIPLINES = [
 ]
 
 const STATS = [
-  { value: 2400, suffix: '+',  label: 'Créateurs inscrits' },
-  { value: 380,  suffix: '+',  label: 'Événements référencés' },
-  { value: 94,   suffix: ' %', label: 'Taux de satisfaction' },
+  { value: 500,  suffix: '+',  label: 'Créateurs inscrits' },
+  { value: 100,  suffix: '+',  label: 'Événements référencés' },
+  { value: 4,    suffix: ' ★', label: 'Note moyenne créateurs' },
 ]
 
 // ── 3 Faces section ────────────────────────────────────────────────────

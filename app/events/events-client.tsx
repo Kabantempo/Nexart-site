@@ -29,11 +29,11 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_BADGE: Record<string, { bg: string; text: string }> = {
-  popup:     { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
-  salon:     { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
-  fair:      { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
-  seasonal:  { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
-  permanent: { bg: 'rgba(0,0,0,0.55)', text: '#fff' },
+  popup:     { bg: '#A855F7', text: '#fff' },
+  salon:     { bg: '#10B981', text: '#fff' },
+  fair:      { bg: '#EF4444', text: '#fff' },
+  seasonal:  { bg: '#F59E0B', text: '#fff' },
+  permanent: { bg: '#3B82F6', text: '#fff' },
 }
 
 

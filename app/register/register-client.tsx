@@ -41,8 +41,8 @@ const roles = [
     label: 'Visiteur',
     description: 'Explorez et découvrez',
     icon: Eye,
-    color: '#06B6D4',
-    bg: '#ECFEFF',
+    color: '#10B981',
+    bg: '#E8F5E9',
   },
 ]
 
@@ -79,9 +79,15 @@ export default function RegisterPage() {
     })
 
     if (err) {
-      setError(err.message === 'User already registered'
-        ? 'Un compte existe déjà avec cet email.'
-        : err.message)
+      const supabaseErrors: Record<string, string> = {
+        'User already registered': 'Un compte existe déjà avec cet email. <a href="/login">Se connecter</a>',
+        'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
+        'Unable to validate email address: invalid format': 'Adresse email invalide.',
+        'signup_disabled': 'Les inscriptions sont temporairement désactivées.',
+        'email_address_not_authorized': 'Cette adresse email n\'est pas autorisée.',
+        'Too many requests': 'Trop de tentatives. Veuillez patienter quelques minutes.',
+      }
+      setError(supabaseErrors[err.message] ?? 'Une erreur est survenue. Veuillez réessayer.')
       setLoading(false)
       return
     }
@@ -494,6 +500,24 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff size={16} color="#94A3B8" /> : <Eye size={16} color="#94A3B8" />}
                 </button>
               </div>
+              {/* Indicateur de force du mot de passe */}
+              {password.length > 0 && (() => {
+                const strength = password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'Fort'
+                  : password.length >= 8 ? 'Moyen'
+                  : 'Faible'
+                const color = strength === 'Fort' ? '#4CAF50' : strength === 'Moyen' ? '#FF9800' : '#E05A5A'
+                const width = strength === 'Fort' ? '100%' : strength === 'Moyen' ? '60%' : '30%'
+                return (
+                  <div style={{ marginTop: '8px' }}>
+                    <div style={{ height: '4px', borderRadius: '4px', backgroundColor: '#E5E7EB', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width, backgroundColor: color, borderRadius: '4px', transition: 'width 300ms ease, background-color 300ms ease' }} />
+                    </div>
+                    <p style={{ fontSize: '12px', color, marginTop: '4px', fontWeight: 500 }}>
+                      Mot de passe {strength.toLowerCase()} {strength === 'Faible' ? '— min. 6 caractères' : strength === 'Moyen' ? '— ajoutez des chiffres et majuscules' : '✓'}
+                    </p>
+                  </div>
+                )
+              })()}
             </div>
 
             {/* Confirmer mot de passe */}
