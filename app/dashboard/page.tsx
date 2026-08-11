@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DocumentsPanel from '@/components/documents-panel'
+import { NexModal } from '@/components/ui/nex-modal'
+import { NexTabs } from '@/components/ui/nex-tabs'
 const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m => ({ default: m.CreditsWidget })), { ssr: false })
 const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
 import { useCountUp } from '@/lib/hooks/use-count-up'
@@ -361,23 +363,19 @@ export default function DashboardPage() {
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
 
         {/* Tab switcher */}
-        {(hasCreator || hasOrganizer || isAdmin) && (() => {
-          const tabs = [
-            hasCreator  && { key: 'creator',   icon: <Users size={13} />,    label: 'Créateur' },
-            hasOrganizer && { key: 'organizer', icon: <Calendar size={13} />, label: 'Organisateur' },
-          ].filter(Boolean) as { key: string; icon: React.ReactNode; label: string }[]
-          if (tabs.length <= 1) return null
-          return (
-            <div style={{ display: 'flex', gap: '2px', backgroundColor: 'var(--bg-secondary)', padding: '4px', borderRadius: '10px', width: 'fit-content', marginBottom: '20px' }}>
-              {tabs.map(tab => (
-                <button key={tab.key} onClick={() => setDashTab(tab.key as typeof dashTab)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s', backgroundColor: dashTab === tab.key ? '#fff' : 'transparent', color: dashTab === tab.key ? '#6366F1' : '#6B7280', boxShadow: dashTab === tab.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none' }}>
-                  {tab.icon} {tab.label}
-                </button>
-              ))}
-            </div>
-          )
-        })()}
+        {hasCreator && hasOrganizer && (
+          <div style={{ marginBottom: '20px' }}>
+            <NexTabs
+              tabs={[
+                { key: 'creator',   icon: <Users size={13} />,    label: 'Créateur' },
+                { key: 'organizer', icon: <Calendar size={13} />, label: 'Organisateur' },
+              ]}
+              activeTab={dashTab}
+              onChange={key => setDashTab(key as typeof dashTab)}
+              ariaLabel="Vue du tableau de bord"
+            />
+          </div>
+        )}
 
         {/* Profile completion banner (creator only) */}
         {hasCreator && dashTab === 'creator' && firstMissingStep && (
@@ -573,18 +571,19 @@ function CreatorMainContent({
     { key: 'calendrier', label: 'Calendrier' },
     { key: 'messages', label: 'Messages' },
     ...(paidCount > 0 ? [{ key: 'paiements', label: `Mes paiements (${paidCount})` }] : []),
-  ] as const
+  ]
 
   return (
     <div>
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB', marginBottom: '16px', gap: '0' }}>
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
-            style={{ padding: '8px 16px', fontSize: '13px', fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? '#6366F1' : '#6B7280', border: 'none', borderBottom: tab === t.key ? '2px solid #6366F1' : '2px solid transparent', backgroundColor: 'transparent', cursor: 'pointer', marginBottom: '-0.5px' }}>
-            {t.label}
-          </button>
-        ))}
+      <div style={{ marginBottom: '16px' }}>
+        <NexTabs
+          tabs={tabs}
+          activeTab={tab}
+          onChange={key => setTab(key as typeof tab)}
+          variant="underline"
+          ariaLabel="Sections créateur"
+        />
       </div>
 
       {tab === 'candidatures' && (
@@ -1004,16 +1003,14 @@ function OrganizerMainContent({
       )}
 
       {/* Candidatures tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB', marginBottom: '16px' }}>
-        {tabs.map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 16px', fontSize: '13px', fontWeight: tab === t.key ? 600 : 400, color: tab === t.key ? '#6366F1' : '#6B7280', border: 'none', borderBottom: tab === t.key ? '2px solid #6366F1' : '2px solid transparent', backgroundColor: 'transparent', cursor: 'pointer', marginBottom: '-0.5px' }}>
-            {t.label}
-            {t.badge != null && t.badge > 0 && (
-              <span style={{ fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: '#DC2626', color: '#fff' }}>{t.badge}</span>
-            )}
-          </button>
-        ))}
+      <div style={{ marginBottom: '16px' }}>
+        <NexTabs
+          tabs={tabs}
+          activeTab={tab}
+          onChange={key => setTab(key as typeof tab)}
+          variant="underline"
+          ariaLabel="Sections organisateur"
+        />
       </div>
 
       {tab === 'messages' ? (
@@ -1160,55 +1157,59 @@ function OrganizerMainContent({
       )}
 
       {/* Modals */}
-      {refuseModal && (
-        <div onClick={() => setRefuseModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-          <div role="dialog" aria-modal="true" aria-labelledby="refuse-modal-title" onClick={e => e.stopPropagation()} onKeyDown={e => e.key === 'Escape' && setRefuseModal(null)} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '360px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
-            <h3 id="refuse-modal-title" style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>Raison du refus</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>Optionnel — aide le créateur à améliorer sa candidature</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
-              {REFUSE_OPTIONS.map(opt => (
-                <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={refuseReasons.includes(opt.key)}
-                    onChange={e => setRefuseReasons(prev => e.target.checked ? [...prev, opt.key] : prev.filter(r => r !== opt.key))} />
-                  <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{opt.label}</span>
-                </label>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
-              <button onClick={confirmRefuse} disabled={updatingId === refuseModal.appId}
-                style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#DC2626', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: updatingId === refuseModal.appId ? 0.5 : 1 }}>
-                Confirmer
-              </button>
-            </div>
+      <NexModal
+        isOpen={!!refuseModal}
+        onClose={() => setRefuseModal(null)}
+        title="Raison du refus"
+        subtitle="Optionnel — aide le créateur à améliorer sa candidature"
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
+            <button onClick={confirmRefuse} disabled={!refuseModal || updatingId === refuseModal.appId}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#DC2626', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: refuseModal && updatingId === refuseModal.appId ? 0.5 : 1 }}>
+              Confirmer
+            </button>
           </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {REFUSE_OPTIONS.map(opt => (
+            <label key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', cursor: 'pointer' }}>
+              <input type="checkbox" checked={refuseReasons.includes(opt.key)}
+                onChange={e => setRefuseReasons(prev => e.target.checked ? [...prev, opt.key] : prev.filter(r => r !== opt.key))} />
+              <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{opt.label}</span>
+            </label>
+          ))}
         </div>
-      )}
+      </NexModal>
 
-      {reviewModal && (
-        <div onClick={() => setReviewModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
-          <div role="dialog" aria-modal="true" aria-labelledby="review-modal-title" onClick={e => e.stopPropagation()} onKeyDown={e => e.key === 'Escape' && setReviewModal(null)} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 25px 50px rgba(0,0,0,0.15)' }}>
-            <h3 id="review-modal-title" style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>Laisser un avis</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>Pour <strong style={{ color: 'var(--text-primary)' }}>{reviewModal.creatorName}</strong> — {reviewModal.eventTitle}</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
-              {[1,2,3,4,5].map(n => (
-                <button key={n} onClick={() => setReviewRating(n)} aria-label={`${n} étoile${n > 1 ? 's' : ''}`} aria-pressed={n <= reviewRating} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-                  <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'var(--bg-secondary)'} aria-hidden="true" />
-                </button>
-              ))}
-            </div>
-            <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} placeholder="Commentaire optionnel…" rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', fontSize: '13px', resize: 'none', outline: 'none', marginBottom: '14px', boxSizing: 'border-box', color: 'var(--text-primary)' }} />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setReviewModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
-              <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
-                style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
-                {reviewSubmitting ? 'Envoi…' : 'Publier'}
-              </button>
-            </div>
+      <NexModal
+        isOpen={!!reviewModal}
+        onClose={() => { setReviewModal(null); setReviewRating(0); setReviewComment('') }}
+        title="Laisser un avis"
+        subtitle={reviewModal ? `Pour ${reviewModal.creatorName} — ${reviewModal.eventTitle}` : ''}
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => { setReviewModal(null); setReviewRating(0); setReviewComment('') }} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
+            <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
+              {reviewSubmitting ? 'Envoi…' : 'Publier'}
+            </button>
           </div>
+        }
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+          {[1,2,3,4,5].map(n => (
+            <button key={n} onClick={() => setReviewRating(n)} aria-label={`${n} étoile${n > 1 ? 's' : ''}`} aria-pressed={n <= reviewRating} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
+              <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'var(--border-color)'} aria-hidden="true" />
+            </button>
+          ))}
         </div>
-      )}
+        <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} placeholder="Commentaire optionnel…" rows={3}
+          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', fontSize: '13px', resize: 'none', outline: 'none', boxSizing: 'border-box', color: 'var(--text-primary)' }} />
+      </NexModal>
     </div>
   )
 }
@@ -1322,49 +1323,48 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
       )}
 
       {/* Bulk message modal */}
-      {bulkModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
-          onClick={e => { if (e.target === e.currentTarget) setBulkModal(false) }}>
-          <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>Message groupé</h3>
-              <button onClick={() => setBulkModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '20px', lineHeight: 1 }}>×</button>
+      <NexModal
+        isOpen={bulkModal}
+        onClose={() => { setBulkModal(false); setBulkDone(false); setBulkSubject(''); setBulkMessage('') }}
+        title="Message groupé"
+        subtitle="Envoie un message à tous les créateurs acceptés de cet événement"
+        size="md"
+        footer={!bulkDone ? (
+          <button
+            onClick={handleBulkSend}
+            disabled={bulkSending || !bulkSubject.trim() || !bulkMessage.trim()}
+            style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
+          >
+            {bulkSending ? 'Envoi en cours…' : 'Envoyer à tous les créateurs acceptés'}
+          </button>
+        ) : undefined}
+      >
+        {bulkDone ? (
+          <p style={{ textAlign: 'center', color: '#16A34A', fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Sujet</label>
+              <input
+                value={bulkSubject}
+                onChange={e => setBulkSubject(e.target.value)}
+                placeholder="Ex : Informations importantes"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', boxSizing: 'border-box', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
+              />
             </div>
-            {bulkDone ? (
-              <p style={{ textAlign: 'center', color: '#16A34A', fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
-            ) : (
-              <>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Sujet</label>
-                  <input
-                    value={bulkSubject}
-                    onChange={e => setBulkSubject(e.target.value)}
-                    placeholder="Ex : Informations importantes"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
-                  />
-                </div>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Message</label>
-                  <textarea
-                    value={bulkMessage}
-                    onChange={e => setBulkMessage(e.target.value)}
-                    rows={5}
-                    placeholder="Écrivez votre message à tous les créateurs acceptés…"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
-                  />
-                </div>
-                <button
-                  onClick={handleBulkSend}
-                  disabled={bulkSending || !bulkSubject.trim() || !bulkMessage.trim()}
-                  style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
-                >
-                  {bulkSending ? 'Envoi en cours…' : 'Envoyer à tous les créateurs acceptés'}
-                </button>
-              </>
-            )}
+            <div>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Message</label>
+              <textarea
+                value={bulkMessage}
+                onChange={e => setBulkMessage(e.target.value)}
+                rows={5}
+                placeholder="Écrivez votre message à tous les créateurs acceptés…"
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </NexModal>
     </div>
   )
 }
