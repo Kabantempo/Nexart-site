@@ -19,7 +19,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
         </div>
         <h1 className="text-3xl font-bold text-white mb-3">Une erreur est survenue</h1>
         <p className="text-white/40 text-base mb-10 leading-relaxed">
-          Quelque chose s&apos;est mal passé de notre côté. Nos équipes ont été notifiées.
+          Quelque chose s&apos;est mal passé de notre côté. Veuillez réessayer ou nous contacter si le problème persiste.
         </p>
 
         <div className="flex items-center justify-center gap-3 flex-wrap mb-10">

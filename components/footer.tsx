@@ -29,7 +29,6 @@ const NAV = {
     { label: 'Trouver des créateurs', href: '/creators' },
     { label: 'Offres & tarifs',       href: '/offres' },
     { label: 'Analytiques',           href: '/organizer/analytics' },
-    { label: "S'inscrire",            href: '/register' },
   ],
   'Communauté': [
     { label: 'Fil d\'actualité',      href: '/feed' },
