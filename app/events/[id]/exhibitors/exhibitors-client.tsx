@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Plus, Download, Filter, X, Check, AlertCircle, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import DocumentsPanel from '@/components/documents-panel'
+import { NexTabs } from '@/components/ui/nex-tabs'
 
 interface ExhibitorField {
   id: string
@@ -135,31 +136,17 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
           </p>
 
           {/* Onglets */}
-          <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid #E5E7EB' }}>
-            {([
+          <NexTabs
+            tabs={[
               { key: 'form-setup', label: 'Formulaire' },
               { key: 'dashboard', label: 'Candidatures' },
               { key: 'documents', label: 'Documents' },
-            ] as const).map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setView(tab.key)}
-                style={{
-                  padding: '8px 18px',
-                  fontSize: '13px',
-                  fontWeight: view === tab.key ? 700 : 400,
-                  color: view === tab.key ? '#6366F1' : '#6B7280',
-                  border: 'none',
-                  borderBottom: view === tab.key ? '2px solid #6366F1' : '2px solid transparent',
-                  backgroundColor: 'transparent',
-                  cursor: 'pointer',
-                  marginBottom: '-2px',
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+            ]}
+            activeTab={view}
+            onChange={k => setView(k as typeof view)}
+            variant="underline"
+            ariaLabel="Sections exposants"
+          />
         </motion.div>
       </div>
 

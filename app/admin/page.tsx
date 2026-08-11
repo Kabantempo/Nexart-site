@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import { NexModal } from '@/components/ui/nex-modal'
+import { NexTabs } from '@/components/ui/nex-tabs'
 import {
   Users, Calendar, Shield, MessageSquare, Package,
   CheckCircle, XCircle, ExternalLink, FileText, Trash2, Eye, EyeOff,
@@ -513,24 +515,14 @@ export default function AdminPage() {
 
       {/* ── Tabs ── */}
       <div style={{ borderBottom: '1px solid var(--border-color)', padding: '0 32px', overflowX: 'auto' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', gap: '2px' }}>
-          {TABS.map(t => (
-            <button key={t.k} onClick={() => setTab(t.k)} style={{
-              padding: '14px 20px', border: 'none', background: 'transparent', cursor: 'pointer',
-              fontSize: '13px', fontWeight: tab === t.k ? '700' : '500',
-              color: tab === t.k ? '#1A1A1A' : '#6B7280',
-              borderBottom: tab === t.k ? '2px solid #6366F1' : '2px solid transparent',
-              marginBottom: '-1px', whiteSpace: 'nowrap',
-              display: 'flex', alignItems: 'center', gap: '6px',
-            }}>
-              {t.label}
-              {t.badge ? (
-                <span style={{ fontSize: '11px', fontWeight: '700', padding: '1px 6px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#FFF' }}>
-                  {t.badge}
-                </span>
-              ) : null}
-            </button>
-          ))}
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <NexTabs
+            tabs={TABS.map(t => ({ key: t.k, label: t.label, badge: t.badge }))}
+            activeTab={tab}
+            onChange={k => setTab(k as AdminTab)}
+            variant="underline"
+            ariaLabel="Sections admin"
+          />
         </div>
       </div>
 
@@ -1539,49 +1531,49 @@ export default function AdminPage() {
       </div>
 
       {/* ── Modale refus ── */}
-      {refuseModal && (
-        <div onClick={() => setRefuseModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid var(--border-color)', padding: '28px', maxWidth: '420px', width: '100%' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px' }}>Refuser la vérification</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
-              Refuser {refuseModal.field === 'siret_verified' ? 'le SIRET' : 'la RC Pro'} de <strong style={{ color: 'var(--text-primary)' }}>{refuseModal.creatorName}</strong>
-            </p>
-            <textarea value={refuseComment} onChange={e => setRefuseComment(e.target.value)} placeholder="Raison du refus (optionnel)…" rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'none', boxSizing: 'border-box', marginBottom: '16px' }} />
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setRefuseModal(null)} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                Annuler
-              </button>
-              <button onClick={handleRefuse} style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                Confirmer le refus
-              </button>
-            </div>
+      <NexModal
+        isOpen={!!refuseModal}
+        onClose={() => { setRefuseModal(null); setRefuseComment('') }}
+        title="Refuser la vérification"
+        subtitle={refuseModal ? `Refuser ${refuseModal.field === 'siret_verified' ? 'le SIRET' : 'la RC Pro'} de ${refuseModal.creatorName}` : ''}
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button onClick={() => { setRefuseModal(null); setRefuseComment('') }} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+              Annuler
+            </button>
+            <button onClick={handleRefuse} style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+              Confirmer le refus
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <textarea value={refuseComment} onChange={e => setRefuseComment(e.target.value)} placeholder="Raison du refus (optionnel)…" rows={3}
+          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'none', boxSizing: 'border-box' }} />
+      </NexModal>
 
       {/* ── Modal refus SIRET créateur ── */}
-      {siretRejectModal && (
-        <div onClick={() => setSiretRejectModal(null)} style={{ position: 'fixed', inset: 0, zIndex: 9000, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div onClick={e => e.stopPropagation()} style={{ backgroundColor: '#111827', borderRadius: '16px', border: '1px solid var(--border-color)', padding: '28px', maxWidth: '420px', width: '100%' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px' }}>Refuser la demande SIRET</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 16px' }}>
-              Refuser la demande de <strong style={{ color: 'var(--text-primary)' }}>{siretRejectModal.name}</strong>
-            </p>
-            <textarea value={siretRejectReason} onChange={e => setSiretRejectReason(e.target.value)} placeholder="Raison du refus (optionnel)…" rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'none', boxSizing: 'border-box', marginBottom: '16px' }} />
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setSiretRejectModal(null)} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                Annuler
-              </button>
-              <button onClick={() => handleSiretVerif(siretRejectModal.id, 'reject', siretRejectReason || undefined)}
-                style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                Confirmer le refus
-              </button>
-            </div>
+      <NexModal
+        isOpen={!!siretRejectModal}
+        onClose={() => { setSiretRejectModal(null); setSiretRejectReason('') }}
+        title="Refuser la demande SIRET"
+        subtitle={siretRejectModal ? `Refuser la demande de ${siretRejectModal.name}` : ''}
+        size="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button onClick={() => { setSiretRejectModal(null); setSiretRejectReason('') }} style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+              Annuler
+            </button>
+            <button onClick={() => siretRejectModal && handleSiretVerif(siretRejectModal.id, 'reject', siretRejectReason || undefined)}
+              style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#EF4444', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+              Confirmer le refus
+            </button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <textarea value={siretRejectReason} onChange={e => setSiretRejectReason(e.target.value)} placeholder="Raison du refus (optionnel)…" rows={3}
+          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'none', boxSizing: 'border-box' }} />
+      </NexModal>
 
       {/* ── Toast ── */}
       {toast && (

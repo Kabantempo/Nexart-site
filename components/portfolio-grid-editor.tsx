@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Plus, X, Trash2, Check, GripVertical } from 'lucide-react'
+import { Plus, Trash2, Check, GripVertical } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { NexModal } from '@/components/ui/nex-modal'
 import {
   DndContext,
   closestCenter,
@@ -137,52 +138,12 @@ function AddModal({
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Ajouter une photo</h3>
-          <button onClick={onClose} aria-label="Fermer" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={20} color="#888" /></button>
-        </div>
-
-        {/* Upload zone */}
-        <div
-          onClick={() => fileRef.current?.click()}
-          style={{
-            width: '100%', aspectRatio: `${col}/${row}`, maxHeight: '260px',
-            borderRadius: '10px', border: '2px dashed #E5E7EB',
-            backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', overflow: 'hidden',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: '20px', transition: 'border-color 150ms ease',
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
-        >
-          {preview
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                <Plus size={32} color="#9CA3AF" />
-                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
-              </div>
-            )
-          }
-        </div>
-        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
-
-        {/* Taille */}
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
-          <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
-        </div>
-
-        {/* Info taille */}
-        <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#EEF2FF', marginBottom: '20px' }}>
-          <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', margin: 0 }}>
-            Format sélectionné : {col} colonne{col > 1 ? 's' : ''} × {row} ligne{row > 1 ? 's' : ''} — {SIZES.find(s => s.col === col && s.row === row)?.desc ?? 'Personnalisé'}
-          </p>
-        </div>
-
+    <NexModal
+      isOpen={true}
+      onClose={onClose}
+      title="Ajouter une photo"
+      size="md"
+      footer={
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
             Annuler
@@ -192,8 +153,47 @@ function AddModal({
             <Check size={15} /> {uploading ? 'Envoi…' : 'Ajouter'}
           </button>
         </div>
+      }
+    >
+      {/* Upload zone */}
+      <div
+        onClick={() => fileRef.current?.click()}
+        style={{
+          width: '100%', aspectRatio: `${col}/${row}`, maxHeight: '260px',
+          borderRadius: '10px', border: '2px dashed #E5E7EB',
+          backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', overflow: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: '20px', transition: 'border-color 150ms ease',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
+      >
+        {preview
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <Plus size={32} color="#9CA3AF" />
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
+            </div>
+          )
+        }
       </div>
-    </div>
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
+
+      {/* Taille */}
+      <div style={{ marginBottom: '16px' }}>
+        <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
+        <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
+      </div>
+
+      {/* Info taille */}
+      <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#EEF2FF' }}>
+        <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', margin: 0 }}>
+          Format sélectionné : {col} colonne{col > 1 ? 's' : ''} × {row} ligne{row > 1 ? 's' : ''} — {SIZES.find(s => s.col === col && s.row === row)?.desc ?? 'Personnalisé'}
+        </p>
+      </div>
+    </NexModal>
   )
 }
 
@@ -216,23 +216,13 @@ function ResizeModal({
   const [row, setRow] = useState<1|2|3>(item.rowSpan)
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '420px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Modifier la photo</h3>
-          <button onClick={onClose} aria-label="Fermer" style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} color="#888" /></button>
-        </div>
-
-        {/* Preview */}
-        <div style={{ width: '100%', height: '160px', borderRadius: '10px', overflow: 'hidden', marginBottom: '20px' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-
-        <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
-        <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
-
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+    <NexModal
+      isOpen={true}
+      onClose={onClose}
+      title="Modifier la photo"
+      size="sm"
+      footer={
+        <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={() => { onDelete(index); onClose() }}
             style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={15} /> Supprimer
@@ -242,8 +232,17 @@ function ResizeModal({
             <Check size={15} /> Enregistrer
           </button>
         </div>
+      }
+    >
+      {/* Preview */}
+      <div style={{ width: '100%', height: '160px', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
-    </div>
+
+      <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
+      <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
+    </NexModal>
   )
 }
 

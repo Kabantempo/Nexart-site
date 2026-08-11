@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Copy, Mail, Megaphone, Calendar, Database, Euro, Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { NexTabs } from '@/components/ui/nex-tabs'
 
 const FR_MEDIA_DB: MediaContact[] = [
   { name: 'Ouest-France', email: 'redaction@ouest-france.fr', type: 'Presse régionale' },
@@ -225,34 +226,19 @@ const fetchMarketingPlan = async () => {
           transition={{ duration: 0.8 }}
         >
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
-            {[
-              { id: 'press', label: 'Communiqué de presse', icon: Megaphone },
-              { id: 'media', label: 'Contacts média', icon: Mail },
-              { id: 'timeline', label: 'Calendrier', icon: Calendar },
-              { id: 'pricing', label: 'Tarifs indicatifs', icon: Euro }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                style={{
-                  padding: '8px 16px',
-                  border: 'none',
-                  borderBottom: activeTab === tab.id ? '3px solid #6366F1' : 'none',
-                  backgroundColor: 'transparent',
-                  color: activeTab === tab.id ? '#6366F1' : 'var(--text-secondary)',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  display: 'flex',
-                  gap: '8px',
-                  alignItems: 'center'
-                }}
-              >
-                <tab.icon size={16} />
-                {tab.label}
-              </button>
-            ))}
+          <div style={{ marginBottom: '32px' }}>
+            <NexTabs
+              tabs={[
+                { key: 'press',    label: 'Communiqué de presse', icon: <Megaphone size={15} /> },
+                { key: 'media',    label: 'Contacts média',        icon: <Mail size={15} /> },
+                { key: 'timeline', label: 'Calendrier',            icon: <Calendar size={15} /> },
+                { key: 'pricing',  label: 'Tarifs indicatifs',     icon: <Euro size={15} /> },
+              ]}
+              activeTab={activeTab}
+              onChange={k => setActiveTab(k as typeof activeTab)}
+              variant="underline"
+              ariaLabel="Sections marketing"
+            />
           </div>
 
           {/* Press Release Tab */}
