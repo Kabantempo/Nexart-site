@@ -173,7 +173,7 @@ export const shadows = {
 
 export const breakpoints = {
   mobile: 640,   // < 640px
-  tablet: 1024,  // 640px – 1024px
+  tablet: 768,   // 640px – 1024px
   desktop: 1024, // > 1024px
 } as const
 

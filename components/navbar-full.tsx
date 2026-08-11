@@ -484,13 +484,13 @@ export function NavbarFull() {
 
               {user ? (
                 <>
-                  <Link href="/favorites" title="Mes favoris" style={iconBtn}
+                  <Link href="/favorites" aria-label="Mes favoris" title="Mes favoris" style={iconBtn}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = hoverBgAlt; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
                   >
                     <Heart size={16} />
                   </Link>
-                  <Link href="/messages" style={iconBtn}
+                  <Link href="/messages" aria-label="Mes messages" style={iconBtn}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = hoverBgAlt; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
                   >

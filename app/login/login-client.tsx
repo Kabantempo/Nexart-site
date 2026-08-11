@@ -46,9 +46,16 @@ export default function LoginPage() {
     setError(null)
     const { error: err } = await supabase.auth.signInWithPassword({ email, password })
     if (err) {
-      setError(err.message === 'Invalid login credentials'
-        ? 'Email ou mot de passe incorrect.'
-        : err.message)
+      const supabaseErrors: Record<string, string> = {
+        'Invalid login credentials': 'Email ou mot de passe incorrect.',
+        'Email not confirmed': 'Votre email n\'est pas encore confirmé. Vérifiez votre boîte mail.',
+        'Too many requests': 'Trop de tentatives. Veuillez patienter quelques minutes.',
+        'User not found': 'Aucun compte associé à cet email.',
+        'Invalid email': 'Adresse email invalide.',
+        'signup_disabled': 'Les inscriptions sont temporairement désactivées.',
+        'email_address_not_authorized': 'Cette adresse email n\'est pas autorisée.',
+      }
+      setError(supabaseErrors[err.message] ?? 'Une erreur est survenue. Veuillez réessayer.')
       setLoading(false)
     } else {
       router.push('/dashboard')

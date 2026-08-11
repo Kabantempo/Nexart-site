@@ -352,7 +352,7 @@ export default function DashboardPage() {
               </Link>
             )}
             <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
-              <LogOut size={13} /> Déco
+              <LogOut size={13} /> Déconnexion
             </button>
           </div>
         </div>
