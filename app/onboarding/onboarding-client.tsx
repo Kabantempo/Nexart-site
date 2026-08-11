@@ -12,6 +12,8 @@ const DISCIPLINES = [
   'Textile','Maroquinerie','Sculpture','Photographie','Peinture','Poterie',
   'Broderie','Lutherie','Verrerie','Reliure','Cosmétique naturelle','Savonnerie',
   'Coutellerie','Bougies','Macramé','Origami','Calligraphie','Sérigraphie',
+  'Dessin','Brocante','Musique','Prêt-à-porter','Décoration','Littérature',
+  'Pop culture','Cinéma','Cabinet de curiosités','Restauration','Costumes',
 ]
 
 type Role = 'creator' | 'organizer' | 'visitor'

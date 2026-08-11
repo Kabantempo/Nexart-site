@@ -30,6 +30,9 @@ type CreatorProfile = {
   disciplines: string[]; city: string | null; region: string | null
   travel_radius: string | null; portfolio_images: string[]
   website: string | null; instagram: string | null; etsy: string | null
+  facebook: string | null; tiktok: string | null
+  phone: string | null; price_min: number | null; price_max: number | null
+  legal_status: string | null
   siret_verified: boolean; insurance_verified: boolean
   insurance_doc_url?: string | null
   open_to_collab?: boolean
@@ -118,6 +121,8 @@ const DISCIPLINES = [
   'Textile','Maroquinerie','Sculpture','Photographie','Peinture','Poterie',
   'Broderie','Lutherie','Verrerie','Reliure','Cosmétique naturelle','Savonnerie',
   'Coutellerie','Bougies','Macramé','Origami','Calligraphie','Sérigraphie',
+  'Dessin','Brocante','Musique','Prêt-à-porter','Décoration','Littérature',
+  'Pop culture','Cinéma','Cabinet de curiosités','Restauration','Costumes',
 ]
 const RADIUS_LABELS: Record<string, string> = {
   '5': '5 km', '10': '10 km', '25': '25 km', national: 'France entière',
@@ -211,8 +216,14 @@ export default function ProfilePage() {
   const [editRadius, setEditRadius] = useState('')
   const [editDisc, setEditDisc] = useState<string[]>([])
   const [editInstagram, setEditInstagram] = useState('')
+  const [editFacebook, setEditFacebook] = useState('')
+  const [editTiktok, setEditTiktok] = useState('')
   const [editWebsite, setEditWebsite] = useState('')
   const [editEtsy, setEditEtsy] = useState('')
+  const [editPhone, setEditPhone] = useState('')
+  const [editPriceMin, setEditPriceMin] = useState('')
+  const [editPriceMax, setEditPriceMax] = useState('')
+  const [editLegalStatus, setEditLegalStatus] = useState('')
   const [editBrandColor, setEditBrandColor] = useState('#6366F1')
   const [editSiret, setEditSiret] = useState(false)
   const [editInsurance, setEditInsurance] = useState(false)
@@ -329,7 +340,7 @@ export default function ProfilePage() {
           supabase.from('applications').select('id,status,created_at,message,events(title,city,start_date,cover_image)').eq('creator_id', u.id).order('created_at', { ascending: false }).limit(20),
           supabase.from('reviews').select('id,rating,comment,tags,created_at,profiles!reviewer_id(full_name,avatar_url)').eq('reviewed_id', u.id).order('created_at', { ascending: false }).limit(20),
         ])
-        setCreator(creat)
+        setCreator(creat as unknown as CreatorProfile)
         if (creat?.portfolio_grid) setGridItems(creat.portfolio_grid as GridItem[])
         else if (creat?.portfolio_images?.length) setGridItems(creat.portfolio_images.map((url: string) => ({ url, colSpan: 1 as const, rowSpan: 1 as const })))
         if ((creat as any)?.portfolio_videos?.length) setPortfolioVideos((creat as any).portfolio_videos)
@@ -351,8 +362,14 @@ export default function ProfilePage() {
         setEditRadius(creat?.travel_radius ?? '25')
         setEditDisc(creat?.disciplines ?? [])
         setEditInstagram(creat?.instagram ?? '')
+        setEditFacebook((creat as any)?.facebook ?? '')
+        setEditTiktok((creat as any)?.tiktok ?? '')
         setEditWebsite(creat?.website ?? '')
         setEditEtsy(creat?.etsy ?? '')
+        setEditPhone((creat as any)?.phone ?? '')
+        setEditPriceMin((creat as any)?.price_min?.toString() ?? '')
+        setEditPriceMax((creat as any)?.price_max?.toString() ?? '')
+        setEditLegalStatus((creat as any)?.legal_status ?? '')
         setEditBrandColor((creat as any)?.page_settings?.primary_color ?? '#6366F1')
         setEditSiret(creat?.siret_verified ?? false)
         setEditInsurance(creat?.insurance_verified ?? false)
@@ -404,8 +421,13 @@ export default function ProfilePage() {
         user_id: user.id, disciplines: editDisc,
         city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius as '5' | '10' | '25' | 'national',
         instagram: editInstagram, website: editWebsite, etsy: editEtsy,
+        facebook: editFacebook, tiktok: editTiktok,
+        phone: editPhone || null,
+        price_min: editPriceMin ? parseInt(editPriceMin) : null,
+        price_max: editPriceMax ? parseInt(editPriceMax) : null,
+        legal_status: editLegalStatus || null,
         page_settings: { primary_color: editBrandColor },
-      }, { onConflict: 'user_id' })] : []),
+      } as any, { onConflict: 'user_id' })] : []),
     ]
     const results = await Promise.all(promises)
     const hasError = results.some(r => r.error)
@@ -415,7 +437,7 @@ export default function ProfilePage() {
       return
     }
     setProfile(p => p ? { ...p, full_name: editName, bio: editBio } : p)
-    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy } : c)
+    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any } : c)
     setSaving(false)
     setEditing(false)
   }
@@ -1411,11 +1433,13 @@ export default function ProfilePage() {
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Liens</p>
                 {editing ? (
                   <div className="flex flex-col gap-2.5">
-                    {[
-                      { icon: <AtSign size={15} className="text-gray-400 shrink-0" />, val: editInstagram, set: setEditInstagram, placeholder: '@votre_compte' },
-                      { icon: <Globe size={15} className="text-gray-400 shrink-0" />, val: editWebsite, set: setEditWebsite, placeholder: 'https://votre-site.fr' },
-                      { icon: <ExternalLink size={15} className="text-gray-400 shrink-0" />, val: editEtsy, set: setEditEtsy, placeholder: 'https://etsy.com/shop/...' },
-                    ].map(({ icon, val, set, placeholder }, i) => (
+                    {([
+                      { icon: <AtSign size={15} className="text-gray-400 shrink-0" />, val: editInstagram, set: setEditInstagram, placeholder: 'Instagram : @votre_compte' },
+                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: '#9CA3AF' }}>f</span>, val: editFacebook, set: setEditFacebook, placeholder: 'Facebook : nom de page' },
+                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: '#9CA3AF' }}>♪</span>, val: editTiktok, set: setEditTiktok, placeholder: 'TikTok : @votre_compte' },
+                      { icon: <Globe size={15} className="text-gray-400 shrink-0" />, val: editWebsite, set: setEditWebsite, placeholder: 'Site web : https://...' },
+                      { icon: <ExternalLink size={15} className="text-gray-400 shrink-0" />, val: editEtsy, set: setEditEtsy, placeholder: 'Etsy : https://etsy.com/shop/...' },
+                    ] as { icon: React.ReactNode; val: string; set: (v: string) => void; placeholder: string }[]).map(({ icon, val, set, placeholder }, i) => (
                       <div key={i} className="flex items-center gap-2.5">
                         {icon}
                         <input value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
@@ -1425,18 +1449,78 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2.5">
-                    {[
+                    {([
                       { icon: <AtSign size={14} className="text-gray-400" />, val: creator?.instagram, label: 'Instagram' },
+                      { icon: <span style={{ fontSize: 14, color: '#9CA3AF' }}>f</span>, val: (creator as any)?.facebook, label: 'Facebook' },
+                      { icon: <span style={{ fontSize: 14, color: '#9CA3AF' }}>♪</span>, val: (creator as any)?.tiktok, label: 'TikTok' },
                       { icon: <Globe size={14} className="text-gray-400" />, val: creator?.website, label: 'Site web' },
                       { icon: <ExternalLink size={14} className="text-gray-400" />, val: creator?.etsy, label: 'Etsy' },
-                    ].filter(l => l.val).map(({ icon, val, label }) => (
+                    ] as { icon: React.ReactNode; val: string | null | undefined; label: string }[]).filter(l => l.val).map(({ icon, val, label }) => (
                       <a key={label} href={val!.startsWith('http') ? val! : `https://${val}`} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2 text-sm text-gray-700 no-underline hover:text-indigo-600 transition-colors">
                         {icon} {val}
                       </a>
                     ))}
-                    {!creator?.instagram && !creator?.website && !creator?.etsy && (
+                    {!creator?.instagram && !(creator as any)?.facebook && !(creator as any)?.tiktok && !creator?.website && !creator?.etsy && (
                       <span className="text-sm text-gray-400">Aucun lien renseigné</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="h-px bg-gray-100" />
+
+              {/* Infos commerciales */}
+              <div className="px-6 py-5">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Infos commerciales</p>
+                {editing ? (
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <span style={{ fontSize: 15, flexShrink: 0, color: '#9CA3AF' }}>📞</span>
+                      <input value={editPhone} onChange={e => setEditPhone(e.target.value)} placeholder="Téléphone : 06 00 00 00 00"
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                    </div>
+                    <select value={editLegalStatus} onChange={e => setEditLegalStatus(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400">
+                      <option value="">Statut juridique (optionnel)</option>
+                      <option value="auto">Auto-entrepreneur / micro-entreprise</option>
+                      <option value="ei">EIRL / EI</option>
+                      <option value="sarl">SARL / EURL</option>
+                      <option value="sas">SAS / SASU</option>
+                      <option value="association">Association</option>
+                      <option value="particulier">Particulier</option>
+                      <option value="autre">Autre</option>
+                    </select>
+                    <div className="flex gap-2">
+                      <input type="number" value={editPriceMin} onChange={e => setEditPriceMin(e.target.value)} placeholder="Prix min (€)" min={0}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                      <input type="number" value={editPriceMax} onChange={e => setEditPriceMax(e.target.value)} placeholder="Prix max (€)" min={0}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {(creator as any)?.phone && (
+                      <span className="flex items-center gap-2 text-sm text-gray-700">
+                        <span style={{ fontSize: 14 }}>📞</span> {(creator as any).phone}
+                      </span>
+                    )}
+                    {(creator as any)?.legal_status && (
+                      <span className="flex items-center gap-2 text-sm text-gray-700">
+                        <Shield size={14} className="text-gray-400" />
+                        {({'auto':'Auto-entrepreneur','ei':'EIRL / EI','sarl':'SARL / EURL','sas':'SAS / SASU','association':'Association','particulier':'Particulier','autre':'Autre'} as Record<string,string>)[(creator as any).legal_status] ?? (creator as any).legal_status}
+                      </span>
+                    )}
+                    {((creator as any)?.price_min != null || (creator as any)?.price_max != null) && (
+                      <span className="flex items-center gap-2 text-sm text-gray-700">
+                        <CreditCard size={14} className="text-gray-400" />
+                        {(creator as any).price_min != null && (creator as any).price_max != null
+                          ? `${(creator as any).price_min} € – ${(creator as any).price_max} €`
+                          : (creator as any).price_min != null ? `À partir de ${(creator as any).price_min} €` : `Jusqu'à ${(creator as any).price_max} €`}
+                      </span>
+                    )}
+                    {!(creator as any)?.phone && !(creator as any)?.legal_status && (creator as any)?.price_min == null && (
+                      <span className="text-sm text-gray-400">Aucune info commerciale renseignée</span>
                     )}
                   </div>
                 )}
