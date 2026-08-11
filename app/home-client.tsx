@@ -573,64 +573,6 @@ export default function HomeClient() {
         </div>
       </section>
 
-      {/* ══ SPLIT CTA ══════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 bg-white/[0.015] py-32">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <FadeUp className="text-center mb-14">
-            <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white">
-              Pour qui est Nexart ?
-            </h2>
-          </FadeUp>
-          <div className="grid md:grid-cols-3 gap-5">
-            {[
-              { delay: 0, glow: 'bg-indigo-600/15 group-hover:bg-indigo-600/28', bg: 'from-indigo-600/18 to-indigo-950/30', border: 'border-indigo-500/18',
-                badgeBg: 'bg-indigo-500/12 border-indigo-500/22 text-indigo-300', badgeIcon: <Users size={11} />, badgeLabel: 'Créateurs',
-                title: 'Trouvez vos prochains événements',
-                desc: "Candidatez aux marchés, pop-ups et salons qui correspondent à votre univers créatif.",
-                items: ['Profil créateur en 10 min', 'Candidature en 2 clics', 'Suivi en temps réel'],
-                checkClass: 'text-indigo-400', ctaHref: '/register?role=creator', ctaLabel: 'Créer mon profil', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
-              { delay: 0.1, glow: 'bg-violet-600/12 group-hover:bg-violet-600/22', bg: 'from-violet-600/14 to-violet-950/25', border: 'border-violet-500/14',
-                badgeBg: 'bg-violet-500/10 border-violet-500/18 text-violet-300', badgeIcon: <Calendar size={11} />, badgeLabel: 'Organisateurs',
-                title: 'Remplissez vos événements',
-                desc: "Publiez votre événement et recevez des candidatures qualifiées en quelques heures.",
-                items: ["Publication en 5 min", 'Candidatures qualifiées auto', 'Gestion des stands simplifiée'],
-                checkClass: 'text-violet-400', ctaHref: '/register?role=organizer', ctaLabel: 'Publier un événement', ctaClass: 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/25' },
-              { delay: 0.2, glow: 'bg-emerald-600/12 group-hover:bg-emerald-600/22', bg: 'from-emerald-600/14 to-emerald-950/25', border: 'border-emerald-500/14',
-                badgeBg: 'bg-emerald-500/10 border-emerald-500/18 text-emerald-300', badgeIcon: <MapPin size={11} />, badgeLabel: 'Visiteurs',
-                title: 'Découvrez les marchés près de toi',
-                desc: "Trouvez les événements artisanaux autour de vous, réservez votre place et explorez les créateurs.",
-                items: ['Événements géolocalisés', 'Portfolios créateurs', 'Réservation en 2 clics'],
-                checkClass: 'text-emerald-400', ctaHref: '/events', ctaLabel: 'Explorer les événements', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
-            ].map(({ delay, glow, bg, border, badgeBg, badgeIcon, badgeLabel, title, desc, items, checkClass, ctaHref, ctaLabel, ctaClass }) => (
-              <motion.div key={title}
-                initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -6, transition: { duration: 0.22 } }}
-                className={`group relative p-8 rounded-3xl bg-gradient-to-br ${bg} border ${border} overflow-hidden flex flex-col`}
-              >
-                <div className={`absolute -top-24 -right-24 w-80 h-80 rounded-full ${glow} blur-[100px] transition-all duration-700 pointer-events-none`} />
-                <div className="relative z-10 flex flex-col flex-1">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badgeBg} text-xs font-semibold mb-7 w-fit`}>
-                    {badgeIcon} {badgeLabel}
-                  </div>
-                  <h3 className="text-[1.4rem] font-black text-white tracking-tight leading-tight mb-4">{title}</h3>
-                  <p className="text-white/42 text-sm leading-relaxed mb-7">{desc}</p>
-                  <ul className="space-y-3 mb-8 flex-1">
-                    {items.map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-white/52">
-                        <CheckCircle size={14} className={`${checkClass} shrink-0`} /> {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href={ctaHref} className={`group/btn inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl ${ctaClass} text-white font-bold text-sm transition-all duration-200 shadow-xl hover:scale-[1.03] active:scale-[0.97]`}>
-                    {ctaLabel} <ArrowRight size={14} className="group-hover/btn:translate-x-0.5 transition-transform" />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ══ APP DOWNLOAD ═══════════════════════════════════════════════ */}
       <section className="border-t border-white/6 py-28 overflow-hidden">
