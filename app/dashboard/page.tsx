@@ -500,10 +500,10 @@ export default function DashboardPage() {
 
 // ─── KPI card ────────────────────────────────────────────────────────────────
 
-function KpiCard({ label, value }: { label: string; value: number | string; color?: string }) {
+function KpiCard({ label, value, color }: { label: string; value: number | string; color?: string }) {
   return (
-    <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border-color)' }}>
-      <div style={{ fontSize: '24px', fontWeight: 500, color: 'var(--text-primary)', lineHeight: 1, marginBottom: '4px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border-color)', borderLeft: color ? `3px solid ${color}` : '1px solid var(--border-color)' }}>
+      <div style={{ fontSize: '24px', fontWeight: 500, color: color ?? 'var(--text-primary)', lineHeight: 1, marginBottom: '4px' }}>
         {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
       </div>
       <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{label}</div>
@@ -633,10 +633,12 @@ function CreatorMainContent({
       )}
 
 
-      {/* Mes documents */}
-      <div style={{ marginTop: '32px' }}>
-        <DocumentsPanel eventId="" role="creator" />
-      </div>
+      {/* Mes documents — affiché seulement si une candidature acceptée est liée à un événement */}
+      {applications.find(a => a.status === 'accepted' && a.event_id) && (
+        <div style={{ marginTop: '32px' }}>
+          <DocumentsPanel eventId={applications.find(a => a.status === 'accepted' && a.event_id)!.event_id} role="creator" />
+        </div>
+      )}
 
       {/* Recommandations */}
       {recommended.length > 0 && (
@@ -705,7 +707,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
                 {app.event?.city ? ` · ${app.event.city}` : ''}
               </p>
               {isBoosted && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', marginTop: '4px' }}>
+                <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', marginTop: '4px', cursor: 'help' }}>
                   <Zap size={9} fill="white" /> Boosté
                 </span>
               )}
@@ -969,7 +971,7 @@ function OrganizerMainContent({
 
   const tabs: { key: 'candidatures' | 'retard' | 'messages'; label: string; badge?: number }[] = [
     { key: 'candidatures', label: `Candidatures (${pendingApps.length})` },
-    { key: 'retard', label: 'En retard', badge: lateApps.length },
+    { key: 'retard', label: 'À traiter', badge: lateApps.length },
     { key: 'messages', label: 'Messages' },
   ]
 
@@ -1046,7 +1048,7 @@ function OrganizerMainContent({
                       {app.profiles?.full_name || 'Créateur'}
                     </Link>
                     {isBoosted && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff' }}>
+                      <span title="Ce créateur a boosté sa candidature — il est remonté en haut de votre liste" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', cursor: 'help' }}>
                         <Zap size={8} fill="white" /> Boosté
                       </span>
                     )}
