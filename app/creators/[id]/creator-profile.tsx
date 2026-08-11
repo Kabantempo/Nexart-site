@@ -488,11 +488,7 @@ export function CreatorProfileClient({ id }: Props) {
 
           {/* Action buttons */}
           <div className="flex flex-wrap justify-center gap-3 mt-7">
-            {!user ? (
-              <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ backgroundColor: '#6366F1' }}>
-                <MessageCircle size={15} /> Contacter
-              </Link>
-            ) : isOwn ? (
+            {isOwn ? (
               <Link href="/profile" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white text-sm font-semibold hover:bg-white/15 transition-colors">
                 Éditer mon profil
               </Link>
