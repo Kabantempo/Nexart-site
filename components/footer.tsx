@@ -31,11 +31,9 @@ const NAV = {
     { label: 'Analytiques',           href: '/organizer/analytics' },
   ],
   'Communauté': [
-    { label: 'Fil d\'actualité',      href: '/feed' },
-    { label: 'Tendances',             href: '/tendances' },
-    { label: 'Recherche',             href: '/search' },
-    { label: 'Mes favoris',           href: '/favorites' },
-    { label: 'Messagerie',            href: '/messages' },
+    { label: 'Recherche',   href: '/search' },
+    { label: 'Mes favoris', href: '/favorites' },
+    { label: 'Messagerie',  href: '/messages' },
   ],
   'Nexart': [
     { label: 'À propos',          href: '/about' },

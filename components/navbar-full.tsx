@@ -345,12 +345,10 @@ export function NavbarFull() {
 
               {/* Communauté */}
               <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('community')}>
-                <Trigger id="community" label="Communauté" active={isActive('/feed') || isActive('/tendances') || isActive('/favorites')} />
+                <Trigger id="community" label="Communauté" active={isActive('/favorites') || isActive('/messages')} />
                 <Panel id="community" width={240}>
-                  <SimpleItem panelId="community" idx={0} href="/feed"      icon={Users}      label="Fil d'actualité" />
-                  <SimpleItem panelId="community" idx={1} href="/tendances" icon={TrendingUp}  label="Tendances" />
-                  <SimpleItem panelId="community" idx={2} href="/favorites" icon={Heart}       label="Mes favoris" />
-                  <SimpleItem panelId="community" idx={3} href="/messages"  icon={MessageCircle} label="Messagerie" />
+                  <SimpleItem panelId="community" idx={0} href="/favorites" icon={Heart}         label="Mes favoris" />
+                  <SimpleItem panelId="community" idx={1} href="/messages"  icon={MessageCircle} label="Messagerie" />
                 </Panel>
               </div>
 
@@ -652,11 +650,11 @@ export function NavbarFull() {
 
               {/* Main links */}
               {[
-                { href: '/events',   label: 'Événements' },
-                { href: '/creators', label: 'Créateurs' },
-                { href: '/carte',    label: 'Carte' },
-                { href: '/offres',   label: 'Offres' },
-                { href: '/feed',     label: 'Communauté' },
+                { href: '/events',     label: 'Événements' },
+                { href: '/creators',   label: 'Créateurs' },
+                { href: '/carte',      label: 'Carte' },
+                { href: '/offres',     label: 'Offres' },
+                { href: '/favorites',  label: 'Favoris' },
                 { href: '/calendrier', label: 'Calendrier' },
               ].map(({ href, label }, i) => (
                 <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>
