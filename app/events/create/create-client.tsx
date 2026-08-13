@@ -43,8 +43,8 @@ interface FormData {
   start_time: string
   end_time: string
   stand_types: StandType[]
-  stand_price: string
-  pricing_percent: string
+  stand_price_min: string
+  stand_price_max: string
   discipline_tags: string[]
   rules: string
   stripe_enabled: boolean
@@ -67,8 +67,8 @@ const EMPTY_FORM: FormData = {
   start_time: '',
   end_time: '',
   stand_types: [{ ...EMPTY_STAND_TYPE }],
-  stand_price: '',
-  pricing_percent: '',
+  stand_price_min: '',
+  stand_price_max: '',
   discipline_tags: [],
   rules: '',
   stripe_enabled: false,
@@ -90,7 +90,7 @@ function validate(form: FormData): string | null {
   if (form.stand_types.some(t => !t.count || isNaN(Number(t.count)) || Number(t.count) <= 0)) return 'Nombre de stands invalide'
   if (totalStandCount(form) <= 0) return 'Ajoutez au moins un type de stand'
   if (form.discipline_tags.length === 0) return 'Sélectionnez au moins une discipline'
-  if (form.pricing_percent && (Number(form.pricing_percent) <= 0 || Number(form.pricing_percent) > 100)) return 'Pourcentage invalide (1–100)'
+  if (form.stand_price_min && form.stand_price_max && Number(form.stand_price_min) > Number(form.stand_price_max)) return 'Le prix le plus bas doit être inférieur au prix le plus haut'
   return null
 }
 
@@ -191,11 +191,11 @@ export default function CreateEventClient() {
       start_time: form.start_time || null,
       end_time: form.end_time || null,
       stand_count: totalStandCount(form),
-      stand_price: form.stand_price !== '' ? Number(form.stand_price) : null,
-      pricing_model: form.pricing_percent !== '' ? 'percent' : 'flat',
-      pricing_variable_min: null,
-      pricing_variable_max: null,
-      pricing_percent: form.pricing_percent !== '' ? Number(form.pricing_percent) : null,
+      stand_price: form.stand_price_min !== '' ? Number(form.stand_price_min) : null,
+      pricing_model: form.stand_price_max !== '' && form.stand_price_max !== form.stand_price_min ? 'variable' : 'flat',
+      pricing_variable_min: form.stand_price_min !== '' ? Number(form.stand_price_min) : null,
+      pricing_variable_max: form.stand_price_max !== '' ? Number(form.stand_price_max) : null,
+      pricing_percent: null,
       stand_dimensions: standDimensions || null,
       discipline_tags: form.discipline_tags,
       rules: form.rules.trim() || null,
@@ -398,11 +398,11 @@ export default function CreateEventClient() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
-                <Field label="Prix du stand (€)" hint="0 = gratuit">
-                  <input className="form-input" type="number" min="0" value={form.stand_price} onChange={e => set('stand_price')(e.target.value)} placeholder="Ex : 80" />
+                <Field label="Prix le plus bas (€)" hint="0 = gratuit">
+                  <input className="form-input" type="number" min="0" value={form.stand_price_min} onChange={e => set('stand_price_min')(e.target.value)} placeholder="Ex : 60" />
                 </Field>
-                <Field label="Pourcentage du CA (%)" hint="(optionnel)">
-                  <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
+                <Field label="Prix le plus haut (€)">
+                  <input className="form-input" type="number" min="0" value={form.stand_price_max} onChange={e => set('stand_price_max')(e.target.value)} placeholder="Ex : 120" />
                 </Field>
               </div>
             </Section>
