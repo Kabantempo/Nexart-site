@@ -29,11 +29,13 @@ async function headers() {
         { key: 'Access-Control-Allow-Origin', value: 'https://nexart.fr' },
       ],
     },
-    // Static assets: cache forever (fingerprinted filenames)
+    // Static assets: cache forever (fingerprinted filenames — prod only).
+    // In dev, chunk filenames aren't content-hashed, so immutable caching
+    // makes the browser keep serving old JS/CSS forever after code changes.
     {
       source: '/_next/static/:path*',
       headers: [
-        { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        { key: 'Cache-Control', value: isDev ? 'no-store, must-revalidate' : 'public, max-age=31536000, immutable' },
       ],
     },
   ]
