@@ -64,6 +64,14 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export async function middleware(req: NextRequest) {
   const path = new URL(req.url).pathname
 
+  // Reject malformed Server Action requests missing Origin — this app defines
+  // no Server Actions, so these are bots/scanners probing with a fake
+  // Next-Action header. Without Origin, Next 13.5.6's internal handler
+  // crashes trying to read `.message` off a null error object.
+  if (req.method === 'POST' && req.headers.get('next-action') && !req.headers.get('origin')) {
+    return new NextResponse('Bad Request', { status: 400 })
+  }
+
   // Creator username → UUID rewrite
   if (path.startsWith('/creators/')) {
     const segment = path.split('/')[2]
@@ -138,5 +146,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/creators/:path*'],
+  matcher: ['/api/:path*', '/creators/:path*', '/((?!_next/static|_next/image|favicon.ico).*)'],
 }
