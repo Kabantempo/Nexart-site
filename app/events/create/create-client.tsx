@@ -26,7 +26,10 @@ const DISCIPLINE_TAGS = [
   'Coutellerie', 'Bougies', 'Macramé', 'Origami', 'Calligraphie', 'Sérigraphie',
 ]
 
-type PricingModel = 'flat' | 'variable' | 'percent'
+interface StandType {
+  count: string
+  dimensions: string
+}
 
 interface FormData {
   title: string
@@ -39,13 +42,9 @@ interface FormData {
   end_date: string
   start_time: string
   end_time: string
-  stand_count: string
+  stand_types: StandType[]
   stand_price: string
-  pricing_model: PricingModel
-  pricing_variable_min: string
-  pricing_variable_max: string
   pricing_percent: string
-  stand_dimensions: string
   discipline_tags: string[]
   rules: string
   stripe_enabled: boolean
@@ -53,6 +52,8 @@ interface FormData {
   recurrence_type: 'none' | 'weekly' | 'biweekly' | 'monthly'
   recurrence_end_date: string
 }
+
+const EMPTY_STAND_TYPE: StandType = { count: '', dimensions: '' }
 
 const EMPTY_FORM: FormData = {
   title: '',
@@ -65,13 +66,9 @@ const EMPTY_FORM: FormData = {
   end_date: '',
   start_time: '',
   end_time: '',
-  stand_count: '',
+  stand_types: [{ ...EMPTY_STAND_TYPE }],
   stand_price: '',
-  pricing_model: 'flat',
-  pricing_variable_min: '',
-  pricing_variable_max: '',
   pricing_percent: '',
-  stand_dimensions: '',
   discipline_tags: [],
   rules: '',
   stripe_enabled: false,
@@ -80,21 +77,20 @@ const EMPTY_FORM: FormData = {
   recurrence_end_date: '',
 }
 
+function totalStandCount(form: FormData): number {
+  return form.stand_types.reduce((sum, t) => sum + (Number(t.count) || 0), 0)
+}
+
 function validate(form: FormData): string | null {
   if (!form.title.trim()) return 'Le nom du marché est requis'
   if (!form.city.trim()) return 'La ville est requise'
   if (!form.start_date.match(/^\d{4}-\d{2}-\d{2}$/)) return 'Date de début invalide (format AAAA-MM-JJ)'
   if (!form.end_date.match(/^\d{4}-\d{2}-\d{2}$/)) return 'Date de fin invalide (format AAAA-MM-JJ)'
   if (form.end_date < form.start_date) return 'La date de fin doit être après la date de début'
-  if (!form.stand_count || isNaN(Number(form.stand_count))) return 'Nombre de stands invalide'
+  if (form.stand_types.some(t => !t.count || isNaN(Number(t.count)) || Number(t.count) <= 0)) return 'Nombre de stands invalide'
+  if (totalStandCount(form) <= 0) return 'Ajoutez au moins un type de stand'
   if (form.discipline_tags.length === 0) return 'Sélectionnez au moins une discipline'
-  if (form.pricing_model === 'variable') {
-    if (!form.pricing_variable_min || !form.pricing_variable_max) return 'Renseignez le tarif min et max'
-    if (Number(form.pricing_variable_min) > Number(form.pricing_variable_max)) return 'Le tarif min doit être inférieur au max'
-  }
-  if (form.pricing_model === 'percent') {
-    if (!form.pricing_percent || Number(form.pricing_percent) <= 0 || Number(form.pricing_percent) > 100) return 'Pourcentage invalide (1–100)'
-  }
+  if (form.pricing_percent && (Number(form.pricing_percent) <= 0 || Number(form.pricing_percent) > 100)) return 'Pourcentage invalide (1–100)'
   return null
 }
 
@@ -107,7 +103,7 @@ const STEPS = [
   { key: 'dates',    label: 'Dates & horaires', icon: CalendarDays,
     isComplete: (f: FormData) => !!f.start_date && !!f.end_date },
   { key: 'pricing',  label: 'Stands & tarification', icon: Store,
-    isComplete: (f: FormData) => !!f.stand_count },
+    isComplete: (f: FormData) => f.stand_types.some(t => !!t.count) },
   { key: 'tags',     label: 'Disciplines', icon: Tags,
     isComplete: (f: FormData) => f.discipline_tags.length > 0 },
 ] as const
@@ -158,6 +154,13 @@ export default function CreateEventClient() {
     }))
   }
 
+  const updateStandType = (i: number, key: keyof StandType) => (value: string) =>
+    setForm(f => { const stand_types = [...f.stand_types]; stand_types[i] = { ...stand_types[i], [key]: value }; return { ...f, stand_types } })
+
+  const addStandType = () => setForm(f => ({ ...f, stand_types: [...f.stand_types, { ...EMPTY_STAND_TYPE }] }))
+
+  const removeStandType = (i: number) => setForm(f => ({ ...f, stand_types: f.stand_types.filter((_, j) => j !== i) }))
+
   const completedCount = useMemo(() => STEPS.filter(s => s.isComplete(form)).length, [form])
   const progressPct = Math.round((completedCount / STEPS.length) * 100)
 
@@ -170,11 +173,10 @@ export default function CreateEventClient() {
     setSaving(true)
     setError(null)
 
-    // Prix du stand selon le modèle
-    let standPrice: number | null = null
-    if (form.pricing_model === 'flat') standPrice = form.stand_price !== '' ? Number(form.stand_price) : null
-    else if (form.pricing_model === 'variable') standPrice = Number(form.pricing_variable_min)
-    else if (form.pricing_model === 'percent') standPrice = null
+    const standDimensions = form.stand_types
+      .filter(t => t.count)
+      .map(t => t.dimensions.trim() ? `${t.count} x ${t.dimensions.trim()}` : `${t.count} stand${Number(t.count) > 1 ? 's' : ''}`)
+      .join(', ')
 
     const payload = {
       organizer_id: user.id,
@@ -188,13 +190,13 @@ export default function CreateEventClient() {
       end_date: form.end_date,
       start_time: form.start_time || null,
       end_time: form.end_time || null,
-      stand_count: Number(form.stand_count),
-      stand_price: standPrice,
-      pricing_model: form.pricing_model,
-      pricing_variable_min: form.pricing_model === 'variable' ? Number(form.pricing_variable_min) : null,
-      pricing_variable_max: form.pricing_model === 'variable' ? Number(form.pricing_variable_max) : null,
-      pricing_percent: form.pricing_model === 'percent' ? Number(form.pricing_percent) : null,
-      stand_dimensions: form.stand_dimensions.trim() || null,
+      stand_count: totalStandCount(form),
+      stand_price: form.stand_price !== '' ? Number(form.stand_price) : null,
+      pricing_model: form.pricing_percent !== '' ? 'percent' : 'flat',
+      pricing_variable_min: null,
+      pricing_variable_max: null,
+      pricing_percent: form.pricing_percent !== '' ? Number(form.pricing_percent) : null,
+      stand_dimensions: standDimensions || null,
       discipline_tags: form.discipline_tags,
       rules: form.rules.trim() || null,
       faq: form.faq.filter(f => f.q.trim() && f.a.trim()),
@@ -368,61 +370,41 @@ export default function CreateEventClient() {
 
             {/* Stands & Tarification */}
             <Section id="pricing" title="Stands & tarification" icon={Store}>
-              <Field label="Nombre de stands">
-                <input className="form-input" type="number" min="1" value={form.stand_count} onChange={e => set('stand_count')(e.target.value)} placeholder="Ex : 40" />
-              </Field>
-              <Field label="Dimensions du stand" hint="(optionnel)">
-                <input className="form-input" value={form.stand_dimensions} onChange={e => set('stand_dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
-              </Field>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {form.stand_types.map((t, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <Field label="Nombre de stands">
+                        <input className="form-input" type="number" min="1" value={t.count} onChange={e => updateStandType(i, 'count')(e.target.value)} placeholder="Ex : 40" />
+                      </Field>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <Field label="Dimensions du stand">
+                        <input className="form-input" value={t.dimensions} onChange={e => updateStandType(i, 'dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
+                      </Field>
+                    </div>
+                    {form.stand_types.length > 1 && (
+                      <button onClick={() => removeStandType(i)}
+                        style={{ marginBottom: '1px', width: '42px', height: '42px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.solid, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <X size={15} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button onClick={addStandType}
+                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: radius.sm, border: `1px dashed var(--border-color)`, backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                  <Plus size={14} /> Ajouter un type de stand
+                </button>
+              </div>
 
-              <Field label="Modèle de tarification">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '10px' }}>
-                  {([
-                    { value: 'flat', label: 'Tarif fixe', desc: 'Un prix unique par stand' },
-                    { value: 'variable', label: 'Tarif variable', desc: 'Fourchette min–max' },
-                    { value: 'percent', label: '% du chiffre d\'affaires', desc: 'Commission sur les ventes' },
-                  ] as { value: PricingModel; label: string; desc: string }[]).map(opt => (
-                    <button
-                      key={opt.value}
-                      className={`pricing-card ${form.pricing_model === opt.value ? 'pricing-card-active' : ''}`}
-                      onClick={() => set('pricing_model')(opt.value)}
-                      style={{ textAlign: 'left' }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: radius.pill, border: `2px solid ${form.pricing_model === opt.value ? colors.violet.primary : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {form.pricing_model === opt.value && <div style={{ width: '6px', height: '6px', borderRadius: radius.pill, backgroundColor: colors.violet.primary }} />}
-                        </div>
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: form.pricing_model === opt.value ? colors.violet.primary : 'var(--text-primary)' }}>{opt.label}</span>
-                      </div>
-                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </Field>
-
-              {form.pricing_model === 'flat' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
                 <Field label="Prix du stand (€)" hint="0 = gratuit">
                   <input className="form-input" type="number" min="0" value={form.stand_price} onChange={e => set('stand_price')(e.target.value)} placeholder="Ex : 80" />
                 </Field>
-              )}
-
-              {form.pricing_model === 'variable' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
-                  <Field label="Prix minimum (€)">
-                    <input className="form-input" type="number" min="0" value={form.pricing_variable_min} onChange={e => set('pricing_variable_min')(e.target.value)} placeholder="Ex : 60" />
-                  </Field>
-                  <Field label="Prix maximum (€)">
-                    <input className="form-input" type="number" min="0" value={form.pricing_variable_max} onChange={e => set('pricing_variable_max')(e.target.value)} placeholder="Ex : 120" />
-                  </Field>
-                </div>
-              )}
-
-              {form.pricing_model === 'percent' && (
-                <Field label="Pourcentage du CA (%)">
+                <Field label="Pourcentage du CA (%)" hint="(optionnel)">
                   <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
                 </Field>
-              )}
+              </div>
             </Section>
 
             {/* Disciplines */}
