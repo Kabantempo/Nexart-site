@@ -1,15 +1,24 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Info, MapPin, CalendarDays, Repeat, Store, Tags, ScrollText,
-  HelpCircle, CreditCard, CheckCircle2, Circle, AlertCircle, Plus, X,
+  HelpCircle, CreditCard, CheckCircle2, Circle, AlertCircle, Plus, X, Image as ImageIcon, Images, Hash, Timer,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { colors, typography, spacing, radius, shadows, transitions } from '@/lib/design-tokens'
+
+interface CitySuggestion {
+  nom: string
+  region: string
+  departement: string
+  codesPostaux: string[]
+  lat: number | null
+  lng: number | null
+}
 
 const EVENT_TYPES = [
   { label: 'Pop-up',     value: 'popup' },
@@ -51,6 +60,12 @@ interface FormData {
   faq: { q: string; a: string }[]
   recurrence_type: 'none' | 'weekly' | 'biweekly' | 'monthly'
   recurrence_end_date: string
+  cover_image: string
+  media: string[]
+  lat: number | null
+  lng: number | null
+  theme: string[]
+  application_deadline: string
 }
 
 const EMPTY_STAND_TYPE: StandType = { count: '', dimensions: '' }
@@ -75,6 +90,12 @@ const EMPTY_FORM: FormData = {
   faq: [],
   recurrence_type: 'none',
   recurrence_end_date: '',
+  cover_image: '',
+  media: [],
+  lat: null,
+  lng: null,
+  theme: [],
+  application_deadline: '',
 }
 
 function totalStandCount(form: FormData): number {
@@ -91,6 +112,7 @@ function validate(form: FormData): string | null {
   if (totalStandCount(form) <= 0) return 'Ajoutez au moins un type de stand'
   if (form.discipline_tags.length === 0) return 'Sélectionnez au moins une discipline'
   if (form.stand_price_min && form.stand_price_max && Number(form.stand_price_min) > Number(form.stand_price_max)) return 'Le prix le plus bas doit être inférieur au prix le plus haut'
+  if (form.application_deadline && form.application_deadline > form.start_date) return 'La date limite de candidature doit être avant le début du marché'
   return null
 }
 
@@ -116,6 +138,12 @@ export default function CreateEventClient() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [eventLimitReached, setEventLimitReached] = useState(false)
+  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([])
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
+  const cityDebounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const [uploadingCover, setUploadingCover] = useState(false)
+  const [uploadingMedia, setUploadingMedia] = useState(false)
+  const [themeInput, setThemeInput] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -161,6 +189,75 @@ export default function CreateEventClient() {
 
   const removeStandType = (i: number) => setForm(f => ({ ...f, stand_types: f.stand_types.filter((_, j) => j !== i) }))
 
+  const handleCityInput = (value: string) => {
+    setForm(f => ({ ...f, city: value, lat: null, lng: null }))
+    clearTimeout(cityDebounce.current)
+    if (value.length < 2) { setCitySuggestions([]); setShowCitySuggestions(false); return }
+    cityDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(value)}&fields=nom,region,departement,codesPostaux,centre&limit=6`)
+        const data = await res.json()
+        const suggestions: CitySuggestion[] = (data as any[]).map(d => ({
+          nom: d.nom,
+          region: d.region?.nom ?? '',
+          departement: d.departement?.nom ?? '',
+          codesPostaux: d.codesPostaux ?? [],
+          lat: d.centre?.coordinates?.[1] ?? null,
+          lng: d.centre?.coordinates?.[0] ?? null,
+        }))
+        setCitySuggestions(suggestions)
+        setShowCitySuggestions(suggestions.length > 0)
+      } catch { /* ignore */ }
+    }, 300)
+  }
+
+  const selectCity = (s: CitySuggestion) => {
+    setForm(f => ({ ...f, city: s.nom, region: s.region, lat: s.lat, lng: s.lng }))
+    setCitySuggestions([])
+    setShowCitySuggestions(false)
+  }
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+    setUploadingCover(true)
+    const ext = file.name.split('.').pop()
+    const path = `events/${user.id}/cover_${Date.now()}.${ext}`
+    const { error: upErr } = await supabase.storage.from('portfolios').upload(path, file, { upsert: true })
+    if (!upErr) {
+      const { data: { publicUrl } } = supabase.storage.from('portfolios').getPublicUrl(path)
+      setForm(f => ({ ...f, cover_image: publicUrl }))
+    }
+    setUploadingCover(false)
+  }
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length || !user) return
+    setUploadingMedia(true)
+    const urls: string[] = []
+    for (const file of files) {
+      const ext = file.name.split('.').pop()
+      const path = `events/${user.id}/media_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+      const { error: upErr } = await supabase.storage.from('portfolios').upload(path, file, { upsert: true })
+      if (!upErr) {
+        const { data: { publicUrl } } = supabase.storage.from('portfolios').getPublicUrl(path)
+        urls.push(publicUrl)
+      }
+    }
+    setForm(f => ({ ...f, media: [...f.media, ...urls] }))
+    setUploadingMedia(false)
+  }
+
+  const addTheme = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const val = themeInput.trim()
+      if (val && !form.theme.includes(val)) setForm(f => ({ ...f, theme: [...f.theme, val] }))
+      setThemeInput('')
+    }
+  }
+
   const completedCount = useMemo(() => STEPS.filter(s => s.isComplete(form)).length, [form])
   const progressPct = Math.round((completedCount / STEPS.length) * 100)
 
@@ -202,6 +299,12 @@ export default function CreateEventClient() {
       faq: form.faq.filter(f => f.q.trim() && f.a.trim()),
       stripe_enabled: form.stripe_enabled,
       status: publish ? 'published' : 'draft',
+      cover_image: form.cover_image || null,
+      media: form.media.length > 0 ? form.media : null,
+      lat: form.lat,
+      lng: form.lng,
+      theme: form.theme.length > 0 ? form.theme : null,
+      application_deadline: form.application_deadline || null,
       recurrence_type: form.recurrence_type,
       ...(form.recurrence_type !== 'none' && form.start_date && form.recurrence_end_date ? {
         recurrence_dates: (() => {
@@ -310,7 +413,35 @@ export default function CreateEventClient() {
               </Field>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
                 <Field label="Ville">
-                  <input className="form-input" value={form.city} onChange={e => set('city')(e.target.value)} placeholder="Ex : Lyon" />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      className="form-input"
+                      value={form.city}
+                      onChange={e => handleCityInput(e.target.value)}
+                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                      placeholder="Ex : Lyon"
+                      autoComplete="off"
+                    />
+                    {showCitySuggestions && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--bg-primary)', border: `1px solid var(--border-color)`, borderRadius: radius.sm, boxShadow: shadows.md, marginTop: '2px', overflow: 'hidden' }}>
+                        {citySuggestions.map((s, i) => (
+                          <button key={i} onMouseDown={() => selectCity(s)}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '14px', color: 'var(--text-primary)', fontFamily: typography.fontFamily, borderBottom: i < citySuggestions.length - 1 ? `1px solid var(--bg-secondary)` : 'none' }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <span style={{ fontWeight: 600 }}>{s.nom}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '6px' }}>{s.departement}{s.region ? ` · ${s.region}` : ''}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {form.lat && (
+                      <p style={{ fontSize: '11px', color: colors.feedback.success.solid, margin: '4px 0 0', fontWeight: 600 }}>
+                        📍 {form.lat.toFixed(4)}, {form.lng?.toFixed(4)}
+                      </p>
+                    )}
+                  </div>
                 </Field>
                 <Field label="Région" hint="(optionnel)">
                   <input className="form-input" value={form.region} onChange={e => set('region')(e.target.value)} placeholder="Ex : Auvergne-Rhône-Alpes" />
@@ -332,6 +463,9 @@ export default function CreateEventClient() {
                 </Field>
                 <Field label="Heure fermeture" hint="(optionnel)">
                   <input className="form-input" type="time" value={form.end_time} onChange={e => set('end_time')(e.target.value)} />
+                </Field>
+                <Field label="Date limite de candidature" hint="(optionnel)">
+                  <input className="form-input" type="date" value={form.application_deadline} onChange={e => set('application_deadline')(e.target.value)} max={form.start_date || undefined} />
                 </Field>
               </div>
             </Section>
@@ -421,6 +555,72 @@ export default function CreateEventClient() {
                   {form.discipline_tags.length} discipline{form.discipline_tags.length > 1 ? 's' : ''} sélectionnée{form.discipline_tags.length > 1 ? 's' : ''}
                 </p>
               )}
+            </Section>
+
+            {/* Thème / mots-clés */}
+            <Section title="Thème / mots-clés" hint="(optionnel)" icon={Hash}>
+              <Field label="Ajoutez des mots-clés" hint="— appuyez sur Entrée">
+                <input
+                  className="form-input"
+                  value={themeInput}
+                  onChange={e => setThemeInput(e.target.value)}
+                  onKeyDown={addTheme}
+                  placeholder="Ex : nature, bien-être, upcycling…"
+                />
+              </Field>
+              {form.theme.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.theme.map(t => (
+                    <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: radius.pill, backgroundColor: colors.violet.bg, border: `1px solid ${colors.violet.primary}30`, color: colors.violet.primary, fontSize: '13px', fontWeight: 600 }}>
+                      #{t}
+                      <button onClick={() => setForm(f => ({ ...f, theme: f.theme.filter(x => x !== t) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: colors.violet.primary, lineHeight: 1, display: 'flex', alignItems: 'center' }}>
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            {/* Médias */}
+            <Section title="Visuels" hint="(optionnel)" icon={Images}>
+              {/* Couverture */}
+              <Field label="Image de couverture">
+                {form.cover_image ? (
+                  <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+                    <img src={form.cover_image} alt="cover" style={{ width: '100%', borderRadius: radius.sm, objectFit: 'cover', maxHeight: '180px', display: 'block' }} />
+                    <button onClick={() => setForm(f => ({ ...f, cover_image: '' }))}
+                      style={{ position: 'absolute', top: '6px', right: '6px', width: '26px', height: '26px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <X size={13} />
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: radius.sm, border: `1.5px dashed var(--border-color)`, cursor: uploadingCover ? 'not-allowed' : 'pointer', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600 }}>
+                    <ImageIcon size={18} />
+                    {uploadingCover ? 'Chargement…' : 'Choisir une image'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleCoverUpload} disabled={uploadingCover} />
+                  </label>
+                )}
+              </Field>
+
+              {/* Galerie */}
+              <Field label="Galerie de photos">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.media.map((url, i) => (
+                    <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
+                      <img src={url} alt={`media-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: radius.sm, display: 'block' }} />
+                      <button onClick={() => setForm(f => ({ ...f, media: f.media.filter((_, j) => j !== i) }))}
+                        style={{ position: 'absolute', top: '3px', right: '3px', width: '20px', height: '20px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                  <label style={{ width: '80px', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', borderRadius: radius.sm, border: `1.5px dashed var(--border-color)`, cursor: uploadingMedia ? 'not-allowed' : 'pointer', color: 'var(--text-tertiary)', fontSize: '11px', fontWeight: 600 }}>
+                    {uploadingMedia ? '…' : <><Plus size={18} /><span>Ajouter</span></>}
+                    <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleMediaUpload} disabled={uploadingMedia} />
+                  </label>
+                </div>
+              </Field>
             </Section>
 
             {/* Règlement */}
