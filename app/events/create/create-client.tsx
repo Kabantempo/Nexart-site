@@ -128,6 +128,10 @@ const STEPS = [
     isComplete: (f: FormData) => f.stand_types.some(t => !!t.count) },
   { key: 'tags',     label: 'Disciplines', icon: Tags,
     isComplete: (f: FormData) => f.discipline_tags.length > 0 },
+  { key: 'media',   label: 'Visuels', icon: ImageIcon,
+    isComplete: (f: FormData) => !!f.cover_image },
+  { key: 'theme',   label: 'Thème & mots-clés', icon: Hash,
+    isComplete: (f: FormData) => f.theme.length > 0 },
 ] as const
 
 export default function CreateEventClient() {
