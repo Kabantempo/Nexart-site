@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { CreatorProfileClient } from './creator-profile'
 
+export const dynamicParams = true
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 async function resolveCreatorId(idOrUsername: string): Promise<string> {
@@ -22,7 +24,7 @@ export async function generateStaticParams() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
     if (!url || url.includes('placeholder')) return []
     const { data } = await supabase.from('profiles').select('id, username').eq('role', 'creator')
-    return (data || []).flatMap((p: { id: string; username?: string }) => [
+    return (data || []).flatMap((p: { id: string; username: string | null }) => [
       { id: p.id },
       ...(p.username ? [{ id: p.username }] : []),
     ])
