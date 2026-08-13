@@ -1,15 +1,24 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Info, MapPin, CalendarDays, Repeat, Store, Tags, ScrollText,
-  HelpCircle, CreditCard, CheckCircle2, Circle, AlertCircle, Plus, X,
+  HelpCircle, CreditCard, CheckCircle2, Circle, AlertCircle, Plus, X, Image as ImageIcon, Images, Hash, Timer,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { colors, typography, spacing, radius, shadows, transitions } from '@/lib/design-tokens'
+
+interface CitySuggestion {
+  nom: string
+  region: string
+  departement: string
+  codesPostaux: string[]
+  lat: number | null
+  lng: number | null
+}
 
 const EVENT_TYPES = [
   { label: 'Pop-up',     value: 'popup' },
@@ -26,7 +35,10 @@ const DISCIPLINE_TAGS = [
   'Coutellerie', 'Bougies', 'Macramé', 'Origami', 'Calligraphie', 'Sérigraphie',
 ]
 
-type PricingModel = 'flat' | 'variable' | 'percent'
+interface StandType {
+  count: string
+  dimensions: string
+}
 
 interface FormData {
   title: string
@@ -39,20 +51,24 @@ interface FormData {
   end_date: string
   start_time: string
   end_time: string
-  stand_count: string
-  stand_price: string
-  pricing_model: PricingModel
-  pricing_variable_min: string
-  pricing_variable_max: string
-  pricing_percent: string
-  stand_dimensions: string
+  stand_types: StandType[]
+  stand_price_min: string
+  stand_price_max: string
   discipline_tags: string[]
   rules: string
   stripe_enabled: boolean
   faq: { q: string; a: string }[]
   recurrence_type: 'none' | 'weekly' | 'biweekly' | 'monthly'
   recurrence_end_date: string
+  cover_image: string
+  media: string[]
+  lat: number | null
+  lng: number | null
+  theme: string[]
+  application_deadline: string
 }
+
+const EMPTY_STAND_TYPE: StandType = { count: '', dimensions: '' }
 
 const EMPTY_FORM: FormData = {
   title: '',
@@ -65,19 +81,25 @@ const EMPTY_FORM: FormData = {
   end_date: '',
   start_time: '',
   end_time: '',
-  stand_count: '',
-  stand_price: '',
-  pricing_model: 'flat',
-  pricing_variable_min: '',
-  pricing_variable_max: '',
-  pricing_percent: '',
-  stand_dimensions: '',
+  stand_types: [{ ...EMPTY_STAND_TYPE }],
+  stand_price_min: '',
+  stand_price_max: '',
   discipline_tags: [],
   rules: '',
   stripe_enabled: false,
   faq: [],
   recurrence_type: 'none',
   recurrence_end_date: '',
+  cover_image: '',
+  media: [],
+  lat: null,
+  lng: null,
+  theme: [],
+  application_deadline: '',
+}
+
+function totalStandCount(form: FormData): number {
+  return form.stand_types.reduce((sum, t) => sum + (Number(t.count) || 0), 0)
 }
 
 function validate(form: FormData): string | null {
@@ -86,15 +108,11 @@ function validate(form: FormData): string | null {
   if (!form.start_date.match(/^\d{4}-\d{2}-\d{2}$/)) return 'Date de début invalide (format AAAA-MM-JJ)'
   if (!form.end_date.match(/^\d{4}-\d{2}-\d{2}$/)) return 'Date de fin invalide (format AAAA-MM-JJ)'
   if (form.end_date < form.start_date) return 'La date de fin doit être après la date de début'
-  if (!form.stand_count || isNaN(Number(form.stand_count))) return 'Nombre de stands invalide'
+  if (form.stand_types.some(t => !t.count || isNaN(Number(t.count)) || Number(t.count) <= 0)) return 'Nombre de stands invalide'
+  if (totalStandCount(form) <= 0) return 'Ajoutez au moins un type de stand'
   if (form.discipline_tags.length === 0) return 'Sélectionnez au moins une discipline'
-  if (form.pricing_model === 'variable') {
-    if (!form.pricing_variable_min || !form.pricing_variable_max) return 'Renseignez le tarif min et max'
-    if (Number(form.pricing_variable_min) > Number(form.pricing_variable_max)) return 'Le tarif min doit être inférieur au max'
-  }
-  if (form.pricing_model === 'percent') {
-    if (!form.pricing_percent || Number(form.pricing_percent) <= 0 || Number(form.pricing_percent) > 100) return 'Pourcentage invalide (1–100)'
-  }
+  if (form.stand_price_min && form.stand_price_max && Number(form.stand_price_min) > Number(form.stand_price_max)) return 'Le prix le plus bas doit être inférieur au prix le plus haut'
+  if (form.application_deadline && form.application_deadline > form.start_date) return 'La date limite de candidature doit être avant le début du marché'
   return null
 }
 
@@ -107,9 +125,13 @@ const STEPS = [
   { key: 'dates',    label: 'Dates & horaires', icon: CalendarDays,
     isComplete: (f: FormData) => !!f.start_date && !!f.end_date },
   { key: 'pricing',  label: 'Stands & tarification', icon: Store,
-    isComplete: (f: FormData) => !!f.stand_count },
+    isComplete: (f: FormData) => f.stand_types.some(t => !!t.count) },
   { key: 'tags',     label: 'Disciplines', icon: Tags,
     isComplete: (f: FormData) => f.discipline_tags.length > 0 },
+  { key: 'media',   label: 'Visuels', icon: ImageIcon,
+    isComplete: (f: FormData) => !!f.cover_image },
+  { key: 'theme',   label: 'Thème & mots-clés', icon: Hash,
+    isComplete: (f: FormData) => f.theme.length > 0 },
 ] as const
 
 export default function CreateEventClient() {
@@ -120,6 +142,12 @@ export default function CreateEventClient() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [eventLimitReached, setEventLimitReached] = useState(false)
+  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([])
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false)
+  const cityDebounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const [uploadingCover, setUploadingCover] = useState(false)
+  const [uploadingMedia, setUploadingMedia] = useState(false)
+  const [themeInput, setThemeInput] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -158,6 +186,82 @@ export default function CreateEventClient() {
     }))
   }
 
+  const updateStandType = (i: number, key: keyof StandType) => (value: string) =>
+    setForm(f => { const stand_types = [...f.stand_types]; stand_types[i] = { ...stand_types[i], [key]: value }; return { ...f, stand_types } })
+
+  const addStandType = () => setForm(f => ({ ...f, stand_types: [...f.stand_types, { ...EMPTY_STAND_TYPE }] }))
+
+  const removeStandType = (i: number) => setForm(f => ({ ...f, stand_types: f.stand_types.filter((_, j) => j !== i) }))
+
+  const handleCityInput = (value: string) => {
+    setForm(f => ({ ...f, city: value, lat: null, lng: null }))
+    clearTimeout(cityDebounce.current)
+    if (value.length < 2) { setCitySuggestions([]); setShowCitySuggestions(false); return }
+    cityDebounce.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(value)}&fields=nom,region,departement,codesPostaux,centre&limit=6`)
+        const data = await res.json()
+        const suggestions: CitySuggestion[] = (data as any[]).map(d => ({
+          nom: d.nom,
+          region: d.region?.nom ?? '',
+          departement: d.departement?.nom ?? '',
+          codesPostaux: d.codesPostaux ?? [],
+          lat: d.centre?.coordinates?.[1] ?? null,
+          lng: d.centre?.coordinates?.[0] ?? null,
+        }))
+        setCitySuggestions(suggestions)
+        setShowCitySuggestions(suggestions.length > 0)
+      } catch { /* ignore */ }
+    }, 300)
+  }
+
+  const selectCity = (s: CitySuggestion) => {
+    setForm(f => ({ ...f, city: s.nom, region: s.region, lat: s.lat, lng: s.lng }))
+    setCitySuggestions([])
+    setShowCitySuggestions(false)
+  }
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+    setUploadingCover(true)
+    const ext = file.name.split('.').pop()
+    const path = `events/${user.id}/cover_${Date.now()}.${ext}`
+    const { error: upErr } = await supabase.storage.from('portfolios').upload(path, file, { upsert: true })
+    if (!upErr) {
+      const { data: { publicUrl } } = supabase.storage.from('portfolios').getPublicUrl(path)
+      setForm(f => ({ ...f, cover_image: publicUrl }))
+    }
+    setUploadingCover(false)
+  }
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length || !user) return
+    setUploadingMedia(true)
+    const urls: string[] = []
+    for (const file of files) {
+      const ext = file.name.split('.').pop()
+      const path = `events/${user.id}/media_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+      const { error: upErr } = await supabase.storage.from('portfolios').upload(path, file, { upsert: true })
+      if (!upErr) {
+        const { data: { publicUrl } } = supabase.storage.from('portfolios').getPublicUrl(path)
+        urls.push(publicUrl)
+      }
+    }
+    setForm(f => ({ ...f, media: [...f.media, ...urls] }))
+    setUploadingMedia(false)
+  }
+
+  const addTheme = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const val = themeInput.trim()
+      if (val && !form.theme.includes(val)) setForm(f => ({ ...f, theme: [...f.theme, val] }))
+      setThemeInput('')
+    }
+  }
+
   const completedCount = useMemo(() => STEPS.filter(s => s.isComplete(form)).length, [form])
   const progressPct = Math.round((completedCount / STEPS.length) * 100)
 
@@ -170,11 +274,10 @@ export default function CreateEventClient() {
     setSaving(true)
     setError(null)
 
-    // Prix du stand selon le modèle
-    let standPrice: number | null = null
-    if (form.pricing_model === 'flat') standPrice = form.stand_price !== '' ? Number(form.stand_price) : null
-    else if (form.pricing_model === 'variable') standPrice = Number(form.pricing_variable_min)
-    else if (form.pricing_model === 'percent') standPrice = null
+    const standDimensions = form.stand_types
+      .filter(t => t.count)
+      .map(t => t.dimensions.trim() ? `${t.count} x ${t.dimensions.trim()}` : `${t.count} stand${Number(t.count) > 1 ? 's' : ''}`)
+      .join(', ')
 
     const payload = {
       organizer_id: user.id,
@@ -188,18 +291,24 @@ export default function CreateEventClient() {
       end_date: form.end_date,
       start_time: form.start_time || null,
       end_time: form.end_time || null,
-      stand_count: Number(form.stand_count),
-      stand_price: standPrice,
-      pricing_model: form.pricing_model,
-      pricing_variable_min: form.pricing_model === 'variable' ? Number(form.pricing_variable_min) : null,
-      pricing_variable_max: form.pricing_model === 'variable' ? Number(form.pricing_variable_max) : null,
-      pricing_percent: form.pricing_model === 'percent' ? Number(form.pricing_percent) : null,
-      stand_dimensions: form.stand_dimensions.trim() || null,
+      stand_count: totalStandCount(form),
+      stand_price: form.stand_price_min !== '' ? Number(form.stand_price_min) : null,
+      pricing_model: form.stand_price_max !== '' && form.stand_price_max !== form.stand_price_min ? 'variable' : 'flat',
+      pricing_variable_min: form.stand_price_min !== '' ? Number(form.stand_price_min) : null,
+      pricing_variable_max: form.stand_price_max !== '' ? Number(form.stand_price_max) : null,
+      pricing_percent: null,
+      stand_dimensions: standDimensions || null,
       discipline_tags: form.discipline_tags,
       rules: form.rules.trim() || null,
       faq: form.faq.filter(f => f.q.trim() && f.a.trim()),
       stripe_enabled: form.stripe_enabled,
       status: publish ? 'published' : 'draft',
+      cover_image: form.cover_image || null,
+      media: form.media.length > 0 ? form.media : null,
+      lat: form.lat,
+      lng: form.lng,
+      theme: form.theme.length > 0 ? form.theme : null,
+      application_deadline: form.application_deadline || null,
       recurrence_type: form.recurrence_type,
       ...(form.recurrence_type !== 'none' && form.start_date && form.recurrence_end_date ? {
         recurrence_dates: (() => {
@@ -308,7 +417,35 @@ export default function CreateEventClient() {
               </Field>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
                 <Field label="Ville">
-                  <input className="form-input" value={form.city} onChange={e => set('city')(e.target.value)} placeholder="Ex : Lyon" />
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      className="form-input"
+                      value={form.city}
+                      onChange={e => handleCityInput(e.target.value)}
+                      onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                      placeholder="Ex : Lyon"
+                      autoComplete="off"
+                    />
+                    {showCitySuggestions && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, backgroundColor: 'var(--bg-primary)', border: `1px solid var(--border-color)`, borderRadius: radius.sm, boxShadow: shadows.md, marginTop: '2px', overflow: 'hidden' }}>
+                        {citySuggestions.map((s, i) => (
+                          <button key={i} onMouseDown={() => selectCity(s)}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '14px', color: 'var(--text-primary)', fontFamily: typography.fontFamily, borderBottom: i < citySuggestions.length - 1 ? `1px solid var(--bg-secondary)` : 'none' }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          >
+                            <span style={{ fontWeight: 600 }}>{s.nom}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '6px' }}>{s.departement}{s.region ? ` · ${s.region}` : ''}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {form.lat && (
+                      <p style={{ fontSize: '11px', color: colors.feedback.success.solid, margin: '4px 0 0', fontWeight: 600 }}>
+                        📍 {form.lat.toFixed(4)}, {form.lng?.toFixed(4)}
+                      </p>
+                    )}
+                  </div>
                 </Field>
                 <Field label="Région" hint="(optionnel)">
                   <input className="form-input" value={form.region} onChange={e => set('region')(e.target.value)} placeholder="Ex : Auvergne-Rhône-Alpes" />
@@ -330,6 +467,9 @@ export default function CreateEventClient() {
                 </Field>
                 <Field label="Heure fermeture" hint="(optionnel)">
                   <input className="form-input" type="time" value={form.end_time} onChange={e => set('end_time')(e.target.value)} />
+                </Field>
+                <Field label="Date limite de candidature" hint="(optionnel)">
+                  <input className="form-input" type="date" value={form.application_deadline} onChange={e => set('application_deadline')(e.target.value)} max={form.start_date || undefined} />
                 </Field>
               </div>
             </Section>
@@ -368,61 +508,41 @@ export default function CreateEventClient() {
 
             {/* Stands & Tarification */}
             <Section id="pricing" title="Stands & tarification" icon={Store}>
-              <Field label="Nombre de stands">
-                <input className="form-input" type="number" min="1" value={form.stand_count} onChange={e => set('stand_count')(e.target.value)} placeholder="Ex : 40" />
-              </Field>
-              <Field label="Dimensions du stand" hint="(optionnel)">
-                <input className="form-input" value={form.stand_dimensions} onChange={e => set('stand_dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
-              </Field>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {form.stand_types.map((t, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <Field label="Nombre de stands">
+                        <input className="form-input" type="number" min="1" value={t.count} onChange={e => updateStandType(i, 'count')(e.target.value)} placeholder="Ex : 40" />
+                      </Field>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <Field label="Dimensions du stand">
+                        <input className="form-input" value={t.dimensions} onChange={e => updateStandType(i, 'dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
+                      </Field>
+                    </div>
+                    {form.stand_types.length > 1 && (
+                      <button onClick={() => removeStandType(i)}
+                        style={{ marginBottom: '1px', width: '42px', height: '42px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.solid, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <X size={15} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button onClick={addStandType}
+                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: radius.sm, border: `1px dashed var(--border-color)`, backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                  <Plus size={14} /> Ajouter un type de stand
+                </button>
+              </div>
 
-              <Field label="Modèle de tarification">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '10px' }}>
-                  {([
-                    { value: 'flat', label: 'Tarif fixe', desc: 'Un prix unique par stand' },
-                    { value: 'variable', label: 'Tarif variable', desc: 'Fourchette min–max' },
-                    { value: 'percent', label: '% du chiffre d\'affaires', desc: 'Commission sur les ventes' },
-                  ] as { value: PricingModel; label: string; desc: string }[]).map(opt => (
-                    <button
-                      key={opt.value}
-                      className={`pricing-card ${form.pricing_model === opt.value ? 'pricing-card-active' : ''}`}
-                      onClick={() => set('pricing_model')(opt.value)}
-                      style={{ textAlign: 'left' }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: radius.pill, border: `2px solid ${form.pricing_model === opt.value ? colors.violet.primary : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {form.pricing_model === opt.value && <div style={{ width: '6px', height: '6px', borderRadius: radius.pill, backgroundColor: colors.violet.primary }} />}
-                        </div>
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: form.pricing_model === opt.value ? colors.violet.primary : 'var(--text-primary)' }}>{opt.label}</span>
-                      </div>
-                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </Field>
-
-              {form.pricing_model === 'flat' && (
-                <Field label="Prix du stand (€)" hint="0 = gratuit">
-                  <input className="form-input" type="number" min="0" value={form.stand_price} onChange={e => set('stand_price')(e.target.value)} placeholder="Ex : 80" />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
+                <Field label="Prix le plus bas (€)" hint="0 = gratuit">
+                  <input className="form-input" type="number" min="0" value={form.stand_price_min} onChange={e => set('stand_price_min')(e.target.value)} placeholder="Ex : 60" />
                 </Field>
-              )}
-
-              {form.pricing_model === 'variable' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
-                  <Field label="Prix minimum (€)">
-                    <input className="form-input" type="number" min="0" value={form.pricing_variable_min} onChange={e => set('pricing_variable_min')(e.target.value)} placeholder="Ex : 60" />
-                  </Field>
-                  <Field label="Prix maximum (€)">
-                    <input className="form-input" type="number" min="0" value={form.pricing_variable_max} onChange={e => set('pricing_variable_max')(e.target.value)} placeholder="Ex : 120" />
-                  </Field>
-                </div>
-              )}
-
-              {form.pricing_model === 'percent' && (
-                <Field label="Pourcentage du CA (%)">
-                  <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
+                <Field label="Prix le plus haut (€)">
+                  <input className="form-input" type="number" min="0" value={form.stand_price_max} onChange={e => set('stand_price_max')(e.target.value)} placeholder="Ex : 120" />
                 </Field>
-              )}
+              </div>
             </Section>
 
             {/* Disciplines */}
@@ -439,6 +559,72 @@ export default function CreateEventClient() {
                   {form.discipline_tags.length} discipline{form.discipline_tags.length > 1 ? 's' : ''} sélectionnée{form.discipline_tags.length > 1 ? 's' : ''}
                 </p>
               )}
+            </Section>
+
+            {/* Thème / mots-clés */}
+            <Section title="Thème / mots-clés" hint="(optionnel)" icon={Hash}>
+              <Field label="Ajoutez des mots-clés" hint="— appuyez sur Entrée">
+                <input
+                  className="form-input"
+                  value={themeInput}
+                  onChange={e => setThemeInput(e.target.value)}
+                  onKeyDown={addTheme}
+                  placeholder="Ex : nature, bien-être, upcycling…"
+                />
+              </Field>
+              {form.theme.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.theme.map(t => (
+                    <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 11px', borderRadius: radius.pill, backgroundColor: colors.violet.bg, border: `1px solid ${colors.violet.primary}30`, color: colors.violet.primary, fontSize: '13px', fontWeight: 600 }}>
+                      #{t}
+                      <button onClick={() => setForm(f => ({ ...f, theme: f.theme.filter(x => x !== t) }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: colors.violet.primary, lineHeight: 1, display: 'flex', alignItems: 'center' }}>
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Section>
+
+            {/* Médias */}
+            <Section title="Visuels" hint="(optionnel)" icon={Images}>
+              {/* Couverture */}
+              <Field label="Image de couverture">
+                {form.cover_image ? (
+                  <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
+                    <img src={form.cover_image} alt="cover" style={{ width: '100%', borderRadius: radius.sm, objectFit: 'cover', maxHeight: '180px', display: 'block' }} />
+                    <button onClick={() => setForm(f => ({ ...f, cover_image: '' }))}
+                      style={{ position: 'absolute', top: '6px', right: '6px', width: '26px', height: '26px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <X size={13} />
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px', borderRadius: radius.sm, border: `1.5px dashed var(--border-color)`, cursor: uploadingCover ? 'not-allowed' : 'pointer', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600 }}>
+                    <ImageIcon size={18} />
+                    {uploadingCover ? 'Chargement…' : 'Choisir une image'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleCoverUpload} disabled={uploadingCover} />
+                  </label>
+                )}
+              </Field>
+
+              {/* Galerie */}
+              <Field label="Galerie de photos">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.media.map((url, i) => (
+                    <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
+                      <img src={url} alt={`media-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: radius.sm, display: 'block' }} />
+                      <button onClick={() => setForm(f => ({ ...f, media: f.media.filter((_, j) => j !== i) }))}
+                        style={{ position: 'absolute', top: '3px', right: '3px', width: '20px', height: '20px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                  <label style={{ width: '80px', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', borderRadius: radius.sm, border: `1.5px dashed var(--border-color)`, cursor: uploadingMedia ? 'not-allowed' : 'pointer', color: 'var(--text-tertiary)', fontSize: '11px', fontWeight: 600 }}>
+                    {uploadingMedia ? '…' : <><Plus size={18} /><span>Ajouter</span></>}
+                    <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleMediaUpload} disabled={uploadingMedia} />
+                  </label>
+                </div>
+              </Field>
             </Section>
 
             {/* Règlement */}
