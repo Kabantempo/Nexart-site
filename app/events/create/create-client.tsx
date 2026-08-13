@@ -226,11 +226,13 @@ export default function CreateEventClient() {
     if (!file || !user) return
     setUploadingCover(true)
     const ext = file.name.split('.').pop()
-    const path = `events/${user.id}/cover_${Date.now()}.${ext}`
-    const { error: upErr } = await supabase.storage.from('portfolios').upload(path, file, { upsert: true })
+    const path = `${user.id}/cover_${Date.now()}.${ext}`
+    const { error: upErr } = await supabase.storage.from('event-media').upload(path, file, { upsert: true })
     if (!upErr) {
-      const { data: { publicUrl } } = supabase.storage.from('portfolios').getPublicUrl(path)
+      const { data: { publicUrl } } = supabase.storage.from('event-media').getPublicUrl(path)
       setForm(f => ({ ...f, cover_image: publicUrl }))
+    } else {
+      setError(`Erreur upload image : ${upErr.message}`)
     }
     setUploadingCover(false)
   }
@@ -242,10 +244,10 @@ export default function CreateEventClient() {
     const urls: string[] = []
     for (const file of files) {
       const ext = file.name.split('.').pop()
-      const path = `events/${user.id}/media_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-      const { error: upErr } = await supabase.storage.from('portfolios').upload(path, file, { upsert: true })
+      const path = `${user.id}/media_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+      const { error: upErr } = await supabase.storage.from('event-media').upload(path, file, { upsert: true })
       if (!upErr) {
-        const { data: { publicUrl } } = supabase.storage.from('portfolios').getPublicUrl(path)
+        const { data: { publicUrl } } = supabase.storage.from('event-media').getPublicUrl(path)
         urls.push(publicUrl)
       }
     }
