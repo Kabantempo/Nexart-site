@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 
 async function headers() {
+  const isDev = process.env.NODE_ENV !== 'production'
+  // Next.js dev mode (Fast Refresh / webpack eval source maps) needs 'unsafe-eval'
+  // to execute client chunks — without it, scripts fail silently and the UI half-breaks.
+  const scriptSrc = isDev
+    ? "'self' 'unsafe-inline' 'unsafe-eval'"
+    : "'self' 'unsafe-inline' https://cdn.vercel-insights.com https://www.googletagmanager.com"
+
   return [
     // HTML pages: no caching (prevent LiteSpeed from serving stale pages)
     {
@@ -17,7 +24,7 @@ async function headers() {
         { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
         {
           key: 'Content-Security-Policy',
-          value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.vercel-insights.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://cvqeysnymnkfxfithhsr.supabase.co https://*.supabase.co ws: wss: https://geo.api.gouv.fr; frame-ancestors 'none'; upgrade-insecure-requests;",
+          value: `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://cvqeysnymnkfxfithhsr.supabase.co https://*.supabase.co ws: wss: https://geo.api.gouv.fr; frame-ancestors 'none'; upgrade-insecure-requests;`,
         },
         { key: 'Access-Control-Allow-Origin', value: 'https://nexart.fr' },
       ],
