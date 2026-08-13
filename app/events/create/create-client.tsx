@@ -234,26 +234,26 @@ export default function CreateEventClient() {
   )
 
   return (
-    <div style={{ backgroundColor: colors.bg.secondary, minHeight: 'calc(100vh - 80px)', padding: '40px 16px 80px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: 'calc(100vh - 80px)', padding: '40px 16px 80px' }}>
       <style>{`
-        .form-input { width: 100%; padding: 11px 14px; border: 1.5px solid ${colors.border.default}; border-radius: ${radius.sm}; font-size: 15px; font-family: ${typography.fontFamily}; color: ${colors.text.primary}; background: ${colors.bg.primary}; outline: none; box-sizing: border-box; transition: ${transitions.fast}; }
-        .form-input:hover { border-color: ${colors.border.strong}; }
+        .form-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border-color); border-radius: ${radius.sm}; font-size: 15px; font-family: ${typography.fontFamily}; color: var(--text-primary); background: var(--bg-primary); outline: none; box-sizing: border-box; transition: ${transitions.fast}; }
+        .form-input:hover { border-color: var(--border-color); }
         .form-input:focus { border-color: ${colors.violet.primary}; box-shadow: ${shadows.focus}; }
-        .chip { padding: 7px 15px; border-radius: ${radius.pill}; border: 1.5px solid ${colors.border.default}; background: ${colors.bg.primary}; font-size: 14px; font-weight: 500; font-family: ${typography.fontFamily}; cursor: pointer; transition: ${transitions.fast}; white-space: nowrap; color: ${colors.text.primary}; }
+        .chip { padding: 7px 15px; border-radius: ${radius.pill}; border: 1.5px solid var(--border-color); background: var(--bg-primary); font-size: 14px; font-weight: 500; font-family: ${typography.fontFamily}; cursor: pointer; transition: ${transitions.fast}; white-space: nowrap; color: var(--text-primary); }
         .chip:hover { border-color: ${colors.violet.primary}; color: ${colors.violet.primary}; }
         .chip-active { background: ${colors.violet.primary} !important; border-color: ${colors.violet.primary} !important; color: ${colors.text.onViolet} !important; }
-        .pricing-card { padding: 16px; border-radius: ${radius.md}; border: 2px solid ${colors.border.default}; background: ${colors.bg.primary}; cursor: pointer; transition: ${transitions.fast}; }
+        .pricing-card { padding: 16px; border-radius: ${radius.md}; border: 2px solid var(--border-color); background: var(--bg-primary); cursor: pointer; transition: ${transitions.fast}; }
         .pricing-card:hover { border-color: ${colors.violet.hover}; }
         .pricing-card-active { border-color: ${colors.violet.primary} !important; background: ${colors.violet.bg} !important; }
       `}</style>
 
       <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '32px' }}>
-          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: colors.text.secondary, fontSize: '14px', fontFamily: typography.fontFamily, cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
+          <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '14px', fontFamily: typography.fontFamily, cursor: 'pointer', marginBottom: '16px', padding: 0 }}>
             <ArrowLeft size={15} /> Retour
           </button>
-          <h1 style={{ fontSize: '34px', fontWeight: 800, color: colors.text.primary, margin: 0, letterSpacing: '-0.02em' }}>Créer un marché</h1>
-          <p style={{ fontSize: '15px', color: colors.text.secondary, margin: '6px 0 0' }}>Remplissez les informations de votre événement — vous pourrez tout modifier plus tard</p>
+          <h1 style={{ fontSize: '34px', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>Créer un marché</h1>
+          <p style={{ fontSize: '15px', color: 'var(--text-secondary)', margin: '6px 0 0' }}>Remplissez les informations de votre événement — vous pourrez tout modifier plus tard</p>
         </motion.div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '28px', alignItems: 'start' }}>
@@ -389,12 +389,12 @@ export default function CreateEventClient() {
                       style={{ textAlign: 'left' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: radius.pill, border: `2px solid ${form.pricing_model === opt.value ? colors.violet.primary : colors.border.default}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ width: '14px', height: '14px', borderRadius: radius.pill, border: `2px solid ${form.pricing_model === opt.value ? colors.violet.primary : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {form.pricing_model === opt.value && <div style={{ width: '6px', height: '6px', borderRadius: radius.pill, backgroundColor: colors.violet.primary }} />}
                         </div>
-                        <span style={{ fontSize: '13px', fontWeight: 700, color: form.pricing_model === opt.value ? colors.violet.primary : colors.text.primary }}>{opt.label}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: form.pricing_model === opt.value ? colors.violet.primary : 'var(--text-primary)' }}>{opt.label}</span>
                       </div>
-                      <p style={{ fontSize: '11px', color: colors.text.secondary, margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
+                      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{opt.desc}</p>
                     </button>
                   ))}
                 </div>
@@ -420,7 +420,7 @@ export default function CreateEventClient() {
               {form.pricing_model === 'percent' && (
                 <Field label="Pourcentage du CA (%)">
                   <input className="form-input" type="number" min="1" max="100" value={form.pricing_percent} onChange={e => set('pricing_percent')(e.target.value)} placeholder="Ex : 10" />
-                  <p style={{ fontSize: '12px', color: colors.text.secondary, margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>L&apos;organisateur prélève ce % sur les ventes du créateur.</p>
                 </Field>
               )}
             </Section>
@@ -468,13 +468,13 @@ export default function CreateEventClient() {
                       />
                     </div>
                     <button onClick={() => setForm(f => ({ ...f, faq: f.faq.filter((_, j) => j !== i) }))}
-                      style={{ marginTop: '8px', width: '32px', height: '32px', borderRadius: radius.sm, border: `1px solid ${colors.border.default}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.solid, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      style={{ marginTop: '8px', width: '32px', height: '32px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.solid, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <X size={15} />
                     </button>
                   </div>
                 ))}
                 <button onClick={() => setForm(f => ({ ...f, faq: [...f.faq, { q: '', a: '' }] }))}
-                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: radius.sm, border: `1px dashed ${colors.border.strong}`, backgroundColor: 'transparent', color: colors.text.secondary, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                  style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: radius.sm, border: `1px dashed var(--border-color)`, backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} /> Ajouter une question
                 </button>
               </div>
@@ -482,19 +482,19 @@ export default function CreateEventClient() {
 
             {/* Paiement Stripe */}
             <Section title="Paiement en ligne" icon={CreditCard}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: radius.md, border: `1px solid ${colors.border.default}`, backgroundColor: colors.bg.secondary }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: radius.sm, backgroundColor: form.stripe_enabled ? colors.violet.bg : colors.bg.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <CreditCard size={18} color={form.stripe_enabled ? colors.violet.primary : colors.text.muted} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: radius.md, border: `1px solid var(--border-color)`, backgroundColor: 'var(--bg-secondary)' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: radius.sm, backgroundColor: form.stripe_enabled ? colors.violet.bg : 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <CreditCard size={18} color={form.stripe_enabled ? colors.violet.primary : 'var(--text-tertiary)'} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '15px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>Activer le paiement Stripe</p>
-                  <p style={{ fontSize: '13px', color: colors.text.secondary, margin: '2px 0 0' }}>Le créateur paie son stand en ligne à la validation</p>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Activer le paiement Stripe</p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Le créateur paie son stand en ligne à la validation</p>
                 </div>
                 <button
                   onClick={() => set('stripe_enabled')(!form.stripe_enabled)}
-                  style={{ width: '48px', height: '28px', borderRadius: radius.pill, border: 'none', cursor: 'pointer', backgroundColor: form.stripe_enabled ? colors.violet.primary : colors.border.default, position: 'relative', transition: transitions.base, flexShrink: 0 }}
+                  style={{ width: '48px', height: '28px', borderRadius: radius.pill, border: 'none', cursor: 'pointer', backgroundColor: form.stripe_enabled ? colors.violet.primary : 'var(--border-color)', position: 'relative', transition: transitions.base, flexShrink: 0 }}
                 >
-                  <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: radius.pill, backgroundColor: colors.bg.primary, boxShadow: shadows.sm, transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
+                  <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: radius.pill, backgroundColor: 'var(--bg-primary)', boxShadow: shadows.sm, transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
                 </button>
               </div>
             </Section>
@@ -504,7 +504,7 @@ export default function CreateEventClient() {
               <button
                 onClick={() => handleSave(false)}
                 disabled={saving || eventLimitReached}
-                style={{ flex: 1, padding: '14px', borderRadius: radius.sm, border: `1px solid ${colors.border.default}`, backgroundColor: colors.bg.primary, color: colors.text.primary, fontSize: '15px', fontWeight: 600, fontFamily: typography.fontFamily, cursor: (saving || eventLimitReached) ? 'not-allowed' : 'pointer', opacity: (saving || eventLimitReached) ? 0.5 : 1, transition: transitions.base }}
+                style={{ flex: 1, padding: '14px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 600, fontFamily: typography.fontFamily, cursor: (saving || eventLimitReached) ? 'not-allowed' : 'pointer', opacity: (saving || eventLimitReached) ? 0.5 : 1, transition: transitions.base }}
               >
                 Enregistrer en brouillon
               </button>
@@ -522,12 +522,12 @@ export default function CreateEventClient() {
 
           {/* Sidebar de progression / résumé (sticky) */}
           <div style={{ position: 'sticky', top: '96px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ backgroundColor: colors.bg.primary, borderRadius: radius.md, border: `1px solid ${colors.border.default}`, padding: '20px' }}>
+            <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: radius.md, border: `1px solid var(--border-color)`, padding: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '12px' }}>
-                <h3 style={{ fontSize: '13px', fontWeight: 700, color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: '0.6px', margin: 0 }}>Progression</h3>
+                <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.6px', margin: 0 }}>Progression</h3>
                 <span style={{ fontSize: '13px', fontWeight: 700, color: colors.violet.primary }}>{progressPct}%</span>
               </div>
-              <div style={{ height: '6px', borderRadius: radius.pill, backgroundColor: colors.bg.secondary, overflow: 'hidden', marginBottom: '18px' }}>
+              <div style={{ height: '6px', borderRadius: radius.pill, backgroundColor: 'var(--bg-secondary)', overflow: 'hidden', marginBottom: '18px' }}>
                 <motion.div
                   animate={{ width: `${progressPct}%` }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -542,9 +542,9 @@ export default function CreateEventClient() {
                     <div key={step.key} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       {done
                         ? <CheckCircle2 size={16} color={colors.feedback.success.solid} style={{ flexShrink: 0 }} />
-                        : <Circle size={16} color={colors.border.strong} style={{ flexShrink: 0 }} />}
-                      <Icon size={14} color={colors.text.muted} style={{ flexShrink: 0 }} />
-                      <span style={{ fontSize: '13px', color: done ? colors.text.primary : colors.text.secondary, fontWeight: done ? 600 : 400 }}>{step.label}</span>
+                        : <Circle size={16} color={'var(--border-color)'} style={{ flexShrink: 0 }} />}
+                      <Icon size={14} color={'var(--text-tertiary)'} style={{ flexShrink: 0 }} />
+                      <span style={{ fontSize: '13px', color: done ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: done ? 600 : 400 }}>{step.label}</span>
                     </div>
                   )
                 })}
@@ -552,12 +552,12 @@ export default function CreateEventClient() {
             </div>
 
             {form.title && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ backgroundColor: colors.bg.primary, borderRadius: radius.md, border: `1px solid ${colors.border.default}`, padding: '20px' }}>
-                <h3 style={{ fontSize: '13px', fontWeight: 700, color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 12px' }}>Aperçu</h3>
-                <p style={{ fontSize: '15px', fontWeight: 700, color: colors.text.primary, margin: '0 0 4px' }}>{form.title}</p>
-                {form.city && <p style={{ fontSize: '13px', color: colors.text.secondary, margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '5px' }}><MapPin size={12} /> {form.city}</p>}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ backgroundColor: 'var(--bg-primary)', borderRadius: radius.md, border: `1px solid var(--border-color)`, padding: '20px' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 12px' }}>Aperçu</h3>
+                <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>{form.title}</p>
+                {form.city && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '5px' }}><MapPin size={12} /> {form.city}</p>}
                 {form.start_date && (
-                  <p style={{ fontSize: '13px', color: colors.text.secondary, margin: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <CalendarDays size={12} /> {new Date(form.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     {form.end_date && form.end_date !== form.start_date && ` – ${new Date(form.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}
                   </p>
@@ -574,13 +574,13 @@ export default function CreateEventClient() {
 function Section({ id, title, hint, icon: Icon, children }: { id?: string; title: string; hint?: string; icon: React.ComponentType<{ size?: number; color?: string }>; children: React.ReactNode }) {
   return (
     <motion.div id={id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.4 }}
-      style={{ backgroundColor: colors.bg.primary, borderRadius: radius.md, border: `1px solid ${colors.border.default}`, padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: `1px solid ${colors.bg.secondary}`, paddingBottom: '12px' }}>
+      style={{ backgroundColor: 'var(--bg-primary)', borderRadius: radius.md, border: `1px solid var(--border-color)`, padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: `1px solid var(--bg-secondary)`, paddingBottom: '12px' }}>
         <div style={{ width: '28px', height: '28px', borderRadius: radius.sm, backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Icon size={14} color={colors.violet.primary} />
         </div>
-        <h2 style={{ fontSize: '14px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
-          {title} {hint && <span style={{ fontWeight: 400, color: colors.text.muted }}>{hint}</span>}
+        <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+          {title} {hint && <span style={{ fontWeight: 400, color: 'var(--text-tertiary)' }}>{hint}</span>}
         </h2>
       </div>
       {children}
@@ -591,8 +591,8 @@ function Section({ id, title, hint, icon: Icon, children }: { id?: string; title
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{ fontSize: '13px', fontWeight: 600, color: colors.text.secondary }}>
-        {label} {hint && <span style={{ color: colors.text.muted, fontWeight: 400 }}>{hint}</span>}
+      <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
+        {label} {hint && <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>{hint}</span>}
       </label>
       {children}
     </div>
