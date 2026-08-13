@@ -286,7 +286,7 @@ export default function CreateEventClient() {
                 <input className="form-input" value={form.title} onChange={e => set('title')(e.target.value)} placeholder="Ex : Marché de Noël de Lyon" />
               </Field>
 
-              <Field label="Type d'événement">
+              <Field label="Type de marché">
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {EVENT_TYPES.map(t => (
                     <button key={t.value} className={`chip ${form.event_type === t.value ? 'chip-active' : ''}`} onClick={() => set('event_type')(t.value)}>
