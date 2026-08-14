@@ -40,7 +40,7 @@ const DISCIPLINE_PILL = 'bg-black/60 backdrop-blur-sm'
 
 function Skeleton() {
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
@@ -218,7 +218,7 @@ function CreatorsContent() {
   )
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">

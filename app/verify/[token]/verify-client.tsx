@@ -25,7 +25,7 @@ export default function VerifyClient({ token }: { token: string }) {
   }, [token])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
       <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(99,102,241,0.2)', borderTopColor: '#6366F1', animation: 'spin 0.8s linear infinite' }} />
       <p style={{ color: '#888888', fontSize: '14px', fontWeight: 500 }}>Vérification en cours…</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -33,7 +33,7 @@ export default function VerifyClient({ token }: { token: string }) {
   )
 
   if (!data?.valid) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
         {/* Logo */}
         <p style={{ fontSize: '20px', fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.5px', marginBottom: '40px' }}>NEXART</p>
@@ -57,7 +57,7 @@ export default function VerifyClient({ token }: { token: string }) {
   const alreadyScanned = data.already_scanned
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F5F5F7', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '420px' }}>
         {/* Logo */}
         <p style={{ fontSize: '20px', fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.5px', marginBottom: '32px', textAlign: 'center' }}>NEXART</p>

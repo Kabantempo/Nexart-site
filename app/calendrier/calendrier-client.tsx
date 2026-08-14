@@ -110,7 +110,7 @@ export default function CalendrierPage() {
   })
 
   if (!user || loading) return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-96 rounded-2xl bg-gray-100 animate-pulse" />
@@ -121,7 +121,7 @@ export default function CalendrierPage() {
   const sidebarItems = selectedDay ? selectedEvents : monthEvents
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">

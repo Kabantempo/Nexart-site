@@ -143,7 +143,7 @@ export default function BlogClient() {
   const categories: Category[] = ['tous', 'créateurs', 'organisateurs', 'actualités']
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 80px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 80px)' }}>
 
       {/* Hero */}
       <div style={{ backgroundColor: '#F5F5F7', borderBottom: '1px solid #E5E7EB' }}>

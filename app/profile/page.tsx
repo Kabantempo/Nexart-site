@@ -879,7 +879,7 @@ export default function ProfilePage() {
   // ─── Loading ─────────────────────────────────────────────────────────────────
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-52 bg-[#06060f] animate-pulse" />
       <div className="max-w-[900px] mx-auto px-4 pt-8 pb-20">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
@@ -923,7 +923,7 @@ export default function ProfilePage() {
   const acceptedCount = applications.filter(a => a.status === 'accepted').length
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
 
       {/* ── Crop Modal ── */}

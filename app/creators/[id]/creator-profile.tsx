@@ -305,7 +305,7 @@ export function CreatorProfileClient({ id }: Props) {
   }
 
   if (loading) return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Banner skeleton */}
       <div className="h-52 bg-gray-100 animate-pulse" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
@@ -347,7 +347,7 @@ export function CreatorProfileClient({ id }: Props) {
   const showReal = creator.show_real_name !== false
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Message modal */}
       {showMsg && (

@@ -69,7 +69,7 @@ export default function AnalyticsClient() {
   }, [user])
 
   if (!user || loading) return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -81,7 +81,7 @@ export default function AnalyticsClient() {
   )
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">

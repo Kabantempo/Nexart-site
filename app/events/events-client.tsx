@@ -64,7 +64,7 @@ function WordReveal({ children, delay = 0, className = '' }: { children: string;
 
 function Skeleton() {
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-12 animate-shimmer rounded-2xl mb-4" />
@@ -217,7 +217,7 @@ function EventsContent() {
   )
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">

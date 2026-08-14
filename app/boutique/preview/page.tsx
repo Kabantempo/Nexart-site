@@ -82,7 +82,7 @@ export default function BoutiquePreviewPage() {
 
 
   return (
-    <div style={{ backgroundColor: '#F5F5F7', minHeight: '100vh', paddingBottom: '80px' }}>
+    <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
       {/* Header */}
       <div style={{ backgroundColor: '#06060f', padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>

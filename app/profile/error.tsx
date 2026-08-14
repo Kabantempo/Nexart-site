@@ -11,7 +11,7 @@ export default function ProfileError({
   reset: () => void
 }) {
   return (
-    <div style={{ backgroundColor: '#06060f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ textAlign: 'center', maxWidth: '400px' }}>
         <div style={{ width: '56px', height: '56px', borderRadius: '16px', backgroundColor: 'rgba(220,38,38,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
           <AlertCircle size={24} color="#f87171" />
