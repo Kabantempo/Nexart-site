@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, Star, FileText, Send, Download } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
@@ -376,7 +377,20 @@ export function EventDetailClient({ id }: Props) {
   const [appPortfolioUploading, setAppPortfolioUploading] = useState(false)
   const appPortfolioRef = useRef<HTMLInputElement>(null)
 
+  const searchParams = useSearchParams()
   const REQUIRED_FIELDS_TOTAL = 6
+
+  // Toast post-paiement stand (retour depuis Stripe Checkout)
+  useEffect(() => {
+    const payment = searchParams.get('payment')
+    if (payment === 'success') {
+      toastSuccess('✅ Paiement confirmé — votre stand est réservé !')
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (payment === 'cancelled') {
+      toastError('Paiement annulé — vous pouvez réessayer à tout moment.')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Charger le contrat existant si le créateur est accepté
   useEffect(() => {
