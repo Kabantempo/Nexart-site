@@ -12,20 +12,20 @@ const HAS_CREDS = !!EMAIL && !!PASSWORD
 test.describe('Auth — Login complet', () => {
   test('formulaire login visible et interactif', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForSelector('input[type="email"]', { timeout: 10000 })
+    await page.waitForSelector('#login-email', { timeout: 10000 })
     await page.waitForSelector('input[type="password"]', { timeout: 10000 })
     await page.waitForSelector('button[type="submit"]', { timeout: 10000 })
 
     // Vérifier que les champs sont fonctionnels
-    await page.fill('input[type="email"]', 'test@test.fr')
-    await expect(page.locator('input[type="email"]')).toHaveValue('test@test.fr')
+    await page.fill('#login-email', 'test@test.fr')
+    await expect(page.locator('#login-email')).toHaveValue('test@test.fr')
   })
 
   test('login avec credentials invalides → message erreur affiché', async ({ page }) => {
     await page.goto('/login')
-    await page.waitForSelector('input[type="email"]', { timeout: 10000 })
+    await page.waitForSelector('#login-email', { timeout: 10000 })
 
-    await page.fill('input[type="email"]', 'invalid@nexart.fr')
+    await page.fill('#login-email', 'invalid@nexart.fr')
     await page.fill('input[type="password"]', 'wrongpassword123')
     await page.click('button[type="submit"]')
 
@@ -45,9 +45,9 @@ test.describe('Auth — Login complet', () => {
     }
 
     await page.goto('/login')
-    await page.waitForSelector('input[type="email"]', { timeout: 10000 })
+    await page.waitForSelector('#login-email', { timeout: 10000 })
 
-    await page.fill('input[type="email"]', EMAIL)
+    await page.fill('#login-email', EMAIL)
     await page.fill('input[type="password"]', PASSWORD)
     await page.click('button[type="submit"]')
     await page.waitForLoadState('networkidle')
@@ -67,7 +67,7 @@ test.describe('Auth — Login complet', () => {
     }
 
     await page.goto('/login')
-    await page.fill('input[type="email"]', EMAIL)
+    await page.fill('#login-email', EMAIL)
     await page.fill('input[type="password"]', PASSWORD)
     await page.click('button[type="submit"]')
     await page.waitForLoadState('networkidle')
@@ -88,7 +88,7 @@ test.describe('Auth — Login complet', () => {
     }
 
     await page.goto('/login')
-    await page.fill('input[type="email"]', EMAIL)
+    await page.fill('#login-email', EMAIL)
     await page.fill('input[type="password"]', PASSWORD)
     await page.click('button[type="submit"]')
     await page.waitForLoadState('networkidle')

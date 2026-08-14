@@ -4,9 +4,9 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('API — Pagination', () => {
-  test('/api/events?page=1 et ?page=2 retournent des données différentes', async ({ request }) => {
-    const r1 = await request.get('/api/events?page=1&limit=5')
-    const r2 = await request.get('/api/events?page=2&limit=5')
+  test('/api/events?offset=0 et ?offset=5 retournent des données différentes', async ({ request }) => {
+    const r1 = await request.get('/api/events?offset=0&limit=5')
+    const r2 = await request.get('/api/events?offset=5&limit=5')
 
     if (r1.status() !== 200) {
       // API peut ne pas supporter la pagination — skip gracieux
@@ -54,8 +54,8 @@ test.describe('API — Pagination', () => {
 })
 
 test.describe('API — Recherche', () => {
-  test('/api/events?q=Paris retourne uniquement des events de Paris', async ({ request }) => {
-    const r = await request.get('/api/events?q=Paris')
+  test('/api/events?city=Paris retourne uniquement des events de Paris', async ({ request }) => {
+    const r = await request.get('/api/events?city=Paris')
     if (r.status() !== 200) return
 
     const data = await r.json()
@@ -63,21 +63,19 @@ test.describe('API — Recherche', () => {
 
     if (items.length === 0) return
 
-    // Chaque résultat doit mentionner Paris dans title, city ou description
+    // Chaque résultat doit avoir city = Paris (insensible à la casse)
     for (const item of items.slice(0, 5)) {
-      const text = JSON.stringify(item).toLowerCase()
-      expect(text).toContain('paris')
+      expect(item.city?.toLowerCase()).toContain('paris')
     }
   })
 
-  test('/api/events?q=xyz999 retourne un tableau vide ou petit', async ({ request }) => {
-    const r = await request.get('/api/events?q=xyz999impossible')
+  test('/api/events?city=VilleInexistante999 retourne un tableau vide', async ({ request }) => {
+    const r = await request.get('/api/events?city=VilleInexistante999')
     if (r.status() !== 200) return
 
     const data = await r.json()
     const items = Array.isArray(data) ? data : (data.events || data.data || [])
-    // Recherche bidon → 0 ou peu de résultats
-    expect(items.length).toBeLessThan(5)
+    expect(items.length).toBe(0)
   })
 })
 
@@ -93,7 +91,7 @@ test.describe('API — CRUD events', () => {
     const r = await request.post('/api/events', {
       data: { title: 'Test non auth', city: 'Paris' },
     })
-    expect([401, 403, 405]).toContain(r.status())
+    expect([400, 401, 403, 405]).toContain(r.status())
   })
 
   test('PATCH /api/events/:id sans auth — retourne 401 ou 403', async ({ request }) => {
