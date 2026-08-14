@@ -629,7 +629,7 @@ export default function HomeClient() {
             </FadeUp>
 
             {/* Right — phone */}
-            <div className="relative z-10 flex-shrink-0">
+            <div className="relative z-10 flex-shrink-0 phone-mockup-dark">
               <PhoneMockup />
             </div>
 

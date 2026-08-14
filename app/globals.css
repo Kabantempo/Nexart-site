@@ -60,6 +60,16 @@ body {
 [data-theme="light"] .home-page [class*="bg-white/"] {
   background-color: rgba(0,0,0,0.04) !important;
 }
+/* Phone mockup stays dark in light mode (higher specificity overrides above) */
+[data-theme="light"] .home-page .phone-mockup-dark [class*="text-white"] {
+  color: white !important;
+}
+[data-theme="light"] .home-page .phone-mockup-dark [class*="border-white"] {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+[data-theme="light"] .home-page .phone-mockup-dark [class*="bg-white/"] {
+  background-color: rgba(255,255,255,0.05) !important;
+}
 [data-theme="light"] .home-page .text-indigo-400,
 [data-theme="light"] .home-page .text-indigo-300 {
   color: #6366F1 !important;
