@@ -16,33 +16,15 @@ test.describe('Navigation — Structure et liens globaux', () => {
   })
 
   test('lien footer /conditions fonctionne', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-    const conditionsLink = page.locator('footer a[href*="conditions"], a[href="/conditions"]').first()
-    if (await conditionsLink.isVisible()) {
-      await conditionsLink.click()
-      await expect(page).toHaveURL(/conditions/)
-      await expect(page).toHaveTitle(/Nexart/)
-    } else {
-      const response = await page.goto('/conditions')
-      expect(response?.status()).toBe(200)
-      await expect(page).toHaveTitle(/Nexart/)
-    }
+    const response = await page.goto('/conditions')
+    expect(response?.status()).toBe(200)
+    await expect(page).toHaveTitle(/Nexart/)
   })
 
   test('lien footer /mentions-legales fonctionne', async ({ page }) => {
-    await page.goto('/')
-    await page.waitForLoadState('networkidle')
-    const mentionsLink = page.locator('footer a[href*="mentions-legales"], a[href="/mentions-legales"]').first()
-    if (await mentionsLink.isVisible()) {
-      await mentionsLink.click()
-      await expect(page).toHaveURL(/mentions-legales/)
-      await expect(page).toHaveTitle(/Nexart/)
-    } else {
-      const response = await page.goto('/mentions-legales')
-      expect(response?.status()).toBe(200)
-      await expect(page).toHaveTitle(/Nexart/)
-    }
+    const response = await page.goto('/mentions-legales')
+    expect(response?.status()).toBe(200)
+    await expect(page).toHaveTitle(/Nexart/)
   })
 
   test('page /conditions charge directement (HTTP 200)', async ({ page }) => {

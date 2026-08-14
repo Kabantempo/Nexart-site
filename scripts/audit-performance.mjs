@@ -1,5 +1,13 @@
-import { execSync } from 'child_process'
-import { writeFileSync } from 'fs'
+import { execSync, spawnSync } from 'child_process'
+import { writeFileSync, mkdirSync } from 'fs'
+
+// Vérifie que Lighthouse est installé
+const lhCheck = spawnSync('lighthouse', ['--version'], { encoding: 'utf8' })
+if (lhCheck.status !== 0) {
+  console.log('⚠️  Lighthouse non installé — audit ignoré.')
+  console.log('   Pour l\'activer : npm install -g lighthouse')
+  process.exit(0)
+}
 
 const BASE = process.env.AUDIT_BASE_URL || 'https://nexart.fr'
 
@@ -81,6 +89,7 @@ ${results.filter(r => r.accessibility < 90).length > 0 ? '### Accessibility Issu
 Detailed Lighthouse reports: \`${reportDir}/\`
 `
 
+mkdirSync(reportDir, { recursive: true })
 writeFileSync(`${reportDir}/REPORT.md`, summary)
 console.log('\n✅ Audit complete!')
 console.log(`📄 Summary: ${reportDir}/REPORT.md`)
