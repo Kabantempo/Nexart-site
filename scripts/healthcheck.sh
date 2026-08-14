@@ -195,51 +195,27 @@ else
   fail "POST /api/events body invalide → HTTP $code_post (attendu 400/401, pas 500)"
 fi
 
-# ─── INTÉGRITÉ DE LA BASE (Supabase Management API) ─────────
+# ─── INTÉGRITÉ DE LA BASE (lue depuis tests/config.ts) ──────
 header "Intégrité de la base de données"
-check_db "Events publiés"        "SELECT count(*) FROM public.events WHERE status='published'"       1
-check_db "Profils créateurs"     "SELECT count(*) FROM public.profiles WHERE role='creator'"         1
-check_db "Profils organisateurs" "SELECT count(*) FROM public.profiles WHERE role='organizer'"       1
-check_db "Table applications"    "SELECT count(*) FROM public.applications"                          0
-check_db "Table messages"        "SELECT count(*) FROM public.messages"                              0
-check_db "Changelog (WhatsNew)"  "SELECT count(*) FROM public.changelog"                             1
 
-# ─── INTÉGRITÉ DB AVANCÉE ────────────────────────────────────
-header "Intégrité DB avancée"
+if [[ -z "$SUPA_PAT" ]]; then
+  warn "SUPABASE_PAT non défini — checks DB ignorés (ajoute-le dans .env.local)"
+else
+  # Extrait les checks DB depuis tests/config.ts et les exécute
+  node scripts/parse-db-checks.mjs 2>/dev/null > /tmp/db_checks.json
 
-# Events publiés sans organizer_id valide (orphelins)
-check_db "Aucun event orphelin (organizer manquant)" \
-  "SELECT count(*) FROM public.events e WHERE e.status='published' AND NOT EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = e.organizer_id)" \
-  0 "eq"
-
-# Events publiés sans titre ni description
-check_db "Aucun event publié incomplet (sans titre)" \
-  "SELECT count(*) FROM public.events WHERE status='published' AND (title IS NULL OR title='')" \
-  0 "eq"
-
-# Applications sans event ou creator valide (données corrompues)
-check_db "Aucune application orpheline (event manquant)" \
-  "SELECT count(*) FROM public.applications a WHERE NOT EXISTS (SELECT 1 FROM public.events e WHERE e.id = a.event_id)" \
-  0 "eq"
-
-check_db "Aucune application orpheline (creator manquant)" \
-  "SELECT count(*) FROM public.applications a WHERE NOT EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = a.creator_id)" \
-  0 "eq"
-
-# Profils avec role=creator mais aussi des champs organisateur (incohérence)
-check_db "Aucun profil avec rôles mixtes (creator+organizer)" \
-  "SELECT count(*) FROM public.profiles p WHERE p.role='creator' AND EXISTS (SELECT 1 FROM public.organizer_profiles op WHERE op.id = p.id)" \
-  0 "eq"
-
-# Messages dans des conversations inexistantes
-check_db "Aucun message orphelin (conversation manquante)" \
-  "SELECT count(*) FROM public.messages m WHERE NOT EXISTS (SELECT 1 FROM public.conversations c WHERE c.id = m.conversation_id)" \
-  0 "eq"
-
-# Events publiés avec start_date déjà passée sans être closed (oubli de fermeture)
-check_db "Events terminés non fermés (> 30j dépassés)" \
-  "SELECT count(*) FROM public.events WHERE status='published' AND end_date < now() - interval '30 days'" \
-  0 "eq"
+  if [[ -s /tmp/db_checks.json ]] && python3 -c "import sys,json; json.load(sys.stdin)" < /tmp/db_checks.json 2>/dev/null; then
+    while IFS= read -r check; do
+      label=$(echo "$check" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['label'])")
+      sql=$(echo "$check"   | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['sql'])")
+      min=$(echo "$check"   | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('min',1))")
+      mode=$(echo "$check"  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('mode','gte'))")
+      check_db "$label" "$sql" "$min" "$mode"
+    done < <(python3 -c "import sys,json; [print(json.dumps(c)) for c in json.load(open('/tmp/db_checks.json'))]")
+  else
+    warn "tests/config.ts introuvable — checks DB ignorés"
+  fi
+fi
 
 # ─── API AUTH-PROTÉGÉES ─────────────────────────────────────
 header "API protégées (401/403 sans token)"
