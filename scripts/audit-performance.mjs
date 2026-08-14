@@ -1,11 +1,13 @@
 import { execSync } from 'child_process'
 import { writeFileSync } from 'fs'
 
+const BASE = process.env.AUDIT_BASE_URL || 'https://nexart.fr'
+
 const pages = [
-  { name: 'home', url: 'http://localhost:3000' },
-  { name: 'events', url: 'http://localhost:3000/events' },
-  { name: 'creators', url: 'http://localhost:3000/creators' },
-  { name: 'contact', url: 'http://localhost:3000/contact' },
+  { name: 'home', url: `${BASE}` },
+  { name: 'events', url: `${BASE}/events` },
+  { name: 'creators', url: `${BASE}/creators` },
+  { name: 'contact', url: `${BASE}/contact` },
 ]
 
 const timestamp = new Date().toISOString().split('T')[0]

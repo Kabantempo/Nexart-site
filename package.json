@@ -13,13 +13,8 @@
     "build:local": "NEXT_TELEMETRY_DISABLED=1 RAYON_NUM_THREADS=1 NEXT_CPU_CPUS=1 next build",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug",
-    "audit:performance": "node scripts/audit-performance.mjs",
-    "bump-version": "bash scripts/bump-version.sh",
-    "test:prod": "bash scripts/healthcheck.sh https://nexart.fr",
-    "test:local": "bash scripts/healthcheck.sh http://localhost:3000"
+    "test": "bash scripts/test-report.sh",
+    "bump-version": "bash scripts/bump-version.sh"
   },
   "dependencies": {
     "@21st-sdk/agent": "^0.0.18",
