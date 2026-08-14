@@ -106,7 +106,7 @@ export default async function RegionPage(props: { params: Promise<{ slug: string
 
   return (
     <>
-      <Script id="region-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Script id="region-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <RegionPageClient slug={slug} region={region} initialEvents={events} />
     </>
   )
