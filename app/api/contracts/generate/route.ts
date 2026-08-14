@@ -43,6 +43,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Données introuvables' }, { status: 404 })
   }
 
+  // Verify organizer_id actually owns the event
+  if ((event as any).organizer_id !== organizer_id) {
+    return NextResponse.json({ error: 'Non autorisé : organisateur incorrect' }, { status: 403 })
+  }
+
+  // Verify creator_id has an accepted application for this event
+  const { data: app } = await admin.from('applications')
+    .select('id').eq('event_id', event_id).eq('creator_id', creator_id).eq('status', 'accepted').maybeSingle()
+  if (!app) {
+    return NextResponse.json({ error: 'Non autorisé : créateur non accepté pour cet événement' }, { status: 403 })
+  }
+
   // Numéro de contrat unique
   const contractNumber = `NXRT-${event_id.slice(0, 6).toUpperCase()}-${creator_id.slice(0, 6).toUpperCase()}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`
 

@@ -33,6 +33,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
     }
 
+    // Verify creator_id has an accepted application for this event
+    const { data: application } = await admin.from('applications')
+      .select('id')
+      .eq('event_id', params.id)
+      .eq('creator_id', creator_id)
+      .eq('status', 'accepted')
+      .maybeSingle()
+    if (!application) return NextResponse.json({ error: 'Créateur non associé à cet événement' }, { status: 403 })
+
     // Pour le contrat, déléguer à contracts/generate
     if (type === 'contrat') {
       const contractRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/contracts/generate`, {

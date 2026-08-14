@@ -96,12 +96,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const { waitlist_id } = body
     if (!waitlist_id) return NextResponse.json({ error: 'waitlist_id required' }, { status: 400 })
 
-    // Fetch creator info before promoting
+    // Fetch creator info before promoting — constrain to this event to prevent cross-event access
     const { data: entry } = await (admin as any)
       .from('event_exhibitor_waitlist')
       .select('creator_id, profiles:creator_id(full_name)')
       .eq('id', waitlist_id)
+      .eq('event_id', params.id)
       .single()
+    if (!entry) return NextResponse.json({ error: 'Entrée waitlist introuvable' }, { status: 404 })
 
     const { data: eventData } = await admin.from('events').select('title').eq('id', params.id).single()
 

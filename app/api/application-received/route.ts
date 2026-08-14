@@ -16,6 +16,13 @@ export async function POST(req: NextRequest) {
     const { organizer_id, creator_name, event_title, event_id } = await req.json()
     if (!organizer_id || !event_title) return NextResponse.json({ ok: true })
 
+    // Verify caller has a real application for this event
+    if (event_id) {
+      const { data: app } = await admin.from('applications')
+        .select('id').eq('event_id', event_id).eq('creator_id', authUser.id).maybeSingle()
+      if (!app) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    }
+
     const { data: { user } } = await admin.auth.admin.getUserById(organizer_id)
     const organizerEmail = user?.email
     if (!organizerEmail || !process.env.SMTP_PASS) return NextResponse.json({ ok: true })

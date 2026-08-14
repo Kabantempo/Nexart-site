@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
       userId = id
       tokenTimestamp = parseInt(timestamp, 10)
 
-      const tokenSecret = process.env.DELETION_TOKEN_SECRET || process.env.CRON_SECRET_TOKEN || 'fallback-dev-only'
+      const tokenSecret = process.env.DELETION_TOKEN_SECRET || process.env.CRON_SECRET_TOKEN
+      if (!tokenSecret) throw new Error('Server misconfigured: token secret missing')
       const expectedSig = createHmac('sha256', tokenSecret).update(`${userId}:${timestamp}`).digest('hex')
       const sigBuf = Buffer.from(sig, 'hex')
       const expectedBuf = Buffer.from(expectedSig, 'hex')

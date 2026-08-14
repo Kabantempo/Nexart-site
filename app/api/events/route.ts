@@ -58,7 +58,10 @@ export async function POST(req: NextRequest) {
     const organizer_id = authUser.id
 
     // Plan check: free organizers limited to 1 active event (draft or published)
-    const { data: profile } = await admin.from('profiles').select('subscription_tier').eq('id', organizer_id).single()
+    const { data: profile } = await admin.from('profiles').select('subscription_tier, role').eq('id', organizer_id).single()
+    if ((profile as any)?.role !== 'organizer') {
+      return NextResponse.json({ error: 'Réservé aux organisateurs' }, { status: 403 })
+    }
     const tier = (profile as any)?.subscription_tier ?? 'free'
     const isPro = ['org_pro', 'org_studio'].includes(tier)
     if (!isPro) {

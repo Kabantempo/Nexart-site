@@ -10,8 +10,7 @@ async function handler(req: NextRequest) {
   if (!token) return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
 
   const authHeader = req.headers.get('authorization')
-  const tokenParam = req.nextUrl.searchParams.get('token')
-  if (authHeader !== `Bearer ${token}` && tokenParam !== token) {
+  if (authHeader !== `Bearer ${token}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
