@@ -14,6 +14,7 @@
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "test": "bash scripts/test-report.sh",
+    "test:visual:update": "playwright test visual --update-snapshots",
     "bump-version": "bash scripts/bump-version.sh"
   },
   "dependencies": {
