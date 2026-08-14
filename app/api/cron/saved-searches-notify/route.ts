@@ -100,7 +100,7 @@ async function handler(req: NextRequest) {
 
         notified++
       } catch (err) {
-        console.error(`[saved-searches-notify] Error for user ${userId}:`, err)
+        console.error('[saved-searches-notify] Error for user', userId, ':', err) // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
         errors++
       }
     }

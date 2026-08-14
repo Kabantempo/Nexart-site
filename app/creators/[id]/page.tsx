@@ -109,12 +109,14 @@ export default async function CreatorPage(props: { params: Promise<{ id: string 
         <Script
           id="creator-schema"
           type="application/ld+json"
+          // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
           dangerouslySetInnerHTML={{ __html: JSON.stringify(creatorJsonLd).replace(/</g, '\\u003c') }}
         />
       )}
       <Script
         id="breadcrumb-schema"
         type="application/ld+json"
+        // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <CreatorProfileClient id={resolvedId} />

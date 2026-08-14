@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           error: (error instanceof Error ? error.message : String(error)),
         })
-        console.error(`[ERROR] Hard-delete user ${user.id}:`, error)
+        console.error('[ERROR] Hard-delete user', user.id, ':', error) // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
       }
     }
 
