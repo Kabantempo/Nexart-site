@@ -128,10 +128,16 @@ echo -e "${BOLD}${CYAN}╚══════════════════
 echo ""
 
 run "Healthcheck production" bash scripts/healthcheck.sh https://nexart.fr
+HEALTHCHECK_STATUS=$( (( EXIT_CODE == 0 || FAIL_COUNT == 0 )) && echo "ok" || echo "fail" )
+[[ $FAIL_COUNT -eq 0 ]] && HEALTHCHECK_STATUS="ok" || HEALTHCHECK_STATUS="fail"
+_prev_fail=$FAIL_COUNT
 echo ""
 run "Tests E2E Playwright"   npx playwright test --reporter=line
+[[ $FAIL_COUNT -eq $_prev_fail ]] && E2E_STATUS="ok" || E2E_STATUS="fail"
+_prev_fail=$FAIL_COUNT
 echo ""
 run "Audit performance"      node scripts/audit-performance.mjs
+[[ $FAIL_COUNT -eq $_prev_fail ]] && PERF_STATUS="ok" || PERF_STATUS="fail"
 
 # ── Rapport Markdown ─────────────────────────────────────────
 cat > "$REPORT" << EOF
@@ -143,16 +149,31 @@ EOF
 
 # ── Résumé ───────────────────────────────────────────────────
 echo ""
-TOTAL=$((PASS_COUNT + FAIL_COUNT))
-echo -e "${BOLD}${CYAN}╔══════════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}${CYAN}║${RESET}  Suites : ${GREEN}$PASS_COUNT passée(s)${RESET} / ${RED}$FAIL_COUNT échouée(s)${RESET} / $TOTAL total"
-if (( EXIT_CODE == 0 )); then
-  echo -e "${BOLD}${CYAN}║${RESET}  ${GREEN}${BOLD}RÉSULTAT : TOUT EST OK ✅${RESET}"
+echo -e "${BOLD}${CYAN}╔══════════════════════════════════════════════════╗${RESET}"
+echo -e "${BOLD}${CYAN}║  Résumé des tests — $TIMESTAMP          ${CYAN}║${RESET}"
+echo -e "${BOLD}${CYAN}╠══════════════════════════════════════════════════╣${RESET}"
+if [[ "$HEALTHCHECK_STATUS" == "ok" ]]; then
+  echo -e "${BOLD}${CYAN}║${RESET}  ${GREEN}✓${RESET}  Healthcheck production              ${GREEN}OK${RESET}     ${BOLD}${CYAN}║${RESET}"
 else
-  echo -e "${BOLD}${CYAN}║${RESET}  ${RED}${BOLD}RÉSULTAT : $FAIL_COUNT SUITE(S) EN ERREUR ❌${RESET}"
-  echo -e "${BOLD}${CYAN}║${RESET}  ${YELLOW}Rapport → $REPORT${RESET}"
+  echo -e "${BOLD}${CYAN}║${RESET}  ${RED}✗${RESET}  Healthcheck production           ${RED}ÉCHEC${RESET}     ${BOLD}${CYAN}║${RESET}"
 fi
-echo -e "${BOLD}${CYAN}╚══════════════════════════════════════════╝${RESET}"
+if [[ "$E2E_STATUS" == "ok" ]]; then
+  echo -e "${BOLD}${CYAN}║${RESET}  ${GREEN}✓${RESET}  Tests E2E Playwright                ${GREEN}OK${RESET}     ${BOLD}${CYAN}║${RESET}"
+else
+  echo -e "${BOLD}${CYAN}║${RESET}  ${RED}✗${RESET}  Tests E2E Playwright             ${RED}ÉCHEC${RESET}     ${BOLD}${CYAN}║${RESET}"
+fi
+if [[ "$PERF_STATUS" == "ok" ]]; then
+  echo -e "${BOLD}${CYAN}║${RESET}  ${GREEN}✓${RESET}  Audit performance                   ${GREEN}OK${RESET}     ${BOLD}${CYAN}║${RESET}"
+else
+  echo -e "${BOLD}${CYAN}║${RESET}  ${RED}✗${RESET}  Audit performance                ${RED}ÉCHEC${RESET}     ${BOLD}${CYAN}║${RESET}"
+fi
+echo -e "${BOLD}${CYAN}╠══════════════════════════════════════════════════╣${RESET}"
+if (( EXIT_CODE == 0 )); then
+  echo -e "${BOLD}${CYAN}║${RESET}  ${GREEN}${BOLD}TOUT EST OK — $PASS_COUNT/3 suites passées ✅${RESET}              ${BOLD}${CYAN}║${RESET}"
+else
+  echo -e "${BOLD}${CYAN}║${RESET}  ${RED}${BOLD}$FAIL_COUNT SUITE(S) EN ERREUR — rapport sur le Bureau ❌${RESET}  ${BOLD}${CYAN}║${RESET}"
+fi
+echo -e "${BOLD}${CYAN}╚══════════════════════════════════════════════════╝${RESET}"
 echo ""
 
 cp "$REPORT" "$HOME/Desktop/nexart-test-report.md"
