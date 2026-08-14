@@ -130,7 +130,9 @@ export function NexTabs<T extends string = string>({
         padding: '4px',
         borderRadius: '10px',
         width: 'fit-content',
+        maxWidth: '100%',
         overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {tabs.map((tab, idx) => {
