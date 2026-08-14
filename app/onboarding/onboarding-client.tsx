@@ -193,7 +193,7 @@ export default function OnboardingClient() {
   if (done) {
     const isOrgWelcome = role === 'organizer'
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#06060f', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 16px' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 16px' }}>
         <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-128px', left: '-128px', width: '384px', height: '384px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', filter: 'blur(120px)' }} />
           <div style={{ position: 'absolute', bottom: '-128px', right: '-128px', width: '384px', height: '384px', borderRadius: '50%', background: 'rgba(139,92,246,0.10)', filter: 'blur(120px)' }} />
@@ -288,7 +288,7 @@ export default function OnboardingClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#06060f] flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/15 blur-[120px]" />
