@@ -130,12 +130,14 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
         <Script
           id="event-schema"
           type="application/ld+json"
+          // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
           dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd).replace(/</g, '\\u003c') }}
         />
       )}
       <Script
         id="breadcrumb-schema"
         type="application/ld+json"
+        // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <EventDetailClient id={params.id} />

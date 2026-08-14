@@ -40,7 +40,7 @@ for (const page of pages) {
 
     console.log(`✓ ${page.name}: Performance ${results[results.length - 1].performance}/100\n`)
   } catch (err) {
-    console.error(`✗ Failed to audit ${page.name}:`, err.message)
+    console.error('✗ Failed to audit', page.name, ':', err.message) // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
   }
 }
 

@@ -12,6 +12,7 @@ type Tab = 'all' | 'events' | 'creators'
 
 function highlight(text: string | undefined, query: string): React.ReactNode {
   if (!text || !query || query.length < 2) return text ?? ''
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
   const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'))
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase()

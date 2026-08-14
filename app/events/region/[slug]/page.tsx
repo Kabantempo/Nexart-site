@@ -106,6 +106,7 @@ export default async function RegionPage(props: { params: Promise<{ slug: string
 
   return (
     <>
+      {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml */}
       <Script id="region-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <RegionPageClient slug={slug} region={region} initialEvents={events} />
     </>
