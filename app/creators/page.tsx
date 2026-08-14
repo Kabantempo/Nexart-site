@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import CreatorsClient from './creators-client'
 
 export const metadata: Metadata = {
@@ -21,5 +22,5 @@ export const metadata: Metadata = {
 }
 
 export default function CreatorsPage() {
-  return <CreatorsClient />
+  return <Suspense><CreatorsClient /></Suspense>
 }

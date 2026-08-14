@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import LoginClient from './login-client'
 
 export const metadata: Metadata = {
@@ -9,4 +10,4 @@ export const metadata: Metadata = {
   openGraph: { title: 'Connexion — Nexart', description: 'Accédez à votre espace Nexart.', url: 'https://nexart.fr/login', type: 'website', images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Connexion' }] },
 }
 
-export default function LoginPage() { return <LoginClient /> }
+export default function LoginPage() { return <Suspense><LoginClient /></Suspense> }

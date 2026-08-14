@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import EventsClient from './events-client'
 
 export const metadata: Metadata = {
@@ -21,5 +22,5 @@ export const metadata: Metadata = {
 }
 
 export default function EventsPage() {
-  return <EventsClient />
+  return <Suspense><EventsClient /></Suspense>
 }
