@@ -3,7 +3,7 @@
  * Ajoute une page/endpoint/db check dans config.ts → ce fichier le teste automatiquement
  */
 import { test, expect } from '@playwright/test'
-import { PUBLIC_PAGES, PROTECTED_PAGES, PUBLIC_APIS, PROTECTED_APIS } from '../config'
+import { PUBLIC_PAGES, PROTECTED_PAGES, PUBLIC_APIS, PROTECTED_APIS, PROTECTED_MUTATIONS, SECURITY_HEADERS, PUBLIC_FORMS } from '../config'
 
 // ─── Pages publiques ─────────────────────────────────────────
 test.describe('Auto — Pages publiques', () => {
@@ -67,6 +67,39 @@ test.describe('Auto — APIs protégées', () => {
     test(`GET ${path} — 401/403 sans token`, async ({ request }) => {
       const res = await request.get(path)
       expect([401, 403, 404, 405]).toContain(res.status())
+    })
+  }
+})
+
+// ─── Mutations protégées (POST/PATCH/DELETE) ──────────────────
+test.describe('Auto — Mutations protégées', () => {
+  for (const { method, path } of PROTECTED_MUTATIONS) {
+    test(`${method} ${path} — 401/403/405 sans token`, async ({ request }) => {
+      const res = await request[method.toLowerCase() as 'post' | 'patch' | 'delete'](path, {
+        data: { test: true },
+      })
+      expect([400, 401, 403, 404, 405]).toContain(res.status())
+    })
+  }
+})
+
+// ─── Headers de sécurité ──────────────────────────────────────
+test.describe('Auto — Sécurité HTTP', () => {
+  test('/ expose les headers de sécurité requis', async ({ request }) => {
+    const res = await request.get('/')
+    const headers = res.headers()
+    for (const header of SECURITY_HEADERS) {
+      expect(headers[header], `Header manquant: ${header}`).toBeTruthy()
+    }
+  })
+})
+
+// ─── Formulaires publics ──────────────────────────────────────
+test.describe('Auto — Formulaires publics', () => {
+  for (const { label, path, body, expectedStatus } of PUBLIC_FORMS) {
+    test(label, async ({ request }) => {
+      const res = await request.post(path, { data: body })
+      expect(expectedStatus).toContain(res.status())
     })
   }
 })
