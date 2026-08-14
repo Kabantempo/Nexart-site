@@ -17,7 +17,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "audit:performance": "node scripts/audit-performance.mjs",
-    "bump-version": "bash scripts/bump-version.sh"
+    "bump-version": "bash scripts/bump-version.sh",
+    "test:prod": "bash scripts/healthcheck.sh https://nexart.fr",
+    "test:local": "bash scripts/healthcheck.sh http://localhost:3000"
   },
   "dependencies": {
     "@21st-sdk/agent": "^0.0.18",
