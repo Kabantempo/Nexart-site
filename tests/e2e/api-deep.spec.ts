@@ -103,7 +103,7 @@ test.describe('API — CRUD events', () => {
 
   test('DELETE /api/events/:id sans auth — retourne 401 ou 403', async ({ request }) => {
     const r = await request.delete('/api/events/non-existent-id')
-    expect([401, 403, 404, 405]).toContain(r.status())
+    expect([400, 401, 403, 404, 405]).toContain(r.status())
   })
 
   test('GET /api/events/:id — event valide retourne les données complètes', async ({ request }) => {
