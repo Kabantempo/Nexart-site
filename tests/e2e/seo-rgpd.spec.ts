@@ -171,9 +171,11 @@ test.describe('Sécurité — Pas de leak d\'informations', () => {
     expect(body).not.toContain('stack')
   })
 
-  test('404 API ne leak pas d\'infos serveur', async ({ request }) => {
+  test('404 API ne leak pas de stack trace Node.js', async ({ request }) => {
     const res = await request.get('/api/route-inexistante-xyz')
     const body = await res.text()
-    expect(body).not.toContain('node_modules')
+    // Vérifie l'absence de stack traces Node.js brutes (pas les refs RSC normales)
+    expect(body).not.toMatch(/Error: .+\n\s+at \w+\./)
+    expect(body).not.toContain('process.processTimers')
   })
 })

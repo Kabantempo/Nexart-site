@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Pages privées
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /profile
+Disallow: /api/
+
+Sitemap: https://nexart.fr/sitemap.xml
