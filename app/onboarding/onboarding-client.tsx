@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
@@ -66,6 +66,42 @@ export default function OnboardingClient() {
 
   const [done, setDone] = useState(false)
   const totalSteps = role === 'creator' ? 3 : role === 'organizer' ? 5 : 2
+
+  const STORAGE_KEY = 'nexart_onboarding_draft'
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (!saved) return
+      const d = JSON.parse(saved)
+      if (d.step !== undefined) setStep(d.step)
+      if (d.role) setRole(d.role)
+      if (d.fullName) setFullName(d.fullName)
+      if (d.bio) setBio(d.bio)
+      if (d.disciplines) setDisciplines(d.disciplines)
+      if (d.city) setCity(d.city)
+      if (d.orgName) setOrgName(d.orgName)
+      if (d.orgCity) setOrgCity(d.orgCity)
+      if (d.orgEventTypes) setOrgEventTypes(d.orgEventTypes)
+      if (d.eventsPerYear) setEventsPerYear(d.eventsPerYear)
+      if (d.typicalCapacity) setTypicalCapacity(d.typicalCapacity)
+      if (d.hasUpcomingEvent !== undefined) setHasUpcomingEvent(d.hasUpcomingEvent)
+      if (d.upcomingEventTitle) setUpcomingEventTitle(d.upcomingEventTitle)
+      if (d.upcomingEventDate) setUpcomingEventDate(d.upcomingEventDate)
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    if (done) { localStorage.removeItem(STORAGE_KEY); return }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        step, role, fullName, bio, disciplines, city,
+        orgName, orgCity, orgEventTypes, eventsPerYear,
+        typicalCapacity, hasUpcomingEvent, upcomingEventTitle, upcomingEventDate,
+      }))
+    } catch {}
+  }, [step, role, fullName, bio, disciplines, city, orgName, orgCity, orgEventTypes,
+      eventsPerYear, typicalCapacity, hasUpcomingEvent, upcomingEventTitle, upcomingEventDate, done])
 
   const toggleOrgEventType = (t: string) => {
     setOrgEventTypes(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])
