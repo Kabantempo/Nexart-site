@@ -1,0 +1,36 @@
+name: Nexart Cron Jobs
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # send-reminders — tous les jours 07h00 UTC
+    - cron: '0 8 * * 1'   # weekly-digest — lundi 08h00 UTC
+    - cron: '0 9 * * *'   # saved-searches-notify — tous les jours 09h00 UTC
+  workflow_dispatch:        # déclenchement manuel depuis GitHub UI
+
+jobs:
+  send-reminders:
+    if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send reminders
+        run: |
+          curl -sf -X POST https://nexart.fr/api/cron/send-reminders \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}"
+
+  weekly-digest:
+    if: github.event.schedule == '0 8 * * 1' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send weekly digest
+        run: |
+          curl -sf -X POST https://nexart.fr/api/cron/weekly-digest \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}"
+
+  saved-searches-notify:
+    if: github.event.schedule == '0 9 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify saved searches
+        run: |
+          curl -sf -X POST https://nexart.fr/api/cron/saved-searches-notify \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}"
