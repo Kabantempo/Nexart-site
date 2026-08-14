@@ -48,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
-  const user = await getAuthUser(req)
+  const user = await requireOrganizer(req, params.id)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const admin = getAdminClient()

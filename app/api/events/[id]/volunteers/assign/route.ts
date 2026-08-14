@@ -31,8 +31,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const supabase = getAdminClient()
 
-    // Clear existing assignments for these shifts
     const shiftIds = [...new Set(assignments.map(a => a.shift_id))]
+
+    // Verify all shift_ids belong to this event
+    const { data: validShifts } = await supabase
+      .from('event_shifts')
+      .select('id')
+      .eq('event_id', params.id)
+      .in('id', shiftIds)
+    const validShiftSet = new Set((validShifts || []).map((s: any) => s.id))
+    const invalidShift = shiftIds.find(id => !validShiftSet.has(id))
+    if (invalidShift) return NextResponse.json({ error: 'Shift invalide pour cet événement' }, { status: 400 })
+
+    // Clear existing assignments for these shifts
     await (supabase as any).from('volunteer_assignments').delete().in('shift_id', shiftIds)
 
     // Insert new assignments

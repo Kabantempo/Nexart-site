@@ -35,6 +35,11 @@ export async function POST(req: NextRequest) {
       .single()
     if (!conv) return NextResponse.json({ ok: true })
 
+    // Verify sender is a participant of this conversation
+    if (authUser.id !== conv.creator_id && authUser.id !== conv.organizer_id) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    }
+
     const recipientId = conv.creator_id === sender_id ? conv.organizer_id : conv.creator_id
 
     // Vérifier si le destinataire est en ligne (a lu un message dans les 5 dernières min) — skip si oui

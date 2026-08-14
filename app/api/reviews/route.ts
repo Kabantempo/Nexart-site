@@ -66,10 +66,19 @@ export async function POST(req: NextRequest) {
       const { data: app } = await admin.from('applications')
         .select('id').eq('event_id', event_id).eq('creator_id', reviewer_id).eq('status', 'accepted').maybeSingle()
       if (!app) return NextResponse.json({ error: 'Seuls les créateurs acceptés peuvent noter cet événement' }, { status: 403 })
+      // reviewed_id must be the event organizer
+      const { data: ev } = await admin.from('events').select('organizer_id').eq('id', event_id).single()
+      if (!ev || ev.organizer_id !== reviewed_id) {
+        return NextResponse.json({ error: 'reviewed_id invalide : doit être l\'organisateur de l\'événement' }, { status: 400 })
+      }
     } else {
       const { data: ev } = await admin.from('events')
         .select('id').eq('id', event_id).eq('organizer_id', reviewer_id).maybeSingle()
       if (!ev) return NextResponse.json({ error: "Seul l'organisateur peut noter les créateurs" }, { status: 403 })
+      // reviewed_id must be an accepted creator for this event
+      const { data: app } = await admin.from('applications')
+        .select('id').eq('event_id', event_id).eq('creator_id', reviewed_id).eq('status', 'accepted').maybeSingle()
+      if (!app) return NextResponse.json({ error: 'reviewed_id invalide : créateur non accepté pour cet événement' }, { status: 400 })
     }
 
     const { data: review, error: insertErr } = await admin.from('reviews').insert({

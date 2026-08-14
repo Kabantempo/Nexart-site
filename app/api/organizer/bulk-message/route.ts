@@ -33,6 +33,16 @@ export async function POST(req: NextRequest) {
     if (!event) return NextResponse.json({ error: 'Événement introuvable' }, { status: 404 })
     if (event.organizer_id !== authUser.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
+    // Verify all creator_ids are applicants of this event
+    const { data: validApps } = await admin
+      .from('applications')
+      .select('creator_id')
+      .eq('event_id', event_id)
+      .in('creator_id', creator_ids)
+    const validCreatorSet = new Set((validApps || []).map((a: any) => a.creator_id))
+    const invalidCreator = creator_ids.find((id: string) => !validCreatorSet.has(id))
+    if (invalidCreator) return NextResponse.json({ error: 'Un ou plusieurs créateurs ne sont pas candidats à cet événement' }, { status: 400 })
+
     const errors: string[] = []
     let sent = 0
 

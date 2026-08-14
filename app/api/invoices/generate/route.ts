@@ -30,6 +30,11 @@ export async function POST(req: NextRequest) {
         : Promise.resolve({ data: null }),
     ])
 
+    // Verify application belongs to the authenticated user
+    if (application_id && (application as any)?.creator_id !== user.id) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    }
+
     const eventData = (application as any)?.events
     const organizerName = (eventData as any)?.organizer?.full_name || 'Nexart'
     const eventTitle = eventData?.title || 'Événement Nexart'

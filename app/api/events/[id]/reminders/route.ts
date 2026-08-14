@@ -201,8 +201,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // POST: Update reminder settings for event
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+
+  // Auth: organizer only
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const anonClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user } } = await anonClient.auth.getUser(authHeader.substring(7))
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const adminClient = getAdminClient()
+  const { data: ev } = await adminClient.from('events').select('organizer_id').eq('id', params.id).single()
+  if (ev?.organizer_id !== user.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+
   try {
-    const supabase = getAdminClient()
+    const supabase = adminClient
 
     const body = await req.json()
     const { first_reminder_days = 7, second_reminder_days = 14 } = body

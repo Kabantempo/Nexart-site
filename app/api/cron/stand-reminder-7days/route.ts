@@ -6,10 +6,9 @@ import { emailStandReminder7Days } from '@/lib/email-templates'
 
 async function handler(req: NextRequest) {
   const authHeader = req.headers.get('authorization')
-  const tokenParam = req.nextUrl.searchParams.get('token')
   const token = process.env.CRON_SECRET_TOKEN
 
-  if (!token || (authHeader !== `Bearer ${token}` && tokenParam !== token)) {
+  if (!token || authHeader !== `Bearer ${token}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
