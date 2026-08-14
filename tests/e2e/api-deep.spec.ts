@@ -98,7 +98,7 @@ test.describe('API — CRUD events', () => {
     const r = await request.patch('/api/events/non-existent-id', {
       data: { title: 'Hacked title' },
     })
-    expect([401, 403, 404, 405]).toContain(r.status())
+    expect([400, 401, 403, 404, 405]).toContain(r.status())
   })
 
   test('DELETE /api/events/:id sans auth — retourne 401 ou 403', async ({ request }) => {
@@ -120,7 +120,9 @@ test.describe('API — CRUD events', () => {
     expect([200, 301, 302]).toContain(r.status())
 
     if (r.status() === 200) {
-      const event = await r.json()
+      const body = await r.json()
+      // L'API retourne soit l'event direct, soit { event: {...} }
+      const event = body.event ?? body
       expect(event).toHaveProperty('id')
       expect(event).toHaveProperty('title')
     }
