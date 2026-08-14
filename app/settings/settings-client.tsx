@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Download, Trash2, ChevronRight, Bell, BellOff, Moon, Sun } from 'lucide-react'
+import { Download, Trash2, ChevronRight, Bell, BellOff, Moon, Sun, Globe, Eye, EyeOff, Lock, Mail, MapPin } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ui/toast-provider'
 import { useTheme } from '@/lib/use-theme'
@@ -14,6 +14,15 @@ function urlBase64ToUint8Array(base64String: string) {
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
   const rawData = atob(base64)
   return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
+}
+
+type NotificationPrefs = { messages: boolean; applications: boolean; reminders: boolean; newsletter: boolean }
+type UserSettings = {
+  notification_prefs: NotificationPrefs
+  profile_visibility: 'public' | 'private'
+  preferred_language: 'fr' | 'en'
+  travel_radius: number
+  is_creator: boolean
 }
 
 export default function SettingsClient() {
@@ -181,6 +190,62 @@ export default function SettingsClient() {
               Notifications
             </h2>
             <PushNotificationSection />
+          </motion.section>
+
+          {/* Section: Sécurité */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Sécurité
+            </h2>
+            <SecuritySection />
+          </motion.section>
+
+          {/* Section: Préférences notifications */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Préférences notifications
+            </h2>
+            <NotificationPrefsSection />
+          </motion.section>
+
+          {/* Section: Confidentialité */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Confidentialité
+            </h2>
+            <PrivacySection />
+          </motion.section>
+
+          {/* Section: Langue */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Langue
+            </h2>
+            <LanguageSection />
           </motion.section>
 
           {/* Section: RGPD */}
@@ -407,6 +472,383 @@ function PushNotificationSection() {
           {loading ? '...' : subscribed ? 'Désactiver' : 'Activer'}
         </button>
       )}
+    </div>
+  )
+}
+
+async function getToken() {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session?.access_token
+}
+
+async function patchSettings(payload: Record<string, unknown>) {
+  const token = await getToken()
+  const res = await fetch('/api/account/settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error('Erreur sauvegarde')
+}
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      style={{
+        width: '44px', height: '24px', borderRadius: '12px', border: 'none', cursor: 'pointer',
+        backgroundColor: checked ? '#6366F1' : 'var(--border-color)',
+        position: 'relative', transition: 'background-color 0.2s', flexShrink: 0,
+      }}
+    >
+      <span style={{
+        position: 'absolute', top: '3px',
+        left: checked ? '23px' : '3px',
+        width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#FFFFFF',
+        transition: 'left 0.2s', display: 'block',
+      }} />
+    </button>
+  )
+}
+
+function SecuritySection() {
+  const [emailMode, setEmailMode] = useState(false)
+  const [passwordMode, setPasswordMode] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const toast = useToast()
+
+  const handleEmailChange = async () => {
+    if (!newEmail) return
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail })
+      if (error) throw error
+      toast.success('Email mis à jour — vérifiez votre boîte mail')
+      setEmailMode(false)
+      setNewEmail('')
+    } catch (err: any) {
+      toast.error(err.message || 'Erreur mise à jour email')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || newPassword.length < 8) {
+      toast.error('Mot de passe trop court (8 caractères min)')
+      return
+    }
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      toast.success('Mot de passe mis à jour')
+      setPasswordMode(false)
+      setNewPassword('')
+    } catch (err: any) {
+      toast.error(err.message || 'Erreur mise à jour mot de passe')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputStyle: React.CSSProperties = {
+    padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: '8px',
+    fontSize: '14px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)',
+    flex: 1, outline: 'none',
+  }
+
+  const btnStyle = (danger = false): React.CSSProperties => ({
+    padding: '10px 16px', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer',
+    fontSize: '14px', fontWeight: 600, opacity: loading ? 0.6 : 1,
+    backgroundColor: danger ? '#6366F1' : 'var(--border-color)',
+    color: danger ? '#FFFFFF' : 'var(--text-primary)',
+  })
+
+  return (
+    <div style={{ display: 'grid', gap: '12px' }}>
+      {/* Email */}
+      <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Mail size={18} color="var(--text-secondary)" />
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Adresse email</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Modifier votre email de connexion</div>
+            </div>
+          </div>
+          <button onClick={() => { setEmailMode(!emailMode); setPasswordMode(false) }} style={btnStyle()}>
+            {emailMode ? 'Annuler' : 'Modifier'}
+          </button>
+        </div>
+        {emailMode && (
+          <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
+            <input type="email" placeholder="nouveau@email.com" value={newEmail} onChange={e => setNewEmail(e.target.value)} style={inputStyle} />
+            <button onClick={handleEmailChange} disabled={loading || !newEmail} style={btnStyle(true)}>Sauvegarder</button>
+          </div>
+        )}
+      </div>
+
+      {/* Mot de passe */}
+      <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Lock size={18} color="var(--text-secondary)" />
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Mot de passe</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Choisir un nouveau mot de passe</div>
+            </div>
+          </div>
+          <button onClick={() => { setPasswordMode(!passwordMode); setEmailMode(false) }} style={btnStyle()}>
+            {passwordMode ? 'Annuler' : 'Modifier'}
+          </button>
+        </div>
+        {passwordMode && (
+          <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
+            <input type="password" placeholder="Nouveau mot de passe (8 car. min)" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={inputStyle} />
+            <button onClick={handlePasswordChange} disabled={loading || newPassword.length < 8} style={btnStyle(true)}>Sauvegarder</button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function NotificationPrefsSection() {
+  const [prefs, setPrefs] = useState({ messages: true, applications: true, reminders: true, newsletter: false })
+  const [saving, setSaving] = useState(false)
+  const toast = useToast()
+
+  useEffect(() => {
+    const load = async () => {
+      const token = await getToken()
+      const res = await fetch('/api/account/settings', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.notification_prefs) setPrefs(data.notification_prefs)
+      }
+    }
+    load()
+  }, [])
+
+  const toggle = async (key: keyof typeof prefs) => {
+    const next = { ...prefs, [key]: !prefs[key] }
+    setPrefs(next)
+    setSaving(true)
+    try {
+      await patchSettings({ notification_prefs: next })
+      toast.success('Préférences sauvegardées')
+    } catch {
+      toast.error('Erreur sauvegarde')
+      setPrefs(prefs)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const items: { key: keyof typeof prefs; label: string; desc: string }[] = [
+    { key: 'messages', label: 'Nouveaux messages', desc: 'Notification quand vous recevez un message' },
+    { key: 'applications', label: 'Candidatures', desc: 'Acceptation, refus ou mise à jour de vos candidatures' },
+    { key: 'reminders', label: 'Rappels événements', desc: 'Rappels J-7 et J-1 avant un marché' },
+    { key: 'newsletter', label: 'Newsletter Nexart', desc: 'Actualités, conseils et nouveautés de la plateforme' },
+  ]
+
+  return (
+    <div style={{ display: 'grid', gap: '12px', opacity: saving ? 0.7 : 1, transition: 'opacity 0.2s' }}>
+      {items.map(item => (
+        <div key={item.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px 20px' }}>
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>{item.label}</div>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{item.desc}</div>
+          </div>
+          <Toggle checked={prefs[item.key]} onChange={() => toggle(item.key)} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PrivacySection() {
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public')
+  const [radius, setRadius] = useState(50)
+  const [isCreator, setIsCreator] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const toast = useToast()
+
+  useEffect(() => {
+    const load = async () => {
+      const token = await getToken()
+      const res = await fetch('/api/account/settings', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      if (res.ok) {
+        const data = await res.json()
+        setVisibility(data.profile_visibility ?? 'public')
+        setRadius(data.travel_radius ?? 50)
+        setIsCreator(data.is_creator ?? false)
+      }
+    }
+    load()
+  }, [])
+
+  const saveVisibility = async (val: 'public' | 'private') => {
+    setVisibility(val)
+    setSaving(true)
+    try {
+      await patchSettings({ profile_visibility: val })
+      toast.success('Visibilité mise à jour')
+    } catch {
+      toast.error('Erreur sauvegarde')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const saveRadius = async () => {
+    setSaving(true)
+    try {
+      await patchSettings({ travel_radius: radius })
+      toast.success('Rayon mis à jour')
+    } catch {
+      toast.error('Erreur sauvegarde')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: '12px' }}>
+      {/* Visibilité profil */}
+      <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          {visibility === 'public' ? <Eye size={18} color="var(--text-secondary)" /> : <EyeOff size={18} color="var(--text-secondary)" />}
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Visibilité du profil</div>
+            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Contrôlez qui peut voir votre profil</div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          {(['public', 'private'] as const).map(val => (
+            <button
+              key={val}
+              onClick={() => saveVisibility(val)}
+              disabled={saving}
+              style={{
+                padding: '12px', border: visibility === val ? '2px solid #6366F1' : '1px solid var(--border-color)',
+                borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px',
+                backgroundColor: visibility === val ? '#EEF2FF' : 'var(--bg-primary)',
+                color: visibility === val ? '#6366F1' : 'var(--text-primary)',
+              }}
+            >
+              {val === 'public' ? 'Public' : 'Privé'}
+            </button>
+          ))}
+        </div>
+        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '10px' }}>
+          {visibility === 'private' ? 'Votre profil est masqué des résultats de recherche.' : 'Votre profil est visible par tous les visiteurs.'}
+        </p>
+      </div>
+
+      {/* Rayon de recherche (créateurs uniquement) */}
+      {isCreator && (
+        <div style={{ border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <MapPin size={18} color="var(--text-secondary)" />
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Rayon de déplacement</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Distance maximale pour les marchés proposés</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <input
+              type="range" min={10} max={500} step={10} value={radius}
+              onChange={e => setRadius(Number(e.target.value))}
+              style={{ flex: 1, accentColor: '#6366F1' }}
+            />
+            <span style={{ fontSize: '16px', fontWeight: 700, color: '#6366F1', minWidth: '60px', textAlign: 'right' }}>
+              {radius} km
+            </span>
+          </div>
+          <button
+            onClick={saveRadius} disabled={saving}
+            style={{ marginTop: '12px', padding: '10px 20px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}
+          >
+            Sauvegarder
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function LanguageSection() {
+  const [lang, setLang] = useState<'fr' | 'en'>('fr')
+  const [saving, setSaving] = useState(false)
+  const toast = useToast()
+
+  useEffect(() => {
+    const load = async () => {
+      const token = await getToken()
+      const res = await fetch('/api/account/settings', { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+      if (res.ok) {
+        const data = await res.json()
+        setLang(data.preferred_language ?? 'fr')
+      }
+    }
+    load()
+  }, [])
+
+  const select = async (val: 'fr' | 'en') => {
+    setLang(val)
+    setSaving(true)
+    try {
+      await patchSettings({ preferred_language: val })
+      toast.success('Langue mise à jour')
+    } catch {
+      toast.error('Erreur sauvegarde')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const options = [
+    { value: 'fr' as const, label: 'Français', flag: '🇫🇷' },
+    { value: 'en' as const, label: 'English', flag: '🇬🇧' },
+  ]
+
+  return (
+    <div style={{ display: 'grid', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+        <Globe size={18} color="var(--text-secondary)" />
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+          Langue de l&apos;interface (traduction complète à venir)
+        </p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        {options.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => select(opt.value)}
+            disabled={saving}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '16px 20px', border: lang === opt.value ? '2px solid #6366F1' : '1px solid var(--border-color)',
+              borderRadius: '12px', cursor: 'pointer', textAlign: 'left',
+              backgroundColor: lang === opt.value ? '#EEF2FF' : 'var(--bg-primary)',
+            }}
+          >
+            <span style={{ fontSize: '24px' }}>{opt.flag}</span>
+            <div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: lang === opt.value ? '#6366F1' : 'var(--text-primary)' }}>
+                {opt.label}
+              </div>
+            </div>
+            {lang === opt.value && (
+              <span style={{ marginLeft: 'auto', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#6366F1' }} />
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
