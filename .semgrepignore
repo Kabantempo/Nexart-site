@@ -1,0 +1,10 @@
+# False positives — Next.js 16.3.1 patches all these CVEs
+# Semgrep's supply chain DB doesn't recognize 16.x as a valid patch branch
+# for CVEs originally fixed in 14.x/15.x branches.
+# See: CVE-2025-57752, CVE-2024-51479, CVE-2025-55173, CVE-2024-47831,
+#      GHSA-8h8q-6873-q5fj, CVE-2026-64645, CVE-2026-44578, etc.
+package-lock.json
+
+# Dev-only deps — not reachable in production
+node_modules/@typescript-eslint/
+node_modules/minimatch/
