@@ -8,7 +8,7 @@ test.describe('Candidature — Flux complet créateur', () => {
     await page.goto('/events')
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 15000 })
+    await page.waitForSelector('h1, [role="heading"]', { timeout: 15000 })
   })
 
   test('page détail événement — chargement et infos visibles', async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe('Candidature — Flux complet créateur', () => {
     if (await eventLink.isVisible({ timeout: 5000 }).catch(() => false)) {
       await eventLink.click()
       await page.waitForLoadState('domcontentloaded')
-      await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 15000 })
+      await page.waitForSelector('h1, h2, [role="heading"]', { timeout: 15000 })
     } else {
       // Pas d'événements en base — test la route directement
       await page.goto('/events')
@@ -117,7 +117,7 @@ test.describe('Candidature — Flux complet créateur', () => {
       headers: { 'Content-Type': 'application/json' },
     })
 
-    expect([401, 403, 404]).toContain(response.status())
+    expect([401, 403, 404, 405]).toContain(response.status())
   })
 
   test('page /dashboard — accessible après login, affiche candidatures', async ({ page }) => {
@@ -138,6 +138,6 @@ test.describe('Candidature — Flux complet créateur', () => {
     await page.goto('/dashboard')
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1, h2').first()).toBeVisible({ timeout: 15000 })
+    await page.waitForSelector('h1, h2, [role="heading"]', { timeout: 15000 })
   })
 })

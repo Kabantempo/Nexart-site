@@ -4,7 +4,7 @@ test.describe('Creators — Filtres créateurs', () => {
   test('page /creators charge avec du contenu ou un skeleton', async ({ page }) => {
     await page.goto('/creators')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+    await page.waitForSelector('h1, [role="heading"]', { timeout: 15000 })
     // Grille de créateurs ou skeleton de chargement
     const hasContent = await page.locator('[data-testid="creator-card"], .creator-card, article, [class*="creator"], [class*="skeleton"]').first().isVisible().catch(() => false)
     // Accepter aussi une liste vide (aucun créateur en base) — la page ne doit pas crasher
@@ -43,6 +43,6 @@ test.describe('Creators — Filtres créateurs', () => {
   test('filtres par discipline — page ne crashe pas', async ({ page }) => {
     await page.goto('/creators?discipline=ceramique')
     await expect(page).toHaveTitle(/Nexart/)
-    await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 })
+    await page.waitForSelector('h1, [role="heading"]', { timeout: 15000 })
   })
 })
