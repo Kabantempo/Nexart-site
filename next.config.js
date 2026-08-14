@@ -13,6 +13,7 @@ async function headers() {
     {
       source: '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico|webp|woff2?)).*)',
       headers: [
+        { key: 'Content-Type', value: 'text/html; charset=utf-8' },
         { key: 'Cache-Control', value: 'no-store, must-revalidate' },
         { key: 'X-LiteSpeed-Cache-Control', value: 'no-cache' },
         { key: 'X-LiteSpeed-Cache', value: 'no' },
