@@ -308,6 +308,38 @@ export default function DashboardPage() {
         }
         input::placeholder, textarea::placeholder { color: var(--text-tertiary) !important; }
         option { background-color: var(--bg-secondary); color: var(--text-primary); }
+        .mobile-quick-bar {
+          display: none;
+        }
+        @media (max-width: 768px) {
+          .sidebar-quick-actions { display: none; }
+          .mobile-quick-bar {
+            display: flex;
+            position: sticky;
+            bottom: 0;
+            z-index: 40;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 16px;
+            gap: 4px;
+            justify-content: space-around;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+          }
+          .mobile-quick-bar a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 500;
+            flex: 1;
+          }
+          .mobile-quick-bar a:active { background: var(--bg-secondary); }
+        }
       `}</style>
 
       {/* Payment banners */}
@@ -492,6 +524,28 @@ export default function DashboardPage() {
         )}
 
       </div>
+
+      {/* Mobile sticky quick actions bar */}
+      {!loading && (
+        <div className="mobile-quick-bar">
+          {(dashTab === 'creator' || (!hasOrganizer && !isAdmin)) && hasCreator ? (
+            <>
+              <a href="/events"><Calendar size={18} /><span>Marchés</span></a>
+              <a href="/profile"><User size={18} /><span>Profil</span></a>
+              <a href={`/boutique/${user.id}`}><ShoppingBag size={18} /><span>Boutique</span></a>
+              <a href="/analytics"><BarChart2 size={18} /><span>Stats</span></a>
+              <a href="/carte"><MapPin size={18} /><span>Carte</span></a>
+            </>
+          ) : dashTab === 'organizer' && hasOrganizer ? (
+            <>
+              <a href="/events/create"><Plus size={18} /><span>Créer</span></a>
+              <a href="/organizer/analytics"><BarChart2 size={18} /><span>Analytics</span></a>
+              <a href="/messages"><MessageSquare size={18} /><span>Messages</span></a>
+              <a href="/calendrier"><CalendarDays size={18} /><span>Calendrier</span></a>
+            </>
+          ) : null}
+        </div>
+      )}
     </div>
   )
 }
@@ -802,16 +856,18 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Quick actions */}
-      <SidebarCard title="Actions rapides">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-          {QUICK_ACTIONS.map(a => (
-            <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
-              <span style={{ color: '#6366F1' }}>{a.icon}</span>
-              {a.label}
-            </Link>
-          ))}
-        </div>
-      </SidebarCard>
+      <div className="sidebar-quick-actions">
+        <SidebarCard title="Actions rapides">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+            {QUICK_ACTIONS.map(a => (
+              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+                <span style={{ color: '#6366F1' }}>{a.icon}</span>
+                {a.label}
+              </Link>
+            ))}
+          </div>
+        </SidebarCard>
+      </div>
 
       {/* Credits */}
       <CreditsWidget />
@@ -1270,24 +1326,26 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <SidebarCard title="Actions rapides">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
-          {QUICK_ACTIONS.map(a => (
-            <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
-              <span style={{ color: '#6366F1' }}>{a.icon}</span>
-              {a.label}
-            </Link>
-          ))}
-        </div>
-        {selectedEventId && (
-          <button
-            onClick={() => setBulkModal(true)}
-            style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', backgroundColor: 'rgba(99,102,241,0.06)', color: '#6366F1', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
-          >
-            <MessageSquare size={13} /> Message groupé
-          </button>
-        )}
-      </SidebarCard>
+      <div className="sidebar-quick-actions">
+        <SidebarCard title="Actions rapides">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+            {QUICK_ACTIONS.map(a => (
+              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+                <span style={{ color: '#6366F1' }}>{a.icon}</span>
+                {a.label}
+              </Link>
+            ))}
+          </div>
+          {selectedEventId && (
+            <button
+              onClick={() => setBulkModal(true)}
+              style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', backgroundColor: 'rgba(99,102,241,0.06)', color: '#6366F1', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+            >
+              <MessageSquare size={13} /> Message groupé
+            </button>
+          )}
+        </SidebarCard>
+      </div>
 
       {selectedEventId && pending.length > 0 && (
         <SidebarCard title="Checklist">
