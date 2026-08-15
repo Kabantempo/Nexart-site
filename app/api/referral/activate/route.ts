@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Code invalide' }, { status: 400 })
     }
 
-    const admin = getAdminClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const admin = getAdminClient() as any
 
     const { data: referrer } = await admin
       .from('profiles')
@@ -33,22 +34,19 @@ export async function POST(req: NextRequest) {
       .eq('referee_id', user.id)
       .maybeSingle()
 
-    if ((existingRef as any)?.credited_at) {
+    if (existingRef?.credited_at) {
       return NextResponse.json({ success: true, already_credited: true })
     }
 
     if (!existingRef) {
-      await admin.from('referrals').insert({
-        referrer_id: referrer.id,
-        referee_id: user.id,
-      } as any)
+      await admin.from('referrals').insert({ referrer_id: referrer.id, referee_id: user.id })
     }
 
     const now = new Date().toISOString()
     await Promise.all([
-      admin.from('credits').insert({ user_id: referrer.id, amount: 1, type: 'gift', description: 'Parrainage créateur accepté', ref_id: user.id } as any),
-      admin.from('credits').insert({ user_id: user.id, amount: 1, type: 'gift', description: 'Bienvenue via parrainage', ref_id: referrer.id } as any),
-      admin.from('referrals').update({ credited_at: now } as any).eq('referee_id', user.id),
+      admin.from('credits').insert({ user_id: referrer.id, amount: 1, type: 'gift', description: 'Parrainage créateur accepté', ref_id: user.id }),
+      admin.from('credits').insert({ user_id: user.id, amount: 1, type: 'gift', description: 'Bienvenue via parrainage', ref_id: referrer.id }),
+      admin.from('referrals').update({ credited_at: now }).eq('referee_id', user.id),
     ])
 
     return NextResponse.json({ success: true })

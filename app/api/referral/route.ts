@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
     const { data: { user }, error: authError } = await anon.auth.getUser(auth.slice(7))
     if (authError || !user) return NextResponse.json({ error: 'Session invalide' }, { status: 401 })
 
-    const admin = getAdminClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const admin = getAdminClient() as any
     const { data: profile } = await admin.from('profiles').select('referral_code').eq('id', user.id).single()
 
     let code = profile?.referral_code as string | null | undefined
