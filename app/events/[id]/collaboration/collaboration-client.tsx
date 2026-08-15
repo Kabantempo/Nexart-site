@@ -122,7 +122,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
       case 'in_progress':
         return <Clock size={16} color={colors.violet.primary} />
       case 'completed':
-        return <CheckCircle2 size={16} color="#10B981" />
+        return <CheckCircle2 size={16} color={colors.green.primary} />
       default:
         return null
     }
@@ -211,7 +211,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                         borderRadius: '8px',
                         padding: '16px',
                         cursor: 'pointer',
-                        backgroundColor: selectedTask?.id === task.id ? '#F3F4F6' : colors.bg.primary,
+                        backgroundColor: selectedTask?.id === task.id ? colors.bg.subtle : colors.bg.primary,
                         transition: 'all 0.2s'
                       }}
                     >

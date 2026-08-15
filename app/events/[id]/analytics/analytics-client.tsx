@@ -128,9 +128,9 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Candidatures</h3>
-              <Users size={20} color='#10B981' />
+              <Users size={20} color={colors.green.primary} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.green.primary, marginBottom: '8px' }}>
               {stats.totalApplications}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>

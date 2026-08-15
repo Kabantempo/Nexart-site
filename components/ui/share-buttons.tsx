@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Link2, Share2 } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface ShareButtonsProps {
   url: string
@@ -60,7 +61,7 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {/* Copy link */}
       <button
         onClick={copyLink}
-        style={{ ...btnStyle, backgroundColor: copied ? '#ECFDF5' : 'var(--bg-primary)', borderColor: copied ? '#86EFAC' : 'var(--border-color)', color: copied ? '#15803D' : 'var(--text-primary)' }}
+        style={{ ...btnStyle, backgroundColor: copied ? colors.green.bg : 'var(--bg-primary)', borderColor: copied ? '#86EFAC' : 'var(--border-color)', color: copied ? '#15803D' : 'var(--text-primary)' }}
         onMouseEnter={(e) => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
         onMouseLeave={(e) => { if (!copied) e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
       >

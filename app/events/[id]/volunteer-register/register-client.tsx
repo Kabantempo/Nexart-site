@@ -105,8 +105,8 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
         animate={{ opacity: 1, scale: 1 }}
         style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '48px 40px', maxWidth: '460px', textAlign: 'center' }}
       >
-        <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-          <CheckCircle size={32} color="#10B981" />
+        <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: colors.green.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <CheckCircle size={32} color={colors.green.primary} />
         </div>
         <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>Inscription confirmée !</h1>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
@@ -207,7 +207,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                         {shift.date ? new Date(shift.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : ''} · {shift.time}
                       </span>
                     </div>
-                    <span style={{ fontSize: '11px', color: full ? '#EF4444' : '#10B981', fontWeight: 500, flexShrink: 0 }}>
+                    <span style={{ fontSize: '11px', color: full ? colors.red.vivid : colors.green.primary, fontWeight: 500, flexShrink: 0 }}>
                       {full ? 'Complet' : `${shift.capacity - shift.assigned} place${shift.capacity - shift.assigned > 1 ? 's' : ''}`}
                     </span>
                   </div>
@@ -221,9 +221,9 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
         <AnimatePresence>
           {error && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', marginBottom: '16px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', backgroundColor: colors.red.bg, border: '1px solid #FCA5A5', borderRadius: '8px', marginBottom: '16px' }}
             >
-              <AlertCircle size={14} color="#EF4444" />
+              <AlertCircle size={14} color={colors.red.vivid} />
               <span style={{ fontSize: '13px', color: colors.feedback.danger.solid }}>{error}</span>
             </motion.div>
           )}

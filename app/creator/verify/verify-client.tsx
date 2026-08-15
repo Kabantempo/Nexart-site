@@ -95,15 +95,15 @@ export default function VerifyClient() {
           <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '6px' }}>
             Vérification SIRET
           </h1>
-          <p style={{ fontSize: '15px', color: '#888888', marginBottom: '36px' }}>
+          <p style={{ fontSize: '15px', color: colors.text.secondary, marginBottom: '36px' }}>
             Soumettez votre SIRET pour obtenir le badge créateur vérifié.
           </p>
 
           {/* Status: déjà vérifié */}
           {verifStatus === 'approved' && (
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#ECFDF5', border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: colors.green.bg, border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <BadgeCheck size={24} color="#10B981" />
+                <BadgeCheck size={24} color={colors.green.primary} />
               </div>
               <div>
                 <p style={{ fontSize: '16px', fontWeight: 800, color: '#065F46', margin: 0 }}>SIRET vérifié ✓</p>
@@ -116,10 +116,10 @@ export default function VerifyClient() {
           {verifStatus === 'pending' && !siretVerified && (
             <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Loader2 size={24} color="#F59E0B" />
+                <Loader2 size={24} color={colors.status.pending.dot} />
               </div>
               <div>
-                <p style={{ fontSize: '16px', fontWeight: 800, color: '#92400E', margin: 0 }}>Vérification en cours…</p>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: colors.red.amber, margin: 0 }}>Vérification en cours…</p>
                 <p style={{ fontSize: '13px', color: colors.feedback.warning.text, margin: '4px 0 0', fontWeight: 600 }}>Vous recevrez une réponse sous 48h.</p>
               </div>
             </div>
@@ -132,7 +132,7 @@ export default function VerifyClient() {
                 style={{ padding: '18px', borderRadius: '14px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <div style={{ marginBottom: '8px' }}>{b.icon}</div>
                 <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 4px' }}>{b.title}</p>
-                <p style={{ fontSize: '12px', color: '#888888', margin: 0, lineHeight: '1.5' }}>{b.desc}</p>
+                <p style={{ fontSize: '12px', color: colors.text.secondary, margin: 0, lineHeight: '1.5' }}>{b.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -141,7 +141,7 @@ export default function VerifyClient() {
           {verifStatus !== 'approved' && verifStatus !== 'pending' && (
             <form onSubmit={handleSubmit} style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-color)', padding: '28px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                Numéro SIRET <span style={{ color: '#EF4444' }}>*</span>
+                Numéro SIRET <span style={{ color: colors.red.vivid }}>*</span>
               </p>
               <input
                 value={siret}
@@ -156,19 +156,19 @@ export default function VerifyClient() {
                   marginBottom: '6px',
                 }}
               />
-              <p style={{ fontSize: '12px', color: siret.length === 14 ? '#10B981' : colors.text.muted, margin: '0 0 20px', fontWeight: 600 }}>
+              <p style={{ fontSize: '12px', color: siret.length === 14 ? colors.green.primary : colors.text.muted, margin: '0 0 20px', fontWeight: 600 }}>
                 {siret.length}/14 chiffres
                 {siret.length === 14 && ' ✓'}
               </p>
 
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', marginBottom: '16px', fontSize: '13px', color: '#EF4444', fontWeight: 600 }}>
+                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: '1px solid #FECACA', marginBottom: '16px', fontSize: '13px', color: colors.red.vivid, fontWeight: 600 }}>
                   {error}
                 </div>
               )}
 
               {success && (
-                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: '#ECFDF5', border: '1px solid #A7F3D0', marginBottom: '16px', fontSize: '13px', color: '#10B981', fontWeight: 600 }}>
+                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: colors.green.bg, border: '1px solid #A7F3D0', marginBottom: '16px', fontSize: '13px', color: colors.green.primary, fontWeight: 600 }}>
                   Demande envoyée ! Vous recevrez une réponse sous 48h.
                 </div>
               )}

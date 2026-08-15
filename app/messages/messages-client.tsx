@@ -287,7 +287,7 @@ export default function MessagesClient() {
                   <button
                     onClick={e => { e.preventDefault(); deleteConversation(conv.id) }}
                     title="Supprimer la conversation"
-                    style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', zIndex: 10, width: '32px', height: '32px', borderRadius: '50%', border: 'none', backgroundColor: '#FEF2F2', color: colors.feedback.danger.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', zIndex: 10, width: '32px', height: '32px', borderRadius: '50%', border: 'none', backgroundColor: colors.red.bg, color: colors.feedback.danger.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                   >
                     <Trash2 size={14} />
                   </button>
@@ -310,7 +310,7 @@ export default function MessagesClient() {
                       {conv.other?.avatar_url ? (
                         <Image src={conv.other.avatar_url} alt="" fill style={{ objectFit: 'cover' }} />
                       ) : (
-                        <span style={{ color: '#FFF', fontSize: '18px', fontWeight: '700' }}>
+                        <span style={{ color: colors.bg.primary, fontSize: '18px', fontWeight: '700' }}>
                           {(conv.other?.full_name ?? '?')[0].toUpperCase()}
                         </span>
                       )}
@@ -326,10 +326,10 @@ export default function MessagesClient() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {conv.other.role === 'creator' || conv.other.role === 'artisan'
-                          ? <Palette size={8} color="#FFF" />
+                          ? <Palette size={8} color={colors.bg.primary} />
                           : conv.other.role === 'organizer'
-                          ? <Building2 size={8} color="#FFF" />
-                          : <Eye size={8} color="#FFF" />
+                          ? <Building2 size={8} color={colors.bg.primary} />
+                          : <Eye size={8} color={colors.bg.primary} />
                         }
                       </span>
                     )}
@@ -361,7 +361,7 @@ export default function MessagesClient() {
                           : 'Conversation démarrée'}
                       </p>
                       {conv.unreadCount > 0 && (
-                        <span style={{ marginLeft: '8px', minWidth: '20px', height: '20px', borderRadius: '9999px', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 5px', flexShrink: 0 }}>
+                        <span style={{ marginLeft: '8px', minWidth: '20px', height: '20px', borderRadius: '9999px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 5px', flexShrink: 0 }}>
                           {conv.unreadCount}
                         </span>
                       )}

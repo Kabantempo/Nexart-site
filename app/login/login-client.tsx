@@ -119,9 +119,9 @@ export default function LoginPage() {
                 width: '36px', height: '36px', borderRadius: '10px',
                 background: `linear-gradient(135deg, ${colors.violet.primary}, #8B5CF6)`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '18px', fontWeight: '800', color: '#FFFFFF',
+                fontSize: '18px', fontWeight: '800', color: colors.bg.primary,
               }}>N</div>
-              <span style={{ fontSize: '22px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.5px' }}>Nexart</span>
+              <span style={{ fontSize: '22px', fontWeight: '800', color: colors.bg.primary, letterSpacing: '-0.5px' }}>Nexart</span>
             </div>
           </Link>
         </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
               <span style={{ fontSize: '13px', color: '#A5B4FC', fontWeight: '600' }}>500+ créateurs actifs</span>
             </div>
 
-            <h2 style={{ fontSize: '36px', fontWeight: '800', color: '#FFFFFF', lineHeight: '1.2', marginBottom: '16px', letterSpacing: '-0.5px' }}>
+            <h2 style={{ fontSize: '36px', fontWeight: '800', color: colors.bg.primary, lineHeight: '1.2', marginBottom: '16px', letterSpacing: '-0.5px' }}>
               La plateforme des créateurs et organisateurs de marchés
             </h2>
             <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.7', marginBottom: '40px' }}>
@@ -159,7 +159,7 @@ export default function LoginPage() {
                   transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
                   style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}
                 >
-                  <CheckCircle2 size={18} color="#6366F1" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <CheckCircle2 size={18} color={colors.violet.primary} style={{ flexShrink: 0, marginTop: '2px' }} />
                   <span style={{ fontSize: '15px', color: 'rgba(255,255,255,0.75)', lineHeight: '1.5' }}>{f}</span>
                 </motion.div>
               ))}
@@ -171,7 +171,7 @@ export default function LoginPage() {
         <div style={{ position: 'relative', zIndex: 10, display: 'flex', gap: '32px' }}>
           {[['500+', 'Créateurs'], ['200+', 'Événements'], ['15k+', 'Visiteurs']].map(([n, l]) => (
             <div key={l}>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: '#FFFFFF' }}>{n}</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: colors.bg.primary }}>{n}</div>
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: '500' }}>{l}</div>
             </div>
           ))}
@@ -263,7 +263,7 @@ export default function LoginPage() {
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
+                <Mail size={16} color={focused === 'email' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
                   id="login-email"
                   type="email"
@@ -295,7 +295,7 @@ export default function LoginPage() {
                 </Link>
               </div>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'password' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}

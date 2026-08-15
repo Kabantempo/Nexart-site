@@ -74,7 +74,7 @@ export function ReferralWidget() {
             flexShrink: 0, display: 'flex', alignItems: 'center', gap: '4px',
             padding: '4px 8px', borderRadius: '6px', border: 'none', cursor: 'pointer',
             backgroundColor: copied ? '#DCFCE7' : colors.violet.primary,
-            color: copied ? '#15803D' : '#FFFFFF',
+            color: copied ? '#15803D' : colors.bg.primary,
             fontSize: '11px', fontWeight: '600', transition: 'all 150ms ease',
           }}
         >

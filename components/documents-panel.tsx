@@ -54,7 +54,7 @@ const styles = {
     fontSize: '12px',
     fontWeight: 600,
     backgroundColor: sent ? colors.violet.bg : colors.bg.secondary,
-    color: sent ? colors.violet.primary : '#888888',
+    color: sent ? colors.violet.primary : colors.text.secondary,
   } as React.CSSProperties),
   badgeNew: {
     display: 'inline-flex',
@@ -98,7 +98,7 @@ const styles = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bg.subtle,
     color: colors.text.muted,
     border: 'none',
     borderRadius: '8px',
@@ -174,7 +174,7 @@ function OrganizerView({ eventId }: { eventId: string }) {
   }
 
   if (loading) return (
-    <div style={{ textAlign: 'center', padding: '40px', color: '#888888', fontSize: '14px' }}>
+    <div style={{ textAlign: 'center', padding: '40px', color: colors.text.secondary, fontSize: '14px' }}>
       Chargement des documents…
     </div>
   )
@@ -182,7 +182,7 @@ function OrganizerView({ eventId }: { eventId: string }) {
   if (acceptedCreators.length === 0) return (
     <div style={{ textAlign: 'center', padding: '40px' }}>
       <FileText size={32} color={colors.text.muted} style={{ marginBottom: '12px' }} />
-      <p style={{ color: '#888888', fontSize: '14px', margin: 0 }}>
+      <p style={{ color: colors.text.secondary, fontSize: '14px', margin: 0 }}>
         Aucun créateur accepté. Acceptez des candidatures pour générer des documents.
       </p>
     </div>
@@ -193,9 +193,9 @@ function OrganizerView({ eventId }: { eventId: string }) {
       <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${colors.border.default}` }}>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#888888', whiteSpace: 'nowrap' }}>Créateur</th>
+            <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: colors.text.secondary, whiteSpace: 'nowrap' }}>Créateur</th>
             {DOC_TYPES.map(dt => (
-              <th key={dt.type} style={{ padding: '10px 14px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#888888', whiteSpace: 'nowrap' }}>
+              <th key={dt.type} style={{ padding: '10px 14px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: colors.text.secondary, whiteSpace: 'nowrap' }}>
                 {dt.label}
               </th>
             ))}
@@ -203,10 +203,10 @@ function OrganizerView({ eventId }: { eventId: string }) {
         </thead>
         <tbody>
           {acceptedCreators.map(creator => (
-            <tr key={creator.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
+            <tr key={creator.id} style={{ borderBottom: `1px solid ${colors.bg.subtle}` }}>
               <td style={{ padding: '12px 14px' }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: colors.text.primary, margin: 0 }}>{creator.full_name}</p>
-                <p style={{ fontSize: '12px', color: '#888888', margin: 0 }}>{creator.email}</p>
+                <p style={{ fontSize: '12px', color: colors.text.secondary, margin: 0 }}>{creator.email}</p>
               </td>
               {DOC_TYPES.map(dt => {
                 const doc = getDoc(creator.id, dt.type)
@@ -294,7 +294,7 @@ function CreatorView() {
   }, {} as Record<string, { event: EventDocument['event']; docs: EventDocument[] }>)
 
   if (loading) return (
-    <div style={{ textAlign: 'center', padding: '40px', color: '#888888', fontSize: '14px' }}>
+    <div style={{ textAlign: 'center', padding: '40px', color: colors.text.secondary, fontSize: '14px' }}>
       Chargement de vos documents…
     </div>
   )
@@ -302,7 +302,7 @@ function CreatorView() {
   if (documents.length === 0) return (
     <div style={{ textAlign: 'center', padding: '40px' }}>
       <FileText size={32} color={colors.text.muted} style={{ marginBottom: '12px' }} />
-      <p style={{ color: '#888888', fontSize: '14px', margin: 0 }}>
+      <p style={{ color: colors.text.secondary, fontSize: '14px', margin: 0 }}>
         Aucun document pour le moment. Vos contrats et convocations apparaîtront ici.
       </p>
     </div>
@@ -315,7 +315,7 @@ function CreatorView() {
           <div style={{ padding: '14px 18px', backgroundColor: colors.bg.secondary, borderBottom: `1px solid ${colors.border.default}` }}>
             <p style={{ fontSize: '14px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>{event?.title || '—'}</p>
             {event?.start_date && (
-              <p style={{ fontSize: '12px', color: '#888888', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '12px', color: colors.text.secondary, margin: '2px 0 0' }}>
                 {new Date(event.start_date).toLocaleDateString('fr-FR')} · {event.city}
               </p>
             )}

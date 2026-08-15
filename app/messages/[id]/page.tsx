@@ -97,7 +97,7 @@ function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
           position: 'absolute', top: '20px', right: '20px',
           background: 'rgba(255,255,255,0.15)', border: 'none',
           borderRadius: '50%', width: '40px', height: '40px',
-          color: '#fff', fontSize: '20px', cursor: 'pointer',
+          color: colors.bg.primary, fontSize: '20px', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >×</button>
@@ -385,7 +385,7 @@ export default function ConversationPage() {
       <div style={{ width: '100%', maxWidth: '800px', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderBottom: `1px solid ${colors.bg.subtle}`, backgroundColor: 'var(--bg-primary)', flexShrink: 0 }}>
         <Link href="/messages" style={{ display: 'flex', alignItems: 'center', color: colors.violet.primary, textDecoration: 'none' }}>
           <ArrowLeft size={20} />
         </Link>
@@ -393,7 +393,7 @@ export default function ConversationPage() {
           {other?.avatar_url ? (
             <Image src={other.avatar_url} alt="" fill style={{ objectFit: 'cover' }} />
           ) : (
-            <span style={{ color: '#FFF', fontSize: '16px', fontWeight: '700' }}>{(other?.full_name ?? '?')[0].toUpperCase()}</span>
+            <span style={{ color: colors.bg.primary, fontSize: '16px', fontWeight: '700' }}>{(other?.full_name ?? '?')[0].toUpperCase()}</span>
           )}
         </div>
         <div>
@@ -470,7 +470,7 @@ export default function ConversationPage() {
                           <button onClick={cancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
                             <X size={12} /> Annuler
                           </button>
-                          <button onClick={() => saveEdit(m.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+                          <button onClick={() => saveEdit(m.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
                             <Check size={12} /> Enregistrer
                           </button>
                         </div>
@@ -521,7 +521,7 @@ export default function ConversationPage() {
                           }
 
                           return (
-                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? colors.violet.primary : '#F3F4F6', color: isMine ? colors.bg.primary : 'var(--text-primary)', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
+                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? colors.violet.primary : colors.bg.subtle, color: isMine ? colors.bg.primary : 'var(--text-primary)', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
                               <p style={{ margin: 0 }}>{m.content}</p>
                             </div>
                           )
@@ -559,7 +559,7 @@ export default function ConversationPage() {
 
       {/* File preview */}
       {pendingFile && (
-        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6', backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
+        <div style={{ padding: '10px 16px', borderTop: `1px solid ${colors.bg.subtle}`, backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', maxWidth: '320px' }}>
             {pendingFile.type === 'image' && pendingFile.preview ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -581,7 +581,7 @@ export default function ConversationPage() {
       )}
 
       {/* Input */}
-      <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))', borderTop: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+      <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))', borderTop: `1px solid ${colors.bg.subtle}`, backgroundColor: 'var(--bg-primary)', flexShrink: 0, display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
         {/* File attach button */}
         <input ref={fileInputRef} type="file" style={{ display: 'none' }} accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" onChange={handleFileSelect} />
         <button
@@ -631,7 +631,7 @@ export default function ConversationPage() {
           }}
         >
           {uploading
-            ? <div style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            ? <div style={{ width: '18px', height: '18px', border: '2px solid rgba(255,255,255,0.4)', borderTopColor: colors.bg.primary, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
             : <Send size={18} />
           }
         </button>

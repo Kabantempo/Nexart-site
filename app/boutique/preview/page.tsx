@@ -85,7 +85,7 @@ export default function BoutiquePreviewPage() {
   return (
     <div style={{ backgroundColor: 'var(--bg-secondary)', minHeight: '100vh', paddingBottom: '80px' }}>
       {/* Header */}
-      <div style={{ backgroundColor: '#06060f', padding: '40px 24px 32px' }}>
+      <div style={{ backgroundColor: colors.bg.dark, padding: '40px 24px 32px' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <Link href="/boutique/preview" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.5)', fontSize: '12px', textDecoration: 'none', marginBottom: '20px' }}>
             <ArrowLeft size={12} /> Profil créateur
@@ -120,7 +120,7 @@ export default function BoutiquePreviewPage() {
         <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '16px' }}>🛠️</span>
           <div>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: '#92400E', margin: 0 }}>Boutique en cours de développement</p>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: colors.red.amber, margin: 0 }}>Boutique en cours de développement</p>
             <p style={{ fontSize: '12px', color: colors.feedback.warning.text, margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
           </div>
         </div>
@@ -144,7 +144,7 @@ export default function BoutiquePreviewPage() {
                 )}
                 {product.stock === 0 && (
                   <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(249,250,251,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#888' }}>Épuisé</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: colors.text.secondary }}>Épuisé</span>
                   </div>
                 )}
               </div>
@@ -194,7 +194,7 @@ export default function BoutiquePreviewPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <span style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>{(selected.price / 100).toFixed(2)} €</span>
               {selected.stock > 0
-                ? <span style={{ fontSize: '12px', color: '#10B981', fontWeight: 600 }}>En stock ({selected.stock})</span>
+                ? <span style={{ fontSize: '12px', color: colors.green.primary, fontWeight: 600 }}>En stock ({selected.stock})</span>
                 : <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>Épuisé</span>
               }
             </div>

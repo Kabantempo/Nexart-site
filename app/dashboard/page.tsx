@@ -352,15 +352,15 @@ export default function DashboardPage() {
 
       {/* Payment banners */}
       {paymentBanner === 'success' && (
-        <div style={{ backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <div style={{ backgroundColor: colors.feedback.success.solid, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <CheckCircle size={15} /> Abonnement activé — bienvenue dans la nouvelle dimension Nexart !
-          <button onClick={() => setPaymentBanner(null)} style={{ marginLeft: '8px', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><X size={13} /></button>
+          <button onClick={() => setPaymentBanner(null)} style={{ marginLeft: '8px', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', color: colors.bg.primary }}><X size={13} /></button>
         </div>
       )}
       {paymentBanner === 'cancelled' && (
-        <div style={{ backgroundColor: colors.feedback.warning.solid, color: '#fff', fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <div style={{ backgroundColor: colors.feedback.warning.solid, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           Paiement annulé — votre abonnement n&apos;a pas été modifié.
-          <button onClick={() => setPaymentBanner(null)} style={{ marginLeft: '8px', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><X size={13} /></button>
+          <button onClick={() => setPaymentBanner(null)} style={{ marginLeft: '8px', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', color: colors.bg.primary }}><X size={13} /></button>
         </div>
       )}
 
@@ -371,7 +371,7 @@ export default function DashboardPage() {
             <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h1 style={{ fontSize: '20px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{greeting}, {firstName}</h1>
-              <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: '#fff', flexShrink: 0 }}>{roleLabel}</span>
+              <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, flexShrink: 0 }}>{roleLabel}</span>
               {isPaid && (
                 <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color, flexShrink: 0 }}>
                   <Zap size={9} style={{ display: 'inline', marginRight: '3px', verticalAlign: 'middle' }} />{tierCfg.label}
@@ -384,12 +384,12 @@ export default function DashboardPage() {
               <Bell size={16} />
             </Link>
             {hasCreator && (
-              <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
                 Voir les marchés <ArrowRight size={13} />
               </Link>
             )}
             {hasOrganizer && !hasCreator && (
-              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
                 <Plus size={13} /> Créer un événement
               </Link>
             )}
@@ -457,7 +457,7 @@ export default function DashboardPage() {
           </div>
           {isPaid ? (
             <button onClick={handleOpenPortal} disabled={portalLoading}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: portalLoading ? 0.6 : 1, flexShrink: 0 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: portalLoading ? 0.6 : 1, flexShrink: 0 }}>
               <ExternalLink size={12} /> {portalLoading ? 'Chargement…' : 'Gérer'}
             </button>
           ) : (
@@ -739,7 +739,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
         <Calendar size={36} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
         <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Aucune candidature pour le moment</p>
         <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 16px' }}>Explorez les événements disponibles et postulez</p>
-        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
           Voir les événements <ArrowRight size={13} />
         </Link>
       </div>
@@ -764,7 +764,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
                 {app.event?.city ? ` · ${app.event.city}` : ''}
               </p>
               {isBoosted && (
-                <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: '#fff', marginTop: '4px', cursor: 'help' }}>
+                <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, marginTop: '4px', cursor: 'help' }}>
                   <Zap size={9} fill="white" /> Boosté
                 </span>
               )}
@@ -1056,7 +1056,7 @@ function OrganizerMainContent({
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.eventTitle}</p>
                 </div>
                 <button onClick={() => { setReviewModal(r); setReviewRating(0); setReviewComment('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                   <Star size={11} /> Noter
                 </button>
               </div>
@@ -1080,7 +1080,7 @@ function OrganizerMainContent({
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
           <MessageSquare size={32} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
           <p>Ouvrez la messagerie pour communiquer avec vos exposants</p>
-          <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+          <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             Messagerie
           </Link>
         </div>
@@ -1108,7 +1108,7 @@ function OrganizerMainContent({
                       {app.profiles?.full_name || 'Créateur'}
                     </Link>
                     {isBoosted && (
-                      <span title="Ce créateur a boosté sa candidature — il est remonté en haut de votre liste" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: '#fff', cursor: 'help' }}>
+                      <span title="Ce créateur a boosté sa candidature — il est remonté en haut de votre liste" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, cursor: 'help' }}>
                         <Zap size={8} fill="white" /> Boosté
                       </span>
                     )}
@@ -1123,7 +1123,7 @@ function OrganizerMainContent({
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => handleStatus(app.id, 'accepted', ev?.title, app.creator_id)} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                    style={{ padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.feedback.success.solid, color: colors.bg.primary, fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
                     Accepter
                   </button>
                   <button onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }} disabled={updatingId === app.id}
@@ -1177,7 +1177,7 @@ function OrganizerMainContent({
           <div style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
               <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Mes événements</h2>
-              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
                 <Plus size={12} /> Créer
               </Link>
             </div>
@@ -1230,7 +1230,7 @@ function OrganizerMainContent({
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
             <button onClick={confirmRefuse} disabled={!refuseModal || updatingId === refuseModal.appId}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.feedback.danger.solid, color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: refuseModal && updatingId === refuseModal.appId ? 0.5 : 1 }}>
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary, fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: refuseModal && updatingId === refuseModal.appId ? 0.5 : 1 }}>
               Confirmer
             </button>
           </div>
@@ -1257,7 +1257,7 @@ function OrganizerMainContent({
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={() => { setReviewModal(null); setReviewRating(0); setReviewComment('') }} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
             <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
               {reviewSubmitting ? 'Envoi…' : 'Publier'}
             </button>
           </div>
@@ -1398,7 +1398,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
           <button
             onClick={handleBulkSend}
             disabled={bulkSending || !bulkSubject.trim() || !bulkMessage.trim()}
-            style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
+            style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
           >
             {bulkSending ? 'Envoi en cours…' : 'Envoyer à tous les créateurs acceptés'}
           </button>

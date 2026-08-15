@@ -75,7 +75,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
         footer={
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={handleSubmit} disabled={!canSubmit || submitting}
-              style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : colors.feedback.danger.solid, color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
+              style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : colors.feedback.danger.solid, color: colors.bg.primary, fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
               {submitting ? 'Envoi…' : 'Envoyer'}
             </button>
             <button onClick={() => { setOpen(false); setReason(''); setCustomText('') }}

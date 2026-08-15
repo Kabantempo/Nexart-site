@@ -85,7 +85,7 @@ export default function CreatorAnalyticsClient() {
   if (!stats) {
     return (
       <div style={{ minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', color: '#888888' }}>
+        <div style={{ textAlign: 'center', color: colors.text.secondary }}>
           Aucune donnée disponible pour le moment.
         </div>
       </div>
@@ -153,9 +153,9 @@ export default function CreatorAnalyticsClient() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Candidatures</h3>
-              <CheckCircle size={20} color='#10B981' />
+              <CheckCircle size={20} color={colors.green.primary} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.green.primary, marginBottom: '8px' }}>
               {stats.applicationsReceived}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
@@ -195,9 +195,9 @@ export default function CreatorAnalyticsClient() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Acceptée</h3>
-              <CheckCircle size={20} color='#10B981' />
+              <CheckCircle size={20} color={colors.green.primary} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.green.primary, marginBottom: '8px' }}>
               {stats.acceptedCount}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>

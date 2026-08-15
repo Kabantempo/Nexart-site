@@ -376,7 +376,7 @@ function FormSetup({ fields, onSave, loading }: any) {
 function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange, onStatusChange, onExport }: any) {
   const statusColors: Record<string, string> = {
     pending: '#FF6B6B',
-    approved: '#10B981',
+    approved: colors.green.primary,
     rejected: 'var(--text-tertiary)',
     paid: colors.violet.primary,
     cancelled: colors.status.pending.dot

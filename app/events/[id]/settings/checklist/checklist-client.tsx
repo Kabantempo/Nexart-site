@@ -264,9 +264,9 @@ const fetchChecklist = async () => {
                                 }}
                               >
                                 {item.completed ? (
-                                  <CheckCircle2 size={20} color="#10B981" />
+                                  <CheckCircle2 size={20} color={colors.green.primary} />
                                 ) : (
-                                  <Circle size={20} color="#E5E7EB" />
+                                  <Circle size={20} color={colors.border.default} />
                                 )}
                               </button>
 

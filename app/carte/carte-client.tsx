@@ -171,10 +171,10 @@ export default function CarteClient() {
   }, [mapReady, events, typeFilter])
 
   return (
-    <div style={{ position: 'fixed', top: `${NAVBAR_H}px`, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', backgroundColor: '#0F0C29', zIndex: 10 }}>
+    <div style={{ position: 'fixed', top: `${NAVBAR_H}px`, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', backgroundColor: colors.bg.darkAlt, zIndex: 10 }}>
 
       {/* Header */}
-      <div style={{ padding: '12px 20px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
+      <div style={{ padding: '12px 20px', backgroundColor: colors.bg.darkAlt, borderBottom: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <MapPin size={16} color="#A5B4FC" />
           <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Carte des événements</span>
@@ -192,7 +192,7 @@ export default function CarteClient() {
       </div>
 
       {/* Légende */}
-      <div style={{ padding: '6px 16px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.12)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
+      <div style={{ padding: '6px 16px', backgroundColor: colors.bg.darkAlt, borderBottom: '1px solid rgba(99,102,241,0.12)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
         {[{ color: colors.violet.primary, label: 'Places disponibles' }, { color: colors.status.pending.dot, label: '≤ 3 places restantes' }, { color: 'var(--text-secondary)', label: 'Complet' }].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }} />

@@ -30,11 +30,11 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_BADGE: Record<string, { bg: string; text: string }> = {
-  popup:     { bg: '#A855F7', text: '#fff' },
-  salon:     { bg: '#10B981', text: '#fff' },
-  fair:      { bg: '#EF4444', text: '#fff' },
-  seasonal:  { bg: colors.status.pending.dot, text: '#fff' },
-  permanent: { bg: '#3B82F6', text: '#fff' },
+  popup:     { bg: '#A855F7', text: colors.bg.primary },
+  salon:     { bg: colors.green.primary, text: colors.bg.primary },
+  fair:      { bg: colors.red.vivid, text: colors.bg.primary },
+  seasonal:  { bg: colors.status.pending.dot, text: colors.bg.primary },
+  permanent: { bg: '#3B82F6', text: colors.bg.primary },
 }
 
 
@@ -362,8 +362,8 @@ function EventsContent() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '8px 12px', borderRadius: '12px', border: '1px solid',
-                    borderColor: selectedDiscs.length > 0 ? '#a5b4fc' : '#e5e7eb',
-                    backgroundColor: selectedDiscs.length > 0 ? '#eef2ff' : '#ffffff',
+                    borderColor: selectedDiscs.length > 0 ? '#a5b4fc' : colors.border.default,
+                    backgroundColor: selectedDiscs.length > 0 ? '#eef2ff' : colors.bg.primary,
                     color: selectedDiscs.length > 0 ? '#4338ca' : '#374151',
                     fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap'
                   }}
@@ -379,7 +379,7 @@ function EventsContent() {
                     transition={{ duration: 0.15 }}
                     style={{
                       position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100,
-                      backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '14px',
+                      backgroundColor: colors.bg.primary, border: '1px solid #e5e7eb', borderRadius: '14px',
                       boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '8px',
                       minWidth: '220px', maxHeight: '280px', overflowY: 'auto'
                     }}
@@ -451,11 +451,11 @@ function EventsContent() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: '5px',
                     padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
-                    backgroundColor: '#fff', color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    backgroundColor: colors.bg.primary, color: '#6b7280', fontSize: '11px', fontWeight: 600,
                     cursor: 'pointer', transition: 'all 0.15s'
                   }}
                   onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#a5b4fc'; (e.currentTarget as HTMLButtonElement).style.color = '#4338ca' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#e5e7eb'; (e.currentTarget as HTMLButtonElement).style.color = '#6b7280' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = colors.border.default; (e.currentTarget as HTMLButtonElement).style.color = '#6b7280' }}
                 >
                   🔗 Partager ces filtres
                 </button>
@@ -539,7 +539,7 @@ function EventsContent() {
                             const badge = TYPE_BADGE[event.event_type]
                             return (
                               <span className="text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md"
-                                style={{ backgroundColor: badge?.bg ?? 'rgba(0,0,0,0.5)', color: badge?.text ?? '#fff' }}>
+                                style={{ backgroundColor: badge?.bg ?? 'rgba(0,0,0,0.5)', color: badge?.text ?? colors.bg.primary }}>
                                 {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
                               </span>
                             )

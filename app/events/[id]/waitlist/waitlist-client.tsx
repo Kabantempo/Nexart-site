@@ -101,7 +101,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
           {[
             { label: 'En attente', value: waiting.length, icon: <Clock size={20} color="#FF6B6B" />, color: '#FF6B6B' },
-            { label: 'Promus', value: promoted.length, icon: <Check size={20} color="#10B981" />, color: '#10B981' },
+            { label: 'Promus', value: promoted.length, icon: <Check size={20} color={colors.green.primary} />, color: colors.green.primary },
             { label: 'Total', value: entries.length, icon: <Users size={20} color={colors.violet.primary} />, color: colors.violet.primary },
           ].map((stat, i) => (
             <motion.div
@@ -216,7 +216,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                     title="Promouvoir — accepter ce candidat"
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#10B981',
+                      backgroundColor: colors.green.primary,
                       color: colors.bg.primary,
                       border: 'none',
                       borderRadius: '6px',
@@ -259,7 +259,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
         {/* Promoted section */}
         {promoted.length > 0 && (
           <div style={{ marginTop: '40px', border: '1px solid #D1FAE5', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ backgroundColor: '#ECFDF5', padding: '16px 20px', borderBottom: '1px solid #D1FAE5' }}>
+            <div style={{ backgroundColor: colors.green.bg, padding: '16px 20px', borderBottom: '1px solid #D1FAE5' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#065F46', margin: 0 }}>
                 Promus récemment ({promoted.length})
               </h2>
@@ -276,7 +276,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                   backgroundColor: '#F0FDF4'
                 }}
               >
-                <Check size={16} color="#10B981" />
+                <Check size={16} color={colors.green.primary} />
                 <p style={{ fontWeight: 500, color: '#065F46', margin: 0, flex: 1 }}>
                   {entry.profiles?.full_name || 'Utilisateur inconnu'}
                 </p>

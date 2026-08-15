@@ -10,7 +10,7 @@ import { colors } from '@/lib/design-tokens'
 const D = {
   bg:        '#08081a',
   phoneBg:   '#0c0c1a',
-  indigo400: '#818CF8',
+  indigo400: colors.violet.hover,
   violet400: '#A78BFA',
   emerald400:'#34D399',
   amber400:  '#FBBF24',
@@ -139,7 +139,7 @@ function PhoneMockup() {
         {/* App header */}
         <div style={{ padding: '12px 20px 16px' }}>
           <p style={{ fontSize: '11px', color: D.w35, fontWeight: 500, marginBottom: '2px' }}>Bonjour, Marie</p>
-          <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2 }}>Événements près de toi</h3>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, color: colors.bg.primary, lineHeight: 1.2 }}>Événements près de toi</h3>
         </div>
 
         {/* Search bar */}
@@ -170,14 +170,14 @@ function PhoneMockup() {
                 <Calendar size={15} style={{ color: ev.color }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: colors.bg.primary, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                   <span style={{ fontSize: '10px', fontWeight: 700, color: ev.color }}>{ev.type}</span>
                   <span style={{ color: D.w20, fontSize: '10px' }}>·</span>
                   <span style={{ fontSize: '10px', color: D.w40 }}>{ev.date}</span>
                 </div>
               </div>
-              <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: '12px', backgroundColor: D.i80, fontSize: '10px', fontWeight: 700, color: '#FFFFFF' }}>
+              <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: '12px', backgroundColor: D.i80, fontSize: '10px', fontWeight: 700, color: colors.bg.primary }}>
                 Voir
               </div>
             </motion.div>
@@ -227,11 +227,11 @@ function TestimonialCard({ name, role, text }: { name: string; role: string; tex
     <div style={{ flexShrink: 0, width: '280px', padding: '20px', borderRadius: '16px', border: `1px solid ${D.w6}`, backgroundColor: D.w035, margin: '0 8px' }}>
       <p style={{ fontSize: '14px', color: D.w55, lineHeight: 1.6, marginBottom: '16px' }}>&ldquo;{text}&rdquo;</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.bg.primary, fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
           {initials}
         </div>
         <div>
-          <p style={{ fontSize: '14px', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2 }}>{name}</p>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: colors.bg.primary, lineHeight: 1.2 }}>{name}</p>
           <p style={{ fontSize: '12px', color: D.w35 }}>{role}</p>
         </div>
       </div>
@@ -328,7 +328,7 @@ function FacesSection() {
     <section style={{ maxWidth: '1152px', margin: '0 auto', padding: '128px 16px' }}>
       <FadeUp style={{ marginBottom: '64px' }}>
         <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Créateurs · Organisateurs · Visiteurs</p>
-        <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: '#FFFFFF', maxWidth: '600px' }}>
+        <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: colors.bg.primary, maxWidth: '600px' }}>
           Pour qui est{' '}
           <span style={{ color: D.w30 }}>Nexart ?</span>
         </h2>
@@ -345,7 +345,7 @@ function FacesSection() {
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1)' }}
           >
             <p style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', color: face.accentColor }}>{face.label}</p>
-            <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: '12px' }}>{face.tagline}</h3>
+            <h3 style={{ fontSize: '24px', fontWeight: 900, color: colors.bg.primary, lineHeight: 1.2, marginBottom: '12px' }}>{face.tagline}</h3>
             <p style={{ color: D.w40, fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>{face.desc}</p>
 
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, listStyle: 'none', padding: 0, margin: 0 }}>
@@ -355,7 +355,7 @@ function FacesSection() {
                     <Icon size={13} style={{ color: face.accentColor }} />
                   </div>
                   <div>
-                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2 }}>{fl}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: colors.bg.primary, lineHeight: 1.2 }}>{fl}</p>
                     <p style={{ fontSize: '11px', color: D.w30, lineHeight: 1.5 }}>{fd}</p>
                   </div>
                 </li>
@@ -364,7 +364,7 @@ function FacesSection() {
 
             <Link
               href={face.href}
-              style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, color: '#FFFFFF', border: `1px solid ${face.borderColor}`, textDecoration: 'none', transition: 'opacity 0.2s ease' }}
+              style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, color: colors.bg.primary, border: `1px solid ${face.borderColor}`, textDecoration: 'none', transition: 'opacity 0.2s ease' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.8' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             >
@@ -410,7 +410,7 @@ function EmailCaptureSection() {
         <p style={{ fontSize: '13px', fontWeight: 600, color: D.w60, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Application mobile
         </p>
-        <p style={{ fontSize: '15px', color: '#FFFFFF', marginBottom: '16px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '15px', color: colors.bg.primary, marginBottom: '16px', lineHeight: 1.5 }}>
           Soyez prévenu dès que l&apos;app est disponible sur iOS et Android.
         </p>
         {success ? (
@@ -425,12 +425,12 @@ function EmailCaptureSection() {
               placeholder="votre@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ flex: 1, minWidth: '200px', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${D.w12}`, background: D.w6, color: '#FFFFFF', fontSize: '14px', outline: 'none' }}
+              style={{ flex: 1, minWidth: '200px', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${D.w12}`, background: D.w6, color: colors.bg.primary, fontSize: '14px', outline: 'none' }}
             />
             <button
               type="submit"
               disabled={loading}
-              style={{ padding: '10px 20px', borderRadius: '8px', background: colors.violet.primary, color: '#FFFFFF', fontWeight: 700, fontSize: '14px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, whiteSpace: 'nowrap' }}
+              style={{ padding: '10px 20px', borderRadius: '8px', background: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, fontSize: '14px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, whiteSpace: 'nowrap' }}
             >
               {loading ? '...' : 'Être notifié'}
             </button>
@@ -521,13 +521,13 @@ export default function HomeClient() {
               style={{ color: D.w80, fontSize: '16px', lineHeight: 1.6, marginBottom: '36px' }}
             >
               Nexart connecte créateurs et organisateurs d&apos;événements artisanaux —{' '}
-              <span style={{ color: '#FFFFFF' }}>marchés, pop-ups, salons, festivals</span>.
+              <span style={{ color: colors.bg.primary }}>marchés, pop-ups, salons, festivals</span>.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.62 }}>
               <div className="home-hero-buttons">
                 <Link href="/register"
-                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: '#FFFFFF', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 20px 25px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 20px 25px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.hover; (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
                 >
@@ -535,7 +535,7 @@ export default function HomeClient() {
                 </Link>
                 <Link href="/events"
                   style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px 28px', borderRadius: '16px', border: `1px solid ${D.w8}`, color: D.w55, fontWeight: 600, fontSize: '14px', textDecoration: 'none', transition: 'all 0.2s ease' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = colors.bg.primary; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w55; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                 >
                   Explorer les événements
@@ -577,7 +577,7 @@ export default function HomeClient() {
         <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
           <FadeUp style={{ marginBottom: '80px', textAlign: 'center' }}>
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>En 3 étapes</p>
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFFFFF' }}>Simple comme bonjour</h2>
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: colors.bg.primary }}>Simple comme bonjour</h2>
           </FadeUp>
           <div className="home-steps-grid">
             <div className="home-steps-connector" style={{ position: 'absolute', top: '38px', left: 'calc(16.67% + 28px)', right: 'calc(16.67% + 28px)', height: '1px', background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.25), transparent)' }} />
@@ -597,7 +597,7 @@ export default function HomeClient() {
                 >
                   <span style={{ fontSize: '24px', fontWeight: 900, color: D.indigo400, fontFamily: 'monospace' }}>{n}</span>
                 </motion.div>
-                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', marginBottom: '12px' }}>{title}</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: colors.bg.primary, marginBottom: '12px' }}>{title}</h3>
                 <p style={{ color: D.w35, fontSize: '14px', lineHeight: 1.6, maxWidth: '210px', margin: '0 auto' }}>{desc}</p>
               </motion.div>
             ))}
@@ -619,7 +619,7 @@ export default function HomeClient() {
             <FadeUp style={{ position: 'relative', zIndex: 10, flex: 1 }}>
               <div className="home-app-text">
                 <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Bientôt disponible</p>
-                <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFFFFF', lineHeight: 1.05, marginBottom: '20px' }}>
+                <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: colors.bg.primary, lineHeight: 1.05, marginBottom: '20px' }}>
                   Nexart dans<br />votre poche
                 </h2>
                 <p style={{ color: D.w35, fontSize: '16px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '400px' }}>
@@ -667,7 +667,7 @@ export default function HomeClient() {
         <div style={{ maxWidth: '768px', margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
           <FadeUp>
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '28px' }}>Rejoignez la communauté</p>
-            <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: '#FFFFFF', lineHeight: 0.9, marginBottom: '28px' }}>
+            <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: colors.bg.primary, lineHeight: 0.9, marginBottom: '28px' }}>
               Prêt à exposer{' '}
               <span style={{ background: 'linear-gradient(90deg, #818CF8, #C4B5FD, #818CF8)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                 vos créations ?
@@ -675,7 +675,7 @@ export default function HomeClient() {
             </h2>
             <div className="home-cta-buttons">
               <Link href="/register"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '16px 36px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: '#FFFFFF', fontWeight: 700, textDecoration: 'none', boxShadow: '0 25px 50px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '16px 36px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, textDecoration: 'none', boxShadow: '0 25px 50px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.hover; (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
               >
@@ -683,7 +683,7 @@ export default function HomeClient() {
               </Link>
               <Link href="/events"
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 36px', borderRadius: '16px', border: `1px solid ${D.w8}`, color: D.w50, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s ease' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = colors.bg.primary; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w50; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
               >
                 Explorer <ChevronRight size={15} />

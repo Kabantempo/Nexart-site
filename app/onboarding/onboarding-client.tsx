@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { Palette, Building2, Eye, ArrowRight, Check, Sparkles, MapPin, Search, User, Calendar } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 const DISCIPLINES = [
   'Tatouage','Céramique','Gravure','Joaillerie','Bijoux','Illustration',
@@ -217,7 +218,7 @@ export default function OnboardingClient() {
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             {isOrgWelcome ? (
               <>
-                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#fff', marginBottom: '10px' }}>
+                <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '10px' }}>
                   Bienvenue{fullName ? ` ${fullName.split(' ')[0]}` : ''} ! 🎉
                 </h1>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', lineHeight: '1.6', marginBottom: '8px' }}>
@@ -229,7 +230,7 @@ export default function OnboardingClient() {
               </>
             ) : (
               <>
-                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#fff', marginBottom: '12px' }}>C'est parti ! 🎉</h1>
+                <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '12px' }}>C'est parti ! 🎉</h1>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '40px', lineHeight: '1.6' }}>
                   Votre profil Nexart est créé. Voici vos prochaines étapes pour en profiter au maximum.
                 </p>
@@ -251,7 +252,7 @@ export default function OnboardingClient() {
                   {s.icon}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#fff', margin: 0 }}>{s.label}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: colors.bg.primary, margin: 0 }}>{s.label}</p>
                   <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{s.desc}</p>
                 </div>
                 <ArrowRight size={14} style={{ color: 'rgba(255,255,255,0.2)', flexShrink: 0 }} />
@@ -264,7 +265,7 @@ export default function OnboardingClient() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ marginBottom: '20px' }}>
               <button onClick={() => router.push('/events/create')} style={{
                 width: '100%', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1, #818cf8)',
-                color: '#fff', fontSize: '15px', fontWeight: 700, border: 'none', cursor: 'pointer',
+                color: colors.bg.primary, fontSize: '15px', fontWeight: 700, border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               }}>
                 <Calendar size={17} />
@@ -393,7 +394,7 @@ export default function OnboardingClient() {
 
           {step === 3 && role === 'organizer' && (
             <motion.div key="step-org3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', textAlign: 'center', marginBottom: '8px' }}>Vos événements</h1>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.bg.primary, textAlign: 'center', marginBottom: '8px' }}>Vos événements</h1>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Dites-nous en plus sur les marchés que vous organisez.</p>
 
               {/* Types d'events */}
@@ -460,7 +461,7 @@ export default function OnboardingClient() {
 
           {step === 4 && role === 'organizer' && (
             <motion.div key="step-org4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#fff', textAlign: 'center', marginBottom: '8px' }}>Prochaine édition</h1>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.bg.primary, textAlign: 'center', marginBottom: '8px' }}>Prochaine édition</h1>
               <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Avez-vous un événement en cours ou à venir ?</p>
 
               {/* Toggle Oui/Non */}
@@ -485,19 +486,19 @@ export default function OnboardingClient() {
                         <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>Titre de l'événement *</label>
                         <input type="text" value={upcomingEventTitle} onChange={e => setUpcomingEventTitle(e.target.value)}
                           placeholder="Ex: Marché de la Bastille — Édition Printemps"
-                          style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: '#fff', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: colors.bg.primary, fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>Date <span style={{ fontWeight: 400, opacity: 0.6 }}>(optionnel)</span></label>
                         <input type="date" value={upcomingEventDate} onChange={e => setUpcomingEventDate(e.target.value)}
-                          style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: '#fff', fontSize: '13px', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: colors.bg.primary, fontSize: '13px', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box' }}
                         />
                       </div>
                     </div>
                     <button onClick={handleCreateNow} disabled={upcomingEventTitle.trim().length < 2 || saving} style={{
                       width: '100%', padding: '14px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1, #818cf8)',
-                      color: '#fff', fontSize: '14px', fontWeight: 700, border: 'none', cursor: upcomingEventTitle.trim().length < 2 ? 'not-allowed' : 'pointer',
+                      color: colors.bg.primary, fontSize: '14px', fontWeight: 700, border: 'none', cursor: upcomingEventTitle.trim().length < 2 ? 'not-allowed' : 'pointer',
                       opacity: upcomingEventTitle.trim().length < 2 ? 0.45 : 1, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     }}>
                       <Calendar size={16} />

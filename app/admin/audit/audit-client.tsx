@@ -25,7 +25,7 @@ type AuditLog = {
 const ACTION_COLORS: Record<string, { bg: string; text: string }> = {
   CREATE: { bg: '#D1FAE5', text: '#065F46' },
   READ:   { bg: '#DBEAFE', text: '#1E40AF' },
-  UPDATE: { bg: '#FEF3C7', text: '#92400E' },
+  UPDATE: { bg: '#FEF3C7', text: colors.red.amber },
   DELETE: { bg: '#FEE2E2', text: '#991B1B' },
   EXPORT: { bg: colors.violet.bg, text: '#5B21B6' },
   DECRYPT:{ bg: '#FCE7F3', text: '#9D174D' },
@@ -219,7 +219,7 @@ export default function AuditLogsClient() {
                     <tr key={i}>
                       {Array.from({ length: 8 }).map((_, j) => (
                         <td key={j} style={{ padding: '12px 16px', borderBottom: `1px solid ${colors.border.default}` }}>
-                          <div style={{ height: '16px', background: '#F3F4F6', borderRadius: '4px', width: j === 2 ? '80%' : '60%' }} />
+                          <div style={{ height: '16px', background: colors.bg.subtle, borderRadius: '4px', width: j === 2 ? '80%' : '60%' }} />
                         </td>
                       ))}
                     </tr>
@@ -231,7 +231,7 @@ export default function AuditLogsClient() {
                     </td>
                   </tr>
                 ) : logs.map(log => {
-                  const ac = ACTION_COLORS[log.action] || { bg: '#F3F4F6', text: '#374151' }
+                  const ac = ACTION_COLORS[log.action] || { bg: colors.bg.subtle, text: '#374151' }
                   return (
                     <tr key={log.id} style={{ borderBottom: `1px solid ${colors.border.default}` }} onMouseEnter={e => (e.currentTarget.style.background = colors.bg.secondary)} onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
                       <td style={{ padding: '10px 16px' }}>

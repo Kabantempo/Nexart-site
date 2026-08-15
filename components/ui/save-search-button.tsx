@@ -104,7 +104,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
             <button
               onClick={save}
               disabled={saving || !label.trim()}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: saving || !label.trim() ? '#C7D2FE' : 'var(--color-primary, #6366F1)', color: '#fff', fontSize: '14px', fontWeight: '700', cursor: saving || !label.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: saving || !label.trim() ? '#C7D2FE' : 'var(--color-primary, #6366F1)', color: colors.bg.primary, fontSize: '14px', fontWeight: '700', cursor: saving || !label.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
             >
               {saving ? 'Sauvegarde...' : 'Activer l\'alerte'}
             </button>

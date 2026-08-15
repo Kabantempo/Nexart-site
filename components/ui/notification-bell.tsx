@@ -20,12 +20,12 @@ interface Notification {
 }
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-  application_accepted:    { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
-  application_rejected:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: '#FEF2F2' },
+  application_accepted:    { icon: <CheckCircle size={16} />, color: colors.green.primary, bg: colors.green.bg },
+  application_rejected:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: colors.red.bg },
   application_received:    { icon: <Calendar size={16} />,    color: colors.violet.primary, bg: colors.violet.bg },
   new_message:             { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
-  verification_accepted:   { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
-  verification_refused:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: '#FEF2F2' },
+  verification_accepted:   { icon: <CheckCircle size={16} />, color: colors.green.primary, bg: colors.green.bg },
+  verification_refused:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: colors.red.bg },
   default:                 { icon: <Bell size={16} />,         color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
 }
 

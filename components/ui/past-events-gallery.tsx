@@ -75,7 +75,7 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
               ) : (
                 <div style={{ height: '100%', background: 'linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%)' }} />
               )}
-              <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}>
+              <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.5)', color: colors.bg.primary, fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}>
                 Passé
               </div>
             </div>
@@ -83,17 +83,17 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
               <p style={{ fontSize: '13px', fontWeight: '700', color: colors.text.primary, margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {ev.city && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#6B7280' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: colors.text.secondary }}>
                     <MapPin size={10} /> {ev.city}
                   </span>
                 )}
                 {ev.start_date && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#6B7280' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: colors.text.secondary }}>
                     <Calendar size={10} /> {new Date(ev.start_date).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
                   </span>
                 )}
                 {ev.stand_count && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#6B7280' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: colors.text.secondary }}>
                     <Users size={10} /> {ev.stand_count} stands
                   </span>
                 )}

@@ -53,7 +53,7 @@ export function NavbarFull() {
   }
 
   const hoverBg   = isDark ? 'rgba(255,255,255,0.06)' : colors.bg.secondary
-  const hoverBgAlt = isDark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'
+  const hoverBgAlt = isDark ? 'rgba(255,255,255,0.08)' : colors.bg.subtle
 
   const [mobileOpen,    setMobileOpen]    = useState(false)
   const [dropdown,      setDropdown]      = useState<string | null>(null)
@@ -525,7 +525,7 @@ export function NavbarFull() {
                   >
                     <MessageCircle size={16} />
                     {unreadMessages > 0 && (
-                      <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '14px', height: '14px', borderRadius: '7px', backgroundColor: colors.feedback.danger.solid, color: '#fff', fontSize: '9px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px', lineHeight: 1 }}>
+                      <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '14px', height: '14px', borderRadius: '7px', backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary, fontSize: '9px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px', lineHeight: 1 }}>
                         {unreadMessages > 99 ? '99+' : unreadMessages}
                       </span>
                     )}
@@ -534,12 +534,12 @@ export function NavbarFull() {
                   {/* Credits badge */}
                   {creditBalance !== null && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
-                      <Zap size={11} color="#FFF" fill="#FFF" />
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#FFF', lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
+                      <Zap size={11} color={colors.bg.primary} fill={colors.bg.primary} />
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: colors.bg.primary, lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
                       <Link href="/offres#credits-unite" title="Acheter des crédits"
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)', marginLeft: '4px', flexShrink: 0 }}
                       >
-                        <Plus size={9} color="#FFF" strokeWidth={3} />
+                        <Plus size={9} color={colors.bg.primary} strokeWidth={3} />
                       </Link>
                     </div>
                   )}
@@ -559,13 +559,13 @@ export function NavbarFull() {
                       aria-haspopup="menu"
                       aria-expanded={dropdown === 'profile'}
                       style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '12px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = '#F3F4F6'}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = colors.bg.subtle}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                     >
                       <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {user.avatar_url
                           ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={26} height={26} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                          : <span style={{ fontSize: '9px', fontWeight: 900, color: '#fff' }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
+                          : <span style={{ fontSize: '9px', fontWeight: 900, color: colors.bg.primary }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
                         }
                       </div>
                       <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>{firstName ?? 'Moi'}</span>
@@ -594,13 +594,13 @@ export function NavbarFull() {
                       <SimpleItem panelId="profile" idx={2} href="/notifications" icon={Bell} label="Notifications" />
                       <SimpleItem panelId="profile" idx={3} href="/settings"      icon={User} label="Paramètres" />
                       {(user as any).is_admin && (
-                        <SimpleItem panelId="profile" idx={4} href="/admin" icon={Shield} label="Admin" color="#F59E0B" />
+                        <SimpleItem panelId="profile" idx={4} href="/admin" icon={Shield} label="Admin" color={colors.status.pending.dot} />
                       )}
 
                       <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }} />
                       <button onClick={handleLogout}
-                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s' }}
-                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = isDark ? 'rgba(239,68,68,0.12)' : '#FEF2F2'}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, color: colors.red.vivid, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = isDark ? 'rgba(239,68,68,0.12)' : colors.red.bg}
                         onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                       >
                         <LogOut size={14} /> Déconnexion
@@ -618,7 +618,7 @@ export function NavbarFull() {
                     Connexion
                   </Link>
                   <Link href="/register"
-                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: isDark ? colors.bg.secondary : '#111827', color: isDark ? '#111827' : '#fff' }}
+                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: isDark ? colors.bg.secondary : colors.text.dark, color: isDark ? colors.text.dark : colors.bg.primary }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
                   >
@@ -672,7 +672,7 @@ export function NavbarFull() {
                 <Search size={14} color="rgba(255,255,255,0.4)" style={{ flexShrink: 0 }} />
                 <input value={searchValue} onChange={e => handleSearchChange(e.target.value)}
                   placeholder="Rechercher événements, créateurs…"
-                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#fff' }}
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: colors.bg.primary }}
                 />
                 {searchValue && (
                   <button type="button" aria-label="Effacer" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}
@@ -692,9 +692,9 @@ export function NavbarFull() {
               ].map(({ href, label }, i) => (
                 <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>
                   <Link href={href} onClick={() => setMobileOpen(false)}
-                    style={{ display: 'block', padding: '10px 0', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', textDecoration: 'none', transition: 'color 0.15s', color: isActive(href) ? '#fff' : 'rgba(255,255,255,0.3)' }}
+                    style={{ display: 'block', padding: '10px 0', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', textDecoration: 'none', transition: 'color 0.15s', color: isActive(href) ? colors.bg.primary : 'rgba(255,255,255,0.3)' }}
                     onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.8)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = isActive(href) ? '#fff' : 'rgba(255,255,255,0.3)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = isActive(href) ? colors.bg.primary : 'rgba(255,255,255,0.3)'}
                   >
                     {label}
                   </Link>
@@ -710,11 +710,11 @@ export function NavbarFull() {
                       <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                         {user.avatar_url
                           ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                          : <span style={{ fontSize: '12px', fontWeight: 900, color: '#fff' }}>{firstName?.[0]?.toUpperCase()}</span>
+                          : <span style={{ fontSize: '12px', fontWeight: 900, color: colors.bg.primary }}>{firstName?.[0]?.toUpperCase()}</span>
                         }
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: '14px', fontWeight: 600, color: '#fff', margin: 0 }}>{firstName ?? 'Mon compte'}</p>
+                        <p style={{ fontSize: '14px', fontWeight: 600, color: colors.bg.primary, margin: 0 }}>{firstName ?? 'Mon compte'}</p>
                         <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                       </div>
                     </Link>
@@ -737,7 +737,7 @@ export function NavbarFull() {
                     </div>
 
                     <Link href="/dashboard" onClick={() => setMobileOpen(false)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.1)', color: colors.bg.primary, fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
                     >
                       Mon dashboard
                     </Link>
@@ -752,7 +752,7 @@ export function NavbarFull() {
                 ) : (
                   <>
                     <Link href="/register" onClick={() => setMobileOpen(false)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: '#fff', color: '#111827', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: colors.bg.primary, color: colors.text.dark, fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
                     >
                       S'inscrire gratuitement
                     </Link>

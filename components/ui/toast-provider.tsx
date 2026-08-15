@@ -34,7 +34,7 @@ const TOAST_STYLES: Record<ToastType, { bg: string; border: string; color: strin
     icon: <CheckCircle size={18} />,
   },
   error: {
-    bg: '#FEF2F2',
+    bg: colors.red.bg,
     border: '#FCA5A5',
     color: colors.feedback.danger.solid,
     icon: <XCircle size={18} />,

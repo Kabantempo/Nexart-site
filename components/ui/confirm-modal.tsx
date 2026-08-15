@@ -32,7 +32,7 @@ const VARIANT_STYLES: Record<ConfirmVariant, {
   btnBg: string; btnHover: string; btnColor: string
 }> = {
   danger: {
-    iconBg: '#FEF2F2', iconColor: colors.feedback.danger.solid,
+    iconBg: colors.red.bg, iconColor: colors.feedback.danger.solid,
     icon: <Trash2 size={22} />,
     btnBg: colors.feedback.danger.solid, btnHover: '#B91C1C', btnColor: colors.bg.primary,
   },

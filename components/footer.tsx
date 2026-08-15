@@ -92,7 +92,7 @@ export function Footer() {
   }
 
   return (
-    <footer style={{ backgroundColor: '#06060f', borderTop: '1px solid rgba(255,255,255,0.06)', color: '#fff' }}>
+    <footer style={{ backgroundColor: colors.bg.dark, borderTop: '1px solid rgba(255,255,255,0.06)', color: colors.bg.primary }}>
       {/* Top section */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 24px 56px' }}>
         <div style={{
@@ -105,7 +105,7 @@ export function Footer() {
           <div style={{ minWidth: '220px' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', textDecoration: 'none' }}>
               <Image src="/logo-mark.png" alt="Nexart" width={30} height={30} style={{ borderRadius: '8px' }} />
-              <span style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>Nexart</span>
+              <span style={{ fontSize: '20px', fontWeight: 700, color: colors.bg.primary }}>Nexart</span>
             </Link>
 
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: '1.65', marginBottom: '12px' }}>
@@ -141,7 +141,7 @@ export function Footer() {
                   }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLAnchorElement
-                    el.style.color = '#fff'
+                    el.style.color = colors.bg.primary
                     el.style.backgroundColor = 'rgba(255,255,255,0.1)'
                     el.style.borderColor = 'rgba(255,255,255,0.15)'
                   }}
@@ -175,7 +175,7 @@ export function Footer() {
                   borderRadius: '10px',
                   border: '1px solid rgba(255,255,255,0.08)',
                   backgroundColor: 'rgba(255,255,255,0.04)',
-                  color: '#fff',
+                  color: colors.bg.primary,
                   fontSize: '13px',
                   outline: 'none',
                   opacity: status === 'loading' || status === 'success' ? 0.5 : 1,
@@ -198,7 +198,7 @@ export function Footer() {
                   justifyContent: 'center',
                 }}
               >
-                <Mail size={15} color="#fff" />
+                <Mail size={15} color={colors.bg.primary} />
               </button>
             </form>
             {status === 'success' && (
@@ -221,7 +221,7 @@ export function Footer() {
                     key={href + label}
                     href={href}
                     style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = colors.bg.primary }}
                     onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)' }}
                   >
                     {label}

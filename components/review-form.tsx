@@ -99,7 +99,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
                 key={tag}
                 type="button"
                 onClick={() => toggleTag(tag)}
-                style={{ padding: '6px 12px', borderRadius: '9999px', border: `1px solid ${sel ? colors.violet.primary : colors.border.default}`, backgroundColor: sel ? colors.violet.primary : colors.bg.primary, color: sel ? colors.bg.primary : '#6B7280', fontSize: '13px', cursor: 'pointer', transition: 'all 200ms ease', fontFamily: 'inherit' }}
+                style={{ padding: '6px 12px', borderRadius: '9999px', border: `1px solid ${sel ? colors.violet.primary : colors.border.default}`, backgroundColor: sel ? colors.violet.primary : colors.bg.primary, color: sel ? colors.bg.primary : colors.text.secondary, fontSize: '13px', cursor: 'pointer', transition: 'all 200ms ease', fontFamily: 'inherit' }}
               >
                 {tag}
               </button>

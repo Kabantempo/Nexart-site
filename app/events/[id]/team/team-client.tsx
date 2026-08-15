@@ -176,7 +176,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                 <button
                   onClick={() => handleRemove(member.id)}
                   style={{
-                    backgroundColor: '#FEF2F2',
+                    backgroundColor: colors.red.bg,
                     color: colors.feedback.danger.solid,
                     border: 'none',
                     borderRadius: '6px',

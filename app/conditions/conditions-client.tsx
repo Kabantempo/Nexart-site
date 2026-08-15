@@ -328,7 +328,7 @@ export default function ConditionsClient() {
 
               {/* Content */}
               {section.content && (
-                <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '24px' }}>
+                <p style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '24px' }}>
                   {section.content}
                 </p>
               )}
@@ -341,7 +341,7 @@ export default function ConditionsClient() {
                       key={i}
                       style={{
                         fontSize: '16px',
-                        color: '#666666',
+                        color: colors.text.muted,
                         lineHeight: '1.8',
                         marginBottom: '12px',
                         listStyleType: 'disc',
@@ -368,7 +368,7 @@ export default function ConditionsClient() {
                             key={i}
                             style={{
                               fontSize: '16px',
-                              color: '#666666',
+                              color: colors.text.muted,
                               lineHeight: '1.8',
                               marginBottom: '12px',
                               listStyleType: 'disc',
@@ -407,7 +407,7 @@ export default function ConditionsClient() {
               <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Questions ou Signalement?
               </h3>
-              <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.6', marginBottom: '16px' }}>
+              <p style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.6', marginBottom: '16px' }}>
                 Pour toute question sur ces conditions ou pour signaler une violation, contactez-nous.
               </p>
               <a

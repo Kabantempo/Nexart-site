@@ -596,7 +596,7 @@ export default function CreateEventClient() {
                   <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
                     <img src={form.cover_image} alt="cover" style={{ width: '100%', borderRadius: radius.sm, objectFit: 'cover', maxHeight: '180px', display: 'block' }} />
                     <button onClick={() => setForm(f => ({ ...f, cover_image: '' }))}
-                      style={{ position: 'absolute', top: '6px', right: '6px', width: '26px', height: '26px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      style={{ position: 'absolute', top: '6px', right: '6px', width: '26px', height: '26px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: colors.bg.primary, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <X size={13} />
                     </button>
                   </div>
@@ -616,7 +616,7 @@ export default function CreateEventClient() {
                     <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
                       <img src={url} alt={`media-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: radius.sm, display: 'block' }} />
                       <button onClick={() => setForm(f => ({ ...f, media: f.media.filter((_, j) => j !== i) }))}
-                        style={{ position: 'absolute', top: '3px', right: '3px', width: '20px', height: '20px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        style={{ position: 'absolute', top: '3px', right: '3px', width: '20px', height: '20px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: colors.bg.primary, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <X size={10} />
                       </button>
                     </div>

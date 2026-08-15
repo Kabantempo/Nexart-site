@@ -28,7 +28,7 @@ export default function VerifyClient({ token }: { token: string }) {
   if (loading) return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
       <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(99,102,241,0.2)', borderTopColor: colors.violet.primary, animation: 'spin 0.8s linear infinite' }} />
-      <p style={{ color: '#888888', fontSize: '14px', fontWeight: 500 }}>Vérification en cours…</p>
+      <p style={{ color: colors.text.secondary, fontSize: '14px', fontWeight: 500 }}>Vérification en cours…</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
@@ -41,11 +41,11 @@ export default function VerifyClient({ token }: { token: string }) {
 
         {/* Erreur card */}
         <div style={{ backgroundColor: colors.bg.primary, borderRadius: '20px', padding: '40px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: `1px solid ${colors.border.default}` }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-            <XCircle size={36} color="#EF4444" />
+          <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: colors.red.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <XCircle size={36} color={colors.red.vivid} />
           </div>
           <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.text.primary, marginBottom: '10px' }}>Document invalide</h1>
-          <p style={{ color: '#888888', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ color: colors.text.secondary, fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
             Ce QR code ne correspond à aucun document valide dans notre système ou a expiré.
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function VerifyClient({ token }: { token: string }) {
           {/* Footer */}
           {alreadyScanned && (
             <div style={{ padding: '16px 32px', backgroundColor: '#FFFBEB', borderTop: '1px solid #FDE68A' }}>
-              <p style={{ fontSize: '12px', color: '#92400E', margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: '12px', color: colors.red.amber, margin: 0, lineHeight: 1.5 }}>
                 ⚠️ Ce QR code a déjà été utilisé. Si ce n'est pas vous, contactez l'organisateur.
               </p>
             </div>
@@ -144,10 +144,10 @@ function Row({ label, value, accent, warning }: { label: string; value?: string;
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: '11px 0',
-      borderBottom: '1px solid #F3F4F6',
+      borderBottom: `1px solid ${colors.bg.subtle}`,
       gap: '12px',
     }}>
-      <span style={{ fontSize: '13px', color: '#888888', whiteSpace: 'nowrap' }}>{label}</span>
+      <span style={{ fontSize: '13px', color: colors.text.secondary, whiteSpace: 'nowrap' }}>{label}</span>
       <span style={{
         fontSize: '13px',
         fontWeight: 600,

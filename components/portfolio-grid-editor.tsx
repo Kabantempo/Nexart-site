@@ -87,8 +87,8 @@ function SizePicker({
             onClick={() => onSelect(s.col, s.row)}
             style={{
               padding: '4px 10px', borderRadius: '6px', border: 'none',
-              backgroundColor: selected.col === s.col && selected.row === s.row ? colors.violet.primary : '#F3F4F6',
-              color: selected.col === s.col && selected.row === s.row ? '#FFF' : '#4B5563',
+              backgroundColor: selected.col === s.col && selected.row === s.row ? colors.violet.primary : colors.bg.subtle,
+              color: selected.col === s.col && selected.row === s.row ? colors.bg.primary : '#4B5563',
               fontSize: '12px', fontWeight: '600', cursor: 'pointer',
             }}
           >
@@ -150,7 +150,7 @@ function AddModal({
             Annuler
           </button>
           <button onClick={handleSave} disabled={!file || uploading}
-            style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: !file || uploading ? '#A5B4FC' : colors.violet.primary, color: '#FFF', fontSize: '14px', fontWeight: '600', cursor: !file || uploading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: !file || uploading ? '#A5B4FC' : colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: !file || uploading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Check size={15} /> {uploading ? 'Envoi…' : 'Ajouter'}
           </button>
         </div>
@@ -225,11 +225,11 @@ function ResizeModal({
       footer={
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={() => { onDelete(index); onClose() }}
-            style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: colors.feedback.danger.solid, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: colors.red.bg, color: colors.feedback.danger.solid, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={15} /> Supprimer
           </button>
           <button onClick={() => { onSave(index, col, row); onClose() }}
-            style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Check size={15} /> Enregistrer
           </button>
         </div>
@@ -304,7 +304,7 @@ function SortableGridItem({
         flexDirection: 'column', gap: '4px',
         pointerEvents: 'none',
       }}>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: '#FFF' }}>{item.colSpan}×{item.rowSpan}</span>
+        <span style={{ fontSize: '13px', fontWeight: '700', color: colors.bg.primary }}>{item.colSpan}×{item.rowSpan}</span>
         <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)' }}>Cliquer pour modifier</span>
       </div>
       {/* Taille badge */}
@@ -312,7 +312,7 @@ function SortableGridItem({
         position: 'absolute', top: '6px', right: '6px',
         padding: '2px 7px', borderRadius: '10px',
         backgroundColor: 'rgba(0,0,0,0.55)',
-        fontSize: '11px', fontWeight: '700', color: '#FFF',
+        fontSize: '11px', fontWeight: '700', color: colors.bg.primary,
       }}>
         {item.colSpan}×{item.rowSpan}
       </div>
@@ -330,7 +330,7 @@ function SortableGridItem({
         title="Glisser pour réordonner"
         onClick={(e) => e.stopPropagation()}
       >
-        <GripVertical size={13} color="#FFF" />
+        <GripVertical size={13} color={colors.bg.primary} />
       </div>
     </div>
   )

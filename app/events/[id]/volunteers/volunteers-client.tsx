@@ -298,7 +298,7 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ flex: 1, height: '6px', backgroundColor: colors.border.default, borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${fillPct}%`, backgroundColor: fillPct >= 100 ? '#10B981' : fillPct >= 50 ? colors.status.pending.dot : colors.violet.primary, borderRadius: '3px', transition: 'width 0.3s' }} />
+                      <div style={{ height: '100%', width: `${fillPct}%`, backgroundColor: fillPct >= 100 ? colors.green.primary : fillPct >= 50 ? colors.status.pending.dot : colors.violet.primary, borderRadius: '3px', transition: 'width 0.3s' }} />
                     </div>
                     <span style={{ fontSize: '12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{shift.assigned}/{shift.capacity} bénévoles</span>
                   </div>
@@ -306,7 +306,7 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
                 <button
                   onClick={() => handleDelete(shift.id)}
                   disabled={deleting === shift.id}
-                  style={{ padding: '6px', backgroundColor: 'transparent', color: '#EF4444', border: 'none', cursor: 'pointer', opacity: deleting === shift.id ? 0.5 : 1, flexShrink: 0 }}
+                  style={{ padding: '6px', backgroundColor: 'transparent', color: colors.red.vivid, border: 'none', cursor: 'pointer', opacity: deleting === shift.id ? 0.5 : 1, flexShrink: 0 }}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -452,7 +452,7 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
             </thead>
             <tbody>
               {volunteers.map((vol, i) => (
-                <tr key={vol.id} style={{ borderBottom: i < volunteers.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                <tr key={vol.id} style={{ borderBottom: i < volunteers.length - 1 ? `1px solid ${colors.bg.subtle}` : 'none' }}>
                   <td style={{ padding: '14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -463,13 +463,13 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
                   </td>
                   <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>{vol.email}</td>
                   <td style={{ padding: '14px 16px' }}>
-                    <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: vol.status === 'active' ? '#ECFDF5' : '#F3F4F6', color: vol.status === 'active' ? '#10B981' : colors.text.muted, borderRadius: '4px', fontWeight: 500 }}>
+                    <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: vol.status === 'active' ? colors.green.bg : colors.bg.subtle, color: vol.status === 'active' ? colors.green.primary : colors.text.muted, borderRadius: '4px', fontWeight: 500 }}>
                       {vol.status === 'active' ? '✓ Disponible' : 'Indisponible'}
                     </span>
                   </td>
                   <td style={{ padding: '14px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>{new Date(vol.created_at).toLocaleDateString('fr-FR')}</td>
                   <td style={{ padding: '14px 16px' }}>
-                    <button onClick={() => handleDelete(vol.id)} disabled={deleting === vol.id} style={{ padding: '4px', backgroundColor: 'transparent', color: '#EF4444', border: 'none', cursor: 'pointer', opacity: deleting === vol.id ? 0.5 : 1 }}>
+                    <button onClick={() => handleDelete(vol.id)} disabled={deleting === vol.id} style={{ padding: '4px', backgroundColor: 'transparent', color: colors.red.vivid, border: 'none', cursor: 'pointer', opacity: deleting === vol.id ? 0.5 : 1 }}>
                       <Trash2 size={14} />
                     </button>
                   </td>
@@ -557,7 +557,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
             <Shuffle size={14} /> Générer planning
           </button>
           {plan && !saved && (
-            <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: '#10B981', color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
+            <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: colors.green.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
               {saving ? 'Enregistrement…' : '✓ Valider'}
             </button>
           )}
@@ -581,8 +581,8 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
             return (
               <div key={shift.id} style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: isFull ? '#ECFDF5' : colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Clock size={18} color={isFull ? '#10B981' : colors.violet.primary} />
+                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: isFull ? colors.green.bg : colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Clock size={18} color={isFull ? colors.green.primary : colors.violet.primary} />
                   </div>
                   <div>
                     <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px 0' }}>{shift.role}</p>
@@ -590,7 +590,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
                       {shift.date ? new Date(shift.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : ''} à {shift.time}
                     </p>
                   </div>
-                  <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600, padding: '4px 10px', backgroundColor: isFull ? '#ECFDF5' : '#FEF3C7', color: isFull ? '#10B981' : colors.feedback.warning.solid, borderRadius: '6px' }}>
+                  <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600, padding: '4px 10px', backgroundColor: isFull ? colors.green.bg : '#FEF3C7', color: isFull ? colors.green.primary : colors.feedback.warning.solid, borderRadius: '6px' }}>
                     {assigned.length}/{shift.capacity}
                   </span>
                 </div>
@@ -639,9 +639,9 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
         {totalItems > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '120px', height: '8px', backgroundColor: colors.border.default, borderRadius: '4px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${totalItems > 0 ? (checkedCount / totalItems) * 100 : 0}%`, backgroundColor: '#10B981', borderRadius: '4px', transition: 'width 0.3s' }} />
+              <div style={{ height: '100%', width: `${totalItems > 0 ? (checkedCount / totalItems) * 100 : 0}%`, backgroundColor: colors.green.primary, borderRadius: '4px', transition: 'width 0.3s' }} />
             </div>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#10B981' }}>{totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0}%</span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: colors.green.primary }}>{totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0}%</span>
           </div>
         )}
       </div>
@@ -662,21 +662,21 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
                   padding: '14px 20px',
-                  backgroundColor: isChecked ? '#ECFDF5' : 'var(--bg-primary)',
+                  backgroundColor: isChecked ? colors.green.bg : 'var(--bg-primary)',
                   border: `1px solid ${isChecked ? '#A7F3D0' : 'var(--border-color)'}`,
                   borderRadius: '10px',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                 }}
               >
-                <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isChecked ? '#10B981' : '#D1D5DB'}`, backgroundColor: isChecked ? '#10B981' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isChecked ? colors.green.primary : '#D1D5DB'}`, backgroundColor: isChecked ? colors.green.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                   {isChecked && <span style={{ color: colors.bg.primary, fontSize: '12px', fontWeight: 700 }}>✓</span>}
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px 0', textDecoration: isChecked ? 'line-through' : 'none', opacity: isChecked ? 0.6 : 1 }}>{vol.name}</p>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{vol.email}</p>
                 </div>
-                {isChecked && <CheckCircle size={18} color="#10B981" />}
+                {isChecked && <CheckCircle size={18} color={colors.green.primary} />}
               </div>
             )
           })}

@@ -55,11 +55,11 @@ export function BoostButton({ type, refId, boostedUntil, onSuccess }: Props) {
   return (
     <div>
       <button onClick={handleBoost} disabled={loading}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: '700', color: '#FFF', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', padding: '5px 12px', borderRadius: '8px', border: 'none', cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-        <Zap size={12} fill="#FFF" color="#FFF" />
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: '700', color: colors.bg.primary, background: 'linear-gradient(135deg,#6366F1,#4F46E5)', padding: '5px 12px', borderRadius: '8px', border: 'none', cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+        <Zap size={12} fill={colors.bg.primary} color={colors.bg.primary} />
         {loading ? 'Boosting…' : LABEL[type]}
       </button>
-      {error && <p style={{ fontSize: '11px', color: '#EF4444', margin: '4px 0 0', fontWeight: '600' }}>{error}</p>}
+      {error && <p style={{ fontSize: '11px', color: colors.red.vivid, margin: '4px 0 0', fontWeight: '600' }}>{error}</p>}
     </div>
   )
 }

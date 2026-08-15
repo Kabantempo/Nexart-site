@@ -88,7 +88,7 @@ export default function AboutPageClient() {
                 padding: '40px',
                 borderRadius: '12px',
                 background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-                color: '#FFF',
+                color: colors.bg.primary,
               }}
             >
               <p style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 12px' }}>

@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: str
   available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
   reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
   occupied:  { bg: colors.violet.bg, border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
-  blocked:   { bg: 'var(--bg-secondary)', border: '#D1D5DB', text: '#6B7280', label: 'Bloqué' },
+  blocked:   { bg: 'var(--bg-secondary)', border: '#D1D5DB', text: colors.text.secondary, label: 'Bloqué' },
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -165,7 +165,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
             </button>
           )}
           <button onClick={save} disabled={saving || !isDirty}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: isDirty ? colors.violet.primary : colors.border.default, color: isDirty ? '#fff' : 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: isDirty ? 'pointer' : 'not-allowed', transition: 'all 150ms' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: isDirty ? colors.violet.primary : colors.border.default, color: isDirty ? colors.bg.primary : 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: isDirty ? 'pointer' : 'not-allowed', transition: 'all 150ms' }}>
             <Save size={14} /> {saving ? 'Sauvegarde…' : 'Sauvegarder'}
           </button>
         </div>
@@ -275,7 +275,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>Stand {selected.id}</h3>
               <button onClick={() => { resetStand(selected.id); setSelected(null) }} title="Réinitialiser"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', padding: '4px' }}>
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.red.vivid, padding: '4px' }}>
                 <Trash2 size={15} />
               </button>
             </div>

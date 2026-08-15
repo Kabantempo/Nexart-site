@@ -10,6 +10,7 @@ import { Heart, Calendar, MapPin, Users, Palette, ArrowRight } from 'lucide-reac
 import { motion } from 'framer-motion'
 import { GhostCard } from '@/components/ui/ghost-card'
 import { NexTabs } from '@/components/ui/nex-tabs'
+import { colors } from '@/lib/design-tokens'
 
 export default function FavoritesClient() {
   const router = useRouter()
@@ -67,7 +68,7 @@ export default function FavoritesClient() {
         {tab === 'events' && (
           favEvents.length === 0 ? (
             <GhostCard
-              icon={<Calendar size={32} color="#6366F1" />}
+              icon={<Calendar size={32} color={colors.violet.primary} />}
               title="Aucun événement favori"
               description="Explorez les marchés et événements, puis cliquez sur le ❤️ pour les sauvegarder ici."
               cta="Explorer les événements"
@@ -140,7 +141,7 @@ export default function FavoritesClient() {
         {tab === 'creators' && (
           favCreators.length === 0 ? (
             <GhostCard
-              icon={<Palette size={32} color="#6366F1" />}
+              icon={<Palette size={32} color={colors.violet.primary} />}
               title="Aucun créateur favori"
               description="Découvrez les artisans et créateurs, puis cliquez sur le ❤️ pour les retrouver ici."
               cta="Découvrir les créateurs"
@@ -167,13 +168,13 @@ export default function FavoritesClient() {
                     {creator.avatar_url ? (
                       <Image src={creator.avatar_url} alt={creator.full_name} width={64} height={64} style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid #EEF2FF' }} />
                     ) : (
-                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: '700', color: '#6366F1' }}>
+                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: '700', color: colors.violet.primary }}>
                         {creator.full_name?.[0] || '?'}
                       </div>
                     )}
                     <button
                       onClick={() => toggleCreatorFav(creator.id)}
-                      style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                      style={{ position: 'absolute', top: '-4px', right: '-4px', background: colors.bg.primary, border: '1px solid #E2E8F0', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
                       title="Retirer des favoris"
                     >
                       <Heart size={12} color="#E05A5A" fill="#E05A5A" />

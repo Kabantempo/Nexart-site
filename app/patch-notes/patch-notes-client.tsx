@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { colors } from '@/lib/design-tokens'
 
 interface PatchNote {
   version: string
@@ -55,7 +56,7 @@ export default function PatchNotesClient() {
 
       {error && (
         <div style={{ textAlign: 'center', padding: '60px 16px' }} role="alert">
-          <p style={{ fontSize: '16px', color: '#666666' }}>Impossible de charger les mises à jour. Veuillez réessayer plus tard.</p>
+          <p style={{ fontSize: '16px', color: colors.text.muted }}>Impossible de charger les mises à jour. Veuillez réessayer plus tard.</p>
         </div>
       )}
 
@@ -85,7 +86,7 @@ export default function PatchNotesClient() {
                 <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: '8px' }}>
                   {note.name}
                 </h2>
-                <time dateTime={note.date} style={{ fontSize: '14px', color: '#666666', display: 'block' }}>
+                <time dateTime={note.date} style={{ fontSize: '14px', color: colors.text.muted, display: 'block' }}>
                   {new Date(note.date).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: 'long',

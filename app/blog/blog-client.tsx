@@ -97,7 +97,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
         {/* Excerpt */}
         <p style={{
           fontSize: '14px',
-          color: '#888888',
+          color: colors.text.secondary,
           lineHeight: '1.6',
           margin: 0,
           flex: 1,
@@ -117,8 +117,8 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
               borderRadius: '6px',
               fontSize: '11px',
               fontWeight: '500',
-              backgroundColor: '#F3F4F6',
-              color: '#6B7280',
+              backgroundColor: colors.bg.subtle,
+              color: colors.text.secondary,
             }}>
               #{tag}
             </span>
@@ -178,7 +178,7 @@ export default function BlogClient() {
             </h1>
             <p style={{
               fontSize: '18px',
-              color: '#888888',
+              color: colors.text.secondary,
               maxWidth: '540px',
               lineHeight: '1.6',
               margin: 0,
@@ -205,7 +205,7 @@ export default function BlogClient() {
                   borderRadius: '9999px',
                   border: active ? `1px solid ${colors.border.accent}` : `1px solid ${colors.border.default}`,
                   backgroundColor: active ? colors.violet.primary : colors.bg.primary,
-                  color: active ? colors.bg.primary : '#888888',
+                  color: active ? colors.bg.primary : colors.text.secondary,
                   fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',

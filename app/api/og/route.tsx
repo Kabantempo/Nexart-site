@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/server'
 import { NextRequest } from 'next/server'
+import { colors } from '@/lib/design-tokens'
 
 export const runtime = 'edge'
 
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
             left: 0,
             right: 0,
             height: '3px',
-            background: '#6366F1',
+            background: colors.violet.primary,
           }}
         />
 
@@ -83,7 +84,7 @@ export async function GET(req: NextRequest) {
                 width: '36px',
                 height: '36px',
                 borderRadius: '10px',
-                background: '#6366F1',
+                background: colors.violet.primary,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -92,7 +93,7 @@ export async function GET(req: NextRequest) {
             >
               ✦
             </div>
-            <span style={{ color: '#818CF8', fontSize: '18px', fontWeight: 600, letterSpacing: '0.05em' }}>
+            <span style={{ color: colors.violet.hover, fontSize: '18px', fontWeight: 600, letterSpacing: '0.05em' }}>
               NEXART
             </span>
           </div>
@@ -113,7 +114,7 @@ export async function GET(req: NextRequest) {
                   border: '1px solid rgba(99,102,241,0.4)',
                   borderRadius: '20px',
                   padding: '6px 16px',
-                  color: '#818CF8',
+                  color: colors.violet.hover,
                   fontSize: '14px',
                   fontWeight: 600,
                   letterSpacing: '0.06em',
@@ -127,7 +128,7 @@ export async function GET(req: NextRequest) {
             {/* Title */}
             <div
               style={{
-                color: '#FFFFFF',
+                color: colors.bg.primary,
                 fontSize: title.length > 40 ? '42px' : title.length > 25 ? '52px' : '60px',
                 fontWeight: 800,
                 lineHeight: 1.1,
@@ -157,10 +158,10 @@ export async function GET(req: NextRequest) {
             <span style={{ color: '#475569', fontSize: '16px' }}>nexart.fr</span>
             <div
               style={{
-                background: '#6366F1',
+                background: colors.violet.primary,
                 borderRadius: '12px',
                 padding: '12px 24px',
-                color: '#FFFFFF',
+                color: colors.bg.primary,
                 fontSize: '16px',
                 fontWeight: 700,
               }}

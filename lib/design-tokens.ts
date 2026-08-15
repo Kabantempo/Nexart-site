@@ -34,6 +34,9 @@ export const colors = {
     primary:   '#FFFFFF',  // fond principal, cartes, écrans
     secondary: '#F5F5F7',  // sections alternatives, inputs disabled
     hover:     '#F0F0FF',  // hover sur ghost buttons
+    subtle:    '#F3F4F6',  // gris très léger (Tailwind gray-100)
+    dark:      '#06060f',  // fond hero dark
+    darkAlt:   '#0F0C29',  // fond dark alternatif (dégradé)
   },
 
   // Textes
@@ -43,6 +46,9 @@ export const colors = {
     muted:     '#737373',  // placeholders, hints, disabled — ratio 4.6:1 (WCAG AA ✓)
     onViolet:  '#FFFFFF',  // texte sur fond violet
     onDanger:  '#FFFFFF',  // texte sur fond rouge
+    dark:      '#111827',  // gris très foncé (Tailwind gray-900)
+    light:     '#9CA3AF',  // gris clair (Tailwind gray-400)
+    white:     '#FFFFFF',
   },
 
   // Bordures
@@ -90,6 +96,21 @@ export const colors = {
     accepted: { bg: '#E8F5E9', text: '#2E7D32', dot: '#4CAF50' },
     refused:  { bg: '#FFEBEE', text: '#B71C1C', dot: '#E05A5A' },
     new:      { bg: '#EDE9FE', text: '#4338CA', dot: '#6366F1' },
+  },
+
+  // Vert émeraude (stats positives, compteurs, indicateurs)
+  green: {
+    primary: '#10B981',
+    bg:      '#ECFDF5',
+    text:    '#065F46',
+  },
+
+  // Rouge vif (alertes système — distinct du #E05A5A Nexart)
+  red: {
+    vivid:  '#EF4444',
+    bg:     '#FEF2F2',
+    text:   '#991B1B',
+    amber:  '#92400E',
   },
 
   // Catégories d'événements (cartes, filtres)

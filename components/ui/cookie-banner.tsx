@@ -182,7 +182,7 @@ function CookieCategory({ title, description, enabled, locked, onChange }: {
         }}>
           <span style={{
             display: 'block', width: '16px', height: '16px', borderRadius: '50%',
-            backgroundColor: '#fff', position: 'absolute', top: '3px',
+            backgroundColor: colors.bg.primary, position: 'absolute', top: '3px',
             left: enabled ? '21px' : '3px', transition: 'left 200ms',
           }} />
         </span>

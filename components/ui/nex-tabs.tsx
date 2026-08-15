@@ -106,7 +106,7 @@ export function NexTabs<T extends string = string>({
                   fontSize: '11px',
                   fontWeight: 700,
                   backgroundColor: isActive ? colors.violet.primary : 'var(--bg-secondary)',
-                  color: isActive ? '#fff' : 'var(--text-secondary)',
+                  color: isActive ? colors.bg.primary : 'var(--text-secondary)',
                 }}>
                   {tab.badge}
                 </span>
@@ -158,7 +158,7 @@ export function NexTabs<T extends string = string>({
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               transition: 'all 0.15s',
-              backgroundColor: isActive ? '#fff' : 'transparent',
+              backgroundColor: isActive ? colors.bg.primary : 'transparent',
               color: isActive ? colors.violet.primary : 'var(--text-secondary)',
               boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
             }}
@@ -177,7 +177,7 @@ export function NexTabs<T extends string = string>({
                 fontSize: '11px',
                 fontWeight: 700,
                 backgroundColor: isActive ? colors.violet.primary : 'var(--border-color)',
-                color: isActive ? '#fff' : 'var(--text-secondary)',
+                color: isActive ? colors.bg.primary : 'var(--text-secondary)',
               }}>
                 {tab.badge}
               </span>

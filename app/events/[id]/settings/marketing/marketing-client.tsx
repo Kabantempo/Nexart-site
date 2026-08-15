@@ -329,7 +329,7 @@ const fetchMarketingPlan = async () => {
                 </h2>
                 <button
                   onClick={handleLoadFRMedia}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
                 >
                   <Database size={15} />
                   Importer médias France ({FR_MEDIA_DB.length})
@@ -472,13 +472,13 @@ const fetchMarketingPlan = async () => {
               <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Tarifs indicatifs com
               </h2>
-              <p style={{ fontSize: '14px', color: '#888', marginBottom: '24px' }}>Fourchettes de prix moyens en France pour les canaux de communication événementielle.</p>
+              <p style={{ fontSize: '14px', color: colors.text.secondary, marginBottom: '24px' }}>Fourchettes de prix moyens en France pour les canaux de communication événementielle.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {AD_PRICING.map((item, i) => (
                   <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: '16px', alignItems: 'center', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{item.canal}</span>
                     <span style={{ fontSize: '14px', fontWeight: 700, color: colors.violet.primary }}>{item.prix}</span>
-                    <span style={{ fontSize: '13px', color: '#888' }}>{item.conseil}</span>
+                    <span style={{ fontSize: '13px', color: colors.text.secondary }}>{item.conseil}</span>
                   </div>
                 ))}
               </div>
@@ -497,7 +497,7 @@ const fetchMarketingPlan = async () => {
                   onClick={generateRetroPlanning}
                   disabled={!eventDate}
                   title={!eventDate ? 'Date d\'événement non disponible' : 'Générer le rétro-planning depuis la date de l\'événement'}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: eventDate ? colors.violet.primary : '#ccc', color: '#fff', border: 'none', borderRadius: '8px', cursor: eventDate ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: 500 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: eventDate ? colors.violet.primary : '#ccc', color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: eventDate ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: 500 }}
                 >
                   <Zap size={15} />
                   Générer rétro-planning

@@ -151,8 +151,8 @@ const fetchCampaigns = async () => {
                     borderRadius: '6px',
                     fontSize: '12px',
                     fontWeight: '600',
-                    backgroundColor: campaign.status === 'sent' ? '#ECFDF5' : '#FEF3C7',
-                    color: campaign.status === 'sent' ? '#166534' : '#92400E',
+                    backgroundColor: campaign.status === 'sent' ? colors.green.bg : '#FEF3C7',
+                    color: campaign.status === 'sent' ? '#166534' : colors.red.amber,
                   }}
                 >
                   {campaign.status === 'sent' ? '✉️ Envoyée' : '📝 Brouillon'}

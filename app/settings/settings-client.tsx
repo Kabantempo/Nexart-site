@@ -144,7 +144,7 @@ export default function SettingsClient() {
               Suppression Compte
             </h2>
 
-            <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '12px', padding: '24px' }}>
+            <div style={{ backgroundColor: colors.red.bg, border: '1px solid #FECACA', borderRadius: '12px', padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px' }}>
                 <div>
                   <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#991B1B', marginBottom: '12px' }}>

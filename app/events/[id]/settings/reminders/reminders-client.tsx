@@ -117,7 +117,7 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
             <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
               <AlertCircle size={20} color={colors.feedback.warning.solid} style={{ flexShrink: 0 }} />
               <div>
-                <p style={{ color: '#92400E', fontWeight: 500 }}>Automatisation</p>
+                <p style={{ color: colors.red.amber, fontWeight: 500 }}>Automatisation</p>
                 <p style={{ color: colors.feedback.warning.text, fontSize: '14px', marginTop: '4px' }}>
                   Les relances seront envoyées automatiquement chaque jour via email
                 </p>
@@ -217,7 +217,7 @@ const fetchWaitlist = async () => {
                 <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>{item.profiles?.email || 'N/A'}</td>
                 <td style={{ padding: '12px 16px' }}>
                   {item.notified_at ? (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#10B981', fontSize: '14px' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: colors.green.primary, fontSize: '14px' }}>
                       <Check size={16} /> Oui
                     </span>
                   ) : (

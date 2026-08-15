@@ -42,7 +42,7 @@ const roles = [
     label: 'Visiteur',
     description: 'Explorez et découvrez',
     icon: Eye,
-    color: '#10B981',
+    color: colors.green.primary,
     bg: colors.feedback.success.bg,
   },
 ]
@@ -364,7 +364,7 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               style={{
                 padding: '12px 16px', borderRadius: '10px',
-                backgroundColor: '#FEF2F2', border: '1px solid #FECACA',
+                backgroundColor: colors.red.bg, border: '1px solid #FECACA',
                 color: '#991B1B', fontSize: '14px', marginBottom: '20px',
                 display: 'flex', alignItems: 'center', gap: '8px',
               }}

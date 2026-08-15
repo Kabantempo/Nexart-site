@@ -25,7 +25,7 @@ export function ComparePanel() {
           left: 0,
           right: 0,
           zIndex: 9000,
-          backgroundColor: '#fff',
+          backgroundColor: colors.bg.primary,
           borderTop: `1px solid ${colors.border.default}`,
           boxShadow: '0 -8px 30px rgba(0,0,0,0.12)',
         }}
@@ -73,7 +73,7 @@ export function ComparePanel() {
             {pinned.length >= 2 && (
               <Link
                 href={`/compare?ids=${pinned.map(e => e.id).join(',')}`}
-                style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: '700', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', textDecoration: 'none', whiteSpace: 'nowrap' }}
               >
                 Comparer <ArrowRight size={13} />
               </Link>
@@ -102,7 +102,7 @@ export function PinButton({ event }: { event: CompareEvent }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: '28px', height: '28px', borderRadius: '8px',
         backgroundColor: pinned_ ? colors.violet.primary : 'rgba(255,255,255,0.85)',
-        color: pinned_ ? '#fff' : '#6B7280',
+        color: pinned_ ? colors.bg.primary : colors.text.secondary,
         border: pinned_ ? 'none' : '1px solid rgba(0,0,0,0.1)',
         cursor: full ? 'not-allowed' : 'pointer',
         opacity: full ? 0.4 : 1,

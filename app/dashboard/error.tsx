@@ -24,7 +24,7 @@ export default function DashboardError({
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
           <button
             onClick={reset}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
           >
             <RefreshCw size={13} /> Réessayer
           </button>

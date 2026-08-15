@@ -119,8 +119,8 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
           </h2>
           {avgRating && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '3px 8px' }}>
-              <Star size={13} color="#F59E0B" fill="#F59E0B" />
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#92400E' }}>{avgRating}</span>
+              <Star size={13} color={colors.status.pending.dot} fill={colors.status.pending.dot} />
+              <span style={{ fontSize: '13px', fontWeight: '700', color: colors.red.amber }}>{avgRating}</span>
             </div>
           )}
         </div>
@@ -152,7 +152,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
           <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
             {[1, 2, 3, 4, 5].map(s => (
               <button key={s} onClick={() => setRating(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-                <Star size={24} color="#F59E0B" fill={s <= rating ? colors.status.pending.dot : 'none'} />
+                <Star size={24} color={colors.status.pending.dot} fill={s <= rating ? colors.status.pending.dot : 'none'} />
               </button>
             ))}
             {rating > 0 && <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginLeft: '4px', marginTop: '4px' }}>{rating}/5</span>}
@@ -206,7 +206,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
                 </div>
                 <div style={{ display: 'flex', gap: '2px' }}>
                   {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} size={12} color="#F59E0B" fill={s <= r.rating ? colors.status.pending.dot : 'none'} />
+                    <Star key={s} size={12} color={colors.status.pending.dot} fill={s <= r.rating ? colors.status.pending.dot : 'none'} />
                   ))}
                 </div>
               </div>
@@ -237,7 +237,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: 'En attente', color: '#FF9800', bg: colors.feedback.warning.bg },
   accepted: { label: 'Acceptée ✓', color: colors.feedback.success.solid, bg: colors.feedback.success.bg },
-  refused: { label: 'Refusée', color: colors.feedback.danger.solid, bg: '#FEF2F2' },
+  refused: { label: 'Refusée', color: colors.feedback.danger.solid, bg: colors.red.bg },
 }
 
 type Stand = { id: string; stand_number: string; dimensions: string | null; notes: string | null; creator_id: string | null }
@@ -308,7 +308,7 @@ function StandsManager({ eventId }: { eventId: string }) {
           <div style={{ display: 'flex', gap: '6px' }}>
             <input value={newNum} onChange={e => setNewNum(e.target.value)} placeholder="N°" style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none' }} />
             <input value={newDim} onChange={e => setNewDim(e.target.value)} placeholder="Dimensions (ex: 3m×2m)" style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none' }} />
-            <button onClick={addStand} disabled={saving || !newNum.trim()} style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+            <button onClick={addStand} disabled={saving || !newNum.trim()} style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
               Ajouter
             </button>
           </div>
@@ -994,7 +994,7 @@ export function EventDetailClient({ id }: Props) {
                 const pct = Math.min(100, Math.round((acceptedCount / (event.stand_count ?? 1)) * 100))
                 const full = remaining <= 0
                 return (
-                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? '#FEF2F2' : 'var(--bg-secondary)', border: `1px solid ${full ? '#FCA5A5' : 'var(--border-color)'}` }}>
+                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? colors.red.bg : 'var(--bg-secondary)', border: `1px solid ${full ? '#FCA5A5' : 'var(--border-color)'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)' }}>
                         {full ? 'Complet' : `${remaining} stand${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
@@ -1007,7 +1007,7 @@ export function EventDetailClient({ id }: Props) {
                       <div style={{
                         height: '100%', borderRadius: '3px',
                         width: `${pct}%`,
-                        backgroundColor: pct >= 90 ? colors.feedback.danger.solid : pct >= 60 ? colors.status.pending.dot : '#10B981',
+                        backgroundColor: pct >= 90 ? colors.feedback.danger.solid : pct >= 60 ? colors.status.pending.dot : colors.green.primary,
                         transition: 'width 0.6s ease',
                       }} />
                     </div>
@@ -1036,7 +1036,7 @@ export function EventDetailClient({ id }: Props) {
                         display: 'inline-flex', alignItems: 'center', gap: '6px',
                         fontSize: '13px', fontWeight: '600',
                         padding: '6px 12px', borderRadius: '20px',
-                        backgroundColor: '#FEF2F2', color: colors.feedback.danger.solid,
+                        backgroundColor: colors.red.bg, color: colors.feedback.danger.solid,
                         border: `1px solid ${colors.feedback.danger.solid}33`,
                       }}>
                         ⚡ Plus que {remaining} place{remaining > 1 ? 's' : ''} disponible{remaining > 1 ? 's' : ''}
@@ -1078,7 +1078,7 @@ export function EventDetailClient({ id }: Props) {
                               border: `2px solid ${step.done ? '#FF9800' : 'var(--border-color)'}`,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                              {step.done && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FFF' }} />}
+                              {step.done && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colors.bg.primary }} />}
                             </div>
                             <span style={{ fontSize: '10px', fontWeight: 600, color: step.done ? '#FF9800' : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
                               {step.label}
@@ -1105,8 +1105,8 @@ export function EventDetailClient({ id }: Props) {
                     </button>
                   )}
                   {application.status === 'paid' && (
-                    <div style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', backgroundColor: '#ECFDF5', border: '1px solid #10B981', textAlign: 'center' }}>
-                      <p style={{ fontSize: '13px', fontWeight: 700, color: '#10B981', margin: 0 }}>✅ Stand payé — réservation confirmée</p>
+                    <div style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', backgroundColor: colors.green.bg, border: `1px solid ${colors.green.primary}`, textAlign: 'center' }}>
+                      <p style={{ fontSize: '13px', fontWeight: 700, color: colors.green.primary, margin: 0 }}>✅ Stand payé — réservation confirmée</p>
                     </div>
                   )}
                   {application.status === 'accepted' && user && event && (
@@ -1115,7 +1115,7 @@ export function EventDetailClient({ id }: Props) {
                         <button
                           onClick={handlePayStand}
                           disabled={payingStand}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', border: 'none', backgroundColor: '#10B981', color: '#FFF', fontSize: '14px', fontWeight: 700, cursor: payingStand ? 'wait' : 'pointer', opacity: payingStand ? 0.7 : 1, width: '100%' }}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: 700, cursor: payingStand ? 'wait' : 'pointer', opacity: payingStand ? 0.7 : 1, width: '100%' }}
                         >
                           💳 {payingStand ? 'Redirection…' : `Payer mon stand — ${event.stand_price}€`}
                         </button>
@@ -1135,12 +1135,12 @@ export function EventDetailClient({ id }: Props) {
                             <button
                               onClick={handleSignContract}
                               disabled={contractSigning}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: contractSigning ? 'wait' : 'pointer', opacity: contractSigning ? 0.7 : 1 }}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: contractSigning ? 'wait' : 'pointer', opacity: contractSigning ? 0.7 : 1 }}
                             >
                               ✍️ {contractSigning ? 'Signature…' : 'Signer électroniquement'}
                             </button>
                           ) : (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: '#ECFDF5', color: '#10B981', fontSize: '13px', fontWeight: '700' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: colors.green.bg, color: colors.green.primary, fontSize: '13px', fontWeight: '700' }}>
                               ✓ Signé le {new Date(existingContract.signed_at!).toLocaleDateString('fr-FR')}
                             </span>
                           )}
@@ -1149,7 +1149,7 @@ export function EventDetailClient({ id }: Props) {
                         <button
                           onClick={() => handleGenerateContract(user.id, application.id)}
                           disabled={contractLoading === application.id}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}
                         >
                           <FileText size={14} />
                           {contractLoading === application.id ? 'Génération…' : 'Générer le contrat PDF'}
@@ -1217,7 +1217,7 @@ export function EventDetailClient({ id }: Props) {
                       {applications.some(a => a.status === 'accepted' || a.status === 'pending') && (
                         <button
                           onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: '#FFF', color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: colors.bg.primary, color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
                         >
                           <Send size={13} /> Messagerie groupée
                         </button>
@@ -1254,7 +1254,7 @@ export function EventDetailClient({ id }: Props) {
                         <button
                           onClick={handleBulkMessage}
                           disabled={bulkMsgSending || !bulkMsgText.trim()}
-                          style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
+                          style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
                         >
                           <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
                         </button>
@@ -1336,8 +1336,8 @@ export function EventDetailClient({ id }: Props) {
                             </div>
                             <span style={{
                               padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
-                              backgroundColor: app.status === 'accepted' ? '#ECFDF5' : app.status === 'refused' ? '#FEF2F2' : '#FFFBEB',
-                              color: app.status === 'accepted' ? '#10B981' : app.status === 'refused' ? colors.feedback.danger.solid : colors.status.pending.dot,
+                              backgroundColor: app.status === 'accepted' ? colors.green.bg : app.status === 'refused' ? colors.red.bg : '#FFFBEB',
+                              color: app.status === 'accepted' ? colors.green.primary : app.status === 'refused' ? colors.feedback.danger.solid : colors.status.pending.dot,
                             }}>
                               {app.status === 'accepted' ? 'Acceptée' : app.status === 'refused' ? 'Refusée' : 'En attente'}
                             </span>
@@ -1364,7 +1364,7 @@ export function EventDetailClient({ id }: Props) {
                               <button
                                 onClick={() => handleUpdateStatus(app.id, 'accepted')}
                                 disabled={updatingId === app.id}
-                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
+                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
                               >
                                 Accepter
                               </button>
@@ -1407,7 +1407,7 @@ export function EventDetailClient({ id }: Props) {
                         </div>
                         <button
                           onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
                         >
                           <Send size={14} /> Envoyer un message groupé
                         </button>
@@ -1443,14 +1443,14 @@ export function EventDetailClient({ id }: Props) {
                   </div>
                   <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '10px' }}>
-                      <AlertTriangle size={15} color="#F59E0B" style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#92400E', margin: 0 }}>
+                      <AlertTriangle size={15} color={colors.status.pending.dot} style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <p style={{ fontSize: '13px', fontWeight: '600', color: colors.red.amber, margin: 0 }}>
                         Complétez votre profil avant de postuler
                       </p>
                     </div>
                     <ul style={{ margin: 0, paddingLeft: '20px' }}>
                       {missingFields.map(f => (
-                        <li key={f} style={{ fontSize: '12px', color: '#92400E', marginBottom: '2px' }}>{f}</li>
+                        <li key={f} style={{ fontSize: '12px', color: colors.red.amber, marginBottom: '2px' }}>{f}</li>
                       ))}
                     </ul>
                   </div>
@@ -1496,7 +1496,7 @@ export function EventDetailClient({ id }: Props) {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             <button onClick={() => setAppPortfolioFiles(prev => prev.filter((_, j) => j !== i))}
-                              style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#111', color: '#FFF', border: 'none', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#111', color: colors.bg.primary, border: 'none', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               ×
                             </button>
                           </div>
@@ -1535,7 +1535,7 @@ export function EventDetailClient({ id }: Props) {
                       <p style={{ fontSize: '14px', fontWeight: '700', color: colors.feedback.warning.text, margin: '0 0 4px' }}>
                         Vous êtes en liste d'attente
                       </p>
-                      <p style={{ fontSize: '12px', color: '#92400E', margin: '0 0 12px' }}>
+                      <p style={{ fontSize: '12px', color: colors.red.amber, margin: '0 0 12px' }}>
                         Vous serez notifié si une place se libère
                       </p>
                       <button
@@ -1547,7 +1547,7 @@ export function EventDetailClient({ id }: Props) {
                       </button>
                     </div>
                   ) : (
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', textAlign: 'center' }}>
+                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: '1px solid #FCA5A5', textAlign: 'center' }}>
                       <p style={{ fontSize: '14px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>
                         Événement complet
                       </p>

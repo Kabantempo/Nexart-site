@@ -181,7 +181,7 @@ export default function AnalyticsClient() {
                                 <div className="h-full rounded-full transition-all duration-500"
                                   style={{
                                     width: `${ev.fill_rate_pct}%`,
-                                    backgroundColor: ev.fill_rate_pct >= 80 ? '#10B981' : ev.fill_rate_pct >= 50 ? colors.status.pending.dot : colors.feedback.danger.solid,
+                                    backgroundColor: ev.fill_rate_pct >= 80 ? colors.green.primary : ev.fill_rate_pct >= 50 ? colors.status.pending.dot : colors.feedback.danger.solid,
                                   }} />
                               </div>
                               <span className="text-xs font-bold text-gray-700 min-w-[36px]">{ev.fill_rate_pct}%</span>

@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { sendPushToUsers } from '@/lib/push'
+import { colors } from '@/lib/design-tokens'
 
 // POST: Global cron — send reminders for all active events
 // Called daily by EasyCron: POST https://nexart.fr/api/cron/send-reminders
@@ -178,7 +179,7 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 function reminderHtml(name: string, event: { id: string; title: string }, n: number) {
   const urgent = n === 2
-  const color = urgent ? '#DC2626' : '#6366F1'
+  const color = urgent ? '#DC2626' : colors.violet.primary
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/events/${event.id}`
   return `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto">

@@ -384,7 +384,7 @@ function CreatorsContent() {
                     onClick={() => setAvailableOnly(v => !v)}
                     style={{
                       width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: availableOnly ? '#10b981' : '#e5e7eb',
+                      backgroundColor: availableOnly ? '#10b981' : colors.border.default,
                       position: 'relative', transition: 'background 0.2s', flexShrink: 0
                     }}
                   >
@@ -392,7 +392,7 @@ function CreatorsContent() {
                       position: 'absolute', top: '2px',
                       left: availableOnly ? '18px' : '2px',
                       width: '16px', height: '16px', borderRadius: '50%',
-                      backgroundColor: '#fff', transition: 'left 0.2s',
+                      backgroundColor: colors.bg.primary, transition: 'left 0.2s',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                     }} />
                   </div>
@@ -405,7 +405,7 @@ function CreatorsContent() {
                     onClick={() => setOpenToCollab(v => !v)}
                     style={{
                       width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: openToCollab ? '#6366f1' : '#e5e7eb',
+                      backgroundColor: openToCollab ? '#6366f1' : colors.border.default,
                       position: 'relative', transition: 'background 0.2s', flexShrink: 0
                     }}
                   >
@@ -413,7 +413,7 @@ function CreatorsContent() {
                       position: 'absolute', top: '2px',
                       left: openToCollab ? '18px' : '2px',
                       width: '16px', height: '16px', borderRadius: '50%',
-                      backgroundColor: '#fff', transition: 'left 0.2s',
+                      backgroundColor: colors.bg.primary, transition: 'left 0.2s',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                     }} />
                   </div>
@@ -456,7 +456,7 @@ function CreatorsContent() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: '5px',
                     padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
-                    backgroundColor: '#fff', color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    backgroundColor: colors.bg.primary, color: '#6b7280', fontSize: '11px', fontWeight: 600,
                     cursor: 'pointer'
                   }}
                 >

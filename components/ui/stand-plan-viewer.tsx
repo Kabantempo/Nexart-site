@@ -9,7 +9,7 @@ const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: str
   available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
   reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
   occupied:  { bg: colors.violet.bg, border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
-  blocked:   { bg: '#F3F4F6', border: '#D1D5DB', text: '#6B7280', label: 'Bloqué' },
+  blocked:   { bg: colors.bg.subtle, border: '#D1D5DB', text: colors.text.secondary, label: 'Bloqué' },
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -99,7 +99,7 @@ export default function StandPlanViewer({ eventId }: { eventId: string }) {
       {/* Legend */}
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '12px' }}>
         {Object.entries(STATUS_COLORS).map(([status, s]) => (
-          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#6B7280' }}>
+          <div key={status} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: colors.text.secondary }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '3px', backgroundColor: s.bg, border: `1.5px solid ${s.border}` }} />
             {s.label}
           </div>

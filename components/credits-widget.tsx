@@ -51,7 +51,7 @@ export function CreditsWidget() {
       <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', border: 'none', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Zap size={18} color="#FFF" fill="#FFF" />
+            <Zap size={18} color={colors.bg.primary} fill={colors.bg.primary} />
           </div>
           <div style={{ textAlign: 'left' }}>
             <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Mes crédits</p>
@@ -81,7 +81,7 @@ export function CreditsWidget() {
                     {row.description && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{row.description}</p>}
                     <p style={{ fontSize: '11px', color: '#CBD5E1', margin: 0 }}>{new Date(row.created_at).toLocaleDateString('fr-FR')}</p>
                   </div>
-                  <span style={{ fontSize: '15px', fontWeight: '800', color: row.amount > 0 ? '#10B981' : '#EF4444' }}>
+                  <span style={{ fontSize: '15px', fontWeight: '800', color: row.amount > 0 ? colors.green.primary : colors.red.vivid }}>
                     {row.amount > 0 ? '+' : ''}{row.amount}
                   </span>
                 </div>

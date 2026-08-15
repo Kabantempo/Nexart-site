@@ -46,7 +46,7 @@ export default function ResetPasswordClient() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}>
-        <SmokeBackground smokeColor="#6366F1" />
+        <SmokeBackground smokeColor={colors.violet.primary} />
       </div>
 
       <div style={{ position: 'relative', zIndex: 10, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 16px' }}>
@@ -76,7 +76,7 @@ export default function ResetPasswordClient() {
               </p>
 
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
+                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: colors.red.bg, border: '1px solid #FECACA', color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
                   {error}
                 </div>
               )}

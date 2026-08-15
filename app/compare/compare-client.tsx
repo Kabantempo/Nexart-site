@@ -138,8 +138,8 @@ function CompareContent() {
                   const isBest = ev.stand_price != null && ev.stand_price === min
                   return (
                     <Cell key={ev.id}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isBest ? '#10B981' : 'inherit', fontWeight: isBest ? '700' : '400' }}>
-                        <Euro size={13} color={isBest ? '#10B981' : colors.violet.primary} />
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isBest ? colors.green.primary : 'inherit', fontWeight: isBest ? '700' : '400' }}>
+                        <Euro size={13} color={isBest ? colors.green.primary : colors.violet.primary} />
                         {fmtPrice(ev.stand_price)}
                         {isBest && <span style={{ fontSize: '10px', backgroundColor: '#DCFCE7', color: '#15803D', padding: '1px 6px', borderRadius: '9999px', fontWeight: '700' }}>Meilleur prix</span>}
                       </span>
@@ -184,7 +184,7 @@ function CompareContent() {
                   <Cell key={ev.id}>
                     {ev.avg_rating != null ? (
                       <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Star size={13} color="#F59E0B" fill="#F59E0B" />
+                        <Star size={13} color={colors.status.pending.dot} fill={colors.status.pending.dot} />
                         <strong>{ev.avg_rating.toFixed(1)}</strong>
                         <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>({ev.review_count} avis)</span>
                       </span>

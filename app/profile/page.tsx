@@ -130,11 +130,11 @@ const RADIUS_LABELS: Record<string, string> = {
 }
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'En attente', color: colors.status.pending.dot, bg: '#FFFBEB' },
-  accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
-  refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
+  accepted:  { label: 'Acceptée',   color: colors.green.primary, bg: colors.green.bg },
+  refused:   { label: 'Refusée',    color: colors.red.vivid, bg: colors.red.bg },
   draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
-  published: { label: 'Publié',     color: '#10B981', bg: '#ECFDF5' },
-  closed:    { label: 'Fermé',      color: 'var(--text-secondary)', bg: '#F3F4F6' },
+  published: { label: 'Publié',     color: colors.green.primary, bg: colors.green.bg },
+  closed:    { label: 'Fermé',      color: 'var(--text-secondary)', bg: colors.bg.subtle },
 }
 const EVENT_TYPE_LABELS: Record<string, string> = {
   permanent: 'Permanent', seasonal: 'Saisonnier',
@@ -158,7 +158,7 @@ function Badge({ ok, label }: { ok: boolean; label: string }) {
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: '4px',
       padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
-      backgroundColor: ok ? '#ECFDF5' : '#F3F4F6',
+      backgroundColor: ok ? colors.green.bg : colors.bg.subtle,
       color: ok ? colors.feedback.success.solid : 'var(--text-tertiary)',
     }}>
       <CheckCircle size={12} fill={ok ? colors.feedback.success.solid : 'none'} color={ok ? colors.feedback.success.solid : 'var(--text-tertiary)'} />
@@ -1413,7 +1413,7 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-400">Appliquée sur votre page publique</p>
                     </div>
                     <div className="ml-auto flex gap-2">
-                      {[colors.violet.primary,colors.status.pending.dot,'#10B981','#EF4444','#8B5CF6','#EC4899','#0EA5E9'].map(c => (
+                      {[colors.violet.primary,colors.status.pending.dot,colors.green.primary,colors.red.vivid,'#8B5CF6','#EC4899','#0EA5E9'].map(c => (
                         <button key={c} onClick={() => setEditBrandColor(c)}
                           className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
                           style={{ backgroundColor: c, borderColor: editBrandColor === c ? c : 'transparent', outline: editBrandColor === c ? `2px solid ${c}` : 'none', outlineOffset: '2px' }}
@@ -1834,7 +1834,7 @@ export default function ProfilePage() {
             {/* Videos section */}
             <div style={{ marginTop: '32px', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.text.primary, marginBottom: '4px' }}>Vidéos portfolio</h3>
-              <p style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>YouTube, TikTok ou Instagram Reels (max 6)</p>
+              <p style={{ fontSize: '13px', color: colors.text.secondary, marginBottom: '16px' }}>YouTube, TikTok ou Instagram Reels (max 6)</p>
 
               {portfolioVideos.length > 0 && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px', marginBottom: '16px' }}>
@@ -1845,7 +1845,7 @@ export default function ProfilePage() {
                         {embed ? (
                           <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888', fontSize: '12px' }}>URL non reconnue</div>
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.text.secondary, fontSize: '12px' }}>URL non reconnue</div>
                         )}
                         <button
                           onClick={async () => {
@@ -1853,7 +1853,7 @@ export default function ProfilePage() {
                             setPortfolioVideos(next)
                             await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
                           }}
-                          style={{ position: 'absolute', top: '6px', right: '6px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.7)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', lineHeight: 1 }}
+                          style={{ position: 'absolute', top: '6px', right: '6px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.7)', color: colors.bg.primary, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', lineHeight: 1 }}
                         >×</button>
                       </div>
                     )
@@ -1873,7 +1873,7 @@ export default function ProfilePage() {
                   />
                   <button
                     onClick={addVideo}
-                    style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     Ajouter
                   </button>
@@ -1907,17 +1907,17 @@ export default function ProfilePage() {
                 {
                   label: 'Envoyée',
                   sublabel: new Date(app.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
-                  done: true, active: false, color: '#10B981',
+                  done: true, active: false, color: colors.green.primary,
                 },
                 {
                   label: 'En examen',
                   sublabel: isDone ? 'Examinée' : 'En attente',
-                  done: isDone, active: !isDone, color: isDone ? '#10B981' : colors.status.pending.dot,
+                  done: isDone, active: !isDone, color: isDone ? colors.green.primary : colors.status.pending.dot,
                 },
                 {
                   label: isAccepted ? 'Acceptée ✓' : isRefused ? 'Refusée' : 'Décision',
                   done: isDone, active: !isDone,
-                  color: isAccepted ? '#10B981' : isRefused ? '#EF4444' : colors.text.muted,
+                  color: isAccepted ? colors.green.primary : isRefused ? colors.red.vivid : colors.text.muted,
                 },
               ]
 

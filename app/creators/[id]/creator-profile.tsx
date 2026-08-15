@@ -539,7 +539,7 @@ export function CreatorProfileClient({ id }: Props) {
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center', gap: '12px'
             }}>
-            <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '10px' }}>
+            <div style={{ backgroundColor: colors.bg.primary, borderRadius: '12px', padding: '10px' }}>
               <QRCodeSVG value={profileUrl} size={90} level="M" />
             </div>
             <p style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.5, padding: '0 12px' }}>
@@ -681,7 +681,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <div className="flex items-center gap-3 mb-5">
                     <h2 className="text-lg font-bold text-gray-900">Avis</h2>
                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
-                      <Star size={14} className="text-amber-500" fill="#F59E0B" />
+                      <Star size={14} className="text-amber-500" fill={colors.status.pending.dot} />
                       <span className="text-sm font-bold text-amber-700">{avg.toFixed(1)}</span>
                       <span className="text-xs text-amber-500">({reviews.length} avis)</span>
                     </div>
@@ -755,7 +755,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '20px', fontWeight: '800', color: colors.text.primary, margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {marchesCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
+                  <p style={{ fontSize: '9px', color: colors.text.secondary, fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Marchés
                   </p>
                 </div>
@@ -763,7 +763,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '20px', fontWeight: '800', color: colors.text.primary, margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {reviews.length}
                   </p>
-                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
+                  <p style={{ fontSize: '9px', color: colors.text.secondary, fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Avis
                   </p>
                 </div>
@@ -771,20 +771,20 @@ export function CreatorProfileClient({ id }: Props) {
                   <p style={{ fontSize: '20px', fontWeight: '800', color: colors.text.primary, margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {boutiqueCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
+                  <p style={{ fontSize: '9px', color: colors.text.secondary, fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Créations
                   </p>
                 </div>
               </div>
 
               {/* Abonnés + Follow / Message */}
-              <p style={{ fontSize: '12px', color: '#6B7280', fontWeight: '500', marginBottom: '12px' }}>
+              <p style={{ fontSize: '12px', color: colors.text.secondary, fontWeight: '500', marginBottom: '12px' }}>
                 <span style={{ fontWeight: '800', color: colors.text.primary, fontSize: '13px' }}>{followersCount.toLocaleString('fr-FR')}</span> abonné{followersCount !== 1 ? 's' : ''}
               </p>
               {user && !isOwn && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
                   <button onClick={toggleFollow}
-                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? colors.violet.primary : '#E0E1FF', color: isFollowing ? '#fff' : colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? colors.violet.primary : '#E0E1FF', color: isFollowing ? colors.bg.primary : colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
                     {isFollowing ? 'Abonné(e)' : 'S\'abonner'}
                   </button>
                   <button onClick={() => { setShowMsg(true); setSent(false) }}
@@ -897,7 +897,7 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
     <div className="mt-3">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: colors.text.primary, color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: colors.text.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <Handshake size={16} /> Proposer une collaboration
         </button>
       ) : (
@@ -988,7 +988,7 @@ function DevisForm({ creatorId, requesterId }: { creatorId: string; requesterId:
     <div className="mt-5">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           Demander un devis
         </button>
       ) : (

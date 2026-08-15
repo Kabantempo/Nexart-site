@@ -124,7 +124,7 @@ export default function AdminClient() {
         minWidth: sidebarOpen ? '260px' : '0',
         overflow: 'hidden',
         transition: 'all 0.3s ease',
-        backgroundColor: '#111827',
+        backgroundColor: colors.text.dark,
         display: 'flex',
         flexDirection: 'column',
         padding: sidebarOpen ? '24px 0' : '0',
@@ -180,7 +180,7 @@ export default function AdminClient() {
           <h1 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
             {tabs.find(t => t.id === activeTab)?.label}
           </h1>
-          <button onClick={fetchData} style={{ marginLeft: 'auto', padding: '8px 16px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}>
+          <button onClick={fetchData} style={{ marginLeft: 'auto', padding: '8px 16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}>
             Rafraîchir
           </button>
         </div>
@@ -217,9 +217,9 @@ function StatsTab({ stats }: { stats: Stats | null }) {
 
   const kpis = [
     { label: 'Utilisateurs', value: stats.total_users ?? 0, icon: Users, color: colors.violet.primary, bg: colors.violet.bg },
-    { label: 'Événements publiés', value: stats.published_events ?? stats.total_events ?? 0, icon: Calendar, color: '#10B981', bg: '#ECFDF5' },
+    { label: 'Événements publiés', value: stats.published_events ?? stats.total_events ?? 0, icon: Calendar, color: colors.green.primary, bg: colors.green.bg },
     { label: 'Signalements ouverts', value: stats.open_reports ?? 0, icon: AlertCircle, color: colors.status.pending.dot, bg: '#FFFBEB' },
-    { label: 'Total signalements', value: stats.total_reports ?? 0, icon: MessageSquare, color: '#EF4444', bg: '#FEF2F2' },
+    { label: 'Total signalements', value: stats.total_reports ?? 0, icon: MessageSquare, color: colors.red.vivid, bg: colors.red.bg },
     { label: "Taux d'approbation", value: `${stats.approval_rate ?? 0}%`, icon: TrendingUp, color: '#8B5CF6', bg: '#F5F3FF' },
   ]
 
@@ -295,9 +295,9 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
   }
 
   const statusColors: Record<string, { bg: string; color: string; label: string }> = {
-    open: { bg: '#FEF2F2', color: '#EF4444', label: '⏳ Ouvert' },
-    resolved: { bg: '#ECFDF5', color: '#10B981', label: '✅ Résolu' },
-    dismissed: { bg: '#F3F4F6', color: 'var(--text-secondary)', label: '— Ignoré' },
+    open: { bg: colors.red.bg, color: colors.red.vivid, label: '⏳ Ouvert' },
+    resolved: { bg: colors.green.bg, color: colors.green.primary, label: '✅ Résolu' },
+    dismissed: { bg: colors.bg.subtle, color: 'var(--text-secondary)', label: '— Ignoré' },
   }
 
   return (
@@ -313,8 +313,8 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
           {(['all', 'open', 'resolved', 'dismissed'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
               padding: '6px 14px',
-              backgroundColor: filter === f ? colors.violet.primary : '#F3F4F6',
-              color: filter === f ? colors.bg.primary : '#6B7280',
+              backgroundColor: filter === f ? colors.violet.primary : colors.bg.subtle,
+              color: filter === f ? colors.bg.primary : colors.text.secondary,
               border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500,
             }}>
               {f === 'all' ? 'Tous' : f === 'open' ? 'Ouverts' : f === 'resolved' ? 'Résolus' : 'Ignorés'}
@@ -356,7 +356,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                     </button>
                     {report.status === 'open' && (
                       <>
-                        <button onClick={() => handleAction(report.id, 'resolved')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: '#10B981', color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
+                        <button onClick={() => handleAction(report.id, 'resolved')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: colors.green.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
                           Résoudre
                         </button>
                         <button onClick={() => handleAction(report.id, 'dismissed')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
@@ -476,7 +476,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
               {filtered.map((user, i) => {
                 const banned = isBanned(user)
                 return (
-                  <tr key={user.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                  <tr key={user.id} style={{ borderBottom: i < filtered.length - 1 ? `1px solid ${colors.bg.subtle}` : 'none' }}>
                     <td style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -494,7 +494,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                       {user.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
-                      <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: banned ? '#FEF2F2' : '#ECFDF5', color: banned ? '#EF4444' : '#10B981', borderRadius: '4px', fontWeight: 500 }}>
+                      <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: banned ? colors.red.bg : colors.green.bg, color: banned ? colors.red.vivid : colors.green.primary, borderRadius: '4px', fontWeight: 500 }}>
                         {banned ? '🚫 Banni' : '✓ Actif'}
                       </span>
                     </td>
@@ -504,7 +504,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                         disabled={busy === user.id || user.is_admin}
                         style={{
                           padding: '6px 14px',
-                          backgroundColor: banned ? '#10B981' : '#EF4444',
+                          backgroundColor: banned ? colors.green.primary : colors.red.vivid,
                           color: colors.bg.primary,
                           border: 'none',
                           borderRadius: '6px',
@@ -553,8 +553,8 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
 
   const statusInfo: Record<string, { bg: string; color: string; label: string }> = {
     draft: { bg: '#FEF3C7', color: colors.feedback.warning.solid, label: '⏳ Brouillon' },
-    published: { bg: '#ECFDF5', color: '#10B981', label: '✓ Publié' },
-    closed: { bg: '#F3F4F6', color: 'var(--text-secondary)', label: '— Fermé' },
+    published: { bg: colors.green.bg, color: colors.green.primary, label: '✓ Publié' },
+    closed: { bg: colors.bg.subtle, color: 'var(--text-secondary)', label: '— Fermé' },
   }
 
   return (
@@ -570,8 +570,8 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
           {(['all', 'draft', 'published', 'closed'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
               padding: '6px 12px',
-              backgroundColor: filter === f ? colors.violet.primary : '#F3F4F6',
-              color: filter === f ? colors.bg.primary : '#6B7280',
+              backgroundColor: filter === f ? colors.violet.primary : colors.bg.subtle,
+              color: filter === f ? colors.bg.primary : colors.text.secondary,
               border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500,
             }}>
               {f === 'all' ? 'Tous' : f === 'draft' ? 'En attente' : f === 'published' ? 'Publiés' : 'Fermés'}
@@ -610,14 +610,14 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
                       <button
                         onClick={() => handleAction(event.id, 'approve')}
                         disabled={busy === event.id}
-                        style={{ padding: '8px 16px', backgroundColor: '#10B981', color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
+                        style={{ padding: '8px 16px', backgroundColor: colors.green.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
                       >
                         <CheckCircle size={14} /> Approuver
                       </button>
                       <button
                         onClick={() => handleAction(event.id, 'reject')}
                         disabled={busy === event.id}
-                        style={{ padding: '8px 16px', backgroundColor: '#EF4444', color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
+                        style={{ padding: '8px 16px', backgroundColor: colors.red.vivid, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
                       >
                         <XCircle size={14} /> Rejeter
                       </button>
@@ -627,7 +627,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
                     <button
                       onClick={() => handleAction(event.id, 'reject')}
                       disabled={busy === event.id}
-                      style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: '#EF4444', border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: busy === event.id ? 0.6 : 1 }}
+                      style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: colors.red.vivid, border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: busy === event.id ? 0.6 : 1 }}
                     >
                       Fermer
                     </button>

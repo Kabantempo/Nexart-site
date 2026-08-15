@@ -72,7 +72,7 @@ export function NexButton({
           width: '14px',
           height: '14px',
           border: `2px solid ${variant === 'primary' ? 'rgba(255,255,255,0.3)' : 'rgba(99,102,241,0.3)'}`,
-          borderTopColor: variant === 'primary' ? '#fff' : colors.violet.primary,
+          borderTopColor: variant === 'primary' ? colors.bg.primary : colors.violet.primary,
           borderRadius: radius.pill,
           animation: 'nexart-spin 0.7s linear infinite',
           display: 'inline-block',

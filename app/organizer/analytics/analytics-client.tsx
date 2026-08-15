@@ -76,11 +76,11 @@ function Skeleton({ width, height }: { width?: string | number; height?: string 
 
 const STATUS_COLORS: Record<string, string> = {
   pending: colors.status.pending.dot,
-  accepted: '#10B981',
-  refused: '#EF4444',
+  accepted: colors.green.primary,
+  refused: colors.red.vivid,
   draft: colors.text.muted,
   published: colors.violet.primary,
-  closed: '#6B7280',
+  closed: colors.text.secondary,
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -125,7 +125,7 @@ export default function AnalyticsClient() {
   if (loading) return <LoadingSkeleton />
   if (error) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', color: '#EF4444', fontSize: 16 }}>
+      <div style={{ textAlign: 'center', color: colors.red.vivid, fontSize: 16 }}>
         <BarChart2 size={40} style={{ marginBottom: 12, opacity: 0.4 }} />
         <p>{error}</p>
       </div>
@@ -198,8 +198,8 @@ export default function AnalyticsClient() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
           {[
             { label: 'Total candidatures', value: kpi.totalApplications, icon: <Users size={18} color={colors.violet.primary} />, color: colors.violet.bg },
-            { label: 'Acceptées', value: kpi.accepted, icon: <CheckCircle size={18} color="#10B981" />, color: '#ECFDF5' },
-            { label: 'Taux d\'acceptation', value: kpi.acceptanceRate, icon: <TrendingUp size={18} color="#F59E0B" />, color: '#FFFBEB', suffix: '%' },
+            { label: 'Acceptées', value: kpi.accepted, icon: <CheckCircle size={18} color={colors.green.primary} />, color: colors.green.bg },
+            { label: 'Taux d\'acceptation', value: kpi.acceptanceRate, icon: <TrendingUp size={18} color={colors.status.pending.dot} />, color: '#FFFBEB', suffix: '%' },
             { label: 'Vues profil (30j)', value: kpi.profileViews, icon: <Eye size={18} color="#8B5CF6" />, color: '#F5F3FF' },
           ].map((card, i) => (
             <motion.div
@@ -252,9 +252,9 @@ export default function AnalyticsClient() {
                       />
                     </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 3 }}>
-                      <span style={{ fontSize: 11, color: '#10B981' }}>{ev.accepted} acc.</span>
+                      <span style={{ fontSize: 11, color: colors.green.primary }}>{ev.accepted} acc.</span>
                       <span style={{ fontSize: 11, color: colors.status.pending.dot }}>{ev.pending} att.</span>
-                      <span style={{ fontSize: 11, color: '#EF4444' }}>{ev.refused} ref.</span>
+                      <span style={{ fontSize: 11, color: colors.red.vivid }}>{ev.refused} ref.</span>
                       {ev.stand_count > 0 && (
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                           {ev.fill_rate}% rempli
@@ -283,12 +283,12 @@ export default function AnalyticsClient() {
                   <circle cx={cx} cy={cy} r={r} fill="var(--bg-secondary)" />
                 ) : (
                   pieSegments.map((seg, i) => (
-                    seg.d ? <path key={i} d={seg.d} fill={seg.color} stroke="#FFF" strokeWidth={2} /> : null
+                    seg.d ? <path key={i} d={seg.d} fill={seg.color} stroke={colors.bg.primary} strokeWidth={2} /> : null
                   ))
                 )}
-                <circle cx={cx} cy={cy} r={36} fill="#FFF" />
+                <circle cx={cx} cy={cy} r={36} fill={colors.bg.primary} />
                 <text x={cx} y={cy - 6} textAnchor="middle" fontSize={20} fontWeight={700} fill="#1A1A1A">{totalEvents}</text>
-                <text x={cx} y={cy + 14} textAnchor="middle" fontSize={10} fill="#888">événements</text>
+                <text x={cx} y={cy + 14} textAnchor="middle" fontSize={10} fill={colors.text.secondary}>événements</text>
               </svg>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -387,7 +387,7 @@ export default function AnalyticsClient() {
                       </span>
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--text-primary)', fontWeight: 600 }}>{ev.total}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 14, color: '#10B981', fontWeight: 600 }}>{ev.accepted}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 14, color: colors.green.primary, fontWeight: 600 }}>{ev.accepted}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: colors.status.pending.dot, fontWeight: 600 }}>{ev.pending}</td>
                     <td style={{ padding: '12px 16px' }}>
                       {ev.stand_count > 0 ? (
@@ -415,7 +415,7 @@ export default function AnalyticsClient() {
 function LoadingSkeleton() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
-      <div style={{ background: '#06060f', height: 160 }} />
+      <div style={{ background: colors.bg.dark, height: 160 }} />
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 24px 80px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
           {[...Array(4)].map((_, i) => (

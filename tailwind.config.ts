@@ -25,7 +25,7 @@ const config: Config = {
           // Texte
           text: {
             primary: '#1A1A1A',
-            secondary: '#888888',
+            secondary: '#6B7280',
             muted: '#AAAAAA',
           },
           // Feedback
@@ -42,7 +42,7 @@ const config: Config = {
       },
       textColor: {
         'nexart-primary': '#1A1A1A',
-        'nexart-secondary': '#888888',
+        'nexart-secondary': '#6B7280',
         'nexart-violet': '#6366F1',
       },
       borderColor: {

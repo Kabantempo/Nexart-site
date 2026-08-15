@@ -20,11 +20,11 @@ interface Notification {
 }
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
-  application_accepted: { icon: <CheckCircle size={18} />, color: '#10B981', bg: '#ECFDF5' },
-  application_rejected: { icon: <X size={18} />,           color: colors.feedback.danger.solid, bg: '#FEF2F2' },
+  application_accepted: { icon: <CheckCircle size={18} />, color: colors.green.primary, bg: colors.green.bg },
+  application_rejected: { icon: <X size={18} />,           color: colors.feedback.danger.solid, bg: colors.red.bg },
   application_received: { icon: <Calendar size={18} />,    color: colors.violet.primary, bg: colors.violet.bg },
   new_message:          { icon: <MessageCircle size={18} />,color: '#06B6D4', bg: '#ECFEFF' },
-  default:              { icon: <Bell size={18} />,         color: 'var(--text-secondary)', bg: '#F3F4F6' },
+  default:              { icon: <Bell size={18} />,         color: 'var(--text-secondary)', bg: colors.bg.subtle },
 }
 
 function relativeTime(dateStr: string): string {

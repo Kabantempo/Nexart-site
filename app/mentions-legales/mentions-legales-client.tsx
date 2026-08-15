@@ -208,10 +208,10 @@ export default function MentionsLegalesClient() {
             </h2>
           </div>
           <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '24px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '16px' }}>
+            <p style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '16px' }}>
               Tous les contenus du site Nexart (textes, logos, images, vidéos, codes, etc.) sont la propriété intellectuelle de Nexart SAS ou de ses partenaires. Toute reproduction, représentation ou diffusion, intégrale ou partielle, du contenu sans autorisation écrite est interdite.
             </p>
-            <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8' }}>
+            <p style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8' }}>
               © 2024-2026 Nexart SAS. Tous droits réservés.
             </p>
           </div>
@@ -236,20 +236,20 @@ export default function MentionsLegalesClient() {
             </h2>
           </div>
           <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '24px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '16px' }}>
+            <p style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '16px' }}>
               Nexart traite les données personnelles en conformité avec le Règlement Général sur la Protection des Données (RGPD) et les lois françaises applicables.
             </p>
             <ul style={{ marginLeft: '20px', marginBottom: '16px' }}>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 <strong>Responsable du traitement</strong> : Kalvin, kalvin@nexart.fr
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 <strong>Politique de Confidentialité</strong> : <Link href="/confidentialite" style={{ color: colors.violet.primary, textDecoration: 'none' }}>Lire la politique complète</Link>
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 <strong>Droits RGPD</strong> : accès, rectification, suppression, opposition, portabilité
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', listStyleType: 'disc' }}>
                 <strong>Exercer vos droits</strong> : contactez kalvin@nexart.fr
               </li>
             </ul>
@@ -270,23 +270,23 @@ export default function MentionsLegalesClient() {
             </h2>
           </div>
           <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '24px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '16px' }}>
+            <p style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '16px' }}>
               Nexart respecte toutes les obligations légales applicables en France, notamment :
             </p>
             <ul style={{ marginLeft: '20px' }}>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 Loi RGPD (Protection des données)
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 Loi Informatique et Libertés (LIL)
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 Loi e-commerce (Directive 2000/31/CE)
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', marginBottom: '12px', listStyleType: 'disc' }}>
                 Droit de la consommation
               </li>
-              <li style={{ fontSize: '16px', color: '#666666', lineHeight: '1.8', listStyleType: 'disc' }}>
+              <li style={{ fontSize: '16px', color: colors.text.muted, lineHeight: '1.8', listStyleType: 'disc' }}>
                 Droit d'auteur et propriété intellectuelle
               </li>
             </ul>
