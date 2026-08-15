@@ -36,9 +36,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
         <div style={{ backgroundColor: colors.bg.dark, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
           <div style={{ textAlign: 'center', maxWidth: '400px' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '16px', backgroundColor: 'rgba(220,38,38,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-              <AlertCircle size={24} color="#f87171" />
+              <AlertCircle size={24} color={colors.red.soft} />
             </div>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#f0f0f0', margin: '0 0 8px' }}>Quelque chose s&apos;est mal passé</h2>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: colors.gray.light, margin: '0 0 8px' }}>Quelque chose s&apos;est mal passé</h2>
             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: '0 0 24px', lineHeight: 1.5 }}>
               Une erreur inattendue s&apos;est produite. Rafraîchissez la page ou revenez à l&apos;accueil.
             </p>

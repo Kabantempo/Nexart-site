@@ -71,7 +71,7 @@ export default function AnalyticsClient() {
 
   if (!user || loading) return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-48 bg-[#06060f] animate-pulse" />
+      <div className="h-48 bg-[${colors.dark.base}] animate-pulse" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[...Array(4)].map((_, i) => <div key={i} className="h-28 rounded-2xl bg-gray-100 animate-pulse" />)}
@@ -85,7 +85,7 @@ export default function AnalyticsClient() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
-      <div className="bg-[#06060f] relative overflow-hidden">
+      <div className="bg-[${colors.dark.base}] relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.08]"
           style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-indigo-600/15 blur-[90px] pointer-events-none" />

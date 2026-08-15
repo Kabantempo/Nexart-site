@@ -202,10 +202,10 @@ export function Footer() {
               </button>
             </form>
             {status === 'success' && (
-              <p style={{ fontSize: '12px', color: '#4ade80', marginTop: '6px' }}>Inscription confirmée !</p>
+              <p style={{ fontSize: '12px', color: colors.green.pale, marginTop: '6px' }}>Inscription confirmée !</p>
             )}
             {status === 'error' && (
-              <p style={{ fontSize: '12px', color: '#f87171', marginTop: '6px' }}>Erreur, réessayez.</p>
+              <p style={{ fontSize: '12px', color: colors.red.soft, marginTop: '6px' }}>Erreur, réessayez.</p>
             )}
           </div>
 

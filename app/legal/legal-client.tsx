@@ -1,4 +1,5 @@
 'use client'
+import { colors } from '@/lib/design-tokens'
 
 export default function LegalPageClient() {
   return (
@@ -8,7 +9,7 @@ export default function LegalPageClient() {
           Mentions Légales
         </h1>
 
-        <div style={{ fontSize: '16px', color: '#555555', lineHeight: '1.8' }}>
+        <div style={{ fontSize: '16px', color: colors.gray.mid, lineHeight: '1.8' }}>
           {/* Editeur */}
           <section style={{ marginBottom: '48px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -137,7 +138,7 @@ export default function LegalPageClient() {
           </section>
 
           {/* Footer */}
-          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid var(--border-color)', color: '#AAAAAA', fontSize: '14px' }}>
+          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid var(--border-color)', color: colors.gray.neutral, fontSize: '14px' }}>
             <p>
               Dernière mise à jour : 6 juin 2026
             </p>

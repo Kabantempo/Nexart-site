@@ -423,7 +423,7 @@ export default function ConditionsClient() {
                   fontSize: '16px',
                   transition: 'background-color 0.2s',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4F46E5')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.purple.indigo)}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.violet.primary)}
               >
                 Nous Contacter
@@ -443,17 +443,17 @@ export default function ConditionsClient() {
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/conditions" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
+                  <a href="/conditions" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = colors.purple.indigo)} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Conditions d'Utilisation
                   </a>
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/confidentialite" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
+                  <a href="/confidentialite" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = colors.purple.indigo)} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Politique de Confidentialité
                   </a>
                 </li>
                 <li>
-                  <a href="/mentions-legales" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
+                  <a href="/mentions-legales" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = colors.purple.indigo)} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Mentions Légales
                   </a>
                 </li>
@@ -465,12 +465,12 @@ export default function ConditionsClient() {
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/contact" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
+                  <a href="/contact" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = colors.purple.indigo)} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Contact Support
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:kalvin@nexart.fr" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
+                  <a href="mailto:kalvin@nexart.fr" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = colors.purple.indigo)} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Email: kalvin@nexart.fr
                   </a>
                 </li>

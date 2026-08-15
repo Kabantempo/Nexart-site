@@ -129,7 +129,7 @@ function AttachmentPreview({ url, type, name, isMine }: { url: string; type: str
         padding: '10px 14px', borderRadius: '12px', marginBottom: '6px',
         backgroundColor: isMine ? 'rgba(99,102,241,0.15)' : 'var(--border-color)',
         textDecoration: 'none',
-        color: isMine ? 'var(--text-primary)' : '#374151',
+        color: isMine ? 'var(--text-primary)' : colors.gray["700"],
       }}
     >
       <FileText size={20} style={{ flexShrink: 0 }} />
@@ -369,7 +369,7 @@ export default function ConversationPage() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <div style={{ width: '36px', height: '36px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
@@ -463,7 +463,7 @@ export default function ConversationPage() {
                           onChange={e => setEditText(e.target.value)}
                           onKeyDown={e => handleEditKey(e, m.id)}
                           rows={1}
-                          style={{ padding: '10px 14px', borderRadius: '18px 18px 4px 18px', border: '2px solid #6366F1', fontSize: '14px', fontFamily: 'inherit', resize: 'none', outline: 'none', lineHeight: '1.5', minWidth: 0, backgroundColor: '#F0F0FF' }}
+                          style={{ padding: '10px 14px', borderRadius: '18px 18px 4px 18px', border: `2px solid ${colors.violet.primary}`, fontSize: '14px', fontFamily: 'inherit', resize: 'none', outline: 'none', lineHeight: '1.5', minWidth: 0, backgroundColor: `${colors.purple.bgF0}` }}
                           onInput={e => { const el = e.currentTarget; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px' }}
                         />
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
@@ -489,12 +489,12 @@ export default function ConversationPage() {
                           if (isDevis) {
                             const text = m.content.replace('[Demande de devis]\n', '').replace('[Demande de devis]', '').trim()
                             return (
-                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: '1.5px solid #A5B4FC', backgroundColor: isMine ? '#4338CA' : colors.violet.bg, overflow: 'hidden', wordBreak: 'break-word' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: '1px solid', borderColor: isMine ? 'rgba(165,180,252,0.3)' : '#C7D2FE' }}>
-                                  <FileSearch size={13} color={isMine ? '#A5B4FC' : colors.violet.primary} />
-                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#A5B4FC' : colors.violet.primary }}>Demande de devis</span>
+                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: `1.5px solid ${colors.purple.bgPale}`, backgroundColor: isMine ? colors.purple.indigoDark : colors.violet.bg, overflow: 'hidden', wordBreak: 'break-word' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: '1px solid', borderColor: isMine ? 'rgba(165,180,252,0.3)' : colors.purple.bgLight }}>
+                                  <FileSearch size={13} color={isMine ? colors.purple.bgPale : colors.violet.primary} />
+                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? colors.purple.bgPale : colors.violet.primary }}>Demande de devis</span>
                                 </div>
-                                {text && <p style={{ margin: 0, padding: '8px 14px 10px', fontSize: '14px', lineHeight: '1.5', color: isMine ? '#E0E7FF' : '#1e1b4b' }}>{text}</p>}
+                                {text && <p style={{ margin: 0, padding: '8px 14px 10px', fontSize: '14px', lineHeight: '1.5', color: isMine ? colors.purple.bgE0 : `${colors.purple.deepDark}` }}>{text}</p>}
                               </div>
                             )
                           }
@@ -505,17 +505,17 @@ export default function ConversationPage() {
                             const typeLabel = typeMatch?.[1] ?? null
                             const pitch = raw.replace(/^Type : .+\n?/, '').trim()
                             return (
-                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: `1.5px solid ${isMine ? '#C4B5FD' : '#DDD6FE'}`, backgroundColor: isMine ? '#4C1D95' : '#F5F3FF', overflow: 'hidden', wordBreak: 'break-word', minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: `1px solid ${isMine ? 'rgba(196,181,253,0.25)' : '#DDD6FE'}` }}>
-                                  <Handshake size={13} color={isMine ? '#C4B5FD' : '#7C3AED'} />
-                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#C4B5FD' : '#7C3AED' }}>Proposition de collab</span>
+                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: `1.5px solid ${isMine ? colors.purple.pale : colors.purple.bgDdd}`, backgroundColor: isMine ? `${colors.purple.deep4c}` : colors.purple.bgF5, overflow: 'hidden', wordBreak: 'break-word', minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: `1px solid ${isMine ? 'rgba(196,181,253,0.25)' : colors.purple.bgDdd}` }}>
+                                  <Handshake size={13} color={isMine ? colors.purple.pale : colors.purple.dark} />
+                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? colors.purple.pale : colors.purple.dark }}>Proposition de collab</span>
                                 </div>
                                 {typeLabel && (
                                   <div style={{ padding: '6px 14px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', backgroundColor: isMine ? 'rgba(196,181,253,0.2)' : colors.violet.bg, color: isMine ? '#DDD6FE' : '#6D28D9' }}>{typeLabel}</span>
+                                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', backgroundColor: isMine ? 'rgba(196,181,253,0.2)' : colors.violet.bg, color: isMine ? colors.purple.bgDdd : `${colors.purple.deep}` }}>{typeLabel}</span>
                                   </div>
                                 )}
-                                {pitch && <p style={{ margin: 0, padding: '6px 14px 12px', fontSize: '14px', lineHeight: '1.55', color: isMine ? colors.violet.bg : '#2E1065' }}>{pitch}</p>}
+                                {pitch && <p style={{ margin: 0, padding: '6px 14px 12px', fontSize: '14px', lineHeight: '1.55', color: isMine ? colors.violet.bg : `${colors.purple.deepest}` }}>{pitch}</p>}
                               </div>
                             )
                           }

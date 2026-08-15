@@ -23,9 +23,9 @@ interface ChangelogVersion {
 
 const TYPE_META: Record<string, { emoji: string; label: string; color: string }> = {
   new:         { emoji: '✨', label: 'Nouveauté',   color: colors.violet.primary },
-  improvement: { emoji: '🛠️', label: 'Amélioration', color: '#2196F3' },
+  improvement: { emoji: '🛠️', label: 'Amélioration', color: `${colors.feedback.info.solid}` },
   fix:         { emoji: '🐛', label: 'Correctif',   color: colors.feedback.success.solid },
-  perf:        { emoji: '⚡', label: 'Performance',  color: '#FF9800' },
+  perf:        { emoji: '⚡', label: 'Performance',  color: colors.feedback.warning.solid },
   security:    { emoji: '🔒', label: 'Sécurité',    color: 'var(--text-secondary)' },
 }
 

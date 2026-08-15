@@ -30,10 +30,10 @@ export interface StandPlan {
 }
 
 const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: string; label: string }> = {
-  available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
-  reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
-  occupied:  { bg: colors.violet.bg, border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
-  blocked:   { bg: 'var(--bg-secondary)', border: '#D1D5DB', text: colors.text.secondary, label: 'Bloqué' },
+  available: { bg: colors.green.bgPale, border: colors.green.pale, text: colors.green.textMid, label: 'Disponible' },
+  reserved:  { bg: colors.yellow.pale, border: colors.yellow.bright, text: colors.red.amberDark, label: 'Réservé' },
+  occupied:  { bg: colors.violet.bg, border: colors.purple.bgPale, text: colors.purple.indigoDeep, label: 'Occupé' },
+  blocked:   { bg: 'var(--bg-secondary)', border: colors.gray["300"], text: colors.text.secondary, label: 'Bloqué' },
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -175,9 +175,9 @@ export default function StandsClient({ eventId }: { eventId: string }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(110px, 100%), 1fr))', gap: '10px', marginBottom: '24px' }}>
         {[
           { label: 'Total', value: stats.total, color: 'var(--text-primary)', bg: 'var(--bg-secondary)' },
-          { label: 'Disponibles', value: stats.available, color: '#15803D', bg: '#F0FDF4' },
-          { label: 'Occupés', value: stats.occupied, color: '#3730A3', bg: colors.violet.bg },
-          { label: 'Réservés', value: stats.reserved, color: '#854D0E', bg: '#FEF9C3' },
+          { label: 'Disponibles', value: stats.available, color: colors.green.textMid, bg: colors.green.bgPale },
+          { label: 'Occupés', value: stats.occupied, color: colors.purple.indigoDeep, bg: colors.violet.bg },
+          { label: 'Réservés', value: stats.reserved, color: colors.red.amberDark, bg: colors.yellow.pale },
           { label: 'Bloqués', value: stats.blocked, color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
         ].map(s => (
           <div key={s.label} style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: s.bg, textAlign: 'center' }}>
@@ -249,7 +249,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
                         padding: '4px',
                       }}
                     >
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: isSelected ? '#4338CA' : s.text }}>{stand?.label ?? id}</span>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: isSelected ? colors.purple.indigoDark : s.text }}>{stand?.label ?? id}</span>
                       {stand?.assignee && <span style={{ fontSize: '9px', color: s.text, opacity: 0.8, textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>{stand.assignee}</span>}
                     </button>
                   )

@@ -190,14 +190,14 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                       display: 'flex', alignItems: 'center', gap: '12px',
                       padding: '12px 16px',
                       backgroundColor: selected ? colors.violet.bg : full ? 'var(--bg-secondary)' : 'var(--bg-primary)',
-                      border: `1px solid ${selected ? '#A5B4FC' : 'var(--border-color)'}`,
+                      border: `1px solid ${selected ? colors.purple.bgPale : 'var(--border-color)'}`,
                       borderRadius: '8px',
                       cursor: full ? 'not-allowed' : 'pointer',
                       opacity: full ? 0.6 : 1,
                       transition: 'all 0.15s',
                     }}
                   >
-                    <div style={{ width: '20px', height: '20px', borderRadius: '4px', border: `2px solid ${selected ? colors.violet.primary : '#D1D5DB'}`, backgroundColor: selected ? colors.violet.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div style={{ width: '20px', height: '20px', borderRadius: '4px', border: `2px solid ${selected ? colors.violet.primary : colors.gray["300"]}`, backgroundColor: selected ? colors.violet.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {selected && <span style={{ color: colors.bg.primary, fontSize: '12px', fontWeight: 700 }}>✓</span>}
                     </div>
                     <Clock size={14} color={selected ? colors.violet.primary : colors.text.muted} />
@@ -221,7 +221,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
         <AnimatePresence>
           {error && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', backgroundColor: colors.red.bg, border: '1px solid #FCA5A5', borderRadius: '8px', marginBottom: '16px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', backgroundColor: colors.red.bg, border: `1px solid ${colors.red.medium}`, borderRadius: '8px', marginBottom: '16px' }}
             >
               <AlertCircle size={14} color={colors.red.vivid} />
               <span style={{ fontSize: '13px', color: colors.feedback.danger.solid }}>{error}</span>

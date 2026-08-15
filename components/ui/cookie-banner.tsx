@@ -90,7 +90,7 @@ export function CookieBanner() {
             </button>
             <button
               onClick={declineAll}
-              style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'transparent', color: '#D1D5DB', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
+              style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'transparent', color: colors.gray["300"], fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
             >
               Refuser
             </button>
@@ -140,7 +140,7 @@ export function CookieBanner() {
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
             <button
               onClick={declineAll}
-              style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'transparent', color: '#D1D5DB', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
+              style={{ padding: '9px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'transparent', color: colors.gray["300"], fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
             >
               Tout refuser
             </button>

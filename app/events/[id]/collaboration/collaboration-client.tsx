@@ -207,7 +207,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       key={task.id}
                       onClick={() => setSelectedTask(task)}
                       style={{
-                        border: selectedTask?.id === task.id ? '2px solid #6366F1' : `1px solid ${colors.border.default}`,
+                        border: selectedTask?.id === task.id ? `2px solid ${colors.violet.primary}` : `1px solid ${colors.border.default}`,
                         borderRadius: '8px',
                         padding: '16px',
                         cursor: 'pointer',

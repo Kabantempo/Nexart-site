@@ -73,8 +73,8 @@ export function ReferralWidget() {
           style={{
             flexShrink: 0, display: 'flex', alignItems: 'center', gap: '4px',
             padding: '4px 8px', borderRadius: '6px', border: 'none', cursor: 'pointer',
-            backgroundColor: copied ? '#DCFCE7' : colors.violet.primary,
-            color: copied ? '#15803D' : colors.bg.primary,
+            backgroundColor: copied ? colors.green.bgLight : colors.violet.primary,
+            color: copied ? colors.green.textMid : colors.bg.primary,
             fontSize: '11px', fontWeight: '600', transition: 'all 150ms ease',
           }}
         >
@@ -86,13 +86,13 @@ export function ReferralWidget() {
       {(credited > 0 || pending > 0) && (
         <div style={{ display: 'flex', gap: '8px' }}>
           {credited > 0 && (
-            <div style={{ flex: 1, textAlign: 'center', padding: '8px', borderRadius: '8px', backgroundColor: '#DCFCE7' }}>
-              <div style={{ fontSize: '16px', fontWeight: '700', color: '#15803D' }}>{credited}</div>
-              <div style={{ fontSize: '10px', color: '#15803D' }}>crédité{credited > 1 ? 's' : ''}</div>
+            <div style={{ flex: 1, textAlign: 'center', padding: '8px', borderRadius: '8px', backgroundColor: colors.green.bgLight }}>
+              <div style={{ fontSize: '16px', fontWeight: '700', color: colors.green.textMid }}>{credited}</div>
+              <div style={{ fontSize: '10px', color: colors.green.textMid }}>crédité{credited > 1 ? 's' : ''}</div>
             </div>
           )}
           {pending > 0 && (
-            <div style={{ flex: 1, textAlign: 'center', padding: '8px', borderRadius: '8px', backgroundColor: '#EEF2FF' }}>
+            <div style={{ flex: 1, textAlign: 'center', padding: '8px', borderRadius: '8px', backgroundColor: colors.purple.bgEef }}>
               <div style={{ fontSize: '16px', fontWeight: '700', color: colors.violet.primary }}>{pending}</div>
               <div style={{ fontSize: '10px', color: colors.violet.primary }}>en attente</div>
             </div>

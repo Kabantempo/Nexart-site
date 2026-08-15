@@ -45,7 +45,7 @@ export function CookieConsent() {
         <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '16px' }}>
           Consentement Cookies
         </p>
-        <p style={{ margin: 0, fontSize: '14px', color: '#D1D5DB' }}>
+        <p style={{ margin: 0, fontSize: '14px', color: colors.gray["300"] }}>
           Nexart utilise cookies pour analytics et amélioration.
           <a
             href="/confidentialite"
@@ -67,8 +67,8 @@ export function CookieConsent() {
           style={{
             padding: '10px 20px',
             backgroundColor: 'transparent',
-            color: '#D1D5DB',
-            border: '1px solid #4B5563',
+            color: colors.gray["300"],
+            border: `1px solid ${colors.gray.g600}`,
             borderRadius: '6px',
             cursor: 'pointer',
             fontSize: '14px',
@@ -76,7 +76,7 @@ export function CookieConsent() {
             transition: 'all 0.2s',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#374151'
+            e.currentTarget.style.backgroundColor = colors.gray["700"]
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent'
@@ -98,7 +98,7 @@ export function CookieConsent() {
             transition: 'all 0.2s',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#4F46E5'
+            e.currentTarget.style.backgroundColor = colors.purple.indigo
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = colors.violet.primary

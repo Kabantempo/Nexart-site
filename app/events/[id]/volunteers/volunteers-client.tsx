@@ -142,7 +142,7 @@ export default function VolunteersClient({ eventId }: { eventId: string }) {
           <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{volunteers.length} bénévoles · {shifts.length} activités</span>
           <button
             onClick={() => { navigator.clipboard.writeText(shareUrl); alert('Lien copié !') }}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', backgroundColor: colors.violet.bg, color: colors.violet.primary, border: '1px solid #C7D2FE', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', backgroundColor: colors.violet.bg, color: colors.violet.primary, border: `1px solid ${colors.purple.bgLight}`, borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
           >
             <Link size={13} /> Copier lien inscription
           </button>
@@ -384,10 +384,10 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
   return (
     <div>
       {/* Share banner */}
-      <div style={{ backgroundColor: colors.violet.bg, border: '1px solid #C7D2FE', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ backgroundColor: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, borderRadius: '10px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Link size={16} color={colors.violet.primary} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#4338CA', margin: '0 0 2px 0' }}>Lien d'inscription bénévoles</p>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: colors.purple.indigoDark, margin: '0 0 2px 0' }}>Lien d'inscription bénévoles</p>
           <p style={{ fontSize: '12px', color: colors.violet.primary, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shareUrl}</p>
         </div>
         <button onClick={copyLink} style={{ padding: '6px 14px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, flexShrink: 0 }}>
@@ -590,7 +590,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
                       {shift.date ? new Date(shift.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : ''} à {shift.time}
                     </p>
                   </div>
-                  <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600, padding: '4px 10px', backgroundColor: isFull ? colors.green.bg : '#FEF3C7', color: isFull ? colors.green.primary : colors.feedback.warning.solid, borderRadius: '6px' }}>
+                  <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600, padding: '4px 10px', backgroundColor: isFull ? colors.green.bg : colors.yellow.bg, color: isFull ? colors.green.primary : colors.feedback.warning.solid, borderRadius: '6px' }}>
                     {assigned.length}/{shift.capacity}
                   </span>
                 </div>
@@ -604,7 +604,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
                         <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <span style={{ fontSize: '10px', fontWeight: 700, color: colors.bg.primary }}>{vol.name[0].toUpperCase()}</span>
                         </span>
-                        <span style={{ fontSize: '12px', fontWeight: 500, color: '#4338CA' }}>{vol.name}</span>
+                        <span style={{ fontSize: '12px', fontWeight: 500, color: colors.purple.indigoDark }}>{vol.name}</span>
                       </div>
                     ) : null
                   })}
@@ -663,13 +663,13 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
                   display: 'flex', alignItems: 'center', gap: '14px',
                   padding: '14px 20px',
                   backgroundColor: isChecked ? colors.green.bg : 'var(--bg-primary)',
-                  border: `1px solid ${isChecked ? '#A7F3D0' : 'var(--border-color)'}`,
+                  border: `1px solid ${isChecked ? colors.green.bgLight : 'var(--border-color)'}`,
                   borderRadius: '10px',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
                 }}
               >
-                <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isChecked ? colors.green.primary : '#D1D5DB'}`, backgroundColor: isChecked ? colors.green.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isChecked ? colors.green.primary : colors.gray["300"]}`, backgroundColor: isChecked ? colors.green.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                   {isChecked && <span style={{ color: colors.bg.primary, fontSize: '12px', fontWeight: 700 }}>✓</span>}
                 </div>
                 <div style={{ flex: 1 }}>

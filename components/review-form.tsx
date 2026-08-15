@@ -57,7 +57,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
 
   if (done) {
     return (
-      <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: '1px solid #A5D6A7', textAlign: 'center' }}>
+      <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: `1px solid ${colors.green.medium}`, textAlign: 'center' }}>
         <p style={{ color: colors.feedback.success.solid, fontWeight: '600', margin: 0 }}>Avis soumis ✓ Merci !</p>
       </div>
     )
@@ -80,8 +80,8 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
             >
               <Star
                 size={28}
-                fill={(hovered || rating) >= star ? '#FF9800' : 'none'}
-                color={(hovered || rating) >= star ? '#FF9800' : colors.border.default}
+                fill={(hovered || rating) >= star ? colors.feedback.warning.solid : 'none'}
+                color={(hovered || rating) >= star ? colors.feedback.warning.solid : colors.border.default}
               />
             </button>
           ))}
@@ -122,7 +122,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
           onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary }}
           onBlur={(e) => { e.currentTarget.style.borderColor = colors.border.default }}
         />
-        <p style={{ fontSize: '12px', color: '#AAAAAA', textAlign: 'right', margin: '4px 0 0' }}>{comment.length}/100</p>
+        <p style={{ fontSize: '12px', color: colors.gray.neutral, textAlign: 'right', margin: '4px 0 0' }}>{comment.length}/100</p>
       </div>
 
       {error && (
@@ -132,7 +132,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: submitting ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '15px', fontWeight: '600', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
+        style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: submitting ? colors.purple.ringAlt : colors.violet.primary, color: colors.bg.primary, fontSize: '15px', fontWeight: '600', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
         onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = colors.violet.dark }}
         onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = colors.violet.primary }}
       >

@@ -54,7 +54,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
       {/* Icon header */}
       <div style={{
         height: '120px',
-        background: article.gradient ?? 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+        background: article.gradient ?? 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.purple.primary} 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

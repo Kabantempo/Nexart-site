@@ -212,7 +212,7 @@ export default function OnboardingClient() {
             transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
             style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '2px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}
           >
-            <Check size={36} style={{ color: '#818cf8' }} />
+            <Check size={36} style={{ color: colors.violet.hover }} />
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
@@ -248,7 +248,7 @@ export default function OnboardingClient() {
                 transition={{ delay: 0.35 + i * 0.08 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '18px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', textDecoration: 'none', textAlign: 'left' }}
               >
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#818cf8', flexShrink: 0 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.hover, flexShrink: 0 }}>
                   {s.icon}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -264,7 +264,7 @@ export default function OnboardingClient() {
           {isOrgWelcome && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ marginBottom: '20px' }}>
               <button onClick={() => router.push('/events/create')} style={{
-                width: '100%', padding: '16px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1, #818cf8)',
+                width: '100%', padding: '16px', borderRadius: '16px', background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.light})`,
                 color: colors.bg.primary, fontSize: '15px', fontWeight: 700, border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               }}>
@@ -408,9 +408,9 @@ export default function OnboardingClient() {
                     return (
                       <button key={t} onClick={() => toggleOrgEventType(t)} style={{
                         padding: '7px 16px', borderRadius: '999px', fontSize: '12px', fontWeight: 600,
-                        border: active ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.12)',
+                        border: active ? `1px solid ${colors.violet.primary}` : '1px solid rgba(255,255,255,0.12)',
                         background: active ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.05)',
-                        color: active ? '#a5b4fc' : 'rgba(255,255,255,0.5)',
+                        color: active ? colors.purple.bgPaleAlt : 'rgba(255,255,255,0.5)',
                         cursor: 'pointer', transition: 'all 0.15s',
                       }}>
                         {active && <Check size={11} style={{ display: 'inline', marginRight: '5px', verticalAlign: 'middle' }} />}
@@ -430,9 +430,9 @@ export default function OnboardingClient() {
                   {(['1', '2-3', '4+']).map(v => (
                     <button key={v} onClick={() => setEventsPerYear(v)} style={{
                       flex: 1, padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600,
-                      border: eventsPerYear === v ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.12)',
+                      border: eventsPerYear === v ? `1px solid ${colors.violet.primary}` : '1px solid rgba(255,255,255,0.12)',
                       background: eventsPerYear === v ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
-                      color: eventsPerYear === v ? '#a5b4fc' : 'rgba(255,255,255,0.5)',
+                      color: eventsPerYear === v ? colors.purple.bgPaleAlt : 'rgba(255,255,255,0.5)',
                       cursor: 'pointer', transition: 'all 0.15s',
                     }}>{v}</button>
                   ))}
@@ -448,9 +448,9 @@ export default function OnboardingClient() {
                   {([{ label: '< 20', value: '< 20' }, { label: '20 – 50', value: '20-50' }, { label: '50 – 100', value: '50-100' }, { label: '100+', value: '100+' }]).map(({ label, value }) => (
                     <button key={value} onClick={() => setTypicalCapacity(value)} style={{
                       flex: 1, minWidth: '80px', padding: '10px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 600,
-                      border: typicalCapacity === value ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.12)',
+                      border: typicalCapacity === value ? `1px solid ${colors.violet.primary}` : '1px solid rgba(255,255,255,0.12)',
                       background: typicalCapacity === value ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
-                      color: typicalCapacity === value ? '#a5b4fc' : 'rgba(255,255,255,0.5)',
+                      color: typicalCapacity === value ? colors.purple.bgPaleAlt : 'rgba(255,255,255,0.5)',
                       cursor: 'pointer', transition: 'all 0.15s',
                     }}>{label}</button>
                   ))}
@@ -469,9 +469,9 @@ export default function OnboardingClient() {
                 {([{ label: 'Oui', value: true }, { label: 'Non, pas encore', value: false }]).map(({ label, value }) => (
                   <button key={label} onClick={() => setHasUpcomingEvent(value)} style={{
                     flex: 1, padding: '14px', borderRadius: '14px', fontSize: '14px', fontWeight: 700,
-                    border: hasUpcomingEvent === value ? '2px solid #6366f1' : '2px solid rgba(255,255,255,0.1)',
+                    border: hasUpcomingEvent === value ? `2px solid ${colors.violet.primary}` : '2px solid rgba(255,255,255,0.1)',
                     background: hasUpcomingEvent === value ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.04)',
-                    color: hasUpcomingEvent === value ? '#c7d2fe' : 'rgba(255,255,255,0.45)',
+                    color: hasUpcomingEvent === value ? colors.purple.bgLightAlt : 'rgba(255,255,255,0.45)',
                     cursor: 'pointer', transition: 'all 0.18s',
                   }}>{label}</button>
                 ))}
@@ -497,7 +497,7 @@ export default function OnboardingClient() {
                       </div>
                     </div>
                     <button onClick={handleCreateNow} disabled={upcomingEventTitle.trim().length < 2 || saving} style={{
-                      width: '100%', padding: '14px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1, #818cf8)',
+                      width: '100%', padding: '14px', borderRadius: '14px', background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.light})`,
                       color: colors.bg.primary, fontSize: '14px', fontWeight: 700, border: 'none', cursor: upcomingEventTitle.trim().length < 2 ? 'not-allowed' : 'pointer',
                       opacity: upcomingEventTitle.trim().length < 2 ? 0.45 : 1, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     }}>

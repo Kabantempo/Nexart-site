@@ -129,7 +129,7 @@ const RADIUS_LABELS: Record<string, string> = {
   '5': '5 km', '10': '10 km', '25': '25 km', national: 'France entière',
 }
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  pending:   { label: 'En attente', color: colors.status.pending.dot, bg: '#FFFBEB' },
+  pending:   { label: 'En attente', color: colors.status.pending.dot, bg: colors.red.bgFbeb },
   accepted:  { label: 'Acceptée',   color: colors.green.primary, bg: colors.green.bg },
   refused:   { label: 'Refusée',    color: colors.red.vivid, bg: colors.red.bg },
   draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
@@ -147,7 +147,7 @@ function Stars({ n }: { n: number }) {
   return (
     <span style={{ display: 'flex', gap: '2px' }}>
       {[1,2,3,4,5].map(i => (
-        <Star key={i} size={14} fill={i <= n ? colors.status.pending.dot : 'none'} color={i <= n ? colors.status.pending.dot : '#D1D5DB'} />
+        <Star key={i} size={14} fill={i <= n ? colors.status.pending.dot : 'none'} color={i <= n ? colors.status.pending.dot : colors.gray["300"]} />
       ))}
     </span>
   )
@@ -699,7 +699,7 @@ export default function ProfilePage() {
     ctx.drawImage(img, x, y, sw, sh)
     ctx.restore()
     // circle border
-    ctx.strokeStyle = '#374151'
+    ctx.strokeStyle = colors.gray["700"]
     ctx.lineWidth = 2
     ctx.beginPath()
     ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2 - 1, 0, Math.PI * 2)
@@ -881,7 +881,7 @@ export default function ProfilePage() {
 
   if (loading) return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-52 bg-[#06060f] animate-pulse" />
+      <div className="h-52 bg-[${colors.dark.base}] animate-pulse" />
       <div className="max-w-[900px] mx-auto px-4 pt-8 pb-20">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-2xl bg-gray-100 animate-pulse" />)}
@@ -972,12 +972,12 @@ export default function ProfilePage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
-        <div className="relative bg-[#06060f] overflow-hidden pt-24 pb-12">
+        <div className="relative bg-[${colors.dark.base}] overflow-hidden pt-24 pb-12">
           {/* Banner image */}
           {profile?.banner_url && (
             <div className="absolute inset-0 z-0">
               <Image src={profile.banner_url} alt="" fill style={{ objectFit: 'cover', opacity: 0.25 }} />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/70 to-[#06060f]" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[${colors.dark.base}]/70 to-[${colors.dark.base}]" />
             </div>
           )}
           {!profile?.banner_url && (
@@ -1228,7 +1228,7 @@ export default function ProfilePage() {
                     </div>
                     <label className="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl bg-gray-50 border border-gray-200">
                       <div onClick={() => setEditShowRealName(v => !v)} className="relative shrink-0 cursor-pointer"
-                        style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? colors.violet.primary : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? colors.violet.primary : colors.gray["300slate"], transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </div>
                       <div>
@@ -1413,7 +1413,7 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-400">Appliquée sur votre page publique</p>
                     </div>
                     <div className="ml-auto flex gap-2">
-                      {[colors.violet.primary,colors.status.pending.dot,colors.green.primary,colors.red.vivid,'#8B5CF6','#EC4899','#0EA5E9'].map(c => (
+                      {[colors.violet.primary,colors.status.pending.dot,colors.green.primary,colors.red.vivid,colors.purple.primary,colors.fuchsia.primary,colors.blue.primary].map(c => (
                         <button key={c} onClick={() => setEditBrandColor(c)}
                           className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
                           style={{ backgroundColor: c, borderColor: editBrandColor === c ? c : 'transparent', outline: editBrandColor === c ? `2px solid ${c}` : 'none', outlineOffset: '2px' }}
@@ -1536,7 +1536,7 @@ export default function ProfilePage() {
                   {/* SIRET */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <CheckCircle size={17} fill={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : 'none'} color={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : '#D1D5DB'} />
+                      <CheckCircle size={17} fill={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : 'none'} color={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : colors.gray["300"]} />
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">SIRET vérifié</p>
                         <p className="text-xs text-gray-400">Professionnel déclaré</p>
@@ -1573,7 +1573,7 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-3">
                       <CheckCircle size={17}
                         fill={creator?.insurance_verified ? colors.feedback.success.solid : 'none'}
-                        color={creator?.insurance_verified ? colors.feedback.success.solid : creator?.insurance_doc_url ? colors.status.pending.dot : '#D1D5DB'} />
+                        color={creator?.insurance_verified ? colors.feedback.success.solid : creator?.insurance_doc_url ? colors.status.pending.dot : colors.gray["300"]} />
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">RC Pro</p>
                         <p className={`text-xs font-medium ${creator?.insurance_verified ? 'text-emerald-600' : creator?.insurance_doc_url ? 'text-amber-500' : 'text-gray-400'}`}>
@@ -1619,7 +1619,7 @@ export default function ProfilePage() {
                           showToast(next ? 'Rôle organisateur activé' : 'Rôle organisateur désactivé')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
-                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? colors.violet.primary : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? colors.violet.primary : colors.gray["300slate"], transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '4px', left: profile?.is_organizer ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
@@ -1639,7 +1639,7 @@ export default function ProfilePage() {
                           showToast(next ? 'Rôle créateur activé' : 'Rôle créateur désactivé')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
-                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? colors.violet.primary : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? colors.violet.primary : colors.gray["300slate"], transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '4px', left: profile?.is_creator ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
@@ -1659,7 +1659,7 @@ export default function ProfilePage() {
                           showToast(next ? 'Collaborations activées' : 'Collaborations désactivées')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
-                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: creator?.open_to_collab ? '#7C3AED' : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: creator?.open_to_collab ? colors.purple.dark : colors.gray["300slate"], transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '4px', left: creator?.open_to_collab ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
@@ -1841,7 +1841,7 @@ export default function ProfilePage() {
                   {portfolioVideos.map((url, i) => {
                     const embed = getVideoEmbed(url)
                     return (
-                      <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: `1px solid ${colors.border.default}`, backgroundColor: '#000', aspectRatio: '16/9' }}>
+                      <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: `1px solid ${colors.border.default}`, backgroundColor: `${colors.text.black}`, aspectRatio: '16/9' }}>
                         {embed ? (
                           <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                         ) : (

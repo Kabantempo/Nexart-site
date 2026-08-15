@@ -1,3 +1,4 @@
+import { colors } from '@/lib/design-tokens'
 import Link from 'next/link'
 
 export default function NotFound() {
@@ -9,7 +10,7 @@ export default function NotFound() {
 
       <div className="relative z-10 text-center max-w-lg">
         <div className="text-[120px] font-black leading-none mb-4"
-          style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          style={{ background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.light})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           404
         </div>
         <h1 className="text-3xl font-bold text-white mb-3">Page non trouvée</h1>

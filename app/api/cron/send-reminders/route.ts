@@ -179,19 +179,19 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 function reminderHtml(name: string, event: { id: string; title: string }, n: number) {
   const urgent = n === 2
-  const color = urgent ? '#DC2626' : colors.violet.primary
+  const color = urgent ? colors.red.textVivid : colors.violet.primary
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/events/${event.id}`
   return `
     <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-      <h2 style="color:#1a1a1a">Bonjour ${name},</h2>
+      <h2 style="color:#1A1A1A">Bonjour ${name},</h2>
       ${urgent
         ? `<p>Ceci est notre <strong>dernier rappel</strong>. Passé ce délai, votre place pourrait être attribuée à quelqu'un d'autre.</p>`
         : `<p>Votre candidature pour <strong>${event.title}</strong> a été acceptée. Pouvez-vous confirmer votre participation ?</p>`
       }
-      <a href="${url}" style="display:inline-block;padding:12px 24px;background:${color};color:#fff;text-decoration:none;border-radius:8px;font-weight:600;margin:16px 0">
+      <a href="${url}" style="display:inline-block;padding:12px 24px;background:${color};color:#FFFFFF;text-decoration:none;border-radius:8px;font-weight:600;margin:16px 0">
         ${urgent ? 'Confirmer maintenant' : 'Confirmer ma participation'}
       </a>
-      <p style="color:#888;font-size:12px;margin-top:24px">Nexart — La plateforme des marchés artisanaux</p>
+      <p style="color:#6B7280;font-size:12px;margin-top:24px">Nexart — La plateforme des marchés artisanaux</p>
     </div>
   `
 }

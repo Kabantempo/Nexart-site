@@ -193,7 +193,7 @@ export default function ContactPageClient() {
                   width: '100%',
                   padding: '14px 24px',
                   borderRadius: '8px',
-                  backgroundColor: loading ? '#C4C7F0' : colors.violet.primary,
+                  backgroundColor: loading ? colors.purple.ring : colors.violet.primary,
                   color: colors.bg.primary,
                   fontSize: '16px',
                   fontWeight: '600',
@@ -268,7 +268,7 @@ export default function ContactPageClient() {
               </div>
 
               <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
-                <p style={{ fontSize: '12px', color: '#AAAAAA', lineHeight: '1.5' }}>
+                <p style={{ fontSize: '12px', color: colors.gray.neutral, lineHeight: '1.5' }}>
                   Nous vous répondrons dans un délai de 24 à 48 heures.
                 </p>
               </div>

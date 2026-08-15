@@ -76,7 +76,7 @@ export default function ResetPasswordClient() {
               </p>
 
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: colors.red.bg, border: '1px solid #FECACA', color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
+                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: colors.red.bg, border: `1px solid ${colors.red.bgCa}`, color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
                   {error}
                 </div>
               )}
@@ -120,7 +120,7 @@ export default function ResetPasswordClient() {
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', backgroundColor: loading ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', backgroundColor: loading ? colors.purple.ringAlt : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
                   onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = colors.violet.dark }}
                   onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary }}
                 >

@@ -117,7 +117,7 @@ export default function BoutiquePreviewPage() {
 
       <div style={{ maxWidth: '900px', margin: '24px auto 0', padding: '0 24px' }}>
         {/* Banner en cours */}
-        <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.primary}`, display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '16px' }}>🛠️</span>
           <div>
             <p style={{ fontSize: '13px', fontWeight: 700, color: colors.red.amber, margin: 0 }}>Boutique en cours de développement</p>

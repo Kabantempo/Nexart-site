@@ -23,7 +23,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   application_accepted:    { icon: <CheckCircle size={16} />, color: colors.green.primary, bg: colors.green.bg },
   application_rejected:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: colors.red.bg },
   application_received:    { icon: <Calendar size={16} />,    color: colors.violet.primary, bg: colors.violet.bg },
-  new_message:             { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
+  new_message:             { icon: <MessageCircle size={16} />,color: colors.blue.cyan, bg: `${colors.blue.skyPale}` },
   verification_accepted:   { icon: <CheckCircle size={16} />, color: colors.green.primary, bg: colors.green.bg },
   verification_refused:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: colors.red.bg },
   default:                 { icon: <Bell size={16} />,         color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
@@ -126,7 +126,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary,
             fontSize: '11px', fontWeight: '700',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '0 4px', border: '2px solid #FFFFFF',
+            padding: '0 4px', border: `2px solid ${colors.bg.primary}`,
           }}>
             {unread > 9 ? '9+' : unread}
           </span>

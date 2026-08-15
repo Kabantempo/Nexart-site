@@ -30,11 +30,11 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_BADGE: Record<string, { bg: string; text: string }> = {
-  popup:     { bg: '#A855F7', text: colors.bg.primary },
+  popup:     { bg: colors.purple.violet, text: colors.bg.primary },
   salon:     { bg: colors.green.primary, text: colors.bg.primary },
   fair:      { bg: colors.red.vivid, text: colors.bg.primary },
   seasonal:  { bg: colors.status.pending.dot, text: colors.bg.primary },
-  permanent: { bg: '#3B82F6', text: colors.bg.primary },
+  permanent: { bg: colors.blue.medium, text: colors.bg.primary },
 }
 
 
@@ -66,7 +66,7 @@ function WordReveal({ children, delay = 0, className = '' }: { children: string;
 function Skeleton() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-48 bg-[#06060f] animate-pulse" />
+      <div className="h-48 animate-pulse" style={{ backgroundColor: colors.dark.base }} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-12 animate-shimmer rounded-2xl mb-4" />
         <div className="h-20 animate-shimmer rounded-2xl mb-8" />
@@ -221,7 +221,7 @@ function EventsContent() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
-      <div className="bg-[#06060f] relative overflow-hidden">
+      <div style={{ backgroundColor: colors.dark.base, position: 'relative', overflow: 'hidden' }}>
         {/* Dot grid */}
         <div className="absolute inset-0 opacity-[0.10]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         {/* Glows */}
@@ -362,9 +362,9 @@ function EventsContent() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '8px 12px', borderRadius: '12px', border: '1px solid',
-                    borderColor: selectedDiscs.length > 0 ? '#a5b4fc' : colors.border.default,
-                    backgroundColor: selectedDiscs.length > 0 ? '#eef2ff' : colors.bg.primary,
-                    color: selectedDiscs.length > 0 ? '#4338ca' : '#374151',
+                    borderColor: selectedDiscs.length > 0 ? colors.purple.bgPaleAlt : colors.border.default,
+                    backgroundColor: selectedDiscs.length > 0 ? colors.purple.bgEefAlt : colors.bg.primary,
+                    color: selectedDiscs.length > 0 ? colors.purple.indigoDarkAlt : colors.gray["700"],
                     fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap'
                   }}
                 >
@@ -379,14 +379,14 @@ function EventsContent() {
                     transition={{ duration: 0.15 }}
                     style={{
                       position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100,
-                      backgroundColor: colors.bg.primary, border: '1px solid #e5e7eb', borderRadius: '14px',
+                      backgroundColor: colors.bg.primary, border: `1px solid ${colors.border.default}`, borderRadius: '14px',
                       boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '8px',
                       minWidth: '220px', maxHeight: '280px', overflowY: 'auto'
                     }}
                   >
                     {selectedDiscs.length > 0 && (
                       <button onClick={() => setSelectedDiscs([])}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', fontSize: '11px', color: '#ef4444', fontWeight: 600, marginBottom: '4px', cursor: 'pointer', background: 'none', border: 'none' }}>
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', fontSize: '11px', color: `${colors.red.vivid}`, fontWeight: 600, marginBottom: '4px', cursor: 'pointer', background: 'none', border: 'none' }}>
                         Tout effacer
                       </button>
                     )}
@@ -397,13 +397,13 @@ function EventsContent() {
                           style={{
                             display: 'flex', alignItems: 'center', gap: '8px',
                             padding: '7px 10px', borderRadius: '8px', cursor: 'pointer',
-                            backgroundColor: checked ? '#eef2ff' : 'transparent',
+                            backgroundColor: checked ? colors.purple.bgEefAlt : 'transparent',
                             transition: 'background 0.1s'
                           }}
                         >
                           <input type="checkbox" checked={checked} onChange={() => toggleDisc(d)}
-                            style={{ accentColor: '#6366f1', width: '14px', height: '14px', cursor: 'pointer' }} />
-                          <span style={{ fontSize: '13px', color: checked ? '#4338ca' : '#374151', fontWeight: checked ? 600 : 400 }}>{d}</span>
+                            style={{ accentColor: colors.violet.primary, width: '14px', height: '14px', cursor: 'pointer' }} />
+                          <span style={{ fontSize: '13px', color: checked ? colors.purple.indigoDarkAlt : colors.gray["700"], fontWeight: checked ? 600 : 400 }}>{d}</span>
                         </label>
                       )
                     })}
@@ -450,12 +450,12 @@ function EventsContent() {
                 <button onClick={shareFilters}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '5px',
-                    padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
-                    backgroundColor: colors.bg.primary, color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    padding: '5px 11px', borderRadius: '20px', border: `1px solid ${colors.border.default}`,
+                    backgroundColor: colors.bg.primary, color: colors.gray["500"], fontSize: '11px', fontWeight: 600,
                     cursor: 'pointer', transition: 'all 0.15s'
                   }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#a5b4fc'; (e.currentTarget as HTMLButtonElement).style.color = '#4338ca' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = colors.border.default; (e.currentTarget as HTMLButtonElement).style.color = '#6b7280' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = colors.purple.bgPaleAlt; (e.currentTarget as HTMLButtonElement).style.color = colors.purple.indigoDarkAlt }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = colors.border.default; (e.currentTarget as HTMLButtonElement).style.color = colors.gray["500"] }}
                 >
                   🔗 Partager ces filtres
                 </button>
@@ -521,7 +521,7 @@ function EventsContent() {
                           onError={() => setFailedImages(prev => new Set([...prev, event.id]))}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-[#0f1117]">
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.dark.navy }}>
                           <Calendar size={isFeatured ? 56 : 40} className="text-white/20" />
                         </div>
                       )}

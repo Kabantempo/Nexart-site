@@ -44,7 +44,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
 
   if (saved) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', backgroundColor: '#F0FDF4', border: '1px solid #86EFAC', fontSize: '13px', color: '#15803D', fontWeight: '600' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', backgroundColor: colors.green.bgPale, border: `1px solid ${colors.green.light}`, fontSize: '13px', color: colors.green.textMid, fontWeight: '600' }}>
         <Check size={14} /> Alerte activée
       </div>
     )
@@ -104,7 +104,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
             <button
               onClick={save}
               disabled={saving || !label.trim()}
-              style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: saving || !label.trim() ? '#C7D2FE' : 'var(--color-primary, #6366F1)', color: colors.bg.primary, fontSize: '14px', fontWeight: '700', cursor: saving || !label.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: saving || !label.trim() ? colors.purple.bgLight : 'var(--color-primary, ${colors.violet.primary})', color: colors.bg.primary, fontSize: '14px', fontWeight: '700', cursor: saving || !label.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
             >
               {saving ? 'Sauvegarde...' : 'Activer l\'alerte'}
             </button>

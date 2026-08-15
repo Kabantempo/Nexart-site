@@ -108,10 +108,10 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
           transition={{ duration: 0.8 }}
         >
           {/* Info Box */}
-          <div style={{ backgroundColor: colors.violet.bg, border: '1px solid #C7D2FE', borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
+          <div style={{ backgroundColor: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
             <HelpCircle size={20} color={colors.violet.primary} style={{ flexShrink: 0 }} />
             <div>
-              <p style={{ color: '#4338CA', fontWeight: 500 }}>Auto-répondeur intelligent</p>
+              <p style={{ color: colors.purple.indigoDark, fontWeight: 500 }}>Auto-répondeur intelligent</p>
               <p style={{ color: colors.violet.primary, fontSize: '14px', marginTop: '4px' }}>
                 Les questions des candidats contenant ces mots-clés recevront automatiquement la réponse configurée
               </p>
@@ -235,7 +235,7 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
                           backgroundColor: 'transparent',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#FF6B6B',
+                          color: colors.coral.primary,
                           padding: '4px'
                         }}
                       >

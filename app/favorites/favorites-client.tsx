@@ -30,7 +30,7 @@ export default function FavoritesClient() {
   if (authLoading || loading) {
     return (
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#94A3B8', fontSize: '15px' }}>Chargement…</p>
+        <p style={{ color: colors.gray.soft, fontSize: '15px' }}>Chargement…</p>
       </div>
     )
   }
@@ -43,7 +43,7 @@ export default function FavoritesClient() {
 
         {/* Header */}
         <div style={{ marginBottom: '36px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#0F172A', marginBottom: '8px', letterSpacing: '-0.5px' }}>
+          <h1 style={{ fontSize: '32px', fontWeight: '800', color: colors.dark.slate, marginBottom: '8px', letterSpacing: '-0.5px' }}>
             Mes favoris
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
@@ -83,7 +83,7 @@ export default function FavoritesClient() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   style={{
-                    borderRadius: '14px', border: '1px solid #E2E8F0',
+                    borderRadius: '14px', border: `1px solid ${colors.gray.g300alt}`,
                     backgroundColor: 'var(--bg-primary)', overflow: 'hidden',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     transition: 'all 200ms ease',
@@ -98,24 +98,24 @@ export default function FavoritesClient() {
                   )}
                   <div style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '10px' }}>
-                      <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', lineHeight: '1.3', margin: 0 }}>{event.title}</h3>
+                      <h3 style={{ fontSize: '15px', fontWeight: '700', color: colors.dark.slate, lineHeight: '1.3', margin: 0 }}>{event.title}</h3>
                       <button
                         onClick={() => toggleEventFav(event.id)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', flexShrink: 0 }}
                         title="Retirer des favoris"
                       >
-                        <Heart size={18} color="#E05A5A" fill="#E05A5A" />
+                        <Heart size={18} color={colors.feedback.danger.solid} fill={colors.feedback.danger.solid} />
                       </button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        <MapPin size={13} color="#94A3B8" /> {event.city}
+                        <MapPin size={13} color={colors.gray.soft} /> {event.city}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        <Calendar size={13} color="#94A3B8" /> {formatDate(event.start_date)}
+                        <Calendar size={13} color={colors.gray.soft} /> {formatDate(event.start_date)}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        <Users size={13} color="#94A3B8" /> {event.stand_count} stands · {event.stand_price}€
+                        <Users size={13} color={colors.gray.soft} /> {event.stand_count} stands · {event.stand_price}€
                       </div>
                     </div>
                     <Link
@@ -123,7 +123,7 @@ export default function FavoritesClient() {
                       style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                         padding: '9px 16px', borderRadius: '8px',
-                        backgroundColor: '#EEF2FF', color: '#4F46E5',
+                        backgroundColor: colors.purple.bgEef, color: colors.purple.indigo,
                         fontSize: '13px', fontWeight: '600', textDecoration: 'none',
                         transition: 'all 200ms ease',
                       }}
@@ -156,7 +156,7 @@ export default function FavoritesClient() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   style={{
-                    borderRadius: '14px', border: '1px solid #E2E8F0',
+                    borderRadius: '14px', border: `1px solid ${colors.gray.g300alt}`,
                     backgroundColor: 'var(--bg-primary)', padding: '20px', textAlign: 'center',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     transition: 'all 200ms ease',
@@ -166,23 +166,23 @@ export default function FavoritesClient() {
                 >
                   <div style={{ position: 'relative', display: 'inline-block', marginBottom: '12px' }}>
                     {creator.avatar_url ? (
-                      <Image src={creator.avatar_url} alt={creator.full_name} width={64} height={64} style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid #EEF2FF' }} />
+                      <Image src={creator.avatar_url} alt={creator.full_name} width={64} height={64} style={{ borderRadius: '50%', objectFit: 'cover', border: `2px solid ${colors.purple.bgEef}` }} />
                     ) : (
-                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: '700', color: colors.violet.primary }}>
+                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: colors.purple.bgEef, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', fontWeight: '700', color: colors.violet.primary }}>
                         {creator.full_name?.[0] || '?'}
                       </div>
                     )}
                     <button
                       onClick={() => toggleCreatorFav(creator.id)}
-                      style={{ position: 'absolute', top: '-4px', right: '-4px', background: colors.bg.primary, border: '1px solid #E2E8F0', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
+                      style={{ position: 'absolute', top: '-4px', right: '-4px', background: colors.bg.primary, border: `1px solid ${colors.gray.g300alt}`, borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}
                       title="Retirer des favoris"
                     >
-                      <Heart size={12} color="#E05A5A" fill="#E05A5A" />
+                      <Heart size={12} color={colors.feedback.danger.solid} fill={colors.feedback.danger.solid} />
                     </button>
                   </div>
-                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#0F172A', marginBottom: '4px' }}>{creator.full_name}</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: '700', color: colors.dark.slate, marginBottom: '4px' }}>{creator.full_name}</h3>
                   {creator.city && (
-                    <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                    <p style={{ fontSize: '13px', color: colors.gray.soft, marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                       <MapPin size={12} /> {creator.city}
                     </p>
                   )}
@@ -191,7 +191,7 @@ export default function FavoritesClient() {
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                       padding: '8px 14px', borderRadius: '8px',
-                      backgroundColor: '#EEF2FF', color: '#4F46E5',
+                      backgroundColor: colors.purple.bgEef, color: colors.purple.indigo,
                       fontSize: '13px', fontWeight: '600', textDecoration: 'none',
                     }}
                   >

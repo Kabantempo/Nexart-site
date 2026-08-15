@@ -1,5 +1,6 @@
 'use client'
 
+import { colors } from '@/lib/design-tokens'
 import Link from 'next/link'
 import { useEffect } from 'react'
 
@@ -14,7 +15,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 
       <div className="relative z-10 text-center max-w-lg">
         <div className="text-[120px] font-black leading-none mb-4"
-          style={{ background: 'linear-gradient(135deg, #EF4444, #F87171)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          style={{ background: `linear-gradient(135deg, ${colors.red.vivid}, ${colors.red.softAlt})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           500
         </div>
         <h1 className="text-3xl font-bold text-white mb-3">Une erreur est survenue</h1>

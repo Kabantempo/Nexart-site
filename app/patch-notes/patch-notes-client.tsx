@@ -42,7 +42,7 @@ export default function PatchNotesClient() {
           <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', margin: 0, marginBottom: '16px' }}>
             Mises à jour et nouveautés
           </h1>
-          <p style={{ fontSize: '18px', color: '#555555', lineHeight: '1.6', maxWidth: '600px', margin: 0 }}>
+          <p style={{ fontSize: '18px', color: colors.gray.mid, lineHeight: '1.6', maxWidth: '600px', margin: 0 }}>
             Découvrez toutes les améliorations et nouvelles fonctionnalités de Nexart. Nous mettons régulièrement à jour la plateforme pour vous offrir une meilleure expérience.
           </p>
         </motion.div>
@@ -76,7 +76,7 @@ export default function PatchNotesClient() {
               transition={{ duration: 0.6, delay: idx * 0.1 }}
               viewport={{ once: true }}
               style={{
-                borderLeft: '4px solid #FF6B6B',
+                borderLeft: `4px solid ${colors.coral.primary}`,
                 paddingLeft: '24px',
                 marginBottom: '48px',
                 paddingTop: '24px',
@@ -102,7 +102,7 @@ export default function PatchNotesClient() {
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
                     {note.features.map((feature, i) => (
-                      <li key={i} style={{ color: '#555555', marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
+                      <li key={i} style={{ color: colors.gray.mid, marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
                         {feature}
                       </li>
                     ))}
@@ -117,7 +117,7 @@ export default function PatchNotesClient() {
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
                     {note.improvements.map((imp, i) => (
-                      <li key={i} style={{ color: '#555555', marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
+                      <li key={i} style={{ color: colors.gray.mid, marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
                         {imp}
                       </li>
                     ))}
@@ -132,7 +132,7 @@ export default function PatchNotesClient() {
                   </h3>
                   <ul style={{ margin: 0, paddingLeft: '20px', listStyle: 'disc' }}>
                     {note.fixes.map((fix, i) => (
-                      <li key={i} style={{ color: '#555555', marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
+                      <li key={i} style={{ color: colors.gray.mid, marginBottom: '8px', fontSize: '15px', lineHeight: '1.6' }}>
                         {fix}
                       </li>
                     ))}

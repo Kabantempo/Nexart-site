@@ -120,7 +120,7 @@ export default function SettingsClient() {
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  if (!loading) e.currentTarget.style.backgroundColor = '#4F46E5'
+                  if (!loading) e.currentTarget.style.backgroundColor = colors.purple.indigo
                 }}
                 onMouseLeave={(e) => {
                   if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary
@@ -144,19 +144,19 @@ export default function SettingsClient() {
               Suppression Compte
             </h2>
 
-            <div style={{ backgroundColor: colors.red.bg, border: '1px solid #FECACA', borderRadius: '12px', padding: '24px' }}>
+            <div style={{ backgroundColor: colors.red.bg, border: `1px solid ${colors.red.bgCa}`, borderRadius: '12px', padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px' }}>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#991B1B', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 600, color: colors.red.text, marginBottom: '12px' }}>
                     Supprimer définitivement
                   </h3>
-                  <ul style={{ fontSize: '14px', color: '#7F1D1D', marginBottom: '12px', marginLeft: '20px' }}>
+                  <ul style={{ fontSize: '14px', color: colors.gray["950"], marginBottom: '12px', marginLeft: '20px' }}>
                     <li style={{ marginBottom: '6px' }}>Compte masqué immédiatement</li>
                     <li style={{ marginBottom: '6px' }}>24h pour annuler par email</li>
                     <li style={{ marginBottom: '6px' }}>Suppression après 30 jours</li>
                     <li>Contrats conservés 11 ans</li>
                   </ul>
-                  <p style={{ fontSize: '12px', color: '#991B1B', fontStyle: 'italic' }}>
+                  <p style={{ fontSize: '12px', color: colors.red.text, fontStyle: 'italic' }}>
                     Cette action est irréversible après 30 jours.
                   </p>
                 </div>
@@ -354,8 +354,8 @@ function ThemeSection() {
               display: 'flex',
               alignItems: 'center',
               gap: '16px',
-              backgroundColor: active ? (opt.value === 'dark' ? '#1F2937' : opt.value === 'light' ? colors.bg.secondary : 'var(--bg-secondary)') : 'var(--bg-primary)',
-              border: active ? '2px solid #6366F1' : '1px solid var(--border-color)',
+              backgroundColor: active ? (opt.value === 'dark' ? colors.gray["800"] : opt.value === 'light' ? colors.bg.secondary : 'var(--bg-secondary)') : 'var(--bg-primary)',
+              border: active ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '16px 20px',
               cursor: 'pointer',
@@ -735,7 +735,7 @@ function PrivacySection() {
               onClick={() => saveVisibility(val)}
               disabled={saving}
               style={{
-                padding: '12px', border: visibility === val ? '2px solid #6366F1' : '1px solid var(--border-color)',
+                padding: '12px', border: visibility === val ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)',
                 borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px',
                 backgroundColor: visibility === val ? colors.violet.bg : 'var(--bg-primary)',
                 color: visibility === val ? colors.violet.primary : 'var(--text-primary)',
@@ -833,7 +833,7 @@ function LanguageSection() {
             disabled={saving}
             style={{
               display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '16px 20px', border: lang === opt.value ? '2px solid #6366F1' : '1px solid var(--border-color)',
+              padding: '16px 20px', border: lang === opt.value ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)',
               borderRadius: '12px', cursor: 'pointer', textAlign: 'left',
               backgroundColor: lang === opt.value ? colors.violet.bg : 'var(--bg-primary)',
             }}
@@ -914,7 +914,7 @@ function DeleteAccountButton() {
           transition: 'all 0.2s',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#B91C1C'
+          e.currentTarget.style.backgroundColor = colors.red.textB91
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
@@ -975,7 +975,7 @@ function DeleteAccountButton() {
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#B91C1C'
+                      e.currentTarget.style.backgroundColor = colors.red.textB91
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
@@ -1050,7 +1050,7 @@ function DeleteAccountButton() {
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={(e) => {
-                      if (!loading && email) e.currentTarget.style.backgroundColor = '#B91C1C'
+                      if (!loading && email) e.currentTarget.style.backgroundColor = colors.red.textB91
                     }}
                     onMouseLeave={(e) => {
                       if (!loading && email) e.currentTarget.style.backgroundColor = colors.feedback.danger.solid

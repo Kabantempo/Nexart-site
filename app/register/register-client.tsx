@@ -12,10 +12,10 @@ import { colors } from '@/lib/design-tokens'
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill={colors.blue.medium}/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill={colors.green.primary}/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill={colors.yellow.primary}/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill={colors.red.vivid}/>
     </svg>
   )
 }
@@ -34,8 +34,8 @@ const roles = [
     label: 'Organisateur',
     description: 'Gérez vos marchés et événements',
     icon: Calendar,
-    color: '#8B5CF6',
-    bg: '#F5F3FF',
+    color: colors.purple.primary,
+    bg: colors.purple.bgF5,
   },
   {
     value: 'visitor',
@@ -128,7 +128,7 @@ export default function RegisterPage() {
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'linear-gradient(135deg, #F8FAFF 0%, #EEF2FF 100%)',
+        background: `linear-gradient(135deg, ${colors.purple.bgF8fa} 0%, ${colors.purple.bgEef} 100%)`,
         padding: '32px 16px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       }}>
         <motion.div
@@ -138,13 +138,13 @@ export default function RegisterPage() {
           style={{
             width: '100%', maxWidth: '440px',
             backgroundColor: 'var(--bg-primary)', borderRadius: '20px',
-            border: '1px solid #E2E8F0', padding: '48px 40px',
+            border: `1px solid ${colors.gray.g300alt}`, padding: '48px 40px',
             textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
           }}
         >
           <div style={{
             width: '64px', height: '64px', borderRadius: '50%',
-            background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)',
+            background: `linear-gradient(135deg, ${colors.purple.bgEef}, ${colors.purple.bgE0})`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 24px', fontSize: '28px',
           }}>✉️</div>
@@ -153,7 +153,7 @@ export default function RegisterPage() {
           </h2>
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: '1.7', marginBottom: '32px' }}>
             Un lien de confirmation a été envoyé à{' '}
-            <strong style={{ color: '#1E293B' }}>{email}</strong>.
+            <strong style={{ color: `${colors.dark.slateDark}` }}>{email}</strong>.
             Cliquez dessus pour activer votre compte.
           </p>
           <Link
@@ -161,7 +161,7 @@ export default function RegisterPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '13px 28px', borderRadius: '10px',
-              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+              background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.indigo})`,
               color: colors.bg.primary, textDecoration: 'none',
               fontSize: '15px', fontWeight: '700',
               boxShadow: '0 4px 14px rgba(99,102,241,0.4)',
@@ -171,7 +171,7 @@ export default function RegisterPage() {
           </Link>
           <div style={{ marginTop: '20px' }}>
             {resendMsg ? (
-              <p style={{ fontSize: '13px', color: resendMsg.startsWith('Erreur') ? '#BE123C' : colors.feedback.success.solid, margin: 0 }}>{resendMsg}</p>
+              <p style={{ fontSize: '13px', color: resendMsg.startsWith('Erreur') ? colors.red.textDark : colors.feedback.success.solid, margin: 0 }}>{resendMsg}</p>
             ) : (
               <button
                 onClick={handleResend}
@@ -198,7 +198,7 @@ export default function RegisterPage() {
       <div style={{
         display: 'none',
         flex: '0 0 480px',
-        background: 'linear-gradient(135deg, #0F0C29 0%, #1E1B4B 40%, #2D1B69 100%)',
+        background: `linear-gradient(135deg, ${colors.dark.alt} 0%, ${colors.purple.deepDark} 40%, ${colors.purple.bgDeep} 100%)`,
         position: 'relative',
         overflow: 'hidden',
         flexDirection: 'column',
@@ -271,7 +271,7 @@ export default function RegisterPage() {
                       backgroundColor: 'rgba(99,102,241,0.3)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                     }}>
-                      <Icon size={18} color="#A5B4FC" />
+                      <Icon size={18} color={colors.purple.bgPale} />
                     </div>
                     <div>
                       <div style={{ fontSize: '14px', fontWeight: '700', color: colors.bg.primary }}>{r.label}</div>
@@ -338,13 +338,13 @@ export default function RegisterPage() {
               width: '100%', padding: '13px 16px', borderRadius: '10px',
               backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
               fontSize: '15px', fontWeight: '600',
-              border: '1.5px solid #E2E8F0', cursor: 'pointer',
+              border: `1.5px solid ${colors.gray.g300alt}`, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
               marginBottom: '24px', transition: 'all 200ms ease',
               boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.gray["300slate"]; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.gray["300alt"]; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)' }}
           >
             <GoogleIcon />
             Continuer avec Google
@@ -364,8 +364,8 @@ export default function RegisterPage() {
               animate={{ opacity: 1, y: 0 }}
               style={{
                 padding: '12px 16px', borderRadius: '10px',
-                backgroundColor: colors.red.bg, border: '1px solid #FECACA',
-                color: '#991B1B', fontSize: '14px', marginBottom: '20px',
+                backgroundColor: colors.red.bg, border: `1px solid ${colors.red.bgCa}`,
+                color: colors.red.text, fontSize: '14px', marginBottom: '20px',
                 display: 'flex', alignItems: 'center', gap: '8px',
               }}
             >
@@ -394,8 +394,8 @@ export default function RegisterPage() {
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'name' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'name' ? '#FAFBFF' : 'var(--bg-secondary)',
+                    border: focused === 'name' ? `1.5px solid ${colors.border.accent}` : `1.5px solid ${colors.gray.g300alt}`,
+                    backgroundColor: focused === 'name' ? colors.purple.bgFafb : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'name' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -422,8 +422,8 @@ export default function RegisterPage() {
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'email' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'email' ? '#FAFBFF' : 'var(--bg-secondary)',
+                    border: focused === 'email' ? `1.5px solid ${colors.border.accent}` : `1.5px solid ${colors.gray.g300alt}`,
+                    backgroundColor: focused === 'email' ? colors.purple.bgFafb : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'email' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -447,7 +447,7 @@ export default function RegisterPage() {
                       onClick={() => setRole(r.value)}
                       style={{
                         padding: '14px 8px', borderRadius: '12px', cursor: 'pointer',
-                        border: selected ? `2px solid ${r.color}` : '1.5px solid #E2E8F0',
+                        border: selected ? `2px solid ${r.color}` : `1.5px solid ${colors.gray.g300alt}`,
                         backgroundColor: selected ? r.bg : 'var(--bg-secondary)',
                         transition: 'all 200ms ease',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
@@ -456,13 +456,13 @@ export default function RegisterPage() {
                     >
                       <div style={{
                         width: '36px', height: '36px', borderRadius: '10px',
-                        backgroundColor: selected ? r.color : '#E2E8F0',
+                        backgroundColor: selected ? r.color : colors.gray["300alt"],
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'all 200ms ease',
                       }}>
                         <Icon size={18} color={selected ? colors.bg.primary : 'var(--text-tertiary)'} />
                       </div>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : 'var(--text-body, #374151)' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : `var(--text-body, ${colors.gray.dark})` }}>
                         {r.label}
                       </span>
                     </button>
@@ -491,8 +491,8 @@ export default function RegisterPage() {
                   style={{
                     width: '100%', padding: '13px 42px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'password' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'password' ? '#FAFBFF' : 'var(--bg-secondary)',
+                    border: focused === 'password' ? `1.5px solid ${colors.border.accent}` : `1.5px solid ${colors.gray.g300alt}`,
+                    backgroundColor: focused === 'password' ? colors.purple.bgFafb : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'password' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -503,7 +503,7 @@ export default function RegisterPage() {
                   tabIndex={-1}
                   style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 0 }}
                 >
-                  {showPassword ? <EyeOff size={16} color="#94A3B8" /> : <Eye size={16} color="#94A3B8" />}
+                  {showPassword ? <EyeOff size={16} color={colors.gray.soft} /> : <Eye size={16} color={colors.gray.soft} />}
                 </button>
               </div>
               {/* Indicateur de force du mot de passe */}
@@ -511,7 +511,7 @@ export default function RegisterPage() {
                 const strength = password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'Fort'
                   : password.length >= 8 ? 'Moyen'
                   : 'Faible'
-                const color = strength === 'Fort' ? colors.feedback.success.solid : strength === 'Moyen' ? '#FF9800' : colors.feedback.danger.solid
+                const color = strength === 'Fort' ? colors.feedback.success.solid : strength === 'Moyen' ? colors.feedback.warning.solid : colors.feedback.danger.solid
                 const width = strength === 'Fort' ? '100%' : strength === 'Moyen' ? '60%' : '30%'
                 return (
                   <div style={{ marginTop: '8px' }}>
@@ -547,9 +547,9 @@ export default function RegisterPage() {
                     width: '100%', padding: '13px 42px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: confirmPassword && password !== confirmPassword
-                      ? '1.5px solid #FCA5A5'
-                      : focused === 'confirmPassword' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
-                    backgroundColor: focused === 'confirmPassword' ? '#FAFBFF' : 'var(--bg-secondary)',
+                      ? `1.5px solid ${colors.red.medium}`
+                      : focused === 'confirmPassword' ? `1.5px solid ${colors.border.accent}` : `1.5px solid ${colors.gray.g300alt}`,
+                    backgroundColor: focused === 'confirmPassword' ? colors.purple.bgFafb : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'confirmPassword' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
@@ -560,11 +560,11 @@ export default function RegisterPage() {
                   tabIndex={-1}
                   style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 0 }}
                 >
-                  {showConfirmPassword ? <EyeOff size={16} color="#94A3B8" /> : <Eye size={16} color="#94A3B8" />}
+                  {showConfirmPassword ? <EyeOff size={16} color={colors.gray.soft} /> : <Eye size={16} color={colors.gray.soft} />}
                 </button>
               </div>
               {confirmPassword && password !== confirmPassword && (
-                <p style={{ fontSize: '12px', color: '#BE123C', marginTop: '6px' }}>Les mots de passe ne correspondent pas</p>
+                <p style={{ fontSize: '12px', color: colors.red.textDark, marginTop: '6px' }}>Les mots de passe ne correspondent pas</p>
               )}
             </div>
 
@@ -574,7 +574,7 @@ export default function RegisterPage() {
               style={{
                 width: '100%', padding: '14px 16px', marginTop: '4px',
                 borderRadius: '10px',
-                background: loading ? '#A5B4FC' : 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                background: loading ? colors.purple.bgPale : `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.indigo})`,
                 color: colors.bg.primary, fontSize: '15px', fontWeight: '700',
                 border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'all 200ms ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',

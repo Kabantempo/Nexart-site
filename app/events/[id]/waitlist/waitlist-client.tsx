@@ -100,7 +100,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
           {[
-            { label: 'En attente', value: waiting.length, icon: <Clock size={20} color="#FF6B6B" />, color: '#FF6B6B' },
+            { label: 'En attente', value: waiting.length, icon: <Clock size={20} color={colors.coral.primary} />, color: colors.coral.primary },
             { label: 'Promus', value: promoted.length, icon: <Check size={20} color={colors.green.primary} />, color: colors.green.primary },
             { label: 'Total', value: entries.length, icon: <Users size={20} color={colors.violet.primary} />, color: colors.violet.primary },
           ].map((stat, i) => (
@@ -239,8 +239,8 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                     style={{
                       padding: '8px',
                       backgroundColor: 'transparent',
-                      color: '#FF6B6B',
-                      border: '1px solid #FECACA',
+                      color: colors.coral.primary,
+                      border: `1px solid ${colors.red.bgCa}`,
                       borderRadius: '6px',
                       cursor: actionLoading === entry.id ? 'not-allowed' : 'pointer',
                       opacity: actionLoading === entry.id ? 0.6 : 1,
@@ -258,9 +258,9 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
 
         {/* Promoted section */}
         {promoted.length > 0 && (
-          <div style={{ marginTop: '40px', border: '1px solid #D1FAE5', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ backgroundColor: colors.green.bg, padding: '16px 20px', borderBottom: '1px solid #D1FAE5' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#065F46', margin: 0 }}>
+          <div style={{ marginTop: '40px', border: `1px solid ${colors.green.bgLight}`, borderRadius: '12px', overflow: 'hidden' }}>
+            <div style={{ backgroundColor: colors.green.bg, padding: '16px 20px', borderBottom: `1px solid ${colors.green.bgLight}` }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 600, color: colors.green.text, margin: 0 }}>
                 Promus récemment ({promoted.length})
               </h2>
             </div>
@@ -272,12 +272,12 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                   alignItems: 'center',
                   gap: '16px',
                   padding: '14px 20px',
-                  borderBottom: idx < promoted.length - 1 ? '1px solid #D1FAE5' : 'none',
-                  backgroundColor: '#F0FDF4'
+                  borderBottom: idx < promoted.length - 1 ? `1px solid ${colors.green.bgLight}` : 'none',
+                  backgroundColor: colors.green.bgPale
                 }}
               >
                 <Check size={16} color={colors.green.primary} />
-                <p style={{ fontWeight: 500, color: '#065F46', margin: 0, flex: 1 }}>
+                <p style={{ fontWeight: 500, color: colors.green.text, margin: 0, flex: 1 }}>
                   {entry.profiles?.full_name || 'Utilisateur inconnu'}
                 </p>
                 <p style={{ fontSize: '13px', color: colors.feedback.success.solid, margin: 0 }}>

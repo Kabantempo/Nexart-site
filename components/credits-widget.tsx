@@ -50,7 +50,7 @@ export function CreditsWidget() {
       {/* Header */}
       <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', border: 'none', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg,${colors.violet.primary},${colors.purple.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Zap size={18} color={colors.bg.primary} fill={colors.bg.primary} />
           </div>
           <div style={{ textAlign: 'left' }}>
@@ -69,7 +69,7 @@ export function CreditsWidget() {
 
       {/* Historique */}
       {open && (
-        <div style={{ padding: '0 20px 16px', backgroundColor: 'var(--bg-primary)', borderTop: '1px solid #F1F5F9' }}>
+        <div style={{ padding: '0 20px 16px', backgroundColor: 'var(--bg-primary)', borderTop: `1px solid ${colors.gray.slateBg}` }}>
           {history.length === 0 ? (
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', padding: '20px 0', margin: 0 }}>Aucun mouvement de crédits</p>
           ) : (
@@ -79,7 +79,7 @@ export function CreditsWidget() {
                   <div>
                     <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', margin: 0 }}>{TYPE_LABEL[row.type] ?? row.type}</p>
                     {row.description && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{row.description}</p>}
-                    <p style={{ fontSize: '11px', color: '#CBD5E1', margin: 0 }}>{new Date(row.created_at).toLocaleDateString('fr-FR')}</p>
+                    <p style={{ fontSize: '11px', color: colors.gray["300slate"], margin: 0 }}>{new Date(row.created_at).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <span style={{ fontSize: '15px', fontWeight: '800', color: row.amount > 0 ? colors.green.primary : colors.red.vivid }}>
                     {row.amount > 0 ? '+' : ''}{row.amount}

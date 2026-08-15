@@ -6,10 +6,10 @@ import type { StandPlan, StandStatus } from '@/app/events/[id]/settings/stands/s
 import { colors } from '@/lib/design-tokens'
 
 const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: string; label: string }> = {
-  available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
-  reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
-  occupied:  { bg: colors.violet.bg, border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
-  blocked:   { bg: colors.bg.subtle, border: '#D1D5DB', text: colors.text.secondary, label: 'Bloqué' },
+  available: { bg: colors.green.bgPale, border: colors.green.pale, text: colors.green.textMid, label: 'Disponible' },
+  reserved:  { bg: colors.yellow.pale, border: colors.yellow.bright, text: colors.red.amberDark, label: 'Réservé' },
+  occupied:  { bg: colors.violet.bg, border: colors.purple.bgPale, text: colors.purple.indigoDeep, label: 'Occupé' },
+  blocked:   { bg: colors.bg.subtle, border: colors.gray["300"], text: colors.text.secondary, label: 'Bloqué' },
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -45,7 +45,7 @@ export default function StandPlanViewer({ eventId }: { eventId: string }) {
     <div style={{ marginTop: '24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
         <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)' }}>Plan des stands</h3>
-        <span style={{ fontSize: '13px', color: '#15803D', fontWeight: '600', backgroundColor: '#F0FDF4', padding: '4px 10px', borderRadius: '20px', border: '1px solid #86EFAC' }}>
+        <span style={{ fontSize: '13px', color: colors.green.textMid, fontWeight: '600', backgroundColor: colors.green.bgPale, padding: '4px 10px', borderRadius: '20px', border: `1px solid ${colors.green.light}` }}>
           {available} disponible{available !== 1 ? 's' : ''}
         </span>
       </div>

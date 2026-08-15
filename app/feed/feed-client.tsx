@@ -161,7 +161,7 @@ function EventCard({ event }: { event: FeedEvent }) {
             <Image src={event.cover_image} alt="" width={600} height={140} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
         ) : (
-          <div style={{ height: '80px', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ height: '80px', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CalendarDays size={32} color="rgba(255,255,255,0.7)" />
           </div>
         )}

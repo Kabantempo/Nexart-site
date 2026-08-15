@@ -65,7 +65,7 @@ export function ComparePanel() {
             {/* Empty slots */}
             {Array.from({ length: 3 - pinned.length }).map((_, i) => (
               <div key={i} style={{ flexShrink: 0, width: '120px', height: '56px', borderRadius: '12px', border: '1.5px dashed var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <p style={{ fontSize: '11px', color: '#D1D5DB', textAlign: 'center' }}>+</p>
+                <p style={{ fontSize: '11px', color: colors.gray["300"], textAlign: 'center' }}>+</p>
               </div>
             ))}
 

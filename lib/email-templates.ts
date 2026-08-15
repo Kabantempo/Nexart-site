@@ -1,16 +1,17 @@
+import { colors } from '@/lib/design-tokens'
 // Centralized Nexart email templates
 // All routes import from here — never write inline HTML in routes
 
 const COLORS = {
   bg: '#F4F4F8',
-  card: '#FFFFFF',
+  card: colors.bg.primary,
   headerBg: 'linear-gradient(135deg,#0F0C29 0%,#1E1B4B 50%,#2D1B69 100%)',
-  indigo: '#6366F1',
+  indigo: colors.violet.primary,
   indigoLight: '#A5B4FC',
   indigoDark: '#4F46E5',
-  green: '#10B981',
-  red: '#EF4444',
-  orange: '#F59E0B',
+  green: colors.green.primary,
+  red: colors.red.vivid,
+  orange: colors.status.pending.dot,
   textPrimary: '#1A1A2E',
   textBody: '#374151',
   textMuted: '#64748B',

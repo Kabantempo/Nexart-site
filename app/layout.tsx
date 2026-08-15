@@ -1,3 +1,4 @@
+import { colors } from '@/lib/design-tokens'
 import type { Metadata } from "next";
 import { Syne, Inter, JetBrains_Mono } from 'next/font/google'
 import "./globals.css";
@@ -78,7 +79,7 @@ export default function RootLayout({
     >
       <head>
       </head>
-      <body className={`flex min-h-screen flex-col text-gray-900 ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`} style={{ backgroundColor: 'var(--bg-primary, #FFFFFF)' }}>
+      <body className={`flex min-h-screen flex-col text-gray-900 ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`} style={{ backgroundColor: `var(--bg-primary, ${colors.bg.primary})` }}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-semibold">
           Aller au contenu principal
         </a>

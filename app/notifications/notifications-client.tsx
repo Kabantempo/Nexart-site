@@ -23,7 +23,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   application_accepted: { icon: <CheckCircle size={18} />, color: colors.green.primary, bg: colors.green.bg },
   application_rejected: { icon: <X size={18} />,           color: colors.feedback.danger.solid, bg: colors.red.bg },
   application_received: { icon: <Calendar size={18} />,    color: colors.violet.primary, bg: colors.violet.bg },
-  new_message:          { icon: <MessageCircle size={18} />,color: '#06B6D4', bg: '#ECFEFF' },
+  new_message:          { icon: <MessageCircle size={18} />,color: colors.blue.cyan, bg: `${colors.blue.skyPale}` },
   default:              { icon: <Bell size={18} />,         color: 'var(--text-secondary)', bg: colors.bg.subtle },
 }
 
@@ -96,7 +96,7 @@ export default function NotificationsClient() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <div style={{ width: '36px', height: '36px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )

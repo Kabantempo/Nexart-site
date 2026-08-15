@@ -52,7 +52,7 @@ export default function HealthCheckDashboard() {
       <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', padding: '60px 20px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{ animation: 'spin 2s linear infinite' }}>
-            <RotateCw size={48} color="#FF6B6B" />
+            <RotateCw size={48} color={colors.coral.primary} />
           </div>
           <h1 style={{ marginTop: '20px', fontSize: '24px', fontWeight: 700 }}>
             Loading health check...
@@ -89,13 +89,13 @@ export default function HealthCheckDashboard() {
   const testCategoryColor = (category: string) => {
     switch (category) {
       case 'api':
-        return '#3B82F6';
+        return colors.blue.medium;
       case 'pages':
-        return '#8B5CF6';
+        return colors.purple.primary;
       case 'security':
-        return '#EC4899';
+        return colors.fuchsia.primary;
       case 'database':
-        return '#06B6D4';
+        return colors.blue.cyan;
       default:
         return colors.text.secondary;
     }
@@ -120,7 +120,7 @@ export default function HealthCheckDashboard() {
               <h1 style={{ fontSize: '28px', fontWeight: 700, margin: '0', textTransform: 'capitalize' }}>
                 System Status: <span style={{ color: statusColor[report.status as keyof typeof statusColor] }}>{report.status}</span>
               </h1>
-              <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
+              <p style={{ margin: '5px 0 0 0', color: colors.gray.midAlt, fontSize: '14px' }}>
                 Last updated: {lastUpdated}
               </p>
             </div>
@@ -130,7 +130,7 @@ export default function HealthCheckDashboard() {
             <button
               onClick={fetchHealthCheck}
               style={{
-                backgroundColor: '#FF6B6B',
+                backgroundColor: colors.coral.primary,
                 color: 'white',
                 padding: '10px 20px',
                 border: 'none',
@@ -150,7 +150,7 @@ export default function HealthCheckDashboard() {
               onClick={() => setAutoRefresh(!autoRefresh)}
               style={{
                 backgroundColor: autoRefresh ? colors.green.primary : colors.border.default,
-                color: autoRefresh ? 'white' : '#666',
+                color: autoRefresh ? 'white' : colors.gray.midAlt,
                 padding: '10px 20px',
                 border: 'none',
                 borderRadius: '6px',
@@ -166,23 +166,23 @@ export default function HealthCheckDashboard() {
 
         {/* Summary Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #3B82F6' }}>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Total Tests</div>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: `4px solid ${colors.blue.medium}` }}>
+            <div style={{ fontSize: '12px', color: colors.gray.midAlt, marginBottom: '10px' }}>Total Tests</div>
             <div style={{ fontSize: '28px', fontWeight: 700 }}>{report.summary.total}</div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #10B981' }}>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Passed</div>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: `4px solid ${colors.green.primary}` }}>
+            <div style={{ fontSize: '12px', color: colors.gray.midAlt, marginBottom: '10px' }}>Passed</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: colors.green.primary }}>{report.summary.passed}</div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #EF4444' }}>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Failed</div>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: `4px solid ${colors.red.vivid}` }}>
+            <div style={{ fontSize: '12px', color: colors.gray.midAlt, marginBottom: '10px' }}>Failed</div>
             <div style={{ fontSize: '28px', fontWeight: 700, color: colors.red.vivid }}>{report.summary.failed}</div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: '4px solid #8B5CF6' }}>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>Duration</div>
+          <div style={{ backgroundColor: 'var(--bg-primary)', padding: '20px', borderRadius: '8px', borderLeft: `4px solid ${colors.purple.violet}` }}>
+            <div style={{ fontSize: '12px', color: colors.gray.midAlt, marginBottom: '10px' }}>Duration</div>
             <div style={{ fontSize: '28px', fontWeight: 700 }}>{report.summary.duration}ms</div>
           </div>
         </div>
@@ -218,11 +218,11 @@ export default function HealthCheckDashboard() {
 
                 <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
                   <div>
-                    <div style={{ fontSize: '12px', color: '#666' }}>Passed</div>
+                    <div style={{ fontSize: '12px', color: colors.gray.midAlt }}>Passed</div>
                     <div style={{ fontSize: '20px', fontWeight: 700, color: colors.green.primary }}>{passed}/{tests.length}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '12px', color: '#666' }}>Failed</div>
+                    <div style={{ fontSize: '12px', color: colors.gray.midAlt }}>Failed</div>
                     <div style={{ fontSize: '20px', fontWeight: 700, color: colors.red.vivid }}>{failed}</div>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export default function HealthCheckDashboard() {
                         padding: '10px',
                         marginBottom: '8px',
                         borderRadius: '4px',
-                        backgroundColor: test.passed ? '#F0FDF4' : colors.red.bg,
+                        backgroundColor: test.passed ? colors.green.bgPale : colors.red.bg,
                         borderLeft: `3px solid ${test.passed ? colors.green.primary : colors.red.vivid}`,
                         fontSize: '13px',
                       }}
@@ -267,7 +267,7 @@ export default function HealthCheckDashboard() {
           <div
             style={{
               backgroundColor: colors.red.bg,
-              border: '1px solid #FECACA',
+              border: `1px solid ${colors.red.bgCa}`,
               padding: '20px',
               borderRadius: '8px',
               marginBottom: '30px',
@@ -290,8 +290,8 @@ export default function HealthCheckDashboard() {
         {report.warnings.length > 0 && (
           <div
             style={{
-              backgroundColor: '#FFFBEB',
-              border: '1px solid #FCD34D',
+              backgroundColor: colors.red.bgFbeb,
+              border: `1px solid ${colors.yellow.primary}`,
               padding: '20px',
               borderRadius: '8px',
               marginBottom: '30px',
@@ -314,18 +314,18 @@ export default function HealthCheckDashboard() {
         {report.recommendations.length > 0 && (
           <div
             style={{
-              backgroundColor: '#F0F9FF',
-              border: '1px solid #BAE6FD',
+              backgroundColor: colors.blue.skyPale,
+              border: `1px solid ${colors.blue.skyLight}`,
               padding: '20px',
               borderRadius: '8px',
             }}
           >
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0369A1', margin: '0 0 15px 0' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: colors.blue.slate, margin: '0 0 15px 0' }}>
               💡 Recommendations
             </h2>
             <ul style={{ margin: 0, paddingLeft: '20px' }}>
               {report.recommendations.map((rec: string, idx: number) => (
-                <li key={idx} style={{ color: '#164E63', marginBottom: '8px' }}>
+                <li key={idx} style={{ color: colors.blue.indigoDark, marginBottom: '8px' }}>
                   {rec}
                 </li>
               ))}

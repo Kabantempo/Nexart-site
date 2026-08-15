@@ -87,7 +87,7 @@ export default function AboutPageClient() {
               style={{
                 padding: '40px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.purple.primary} 100%)',
                 color: colors.bg.primary,
               }}
             >

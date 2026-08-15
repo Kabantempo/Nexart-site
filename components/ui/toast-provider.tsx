@@ -28,26 +28,26 @@ interface ToastContextValue {
 
 const TOAST_STYLES: Record<ToastType, { bg: string; border: string; color: string; icon: React.ReactNode }> = {
   success: {
-    bg: '#F0FDF4',
-    border: '#86EFAC',
-    color: '#15803D',
+    bg: colors.green.bgPale,
+    border: colors.green.pale,
+    color: colors.green.textMid,
     icon: <CheckCircle size={18} />,
   },
   error: {
     bg: colors.red.bg,
-    border: '#FCA5A5',
+    border: colors.red.medium,
     color: colors.feedback.danger.solid,
     icon: <XCircle size={18} />,
   },
   info: {
     bg: colors.violet.bg,
-    border: '#A5B4FC',
-    color: '#4338CA',
+    border: colors.purple.bgPale,
+    color: colors.purple.indigoDark,
     icon: <Info size={18} />,
   },
   warning: {
-    bg: '#FFFBEB',
-    border: '#FCD34D',
+    bg: colors.red.bgFbeb,
+    border: colors.yellow.primary,
     color: colors.feedback.warning.solid,
     icon: <AlertTriangle size={18} />,
   },

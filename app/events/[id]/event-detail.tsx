@@ -118,7 +118,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
             Avis ({reviews.length})
           </h2>
           {avgRating && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '3px 8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.bgE8}`, borderRadius: '8px', padding: '3px 8px' }}>
               <Star size={13} color={colors.status.pending.dot} fill={colors.status.pending.dot} />
               <span style={{ fontSize: '13px', fontWeight: '700', color: colors.red.amber }}>{avgRating}</span>
             </div>
@@ -235,7 +235,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-  pending: { label: 'En attente', color: '#FF9800', bg: colors.feedback.warning.bg },
+  pending: { label: 'En attente', color: colors.feedback.warning.solid, bg: colors.feedback.warning.bg },
   accepted: { label: 'Acceptée ✓', color: colors.feedback.success.solid, bg: colors.feedback.success.bg },
   refused: { label: 'Refusée', color: colors.feedback.danger.solid, bg: colors.red.bg },
 }
@@ -332,7 +332,7 @@ function FaqSection({ items }: { items: { q: string; a: string }[] }) {
               <span style={{ fontSize: '20px', color: colors.violet.primary, flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'none', transition: 'transform 150ms' }}>+</span>
             </button>
             {open === i && (
-              <div style={{ padding: '0 20px 16px', fontSize: '14px', color: '#555555', lineHeight: '1.7' }}>
+              <div style={{ padding: '0 20px 16px', fontSize: '14px', color: colors.gray.mid, lineHeight: '1.7' }}>
                 {item.a}
               </div>
             )}
@@ -746,7 +746,7 @@ export function EventDetailClient({ id }: Props) {
         {event.cover_image ? (
           <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Calendar size={80} color="rgba(255,255,255,0.5)" />
           </div>
         )}
@@ -887,14 +887,14 @@ export function EventDetailClient({ id }: Props) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: '8px',
                       padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: favEventIds.has(id) ? '#FFF1F2' : '#F8FAFC',
-                      color: favEventIds.has(id) ? '#BE123C' : 'var(--text-secondary)',
+                      backgroundColor: favEventIds.has(id) ? colors.red.bgPale : colors.blue.pale,
+                      color: favEventIds.has(id) ? colors.red.textDark : 'var(--text-secondary)',
                       fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                      border: `1.5px solid ${favEventIds.has(id) ? '#FECDD3' : 'var(--border-color)'}`,
+                      border: `1.5px solid ${favEventIds.has(id) ? colors.red.bgPink : 'var(--border-color)'}`,
                       marginTop: '28px',
                     }}
                   >
-                    <Heart size={16} fill={favEventIds.has(id) ? colors.feedback.danger.solid : 'none'} color={favEventIds.has(id) ? colors.feedback.danger.solid : '#94A3B8'} />
+                    <Heart size={16} fill={favEventIds.has(id) ? colors.feedback.danger.solid : 'none'} color={favEventIds.has(id) ? colors.feedback.danger.solid : colors.gray.soft} />
                     {favEventIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
                   </button>
                 )}
@@ -904,7 +904,7 @@ export function EventDetailClient({ id }: Props) {
               {event.description && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>Description</h2>
-                  <p style={{ fontSize: '16px', color: '#555555', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
+                  <p style={{ fontSize: '16px', color: colors.gray.mid, lineHeight: '1.8', whiteSpace: 'pre-line' }}>
                     {event.description}
                   </p>
                 </div>
@@ -919,7 +919,7 @@ export function EventDetailClient({ id }: Props) {
                   </h2>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {(event.discipline_tags ?? []).map((tag: string) => (
-                      <span key={tag} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: colors.violet.primary, fontSize: '14px', fontWeight: '500' }}>
+                      <span key={tag} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: `${colors.purple.bgF0}`, color: colors.violet.primary, fontSize: '14px', fontWeight: '500' }}>
                         {tag}
                       </span>
                     ))}
@@ -931,7 +931,7 @@ export function EventDetailClient({ id }: Props) {
               {event.rules && (
                 <div style={{ marginBottom: '32px' }}>
                   <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>Règlement</h2>
-                  <p style={{ fontSize: '15px', color: '#555555', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
+                  <p style={{ fontSize: '15px', color: colors.gray.mid, lineHeight: '1.8', whiteSpace: 'pre-line' }}>
                     {event.rules}
                   </p>
                 </div>
@@ -994,7 +994,7 @@ export function EventDetailClient({ id }: Props) {
                 const pct = Math.min(100, Math.round((acceptedCount / (event.stand_count ?? 1)) * 100))
                 const full = remaining <= 0
                 return (
-                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? colors.red.bg : 'var(--bg-secondary)', border: `1px solid ${full ? '#FCA5A5' : 'var(--border-color)'}` }}>
+                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? colors.red.bg : 'var(--bg-secondary)', border: `1px solid ${full ? colors.red.medium : 'var(--border-color)'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)' }}>
                         {full ? 'Complet' : `${remaining} stand${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
@@ -1024,7 +1024,7 @@ export function EventDetailClient({ id }: Props) {
                       fontSize: '13px', fontWeight: '600',
                       padding: '6px 12px', borderRadius: '20px',
                       backgroundColor: colors.violet.bg, color: colors.violet.primary,
-                      border: '1px solid #C7D2FE',
+                      border: `1px solid ${colors.purple.bgLight}`,
                     }}>
                       🔥 {weeklyApplicants} créateur{weeklyApplicants > 1 ? 's' : ''} {weeklyApplicants > 1 ? 'ont' : 'a'} postulé cette semaine
                     </span>
@@ -1074,13 +1074,13 @@ export function EventDetailClient({ id }: Props) {
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                             <div style={{
                               width: '20px', height: '20px', borderRadius: '50%',
-                              backgroundColor: step.done ? '#FF9800' : 'var(--bg-primary)',
-                              border: `2px solid ${step.done ? '#FF9800' : 'var(--border-color)'}`,
+                              backgroundColor: step.done ? colors.feedback.warning.solid : 'var(--bg-primary)',
+                              border: `2px solid ${step.done ? colors.feedback.warning.solid : 'var(--border-color)'}`,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
                               {step.done && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colors.bg.primary }} />}
                             </div>
-                            <span style={{ fontSize: '10px', fontWeight: 600, color: step.done ? '#FF9800' : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 600, color: step.done ? colors.feedback.warning.solid : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
                               {step.label}
                             </span>
                           </div>
@@ -1160,7 +1160,7 @@ export function EventDetailClient({ id }: Props) {
                   )}
                 </div>
               ) : success ? (
-                <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: '1px solid #4CAF50', textAlign: 'center' }}>
+                <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: `1px solid ${colors.green.success}`, textAlign: 'center' }}>
                   <p style={{ fontSize: '15px', fontWeight: '700', color: colors.feedback.success.solid, margin: 0 }}>
                     Candidature envoyée ✓
                   </p>
@@ -1310,7 +1310,7 @@ export function EventDetailClient({ id }: Props) {
                     <>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {applications.map(app => (
-                        <div key={app.id} style={{ borderRadius: '10px', border: selectedCreatorIds.includes(app.creator_id) ? '2px solid #6366F1' : '1px solid var(--border-color)', padding: '14px', backgroundColor: selectedCreatorIds.includes(app.creator_id) ? '#F8F9FF' : 'var(--bg-primary)', transition: 'border-color 0.15s, background-color 0.15s' }}>
+                        <div key={app.id} style={{ borderRadius: '10px', border: selectedCreatorIds.includes(app.creator_id) ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)', padding: '14px', backgroundColor: selectedCreatorIds.includes(app.creator_id) ? `${colors.purple.bgEef}` : 'var(--bg-primary)', transition: 'border-color 0.15s, background-color 0.15s' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                             {/* Checkbox sélection */}
                             {(app.status === 'accepted' || app.status === 'pending') && (
@@ -1336,7 +1336,7 @@ export function EventDetailClient({ id }: Props) {
                             </div>
                             <span style={{
                               padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
-                              backgroundColor: app.status === 'accepted' ? colors.green.bg : app.status === 'refused' ? colors.red.bg : '#FFFBEB',
+                              backgroundColor: app.status === 'accepted' ? colors.green.bg : app.status === 'refused' ? colors.red.bg : colors.red.bgFbeb,
                               color: app.status === 'accepted' ? colors.green.primary : app.status === 'refused' ? colors.feedback.danger.solid : colors.status.pending.dot,
                             }}>
                               {app.status === 'accepted' ? 'Acceptée' : app.status === 'refused' ? 'Refusée' : 'En attente'}
@@ -1381,7 +1381,7 @@ export function EventDetailClient({ id }: Props) {
                             <button
                               onClick={() => handleGenerateContract(app.creator_id, app.id)}
                               disabled={contractLoading === app.id}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: '#F8F9FF', color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: `${colors.purple.bgEef}`, color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}
                             >
                               <FileText size={12} />
                               {contractLoading === app.id ? 'Génération…' : 'Contrat PDF'}
@@ -1436,12 +1436,12 @@ export function EventDetailClient({ id }: Props) {
                         height: '100%',
                         borderRadius: '99px',
                         width: `${((REQUIRED_FIELDS_TOTAL - missingFields.length) / REQUIRED_FIELDS_TOTAL) * 100}%`,
-                        background: 'linear-gradient(90deg, #6366F1, #818CF8)',
+                        background: 'linear-gradient(90deg, ${colors.violet.primary}, ${colors.violet.hover})',
                         transition: 'width 0.5s ease',
                       }} />
                     </div>
                   </div>
-                  <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: '#FFFBEB', border: '1px solid #FDE68A', marginBottom: '16px' }}>
+                  <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.bgE8}`, marginBottom: '16px' }}>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '10px' }}>
                       <AlertTriangle size={15} color={colors.status.pending.dot} style={{ flexShrink: 0, marginTop: '2px' }} />
                       <p style={{ fontSize: '13px', fontWeight: '600', color: colors.red.amber, margin: 0 }}>
@@ -1496,7 +1496,7 @@ export function EventDetailClient({ id }: Props) {
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             <button onClick={() => setAppPortfolioFiles(prev => prev.filter((_, j) => j !== i))}
-                              style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#111', color: colors.bg.primary, border: 'none', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: `${colors.gray.g111}`, color: colors.bg.primary, border: 'none', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               ×
                             </button>
                           </div>
@@ -1516,7 +1516,7 @@ export function EventDetailClient({ id }: Props) {
                   <button
                     onClick={handleApply}
                     disabled={applying}
-                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: applying ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: applying ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
+                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: applying ? colors.purple.ringAlt : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: applying ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
                   >
                     {applying ? 'Envoi...' : 'Envoyer ma candidature'}
                   </button>
@@ -1531,7 +1531,7 @@ export function EventDetailClient({ id }: Props) {
                 const full = (event.stand_count ?? 0) > 0 && acceptedCount !== null && acceptedCount >= (event.stand_count ?? 0)
                 if (full) {
                   return onWaitlist ? (
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#FFF7ED', border: '1px solid #FCD34D', textAlign: 'center' }}>
+                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: `${colors.yellow.bgFff7}`, border: `1px solid ${colors.yellow.primary}`, textAlign: 'center' }}>
                       <p style={{ fontSize: '14px', fontWeight: '700', color: colors.feedback.warning.text, margin: '0 0 4px' }}>
                         Vous êtes en liste d'attente
                       </p>
@@ -1541,17 +1541,17 @@ export function EventDetailClient({ id }: Props) {
                       <button
                         onClick={handleLeaveWaitlist}
                         disabled={joiningWaitlist}
-                        style={{ padding: '8px 18px', borderRadius: '8px', border: '1px solid #FCD34D', backgroundColor: 'var(--bg-primary)', color: colors.feedback.warning.text, fontSize: '13px', fontWeight: '600', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
+                        style={{ padding: '8px 18px', borderRadius: '8px', border: `1px solid ${colors.yellow.primary}`, backgroundColor: 'var(--bg-primary)', color: colors.feedback.warning.text, fontSize: '13px', fontWeight: '600', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
                       >
                         {joiningWaitlist ? 'Traitement…' : 'Se retirer de la liste'}
                       </button>
                     </div>
                   ) : (
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: '1px solid #FCA5A5', textAlign: 'center' }}>
-                      <p style={{ fontSize: '14px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>
+                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: `1px solid ${colors.red.medium}`, textAlign: 'center' }}>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: colors.red.text, margin: '0 0 4px' }}>
                         Événement complet
                       </p>
-                      <p style={{ fontSize: '12px', color: '#7F1D1D', margin: '0 0 12px' }}>
+                      <p style={{ fontSize: '12px', color: colors.gray["950"], margin: '0 0 12px' }}>
                         Rejoignez la liste d'attente pour être prévenu si une place se libère
                       </p>
                       <button

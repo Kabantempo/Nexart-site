@@ -63,7 +63,7 @@ const styles = {
     borderRadius: '9999px',
     fontSize: '11px',
     fontWeight: 700,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.yellow.bg,
     color: colors.feedback.warning.solid,
   } as React.CSSProperties,
   button: {

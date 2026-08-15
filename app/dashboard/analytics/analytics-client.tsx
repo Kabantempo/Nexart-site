@@ -229,7 +229,7 @@ export default function CreatorAnalyticsClient() {
               transition: 'all 0.2s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#4F46E5'
+              e.currentTarget.style.backgroundColor = colors.purple.indigo
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = colors.violet.primary

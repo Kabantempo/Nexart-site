@@ -110,10 +110,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     for (const r of recipients) {
       const html = `
         <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-          <h2 style="color:#1a1a1a">${event?.title || 'Événement'}</h2>
+          <h2 style="color:#1A1A1A">${event?.title || 'Événement'}</h2>
           <h3>${campaign.subject}</h3>
           <div style="white-space:pre-wrap;color:#444;line-height:1.6">${campaign.message}</div>
-          <p style="color:#888;font-size:12px;margin-top:32px">Nexart — La plateforme des marchés artisanaux</p>
+          <p style="color:#6B7280;font-size:12px;margin-top:32px">Nexart — La plateforme des marchés artisanaux</p>
         </div>`
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',

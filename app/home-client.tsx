@@ -8,12 +8,12 @@ import { colors } from '@/lib/design-tokens'
 
 // ── Dark theme constants (home page seule — pas de dark mode tokens dans le design system) ──
 const D = {
-  bg:        '#08081a',
-  phoneBg:   '#0c0c1a',
+  bg:        colors.dark.navyAlt,
+  phoneBg:   colors.dark.navyDeep,
   indigo400: colors.violet.hover,
-  violet400: '#A78BFA',
-  emerald400:'#34D399',
-  amber400:  '#FBBF24',
+  violet400: colors.purple.light,
+  emerald400:colors.green.light,
+  amber400:  colors.yellow.primary,
   i10:  'rgba(99,102,241,0.10)',
   i15:  'rgba(99,102,241,0.15)',
   i20:  'rgba(99,102,241,0.20)',
@@ -124,7 +124,7 @@ function PhoneMockup() {
         {/* Status bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 4px' }}>
           <span style={{ fontSize: '11px', fontWeight: 600, color: D.w60 }}>9:41</span>
-          <div style={{ width: '80px', height: '20px', borderRadius: '9999px', backgroundColor: '#000', position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '12px' }} />
+          <div style={{ width: '80px', height: '20px', borderRadius: '9999px', backgroundColor: `${colors.text.black}`, position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '12px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div style={{ display: 'flex', gap: '2.5px', alignItems: 'flex-end', height: '12px' }}>
               {[3,5,7,9].map((h,i) => <div key={i} style={{ width: '2.5px', borderRadius: '2px', backgroundColor: D.w50, height: `${h}px` }} />)}
@@ -227,7 +227,7 @@ function TestimonialCard({ name, role, text }: { name: string; role: string; tex
     <div style={{ flexShrink: 0, width: '280px', padding: '20px', borderRadius: '16px', border: `1px solid ${D.w6}`, backgroundColor: D.w035, margin: '0 8px' }}>
       <p style={{ fontSize: '14px', color: D.w55, lineHeight: 1.6, marginBottom: '16px' }}>&ldquo;{text}&rdquo;</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.bg.primary, fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.primary})', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.bg.primary, fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
           {initials}
         </div>
         <div>
@@ -495,7 +495,7 @@ export default function HomeClient() {
         <motion.div style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', padding: '80px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '100%', textAlign: 'center' }}>
             <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.i30}`, backgroundColor: D.i10, color: '#C7D2FE', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.i30}`, backgroundColor: D.i10, color: colors.purple.bgLight, fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
             >
               <Sparkles size={11} /> La plateforme des artisans
             </motion.div>
@@ -507,7 +507,7 @@ export default function HomeClient() {
               <span style={{ display: 'block', overflow: 'hidden', paddingBottom: '4px' }}>
                 <motion.span initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ display: 'inline-block', background: 'linear-gradient(90deg, #818CF8, #C4B5FD, #818CF8)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
+                  style={{ display: 'inline-block', background: `linear-gradient(90deg, ${colors.violet.hover}, ${colors.purple.pale}, ${colors.violet.hover})`, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                   créations
                 </motion.span>
               </span>
@@ -669,7 +669,7 @@ export default function HomeClient() {
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '28px' }}>Rejoignez la communauté</p>
             <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: colors.bg.primary, lineHeight: 0.9, marginBottom: '28px' }}>
               Prêt à exposer{' '}
-              <span style={{ background: 'linear-gradient(90deg, #818CF8, #C4B5FD, #818CF8)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
+              <span style={{ background: `linear-gradient(90deg, ${colors.violet.hover}, ${colors.purple.pale}, ${colors.violet.hover})`, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                 vos créations ?
               </span>
             </h2>

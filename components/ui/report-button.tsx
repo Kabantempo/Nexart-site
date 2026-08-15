@@ -87,7 +87,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {REASONS.map(r => (
-            <label key={r} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${reason === r ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: reason === r ? '#F0F4FF' : 'var(--bg-secondary)' }}>
+            <label key={r} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${reason === r ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: reason === r ? `${colors.purple.bgF04}` : 'var(--bg-secondary)' }}>
               <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} style={{ accentColor: colors.violet.primary }} />
               <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: reason === r ? '600' : '400' }}>{r}</span>
             </label>

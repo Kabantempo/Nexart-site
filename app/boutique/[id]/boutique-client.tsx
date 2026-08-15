@@ -71,7 +71,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
   if (loading) {
     return (
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 32, height: 32, border: `3px solid ${colors.border.default}`, borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
@@ -91,7 +91,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
               <Image src={creator.avatar_url} alt={creator?.full_name || ''} width={56} height={56}
                 style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
             ) : (
-              <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: 'var(--text-body, #374151)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: `var(--text-body, ${colors.gray.dark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShoppingBag size={24} color="rgba(255,255,255,0.5)" />
               </div>
             )}
@@ -120,7 +120,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
 
       <div style={{ maxWidth: '900px', margin: '24px auto 0', padding: '0 24px' }}>
         {/* Banner en cours */}
-        <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.primary}`, display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '16px' }}>🛠️</span>
           <div>
             <p style={{ fontSize: '13px', fontWeight: 700, color: colors.red.amber, margin: 0 }}>Boutique en cours de développement</p>

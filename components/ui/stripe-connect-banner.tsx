@@ -35,7 +35,7 @@ export default function StripeConnectBanner({ token }: { token: string }) {
   if (status === 'active') {
     return (
       <div style={{
-        background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
+        background: `linear-gradient(135deg, ${colors.green.textGreen} 0%, ${colors.green.textMid} 100%)`,
         borderRadius: '12px',
         padding: '16px 20px',
         marginBottom: '20px',
@@ -59,8 +59,8 @@ export default function StripeConnectBanner({ token }: { token: string }) {
   return (
     <div style={{
       background: isPending
-        ? 'linear-gradient(135deg, #D97706 0%, #B45309 100%)'
-        : 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+        ? `linear-gradient(135deg, ${colors.yellow.text} 0%, ${colors.yellow.textB45} 100%)`
+        : `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.purple.indigo} 100%)`,
       borderRadius: '12px',
       padding: '16px 20px',
       marginBottom: '20px',
@@ -109,11 +109,11 @@ export function StripeConnectAlert({ searchParams }: { searchParams: URLSearchPa
   const value = searchParams.get('stripe_connect')
 
   const configs: Record<string, { color: string; bg: string; message: string }> = {
-    active: { bg: '#DCFCE7', color: '#15803D', message: '✅ Stripe Connect activé ! Vous recevrez désormais les paiements de stands directement.' },
-    restricted: { bg: '#FEF3C7', color: colors.feedback.warning.text, message: '⚠️ Compte Stripe en cours de vérification. Complétez votre dossier pour activer les paiements.' },
-    pending: { bg: '#FEF3C7', color: colors.feedback.warning.text, message: '⏳ Onboarding en cours. Revenez une fois votre compte Stripe validé.' },
-    refresh: { bg: '#FEF3C7', color: colors.feedback.warning.text, message: '🔄 Session Stripe expirée. Relancez le processus d\'onboarding.' },
-    error: { bg: '#FEE2E2', color: colors.feedback.danger.solid, message: '❌ Une erreur est survenue avec Stripe Connect. Réessayez.' },
+    active: { bg: colors.green.bgLight, color: colors.green.textMid, message: '✅ Stripe Connect activé ! Vous recevrez désormais les paiements de stands directement.' },
+    restricted: { bg: colors.yellow.bg, color: colors.feedback.warning.text, message: '⚠️ Compte Stripe en cours de vérification. Complétez votre dossier pour activer les paiements.' },
+    pending: { bg: colors.yellow.bg, color: colors.feedback.warning.text, message: '⏳ Onboarding en cours. Revenez une fois votre compte Stripe validé.' },
+    refresh: { bg: colors.yellow.bg, color: colors.feedback.warning.text, message: '🔄 Session Stripe expirée. Relancez le processus d\'onboarding.' },
+    error: { bg: colors.red.bgSoft, color: colors.feedback.danger.solid, message: '❌ Une erreur est survenue avec Stripe Connect. Réessayez.' },
   }
 
   const cfg = value ? configs[value] : null

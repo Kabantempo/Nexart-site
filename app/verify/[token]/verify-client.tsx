@@ -50,7 +50,7 @@ export default function VerifyClient({ token }: { token: string }) {
           </p>
         </div>
 
-        <p style={{ color: '#C0C0C0', fontSize: '12px', marginTop: '32px' }}>nexart.fr · Vérification sécurisée</p>
+        <p style={{ color: `${colors.gray.neutral}`, fontSize: '12px', marginTop: '32px' }}>nexart.fr · Vérification sécurisée</p>
       </div>
     </div>
   )
@@ -69,14 +69,14 @@ export default function VerifyClient({ token }: { token: string }) {
           borderRadius: '20px',
           overflow: 'hidden',
           boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-          border: `1px solid ${alreadyScanned ? '#FEF3C7' : colors.border.default}`,
+          border: `1px solid ${alreadyScanned ? colors.yellow.bg : colors.border.default}`,
         }}>
           {/* Header coloré */}
           <div style={{
             padding: '28px 32px',
             background: alreadyScanned
-              ? 'linear-gradient(135deg, #FEF3C7, #FDE68A)'
-              : 'linear-gradient(135deg, #EEF2FF, #E0E7FF)',
+              ? `linear-gradient(135deg, ${colors.yellow.bg}, ${colors.yellow.bgE8})`
+              : `linear-gradient(135deg, ${colors.purple.bgEef}, ${colors.purple.bgE0})`,
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
@@ -119,7 +119,7 @@ export default function VerifyClient({ token }: { token: string }) {
 
           {/* Footer */}
           {alreadyScanned && (
-            <div style={{ padding: '16px 32px', backgroundColor: '#FFFBEB', borderTop: '1px solid #FDE68A' }}>
+            <div style={{ padding: '16px 32px', backgroundColor: colors.red.bgFbeb, borderTop: `1px solid ${colors.yellow.bgE8}` }}>
               <p style={{ fontSize: '12px', color: colors.red.amber, margin: 0, lineHeight: 1.5 }}>
                 ⚠️ Ce QR code a déjà été utilisé. Si ce n'est pas vous, contactez l'organisateur.
               </p>
@@ -129,8 +129,8 @@ export default function VerifyClient({ token }: { token: string }) {
 
         {/* QR icon + footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '28px' }}>
-          <QrCode size={14} color="#C0C0C0" />
-          <p style={{ color: '#C0C0C0', fontSize: '12px', margin: 0 }}>Vérifié via nexart.fr</p>
+          <QrCode size={14} color={colors.gray.neutral} />
+          <p style={{ color: `${colors.gray.neutral}`, fontSize: '12px', margin: 0 }}>Vérifié via nexart.fr</p>
         </div>
       </div>
     </div>

@@ -42,7 +42,7 @@ const DISCIPLINE_PILL = 'bg-black/60 backdrop-blur-sm'
 function Skeleton() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-48 bg-[#06060f] animate-pulse" />
+      <div className="h-48 bg-[${colors.dark.base}] animate-pulse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
         <div className="h-20 bg-gray-100 rounded-2xl mb-8 animate-pulse" />
@@ -222,7 +222,7 @@ function CreatorsContent() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
-      <div className="bg-[#06060f] relative overflow-hidden">
+      <div className="bg-[${colors.dark.base}] relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.10]" style={{ backgroundImage: 'radial-gradient(circle, rgba(139,92,246,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-violet-600/20 blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-20 left-0 w-80 h-80 rounded-full bg-indigo-600/15 blur-[80px] pointer-events-none" />
@@ -322,7 +322,7 @@ function CreatorsContent() {
                             role="option"
                             aria-selected={isActive}
                             onMouseDown={() => { setSearchTerm(s.value); setShowSuggestions(false); setActiveSuggestion(-1) }}
-                            style={{ backgroundColor: isActive ? colors.violet.bg : undefined, color: isActive ? '#4338CA' : undefined }}
+                            style={{ backgroundColor: isActive ? colors.violet.bg : undefined, color: isActive ? colors.purple.indigoDark : undefined }}
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
                             {s.value}
                           </button>
@@ -384,7 +384,7 @@ function CreatorsContent() {
                     onClick={() => setAvailableOnly(v => !v)}
                     style={{
                       width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: availableOnly ? '#10b981' : colors.border.default,
+                      backgroundColor: availableOnly ? colors.green.primary : colors.border.default,
                       position: 'relative', transition: 'background 0.2s', flexShrink: 0
                     }}
                   >
@@ -396,7 +396,7 @@ function CreatorsContent() {
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                     }} />
                   </div>
-                  <span style={{ fontSize: '13px', color: availableOnly ? '#065f46' : '#4b5563', fontWeight: availableOnly ? 600 : 400 }}>
+                  <span style={{ fontSize: '13px', color: availableOnly ? colors.green.text : colors.gray["600"], fontWeight: availableOnly ? 600 : 400 }}>
                     Disponible pour événements
                   </span>
                 </label>
@@ -405,7 +405,7 @@ function CreatorsContent() {
                     onClick={() => setOpenToCollab(v => !v)}
                     style={{
                       width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: openToCollab ? '#6366f1' : colors.border.default,
+                      backgroundColor: openToCollab ? colors.violet.primary : colors.border.default,
                       position: 'relative', transition: 'background 0.2s', flexShrink: 0
                     }}
                   >
@@ -417,7 +417,7 @@ function CreatorsContent() {
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                     }} />
                   </div>
-                  <span style={{ fontSize: '13px', color: openToCollab ? '#3730a3' : '#4b5563', fontWeight: openToCollab ? 600 : 400 }}>
+                  <span style={{ fontSize: '13px', color: openToCollab ? colors.purple.indigoDeep : colors.gray["600"], fontWeight: openToCollab ? 600 : 400 }}>
                     Ouvert aux collaborations
                   </span>
                 </label>
@@ -455,8 +455,8 @@ function CreatorsContent() {
                 <button onClick={shareFilters}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '5px',
-                    padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
-                    backgroundColor: colors.bg.primary, color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    padding: '5px 11px', borderRadius: '20px', border: `1px solid ${colors.border.default}`,
+                    backgroundColor: colors.bg.primary, color: colors.gray["500"], fontSize: '11px', fontWeight: 600,
                     cursor: 'pointer'
                   }}
                 >
@@ -518,7 +518,7 @@ function CreatorsContent() {
                           <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                         </div>
                       ) : (
-                        <div className="aspect-square w-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%)' }}>
+                        <div className="aspect-square w-full flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${colors.purple.bgF5} 0%, ${colors.purple.bgDdd} 100%)` }}>
                           <span className="text-5xl font-bold select-none" style={{ color: colors.violet.primary, opacity: 0.85 }}>
                             {creator.full_name?.slice(0, 2).toUpperCase() || '?'}
                           </span>

@@ -73,7 +73,7 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
               {ev.cover_image ? (
                 <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
               ) : (
-                <div style={{ height: '100%', background: 'linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%)' }} />
+                <div style={{ height: '100%', background: `linear-gradient(135deg, ${colors.purple.bgF5} 0%, ${colors.purple.bgDdd} 100%)` }} />
               )}
               <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.5)', color: colors.bg.primary, fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px' }}>
                 Passé

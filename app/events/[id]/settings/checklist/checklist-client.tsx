@@ -244,7 +244,7 @@ const fetchChecklist = async () => {
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '6px',
                                 padding: '12px 16px',
-                                backgroundColor: item.completed ? '#F0FDF4' : colors.bg.primary,
+                                backgroundColor: item.completed ? colors.green.bgPale : colors.bg.primary,
                                 display: 'flex',
                                 gap: '12px',
                                 alignItems: 'start'
@@ -294,7 +294,7 @@ const fetchChecklist = async () => {
                                   background: 'none',
                                   cursor: 'pointer',
                                   padding: '4px',
-                                  color: '#FF6B6B',
+                                  color: colors.coral.primary,
                                   display: 'flex',
                                   flexShrink: 0
                                 }}

@@ -1,5 +1,6 @@
 'use client'
 
+import { colors } from '@/lib/design-tokens'
 import { componentStyles, spacing } from '@/lib/design-tokens'
 
 interface NexSkeletonProps {
@@ -14,7 +15,7 @@ export function NexSkeleton({ width = '100%', height = '14px', borderRadius = '6
     <>
       <div style={{
         width, height, borderRadius,
-        background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+        background: `linear-gradient(90deg, ${colors.gray.light} 25%, ${colors.gray.e0} 50%, ${colors.gray.light} 75%)`,
         backgroundSize: '400% 100%',
         animation: 'nexart-shimmer 1.4s infinite linear',
         ...style,

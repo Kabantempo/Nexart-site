@@ -131,7 +131,7 @@ export default function AdminClient() {
       }}>
         {sidebarOpen && (
           <>
-            <div style={{ padding: '0 20px 24px', borderBottom: '1px solid #1F2937' }}>
+            <div style={{ padding: '0 20px 24px', borderBottom: `1px solid ${colors.gray.g800}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                 <Shield size={20} color={colors.violet.primary} />
                 <span style={{ fontSize: '16px', fontWeight: 700, color: colors.bg.primary }}>Admin Panel</span>
@@ -218,9 +218,9 @@ function StatsTab({ stats }: { stats: Stats | null }) {
   const kpis = [
     { label: 'Utilisateurs', value: stats.total_users ?? 0, icon: Users, color: colors.violet.primary, bg: colors.violet.bg },
     { label: 'Événements publiés', value: stats.published_events ?? stats.total_events ?? 0, icon: Calendar, color: colors.green.primary, bg: colors.green.bg },
-    { label: 'Signalements ouverts', value: stats.open_reports ?? 0, icon: AlertCircle, color: colors.status.pending.dot, bg: '#FFFBEB' },
+    { label: 'Signalements ouverts', value: stats.open_reports ?? 0, icon: AlertCircle, color: colors.status.pending.dot, bg: colors.red.bgFbeb },
     { label: 'Total signalements', value: stats.total_reports ?? 0, icon: MessageSquare, color: colors.red.vivid, bg: colors.red.bg },
-    { label: "Taux d'approbation", value: `${stats.approval_rate ?? 0}%`, icon: TrendingUp, color: '#8B5CF6', bg: '#F5F3FF' },
+    { label: "Taux d'approbation", value: `${stats.approval_rate ?? 0}%`, icon: TrendingUp, color: colors.purple.primary, bg: colors.purple.bgF5 },
   ]
 
   return (
@@ -483,7 +483,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                           <span style={{ fontSize: '13px', fontWeight: 600, color: colors.violet.primary }}>{(user.full_name || '?')[0].toUpperCase()}</span>
                         </div>
                         <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{user.full_name || '—'}</span>
-                        {user.is_admin && <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: '#FEF3C7', color: colors.feedback.warning.solid, borderRadius: '4px', fontWeight: 600 }}>ADMIN</span>}
+                        {user.is_admin && <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: colors.yellow.bg, color: colors.feedback.warning.solid, borderRadius: '4px', fontWeight: 600 }}>ADMIN</span>}
                       </div>
                     </td>
                     <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>{user.email || '—'}</td>
@@ -552,7 +552,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
   }
 
   const statusInfo: Record<string, { bg: string; color: string; label: string }> = {
-    draft: { bg: '#FEF3C7', color: colors.feedback.warning.solid, label: '⏳ Brouillon' },
+    draft: { bg: colors.yellow.bg, color: colors.feedback.warning.solid, label: '⏳ Brouillon' },
     published: { bg: colors.green.bg, color: colors.green.primary, label: '✓ Publié' },
     closed: { bg: colors.bg.subtle, color: 'var(--text-secondary)', label: '— Fermé' },
   }
@@ -602,7 +602,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
                         {event.end_date ? ` → ${new Date(event.end_date).toLocaleDateString('fr-FR')}` : ''}
                       </span>
                       <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{event.stand_count} stands</span>
-                      <span style={{ fontSize: '11px', color: '#D1D5DB', fontFamily: 'monospace' }}>{event.id.slice(0, 8)}…</span>
+                      <span style={{ fontSize: '11px', color: colors.gray["300"], fontFamily: 'monospace' }}>{event.id.slice(0, 8)}…</span>
                     </div>
                   </div>
                   {event.status === 'draft' && (
@@ -627,7 +627,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
                     <button
                       onClick={() => handleAction(event.id, 'reject')}
                       disabled={busy === event.id}
-                      style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: colors.red.vivid, border: '1px solid #FCA5A5', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: busy === event.id ? 0.6 : 1 }}
+                      style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: colors.red.vivid, border: `1px solid ${colors.red.medium}`, borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, opacity: busy === event.id ? 0.6 : 1 }}
                     >
                       Fermer
                     </button>

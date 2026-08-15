@@ -190,7 +190,7 @@ export default function MessagesClient() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      <div style={{ width: '36px', height: '36px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
@@ -320,7 +320,7 @@ export default function MessagesClient() {
                       <span style={{
                         position: 'absolute', bottom: '-2px', right: '-2px',
                         width: '16px', height: '16px', borderRadius: '50%',
-                        border: '2px solid #FFFFFF',
+                        border: `2px solid ${colors.bg.primary}`,
                         backgroundColor: conv.other.role === 'creator' || conv.other.role === 'artisan' ? colors.violet.primary
                           : conv.other.role === 'organizer' ? colors.feedback.success.solid : 'var(--text-tertiary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -348,7 +348,7 @@ export default function MessagesClient() {
                       <p style={{
                         fontSize: '13px', margin: 0, flex: 1,
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        color: conv.unreadCount > 0 ? '#374151' : 'var(--text-tertiary)',
+                        color: conv.unreadCount > 0 ? colors.gray["700"] : 'var(--text-tertiary)',
                         fontWeight: conv.unreadCount > 0 ? '600' : '400',
                       }}>
                         {conv.lastMessage

@@ -155,7 +155,7 @@ function SearchContent() {
                       {event.cover_image ? (
                         <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <Calendar size={40} color="rgba(255,255,255,0.7)" />
                         </div>
                       )}
@@ -217,7 +217,7 @@ function SearchContent() {
                       {creator.avatar_url ? (
                         <Image src={creator.avatar_url} alt={creator.full_name} fill style={{ objectFit: 'cover' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span style={{ fontSize: '20px', color: colors.bg.primary, fontWeight: '700' }}>{creator.full_name?.charAt(0) || '?'}</span>
                         </div>
                       )}
@@ -249,7 +249,7 @@ function SearchContent() {
         {/* Loading state */}
         {isLoading && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-            <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            <div style={{ width: '36px', height: '36px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
           </div>
         )}
@@ -278,7 +278,7 @@ export default function SearchPageClient() {
   return (
     <Suspense fallback={
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '36px', height: '36px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     }>

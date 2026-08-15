@@ -101,21 +101,21 @@ export default function VerifyClient() {
 
           {/* Status: déjà vérifié */}
           {verifStatus === 'approved' && (
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: colors.green.bg, border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: colors.green.bg, border: `1px solid ${colors.green.bgLight}`, display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: colors.green.bgLight, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <BadgeCheck size={24} color={colors.green.primary} />
               </div>
               <div>
-                <p style={{ fontSize: '16px', fontWeight: 800, color: '#065F46', margin: 0 }}>SIRET vérifié ✓</p>
-                <p style={{ fontSize: '13px', color: '#34D399', margin: '4px 0 0', fontWeight: 600 }}>Votre badge est actif sur votre profil public.</p>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: colors.green.text, margin: 0 }}>SIRET vérifié ✓</p>
+                <p style={{ fontSize: '13px', color: colors.green.light, margin: '4px 0 0', fontWeight: 600 }}>Votre badge est actif sur votre profil public.</p>
               </div>
             </div>
           )}
 
           {/* Status: demande en cours */}
           {verifStatus === 'pending' && !siretVerified && (
-            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ padding: '24px', borderRadius: '16px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.primary}`, display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: colors.yellow.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Loader2 size={24} color={colors.status.pending.dot} />
               </div>
               <div>
@@ -150,7 +150,7 @@ export default function VerifyClient() {
                 maxLength={14}
                 style={{
                   width: '100%', boxSizing: 'border-box', padding: '12px 16px',
-                  borderRadius: '10px', border: `1px solid ${siret.length > 0 && siret.length !== 14 ? '#FCA5A5' : 'var(--border-color)'}`,
+                  borderRadius: '10px', border: `1px solid ${siret.length > 0 && siret.length !== 14 ? colors.red.medium : 'var(--border-color)'}`,
                   fontSize: '16px', fontFamily: 'monospace', letterSpacing: '2px',
                   outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)',
                   marginBottom: '6px',
@@ -162,13 +162,13 @@ export default function VerifyClient() {
               </p>
 
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: '1px solid #FECACA', marginBottom: '16px', fontSize: '13px', color: colors.red.vivid, fontWeight: 600 }}>
+                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: `1px solid ${colors.red.bgCa}`, marginBottom: '16px', fontSize: '13px', color: colors.red.vivid, fontWeight: 600 }}>
                   {error}
                 </div>
               )}
 
               {success && (
-                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: colors.green.bg, border: '1px solid #A7F3D0', marginBottom: '16px', fontSize: '13px', color: colors.green.primary, fontWeight: 600 }}>
+                <div style={{ padding: '12px 16px', borderRadius: '10px', backgroundColor: colors.green.bg, border: `1px solid ${colors.green.bgLight}`, marginBottom: '16px', fontSize: '13px', color: colors.green.primary, fontWeight: 600 }}>
                   Demande envoyée ! Vous recevrez une réponse sous 48h.
                 </div>
               )}

@@ -85,7 +85,7 @@ export function NexTabs<T extends string = string>({
                 color: isActive ? colors.violet.primary : 'var(--text-secondary)',
                 background: 'none',
                 border: 'none',
-                borderBottom: isActive ? '2px solid #6366F1' : '2px solid transparent',
+                borderBottom: isActive ? `2px solid ${colors.violet.primary}` : '2px solid transparent',
                 marginBottom: '-1px',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',

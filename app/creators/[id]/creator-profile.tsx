@@ -391,12 +391,12 @@ export function CreatorProfileClient({ id }: Props) {
       )}
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <div className="bg-[#06060f] relative overflow-hidden">
+      <div className="bg-[${colors.dark.base}] relative overflow-hidden">
         {/* Banner image */}
         {creator.banner_url && (
           <div className="absolute inset-0 z-0">
             <Image src={creator.banner_url} alt={`Bannière de ${creator.full_name}`} fill style={{ objectFit: 'cover', opacity: 0.3 }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/60 to-[#06060f]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[${colors.dark.base}]/60 to-[${colors.dark.base}]" />
           </div>
         )}
         {!creator.banner_url && (
@@ -412,17 +412,17 @@ export function CreatorProfileClient({ id }: Props) {
           <div className="flex flex-col items-center gap-6 text-center">
             {/* Avatar */}
             <div className="relative shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: '#1e1b4b' }}>
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: `${colors.purple.deepDark}` }}>
                 {creator.avatar_url ? (
                   <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-[#111827]">
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.gray.g900 }}>
                     <span className="text-4xl font-bold text-white/80">{creator.full_name?.charAt(0) || '?'}</span>
                   </div>
                 )}
               </div>
               {(creator.siret_verified || creator.insurance_verified) && (
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-emerald-500 border-2 border-[#06060f] flex items-center justify-center">
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-emerald-500 border-2 border-[${colors.dark.base}] flex items-center justify-center">
                   <BadgeCheck size={14} className="text-white" />
                 </div>
               )}
@@ -602,7 +602,7 @@ export function CreatorProfileClient({ id }: Props) {
                             onError={() => setPortfolioImgErrors(prev => new Set([...prev, idx]))}
                           />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <span style={{ fontSize: '28px', opacity: 0.4 }}>🖼️</span>
                           </div>
                         )}
@@ -622,7 +622,7 @@ export function CreatorProfileClient({ id }: Props) {
                     const embed = getVideoEmbed(url)
                     if (!embed) return null
                     return (
-                      <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', aspectRatio: '16/9', backgroundColor: '#000' }}>
+                      <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', aspectRatio: '16/9', backgroundColor: `${colors.text.black}` }}>
                         <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                       </div>
                     )
@@ -747,7 +747,7 @@ export function CreatorProfileClient({ id }: Props) {
           {/* Sidebar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:sticky lg:top-20 h-fit">
-            <div style={{ borderRadius: '20px', border: '2px solid #6366F1', boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: colors.bg.primary, padding: '24px' }}>
+            <div style={{ borderRadius: '20px', border: `2px solid ${colors.violet.primary}`, boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: colors.bg.primary, padding: '24px' }}>
 
               {/* Stats */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '24px' }}>
@@ -784,11 +784,11 @@ export function CreatorProfileClient({ id }: Props) {
               {user && !isOwn && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
                   <button onClick={toggleFollow}
-                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? colors.violet.primary : '#E0E1FF', color: isFollowing ? colors.bg.primary : colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid ${colors.violet.primary}`, backgroundColor: isFollowing ? colors.violet.primary : `${colors.purple.bgE0e1}`, color: isFollowing ? colors.bg.primary : colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
                     {isFollowing ? 'Abonné(e)' : 'S\'abonner'}
                   </button>
                   <button onClick={() => { setShowMsg(true); setSent(false) }}
-                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid ${colors.border.default}`, backgroundColor: '#F5F5FF', color: colors.text.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}>
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid ${colors.border.default}`, backgroundColor: `${colors.purple.bgF5ff}`, color: colors.text.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}>
                     <MessageCircle size={13} /> Message
                   </button>
                 </div>

@@ -453,7 +453,7 @@ const fetchMarketingPlan = async () => {
                           border: 'none',
                           background: 'none',
                           cursor: 'pointer',
-                          color: '#FF6B6B',
+                          color: colors.coral.primary,
                           padding: '4px'
                         }}
                       >
@@ -497,7 +497,7 @@ const fetchMarketingPlan = async () => {
                   onClick={generateRetroPlanning}
                   disabled={!eventDate}
                   title={!eventDate ? 'Date d\'événement non disponible' : 'Générer le rétro-planning depuis la date de l\'événement'}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: eventDate ? colors.violet.primary : '#ccc', color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: eventDate ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: 500 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: eventDate ? colors.violet.primary : `${colors.gray.ccc}`, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: eventDate ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: 500 }}
                 >
                   <Zap size={15} />
                   Générer rétro-planning
@@ -588,7 +588,7 @@ const fetchMarketingPlan = async () => {
                           border: '1px solid var(--border-color)',
                           borderRadius: '8px',
                           padding: '16px',
-                          backgroundColor: item.status === 'completed' ? '#F0FDF4' : colors.bg.primary,
+                          backgroundColor: item.status === 'completed' ? colors.green.bgPale : colors.bg.primary,
                           display: 'flex',
                           gap: '12px',
                           alignItems: 'center'
@@ -622,7 +622,7 @@ const fetchMarketingPlan = async () => {
                             border: 'none',
                             background: 'none',
                             cursor: 'pointer',
-                            color: '#FF6B6B',
+                            color: colors.coral.primary,
                             padding: '4px'
                           }}
                         >

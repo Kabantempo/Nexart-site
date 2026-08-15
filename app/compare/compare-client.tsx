@@ -141,7 +141,7 @@ function CompareContent() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isBest ? colors.green.primary : 'inherit', fontWeight: isBest ? '700' : '400' }}>
                         <Euro size={13} color={isBest ? colors.green.primary : colors.violet.primary} />
                         {fmtPrice(ev.stand_price)}
-                        {isBest && <span style={{ fontSize: '10px', backgroundColor: '#DCFCE7', color: '#15803D', padding: '1px 6px', borderRadius: '9999px', fontWeight: '700' }}>Meilleur prix</span>}
+                        {isBest && <span style={{ fontSize: '10px', backgroundColor: colors.green.bgLight, color: colors.green.textMid, padding: '1px 6px', borderRadius: '9999px', fontWeight: '700' }}>Meilleur prix</span>}
                       </span>
                     </Cell>
                   )
@@ -196,7 +196,7 @@ function CompareContent() {
               <Row label="Accès au profil">
                 {events.map(ev => (
                   <Cell key={ev.id}>
-                    <Link href={`/events/${ev.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: colors.violet.primary, fontWeight: '600', fontSize: '13px', textDecoration: 'none', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E0E7FF', backgroundColor: colors.violet.bg }}>
+                    <Link href={`/events/${ev.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: colors.violet.primary, fontWeight: '600', fontSize: '13px', textDecoration: 'none', padding: '6px 12px', borderRadius: '8px', border: `1px solid ${colors.purple.bgE0}`, backgroundColor: colors.violet.bg }}>
                       <CheckCircle size={12} /> Voir le marché
                     </Link>
                   </Cell>

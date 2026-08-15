@@ -245,11 +245,11 @@ function FormSetup({ fields, onSave, loading }: any) {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            style={{ backgroundColor: colors.violet.bg, border: '1px solid #C7D2FE', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}
+            style={{ backgroundColor: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, borderRadius: '8px', padding: '20px', marginBottom: '24px' }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '12px', alignItems: 'end' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4338CA', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: colors.purple.indigoDark, marginBottom: '6px' }}>
                   Nom du champ
                 </label>
                 <input
@@ -257,23 +257,23 @@ function FormSetup({ fields, onSave, loading }: any) {
                   value={newField.field_label}
                   onChange={(e) => setNewField({ ...newField, field_label: e.target.value })}
                   placeholder="Ex: SIRET, Site web..."
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px 10px', border: `1px solid ${colors.purple.bgLight}`, borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#4338CA', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: colors.purple.indigoDark, marginBottom: '6px' }}>
                   Type
                 </label>
                 <select
                   value={newField.field_type}
                   onChange={(e) => setNewField({ ...newField, field_type: e.target.value })}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #C7D2FE', borderRadius: '6px', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '8px 10px', border: `1px solid ${colors.purple.bgLight}`, borderRadius: '6px', fontSize: '14px' }}
                 >
                   {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 500, color: '#4338CA' }}>Obligatoire</label>
+                <label style={{ fontSize: '12px', fontWeight: 500, color: colors.purple.indigoDark }}>Obligatoire</label>
                 <input
                   type="checkbox"
                   checked={newField.required}
@@ -311,7 +311,7 @@ function FormSetup({ fields, onSave, loading }: any) {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  backgroundColor: field.required ? colors.violet.primary : '#D1D5DB',
+                  backgroundColor: field.required ? colors.violet.primary : colors.gray["300"],
                   flexShrink: 0
                 }} />
                 <div>
@@ -334,7 +334,7 @@ function FormSetup({ fields, onSave, loading }: any) {
                 <button
                   onClick={() => removeField(idx)}
                   title="Supprimer ce champ"
-                  style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: '#FF6B6B', padding: '4px' }}
+                  style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: colors.coral.primary, padding: '4px' }}
                 >
                   <X size={16} />
                 </button>
@@ -375,7 +375,7 @@ function FormSetup({ fields, onSave, loading }: any) {
 // Exhibitors Dashboard Component
 function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange, onStatusChange, onExport }: any) {
   const statusColors: Record<string, string> = {
-    pending: '#FF6B6B',
+    pending: colors.coral.primary,
     approved: colors.green.primary,
     rejected: 'var(--text-tertiary)',
     paid: colors.violet.primary,
@@ -414,7 +414,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
               style={{
                 padding: '8px 16px',
                 borderRadius: '6px',
-                border: filterStatus === status ? '2px solid #6366F1' : `1px solid ${colors.border.default}`,
+                border: filterStatus === status ? `2px solid ${colors.violet.primary}` : `1px solid ${colors.border.default}`,
                 backgroundColor: filterStatus === status ? colors.violet.bg : colors.bg.primary,
                 color: filterStatus === status ? colors.violet.primary : 'var(--text-primary)',
                 cursor: 'pointer',

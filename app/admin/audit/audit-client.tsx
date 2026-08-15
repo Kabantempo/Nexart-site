@@ -23,12 +23,12 @@ type AuditLog = {
 }
 
 const ACTION_COLORS: Record<string, { bg: string; text: string }> = {
-  CREATE: { bg: '#D1FAE5', text: '#065F46' },
-  READ:   { bg: '#DBEAFE', text: '#1E40AF' },
-  UPDATE: { bg: '#FEF3C7', text: colors.red.amber },
-  DELETE: { bg: '#FEE2E2', text: '#991B1B' },
-  EXPORT: { bg: colors.violet.bg, text: '#5B21B6' },
-  DECRYPT:{ bg: '#FCE7F3', text: '#9D174D' },
+  CREATE: { bg: colors.green.bgLight, text: colors.green.text },
+  READ:   { bg: colors.blue.sky, text: colors.blue.indigo },
+  UPDATE: { bg: colors.yellow.bg, text: colors.red.amber },
+  DELETE: { bg: colors.red.bgSoft, text: colors.red.text },
+  EXPORT: { bg: colors.violet.bg, text: colors.purple.darker },
+  DECRYPT:{ bg: colors.red.bgRose, text: colors.red.textDeep },
 }
 
 const PAGE_SIZE = 50
@@ -194,7 +194,7 @@ export default function AuditLogsClient() {
 
         {/* Error */}
         {error && (
-          <div style={{ padding: '12px 16px', background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: '8px', color: '#991B1B', fontSize: '14px', marginBottom: '16px' }}>
+          <div style={{ padding: '12px 16px', background: colors.red.bgSoft, border: `1px solid ${colors.red.bgCa}`, borderRadius: '8px', color: colors.red.text, fontSize: '14px', marginBottom: '16px' }}>
             {error}
           </div>
         )}
@@ -231,7 +231,7 @@ export default function AuditLogsClient() {
                     </td>
                   </tr>
                 ) : logs.map(log => {
-                  const ac = ACTION_COLORS[log.action] || { bg: colors.bg.subtle, text: '#374151' }
+                  const ac = ACTION_COLORS[log.action] || { bg: colors.bg.subtle, text: colors.gray["700"] }
                   return (
                     <tr key={log.id} style={{ borderBottom: `1px solid ${colors.border.default}` }} onMouseEnter={e => (e.currentTarget.style.background = colors.bg.secondary)} onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
                       <td style={{ padding: '10px 16px' }}>

@@ -39,10 +39,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   free:       { label: 'Essentiel',  color: 'var(--text-secondary)',  bg: colors.border.default },
   boost:      { label: 'Boost',      color: colors.violet.primary, bg: 'rgba(99,102,241,0.12)'   },
-  pro:        { label: 'Pro',        color: '#7C3AED', bg: 'rgba(124,58,237,0.12)'   },
+  pro:        { label: 'Pro',        color: colors.purple.dark, bg: 'rgba(124,58,237,0.12)'   },
   premium:    { label: 'Premium',    color: colors.feedback.warning.solid, bg: 'rgba(217,119,6,0.12)'    },
   org_pro:    { label: 'Org Pro',    color: colors.feedback.success.solid, bg: 'rgba(5,150,105,0.12)'    },
-  org_studio: { label: 'Studio',     color: '#E11D48', bg: 'rgba(225,29,72,0.12)'    },
+  org_studio: { label: 'Studio',     color: colors.red.textBright, bg: 'rgba(225,29,72,0.12)'    },
 }
 
 const PROFILE_STEPS = [
@@ -461,7 +461,7 @@ export default function DashboardPage() {
               <ExternalLink size={12} /> {portalLoading ? 'Chargement…' : 'Gérer'}
             </button>
           ) : (
-            <Link href="/offres" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
+            <Link href="/offres" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '0.5px solid ${colors.violet.primary}', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
               Voir les offres <ArrowRight size={12} />
             </Link>
           )}
@@ -472,7 +472,7 @@ export default function DashboardPage() {
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
             <KpiCard label="Candidatures" value={applications.length} color={colors.violet.primary} />
             <KpiCard label="Acceptées" value={acceptedApps.length} color={colors.status.accepted.text} />
-            <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color="#D97706" />
+            <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color={colors.yellow.text} />
             <KpiCard label="Vues profil (30j)" value={profileViewCount} color={colors.violet.primary} />
           </div>
         )}
@@ -486,7 +486,7 @@ export default function DashboardPage() {
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
             <KpiCard label="Événements" value={events.length} color={colors.violet.primary} />
             <KpiCard label="Publiés" value={publishedEvents.length} color={colors.status.accepted.text} />
-            <KpiCard label="En attente" value={pendingApps.length} color="#D97706" />
+            <KpiCard label="En attente" value={pendingApps.length} color={colors.yellow.text} />
             <KpiCard label="Candidatures tardives" value={lateApps.length} color={lateApps.length > 0 ? colors.feedback.danger.solid : colors.text.muted} />
           </div>
         )}
@@ -680,7 +680,7 @@ function CreatorMainContent({
               <span style={{
                 fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '8px',
                 backgroundColor: a.status === 'refunded' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
-                color: a.status === 'refunded' ? '#f87171' : '#4ade80',
+                color: a.status === 'refunded' ? colors.red.soft : colors.green.pale,
               }}>
                 {a.status === 'refunded' ? 'Remboursé' : 'Payé ✓'}
               </span>
@@ -1113,7 +1113,7 @@ function OrganizerMainContent({
                       </span>
                     )}
                     {tab === 'retard' && (
-                      <span style={{ fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: 'rgba(220,38,38,0.2)', color: '#f87171' }}>
+                      <span style={{ fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: 'rgba(220,38,38,0.2)', color: colors.red.soft }}>
                         {daysPending}j
                       </span>
                     )}
@@ -1199,7 +1199,7 @@ function OrganizerMainContent({
                         {event.start_date && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        {ep > 0 && <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: 'rgba(217,119,6,0.15)', color: '#fbbf24' }}>{ep} en attente</span>}
+                        {ep > 0 && <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: 'rgba(217,119,6,0.15)', color: `${colors.yellow.amber}` }}>{ep} en attente</span>}
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 600, padding: '2px 7px', borderRadius: '20px', backgroundColor: statusCfg.bg, color: statusCfg.color }}>
                           <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: statusCfg.dot }} />
                           {statusCfg.label}
@@ -1346,7 +1346,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
           {selectedEventId && (
             <button
               onClick={() => setBulkModal(true)}
-              style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', backgroundColor: 'rgba(99,102,241,0.06)', color: colors.violet.primary, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid ${colors.violet.primary}', backgroundColor: 'rgba(99,102,241,0.06)', color: colors.violet.primary, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
             >
               <MessageSquare size={13} /> Message groupé
             </button>

@@ -71,9 +71,9 @@ function SizePicker({
               onMouseLeave={() => setHover(null)}
               style={{
                 width: '32px', height: '32px', borderRadius: '4px',
-                backgroundColor: isSelected ? colors.violet.primary : isHover ? '#C7D2FE' : colors.border.default,
+                backgroundColor: isSelected ? colors.violet.primary : isHover ? colors.purple.bgLight : colors.border.default,
                 cursor: 'pointer', transition: 'background-color 100ms ease',
-                border: isSelected ? '2px solid #4F46E5' : '2px solid transparent',
+                border: isSelected ? `2px solid ${colors.purple.indigo}` : '2px solid transparent',
               }}
             />
           )
@@ -88,7 +88,7 @@ function SizePicker({
             style={{
               padding: '4px 10px', borderRadius: '6px', border: 'none',
               backgroundColor: selected.col === s.col && selected.row === s.row ? colors.violet.primary : colors.bg.subtle,
-              color: selected.col === s.col && selected.row === s.row ? colors.bg.primary : '#4B5563',
+              color: selected.col === s.col && selected.row === s.row ? colors.bg.primary : colors.gray["600"],
               fontSize: '12px', fontWeight: '600', cursor: 'pointer',
             }}
           >
@@ -150,7 +150,7 @@ function AddModal({
             Annuler
           </button>
           <button onClick={handleSave} disabled={!file || uploading}
-            style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: !file || uploading ? '#A5B4FC' : colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: !file || uploading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: !file || uploading ? colors.purple.bgPale : colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: !file || uploading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Check size={15} /> {uploading ? 'Envoi…' : 'Ajouter'}
           </button>
         </div>
@@ -161,7 +161,7 @@ function AddModal({
         onClick={() => fileRef.current?.click()}
         style={{
           width: '100%', aspectRatio: `${col}/${row}`, maxHeight: '260px',
-          borderRadius: '10px', border: '2px dashed #E5E7EB',
+          borderRadius: '10px', border: `2px dashed ${colors.border.default}`,
           backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', overflow: 'hidden',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: '20px', transition: 'border-color 150ms ease',
@@ -269,7 +269,7 @@ function SortableGridItem({
     overflow: 'hidden',
     cursor: 'pointer',
     position: 'relative',
-    border: isDragging ? '2px solid #6366F1' : '2px solid transparent',
+    border: isDragging ? `2px solid ${colors.violet.primary}` : '2px solid transparent',
     transition: `border-color 150ms ease, ${transition ?? ''}`,
     transform: CSS.Transform.toString(transform),
     opacity: isDragging ? 0.7 : 1,

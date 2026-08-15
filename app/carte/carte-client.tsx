@@ -126,7 +126,7 @@ export default function CarteClient() {
           const count = c.getChildCount()
           return L.divIcon({
             className: '',
-            html: `<div style="width:42px;height:42px;border-radius:50%;background:#6366F1;border:2.5px solid #A5B4FC;box-shadow:0 2px 14px rgba(99,102,241,.5);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff">${count}</div>`,
+            html: `<div style="width:42px;height:42px;border-radius:50%;background:${colors.violet.primary};border:2.5px solid ${colors.purple.bgPale};box-shadow:0 2px 14px rgba(99,102,241,.5);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:${colors.bg.primary}">${count}</div>`,
             iconSize: [42, 42],
             iconAnchor: [21, 42],
           })
@@ -141,8 +141,8 @@ export default function CarteClient() {
         const remaining = event.remaining_spots ?? 0
         const isFull = (event.stand_count || 0) > 0 && remaining === 0
         const isAlmostFull = !isFull && (event.stand_count || 0) > 0 && remaining <= 3
-        const color = isFull ? '#4B5563' : isAlmostFull ? colors.status.pending.dot : colors.violet.primary
-        const border = isFull ? colors.text.muted : isAlmostFull ? '#FCD34D' : '#A5B4FC'
+        const color = isFull ? colors.gray["600"] : isAlmostFull ? colors.status.pending.dot : colors.violet.primary
+        const border = isFull ? colors.text.muted : isAlmostFull ? colors.yellow.primary : colors.purple.bgPale
         const imgHtml = event.cover_image
           ? `<img src="${event.cover_image}" alt="${event.title}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0" />`
           : `<svg style="position:absolute;inset:0;margin:auto" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
@@ -164,7 +164,7 @@ export default function CarteClient() {
       filtered.forEach(event => {
         if (!event.lat || !event.lng || !mapInstanceRef.current) return
         const { map: m, L: Lf } = mapInstanceRef.current
-        const icon = Lf.divIcon({ className: '', html: `<div style="width:36px;height:36px;border-radius:50%;background:#6366F1;border:2.5px solid #A5B4FC;box-shadow:0 2px 10px rgba(99,102,241,.4)"></div>`, iconSize: [36, 36], iconAnchor: [18, 36] })
+        const icon = Lf.divIcon({ className: '', html: `<div style="width:36px;height:36px;border-radius:50%;background:${colors.violet.primary};border:2.5px solid ${colors.purple.bgPale};box-shadow:0 2px 10px rgba(99,102,241,.4)"></div>`, iconSize: [36, 36], iconAnchor: [18, 36] })
         Lf.marker([event.lat, event.lng], { icon }).addTo(m).on('click', () => setSelected(event))
       })
     })
@@ -176,7 +176,7 @@ export default function CarteClient() {
       {/* Header */}
       <div style={{ padding: '12px 20px', backgroundColor: colors.bg.darkAlt, borderBottom: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <MapPin size={16} color="#A5B4FC" />
+          <MapPin size={16} color={colors.purple.bgPale} />
           <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Carte des événements</span>
           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{events.length} événements</span>
         </div>
@@ -184,7 +184,7 @@ export default function CarteClient() {
           <SlidersHorizontal size={13} color="rgba(255,255,255,0.3)" style={{ flexShrink: 0, marginTop: '3px' }} />
           {EVENT_TYPES.map(t => (
             <button key={t.key} onClick={() => setTypeFilter(t.key)}
-              style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', border: typeFilter === t.key ? '1px solid rgba(165,180,252,0.5)' : '1px solid rgba(255,255,255,0.08)', backgroundColor: typeFilter === t.key ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.05)', color: typeFilter === t.key ? '#A5B4FC' : 'rgba(255,255,255,0.5)', transition: 'all .15s' }}>
+              style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', border: typeFilter === t.key ? '1px solid rgba(165,180,252,0.5)' : '1px solid rgba(255,255,255,0.08)', backgroundColor: typeFilter === t.key ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.05)', color: typeFilter === t.key ? colors.purple.bgPale : 'rgba(255,255,255,0.5)', transition: 'all .15s' }}>
               {t.label}
             </button>
           ))}
@@ -216,7 +216,7 @@ export default function CarteClient() {
 
         {/* Popup événement */}
         {selected && (
-          <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', width: 'min(360px, 90vw)', backgroundColor: '#1E1B4B', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.5)', overflow: 'hidden', zIndex: 1000 }}>
+          <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', width: 'min(360px, 90vw)', backgroundColor: colors.purple.deepDark, border: '1px solid rgba(99,102,241,0.3)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.5)', overflow: 'hidden', zIndex: 1000 }}>
             <button onClick={() => setSelected(null)}
               style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.4)', border: 'none', cursor: 'pointer', padding: '5px', borderRadius: '50%', display: 'flex', zIndex: 1 }}>
               <X size={14} color="rgba(255,255,255,0.7)" />
@@ -226,7 +226,7 @@ export default function CarteClient() {
               // eslint-disable-next-line @next/next/no-img-element
               <Image src={selected.cover_image} alt={selected.title} width={560} height={120} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
             ) : (
-              <div style={{ width: '100%', height: '80px', background: 'linear-gradient(135deg,#1E1B4B,#2D1B69)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '100%', height: '80px', background: `linear-gradient(135deg,${colors.purple.deepDark},${colors.purple.bgDeep})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <MapPin size={28} color="rgba(165,180,252,0.3)" />
               </div>
             )}
@@ -252,7 +252,7 @@ export default function CarteClient() {
               </div>
 
               <Link href={`/events/${selected.id}`}
-                style={{ display: 'block', textAlign: 'center', padding: '10px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', color: colors.bg.primary, borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
+                style={{ display: 'block', textAlign: 'center', padding: '10px', background: `linear-gradient(135deg,${colors.violet.primary},${colors.purple.indigo})`, color: colors.bg.primary, borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
                 Voir l&apos;événement →
               </Link>
             </div>
@@ -262,11 +262,11 @@ export default function CarteClient() {
 
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
-        .leaflet-container{background:#0F0C29}
+        .leaflet-container{background:${colors.dark.alt}}
         .leaflet-control-attribution{background:rgba(15,12,41,0.8)!important;color:rgba(255,255,255,0.3)!important}
         .leaflet-control-attribution a{color:rgba(165,180,252,0.5)!important}
-        .leaflet-control-zoom a{background:#1E1B4B!important;color:#A5B4FC!important;border-color:rgba(99,102,241,0.3)!important}
-        .leaflet-control-zoom a:hover{background:#2D1B69!important}
+        .leaflet-control-zoom a{background:${colors.purple.deepDark}!important;color:${colors.purple.bgPale}!important;border-color:rgba(99,102,241,0.3)!important}
+        .leaflet-control-zoom a:hover{background:${colors.purple.bgDeep}!important}
       `}</style>
     </div>
   )

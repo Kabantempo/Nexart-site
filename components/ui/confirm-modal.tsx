@@ -34,17 +34,17 @@ const VARIANT_STYLES: Record<ConfirmVariant, {
   danger: {
     iconBg: colors.red.bg, iconColor: colors.feedback.danger.solid,
     icon: <Trash2 size={22} />,
-    btnBg: colors.feedback.danger.solid, btnHover: '#B91C1C', btnColor: colors.bg.primary,
+    btnBg: colors.feedback.danger.solid, btnHover: colors.red.textB91, btnColor: colors.bg.primary,
   },
   warning: {
-    iconBg: '#FFFBEB', iconColor: colors.feedback.warning.solid,
+    iconBg: colors.red.bgFbeb, iconColor: colors.feedback.warning.solid,
     icon: <AlertTriangle size={22} />,
     btnBg: colors.feedback.warning.solid, btnHover: colors.feedback.warning.text, btnColor: colors.bg.primary,
   },
   default: {
-    iconBg: colors.violet.bg, iconColor: 'var(--color-primary, #6366F1)',
+    iconBg: colors.violet.bg, iconColor: 'var(--color-primary, ${colors.violet.primary})',
     icon: <Info size={22} />,
-    btnBg: 'var(--color-primary, #6366F1)', btnHover: 'var(--color-primary-dark, #5B5BD6)', btnColor: colors.bg.primary,
+    btnBg: `var(--color-primary, ${colors.violet.primary})`, btnHover: `var(--color-primary-dark, ${colors.violet.dark})`, btnColor: colors.bg.primary,
   },
 }
 

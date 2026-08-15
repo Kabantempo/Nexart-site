@@ -102,7 +102,7 @@ type StandPayment = {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  pending:   { label: 'En attente', color: colors.status.pending.dot, bg: '#FFFBEB' },
+  pending:   { label: 'En attente', color: colors.status.pending.dot, bg: colors.red.bgFbeb },
   accepted:  { label: 'Acceptée',   color: colors.green.primary, bg: colors.green.bg },
   refused:   { label: 'Refusée',    color: colors.red.vivid, bg: colors.red.bg },
   draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: colors.bg.subtle },
@@ -502,7 +502,7 @@ export default function AdminPage() {
       <div style={{ borderBottom: '1px solid var(--border-color)', padding: '0 32px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '16px', height: '60px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg,#6366F1,#8B5CF6)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg,${colors.violet.primary},${colors.purple.primary})', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Shield size={16} color={colors.bg.primary} />
             </div>
             <span style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>Nexart Admin</span>
@@ -643,7 +643,7 @@ export default function AdminPage() {
                           <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)' }}>{item.value}</span>
                         </div>
                         <div style={{ height: '5px', borderRadius: '3px', backgroundColor: 'var(--border-color)' }}>
-                          <div style={{ height: '100%', width: `${analytics.applications.total ? (item.value / analytics.applications.total) * 100 : 0}%`, backgroundColor: '#8B5CF6', borderRadius: '3px' }} />
+                          <div style={{ height: '100%', width: `${analytics.applications.total ? (item.value / analytics.applications.total) * 100 : 0}%`, backgroundColor: colors.purple.primary, borderRadius: '3px' }} />
                         </div>
                       </div>
                     ))}
@@ -721,7 +721,7 @@ export default function AdminPage() {
                       <div key={c.user_id} style={{ padding: '18px', borderRadius: '14px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                            <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                               {c.profiles?.avatar_url
                                 ? <Image src={c.profiles.avatar_url} alt="" width={38} height={38} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <User size={16} color={colors.bg.primary} />}
@@ -868,10 +868,10 @@ export default function AdminPage() {
                                 padding: '5px 12px', borderRadius: '8px', border: '1px solid',
                                 borderColor: active ? 'rgba(99,102,241,0.5)' : 'var(--border-color)',
                                 backgroundColor: active ? 'rgba(99,102,241,0.2)' : 'transparent',
-                                color: active ? '#A5B4FC' : colors.text.secondary,
+                                color: active ? colors.purple.bgPale : colors.text.secondary,
                                 fontSize: '12px', fontWeight: '700', cursor: 'pointer',
                               }}>
-                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: active ? colors.violet.hover : '#4B5563', flexShrink: 0 }} />
+                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: active ? colors.violet.hover : colors.gray["600"], flexShrink: 0 }} />
                                 {label}
                               </button>
                             )
@@ -915,7 +915,7 @@ export default function AdminPage() {
                     {list.map(o => (
                       <div key={o.user_id} style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                             {o.profiles?.avatar_url
                               ? <Image src={o.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                               : <User size={16} color={colors.bg.primary} />}
@@ -1013,7 +1013,7 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {siretVerifs.map(v => (
                     <div key={v.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <User size={16} color={colors.bg.primary} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -1067,7 +1067,7 @@ export default function AdminPage() {
             </div>
             {discProposals.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-                <LayoutGrid size={32} color="#374151" style={{ marginBottom: '10px' }} />
+                <LayoutGrid size={32} color={colors.gray["700"]} style={{ marginBottom: '10px' }} />
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune proposition</p>
               </div>
             ) : discProposals.map(p => (
@@ -1106,17 +1106,17 @@ export default function AdminPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', animation: 'fadeIn 0.2s ease' }}>
             {events.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-                <Calendar size={40} color="#374151" style={{ marginBottom: '12px' }} />
+                <Calendar size={40} color={colors.gray["700"]} style={{ marginBottom: '12px' }} />
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun marché créé</p>
               </div>
             ) : events.map(ev => {
               const sc = STATUS_CONFIG[ev.status] ?? STATUS_CONFIG.draft
               return (
                 <div key={ev.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', gap: '14px', alignItems: 'center' }}>
-                  <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: '#1F2937' }}>
+                  <div style={{ width: '52px', height: '52px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, backgroundColor: colors.gray["800"] }}>
                     {ev.cover_image
                       ? <Image src={ev.cover_image} alt="" width={52} height={52} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color="#374151" /></div>
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={20} color={colors.gray["700"]} /></div>
                     }
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -1165,7 +1165,7 @@ export default function AdminPage() {
                 <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Destinataire</label>
                 {msgRecipient ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(99,102,241,0.5)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                       {msgRecipient.avatar_url
                         ? <Image src={msgRecipient.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                         : <span style={{ fontSize: '13px', fontWeight: '800', color: colors.bg.primary }}>{msgRecipient.full_name[0]?.toUpperCase()}</span>
@@ -1191,7 +1191,7 @@ export default function AdminPage() {
                             style={{ width: '100%', padding: '10px 14px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left', color: 'var(--text-primary)' }}
                             onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                               {s.avatar_url
                                 ? <Image src={s.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                                 : <span style={{ fontSize: '12px', fontWeight: '800', color: colors.bg.primary }}>{s.full_name[0]?.toUpperCase()}</span>
@@ -1245,14 +1245,14 @@ export default function AdminPage() {
               </div>
               {adminMessages.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-                  <MessageSquare size={32} color="#374151" style={{ marginBottom: '10px' }} />
+                  <MessageSquare size={32} color={colors.gray["700"]} style={{ marginBottom: '10px' }} />
                   <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun message envoyé</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {adminMessages.map(msg => (
                     <div key={msg.id} style={{ padding: '14px 18px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                         {msg.recipient?.avatar_url
                           ? <Image src={msg.recipient.avatar_url} alt="" width={38} height={38} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                           : <span style={{ fontSize: '14px', fontWeight: '800', color: colors.bg.primary }}>{msg.recipient?.full_name?.[0]?.toUpperCase() ?? '?'}</span>
@@ -1334,12 +1334,12 @@ export default function AdminPage() {
                       : TIERS.filter(t => t.role === 'creator')
                     const currentTier = u.subscription_tier || 'free'
                     const TIER_COLORS: Record<string, string> = {
-                      free: 'var(--text-tertiary)', boost: colors.violet.primary, pro: '#8B5CF6',
-                      premium: '#EC4899', org_pro: '#0EA5E9', org_studio: colors.status.pending.dot,
+                      free: 'var(--text-tertiary)', boost: colors.violet.primary, pro: colors.purple.primary,
+                      premium: colors.fuchsia.primary, org_pro: colors.blue.primary, org_studio: colors.status.pending.dot,
                     }
                     return (
                       <div key={u.id} style={{ padding: '14px 18px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <span style={{ fontSize: '14px', fontWeight: '800', color: colors.bg.primary }}>{u.full_name?.[0]?.toUpperCase()}</span>
                         </div>
                         <div style={{ flex: 1, minWidth: '140px' }}>
@@ -1399,7 +1399,7 @@ export default function AdminPage() {
               </div>
             ) : reports.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-                <AlertTriangle size={36} color="#374151" style={{ marginBottom: '10px' }} />
+                <AlertTriangle size={36} color={colors.gray["700"]} style={{ marginBottom: '10px' }} />
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucun signalement</p>
               </div>
             ) : (
@@ -1424,7 +1424,7 @@ export default function AdminPage() {
                           <button onClick={async () => {
                             await supabase.from('reports').update({ status: 'reviewed' }).eq('id', r.id)
                             setReports(prev => prev.map(x => x.id === r.id ? { ...x, status: 'reviewed' } : x))
-                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.4)', backgroundColor: 'rgba(16,185,129,0.15)', fontSize: '12px', fontWeight: '600', color: '#6EE7B7', cursor: 'pointer' }}>
+                          }} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.4)', backgroundColor: 'rgba(16,185,129,0.15)', fontSize: '12px', fontWeight: '600', color: `${colors.green.emerald}`, cursor: 'pointer' }}>
                             Vu
                           </button>
                           <button onClick={async () => {
@@ -1457,7 +1457,7 @@ export default function AdminPage() {
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
                   {[
-                    { label: 'Encaissé total', value: `${(total / 100).toFixed(2)} €`, color: '#4ade80' },
+                    { label: 'Encaissé total', value: `${(total / 100).toFixed(2)} €`, color: colors.green.pale },
                     { label: 'Commission Nexart (8%)', value: `${(commission / 100).toFixed(2)} €`, color: colors.violet.hover },
                     { label: 'Transactions', value: String(count), color: colors.status.pending.dot },
                   ].map(kpi => (
@@ -1476,7 +1476,7 @@ export default function AdminPage() {
               </div>
             ) : standPayments.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
-                <TrendingUp size={36} color="#374151" style={{ marginBottom: '10px' }} />
+                <TrendingUp size={36} color={colors.gray["700"]} style={{ marginBottom: '10px' }} />
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune transaction pour le moment</p>
               </div>
             ) : (
@@ -1501,7 +1501,7 @@ export default function AdminPage() {
                         <td style={{ padding: '10px 12px', color: 'var(--text-primary)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {(p.event as any)?.title ?? '—'}
                         </td>
-                        <td style={{ padding: '10px 12px', color: '#4ade80', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '10px 12px', color: colors.green.pale, fontWeight: '700', whiteSpace: 'nowrap' }}>
                           {(p.amount_cents / 100).toFixed(2)} €
                         </td>
                         <td style={{ padding: '10px 12px', color: colors.violet.hover, whiteSpace: 'nowrap' }}>
@@ -1511,7 +1511,7 @@ export default function AdminPage() {
                           <span style={{
                             fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '6px',
                             backgroundColor: p.status === 'refunded' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
-                            color: p.status === 'refunded' ? '#f87171' : '#4ade80',
+                            color: p.status === 'refunded' ? colors.red.soft : colors.green.pale,
                           }}>
                             {p.status === 'refunded' ? 'Remboursé' : 'Payé'}
                           </span>
@@ -1622,7 +1622,7 @@ function PdfPreviewTab() {
       label: 'Convocation / Confirmation',
       description: 'Document de confirmation de participation à présenter à l\'entrée. Récapitule les infos créateur, événement, stand et montant réglé.',
       color: colors.feedback.warning.solid,
-      bg: '#FFFBEB',
+      bg: colors.red.bgFbeb,
       icon: '🎟️',
     },
   ]
@@ -1674,7 +1674,7 @@ function PdfPreviewTab() {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '8px',
                   padding: '9px 18px', borderRadius: '8px', border: 'none',
-                  backgroundColor: loading === doc.type || !session ? '#374151' : doc.color,
+                  backgroundColor: loading === doc.type || !session ? colors.gray["700"] : doc.color,
                   color: colors.bg.primary, fontSize: '13px', fontWeight: 600,
                   cursor: loading === doc.type || !session ? 'not-allowed' : 'pointer',
                   width: '100%', justifyContent: 'center',

@@ -171,7 +171,7 @@ export default function CarnetDeRoutePage() {
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-            <div style={{ width: 28, height: 28, border: '3px solid #E5E7EB', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <div style={{ width: 28, height: 28, border: `3px solid ${colors.border.default}`, borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
           </div>
         ) : entries.length === 0 ? (

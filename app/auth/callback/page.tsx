@@ -51,7 +51,7 @@ export default function AuthCallbackPage() {
   }, [router])
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0D0D0D' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: `${colors.dark.near}` }}>
       <div style={{ textAlign: 'center' }}>
         {error ? (
           <>
@@ -63,7 +63,7 @@ export default function AuthCallbackPage() {
           <>
             <div style={{
               width: '48px', height: '48px',
-              border: '3px solid #6366F1', borderTopColor: 'transparent',
+              border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent',
               borderRadius: '50%', animation: 'spin 1s linear infinite',
               margin: '0 auto 24px',
             }} />

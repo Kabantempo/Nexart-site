@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
           height: '630px',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%)',
+          background: `linear-gradient(135deg, ${colors.dark.soft} 0%, ${colors.dark.deep} 50%, ${colors.dark.mid} 100%)`,
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -141,12 +141,12 @@ export async function GET(req: NextRequest) {
             {/* Meta */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
               {dateLabel ? (
-                <span style={{ color: '#94A3B8', fontSize: '20px', fontWeight: 500 }}>
+                <span style={{ color: colors.gray.soft, fontSize: '20px', fontWeight: 500 }}>
                   🗓 {dateLabel}
                 </span>
               ) : null}
               {locationLabel ? (
-                <span style={{ color: '#94A3B8', fontSize: '20px', fontWeight: 500 }}>
+                <span style={{ color: colors.gray.soft, fontSize: '20px', fontWeight: 500 }}>
                   {locationLabel}
                 </span>
               ) : null}
@@ -155,7 +155,7 @@ export async function GET(req: NextRequest) {
 
           {/* Footer */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ color: '#475569', fontSize: '16px' }}>nexart.fr</span>
+            <span style={{ color: colors.gray.slate, fontSize: '16px' }}>nexart.fr</span>
             <div
               style={{
                 background: colors.violet.primary,

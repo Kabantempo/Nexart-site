@@ -114,7 +114,7 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
             </div>
 
             {/* Info Box */}
-            <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
+            <div style={{ backgroundColor: colors.yellow.bg, border: `1px solid ${colors.yellow.primary}`, borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
               <AlertCircle size={20} color={colors.feedback.warning.solid} style={{ flexShrink: 0 }} />
               <div>
                 <p style={{ color: colors.red.amber, fontWeight: 500 }}>Automatisation</p>

@@ -423,7 +423,7 @@ export function NavbarFull() {
                         style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '13px', color: 'var(--text-primary)', minWidth: 0 }}
                       />
                       {searchLoading
-                        ? <div style={{ width: 12, height: 12, border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+                        ? <div style={{ width: 12, height: 12, border: `2px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
                         : <button type="button" onClick={closeSearch} aria-label="Fermer" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--text-secondary)' }}><X size={12} /></button>
                       }
                     </motion.form>
@@ -533,7 +533,7 @@ export function NavbarFull() {
 
                   {/* Credits badge */}
                   {creditBalance !== null && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: `linear-gradient(135deg,${colors.violet.primary},${colors.purple.indigo})`, borderRadius: '20px', padding: '3px 8px 3px 6px', height: '28px' }}>
                       <Zap size={11} color={colors.bg.primary} fill={colors.bg.primary} />
                       <span style={{ fontSize: '12px', fontWeight: 700, color: colors.bg.primary, lineHeight: 1, marginLeft: '2px' }}>{creditBalance}</span>
                       <Link href="/offres#credits-unite" title="Acheter des crédits"
@@ -562,7 +562,7 @@ export function NavbarFull() {
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = colors.bg.subtle}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                     >
-                      <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                      <div style={{ width: 26, height: 26, borderRadius: '50%', background: `linear-gradient(135deg,${colors.violet.primary},${colors.purple.dark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                         {user.avatar_url
                           ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={26} height={26} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                           : <span style={{ fontSize: '9px', fontWeight: 900, color: colors.bg.primary }}>{firstName?.[0]?.toUpperCase() ?? '?'}</span>
@@ -581,7 +581,7 @@ export function NavbarFull() {
                             <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg, color: colors.violet.primary, border: '1px solid rgba(99,102,241,0.3)' }}>Créateur</span>
                           )}
                           {(user.is_organizer || user.role === 'organizer') && (
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(124,58,237,0.15)' : '#F5F3FF', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.3)' }}>Organisateur</span>
+                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(124,58,237,0.15)' : colors.purple.bgF5, color: colors.purple.dark, border: '1px solid rgba(124,58,237,0.3)' }}>Organisateur</span>
                           )}
                           {!user.is_creator && !user.is_organizer && user.role === 'visitor' && (
                             <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>Visiteur</span>
@@ -707,7 +707,7 @@ export function NavbarFull() {
                 {user ? (
                   <>
                     <Link href="/profile" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', textDecoration: 'none' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: `linear-gradient(135deg,${colors.violet.primary},${colors.purple.dark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                         {user.avatar_url
                           ? <Image src={user.avatar_url} alt={user.full_name ?? firstName ?? 'Avatar'} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                           : <span style={{ fontSize: '12px', fontWeight: 900, color: colors.bg.primary }}>{firstName?.[0]?.toUpperCase()}</span>
@@ -743,7 +743,7 @@ export function NavbarFull() {
                     </Link>
                     <button onClick={() => { setMobileOpen(false); handleLogout() }}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '14px', color: 'rgba(255,255,255,0.3)', padding: '8px 0', transition: 'color 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#F87171'}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = colors.red.soft}
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.3)'}
                     >
                       Se déconnecter

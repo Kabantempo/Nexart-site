@@ -66,7 +66,7 @@ function Skeleton({ width, height }: { width?: string | number; height?: string 
         width: width || '100%',
         height: height || 16,
         borderRadius: 8,
-        background: 'linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%)',
+        background: `linear-gradient(90deg, ${colors.gray.g200alt} 25%, ${colors.gray.g200pale} 50%, ${colors.gray.g200alt} 75%)`,
         backgroundSize: '200% 100%',
         animation: 'pulse-skeleton 1.5s infinite',
       }}
@@ -174,7 +174,7 @@ export default function AnalyticsClient() {
       `}</style>
 
       {/* Hero dark */}
-      <div className="bg-[#06060f] relative overflow-hidden">
+      <div className="bg-[${colors.dark.base}] relative overflow-hidden">
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 24px 48px', position: 'relative', zIndex: 10 }}>
           <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 13, marginBottom: 20, textDecoration: 'none' }}>
             <ArrowLeft size={14} /> Retour au dashboard
@@ -199,8 +199,8 @@ export default function AnalyticsClient() {
           {[
             { label: 'Total candidatures', value: kpi.totalApplications, icon: <Users size={18} color={colors.violet.primary} />, color: colors.violet.bg },
             { label: 'Acceptées', value: kpi.accepted, icon: <CheckCircle size={18} color={colors.green.primary} />, color: colors.green.bg },
-            { label: 'Taux d\'acceptation', value: kpi.acceptanceRate, icon: <TrendingUp size={18} color={colors.status.pending.dot} />, color: '#FFFBEB', suffix: '%' },
-            { label: 'Vues profil (30j)', value: kpi.profileViews, icon: <Eye size={18} color="#8B5CF6" />, color: '#F5F3FF' },
+            { label: 'Taux d\'acceptation', value: kpi.acceptanceRate, icon: <TrendingUp size={18} color={colors.status.pending.dot} />, color: colors.red.bgFbeb, suffix: '%' },
+            { label: 'Vues profil (30j)', value: kpi.profileViews, icon: <Eye size={18} color={colors.purple.primary} />, color: colors.purple.bgF5 },
           ].map((card, i) => (
             <motion.div
               key={card.label}
@@ -287,7 +287,7 @@ export default function AnalyticsClient() {
                   ))
                 )}
                 <circle cx={cx} cy={cy} r={36} fill={colors.bg.primary} />
-                <text x={cx} y={cy - 6} textAnchor="middle" fontSize={20} fontWeight={700} fill="#1A1A1A">{totalEvents}</text>
+                <text x={cx} y={cy - 6} textAnchor="middle" fontSize={20} fontWeight={700} fill={colors.text.primary}>{totalEvents}</text>
                 <text x={cx} y={cy + 14} textAnchor="middle" fontSize={10} fill={colors.text.secondary}>événements</text>
               </svg>
             </div>
