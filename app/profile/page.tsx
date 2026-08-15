@@ -1037,7 +1037,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2 flex-wrap mb-3">
                   {(profile?.role === 'creator' || profile?.role === 'artisan' || (profile?.is_creator && profile?.role !== 'organizer')) && (
                     <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
-                      {profile?.role === 'artisan' ? 'Artisan' : 'Créateur'}
+                      Créateur
                     </span>
                   )}
                   {(profile?.role === 'organizer' || profile?.is_organizer) && (
@@ -1627,7 +1627,7 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Créateur</p>
-                        <p className="text-xs text-gray-400">Postulez aux événements en tant qu'artisan</p>
+                        <p className="text-xs text-gray-400">Postulez aux événements en tant que créateur</p>
                       </div>
                       <button
                         onClick={async () => {

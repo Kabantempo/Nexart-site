@@ -23,9 +23,15 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     const locationLabel = [event.city, event.region].filter(Boolean).join(', ')
     const title = locationLabel ? `${event.title} — ${locationLabel}` : event.title
     const description = event.description?.substring(0, 160) || `Marché artisanal${event.city ? ` à ${event.city}` : ''} — Nexart`
+    const dynamicOgUrl = new URL('https://nexart.fr/api/og')
+    dynamicOgUrl.searchParams.set('title', event.title || '')
+    if (event.city) dynamicOgUrl.searchParams.set('city', event.city)
+    if (event.start_date) dynamicOgUrl.searchParams.set('date', event.start_date)
+    if (event.event_type) dynamicOgUrl.searchParams.set('type', event.event_type)
+
     const ogImages = event.cover_image
       ? [{ url: event.cover_image, width: 1200, height: 630, alt: title }]
-      : [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: title }]
+      : [{ url: dynamicOgUrl.toString(), width: 1200, height: 630, alt: title }]
 
     return {
       title,

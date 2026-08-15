@@ -576,7 +576,7 @@ function CreatorMainContent({
   profileViewCount: number
   profileViewDays: { date: string; count: number }[]
 }) {
-  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'messages' | 'paiements'>('candidatures')
+  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'paiements'>('candidatures')
   const [recommended, setRecommended] = useState<(Event & { _score?: number; _reason?: string })[]>([])
   const [paidApps, setPaidApps] = useState<(Application & { event?: Event })[]>([])
   const appliedEventIds = new Set(applications.map(a => a.event_id))
@@ -623,7 +623,6 @@ function CreatorMainContent({
   const tabs = [
     { key: 'candidatures', label: `Candidatures (${applications.length})` },
     { key: 'calendrier', label: 'Calendrier' },
-    { key: 'messages', label: 'Messages' },
     ...(paidCount > 0 ? [{ key: 'paiements', label: `Mes paiements (${paidCount})` }] : []),
   ]
 
@@ -645,15 +644,6 @@ function CreatorMainContent({
       )}
       {tab === 'calendrier' && (
         <CalendarView applications={applications} />
-      )}
-      {tab === 'messages' && (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
-          <MessageSquare size={32} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
-          <p>Vos conversations apparaîtront ici</p>
-          <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-            Ouvrir la messagerie
-          </Link>
-        </div>
       )}
       {tab === 'paiements' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

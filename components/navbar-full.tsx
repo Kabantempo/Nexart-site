@@ -66,6 +66,7 @@ export function NavbarFull() {
   const [searchActiveIdx, setSearchActiveIdx] = useState(-1)
   const [scrolled,        setScrolled]        = useState(false)
   const [creditBalance,   setCreditBalance]   = useState<number | null>(null)
+  const [unreadMessages,  setUnreadMessages]  = useState(0)
 
   const searchDebounce    = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
@@ -117,6 +118,32 @@ export function NavbarFull() {
       const res = await fetch('/api/credits/balance', { headers: { Authorization: `Bearer ${session.access_token}` } })
       if (res.ok) { const j = await res.json(); setCreditBalance(j.balance ?? 0) }
     })
+  }, [user])
+
+  useEffect(() => {
+    if (!user) { setUnreadMessages(0); return }
+    const fetchUnread = async () => {
+      const { data: convs } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`creator_id.eq.${user.id},organizer_id.eq.${user.id}`)
+      const convIds = (convs ?? []).map((c: { id: string }) => c.id)
+      if (!convIds.length) { setUnreadMessages(0); return }
+      const { count } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .neq('sender_id', user.id)
+        .is('read_at', null)
+        .in('conversation_id', convIds)
+      setUnreadMessages(count ?? 0)
+    }
+    fetchUnread()
+    const channel = supabase
+      .channel('navbar-unread')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, fetchUnread)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, fetchUnread)
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [user])
 
   useEffect(() => {
@@ -491,11 +518,16 @@ export function NavbarFull() {
                   >
                     <Heart size={16} />
                   </Link>
-                  <Link href="/messages" aria-label="Mes messages" style={iconBtn}
+                  <Link href="/messages" aria-label={unreadMessages > 0 ? `Mes messages — ${unreadMessages} non lu${unreadMessages > 1 ? 's' : ''}` : 'Mes messages'} style={{ ...iconBtn, position: 'relative' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = hoverBgAlt; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
                   >
                     <MessageCircle size={16} />
+                    {unreadMessages > 0 && (
+                      <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '14px', height: '14px', borderRadius: '7px', backgroundColor: '#E05A5A', color: '#fff', fontSize: '9px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px', lineHeight: 1 }}>
+                        {unreadMessages > 99 ? '99+' : unreadMessages}
+                      </span>
+                    )}
                   </Link>
 
                   {/* Credits badge */}
