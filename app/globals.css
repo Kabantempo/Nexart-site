@@ -13,6 +13,7 @@ body {
 
 /* ── CSS variables — dark par défaut ── */
 :root {
+  --nav-height: 58px;
   --bg-primary: #0F0F0F;
   --bg-secondary: #1A1A1A;
   --bg-tertiary: #111111;
