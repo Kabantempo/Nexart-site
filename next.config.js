@@ -42,12 +42,42 @@ async function headers() {
   ]
 }
 
+// Fixes Next.js 13.5.6 hybrid Pages+App Router chunk resolution:
+// App Router puts shared chunks in server/chunks/XXXX.js but Pages Router
+// webpack-runtime expects them at server/XXXX.js — copy after emit to bridge the gap.
+class CopyServerChunksPlugin {
+  apply(compiler) {
+    compiler.hooks.afterEmit.tapAsync('CopyServerChunksPlugin', (compilation, callback) => {
+      const fs = require('fs')
+      const path = require('path')
+      const chunksDir = path.join(compiler.outputPath, 'chunks')
+      try {
+        if (fs.existsSync(chunksDir)) {
+          for (const file of fs.readdirSync(chunksDir)) {
+            if (/^\d+\.js$/.test(file)) {
+              const dest = path.join(compiler.outputPath, file)
+              if (!fs.existsSync(dest)) {
+                fs.copyFileSync(path.join(chunksDir, file), dest)
+              }
+            }
+          }
+        }
+      } catch (_) {}
+      callback()
+    })
+  }
+}
+
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   experimental: {
     ...(process.env.NODE_ENV === 'production' && { cpus: 1 }),
     workerThreads: false,
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) config.plugins.push(new CopyServerChunksPlugin())
+    return config
   },
   headers,
   images: {
