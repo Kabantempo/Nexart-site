@@ -23,7 +23,7 @@ const roles = [
   {
     value: 'creator',
     label: 'Créateur',
-    description: 'Artisan, designer ou maker',
+    description: 'Artiste, designer, artisan indépendant',
     icon: Palette,
     color: '#6366F1',
     bg: '#EEF2FF',
