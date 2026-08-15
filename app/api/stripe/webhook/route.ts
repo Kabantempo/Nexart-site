@@ -206,6 +206,45 @@ export async function POST(req: NextRequest) {
       break
     }
 
+    // ── Stripe Connect: compte mis à jour ────────────────────────────────────
+    case 'account.updated': {
+      const account = event.data.object as { id: string; charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean }
+      const { data: orgProfile } = await (admin as any)
+        .from('organizer_profiles')
+        .select('user_id, stripe_connect_status, stripe_connect_onboarded_at')
+        .eq('stripe_account_id', account.id)
+        .maybeSingle()
+
+      if (!orgProfile) break
+
+      let newStatus: string
+      if (account.charges_enabled && account.payouts_enabled) {
+        newStatus = 'active'
+      } else if (account.details_submitted) {
+        newStatus = 'restricted'
+      } else {
+        newStatus = 'pending'
+      }
+
+      if (newStatus !== orgProfile.stripe_connect_status) {
+        await (admin as any).from('organizer_profiles').update({
+          stripe_connect_status: newStatus,
+          ...(newStatus === 'active' && !orgProfile.stripe_connect_onboarded_at ? { stripe_connect_onboarded_at: new Date().toISOString() } : {}),
+        }).eq('user_id', orgProfile.user_id)
+
+        if (newStatus === 'active' && orgProfile.stripe_connect_status !== 'active') {
+          await admin.from('notifications').insert({
+            user_id: orgProfile.user_id,
+            type: 'stripe_connect_active',
+            title: '✅ Paiements directs activés',
+            body: 'Votre compte Stripe Connect est validé. Les paiements de stands vous sont maintenant versés directement.',
+            link: '/dashboard',
+          })
+        }
+      }
+      break
+    }
+
     // ── Remboursement stand ───────────────────────────────────────────────────
     case 'charge.refunded': {
       const charge = event.data.object as { payment_intent?: string; id: string }

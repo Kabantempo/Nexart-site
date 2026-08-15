@@ -66,6 +66,15 @@ export async function POST(req: NextRequest) {
     await (admin as any).from('profiles').update({ stripe_customer_id: customerId }).eq('id', user.id)
   }
 
+  // Check if organizer has an active Connect account
+  const { data: orgProfile } = await (admin as any)
+    .from('organizer_profiles')
+    .select('stripe_account_id, stripe_connect_status')
+    .eq('user_id', event.organizer_id)
+    .maybeSingle()
+
+  const hasConnect = orgProfile?.stripe_connect_status === 'active' && orgProfile?.stripe_account_id
+
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     payment_method_types: ['card'],
@@ -89,7 +98,14 @@ export async function POST(req: NextRequest) {
       organizer_id: event.organizer_id,
       amount_cents: String(amountCents),
       commission_cents: String(commissionCents),
+      connect_account_id: hasConnect ? orgProfile.stripe_account_id : '',
     },
+    ...(hasConnect && {
+      payment_intent_data: {
+        application_fee_amount: commissionCents,
+        transfer_data: { destination: orgProfile.stripe_account_id },
+      },
+    }),
     success_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://nexart.fr'}/events/${app.event_id}?payment=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://nexart.fr'}/events/${app.event_id}?payment=cancelled`,
   })
