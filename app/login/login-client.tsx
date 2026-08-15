@@ -7,6 +7,7 @@ import { Mail, Lock, ArrowRight, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 function GoogleIcon() {
   return (
@@ -206,7 +207,7 @@ export default function LoginPage() {
             </h1>
             <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
               Pas encore de compte ?{' '}
-              <Link href="/register" style={{ color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
+              <Link href="/register" style={{ color: colors.violet.primary, fontWeight: '600', textDecoration: 'none' }}>
                 S'inscrire gratuitement
               </Link>
             </p>
@@ -220,13 +221,13 @@ export default function LoginPage() {
               width: '100%', padding: '13px 16px', borderRadius: '10px',
               backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
               fontSize: '15px', fontWeight: '600',
-              border: '1.5px solid #E2E8F0', cursor: 'pointer',
+              border: `1.5px solid ${colors.border.default}`, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
               marginBottom: '24px', transition: 'all 200ms ease',
               boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.border.strong; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.border.default; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)' }}
           >
             <GoogleIcon />
             Continuer avec Google
@@ -247,8 +248,8 @@ export default function LoginPage() {
               animate={{ opacity: 1, y: 0 }}
               style={{
                 padding: '12px 16px', borderRadius: '10px',
-                backgroundColor: '#FFF1F2', border: '1px solid #FECDD3',
-                color: '#BE123C', fontSize: '14px', marginBottom: '20px',
+                backgroundColor: colors.feedback.danger.bg, border: `1px solid ${colors.feedback.danger.border}`,
+                color: colors.feedback.danger.text, fontSize: '14px', marginBottom: '20px',
                 display: 'flex', alignItems: 'center', gap: '8px',
               }}
             >
@@ -262,7 +263,7 @@ export default function LoginPage() {
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
+                <Mail size={16} color={focused === 'email' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
                   id="login-email"
                   type="email"
@@ -275,7 +276,7 @@ export default function LoginPage() {
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'email' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
+                    border: focused === 'email' ? '1.5px solid #6366F1' : `1.5px solid ${colors.border.default}`,
                     backgroundColor: focused === 'email' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'email' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
@@ -289,12 +290,12 @@ export default function LoginPage() {
                 <label htmlFor="login-password" style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
                   Mot de passe
                 </label>
-                <Link href="/forgot-password" style={{ fontSize: '13px', color: '#6366F1', fontWeight: '500', textDecoration: 'none' }}>
+                <Link href="/forgot-password" style={{ fontSize: '13px', color: colors.violet.primary, fontWeight: '500', textDecoration: 'none' }}>
                   Mot de passe oublié ?
                 </Link>
               </div>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
+                <Lock size={16} color={focused === 'password' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} />
                 <input
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
@@ -308,7 +309,7 @@ export default function LoginPage() {
                   style={{
                     width: '100%', padding: '13px 42px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'password' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
+                    border: focused === 'password' ? '1.5px solid #6366F1' : `1.5px solid ${colors.border.default}`,
                     backgroundColor: focused === 'password' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'password' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
@@ -330,14 +331,14 @@ export default function LoginPage() {
               style={{
                 width: '100%', padding: '14px 16px', marginTop: '4px',
                 borderRadius: '10px',
-                background: loading ? '#A5B4FC' : 'linear-gradient(135deg, #6366F1, #4F46E5)',
+                background: loading ? colors.violet.hover : `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.dark})`,
                 color: '#FFFFFF', fontSize: '15px', fontWeight: '700',
                 border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'all 200ms ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                boxShadow: loading ? 'none' : '0 4px 14px rgba(99,102,241,0.4)',
+                boxShadow: loading ? 'none' : `0 4px 14px ${colors.violet.ring}`,
               }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.boxShadow = '0 6px 20px rgba(99,102,241,0.5)' }}
-              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.boxShadow = '0 4px 14px rgba(99,102,241,0.4)' }}
+              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.boxShadow = `0 6px 20px ${colors.violet.ring}` }}
+              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.boxShadow = `0 4px 14px ${colors.violet.ring}` }}
             >
               {loading ? 'Connexion…' : (<>Se connecter <ArrowRight size={16} /></>)}
             </button>
@@ -345,9 +346,9 @@ export default function LoginPage() {
 
           <p style={{ marginTop: '32px', fontSize: '13px', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: '1.6' }}>
             En vous connectant, vous acceptez nos{' '}
-            <Link href="/legal/terms" style={{ color: '#6366F1', textDecoration: 'none' }}>CGU</Link>
+            <Link href="/legal/terms" style={{ color: colors.violet.primary, textDecoration: 'none' }}>CGU</Link>
             {' '}et notre{' '}
-            <Link href="/legal/privacy" style={{ color: '#6366F1', textDecoration: 'none' }}>politique de confidentialité</Link>.
+            <Link href="/legal/privacy" style={{ color: colors.violet.primary, textDecoration: 'none' }}>politique de confidentialité</Link>.
           </p>
         </motion.div>
       </div>
