@@ -21,6 +21,7 @@ import { NexTabs } from '@/components/ui/nex-tabs'
 const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m => ({ default: m.CreditsWidget })), { ssr: false })
 const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
 import { useCountUp } from '@/lib/hooks/use-count-up'
+import StripeConnectBanner, { StripeConnectAlert } from '@/components/ui/stripe-connect-banner'
 
 function AnimatedNumber({ value }: { value: number }) {
   const animated = useCountUp(value)
@@ -107,12 +108,16 @@ export default function DashboardPage() {
   const [paymentBanner, setPaymentBanner] = useState<'success' | 'cancelled' | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [dashTab, setDashTab] = useState<'creator' | 'organizer'>('creator')
+  const [accessToken, setAccessToken] = useState<string>('')
+  const [connectAlertParams, setConnectAlertParams] = useState<URLSearchParams | null>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     const p = new URLSearchParams(window.location.search).get('payment')
     if (p === 'success') { setPaymentBanner('success'); window.history.replaceState({}, '', '/dashboard') }
     if (p === 'cancelled') { setPaymentBanner('cancelled'); window.history.replaceState({}, '', '/dashboard') }
+    const sp = new URLSearchParams(window.location.search)
+    if (sp.get('stripe_connect')) { setConnectAlertParams(sp); window.history.replaceState({}, '', '/dashboard') }
   }, [])
 
   useEffect(() => {
@@ -122,6 +127,7 @@ export default function DashboardPage() {
       if (profile) {
         if (profile.is_banned) { await supabase.auth.signOut(); router.push('/banned'); return }
         setUser({ id: profile.id, email: session.user.email || '', role: profile.role, full_name: profile.full_name, avatar_url: profile.avatar_url, is_creator: profile.is_creator, is_organizer: profile.is_organizer, is_admin: profile.is_admin })
+        setAccessToken(session.access_token)
         if (!profile.onboarding_done) { router.push('/onboarding'); return }
         setSubscriptionTier((profile as any).subscription_tier ?? 'free')
         setSubscriptionStatus((profile as any).subscription_status ?? null)
@@ -467,6 +473,12 @@ export default function DashboardPage() {
             <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color="#D97706" />
             <KpiCard label="Vues profil (30j)" value={profileViewCount} color="#6366F1" />
           </div>
+        )}
+        {!loading && dashTab === 'organizer' && hasOrganizer && (
+          <>
+            {connectAlertParams && <StripeConnectAlert searchParams={connectAlertParams} />}
+            {accessToken && <StripeConnectBanner token={accessToken} />}
+          </>
         )}
         {!loading && dashTab === 'organizer' && hasOrganizer && (
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
