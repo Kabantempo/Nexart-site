@@ -70,6 +70,12 @@ class CopyServerChunksPlugin {
 
 const nextConfig = {
   output: 'standalone',
+  async redirects() {
+    return [
+      { source: '/blog', destination: '/', permanent: true },
+      { source: '/blog/:path*', destination: '/', permanent: true },
+    ]
+  },
   poweredByHeader: false,
   experimental: {
     ...(process.env.NODE_ENV === 'production' && { cpus: 1 }),
