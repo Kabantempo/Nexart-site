@@ -22,6 +22,7 @@ const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m
 const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
 import { useCountUp } from '@/lib/hooks/use-count-up'
 import StripeConnectBanner, { StripeConnectAlert } from '@/components/ui/stripe-connect-banner'
+import { colors } from '@/lib/design-tokens'
 
 function AnimatedNumber({ value }: { value: number }) {
   const animated = useCountUp(value)
@@ -29,17 +30,17 @@ function AnimatedNumber({ value }: { value: number }) {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-  pending:  { label: 'En attente', color: '#D97706', bg: 'rgba(217,119,6,0.12)', dot: '#D97706' },
-  accepted: { label: 'Acceptée',   color: '#16A34A', bg: 'rgba(22,163,74,0.12)', dot: '#16A34A' },
-  refused:  { label: 'Refusée',    color: '#DC2626', bg: 'rgba(220,38,38,0.12)', dot: '#DC2626' },
+  pending:  { label: 'En attente', color: colors.status.pending.text,  bg: colors.status.pending.bg,  dot: colors.status.pending.dot  },
+  accepted: { label: 'Acceptée',   color: colors.status.accepted.text, bg: colors.status.accepted.bg, dot: colors.status.accepted.dot },
+  refused:  { label: 'Refusée',    color: colors.status.refused.text,  bg: colors.status.refused.bg,  dot: colors.status.refused.dot  },
 }
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  free:       { label: 'Essentiel',  color: 'var(--text-secondary)',  bg: '#E5E7EB' },
-  boost:      { label: 'Boost',      color: '#6366F1', bg: 'rgba(99,102,241,0.12)'   },
+  free:       { label: 'Essentiel',  color: 'var(--text-secondary)',  bg: colors.border.default },
+  boost:      { label: 'Boost',      color: colors.violet.primary, bg: 'rgba(99,102,241,0.12)'   },
   pro:        { label: 'Pro',        color: '#7C3AED', bg: 'rgba(124,58,237,0.12)'   },
-  premium:    { label: 'Premium',    color: '#D97706', bg: 'rgba(217,119,6,0.12)'    },
-  org_pro:    { label: 'Org Pro',    color: '#059669', bg: 'rgba(5,150,105,0.12)'    },
+  premium:    { label: 'Premium',    color: colors.feedback.warning.solid, bg: 'rgba(217,119,6,0.12)'    },
+  org_pro:    { label: 'Org Pro',    color: colors.feedback.success.solid, bg: 'rgba(5,150,105,0.12)'    },
   org_studio: { label: 'Studio',     color: '#E11D48', bg: 'rgba(225,29,72,0.12)'    },
 }
 
@@ -350,26 +351,26 @@ export default function DashboardPage() {
 
       {/* Payment banners */}
       {paymentBanner === 'success' && (
-        <div style={{ backgroundColor: '#059669', color: '#fff', fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <div style={{ backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <CheckCircle size={15} /> Abonnement activé — bienvenue dans la nouvelle dimension Nexart !
           <button onClick={() => setPaymentBanner(null)} style={{ marginLeft: '8px', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><X size={13} /></button>
         </div>
       )}
       {paymentBanner === 'cancelled' && (
-        <div style={{ backgroundColor: '#D97706', color: '#fff', fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <div style={{ backgroundColor: colors.feedback.warning.solid, color: '#fff', fontSize: '13px', fontWeight: 600, textAlign: 'center', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           Paiement annulé — votre abonnement n&apos;a pas été modifié.
           <button onClick={() => setPaymentBanner(null)} style={{ marginLeft: '8px', opacity: 0.7, background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}><X size={13} /></button>
         </div>
       )}
 
       {/* Header */}
-      <div style={{ borderBottom: '1px solid #E5E7EB', padding: '20px 0' }}>
+      <div style={{ borderBottom: `1px solid ${colors.border.default}`, padding: '20px 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h1 style={{ fontSize: '20px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{greeting}, {firstName}</h1>
-              <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', flexShrink: 0 }}>{roleLabel}</span>
+              <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: '#fff', flexShrink: 0 }}>{roleLabel}</span>
               {isPaid && (
                 <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color, flexShrink: 0 }}>
                   <Zap size={9} style={{ display: 'inline', marginRight: '3px', verticalAlign: 'middle' }} />{tierCfg.label}
@@ -378,20 +379,20 @@ export default function DashboardPage() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+            <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', textDecoration: 'none' }}>
               <Bell size={16} />
             </Link>
             {hasCreator && (
-              <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
                 Voir les marchés <ArrowRight size={13} />
               </Link>
             )}
             {hasOrganizer && !hasCreator && (
-              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
                 <Plus size={13} /> Créer un événement
               </Link>
             )}
-            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
+            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
               <LogOut size={13} /> Déconnexion
             </button>
           </div>
@@ -421,29 +422,29 @@ export default function DashboardPage() {
             <div style={{ padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <AlertCircle size={15} color="#6366F1" />
+                  <AlertCircle size={15} color={colors.violet.primary} />
                   <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Profil incomplet — {profilePct}%</span>
                   <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Étape suivante : {firstMissingStep.label}</span>
                 </div>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#6366F1' }}>Compléter →</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: colors.violet.primary }}>Compléter →</span>
               </div>
               <div style={{ height: '3px', borderRadius: '4px', backgroundColor: 'rgba(99,102,241,0.2)', overflow: 'hidden', marginTop: '10px' }}>
-                <div style={{ height: '100%', borderRadius: '4px', backgroundColor: '#6366F1', width: `${profilePct}%`, transition: 'width 0.5s ease' }} />
+                <div style={{ height: '100%', borderRadius: '4px', backgroundColor: colors.violet.primary, width: `${profilePct}%`, transition: 'width 0.5s ease' }} />
               </div>
             </div>
           </Link>
         )}
 
         {/* Billing card */}
-        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`, backgroundColor: isPaid ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : colors.border.default}`, backgroundColor: isPaid ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isPaid ? 'rgba(99,102,241,0.25)' : 'var(--bg-secondary)', flexShrink: 0 }}>
-            <CreditCard size={16} color={isPaid ? '#6366F1' : '#9CA3AF'} />
+            <CreditCard size={16} color={isPaid ? colors.violet.primary : colors.text.muted} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Abonnement</span>
               <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 7px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color }}>{tierCfg.label}</span>
-              {subscriptionStatus === 'active' && <span style={{ fontSize: '11px', color: '#16A34A', fontWeight: 600 }}>Actif</span>}
+              {subscriptionStatus === 'active' && <span style={{ fontSize: '11px', color: colors.status.accepted.text, fontWeight: 600 }}>Actif</span>}
             </div>
             {isPaid && subscriptionEndsAt ? (
               <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
@@ -455,11 +456,11 @@ export default function DashboardPage() {
           </div>
           {isPaid ? (
             <button onClick={handleOpenPortal} disabled={portalLoading}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: portalLoading ? 0.6 : 1, flexShrink: 0 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: portalLoading ? 0.6 : 1, flexShrink: 0 }}>
               <ExternalLink size={12} /> {portalLoading ? 'Chargement…' : 'Gérer'}
             </button>
           ) : (
-            <Link href="/offres" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', color: '#6366F1', fontSize: '12px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
+            <Link href="/offres" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
               Voir les offres <ArrowRight size={12} />
             </Link>
           )}
@@ -468,10 +469,10 @@ export default function DashboardPage() {
         {/* KPI row — per tab */}
         {!loading && dashTab === 'creator' && hasCreator && (
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
-            <KpiCard label="Candidatures" value={applications.length} color="#6366F1" />
-            <KpiCard label="Acceptées" value={acceptedApps.length} color="#16A34A" />
+            <KpiCard label="Candidatures" value={applications.length} color={colors.violet.primary} />
+            <KpiCard label="Acceptées" value={acceptedApps.length} color={colors.status.accepted.text} />
             <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color="#D97706" />
-            <KpiCard label="Vues profil (30j)" value={profileViewCount} color="#6366F1" />
+            <KpiCard label="Vues profil (30j)" value={profileViewCount} color={colors.violet.primary} />
           </div>
         )}
         {!loading && dashTab === 'organizer' && hasOrganizer && (
@@ -482,10 +483,10 @@ export default function DashboardPage() {
         )}
         {!loading && dashTab === 'organizer' && hasOrganizer && (
           <div className="kpi-grid" style={{ marginBottom: '20px' }}>
-            <KpiCard label="Événements" value={events.length} color="#6366F1" />
-            <KpiCard label="Publiés" value={publishedEvents.length} color="#16A34A" />
+            <KpiCard label="Événements" value={events.length} color={colors.violet.primary} />
+            <KpiCard label="Publiés" value={publishedEvents.length} color={colors.status.accepted.text} />
             <KpiCard label="En attente" value={pendingApps.length} color="#D97706" />
-            <KpiCard label="Candidatures tardives" value={lateApps.length} color={lateApps.length > 0 ? '#DC2626' : '#9CA3AF'} />
+            <KpiCard label="Candidatures tardives" value={lateApps.length} color={lateApps.length > 0 ? colors.feedback.danger.solid : colors.text.muted} />
           </div>
         )}
         {loading && <KpiRowSkeleton />}
@@ -665,7 +666,7 @@ function CreatorMainContent({
               <p>Aucun paiement de stand pour le moment</p>
             </div>
           ) : paidApps.map(a => (
-            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
+            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {a.event?.title ?? 'Événement'}
@@ -703,11 +704,11 @@ function CreatorMainContent({
               <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Pour vous</h2>
               <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Sélectionnés selon vos disciplines</p>
             </div>
-            <Link href="/events" style={{ fontSize: '12px', fontWeight: 600, color: '#6366F1', textDecoration: 'none' }}>Voir tout →</Link>
+            <Link href="/events" style={{ fontSize: '12px', fontWeight: 600, color: colors.violet.primary, textDecoration: 'none' }}>Voir tout →</Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recommended.map(ev => (
-              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
+              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
@@ -715,10 +716,10 @@ function CreatorMainContent({
                     {ev.city ? ` · ${ev.city}` : ''}
                   </p>
                 </div>
-                <span style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: 'rgba(99,102,241,0.15)', color: '#6366F1', flexShrink: 0 }}>
+                <span style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: 'rgba(99,102,241,0.15)', color: colors.violet.primary, flexShrink: 0 }}>
                   {(ev as any)._reason ?? 'Recommandé'}
                 </span>
-                <ArrowRight size={13} color="#6366F1" style={{ flexShrink: 0 }} />
+                <ArrowRight size={13} color={colors.violet.primary} style={{ flexShrink: 0 }} />
               </Link>
             ))}
           </div>
@@ -737,7 +738,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
         <Calendar size={36} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
         <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Aucune candidature pour le moment</p>
         <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 16px' }}>Explorez les événements disponibles et postulez</p>
-        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
           Voir les événements <ArrowRight size={13} />
         </Link>
       </div>
@@ -751,7 +752,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
         const sc = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
         const isBoosted = (app as any).boosted_at && new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000) > new Date()
         return (
-          <div key={app.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : '#E5E7EB'}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)' }}>
+          <div key={app.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : colors.border.default}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)' }}>
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -762,7 +763,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
                 {app.event?.city ? ` · ${app.event.city}` : ''}
               </p>
               {isBoosted && (
-                <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', marginTop: '4px', cursor: 'help' }}>
+                <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: '#fff', marginTop: '4px', cursor: 'help' }}>
                   <Zap size={9} fill="white" /> Boosté
                 </span>
               )}
@@ -777,7 +778,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
                 />
               )}
               {app.event && (
-                <Link href={`/events/${app.event_id}`} style={{ color: '#6366F1', fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <Link href={`/events/${app.event_id}`} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
                   Voir <ArrowRight size={11} />
                 </Link>
               )}
@@ -821,9 +822,9 @@ function CalendarView({ applications }: { applications: (Application & { event?:
               const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const d = new Date(app.event!.start_date)
               return (
-                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
+                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
                   <div style={{ width: '40px', flexShrink: 0, textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.15)', borderRadius: '8px', padding: '6px' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 800, color: '#6366F1', lineHeight: 1 }}>{d.getDate()}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: colors.violet.primary, lineHeight: 1 }}>{d.getDate()}</div>
                     <div style={{ fontSize: '9px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'capitalize' }}>{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -862,8 +863,8 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
         <SidebarCard title="Actions rapides">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
             {QUICK_ACTIONS.map(a => (
-              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
-                <span style={{ color: '#6366F1' }}>{a.icon}</span>
+              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+                <span style={{ color: colors.violet.primary }}>{a.icon}</span>
                 {a.label}
               </Link>
             ))}
@@ -1043,7 +1044,7 @@ function OrganizerMainContent({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {pendingReviews.slice(0, 3).map(r => (
               <div key={`${r.eventId}:${r.creatorId}`} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#6366F1', flexShrink: 0, overflow: 'hidden' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                   {r.creatorAvatar ? <Image src={r.creatorAvatar} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : r.creatorName[0]}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -1051,7 +1052,7 @@ function OrganizerMainContent({
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.eventTitle}</p>
                 </div>
                 <button onClick={() => { setReviewModal(r); setReviewRating(0); setReviewComment('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', backgroundColor: '#6366F1', color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                   <Star size={11} /> Noter
                 </button>
               </div>
@@ -1075,7 +1076,7 @@ function OrganizerMainContent({
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
           <MessageSquare size={32} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
           <p>Ouvrez la messagerie pour communiquer avec vos exposants</p>
-          <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+          <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
             Messagerie
           </Link>
         </div>
@@ -1091,8 +1092,8 @@ function OrganizerMainContent({
             const daysPending = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (24 * 60 * 60 * 1000))
             return (
               <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#6366F1', flexShrink: 0, overflow: 'hidden' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : colors.border.default}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                   {app.profiles?.avatar_url
                     ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                     : (app.profiles?.full_name?.[0] || '?')}
@@ -1103,7 +1104,7 @@ function OrganizerMainContent({
                       {app.profiles?.full_name || 'Créateur'}
                     </Link>
                     {isBoosted && (
-                      <span title="Ce créateur a boosté sa candidature — il est remonté en haut de votre liste" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: '#6366F1', color: '#fff', cursor: 'help' }}>
+                      <span title="Ce créateur a boosté sa candidature — il est remonté en haut de votre liste" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: '#fff', cursor: 'help' }}>
                         <Zap size={8} fill="white" /> Boosté
                       </span>
                     )}
@@ -1118,11 +1119,11 @@ function OrganizerMainContent({
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => handleStatus(app.id, 'accepted', ev?.title, app.creator_id)} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', backgroundColor: '#059669', color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                    style={{ padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
                     Accepter
                   </button>
                   <button onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: '#DC2626', fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                    style={{ padding: '5px 10px', borderRadius: '7px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: colors.feedback.danger.solid, fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
                     Refuser
                   </button>
                 </div>
@@ -1130,7 +1131,7 @@ function OrganizerMainContent({
             )
           })}
           {pendingApps.length > 10 && tab !== 'retard' && (
-            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', color: '#6366F1', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
               Tout voir ({pendingApps.length}) →
             </Link>
           )}
@@ -1144,7 +1145,7 @@ function OrganizerMainContent({
             <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Outils événement</h2>
             {events.length > 1 && (
               <select value={selectedEventId} onChange={e => setSelectedEventId(e.target.value)}
-                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>
                 {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
               </select>
             )}
@@ -1160,8 +1161,8 @@ function OrganizerMainContent({
               { href: `/events/${selectedEventId}/analytics`,  icon: <BarChart2 size={16} />,    label: 'Analytics', sub: '' },
               { href: `/api/events/${selectedEventId}/exhibitors/export`, icon: <ArrowRight size={16} />, label: 'Export CSV', sub: '', target: '_blank' },
             ].map(tool => (
-              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
-                <span style={{ color: '#6366F1' }}>{tool.icon}</span>
+              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+                <span style={{ color: colors.violet.primary }}>{tool.icon}</span>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>{tool.label}</span>
                 {tool.sub && <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{tool.sub}</span>}
               </Link>
@@ -1172,7 +1173,7 @@ function OrganizerMainContent({
           <div style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
               <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Mes événements</h2>
-              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/events/create" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
                 <Plus size={12} /> Créer
               </Link>
             </div>
@@ -1182,13 +1183,13 @@ function OrganizerMainContent({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {events.slice(0, 5).map(event => {
                   const statusCfg = {
-                    published: { label: 'Publié', color: '#16A34A', bg: 'rgba(22,163,74,0.12)', dot: '#16A34A' },
-                    draft: { label: 'Brouillon', color: '#D97706', bg: 'rgba(217,119,6,0.12)', dot: '#D97706' },
+                    published: { label: 'Publié', color: colors.status.accepted.text, bg: 'rgba(22,163,74,0.12)', dot: colors.status.accepted.text },
+                    draft: { label: 'Brouillon', color: colors.feedback.warning.solid, bg: 'rgba(217,119,6,0.12)', dot: colors.feedback.warning.solid },
                     closed: { label: 'Fermé', color: 'var(--text-secondary)', bg: 'var(--bg-secondary)', dot: 'var(--border-color)' },
-                  }[event.status] ?? { label: event.status, color: 'var(--text-secondary)', bg: '#F9FAFB', dot: '#9CA3AF' }
+                  }[event.status] ?? { label: event.status, color: 'var(--text-secondary)', bg: colors.bg.secondary, dot: colors.text.muted }
                   const ep = pendingApps.filter(a => a.event_id === event.id).length
                   return (
-                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
+                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
                         {event.start_date && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
@@ -1204,7 +1205,7 @@ function OrganizerMainContent({
                   )
                 })}
                 {events.length > 5 && (
-                  <Link href="/events" style={{ display: 'block', textAlign: 'center', padding: '8px', color: '#6366F1', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+                  <Link href="/events" style={{ display: 'block', textAlign: 'center', padding: '8px', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
                     Voir tous ({events.length})
                   </Link>
                 )}
@@ -1225,7 +1226,7 @@ function OrganizerMainContent({
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
             <button onClick={confirmRefuse} disabled={!refuseModal || updatingId === refuseModal.appId}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#DC2626', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: refuseModal && updatingId === refuseModal.appId ? 0.5 : 1 }}>
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.feedback.danger.solid, color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: refuseModal && updatingId === refuseModal.appId ? 0.5 : 1 }}>
               Confirmer
             </button>
           </div>
@@ -1252,7 +1253,7 @@ function OrganizerMainContent({
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={() => { setReviewModal(null); setReviewRating(0); setReviewComment('') }} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
             <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
               {reviewSubmitting ? 'Envoi…' : 'Publier'}
             </button>
           </div>
@@ -1261,7 +1262,7 @@ function OrganizerMainContent({
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
           {[1,2,3,4,5].map(n => (
             <button key={n} onClick={() => setReviewRating(n)} aria-label={`${n} étoile${n > 1 ? 's' : ''}`} aria-pressed={n <= reviewRating} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-              <Star size={26} fill={n <= reviewRating ? '#F59E0B' : 'none'} color={n <= reviewRating ? '#F59E0B' : 'var(--border-color)'} aria-hidden="true" />
+              <Star size={26} fill={n <= reviewRating ? colors.status.pending.dot : 'none'} color={n <= reviewRating ? colors.status.pending.dot : 'var(--border-color)'} aria-hidden="true" />
             </button>
           ))}
         </div>
@@ -1332,8 +1333,8 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
         <SidebarCard title="Actions rapides">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
             {QUICK_ACTIONS.map(a => (
-              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
-                <span style={{ color: '#6366F1' }}>{a.icon}</span>
+              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+                <span style={{ color: colors.violet.primary }}>{a.icon}</span>
                 {a.label}
               </Link>
             ))}
@@ -1341,7 +1342,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
           {selectedEventId && (
             <button
               onClick={() => setBulkModal(true)}
-              style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', backgroundColor: 'rgba(99,102,241,0.06)', color: '#6366F1', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid #6366F1', backgroundColor: 'rgba(99,102,241,0.06)', color: colors.violet.primary, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
             >
               <MessageSquare size={13} /> Message groupé
             </button>
@@ -1362,7 +1363,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
               </div>
             ))}
           </div>
-          <Link href={`/events/${selectedEventId}/settings/checklist`} style={{ display: 'inline-block', marginTop: '10px', fontSize: '11px', color: '#6366F1', fontWeight: 600, textDecoration: 'none' }}>
+          <Link href={`/events/${selectedEventId}/settings/checklist`} style={{ display: 'inline-block', marginTop: '10px', fontSize: '11px', color: colors.violet.primary, fontWeight: 600, textDecoration: 'none' }}>
             Tout voir →
           </Link>
         </SidebarCard>
@@ -1393,14 +1394,14 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
           <button
             onClick={handleBulkSend}
             disabled={bulkSending || !bulkSubject.trim() || !bulkMessage.trim()}
-            style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
+            style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
           >
             {bulkSending ? 'Envoi en cours…' : 'Envoyer à tous les créateurs acceptés'}
           </button>
         ) : undefined}
       >
         {bulkDone ? (
-          <p style={{ textAlign: 'center', color: '#16A34A', fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
+          <p style={{ textAlign: 'center', color: colors.status.accepted.text, fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div>
@@ -1433,8 +1434,8 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
 function SidebarCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: '10px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
+    <div style={{ borderRadius: '10px', border: `1px solid ${colors.border.default}`, overflow: 'hidden' }}>
+      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
         <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</p>
       </div>
       <div style={{ padding: '12px 14px', backgroundColor: 'var(--bg-secondary)' }}>
@@ -1450,7 +1451,7 @@ function CountdownBadge({ date }: { date: string }) {
   if (!date) return null
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
   if (days < 0) return null
-  const color = days <= 7 ? '#DC2626' : days <= 30 ? '#D97706' : '#16A34A'
+  const color = days <= 7 ? colors.feedback.danger.solid : days <= 30 ? colors.feedback.warning.solid : colors.status.accepted.text
   const bg = days <= 7 ? 'rgba(220,38,38,0.15)' : days <= 30 ? 'rgba(217,119,6,0.15)' : 'rgba(22,163,74,0.15)'
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', backgroundColor: bg, color }}>
@@ -1474,8 +1475,8 @@ function VisitorContent() {
           { href: '/favorites',icon: <Heart size={16} />,    title: 'Favoris',       desc: 'Mes coups de cœur' },
           { href: '/messages', icon: <MessageSquare size={16} />, title: 'Messages', desc: 'Mes conversations' },
         ].map(card => (
-          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
-            <span style={{ color: '#6366F1' }}>{card.icon}</span>
+          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+            <span style={{ color: colors.violet.primary }}>{card.icon}</span>
             <div>
               <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{card.title}</p>
               <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{card.desc}</p>
