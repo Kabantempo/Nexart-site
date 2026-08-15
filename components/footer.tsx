@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Mail, Globe, MessageCircle, MapPin } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 function InstagramIcon({ size = 15 }: { size?: number }) {
   return (
@@ -189,7 +190,7 @@ export function Footer() {
                   padding: '10px 14px',
                   borderRadius: '10px',
                   border: 'none',
-                  backgroundColor: '#6366F1',
+                  backgroundColor: colors.violet.primary,
                   cursor: 'pointer',
                   opacity: status === 'loading' || status === 'success' ? 0.5 : 1,
                   display: 'flex',

@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/store'
 import { ArrowLeft, Send, Pencil, Trash2, Check, X, CheckCheck, Paperclip, ImageIcon, FileText, Download, FileSearch, Handshake } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { colors } from '@/lib/design-tokens'
 
 type Message = {
   id: string
@@ -385,10 +386,10 @@ export default function ConversationPage() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: 'var(--bg-primary)', flexShrink: 0 }}>
-        <Link href="/messages" style={{ display: 'flex', alignItems: 'center', color: '#6366F1', textDecoration: 'none' }}>
+        <Link href="/messages" style={{ display: 'flex', alignItems: 'center', color: colors.violet.primary, textDecoration: 'none' }}>
           <ArrowLeft size={20} />
         </Link>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: colors.violet.primary, flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
           {other?.avatar_url ? (
             <Image src={other.avatar_url} alt="" fill style={{ objectFit: 'cover' }} />
           ) : (
@@ -402,9 +403,9 @@ export default function ConversationPage() {
             onClick={e => { if (other?.role !== 'creator') e.preventDefault() }}
           >
             {other?.full_name ?? 'Utilisateur'}
-            {other?.role === 'creator' && <span style={{ fontSize: '11px', color: '#6366F1', marginLeft: '6px', fontWeight: '500' }}>↗ Voir profil</span>}
+            {other?.role === 'creator' && <span style={{ fontSize: '11px', color: colors.violet.primary, marginLeft: '6px', fontWeight: '500' }}>↗ Voir profil</span>}
           </Link>
-          {otherTyping && <p style={{ fontSize: '12px', color: '#6366F1', margin: 0, fontStyle: 'italic' }}>En train d'écrire…</p>}
+          {otherTyping && <p style={{ fontSize: '12px', color: colors.violet.primary, margin: 0, fontStyle: 'italic' }}>En train d'écrire…</p>}
         </div>
       </div>
 
@@ -438,14 +439,14 @@ export default function ConversationPage() {
                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginRight: '8px', alignSelf: 'center' }}>
                       <button onClick={() => startEdit(m)} title="Modifier"
                         style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = '#6366F1' }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = colors.violet.primary }}
                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
                       >
                         <Pencil size={13} />
                       </button>
                       <button onClick={() => deleteMessage(m.id)} title="Supprimer"
                         style={{ width: '28px', height: '28px', borderRadius: '50%', border: 'none', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(224,90,90,0.12)'; e.currentTarget.style.color = '#E05A5A' }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(224,90,90,0.12)'; e.currentTarget.style.color = colors.feedback.danger.solid }}
                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
                       >
                         <Trash2 size={13} />
@@ -469,7 +470,7 @@ export default function ConversationPage() {
                           <button onClick={cancelEdit} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
                             <X size={12} /> Annuler
                           </button>
-                          <button onClick={() => saveEdit(m.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
+                          <button onClick={() => saveEdit(m.id)} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>
                             <Check size={12} /> Enregistrer
                           </button>
                         </div>
@@ -488,10 +489,10 @@ export default function ConversationPage() {
                           if (isDevis) {
                             const text = m.content.replace('[Demande de devis]\n', '').replace('[Demande de devis]', '').trim()
                             return (
-                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: '1.5px solid #A5B4FC', backgroundColor: isMine ? '#4338CA' : '#EEF2FF', overflow: 'hidden', wordBreak: 'break-word' }}>
+                              <div style={{ borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', border: '1.5px solid #A5B4FC', backgroundColor: isMine ? '#4338CA' : colors.violet.bg, overflow: 'hidden', wordBreak: 'break-word' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 14px 6px', borderBottom: '1px solid', borderColor: isMine ? 'rgba(165,180,252,0.3)' : '#C7D2FE' }}>
-                                  <FileSearch size={13} color={isMine ? '#A5B4FC' : '#6366F1'} />
-                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#A5B4FC' : '#6366F1' }}>Demande de devis</span>
+                                  <FileSearch size={13} color={isMine ? '#A5B4FC' : colors.violet.primary} />
+                                  <span style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '0.04em', textTransform: 'uppercase', color: isMine ? '#A5B4FC' : colors.violet.primary }}>Demande de devis</span>
                                 </div>
                                 {text && <p style={{ margin: 0, padding: '8px 14px 10px', fontSize: '14px', lineHeight: '1.5', color: isMine ? '#E0E7FF' : '#1e1b4b' }}>{text}</p>}
                               </div>
@@ -511,16 +512,16 @@ export default function ConversationPage() {
                                 </div>
                                 {typeLabel && (
                                   <div style={{ padding: '6px 14px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', backgroundColor: isMine ? 'rgba(196,181,253,0.2)' : '#EDE9FE', color: isMine ? '#DDD6FE' : '#6D28D9' }}>{typeLabel}</span>
+                                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', backgroundColor: isMine ? 'rgba(196,181,253,0.2)' : colors.violet.bg, color: isMine ? '#DDD6FE' : '#6D28D9' }}>{typeLabel}</span>
                                   </div>
                                 )}
-                                {pitch && <p style={{ margin: 0, padding: '6px 14px 12px', fontSize: '14px', lineHeight: '1.55', color: isMine ? '#EDE9FE' : '#2E1065' }}>{pitch}</p>}
+                                {pitch && <p style={{ margin: 0, padding: '6px 14px 12px', fontSize: '14px', lineHeight: '1.55', color: isMine ? colors.violet.bg : '#2E1065' }}>{pitch}</p>}
                               </div>
                             )
                           }
 
                           return (
-                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? '#6366F1' : '#F3F4F6', color: isMine ? '#FFFFFF' : 'var(--text-primary)', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
+                            <div style={{ padding: '10px 14px', borderRadius: isMine ? '18px 18px 4px 18px' : '18px 18px 18px 4px', backgroundColor: isMine ? colors.violet.primary : '#F3F4F6', color: isMine ? colors.bg.primary : 'var(--text-primary)', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
                               <p style={{ margin: 0 }}>{m.content}</p>
                             </div>
                           )
@@ -533,8 +534,8 @@ export default function ConversationPage() {
                           </span>
                           {isMine && (
                             isRead
-                              ? <CheckCheck size={13} color="#6366F1" />
-                              : <Check size={13} color="#9CA3AF" />
+                              ? <CheckCheck size={13} color={colors.violet.primary} />
+                              : <Check size={13} color={colors.text.muted} />
                           )}
                         </div>
                       </div>
@@ -564,8 +565,8 @@ export default function ConversationPage() {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={pendingFile.preview} alt="" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
             ) : (
-              <div style={{ width: '48px', height: '48px', borderRadius: '8px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <FileText size={22} color="#6366F1" />
+              <div style={{ width: '48px', height: '48px', borderRadius: '8px', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <FileText size={22} color={colors.violet.primary} />
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -589,11 +590,11 @@ export default function ConversationPage() {
           style={{
             width: '40px', height: '40px', borderRadius: '50%', border: 'none', flexShrink: 0,
             backgroundColor: pendingFile ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)',
-            color: pendingFile ? '#6366F1' : 'var(--text-tertiary)',
+            color: pendingFile ? colors.violet.primary : 'var(--text-tertiary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', transition: 'all 200ms ease',
           }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = '#6366F1' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(99,102,241,0.15)'; e.currentTarget.style.color = colors.violet.primary }}
           onMouseLeave={e => { if (!pendingFile) { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'; e.currentTarget.style.color = 'var(--text-tertiary)' } }}
         >
           {pendingFile ? <ImageIcon size={16} /> : <Paperclip size={16} />}
@@ -622,8 +623,8 @@ export default function ConversationPage() {
           disabled={!canSend}
           style={{
             width: '44px', height: '44px', borderRadius: '50%', border: 'none', flexShrink: 0,
-            backgroundColor: canSend ? '#6366F1' : 'var(--border-color)',
-            color: canSend ? '#FFFFFF' : 'var(--text-tertiary)',
+            backgroundColor: canSend ? colors.violet.primary : 'var(--border-color)',
+            color: canSend ? colors.bg.primary : 'var(--text-tertiary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: canSend ? 'pointer' : 'not-allowed',
             transition: 'all 200ms ease',

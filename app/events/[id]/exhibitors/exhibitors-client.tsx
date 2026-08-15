@@ -6,6 +6,7 @@ import { Plus, Download, Filter, X, Check, AlertCircle, Mail } from 'lucide-reac
 import { supabase } from '@/lib/supabase'
 import DocumentsPanel from '@/components/documents-panel'
 import { NexTabs } from '@/components/ui/nex-tabs'
+import { colors } from '@/lib/design-tokens'
 
 interface ExhibitorField {
   id: string
@@ -222,8 +223,8 @@ function FormSetup({ fields, onSave, loading }: any) {
             onClick={() => setShowAddForm(!showAddForm)}
             style={{
               padding: '8px 16px',
-              backgroundColor: showAddForm ? 'var(--bg-secondary)' : '#6366F1',
-              color: showAddForm ? 'var(--text-primary)' : '#FFFFFF',
+              backgroundColor: showAddForm ? 'var(--bg-secondary)' : colors.violet.primary,
+              color: showAddForm ? 'var(--text-primary)' : colors.bg.primary,
               border: showAddForm ? '1px solid var(--border-color)' : 'none',
               borderRadius: '6px',
               cursor: 'pointer',
@@ -244,7 +245,7 @@ function FormSetup({ fields, onSave, loading }: any) {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            style={{ backgroundColor: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}
+            style={{ backgroundColor: colors.violet.bg, border: '1px solid #C7D2FE', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '12px', alignItems: 'end' }}>
               <div>
@@ -282,7 +283,7 @@ function FormSetup({ fields, onSave, loading }: any) {
               </div>
               <button
                 onClick={addField}
-                style={{ padding: '8px 16px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500, fontSize: '14px' }}
+                style={{ padding: '8px 16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 500, fontSize: '14px' }}
               >
                 Ajouter
               </button>
@@ -310,7 +311,7 @@ function FormSetup({ fields, onSave, loading }: any) {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  backgroundColor: field.required ? '#6366F1' : '#D1D5DB',
+                  backgroundColor: field.required ? colors.violet.primary : '#D1D5DB',
                   flexShrink: 0
                 }} />
                 <div>
@@ -328,7 +329,7 @@ function FormSetup({ fields, onSave, loading }: any) {
                   title={field.required ? 'Rendre optionnel' : 'Rendre obligatoire'}
                   style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}
                 >
-                  {field.required ? <Check size={16} color="#6366F1" /> : <AlertCircle size={16} color="#9CA3AF" />}
+                  {field.required ? <Check size={16} color={colors.violet.primary} /> : <AlertCircle size={16} color={colors.text.muted} />}
                 </button>
                 <button
                   onClick={() => removeField(idx)}
@@ -348,8 +349,8 @@ function FormSetup({ fields, onSave, loading }: any) {
             disabled={loading || localFields.length === 0}
             style={{
               padding: '12px 24px',
-              backgroundColor: '#6366F1',
-              color: '#FFFFFF',
+              backgroundColor: colors.violet.primary,
+              color: colors.bg.primary,
               border: 'none',
               borderRadius: '6px',
               cursor: loading || localFields.length === 0 ? 'not-allowed' : 'pointer',
@@ -377,8 +378,8 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
     pending: '#FF6B6B',
     approved: '#10B981',
     rejected: 'var(--text-tertiary)',
-    paid: '#6366F1',
-    cancelled: '#F59E0B'
+    paid: colors.violet.primary,
+    cancelled: colors.status.pending.dot
   }
 
   const stats = {
@@ -413,9 +414,9 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
               style={{
                 padding: '8px 16px',
                 borderRadius: '6px',
-                border: filterStatus === status ? '2px solid #6366F1' : '1px solid #E5E7EB',
-                backgroundColor: filterStatus === status ? '#EEF2FF' : '#FFFFFF',
-                color: filterStatus === status ? '#6366F1' : 'var(--text-primary)',
+                border: filterStatus === status ? '2px solid #6366F1' : `1px solid ${colors.border.default}`,
+                backgroundColor: filterStatus === status ? colors.violet.bg : colors.bg.primary,
+                color: filterStatus === status ? colors.violet.primary : 'var(--text-primary)',
                 cursor: 'pointer',
                 fontWeight: 500
               }}

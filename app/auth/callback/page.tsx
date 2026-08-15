@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -55,8 +56,8 @@ export default function AuthCallbackPage() {
         {error ? (
           <>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-            <p style={{ color: '#E05A5A', fontSize: '16px', marginBottom: '16px' }}>{error}</p>
-            <Link href="/login" style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>Retour à la connexion</Link>
+            <p style={{ color: colors.feedback.danger.solid, fontSize: '16px', marginBottom: '16px' }}>{error}</p>
+            <Link href="/login" style={{ color: colors.violet.primary, fontSize: '14px', fontWeight: '600' }}>Retour à la connexion</Link>
           </>
         ) : (
           <>

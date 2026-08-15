@@ -11,6 +11,7 @@ import { SaveSearchButton } from '@/components/ui/save-search-button'
 import { useToast } from '@/components/ui/toast-provider'
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { colors } from '@/lib/design-tokens'
 
 const ITEMS_PER_PAGE = 12
 
@@ -32,7 +33,7 @@ const TYPE_BADGE: Record<string, { bg: string; text: string }> = {
   popup:     { bg: '#A855F7', text: '#fff' },
   salon:     { bg: '#10B981', text: '#fff' },
   fair:      { bg: '#EF4444', text: '#fff' },
-  seasonal:  { bg: '#F59E0B', text: '#fff' },
+  seasonal:  { bg: colors.status.pending.dot, text: '#fff' },
   permanent: { bg: '#3B82F6', text: '#fff' },
 }
 

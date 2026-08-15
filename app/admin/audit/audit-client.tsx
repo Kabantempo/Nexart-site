@@ -27,7 +27,7 @@ const ACTION_COLORS: Record<string, { bg: string; text: string }> = {
   READ:   { bg: '#DBEAFE', text: '#1E40AF' },
   UPDATE: { bg: '#FEF3C7', text: '#92400E' },
   DELETE: { bg: '#FEE2E2', text: '#991B1B' },
-  EXPORT: { bg: '#EDE9FE', text: '#5B21B6' },
+  EXPORT: { bg: colors.violet.bg, text: '#5B21B6' },
   DECRYPT:{ bg: '#FCE7F3', text: '#9D174D' },
 }
 
@@ -180,7 +180,7 @@ export default function AuditLogsClient() {
               checked={filterSensitive}
               onChange={e => setFilterSensitive(e.target.checked)}
             />
-            <Lock size={14} color={colors.feedback?.danger?.solid || '#E05A5A'} />
+            <Lock size={14} color={colors.feedback?.danger?.solid || colors.feedback.danger.solid} />
             Données sensibles uniquement
           </label>
 
@@ -253,7 +253,7 @@ export default function AuditLogsClient() {
                         {log.ip_address || '—'}
                       </td>
                       <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                        {log.accessed_sensitive_data && <Lock size={14} color="#E05A5A" />}
+                        {log.accessed_sensitive_data && <Lock size={14} color={colors.feedback.danger.solid} />}
                       </td>
                       <td style={{ padding: '10px 16px', fontSize: '12px', color: colors.text.secondary, whiteSpace: 'nowrap' }}>
                         {new Date(log.created_at).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}

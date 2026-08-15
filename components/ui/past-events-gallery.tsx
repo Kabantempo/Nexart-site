@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, MapPin, Users } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface PastEvent {
   id: string
@@ -49,7 +50,7 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
 
   if (!events.length) {
     return (
-      <p style={{ fontSize: '14px', color: '#9CA3AF', padding: '24px 0' }}>
+      <p style={{ fontSize: '14px', color: colors.text.muted, padding: '24px 0' }}>
         Aucune édition passée pour le moment.
       </p>
     )
@@ -79,7 +80,7 @@ export function PastEventsGallery({ organizerId, className = '' }: Props) {
               </div>
             </div>
             <div style={{ padding: '10px 12px' }}>
-              <p style={{ fontSize: '13px', fontWeight: '700', color: '#1A1A1A', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: colors.text.primary, margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {ev.city && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: '#6B7280' }}>

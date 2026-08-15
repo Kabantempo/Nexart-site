@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { colors } from '@/lib/design-tokens'
 
 export const metadata: Metadata = {
   title: 'Politique de Confidentialité',
@@ -116,8 +117,8 @@ export default function ConfidentialitePage() {
             <p style={{ marginBottom: '16px' }}>
               <strong>Question RGPD ?</strong>
             </p>
-            <p style={{ marginBottom: '24px', color: '#6366F1' }}>
-              Email : <a href="mailto:contact@nexart.fr" style={{ color: '#6366F1', textDecoration: 'underline' }}>contact@nexart.fr</a>
+            <p style={{ marginBottom: '24px', color: colors.violet.primary }}>
+              Email : <a href="mailto:contact@nexart.fr" style={{ color: colors.violet.primary, textDecoration: 'underline' }}>contact@nexart.fr</a>
             </p>
             <p style={{ marginBottom: '16px' }}>
               <strong>Pas satisfait ?</strong>
@@ -127,7 +128,7 @@ export default function ConfidentialitePage() {
                 href="https://www.cnil.fr/fr/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: '#6366F1', textDecoration: 'underline' }}
+                style={{ color: colors.violet.primary, textDecoration: 'underline' }}
               >
                 CNIL : https://www.cnil.fr/fr/
               </a>

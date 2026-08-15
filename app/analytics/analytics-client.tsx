@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/store'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, TrendingUp, Users, Calendar, BarChart2, Award, Eye } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface EventStat {
   event_id: string
@@ -180,7 +181,7 @@ export default function AnalyticsClient() {
                                 <div className="h-full rounded-full transition-all duration-500"
                                   style={{
                                     width: `${ev.fill_rate_pct}%`,
-                                    backgroundColor: ev.fill_rate_pct >= 80 ? '#10B981' : ev.fill_rate_pct >= 50 ? '#F59E0B' : '#E05A5A',
+                                    backgroundColor: ev.fill_rate_pct >= 80 ? '#10B981' : ev.fill_rate_pct >= 50 ? colors.status.pending.dot : colors.feedback.danger.solid,
                                   }} />
                               </div>
                               <span className="text-xs font-bold text-gray-700 min-w-[36px]">{ev.fill_rate_pct}%</span>

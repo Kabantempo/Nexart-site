@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit2, HelpCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface FAQ {
   id: string
@@ -107,11 +108,11 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
           transition={{ duration: 0.8 }}
         >
           {/* Info Box */}
-          <div style={{ backgroundColor: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
-            <HelpCircle size={20} color="#6366F1" style={{ flexShrink: 0 }} />
+          <div style={{ backgroundColor: colors.violet.bg, border: '1px solid #C7D2FE', borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
+            <HelpCircle size={20} color={colors.violet.primary} style={{ flexShrink: 0 }} />
             <div>
               <p style={{ color: '#4338CA', fontWeight: 500 }}>Auto-répondeur intelligent</p>
-              <p style={{ color: '#6366F1', fontSize: '14px', marginTop: '4px' }}>
+              <p style={{ color: colors.violet.primary, fontSize: '14px', marginTop: '4px' }}>
                 Les questions des candidats contenant ces mots-clés recevront automatiquement la réponse configurée
               </p>
             </div>
@@ -192,8 +193,8 @@ export default function FAQsClient({ eventId }: { eventId: string }) {
               disabled={loading}
               style={{
                 padding: '12px 24px',
-                backgroundColor: '#6366F1',
-                color: '#FFFFFF',
+                backgroundColor: colors.violet.primary,
+                color: colors.bg.primary,
                 border: 'none',
                 borderRadius: '6px',
                 cursor: loading ? 'not-allowed' : 'pointer',

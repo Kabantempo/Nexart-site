@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { FileText, Download, Send, RefreshCw, CheckCircle, Clock } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface EventDocument {
   id: string
@@ -39,8 +40,8 @@ const DOC_TYPES: Array<{ type: 'contrat' | 'reglement' | 'convocation'; label: s
 
 const styles = {
   container: {
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #E5E7EB',
+    backgroundColor: colors.bg.primary,
+    border: `1px solid ${colors.border.default}`,
     borderRadius: '12px',
     padding: '24px',
   } as React.CSSProperties,
@@ -52,8 +53,8 @@ const styles = {
     borderRadius: '9999px',
     fontSize: '12px',
     fontWeight: 600,
-    backgroundColor: sent ? '#EEF2FF' : '#F9FAFB',
-    color: sent ? '#6366F1' : '#888888',
+    backgroundColor: sent ? colors.violet.bg : colors.bg.secondary,
+    color: sent ? colors.violet.primary : '#888888',
   } as React.CSSProperties),
   badgeNew: {
     display: 'inline-flex',
@@ -63,14 +64,14 @@ const styles = {
     fontSize: '11px',
     fontWeight: 700,
     backgroundColor: '#FEF3C7',
-    color: '#D97706',
+    color: colors.feedback.warning.solid,
   } as React.CSSProperties,
   button: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    backgroundColor: '#6366F1',
-    color: '#FFFFFF',
+    backgroundColor: colors.violet.primary,
+    color: colors.bg.primary,
     border: 'none',
     borderRadius: '8px',
     padding: '7px 14px',
@@ -84,8 +85,8 @@ const styles = {
     alignItems: 'center',
     gap: '6px',
     backgroundColor: 'transparent',
-    color: '#6366F1',
-    border: '1px solid #6366F1',
+    color: colors.violet.primary,
+    border: `1px solid ${colors.border.accent}`,
     borderRadius: '8px',
     padding: '6px 14px',
     fontSize: '13px',
@@ -98,7 +99,7 @@ const styles = {
     alignItems: 'center',
     gap: '6px',
     backgroundColor: '#F3F4F6',
-    color: '#9CA3AF',
+    color: colors.text.muted,
     border: 'none',
     borderRadius: '8px',
     padding: '7px 14px',
@@ -180,7 +181,7 @@ function OrganizerView({ eventId }: { eventId: string }) {
 
   if (acceptedCreators.length === 0) return (
     <div style={{ textAlign: 'center', padding: '40px' }}>
-      <FileText size={32} color="#9CA3AF" style={{ marginBottom: '12px' }} />
+      <FileText size={32} color={colors.text.muted} style={{ marginBottom: '12px' }} />
       <p style={{ color: '#888888', fontSize: '14px', margin: 0 }}>
         Aucun créateur accepté. Acceptez des candidatures pour générer des documents.
       </p>
@@ -191,7 +192,7 @@ function OrganizerView({ eventId }: { eventId: string }) {
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
         <thead>
-          <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+          <tr style={{ borderBottom: `2px solid ${colors.border.default}` }}>
             <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#888888', whiteSpace: 'nowrap' }}>Créateur</th>
             {DOC_TYPES.map(dt => (
               <th key={dt.type} style={{ padding: '10px 14px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#888888', whiteSpace: 'nowrap' }}>
@@ -204,7 +205,7 @@ function OrganizerView({ eventId }: { eventId: string }) {
           {acceptedCreators.map(creator => (
             <tr key={creator.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
               <td style={{ padding: '12px 14px' }}>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>{creator.full_name}</p>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: colors.text.primary, margin: 0 }}>{creator.full_name}</p>
                 <p style={{ fontSize: '12px', color: '#888888', margin: 0 }}>{creator.email}</p>
               </td>
               {DOC_TYPES.map(dt => {
@@ -300,7 +301,7 @@ function CreatorView() {
 
   if (documents.length === 0) return (
     <div style={{ textAlign: 'center', padding: '40px' }}>
-      <FileText size={32} color="#9CA3AF" style={{ marginBottom: '12px' }} />
+      <FileText size={32} color={colors.text.muted} style={{ marginBottom: '12px' }} />
       <p style={{ color: '#888888', fontSize: '14px', margin: 0 }}>
         Aucun document pour le moment. Vos contrats et convocations apparaîtront ici.
       </p>
@@ -310,9 +311,9 @@ function CreatorView() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {Object.values(byEvent).map(({ event, docs }) => (
-        <div key={docs[0].event_id} style={{ border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 18px', backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
-            <p style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>{event?.title || '—'}</p>
+        <div key={docs[0].event_id} style={{ border: `1px solid ${colors.border.default}`, borderRadius: '10px', overflow: 'hidden' }}>
+          <div style={{ padding: '14px 18px', backgroundColor: colors.bg.secondary, borderBottom: `1px solid ${colors.border.default}` }}>
+            <p style={{ fontSize: '14px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>{event?.title || '—'}</p>
             {event?.start_date && (
               <p style={{ fontSize: '12px', color: '#888888', margin: '2px 0 0' }}>
                 {new Date(event.start_date).toLocaleDateString('fr-FR')} · {event.city}
@@ -323,12 +324,12 @@ function CreatorView() {
             {docs.map(doc => (
               <div key={doc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <FileText size={16} color="#6366F1" />
+                  <FileText size={16} color={colors.violet.primary} />
                   <div>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A', margin: 0 }}>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: colors.text.primary, margin: 0 }}>
                       {TYPE_LABELS[doc.type] || doc.type}
                     </p>
-                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                    <p style={{ fontSize: '11px', color: colors.text.muted, margin: 0 }}>
                       {doc.sent_at ? `Reçu le ${new Date(doc.sent_at).toLocaleDateString('fr-FR')}` : ''}
                     </p>
                   </div>
@@ -362,8 +363,8 @@ export default function DocumentsPanel({ eventId, role }: DocumentsPanelProps) {
   return (
     <div style={styles.container}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-        <FileText size={18} color="#6366F1" />
-        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>
+        <FileText size={18} color={colors.violet.primary} />
+        <h3 style={{ fontSize: '16px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
           {role === 'organizer' ? 'Documents par créateur' : 'Mes documents'}
         </h3>
       </div>

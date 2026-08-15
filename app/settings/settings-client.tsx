@@ -6,6 +6,7 @@ import { Download, Trash2, ChevronRight, Bell, BellOff, Moon, Sun, Globe, Eye, E
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ui/toast-provider'
 import { useTheme } from '@/lib/use-theme'
+import { colors } from '@/lib/design-tokens'
 
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
@@ -107,8 +108,8 @@ export default function SettingsClient() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  backgroundColor: '#6366F1',
-                  color: '#FFFFFF',
+                  backgroundColor: colors.violet.primary,
+                  color: colors.bg.primary,
                   border: 'none',
                   borderRadius: '8px',
                   padding: '10px 16px',
@@ -122,7 +123,7 @@ export default function SettingsClient() {
                   if (!loading) e.currentTarget.style.backgroundColor = '#4F46E5'
                 }}
                 onMouseLeave={(e) => {
-                  if (!loading) e.currentTarget.style.backgroundColor = '#6366F1'
+                  if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary
                 }}
               >
                 <Download size={16} />
@@ -353,7 +354,7 @@ function ThemeSection() {
               display: 'flex',
               alignItems: 'center',
               gap: '16px',
-              backgroundColor: active ? (opt.value === 'dark' ? '#1F2937' : opt.value === 'light' ? '#F9FAFB' : 'var(--bg-secondary)') : 'var(--bg-primary)',
+              backgroundColor: active ? (opt.value === 'dark' ? '#1F2937' : opt.value === 'light' ? colors.bg.secondary : 'var(--bg-secondary)') : 'var(--bg-primary)',
               border: active ? '2px solid #6366F1' : '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '16px 20px',
@@ -363,13 +364,13 @@ function ThemeSection() {
               width: '100%',
             }}
           >
-            <span style={{ color: active ? '#6366F1' : 'var(--text-secondary)', flexShrink: 0 }}>{opt.icon}</span>
+            <span style={{ color: active ? colors.violet.primary : 'var(--text-secondary)', flexShrink: 0 }}>{opt.icon}</span>
             <div>
-              <div style={{ fontSize: '16px', fontWeight: 600, color: active ? '#6366F1' : 'var(--text-primary)', marginBottom: '2px' }}>{opt.label}</div>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: active ? colors.violet.primary : 'var(--text-primary)', marginBottom: '2px' }}>{opt.label}</div>
               <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{opt.desc}</div>
             </div>
             {active && (
-              <span style={{ marginLeft: 'auto', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0 }} />
+              <span style={{ marginLeft: 'auto', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.violet.primary, flexShrink: 0 }} />
             )}
           </button>
         )
@@ -455,8 +456,8 @@ function PushNotificationSection() {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            backgroundColor: subscribed ? '#6366F1' : 'var(--border-color)',
-            color: subscribed ? '#FFFFFF' : 'var(--text-primary)',
+            backgroundColor: subscribed ? colors.violet.primary : 'var(--border-color)',
+            color: subscribed ? colors.bg.primary : 'var(--text-primary)',
             border: 'none',
             borderRadius: '8px',
             padding: '10px 16px',
@@ -497,14 +498,14 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       style={{
         width: '44px', height: '24px', borderRadius: '12px', border: 'none', cursor: 'pointer',
-        backgroundColor: checked ? '#6366F1' : 'var(--border-color)',
+        backgroundColor: checked ? colors.violet.primary : 'var(--border-color)',
         position: 'relative', transition: 'background-color 0.2s', flexShrink: 0,
       }}
     >
       <span style={{
         position: 'absolute', top: '3px',
         left: checked ? '23px' : '3px',
-        width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#FFFFFF',
+        width: '18px', height: '18px', borderRadius: '50%', backgroundColor: colors.bg.primary,
         transition: 'left 0.2s', display: 'block',
       }} />
     </button>
@@ -563,8 +564,8 @@ function SecuritySection() {
   const btnStyle = (danger = false): React.CSSProperties => ({
     padding: '10px 16px', border: 'none', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer',
     fontSize: '14px', fontWeight: 600, opacity: loading ? 0.6 : 1,
-    backgroundColor: danger ? '#6366F1' : 'var(--border-color)',
-    color: danger ? '#FFFFFF' : 'var(--text-primary)',
+    backgroundColor: danger ? colors.violet.primary : 'var(--border-color)',
+    color: danger ? colors.bg.primary : 'var(--text-primary)',
   })
 
   return (
@@ -736,8 +737,8 @@ function PrivacySection() {
               style={{
                 padding: '12px', border: visibility === val ? '2px solid #6366F1' : '1px solid var(--border-color)',
                 borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '14px',
-                backgroundColor: visibility === val ? '#EEF2FF' : 'var(--bg-primary)',
-                color: visibility === val ? '#6366F1' : 'var(--text-primary)',
+                backgroundColor: visibility === val ? colors.violet.bg : 'var(--bg-primary)',
+                color: visibility === val ? colors.violet.primary : 'var(--text-primary)',
               }}
             >
               {val === 'public' ? 'Public' : 'Privé'}
@@ -763,15 +764,15 @@ function PrivacySection() {
             <input
               type="range" min={10} max={500} step={10} value={radius}
               onChange={e => setRadius(Number(e.target.value))}
-              style={{ flex: 1, accentColor: '#6366F1' }}
+              style={{ flex: 1, accentColor: colors.violet.primary }}
             />
-            <span style={{ fontSize: '16px', fontWeight: 700, color: '#6366F1', minWidth: '60px', textAlign: 'right' }}>
+            <span style={{ fontSize: '16px', fontWeight: 700, color: colors.violet.primary, minWidth: '60px', textAlign: 'right' }}>
               {radius} km
             </span>
           </div>
           <button
             onClick={saveRadius} disabled={saving}
-            style={{ marginTop: '12px', padding: '10px 20px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}
+            style={{ marginTop: '12px', padding: '10px 20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}
           >
             Sauvegarder
           </button>
@@ -834,17 +835,17 @@ function LanguageSection() {
               display: 'flex', alignItems: 'center', gap: '12px',
               padding: '16px 20px', border: lang === opt.value ? '2px solid #6366F1' : '1px solid var(--border-color)',
               borderRadius: '12px', cursor: 'pointer', textAlign: 'left',
-              backgroundColor: lang === opt.value ? '#EEF2FF' : 'var(--bg-primary)',
+              backgroundColor: lang === opt.value ? colors.violet.bg : 'var(--bg-primary)',
             }}
           >
             <span style={{ fontSize: '24px' }}>{opt.flag}</span>
             <div>
-              <div style={{ fontSize: '16px', fontWeight: 600, color: lang === opt.value ? '#6366F1' : 'var(--text-primary)' }}>
+              <div style={{ fontSize: '16px', fontWeight: 600, color: lang === opt.value ? colors.violet.primary : 'var(--text-primary)' }}>
                 {opt.label}
               </div>
             </div>
             {lang === opt.value && (
-              <span style={{ marginLeft: 'auto', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#6366F1' }} />
+              <span style={{ marginLeft: 'auto', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: colors.violet.primary }} />
             )}
           </button>
         ))}
@@ -902,8 +903,8 @@ function DeleteAccountButton() {
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          backgroundColor: '#DC2626',
-          color: '#FFFFFF',
+          backgroundColor: colors.feedback.danger.solid,
+          color: colors.bg.primary,
           border: 'none',
           borderRadius: '8px',
           padding: '10px 16px',
@@ -916,7 +917,7 @@ function DeleteAccountButton() {
           e.currentTarget.style.backgroundColor = '#B91C1C'
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#DC2626'
+          e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
         }}
       >
         <Trash2 size={16} />
@@ -952,7 +953,7 @@ function DeleteAccountButton() {
           >
             {step === 'confirm' ? (
               <>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#DC2626', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, color: colors.feedback.danger.solid, marginBottom: '16px' }}>
                   ⚠️ Confirmer suppression
                 </h2>
                 <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
@@ -963,8 +964,8 @@ function DeleteAccountButton() {
                   <button
                     onClick={() => setStep('email')}
                     style={{
-                      backgroundColor: '#DC2626',
-                      color: '#FFFFFF',
+                      backgroundColor: colors.feedback.danger.solid,
+                      color: colors.bg.primary,
                       border: 'none',
                       borderRadius: '8px',
                       padding: '12px',
@@ -977,7 +978,7 @@ function DeleteAccountButton() {
                       e.currentTarget.style.backgroundColor = '#B91C1C'
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#DC2626'
+                      e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
                     }}
                   >
                     Oui, supprimer
@@ -1037,8 +1038,8 @@ function DeleteAccountButton() {
                     onClick={handleDelete}
                     disabled={loading || !email}
                     style={{
-                      backgroundColor: '#DC2626',
-                      color: '#FFFFFF',
+                      backgroundColor: colors.feedback.danger.solid,
+                      color: colors.bg.primary,
                       border: 'none',
                       borderRadius: '8px',
                       padding: '12px',
@@ -1052,7 +1053,7 @@ function DeleteAccountButton() {
                       if (!loading && email) e.currentTarget.style.backgroundColor = '#B91C1C'
                     }}
                     onMouseLeave={(e) => {
-                      if (!loading && email) e.currentTarget.style.backgroundColor = '#DC2626'
+                      if (!loading && email) e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
                     }}
                   >
                     {loading ? 'Suppression...' : 'Confirmer'}

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Lock } from 'lucide-react'
 import { SmokeBackground } from '@/components/smoke-background'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 export default function ResetPasswordClient() {
   const [password, setPassword] = useState('')
@@ -75,7 +76,7 @@ export default function ResetPasswordClient() {
               </p>
 
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#E05A5A', fontSize: '14px', marginBottom: '20px' }}>
+                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
                   {error}
                 </div>
               )}
@@ -83,7 +84,7 @@ export default function ResetPasswordClient() {
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    <Lock size={16} color="#6366F1" />
+                    <Lock size={16} color={colors.violet.primary} />
                     Nouveau mot de passe
                   </label>
                   <input
@@ -94,14 +95,14 @@ export default function ResetPasswordClient() {
                     required
                     minLength={6}
                     style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '16px', color: 'var(--text-primary)', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   />
                 </div>
 
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    <Lock size={16} color="#6366F1" />
+                    <Lock size={16} color={colors.violet.primary} />
                     Confirmer
                   </label>
                   <input
@@ -111,7 +112,7 @@ export default function ResetPasswordClient() {
                     onChange={(e) => setConfirm(e.target.value)}
                     required
                     style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '16px', color: 'var(--text-primary)', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   />
                 </div>
@@ -119,16 +120,16 @@ export default function ResetPasswordClient() {
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', backgroundColor: loading ? '#A5A6F6' : '#6366F1', color: '#FFFFFF', fontSize: '16px', fontWeight: '600', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
-                  onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#5B5BD6' }}
-                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#6366F1' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', backgroundColor: loading ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
+                  onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = colors.violet.dark }}
+                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary }}
                 >
                   {loading ? 'Mise à jour...' : 'Mettre à jour'}
                 </button>
               </form>
 
               <p style={{ marginTop: '24px', fontSize: '14px', color: 'var(--text-secondary)', textAlign: 'center' }}>
-                <Link href="/login" style={{ color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>
+                <Link href="/login" style={{ color: colors.violet.primary, textDecoration: 'none', fontWeight: '600' }}>
                   Retour à la connexion
                 </Link>
               </p>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Star } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface Props {
   eventId: string
@@ -56,8 +57,8 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
 
   if (done) {
     return (
-      <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#E8F5E9', border: '1px solid #A5D6A7', textAlign: 'center' }}>
-        <p style={{ color: '#4CAF50', fontWeight: '600', margin: 0 }}>Avis soumis ✓ Merci !</p>
+      <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: '1px solid #A5D6A7', textAlign: 'center' }}>
+        <p style={{ color: colors.feedback.success.solid, fontWeight: '600', margin: 0 }}>Avis soumis ✓ Merci !</p>
       </div>
     )
   }
@@ -80,7 +81,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
               <Star
                 size={28}
                 fill={(hovered || rating) >= star ? '#FF9800' : 'none'}
-                color={(hovered || rating) >= star ? '#FF9800' : '#E5E7EB'}
+                color={(hovered || rating) >= star ? '#FF9800' : colors.border.default}
               />
             </button>
           ))}
@@ -98,7 +99,7 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
                 key={tag}
                 type="button"
                 onClick={() => toggleTag(tag)}
-                style={{ padding: '6px 12px', borderRadius: '9999px', border: `1px solid ${sel ? '#6366F1' : '#E5E7EB'}`, backgroundColor: sel ? '#6366F1' : '#FFFFFF', color: sel ? '#FFFFFF' : '#6B7280', fontSize: '13px', cursor: 'pointer', transition: 'all 200ms ease', fontFamily: 'inherit' }}
+                style={{ padding: '6px 12px', borderRadius: '9999px', border: `1px solid ${sel ? colors.violet.primary : colors.border.default}`, backgroundColor: sel ? colors.violet.primary : colors.bg.primary, color: sel ? colors.bg.primary : '#6B7280', fontSize: '13px', cursor: 'pointer', transition: 'all 200ms ease', fontFamily: 'inherit' }}
               >
                 {tag}
               </button>
@@ -118,22 +119,22 @@ export function ReviewForm({ eventId, reviewerId, reviewedId, reviewerRole, onSu
           placeholder="Votre avis en quelques mots..."
           rows={2}
           style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box', transition: 'border-color 300ms ease' }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1' }}
-          onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = colors.border.default }}
         />
         <p style={{ fontSize: '12px', color: '#AAAAAA', textAlign: 'right', margin: '4px 0 0' }}>{comment.length}/100</p>
       </div>
 
       {error && (
-        <p style={{ color: '#E05A5A', fontSize: '13px', margin: 0 }}>{error}</p>
+        <p style={{ color: colors.feedback.danger.solid, fontSize: '13px', margin: 0 }}>{error}</p>
       )}
 
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: submitting ? '#A5A6F6' : '#6366F1', color: '#FFFFFF', fontSize: '15px', fontWeight: '600', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
-        onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = '#5B5BD6' }}
-        onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = '#6366F1' }}
+        style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: submitting ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '15px', fontWeight: '600', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
+        onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = colors.violet.dark }}
+        onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = colors.violet.primary }}
       >
         {submitting ? 'Envoi...' : 'Soumettre mon avis'}
       </button>

@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,11 +36,11 @@ const TOAST_STYLES: Record<ToastType, { bg: string; border: string; color: strin
   error: {
     bg: '#FEF2F2',
     border: '#FCA5A5',
-    color: '#DC2626',
+    color: colors.feedback.danger.solid,
     icon: <XCircle size={18} />,
   },
   info: {
-    bg: '#EEF2FF',
+    bg: colors.violet.bg,
     border: '#A5B4FC',
     color: '#4338CA',
     icon: <Info size={18} />,
@@ -47,7 +48,7 @@ const TOAST_STYLES: Record<ToastType, { bg: string; border: string; color: strin
   warning: {
     bg: '#FFFBEB',
     border: '#FCD34D',
-    color: '#D97706',
+    color: colors.feedback.warning.solid,
     icon: <AlertTriangle size={18} />,
   },
 }

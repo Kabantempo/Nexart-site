@@ -19,6 +19,7 @@ import DocumentsPanel from '@/components/documents-panel'
 import { NexModal } from '@/components/ui/nex-modal'
 import { NexTabs } from '@/components/ui/nex-tabs'
 const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m => ({ default: m.CreditsWidget })), { ssr: false })
+const ReferralWidget = dynamic(() => import('@/components/referral-widget').then(m => ({ default: m.ReferralWidget })), { ssr: false })
 const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
 import { useCountUp } from '@/lib/hooks/use-count-up'
 import StripeConnectBanner, { StripeConnectAlert } from '@/components/ui/stripe-connect-banner'
@@ -874,6 +875,9 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
 
       {/* Credits */}
       <CreditsWidget />
+
+      {/* Referral */}
+      <ReferralWidget />
 
       {/* Next event */}
       {nextEvent?.event && (

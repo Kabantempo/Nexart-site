@@ -11,6 +11,7 @@ import { useAuthStore } from '@/lib/store'
 import { WhatsNew } from '@/components/ui/whats-new'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useTheme } from '@/lib/use-theme'
+import { colors } from '@/lib/design-tokens'
 
 export function NavbarFull() {
   const { isDark } = useTheme()
@@ -45,13 +46,13 @@ export function NavbarFull() {
     panelItemSimple: (active: boolean): React.CSSProperties => ({
       display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px',
       borderRadius: '12px', textDecoration: 'none',
-      backgroundColor: active ? (isDark ? 'rgba(99,102,241,0.15)' : '#EEF2FF') : 'transparent',
-      color: active ? '#6366F1' : 'var(--text-primary)',
+      backgroundColor: active ? (isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg) : 'transparent',
+      color: active ? colors.violet.primary : 'var(--text-primary)',
       fontSize: '13px', fontWeight: 500, transition: 'all 0.12s', cursor: 'pointer',
     }),
   }
 
-  const hoverBg   = isDark ? 'rgba(255,255,255,0.06)' : '#F9FAFB'
+  const hoverBg   = isDark ? 'rgba(255,255,255,0.06)' : colors.bg.secondary
   const hoverBgAlt = isDark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'
 
   const [mobileOpen,    setMobileOpen]    = useState(false)
@@ -276,11 +277,11 @@ export function NavbarFull() {
         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = hoverBg }}
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? 'var(--bg-secondary)' : 'transparent' }}
       >
-        <div style={{ width: 34, height: 34, borderRadius: '10px', backgroundColor: active ? (isDark ? 'rgba(99,102,241,0.15)' : '#EEF2FF') : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon size={16} color={active ? '#6366F1' : 'var(--text-tertiary)'} />
+        <div style={{ width: 34, height: 34, borderRadius: '10px', backgroundColor: active ? (isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg) : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={16} color={active ? colors.violet.primary : 'var(--text-tertiary)'} />
         </div>
         <div style={{ flex: 1, minWidth: 0, paddingTop: '1px' }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: active ? '#6366F1' : 'var(--text-primary)', margin: 0, lineHeight: 1.2, marginBottom: '2px' }}>{label}</p>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: active ? colors.violet.primary : 'var(--text-primary)', margin: 0, lineHeight: 1.2, marginBottom: '2px' }}>{label}</p>
           <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{desc}</p>
         </div>
         <ArrowUpRight size={13} style={{ color: 'var(--text-tertiary)', marginTop: '2px', flexShrink: 0 }} />
@@ -289,7 +290,7 @@ export function NavbarFull() {
   }
 
   // ── Panel simple item ─────────────────────────────────────────────────────
-  const SimpleItem = ({ href, icon: Icon, label, idx, panelId, color = '#9CA3AF' }: { href: string; icon: React.ElementType; label: string; idx: number; panelId: string; color?: string }) => {
+  const SimpleItem = ({ href, icon: Icon, label, idx, panelId, color = colors.text.muted }: { href: string; icon: React.ElementType; label: string; idx: number; panelId: string; color?: string }) => {
     const active = isActive(href)
     return (
       <Link href={href} onClick={() => setDropdown(null)}
@@ -297,9 +298,9 @@ export function NavbarFull() {
         ref={(el) => registerItem(panelId, el, idx)}
         style={s.panelItemSimple(active)}
         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = hoverBg; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? (isDark ? 'rgba(99,102,241,0.15)' : '#EEF2FF') : 'transparent'; (e.currentTarget as HTMLElement).style.color = active ? '#6366F1' : 'var(--text-primary)' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = active ? (isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg) : 'transparent'; (e.currentTarget as HTMLElement).style.color = active ? colors.violet.primary : 'var(--text-primary)' }}
       >
-        <Icon size={14} color={active ? '#6366F1' : color} />
+        <Icon size={14} color={active ? colors.violet.primary : color} />
         {label}
       </Link>
     )
@@ -459,8 +460,8 @@ export function NavbarFull() {
                               onMouseEnter={e => { setSearchActiveIdx(i); (e.currentTarget as HTMLElement).style.backgroundColor = hoverBg }}
                               onMouseLeave={e => { if (searchActiveIdx !== i) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                             >
-                              <div style={{ width: 36, height: 36, borderRadius: '8px', backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                {ev.cover_image ? <Image src={ev.cover_image} alt={ev.title} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Calendar size={16} color="#6366F1" />}
+                              <div style={{ width: 36, height: 36, borderRadius: '8px', backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {ev.cover_image ? <Image src={ev.cover_image} alt={ev.title} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Calendar size={16} color={colors.violet.primary} />}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
@@ -481,8 +482,8 @@ export function NavbarFull() {
                                 onMouseEnter={e => { setSearchActiveIdx(idx); (e.currentTarget as HTMLElement).style.backgroundColor = hoverBg }}
                                 onMouseLeave={e => { if (searchActiveIdx !== idx) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                               >
-                                <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : '#EEF2FF', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  {cr.avatar_url ? <Image src={cr.avatar_url} alt={cr.full_name} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Palette size={14} color="#6366F1" />}
+                                <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  {cr.avatar_url ? <Image src={cr.avatar_url} alt={cr.full_name} width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : <Palette size={14} color={colors.violet.primary} />}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{cr.username ?? cr.full_name}</p>
@@ -495,7 +496,7 @@ export function NavbarFull() {
                       )}
                       <div style={{ borderTop: '1px solid var(--border-color)' }}>
                         <Link href={`/search?q=${encodeURIComponent(searchValue.trim())}`} onClick={closeSearch}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, color: '#6366F1' }}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px 14px', textDecoration: 'none', fontSize: '13px', fontWeight: 600, color: colors.violet.primary }}
                           onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = hoverBg}
                           onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'}
                         >
@@ -524,7 +525,7 @@ export function NavbarFull() {
                   >
                     <MessageCircle size={16} />
                     {unreadMessages > 0 && (
-                      <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '14px', height: '14px', borderRadius: '7px', backgroundColor: '#E05A5A', color: '#fff', fontSize: '9px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px', lineHeight: 1 }}>
+                      <span style={{ position: 'absolute', top: '2px', right: '2px', minWidth: '14px', height: '14px', borderRadius: '7px', backgroundColor: colors.feedback.danger.solid, color: '#fff', fontSize: '9px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px', lineHeight: 1 }}>
                         {unreadMessages > 99 ? '99+' : unreadMessages}
                       </span>
                     )}
@@ -577,7 +578,7 @@ export function NavbarFull() {
                         <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                         <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                           {(user.is_creator || user.role === 'creator') && (
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : '#EEF2FF', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}>Créateur</span>
+                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg, color: colors.violet.primary, border: '1px solid rgba(99,102,241,0.3)' }}>Créateur</span>
                           )}
                           {(user.is_organizer || user.role === 'organizer') && (
                             <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(124,58,237,0.15)' : '#F5F3FF', color: '#7C3AED', border: '1px solid rgba(124,58,237,0.3)' }}>Organisateur</span>
@@ -617,7 +618,7 @@ export function NavbarFull() {
                     Connexion
                   </Link>
                   <Link href="/register"
-                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: isDark ? '#F9FAFB' : '#111827', color: isDark ? '#111827' : '#fff' }}
+                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: isDark ? colors.bg.secondary : '#111827', color: isDark ? '#111827' : '#fff' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
                   >

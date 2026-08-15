@@ -8,6 +8,7 @@ import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, Bad
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 const ITEMS_PER_PAGE = 12
 
@@ -321,7 +322,7 @@ function CreatorsContent() {
                             role="option"
                             aria-selected={isActive}
                             onMouseDown={() => { setSearchTerm(s.value); setShowSuggestions(false); setActiveSuggestion(-1) }}
-                            style={{ backgroundColor: isActive ? '#EEF2FF' : undefined, color: isActive ? '#4338CA' : undefined }}
+                            style={{ backgroundColor: isActive ? colors.violet.bg : undefined, color: isActive ? '#4338CA' : undefined }}
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
                             {s.value}
                           </button>
@@ -518,7 +519,7 @@ function CreatorsContent() {
                         </div>
                       ) : (
                         <div className="aspect-square w-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%)' }}>
-                          <span className="text-5xl font-bold select-none" style={{ color: '#6366F1', opacity: 0.85 }}>
+                          <span className="text-5xl font-bold select-none" style={{ color: colors.violet.primary, opacity: 0.85 }}>
                             {creator.full_name?.slice(0, 2).toUpperCase() || '?'}
                           </span>
                         </div>

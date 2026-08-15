@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { CheckCircle, XCircle, AlertTriangle, Loader2, QrCode } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface VerifyData {
   valid: boolean
@@ -26,7 +27,7 @@ export default function VerifyClient({ token }: { token: string }) {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-      <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(99,102,241,0.2)', borderTopColor: '#6366F1', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(99,102,241,0.2)', borderTopColor: colors.violet.primary, animation: 'spin 0.8s linear infinite' }} />
       <p style={{ color: '#888888', fontSize: '14px', fontWeight: 500 }}>Vérification en cours…</p>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
@@ -36,14 +37,14 @@ export default function VerifyClient({ token }: { token: string }) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
         {/* Logo */}
-        <p style={{ fontSize: '20px', fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.5px', marginBottom: '40px' }}>NEXART</p>
+        <p style={{ fontSize: '20px', fontWeight: 800, color: colors.text.primary, letterSpacing: '-0.5px', marginBottom: '40px' }}>NEXART</p>
 
         {/* Erreur card */}
-        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', padding: '40px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #E5E7EB' }}>
+        <div style={{ backgroundColor: colors.bg.primary, borderRadius: '20px', padding: '40px 32px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: `1px solid ${colors.border.default}` }}>
           <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <XCircle size={36} color="#EF4444" />
           </div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#1A1A1A', marginBottom: '10px' }}>Document invalide</h1>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.text.primary, marginBottom: '10px' }}>Document invalide</h1>
           <p style={{ color: '#888888', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
             Ce QR code ne correspond à aucun document valide dans notre système ou a expiré.
           </p>
@@ -60,15 +61,15 @@ export default function VerifyClient({ token }: { token: string }) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '420px' }}>
         {/* Logo */}
-        <p style={{ fontSize: '20px', fontWeight: 800, color: '#1A1A1A', letterSpacing: '-0.5px', marginBottom: '32px', textAlign: 'center' }}>NEXART</p>
+        <p style={{ fontSize: '20px', fontWeight: 800, color: colors.text.primary, letterSpacing: '-0.5px', marginBottom: '32px', textAlign: 'center' }}>NEXART</p>
 
         {/* Status card */}
         <div style={{
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.bg.primary,
           borderRadius: '20px',
           overflow: 'hidden',
           boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-          border: `1px solid ${alreadyScanned ? '#FEF3C7' : '#E5E7EB'}`,
+          border: `1px solid ${alreadyScanned ? '#FEF3C7' : colors.border.default}`,
         }}>
           {/* Header coloré */}
           <div style={{
@@ -86,15 +87,15 @@ export default function VerifyClient({ token }: { token: string }) {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               {alreadyScanned
-                ? <AlertTriangle size={28} color="#D97706" />
-                : <CheckCircle size={28} color="#6366F1" />
+                ? <AlertTriangle size={28} color={colors.feedback.warning.solid} />
+                : <CheckCircle size={28} color={colors.violet.primary} />
               }
             </div>
             <div>
-              <p style={{ fontSize: '18px', fontWeight: 700, color: '#1A1A1A', margin: 0 }}>
+              <p style={{ fontSize: '18px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>
                 {alreadyScanned ? 'Déjà scanné' : 'Document valide ✓'}
               </p>
-              <p style={{ fontSize: '13px', color: alreadyScanned ? '#D97706' : '#6366F1', margin: '2px 0 0', fontWeight: 500 }}>
+              <p style={{ fontSize: '13px', color: alreadyScanned ? colors.feedback.warning.solid : colors.violet.primary, margin: '2px 0 0', fontWeight: 500 }}>
                 {alreadyScanned ? 'Ce document a déjà été présenté' : 'Entrée autorisée'}
               </p>
             </div>
@@ -150,7 +151,7 @@ function Row({ label, value, accent, warning }: { label: string; value?: string;
       <span style={{
         fontSize: '13px',
         fontWeight: 600,
-        color: warning ? '#D97706' : accent ? '#6366F1' : '#1A1A1A',
+        color: warning ? colors.feedback.warning.solid : accent ? colors.violet.primary : colors.text.primary,
         textAlign: 'right',
       }}>
         {value || '—'}

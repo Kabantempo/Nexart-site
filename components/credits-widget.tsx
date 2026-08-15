@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Zap, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 type CreditRow = {
   id: string
@@ -59,10 +60,10 @@ export function CreditsWidget() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '24px', fontWeight: '800', color: balance > 0 ? '#6366F1' : '#9CA3AF', lineHeight: 1 }}>{balance}</span>
+            <span style={{ fontSize: '24px', fontWeight: '800', color: balance > 0 ? colors.violet.primary : colors.text.muted, lineHeight: 1 }}>{balance}</span>
             <span style={{ fontSize: '12px', color: 'var(--text-secondary)', marginLeft: '4px' }}>crédit{balance !== 1 ? 's' : ''}</span>
           </div>
-          {open ? <ChevronUp size={16} color="#9CA3AF" /> : <ChevronDown size={16} color="#9CA3AF" />}
+          {open ? <ChevronUp size={16} color={colors.text.muted} /> : <ChevronDown size={16} color={colors.text.muted} />}
         </div>
       </button>
 
@@ -90,8 +91,8 @@ export function CreditsWidget() {
 
           <div style={{ marginTop: '12px', padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.08))', border: '1px solid rgba(99,102,241,0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-              <TrendingUp size={13} color="#6366F1" />
-              <p style={{ fontSize: '12px', fontWeight: '700', color: '#6366F1', margin: 0 }}>Obtenir des crédits</p>
+              <TrendingUp size={13} color={colors.violet.primary} />
+              <p style={{ fontSize: '12px', fontWeight: '700', color: colors.violet.primary, margin: 0 }}>Obtenir des crédits</p>
             </div>
             <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5 }}>
               Les plans <strong>Pro</strong> et <strong>Premium</strong> incluent des crédits offerts chaque mois. Les packs de crédits seront disponibles prochainement.

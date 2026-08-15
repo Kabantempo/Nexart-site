@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { ShoppingBag, ArrowLeft, Euro, Package, Calendar, ExternalLink } from 'lucide-react'
 import { NexModal } from '@/components/ui/nex-modal'
+import { colors } from '@/lib/design-tokens'
 
 interface Product {
   id: string
@@ -96,10 +97,10 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
             )}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+                <h1 style={{ fontSize: '20px', fontWeight: '800', color: colors.bg.primary, margin: 0 }}>
                   Boutique de {creator?.full_name || 'ce créateur'}
                 </h1>
-                <span style={{ fontSize: '10px', fontWeight: '700', color: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.15)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <span style={{ fontSize: '10px', fontWeight: '700', color: colors.status.pending.dot, backgroundColor: 'rgba(245,158,11,0.15)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(245,158,11,0.3)' }}>
                   EN COURS
                 </span>
               </div>
@@ -123,7 +124,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
           <span style={{ fontSize: '16px' }}>🛠️</span>
           <div>
             <p style={{ fontSize: '13px', fontWeight: 700, color: '#92400E', margin: 0 }}>Boutique en cours de développement</p>
-            <p style={{ fontSize: '12px', color: '#B45309', margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
+            <p style={{ fontSize: '12px', color: colors.feedback.warning.text, margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
           </div>
         </div>
       </div>
@@ -161,7 +162,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                       </div>
                     )}
                     {featuredEvent && !isExpiredFeature && (
-                      <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'rgba(17,24,39,0.9)', color: '#FFFFFF', fontSize: '10px', fontWeight: '700', padding: '3px 7px', borderRadius: '6px' }}>
+                      <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'rgba(17,24,39,0.9)', color: colors.bg.primary, fontSize: '10px', fontWeight: '700', padding: '3px 7px', borderRadius: '6px' }}>
                         ✨ Avant-première
                       </div>
                     )}
@@ -180,7 +181,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                     <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 4px', lineHeight: 1.3 }}>{product.title}</p>
 
                     {featuredEvent && !isExpiredFeature && (
-                      <p style={{ fontSize: '10px', color: '#6366F1', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <p style={{ fontSize: '10px', color: colors.violet.primary, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: '3px' }}>
                         <Calendar size={9} /> Dispo pour — {featuredEvent.title}
                       </p>
                     )}
@@ -190,7 +191,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                         <Euro size={12} />{(product.price / 100).toFixed(2)}
                       </span>
                       {product.stock > 0 && product.stock <= 5 && (
-                        <span style={{ fontSize: '10px', color: '#F59E0B', fontWeight: '600' }}>+ que {product.stock}</span>
+                        <span style={{ fontSize: '10px', color: colors.status.pending.dot, fontWeight: '600' }}>+ que {product.stock}</span>
                       )}
                     </div>
                   </div>
@@ -210,7 +211,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
         footer={
           <div style={{ display: 'flex', gap: '10px' }}>
             <Link href={`/creators/${creatorId}`}
-              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: '#111827', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: '#111827', color: colors.bg.primary, borderRadius: '10px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
               <ExternalLink size={13} /> Contacter le créateur
             </Link>
             <button onClick={() => setSelectedProduct(null)}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Plus, Send, Eye, Link as LinkIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface Campaign {
   id: string
@@ -104,8 +105,8 @@ const fetchCampaigns = async () => {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#6366F1',
-              color: '#FFFFFF',
+              backgroundColor: colors.violet.primary,
+              color: colors.bg.primary,
               border: 'none',
               borderRadius: '8px',
               padding: '12px 20px',
@@ -162,19 +163,19 @@ const fetchCampaigns = async () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '12px', marginBottom: '16px' }}>
                   <div style={{ padding: '12px', backgroundColor: 'var(--bg-primary)', borderRadius: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                      <Eye size={14} color='#6366F1' />
+                      <Eye size={14} color={colors.violet.primary} />
                       <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Taux ouverture</p>
                     </div>
-                    <p style={{ fontSize: '16px', fontWeight: '700', color: '#6366F1' }}>
+                    <p style={{ fontSize: '16px', fontWeight: '700', color: colors.violet.primary }}>
                       {campaign.openRate || 0}%
                     </p>
                   </div>
                   <div style={{ padding: '12px', backgroundColor: 'var(--bg-primary)', borderRadius: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                      <LinkIcon size={14} color='#6366F1' />
+                      <LinkIcon size={14} color={colors.violet.primary} />
                       <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Taux clics</p>
                     </div>
-                    <p style={{ fontSize: '16px', fontWeight: '700', color: '#6366F1' }}>
+                    <p style={{ fontSize: '16px', fontWeight: '700', color: colors.violet.primary }}>
                       {campaign.clickRate || 0}%
                     </p>
                   </div>
@@ -206,8 +207,8 @@ const fetchCampaigns = async () => {
                   disabled={sending === campaign.id}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
-                    backgroundColor: sending === campaign.id ? 'var(--text-tertiary)' : '#6366F1',
-                    color: '#FFFFFF', border: 'none', borderRadius: '6px',
+                    backgroundColor: sending === campaign.id ? 'var(--text-tertiary)' : colors.violet.primary,
+                    color: colors.bg.primary, border: 'none', borderRadius: '6px',
                     padding: '8px 12px', cursor: sending === campaign.id ? 'not-allowed' : 'pointer',
                     fontSize: '13px', fontWeight: '600',
                   }}
@@ -331,8 +332,8 @@ const fetchCampaigns = async () => {
                 <button
                   onClick={handleCreateCampaign}
                   style={{
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
+                    backgroundColor: colors.violet.primary,
+                    color: colors.bg.primary,
                     border: 'none',
                     borderRadius: '8px',
                     padding: '12px',

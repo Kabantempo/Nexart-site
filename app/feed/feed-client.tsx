@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { Heart, MapPin, Rss, CalendarDays, Palette, UserPlus } from 'lucide-react'
 import { ReportButton } from '@/components/ui/report-button'
 import { GhostCard } from '@/components/ui/ghost-card'
+import { colors } from '@/lib/design-tokens'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ function PostCard({ post, userId, onLike }: { post: FeedPost; userId: string | n
   return (
     <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
       <Link href={`/creators/${post.creator_id}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px', textDecoration: 'none' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366F1', fontWeight: 700, fontSize: '14px', overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.primary, fontWeight: 700, fontSize: '14px', overflow: 'hidden', flexShrink: 0 }}>
           {post.profiles?.avatar_url
             ? <Image src={post.profiles.avatar_url} alt="" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
             : (post.profiles?.full_name?.[0] || '?')}
@@ -91,8 +92,8 @@ function PostCard({ post, userId, onLike }: { post: FeedPost; userId: string | n
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
         <button onClick={() => onLike(post.id, post.liked)}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: post.liked ? '#E05A5A' : 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <Heart size={15} fill={post.liked ? '#E05A5A' : 'none'} />
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: post.liked ? colors.feedback.danger.solid : 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <Heart size={15} fill={post.liked ? colors.feedback.danger.solid : 'none'} />
           {post.likes_count}
         </button>
         <div style={{ marginLeft: 'auto' }}>
@@ -119,7 +120,7 @@ function CreatorCard({ creator }: { creator: FeedCreator }) {
           </div>
         )}
         <div style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366F1', fontWeight: 700, fontSize: '16px', overflow: 'hidden', flexShrink: 0 }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.primary, fontWeight: 700, fontSize: '16px', overflow: 'hidden', flexShrink: 0 }}>
             {creator.avatar_url
               ? <Image src={creator.avatar_url} alt="" width={44} height={44} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
               : (creator.full_name?.[0] || '?')}
@@ -128,14 +129,14 @@ function CreatorCard({ creator }: { creator: FeedCreator }) {
             <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{creator.full_name || 'Créateur'}</p>
             {city && <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={11} />{city}</p>}
           </div>
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#6366F1', backgroundColor: '#EEF2FF', padding: '6px 10px', borderRadius: '20px' }}>
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '6px 10px', borderRadius: '20px' }}>
             <UserPlus size={12} /> Voir
           </div>
         </div>
         {disciplines.length > 0 && (
           <div style={{ padding: '0 16px 14px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {disciplines.slice(0, 3).map(d => (
-              <span key={d} style={{ fontSize: '11px', color: '#6366F1', backgroundColor: '#EEF2FF', padding: '3px 8px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span key={d} style={{ fontSize: '11px', color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '3px 8px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Palette size={10} />{d}
               </span>
             ))}
@@ -165,7 +166,7 @@ function EventCard({ event }: { event: FeedEvent }) {
           </div>
         )}
         <div style={{ padding: '16px' }}>
-          <p style={{ fontSize: '10px', fontWeight: 700, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
+          <p style={{ fontSize: '10px', fontWeight: 700, color: colors.violet.primary, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
             {event.event_type || 'Événement'}
           </p>
           <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px', lineHeight: '1.3' }}>{event.title}</p>
@@ -182,7 +183,7 @@ function EventCard({ event }: { event: FeedEvent }) {
           {event.theme && event.theme.length > 0 && (
             <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
               {event.theme.slice(0, 3).map(t => (
-                <span key={t} style={{ fontSize: '11px', color: '#6366F1', backgroundColor: '#EEF2FF', padding: '3px 8px', borderRadius: '20px' }}>{t}</span>
+                <span key={t} style={{ fontSize: '11px', color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '3px 8px', borderRadius: '20px' }}>{t}</span>
               ))}
             </div>
           )}
@@ -311,8 +312,8 @@ export default function FeedPage() {
     <div style={{ maxWidth: '640px', margin: '0 auto', padding: '64px 16px 40px' }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Rss size={18} color="#6366F1" />
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Rss size={18} color={colors.violet.primary} />
           </div>
           <div>
             <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Fil d'actualités</h1>
@@ -379,7 +380,7 @@ export default function FeedPage() {
             {/* Vide total */}
             {!hasContent && (
               <GhostCard
-                icon={<Rss size={32} color="#6366F1" />}
+                icon={<Rss size={32} color={colors.violet.primary} />}
                 title="Aucun contenu pour le moment"
                 description="Suivez des créateurs pour voir leurs actualités ici."
                 cta="Découvrir des créateurs"

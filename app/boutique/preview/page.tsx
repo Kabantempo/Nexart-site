@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { ShoppingBag, ArrowLeft, Euro, Package, Calendar, ExternalLink } from 'lucide-react'
 import { NexModal } from '@/components/ui/nex-modal'
+import { colors } from '@/lib/design-tokens'
 
 
 const MOCK_CREATOR = {
@@ -95,10 +96,10 @@ export default function BoutiquePreviewPage() {
               style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+                <h1 style={{ fontSize: '20px', fontWeight: 800, color: colors.bg.primary, margin: 0 }}>
                   Boutique de {MOCK_CREATOR.full_name}
                 </h1>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: '#F59E0B', backgroundColor: 'rgba(245,158,11,0.15)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(245,158,11,0.3)' }}>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: colors.status.pending.dot, backgroundColor: 'rgba(245,158,11,0.15)', padding: '2px 8px', borderRadius: '99px', border: '1px solid rgba(245,158,11,0.3)' }}>
                   EN COURS
                 </span>
               </div>
@@ -120,7 +121,7 @@ export default function BoutiquePreviewPage() {
           <span style={{ fontSize: '16px' }}>🛠️</span>
           <div>
             <p style={{ fontSize: '13px', fontWeight: 700, color: '#92400E', margin: 0 }}>Boutique en cours de développement</p>
-            <p style={{ fontSize: '12px', color: '#B45309', margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
+            <p style={{ fontSize: '12px', color: colors.feedback.warning.text, margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
           </div>
         </div>
       </div>
@@ -130,14 +131,14 @@ export default function BoutiquePreviewPage() {
           {MOCK_PRODUCTS.map(product => (
             <div key={product.id}
               onClick={() => setSelected(product)}
-              style={{ backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
+              style={{ backgroundColor: colors.bg.primary, borderRadius: '12px', border: `1px solid ${colors.border.default}`, overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s' }}
               onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
               onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
             >
-              <div style={{ height: '160px', backgroundColor: '#F5F5F7', position: 'relative' }}>
+              <div style={{ height: '160px', backgroundColor: colors.bg.secondary, position: 'relative' }}>
                 <Image src={product.images[0]} alt={product.title} fill style={{ objectFit: 'cover' }} />
                 {product.featured && (
-                  <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'rgba(17,24,39,0.9)', color: '#FFFFFF', fontSize: '10px', fontWeight: 700, padding: '3px 7px', borderRadius: '6px' }}>
+                  <div style={{ position: 'absolute', top: '8px', left: '8px', backgroundColor: 'rgba(17,24,39,0.9)', color: colors.bg.primary, fontSize: '10px', fontWeight: 700, padding: '3px 7px', borderRadius: '6px' }}>
                     ✨ Avant-première
                   </div>
                 )}
@@ -148,14 +149,14 @@ export default function BoutiquePreviewPage() {
                 )}
               </div>
               <div style={{ padding: '12px' }}>
-                <p style={{ fontSize: '10px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{product.category}</p>
-                <p style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', margin: '0 0 4px', lineHeight: 1.3 }}>{product.title}</p>
+                <p style={{ fontSize: '10px', fontWeight: 700, color: colors.text.muted, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 4px' }}>{product.category}</p>
+                <p style={{ fontSize: '14px', fontWeight: 700, color: colors.text.primary, margin: '0 0 4px', lineHeight: 1.3 }}>{product.title}</p>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 800, color: '#1A1A1A', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 800, color: colors.text.primary, display: 'flex', alignItems: 'center', gap: '2px' }}>
                     <Euro size={12} />{(product.price / 100).toFixed(2)}
                   </span>
                   {product.stock > 0 && product.stock <= 5 && (
-                    <span style={{ fontSize: '10px', color: '#F59E0B', fontWeight: 600 }}>+ que {product.stock}</span>
+                    <span style={{ fontSize: '10px', color: colors.status.pending.dot, fontWeight: 600 }}>+ que {product.stock}</span>
                   )}
                 </div>
               </div>
@@ -173,7 +174,7 @@ export default function BoutiquePreviewPage() {
         size="sm"
         footer={
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: 'var(--text-primary)', color: '#FFFFFF', borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+            <button style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '12px', backgroundColor: 'var(--text-primary)', color: colors.bg.primary, borderRadius: '10px', fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
               <ExternalLink size={13} /> Contacter le créateur
             </button>
             <button onClick={() => setSelected(null)} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', cursor: 'pointer', fontSize: '13px', color: 'var(--text-secondary)' }}>

@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { CheckCircle2, AlertCircle, Users, DollarSign, Scale, Mail } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 export default function ConditionsClient() {
   const sections = [
@@ -310,13 +311,13 @@ export default function ConditionsClient() {
               style={{
                 marginBottom: '60px',
                 paddingBottom: '60px',
-                borderBottom: idx < sections.length - 1 ? '1px solid #E5E7EB' : 'none',
+                borderBottom: idx < sections.length - 1 ? `1px solid ${colors.border.default}` : 'none',
               }}
             >
               {/* Section Header */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
                 <div style={{ marginTop: '4px' }}>
-                  <IconComponent size={32} color="#6366F1" strokeWidth={1.5} />
+                  <IconComponent size={32} color={colors.violet.primary} strokeWidth={1.5} />
                 </div>
                 <div>
                   <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
@@ -401,7 +402,7 @@ export default function ConditionsClient() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
-            <Mail size={24} color="#6366F1" strokeWidth={1.5} />
+            <Mail size={24} color={colors.violet.primary} strokeWidth={1.5} />
             <div>
               <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Questions ou Signalement?
@@ -414,7 +415,7 @@ export default function ConditionsClient() {
                 style={{
                   display: 'inline-block',
                   padding: '12px 24px',
-                  backgroundColor: '#6366F1',
+                  backgroundColor: colors.violet.primary,
                   color: 'white',
                   textDecoration: 'none',
                   borderRadius: '8px',
@@ -423,7 +424,7 @@ export default function ConditionsClient() {
                   transition: 'background-color 0.2s',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4F46E5')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#6366F1')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.violet.primary)}
               >
                 Nous Contacter
               </a>
@@ -442,17 +443,17 @@ export default function ConditionsClient() {
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/conditions" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
+                  <a href="/conditions" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Conditions d'Utilisation
                   </a>
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
+                  <a href="/confidentialite" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Politique de Confidentialité
                   </a>
                 </li>
                 <li>
-                  <a href="/mentions-legales" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
+                  <a href="/mentions-legales" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Mentions Légales
                   </a>
                 </li>
@@ -464,12 +465,12 @@ export default function ConditionsClient() {
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/contact" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
+                  <a href="/contact" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Contact Support
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:kalvin@nexart.fr" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
+                  <a href="mailto:kalvin@nexart.fr" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = colors.violet.primary)}>
                     Email: kalvin@nexart.fr
                   </a>
                 </li>

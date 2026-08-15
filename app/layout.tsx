@@ -10,6 +10,8 @@ import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
 import { CookieConsent } from "@/components/CookieConsent";
 import { EmailConfirmationBanner } from "@/components/ui/email-confirmation-banner";
+import { Suspense } from "react";
+import { ReferralTracker } from "@/components/referral-tracker";
 
 
 export const metadata: Metadata = {
@@ -81,6 +83,7 @@ export default function RootLayout({
           Aller au contenu principal
         </a>
         <Providers>
+          <Suspense fallback={null}><ReferralTracker /></Suspense>
           <NavbarFull />
           <EmailConfirmationBanner />
           <main id="main-content" className="flex-1 pt-[58px]">

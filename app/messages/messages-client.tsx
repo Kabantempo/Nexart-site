@@ -9,6 +9,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { GhostCard } from '@/components/ui/ghost-card'
+import { colors } from '@/lib/design-tokens'
 
 type ConvRow = {
   id: string
@@ -260,14 +261,14 @@ export default function MessagesClient() {
         {filtered.length === 0 ? (
           conversations.length === 0 ? (
             <GhostCard
-              icon={<MessageCircle size={32} color="#6366F1" />}
+              icon={<MessageCircle size={32} color={colors.violet.primary} />}
               title="Aucun message pour l'instant"
               description="Vos échanges avec les créateurs et organisateurs apparaîtront ici."
               cta="Explorer les événements"
               onAction={() => router.push('/events')}
             />
           ) : (
-            <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '16px', border: '1px dashed #E5E7EB', backgroundColor: 'var(--bg-secondary)' }}>
+            <div style={{ textAlign: 'center', padding: '60px 24px', borderRadius: '16px', border: `1px dashed ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
               <span style={{ fontSize: '32px', display: 'block', marginBottom: '12px' }}>🔍</span>
               <p style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '6px' }}>Aucun résultat</p>
               <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Aucun message dans cette catégorie.</p>
@@ -286,7 +287,7 @@ export default function MessagesClient() {
                   <button
                     onClick={e => { e.preventDefault(); deleteConversation(conv.id) }}
                     title="Supprimer la conversation"
-                    style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', zIndex: 10, width: '32px', height: '32px', borderRadius: '50%', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    style={{ position: 'absolute', top: '50%', right: '8px', transform: 'translateY(-50%)', zIndex: 10, width: '32px', height: '32px', borderRadius: '50%', border: 'none', backgroundColor: '#FEF2F2', color: colors.feedback.danger.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                   >
                     <Trash2 size={14} />
                   </button>
@@ -305,7 +306,7 @@ export default function MessagesClient() {
                   onMouseLeave={e => { e.currentTarget.style.backgroundColor = conv.unreadCount > 0 ? 'rgba(99,102,241,0.06)' : 'var(--card-bg)'; e.currentTarget.style.borderColor = conv.unreadCount > 0 ? 'rgba(99,102,241,0.2)' : 'var(--border-color)' }}
                 >
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#6366F1', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: colors.violet.primary, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                       {conv.other?.avatar_url ? (
                         <Image src={conv.other.avatar_url} alt="" fill style={{ objectFit: 'cover' }} />
                       ) : (
@@ -320,8 +321,8 @@ export default function MessagesClient() {
                         position: 'absolute', bottom: '-2px', right: '-2px',
                         width: '16px', height: '16px', borderRadius: '50%',
                         border: '2px solid #FFFFFF',
-                        backgroundColor: conv.other.role === 'creator' || conv.other.role === 'artisan' ? '#6366F1'
-                          : conv.other.role === 'organizer' ? '#059669' : 'var(--text-tertiary)',
+                        backgroundColor: conv.other.role === 'creator' || conv.other.role === 'artisan' ? colors.violet.primary
+                          : conv.other.role === 'organizer' ? colors.feedback.success.solid : 'var(--text-tertiary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {conv.other.role === 'creator' || conv.other.role === 'artisan'
@@ -360,7 +361,7 @@ export default function MessagesClient() {
                           : 'Conversation démarrée'}
                       </p>
                       {conv.unreadCount > 0 && (
-                        <span style={{ marginLeft: '8px', minWidth: '20px', height: '20px', borderRadius: '9999px', backgroundColor: '#6366F1', color: '#FFF', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 5px', flexShrink: 0 }}>
+                        <span style={{ marginLeft: '8px', minWidth: '20px', height: '20px', borderRadius: '9999px', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 5px', flexShrink: 0 }}>
                           {conv.unreadCount}
                         </span>
                       )}

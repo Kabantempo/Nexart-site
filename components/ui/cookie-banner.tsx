@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Settings2, X } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 const STORAGE_KEY = 'nexart_cookie_consent_v2'
 
@@ -76,7 +77,7 @@ export function CookieBanner() {
         <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between' }}>
           <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.5', margin: 0, flex: '1 1 300px', maxWidth: 640 }}>
             Nexart utilise des cookies essentiels pour le fonctionnement du site et des cookies analytiques pour améliorer votre expérience.{' '}
-            <Link href="/confidentialite" style={{ color: '#818CF8', textDecoration: 'underline' }}>
+            <Link href="/confidentialite" style={{ color: colors.violet.hover, textDecoration: 'underline' }}>
               En savoir plus
             </Link>
           </p>
@@ -95,7 +96,7 @@ export function CookieBanner() {
             </button>
             <button
               onClick={acceptAll}
-              style={{ padding: '9px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              style={{ padding: '9px 20px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               Tout accepter
             </button>
@@ -105,8 +106,8 @@ export function CookieBanner() {
         /* Customization panel */
         <div style={{ padding: '24px', maxWidth: 600, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h3 style={{ color: '#F9FAFB', fontSize: '16px', fontWeight: '700', margin: 0 }}>Personnaliser les cookies</h3>
-            <button onClick={() => setCustomizing(false)} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '4px' }}>
+            <h3 style={{ color: colors.bg.secondary, fontSize: '16px', fontWeight: '700', margin: 0 }}>Personnaliser les cookies</h3>
+            <button onClick={() => setCustomizing(false)} style={{ background: 'none', border: 'none', color: colors.text.muted, cursor: 'pointer', padding: '4px' }}>
               <X size={18} />
             </button>
           </div>
@@ -145,7 +146,7 @@ export function CookieBanner() {
             </button>
             <button
               onClick={saveCustom}
-              style={{ padding: '9px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              style={{ padding: '9px 20px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               Enregistrer mes préférences
             </button>
@@ -162,8 +163,8 @@ function CookieCategory({ title, description, enabled, locked, onChange }: {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', padding: '14px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
       <div style={{ flex: 1 }}>
-        <p style={{ color: '#F9FAFB', fontSize: '14px', fontWeight: '600', margin: '0 0 4px' }}>{title}</p>
-        <p style={{ color: '#9CA3AF', fontSize: '12px', lineHeight: '1.5', margin: 0 }}>{description}</p>
+        <p style={{ color: colors.bg.secondary, fontSize: '14px', fontWeight: '600', margin: '0 0 4px' }}>{title}</p>
+        <p style={{ color: colors.text.muted, fontSize: '12px', lineHeight: '1.5', margin: 0 }}>{description}</p>
       </div>
       <label style={{ flexShrink: 0, cursor: locked ? 'not-allowed' : 'pointer' }}>
         <input
@@ -175,7 +176,7 @@ function CookieCategory({ title, description, enabled, locked, onChange }: {
         />
         <span style={{
           display: 'block', width: '40px', height: '22px', borderRadius: '11px',
-          backgroundColor: enabled ? '#6366F1' : 'rgba(255,255,255,0.15)',
+          backgroundColor: enabled ? colors.violet.primary : 'rgba(255,255,255,0.15)',
           position: 'relative', transition: 'background-color 200ms',
           opacity: locked ? 0.6 : 1,
         }}>

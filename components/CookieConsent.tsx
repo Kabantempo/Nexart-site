@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
+import { colors } from '@/lib/design-tokens'
 
 export function CookieConsent() {
   const [show, setShow] = useState(false)
@@ -30,8 +31,8 @@ export function CookieConsent() {
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: '#1A1A1A',
-      color: '#FFFFFF',
+      backgroundColor: colors.text.primary,
+      color: colors.bg.primary,
       padding: '20px 24px',
       zIndex: 9999,
       display: 'flex',
@@ -49,7 +50,7 @@ export function CookieConsent() {
           <a
             href="/confidentialite"
             style={{
-              color: '#6366F1',
+              color: colors.violet.primary,
               textDecoration: 'underline',
               marginLeft: '4px',
               cursor: 'pointer'
@@ -87,8 +88,8 @@ export function CookieConsent() {
           onClick={handleAccept}
           style={{
             padding: '10px 20px',
-            backgroundColor: '#6366F1',
-            color: '#FFFFFF',
+            backgroundColor: colors.violet.primary,
+            color: colors.bg.primary,
             border: 'none',
             borderRadius: '6px',
             cursor: 'pointer',
@@ -100,7 +101,7 @@ export function CookieConsent() {
             e.currentTarget.style.backgroundColor = '#4F46E5'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#6366F1'
+            e.currentTarget.style.backgroundColor = colors.violet.primary
           }}
         >
           Accepter Tous

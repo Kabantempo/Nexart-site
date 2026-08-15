@@ -14,6 +14,7 @@ import { ShareButtons } from '@/components/ui/share-buttons'
 import { ReportButton } from '@/components/ui/report-button'
 import StandPlanViewer from '@/components/ui/stand-plan-viewer'
 import { NexModal } from '@/components/ui/nex-modal'
+import { colors } from '@/lib/design-tokens'
 
 interface Props {
   id: string
@@ -151,7 +152,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
           <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
             {[1, 2, 3, 4, 5].map(s => (
               <button key={s} onClick={() => setRating(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-                <Star size={24} color="#F59E0B" fill={s <= rating ? '#F59E0B' : 'none'} />
+                <Star size={24} color="#F59E0B" fill={s <= rating ? colors.status.pending.dot : 'none'} />
               </button>
             ))}
             {rating > 0 && <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginLeft: '4px', marginTop: '4px' }}>{rating}/5</span>}
@@ -205,7 +206,7 @@ function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?:
                 </div>
                 <div style={{ display: 'flex', gap: '2px' }}>
                   {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} size={12} color="#F59E0B" fill={s <= r.rating ? '#F59E0B' : 'none'} />
+                    <Star key={s} size={12} color="#F59E0B" fill={s <= r.rating ? colors.status.pending.dot : 'none'} />
                   ))}
                 </div>
               </div>
@@ -234,9 +235,9 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 }
 
 const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }> = {
-  pending: { label: 'En attente', color: '#FF9800', bg: '#FFF8E1' },
-  accepted: { label: 'Acceptée ✓', color: '#4CAF50', bg: '#E8F5E9' },
-  refused: { label: 'Refusée', color: '#E05A5A', bg: '#FEF2F2' },
+  pending: { label: 'En attente', color: '#FF9800', bg: colors.feedback.warning.bg },
+  accepted: { label: 'Acceptée ✓', color: colors.feedback.success.solid, bg: colors.feedback.success.bg },
+  refused: { label: 'Refusée', color: colors.feedback.danger.solid, bg: '#FEF2F2' },
 }
 
 type Stand = { id: string; stand_number: string; dimensions: string | null; notes: string | null; creator_id: string | null }
@@ -298,8 +299,8 @@ function StandsManager({ eventId }: { eventId: string }) {
                 <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', minWidth: '40px' }}>#{s.stand_number}</span>
                 {s.dimensions && <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{s.dimensions}</span>}
                 <span style={{ flex: 1 }} />
-                {s.creator_id && <span style={{ fontSize: '11px', color: '#6366F1', fontWeight: '600' }}>Assigné</span>}
-                <button onClick={() => deleteStand(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#E05A5A', fontSize: '16px' }}>×</button>
+                {s.creator_id && <span style={{ fontSize: '11px', color: colors.violet.primary, fontWeight: '600' }}>Assigné</span>}
+                <button onClick={() => deleteStand(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.feedback.danger.solid, fontSize: '16px' }}>×</button>
               </div>
             ))}
             {stands.length === 0 && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>Aucun stand créé</p>}
@@ -307,7 +308,7 @@ function StandsManager({ eventId }: { eventId: string }) {
           <div style={{ display: 'flex', gap: '6px' }}>
             <input value={newNum} onChange={e => setNewNum(e.target.value)} placeholder="N°" style={{ width: '60px', padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none' }} />
             <input value={newDim} onChange={e => setNewDim(e.target.value)} placeholder="Dimensions (ex: 3m×2m)" style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none' }} />
-            <button onClick={addStand} disabled={saving || !newNum.trim()} style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+            <button onClick={addStand} disabled={saving || !newNum.trim()} style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
               Ajouter
             </button>
           </div>
@@ -328,7 +329,7 @@ function FaqSection({ items }: { items: { q: string; a: string }[] }) {
             <button onClick={() => setOpen(open === i ? null : i)}
               style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', backgroundColor: open === i ? 'var(--bg-secondary)' : 'var(--bg-primary)', border: 'none', cursor: 'pointer', textAlign: 'left', gap: '12px' }}>
               <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.q}</span>
-              <span style={{ fontSize: '20px', color: '#6366F1', flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'none', transition: 'transform 150ms' }}>+</span>
+              <span style={{ fontSize: '20px', color: colors.violet.primary, flexShrink: 0, transform: open === i ? 'rotate(45deg)' : 'none', transition: 'transform 150ms' }}>+</span>
             </button>
             {open === i && (
               <div style={{ padding: '0 20px 16px', fontSize: '14px', color: '#555555', lineHeight: '1.7' }}>
@@ -375,8 +376,20 @@ export function EventDetailClient({ id }: Props) {
   const [appPortfolioFiles, setAppPortfolioFiles] = useState<File[]>([])
   const [appPortfolioUploading, setAppPortfolioUploading] = useState(false)
   const appPortfolioRef = useRef<HTMLInputElement>(null)
+  const [weeklyApplicants, setWeeklyApplicants] = useState<number | null>(null)
 
   const REQUIRED_FIELDS_TOTAL = 6
+
+  // Weekly applicants for social proof
+  useEffect(() => {
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    supabase
+      .from('applications')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id)
+      .gte('created_at', weekAgo)
+      .then(({ count }) => setWeeklyApplicants(count ?? 0))
+  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Charger le contrat existant si le créateur est accepté
   useEffect(() => {
@@ -664,8 +677,8 @@ export function EventDetailClient({ id }: Props) {
   if (error || !event) {
     return (
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '80px 16px', textAlign: 'center' }}>
-        <p style={{ color: '#E05A5A', fontSize: '16px' }}>Événement introuvable</p>
-        <Link href="/events" style={{ color: '#6366F1', textDecoration: 'none', marginTop: '16px', display: 'block' }}>
+        <p style={{ color: colors.feedback.danger.solid, fontSize: '16px' }}>Événement introuvable</p>
+        <Link href="/events" style={{ color: colors.violet.primary, textDecoration: 'none', marginTop: '16px', display: 'block' }}>
           ← Retour aux événements
         </Link>
       </div>
@@ -740,11 +753,11 @@ export function EventDetailClient({ id }: Props) {
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)' }} />
         <div style={{ position: 'absolute', bottom: '24px', left: '24px', right: '24px' }}>
           {event.event_type && (
-            <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '9999px', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '9999px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
               {EVENT_TYPE_LABELS[event.event_type] || event.event_type}
             </span>
           )}
-          <h1 className="event-title" style={{ fontSize: '36px', fontWeight: '700', color: '#FFFFFF', margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+          <h1 className="event-title" style={{ fontSize: '36px', fontWeight: '700', color: colors.bg.primary, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
             {event.title}
           </h1>
         </div>
@@ -755,13 +768,13 @@ export function EventDetailClient({ id }: Props) {
         {/* Breadcrumb */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.primary }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
             Accueil
           </Link>
           <ChevronRight size={13} color="var(--border-color)" />
           <Link href="/events" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.primary }}
             onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
             Événements
           </Link>
@@ -773,9 +786,9 @@ export function EventDetailClient({ id }: Props) {
 
         <Link
           href="/events"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#5B5BD6' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#6366F1' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.dark }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = colors.violet.primary }}
         >
           <ArrowLeft size={16} />
           Retour aux événements
@@ -789,7 +802,7 @@ export function EventDetailClient({ id }: Props) {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '32px', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 {event.start_date && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Calendar size={18} color="#6366F1" />
+                    <Calendar size={18} color={colors.violet.primary} />
                     <div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Date</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
@@ -799,7 +812,7 @@ export function EventDetailClient({ id }: Props) {
                         )}
                       </div>
                       {(event as unknown as { recurrence_type?: string; recurrence_dates?: string[] }).recurrence_type && (event as unknown as { recurrence_type?: string }).recurrence_type !== 'none' && (
-                        <div style={{ fontSize: '12px', color: '#6366F1', fontWeight: '600', marginTop: '4px' }}>
+                        <div style={{ fontSize: '12px', color: colors.violet.primary, fontWeight: '600', marginTop: '4px' }}>
                           {({ weekly: 'Hebdomadaire', biweekly: 'Bimensuel', monthly: 'Mensuel' } as Record<string, string>)[(event as unknown as { recurrence_type: string }).recurrence_type] || ''}
                           {' · '}{(event as unknown as { recurrence_dates?: string[] }).recurrence_dates?.length ?? 0} dates au total
                         </div>
@@ -809,7 +822,7 @@ export function EventDetailClient({ id }: Props) {
                 )}
                 {(event.start_time || event.end_time) && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Clock size={18} color="#6366F1" />
+                    <Clock size={18} color={colors.violet.primary} />
                     <div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Horaires</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
@@ -820,7 +833,7 @@ export function EventDetailClient({ id }: Props) {
                 )}
                 {event.location && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <MapPin size={18} color="#6366F1" />
+                    <MapPin size={18} color={colors.violet.primary} />
                     <div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Lieu</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
@@ -831,7 +844,7 @@ export function EventDetailClient({ id }: Props) {
                 )}
                 {(event.stand_count ?? 0) > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Users size={18} color="#6366F1" />
+                    <Users size={18} color={colors.violet.primary} />
                     <div>
                       <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Stands</div>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
@@ -881,7 +894,7 @@ export function EventDetailClient({ id }: Props) {
                       marginTop: '28px',
                     }}
                   >
-                    <Heart size={16} fill={favEventIds.has(id) ? '#E05A5A' : 'none'} color={favEventIds.has(id) ? '#E05A5A' : '#94A3B8'} />
+                    <Heart size={16} fill={favEventIds.has(id) ? colors.feedback.danger.solid : 'none'} color={favEventIds.has(id) ? colors.feedback.danger.solid : '#94A3B8'} />
                     {favEventIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
                   </button>
                 )}
@@ -906,7 +919,7 @@ export function EventDetailClient({ id }: Props) {
                   </h2>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {(event.discipline_tags ?? []).map((tag: string) => (
-                      <span key={tag} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: '#6366F1', fontSize: '14px', fontWeight: '500' }}>
+                      <span key={tag} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#F0F0FF', color: colors.violet.primary, fontSize: '14px', fontWeight: '500' }}>
                         {tag}
                       </span>
                     ))}
@@ -967,10 +980,10 @@ export function EventDetailClient({ id }: Props) {
               {/* Stand price */}
               {(event.stand_price ?? 0) > 0 && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '12px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
-                  <Euro size={20} color="#6366F1" />
+                  <Euro size={20} color={colors.violet.primary} />
                   <div>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Prix du stand</div>
-                    <div style={{ fontSize: '22px', fontWeight: '700', color: '#6366F1' }}>{event.stand_price}€</div>
+                    <div style={{ fontSize: '22px', fontWeight: '700', color: colors.violet.primary }}>{event.stand_price}€</div>
                   </div>
                 </div>
               )}
@@ -994,13 +1007,45 @@ export function EventDetailClient({ id }: Props) {
                       <div style={{
                         height: '100%', borderRadius: '3px',
                         width: `${pct}%`,
-                        backgroundColor: pct >= 90 ? '#E05A5A' : pct >= 60 ? '#F59E0B' : '#10B981',
+                        backgroundColor: pct >= 90 ? colors.feedback.danger.solid : pct >= 60 ? colors.status.pending.dot : '#10B981',
                         transition: 'width 0.6s ease',
                       }} />
                     </div>
                   </div>
                 )
               })()}
+
+              {/* Social proof badges */}
+              {((weeklyApplicants !== null && weeklyApplicants >= 5) || (acceptedCount !== null && (event.stand_count ?? 0) > 0 && (event.stand_count ?? 0) - acceptedCount <= 5 && (event.stand_count ?? 0) - acceptedCount > 0)) && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                  {weeklyApplicants !== null && weeklyApplicants >= 5 && (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '6px',
+                      fontSize: '13px', fontWeight: '600',
+                      padding: '6px 12px', borderRadius: '20px',
+                      backgroundColor: colors.violet.bg, color: colors.violet.primary,
+                      border: '1px solid #C7D2FE',
+                    }}>
+                      🔥 {weeklyApplicants} créateur{weeklyApplicants > 1 ? 's' : ''} {weeklyApplicants > 1 ? 'ont' : 'a'} postulé cette semaine
+                    </span>
+                  )}
+                  {acceptedCount !== null && (event.stand_count ?? 0) > 0 && (() => {
+                    const remaining = (event.stand_count ?? 0) - acceptedCount
+                    if (remaining > 0 && remaining <= 5) return (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        fontSize: '13px', fontWeight: '600',
+                        padding: '6px 12px', borderRadius: '20px',
+                        backgroundColor: '#FEF2F2', color: colors.feedback.danger.solid,
+                        border: `1px solid ${colors.feedback.danger.solid}33`,
+                      }}>
+                        ⚡ Plus que {remaining} place{remaining > 1 ? 's' : ''} disponible{remaining > 1 ? 's' : ''}
+                      </span>
+                    )
+                    return null
+                  })()}
+                </div>
+              )}
 
               {/* Stand plan viewer */}
               <StandPlanViewer eventId={id} />
@@ -1082,7 +1127,7 @@ export function EventDetailClient({ id }: Props) {
                             href={existingContract.pdf_url}
                             target="_blank"
                             rel="noreferrer"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'var(--bg-primary)', color: '#6366F1', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: 'var(--bg-primary)', color: colors.violet.primary, fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}
                           >
                             <FileText size={14} /> Voir le contrat
                           </a>
@@ -1104,7 +1149,7 @@ export function EventDetailClient({ id }: Props) {
                         <button
                           onClick={() => handleGenerateContract(user.id, application.id)}
                           disabled={contractLoading === application.id}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}
                         >
                           <FileText size={14} />
                           {contractLoading === application.id ? 'Génération…' : 'Générer le contrat PDF'}
@@ -1115,8 +1160,8 @@ export function EventDetailClient({ id }: Props) {
                   )}
                 </div>
               ) : success ? (
-                <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: '#E8F5E9', border: '1px solid #4CAF50', textAlign: 'center' }}>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: '#4CAF50', margin: 0 }}>
+                <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: '1px solid #4CAF50', textAlign: 'center' }}>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: colors.feedback.success.solid, margin: 0 }}>
                     Candidature envoyée ✓
                   </p>
                   <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
@@ -1130,13 +1175,13 @@ export function EventDetailClient({ id }: Props) {
                   </p>
                   <Link
                     href="/login"
-                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '16px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
+                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: '16px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
                   >
                     Se connecter
                   </Link>
                   <Link
                     href="/register"
-                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #6366F1', color: '#6366F1', textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box', marginTop: '12px' }}
+                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, color: colors.violet.primary, textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box', marginTop: '12px' }}
                   >
                     Créer un compte
                   </Link>
@@ -1172,7 +1217,7 @@ export function EventDetailClient({ id }: Props) {
                       {applications.some(a => a.status === 'accepted' || a.status === 'pending') && (
                         <button
                           onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: '#FFF', color: '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: '#FFF', color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
                         >
                           <Send size={13} /> Messagerie groupée
                         </button>
@@ -1209,7 +1254,7 @@ export function EventDetailClient({ id }: Props) {
                         <button
                           onClick={handleBulkMessage}
                           disabled={bulkMsgSending || !bulkMsgText.trim()}
-                          style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
+                          style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
                         >
                           <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
                         </button>
@@ -1273,7 +1318,7 @@ export function EventDetailClient({ id }: Props) {
                                 type="checkbox"
                                 checked={selectedCreatorIds.includes(app.creator_id)}
                                 onChange={() => toggleCreatorSelection(app.creator_id)}
-                                style={{ width: '16px', height: '16px', accentColor: '#6366F1', cursor: 'pointer', flexShrink: 0 }}
+                                style={{ width: '16px', height: '16px', accentColor: colors.violet.primary, cursor: 'pointer', flexShrink: 0 }}
                               />
                             )}
                             <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700', color: 'var(--text-secondary)' }}>
@@ -1292,7 +1337,7 @@ export function EventDetailClient({ id }: Props) {
                             <span style={{
                               padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
                               backgroundColor: app.status === 'accepted' ? '#ECFDF5' : app.status === 'refused' ? '#FEF2F2' : '#FFFBEB',
-                              color: app.status === 'accepted' ? '#10B981' : app.status === 'refused' ? '#E05A5A' : '#F59E0B',
+                              color: app.status === 'accepted' ? '#10B981' : app.status === 'refused' ? colors.feedback.danger.solid : colors.status.pending.dot,
                             }}>
                               {app.status === 'accepted' ? 'Acceptée' : app.status === 'refused' ? 'Refusée' : 'En attente'}
                             </span>
@@ -1319,14 +1364,14 @@ export function EventDetailClient({ id }: Props) {
                               <button
                                 onClick={() => handleUpdateStatus(app.id, 'accepted')}
                                 disabled={updatingId === app.id}
-                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
+                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: '#10B981', color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
                               >
                                 Accepter
                               </button>
                               <button
                                 onClick={() => handleUpdateStatus(app.id, 'refused')}
                                 disabled={updatingId === app.id}
-                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: '#E05A5A', fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
+                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: colors.feedback.danger.solid, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
                               >
                                 Refuser
                               </button>
@@ -1336,7 +1381,7 @@ export function EventDetailClient({ id }: Props) {
                             <button
                               onClick={() => handleGenerateContract(app.creator_id, app.id)}
                               disabled={contractLoading === app.id}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: '#F8F9FF', color: '#6366F1', fontSize: '12px', fontWeight: '700', cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: '#F8F9FF', color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}
                             >
                               <FileText size={12} />
                               {contractLoading === app.id ? 'Génération…' : 'Contrat PDF'}
@@ -1362,7 +1407,7 @@ export function EventDetailClient({ id }: Props) {
                         </div>
                         <button
                           onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
                         >
                           <Send size={14} /> Envoyer un message groupé
                         </button>
@@ -1382,7 +1427,7 @@ export function EventDetailClient({ id }: Props) {
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>Profil complété</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#6366F1' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: colors.violet.primary }}>
                         {REQUIRED_FIELDS_TOTAL - missingFields.length}/{REQUIRED_FIELDS_TOTAL}
                       </span>
                     </div>
@@ -1411,7 +1456,7 @@ export function EventDetailClient({ id }: Props) {
                   </div>
                   <Link
                     href="/profile"
-                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
+                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
                   >
                     Compléter mon profil →
                   </Link>
@@ -1466,12 +1511,12 @@ export function EventDetailClient({ id }: Props) {
                     )}
                   </div>
                   {applyError && (
-                    <p style={{ color: '#E05A5A', fontSize: '13px', marginBottom: '12px' }}>{applyError}</p>
+                    <p style={{ color: colors.feedback.danger.solid, fontSize: '13px', marginBottom: '12px' }}>{applyError}</p>
                   )}
                   <button
                     onClick={handleApply}
                     disabled={applying}
-                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: applying ? '#A5A6F6' : '#6366F1', color: '#FFFFFF', fontSize: '16px', fontWeight: '600', border: 'none', cursor: applying ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
+                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: applying ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: applying ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
                   >
                     {applying ? 'Envoi...' : 'Envoyer ma candidature'}
                   </button>
@@ -1487,7 +1532,7 @@ export function EventDetailClient({ id }: Props) {
                 if (full) {
                   return onWaitlist ? (
                     <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: '#FFF7ED', border: '1px solid #FCD34D', textAlign: 'center' }}>
-                      <p style={{ fontSize: '14px', fontWeight: '700', color: '#B45309', margin: '0 0 4px' }}>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: colors.feedback.warning.text, margin: '0 0 4px' }}>
                         Vous êtes en liste d'attente
                       </p>
                       <p style={{ fontSize: '12px', color: '#92400E', margin: '0 0 12px' }}>
@@ -1496,7 +1541,7 @@ export function EventDetailClient({ id }: Props) {
                       <button
                         onClick={handleLeaveWaitlist}
                         disabled={joiningWaitlist}
-                        style={{ padding: '8px 18px', borderRadius: '8px', border: '1px solid #FCD34D', backgroundColor: 'var(--bg-primary)', color: '#B45309', fontSize: '13px', fontWeight: '600', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
+                        style={{ padding: '8px 18px', borderRadius: '8px', border: '1px solid #FCD34D', backgroundColor: 'var(--bg-primary)', color: colors.feedback.warning.text, fontSize: '13px', fontWeight: '600', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
                       >
                         {joiningWaitlist ? 'Traitement…' : 'Se retirer de la liste'}
                       </button>
@@ -1512,7 +1557,7 @@ export function EventDetailClient({ id }: Props) {
                       <button
                         onClick={handleJoinWaitlist}
                         disabled={joiningWaitlist}
-                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '14px', fontWeight: '700', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
+                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '700', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
                       >
                         {joiningWaitlist ? 'Traitement…' : "Rejoindre la liste d'attente"}
                       </button>
@@ -1522,9 +1567,9 @@ export function EventDetailClient({ id }: Props) {
                 return (
                   <button
                     onClick={() => setShowForm(true)}
-                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#FFFFFF', fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#5B5BD6'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1'; e.currentTarget.style.boxShadow = 'none' }}
+                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.violet.dark; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.violet.primary; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     Je m'inscris
                   </button>

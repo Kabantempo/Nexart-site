@@ -5,6 +5,7 @@ import { Bell, BellOff, Check, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useToast } from './toast-provider'
+import { colors } from '@/lib/design-tokens'
 
 interface Props {
   disciplines?: string[]
@@ -96,7 +97,7 @@ export function SaveSearchButton({ disciplines = [], city, region, query }: Prop
             )}
 
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-primary)', marginBottom: '14px', cursor: 'pointer' }}>
-              <input type="checkbox" checked={notifyEmail} onChange={e => setNotifyEmail(e.target.checked)} style={{ accentColor: '#6366F1' }} />
+              <input type="checkbox" checked={notifyEmail} onChange={e => setNotifyEmail(e.target.checked)} style={{ accentColor: colors.violet.primary }} />
               Recevoir les alertes par email
             </label>
 

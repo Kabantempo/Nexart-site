@@ -19,6 +19,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ function SizePicker({
               onMouseLeave={() => setHover(null)}
               style={{
                 width: '32px', height: '32px', borderRadius: '4px',
-                backgroundColor: isSelected ? '#6366F1' : isHover ? '#C7D2FE' : '#E5E7EB',
+                backgroundColor: isSelected ? colors.violet.primary : isHover ? '#C7D2FE' : colors.border.default,
                 cursor: 'pointer', transition: 'background-color 100ms ease',
                 border: isSelected ? '2px solid #4F46E5' : '2px solid transparent',
               }}
@@ -86,7 +87,7 @@ function SizePicker({
             onClick={() => onSelect(s.col, s.row)}
             style={{
               padding: '4px 10px', borderRadius: '6px', border: 'none',
-              backgroundColor: selected.col === s.col && selected.row === s.row ? '#6366F1' : '#F3F4F6',
+              backgroundColor: selected.col === s.col && selected.row === s.row ? colors.violet.primary : '#F3F4F6',
               color: selected.col === s.col && selected.row === s.row ? '#FFF' : '#4B5563',
               fontSize: '12px', fontWeight: '600', cursor: 'pointer',
             }}
@@ -149,7 +150,7 @@ function AddModal({
             Annuler
           </button>
           <button onClick={handleSave} disabled={!file || uploading}
-            style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: !file || uploading ? '#A5B4FC' : '#6366F1', color: '#FFF', fontSize: '14px', fontWeight: '600', cursor: !file || uploading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: !file || uploading ? '#A5B4FC' : colors.violet.primary, color: '#FFF', fontSize: '14px', fontWeight: '600', cursor: !file || uploading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Check size={15} /> {uploading ? 'Envoi…' : 'Ajouter'}
           </button>
         </div>
@@ -165,15 +166,15 @@ function AddModal({
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: '20px', transition: 'border-color 150ms ease',
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = colors.violet.primary }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = colors.border.default }}
       >
         {preview
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : (
             <div style={{ textAlign: 'center', padding: '20px' }}>
-              <Plus size={32} color="#9CA3AF" />
+              <Plus size={32} color={colors.text.muted} />
               <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
             </div>
           )
@@ -188,8 +189,8 @@ function AddModal({
       </div>
 
       {/* Info taille */}
-      <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#EEF2FF' }}>
-        <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', margin: 0 }}>
+      <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: colors.violet.bg }}>
+        <p style={{ fontSize: '13px', color: colors.violet.primary, fontWeight: '600', margin: 0 }}>
           Format sélectionné : {col} colonne{col > 1 ? 's' : ''} × {row} ligne{row > 1 ? 's' : ''} — {SIZES.find(s => s.col === col && s.row === row)?.desc ?? 'Personnalisé'}
         </p>
       </div>
@@ -224,11 +225,11 @@ function ResizeModal({
       footer={
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={() => { onDelete(index); onClose() }}
-            style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: colors.feedback.danger.solid, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={15} /> Supprimer
           </button>
           <button onClick={() => { onSave(index, col, row); onClose() }}
-            style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Check size={15} /> Enregistrer
           </button>
         </div>
@@ -281,7 +282,7 @@ function SortableGridItem({
       style={style}
       onMouseEnter={(e) => {
         if (!isDragging) {
-          (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1'
+          (e.currentTarget as HTMLDivElement).style.borderColor = colors.violet.primary
           const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLDivElement
           if (overlay) overlay.style.opacity = '1'
         }
@@ -393,7 +394,7 @@ export function PortfolioGridEditor({
       <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
         {items.length}/{MAX} photos · Cliquez sur une photo pour la modifier · Glissez pour réordonner
         {items.length >= MAX && MAX <= 10 && (
-          <span style={{ display: 'block', marginTop: '4px', color: '#F59E0B', fontWeight: '600' }}>
+          <span style={{ display: 'block', marginTop: '4px', color: colors.status.pending.dot, fontWeight: '600' }}>
             Limite atteinte — passez au plan Boost pour 30 photos ou Pro pour un portfolio illimité
           </span>
         )}
@@ -430,11 +431,11 @@ export function PortfolioGridEditor({
                   alignItems: 'center', justifyContent: 'center',
                   gap: '6px', transition: 'border-color 150ms ease',
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = colors.violet.primary }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = colors.border.default }}
               >
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Plus size={20} color="#6366F1" />
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Plus size={20} color={colors.violet.primary} />
                 </div>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '600' }}>Ajouter</span>
               </div>

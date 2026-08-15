@@ -18,6 +18,7 @@ import {
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
 import { PastEventsGallery } from '@/components/ui/past-events-gallery'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,7 +129,7 @@ const RADIUS_LABELS: Record<string, string> = {
   '5': '5 km', '10': '10 km', '25': '25 km', national: 'France entière',
 }
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  pending:   { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB' },
+  pending:   { label: 'En attente', color: colors.status.pending.dot, bg: '#FFFBEB' },
   accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
   draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
@@ -146,7 +147,7 @@ function Stars({ n }: { n: number }) {
   return (
     <span style={{ display: 'flex', gap: '2px' }}>
       {[1,2,3,4,5].map(i => (
-        <Star key={i} size={14} fill={i <= n ? '#F59E0B' : 'none'} color={i <= n ? '#F59E0B' : '#D1D5DB'} />
+        <Star key={i} size={14} fill={i <= n ? colors.status.pending.dot : 'none'} color={i <= n ? colors.status.pending.dot : '#D1D5DB'} />
       ))}
     </span>
   )
@@ -158,9 +159,9 @@ function Badge({ ok, label }: { ok: boolean; label: string }) {
       display: 'inline-flex', alignItems: 'center', gap: '4px',
       padding: '4px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: '600',
       backgroundColor: ok ? '#ECFDF5' : '#F3F4F6',
-      color: ok ? '#059669' : 'var(--text-tertiary)',
+      color: ok ? colors.feedback.success.solid : 'var(--text-tertiary)',
     }}>
-      <CheckCircle size={12} fill={ok ? '#059669' : 'none'} color={ok ? '#059669' : 'var(--text-tertiary)'} />
+      <CheckCircle size={12} fill={ok ? colors.feedback.success.solid : 'none'} color={ok ? colors.feedback.success.solid : 'var(--text-tertiary)'} />
       {label}
     </span>
   )
@@ -224,7 +225,7 @@ export default function ProfilePage() {
   const [editPriceMin, setEditPriceMin] = useState('')
   const [editPriceMax, setEditPriceMax] = useState('')
   const [editLegalStatus, setEditLegalStatus] = useState('')
-  const [editBrandColor, setEditBrandColor] = useState('#6366F1')
+  const [editBrandColor, setEditBrandColor] = useState<string>(colors.violet.primary)
   const [editSiret, setEditSiret] = useState(false)
   const [editInsurance, setEditInsurance] = useState(false)
   const [siretNumber, setSiretNumber] = useState('')
@@ -370,7 +371,7 @@ export default function ProfilePage() {
         setEditPriceMin((creat as any)?.price_min?.toString() ?? '')
         setEditPriceMax((creat as any)?.price_max?.toString() ?? '')
         setEditLegalStatus((creat as any)?.legal_status ?? '')
-        setEditBrandColor((creat as any)?.page_settings?.primary_color ?? '#6366F1')
+        setEditBrandColor((creat as any)?.page_settings?.primary_color ?? colors.violet.primary)
         setEditSiret(creat?.siret_verified ?? false)
         setEditInsurance(creat?.insurance_verified ?? false)
         setSiretNumber((creat as Record<string, unknown>)?.siret_number as string ?? '')
@@ -1227,7 +1228,7 @@ export default function ProfilePage() {
                     </div>
                     <label className="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl bg-gray-50 border border-gray-200">
                       <div onClick={() => setEditShowRealName(v => !v)} className="relative shrink-0 cursor-pointer"
-                        style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? colors.violet.primary : '#CBD5E1', transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </div>
                       <div>
@@ -1412,7 +1413,7 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-400">Appliquée sur votre page publique</p>
                     </div>
                     <div className="ml-auto flex gap-2">
-                      {['#6366F1','#F59E0B','#10B981','#EF4444','#8B5CF6','#EC4899','#0EA5E9'].map(c => (
+                      {[colors.violet.primary,colors.status.pending.dot,'#10B981','#EF4444','#8B5CF6','#EC4899','#0EA5E9'].map(c => (
                         <button key={c} onClick={() => setEditBrandColor(c)}
                           className="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
                           style={{ backgroundColor: c, borderColor: editBrandColor === c ? c : 'transparent', outline: editBrandColor === c ? `2px solid ${c}` : 'none', outlineOffset: '2px' }}
@@ -1422,8 +1423,8 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: (creator as any)?.page_settings?.primary_color ?? '#6366F1' }} />
-                    <span className="text-sm text-gray-700">{((creator as any)?.page_settings?.primary_color ?? '#6366F1').toUpperCase()}</span>
+                    <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: (creator as any)?.page_settings?.primary_color ?? colors.violet.primary }} />
+                    <span className="text-sm text-gray-700">{((creator as any)?.page_settings?.primary_color ?? colors.violet.primary).toUpperCase()}</span>
                   </div>
                 )}
               </div>
@@ -1435,8 +1436,8 @@ export default function ProfilePage() {
                   <div className="flex flex-col gap-2.5">
                     {([
                       { icon: <AtSign size={15} className="text-gray-400 shrink-0" />, val: editInstagram, set: setEditInstagram, placeholder: 'Instagram : @votre_compte' },
-                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: '#9CA3AF' }}>f</span>, val: editFacebook, set: setEditFacebook, placeholder: 'Facebook : nom de page' },
-                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: '#9CA3AF' }}>♪</span>, val: editTiktok, set: setEditTiktok, placeholder: 'TikTok : @votre_compte' },
+                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>f</span>, val: editFacebook, set: setEditFacebook, placeholder: 'Facebook : nom de page' },
+                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>♪</span>, val: editTiktok, set: setEditTiktok, placeholder: 'TikTok : @votre_compte' },
                       { icon: <Globe size={15} className="text-gray-400 shrink-0" />, val: editWebsite, set: setEditWebsite, placeholder: 'Site web : https://...' },
                       { icon: <ExternalLink size={15} className="text-gray-400 shrink-0" />, val: editEtsy, set: setEditEtsy, placeholder: 'Etsy : https://etsy.com/shop/...' },
                     ] as { icon: React.ReactNode; val: string; set: (v: string) => void; placeholder: string }[]).map(({ icon, val, set, placeholder }, i) => (
@@ -1451,8 +1452,8 @@ export default function ProfilePage() {
                   <div className="flex flex-col gap-2.5">
                     {([
                       { icon: <AtSign size={14} className="text-gray-400" />, val: creator?.instagram, label: 'Instagram' },
-                      { icon: <span style={{ fontSize: 14, color: '#9CA3AF' }}>f</span>, val: (creator as any)?.facebook, label: 'Facebook' },
-                      { icon: <span style={{ fontSize: 14, color: '#9CA3AF' }}>♪</span>, val: (creator as any)?.tiktok, label: 'TikTok' },
+                      { icon: <span style={{ fontSize: 14, color: colors.text.muted }}>f</span>, val: (creator as any)?.facebook, label: 'Facebook' },
+                      { icon: <span style={{ fontSize: 14, color: colors.text.muted }}>♪</span>, val: (creator as any)?.tiktok, label: 'TikTok' },
                       { icon: <Globe size={14} className="text-gray-400" />, val: creator?.website, label: 'Site web' },
                       { icon: <ExternalLink size={14} className="text-gray-400" />, val: creator?.etsy, label: 'Etsy' },
                     ] as { icon: React.ReactNode; val: string | null | undefined; label: string }[]).filter(l => l.val).map(({ icon, val, label }) => (
@@ -1476,7 +1477,7 @@ export default function ProfilePage() {
                 {editing ? (
                   <div className="flex flex-col gap-2.5">
                     <div className="flex items-center gap-2.5">
-                      <span style={{ fontSize: 15, flexShrink: 0, color: '#9CA3AF' }}>📞</span>
+                      <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>📞</span>
                       <input value={editPhone} onChange={e => setEditPhone(e.target.value)} placeholder="Téléphone : 06 00 00 00 00"
                         className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
                     </div>
@@ -1535,7 +1536,7 @@ export default function ProfilePage() {
                   {/* SIRET */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <CheckCircle size={17} fill={(creator?.siret_verified || editSiret) ? '#059669' : 'none'} color={(creator?.siret_verified || editSiret) ? '#059669' : '#D1D5DB'} />
+                      <CheckCircle size={17} fill={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : 'none'} color={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : '#D1D5DB'} />
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">SIRET vérifié</p>
                         <p className="text-xs text-gray-400">Professionnel déclaré</p>
@@ -1571,8 +1572,8 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <CheckCircle size={17}
-                        fill={creator?.insurance_verified ? '#059669' : 'none'}
-                        color={creator?.insurance_verified ? '#059669' : creator?.insurance_doc_url ? '#F59E0B' : '#D1D5DB'} />
+                        fill={creator?.insurance_verified ? colors.feedback.success.solid : 'none'}
+                        color={creator?.insurance_verified ? colors.feedback.success.solid : creator?.insurance_doc_url ? colors.status.pending.dot : '#D1D5DB'} />
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">RC Pro</p>
                         <p className={`text-xs font-medium ${creator?.insurance_verified ? 'text-emerald-600' : creator?.insurance_doc_url ? 'text-amber-500' : 'text-gray-400'}`}>
@@ -1618,7 +1619,7 @@ export default function ProfilePage() {
                           showToast(next ? 'Rôle organisateur activé' : 'Rôle organisateur désactivé')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
-                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? colors.violet.primary : '#CBD5E1', transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '4px', left: profile?.is_organizer ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
@@ -1638,7 +1639,7 @@ export default function ProfilePage() {
                           showToast(next ? 'Rôle créateur activé' : 'Rôle créateur désactivé')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
-                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? '#6366F1' : '#CBD5E1', transition: 'background 200ms' }}>
+                        style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? colors.violet.primary : '#CBD5E1', transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '4px', left: profile?.is_creator ? '23px' : '4px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                       </button>
                     </div>
@@ -1686,7 +1687,7 @@ export default function ProfilePage() {
                     {!creator?.siret_verified && (
                       <a href="/creator/verify"
                         className="px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer no-underline"
-                        style={{ backgroundColor: '#EEF2FF', color: '#6366F1' }}>
+                        style={{ backgroundColor: colors.violet.bg, color: colors.violet.primary }}>
                         Obtenir la vérification
                       </a>
                     )}
@@ -1832,7 +1833,7 @@ export default function ProfilePage() {
 
             {/* Videos section */}
             <div style={{ marginTop: '32px', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>Vidéos portfolio</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.text.primary, marginBottom: '4px' }}>Vidéos portfolio</h3>
               <p style={{ fontSize: '13px', color: '#888', marginBottom: '16px' }}>YouTube, TikTok ou Instagram Reels (max 6)</p>
 
               {portfolioVideos.length > 0 && (
@@ -1840,7 +1841,7 @@ export default function ProfilePage() {
                   {portfolioVideos.map((url, i) => {
                     const embed = getVideoEmbed(url)
                     return (
-                      <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E5E7EB', backgroundColor: '#000', aspectRatio: '16/9' }}>
+                      <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border: `1px solid ${colors.border.default}`, backgroundColor: '#000', aspectRatio: '16/9' }}>
                         {embed ? (
                           <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
                         ) : (
@@ -1867,12 +1868,12 @@ export default function ProfilePage() {
                     value={newVideoUrl}
                     onChange={(e) => setNewVideoUrl(e.target.value)}
                     placeholder="https://youtu.be/... ou tiktok.com/@..."
-                    style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
                     onKeyDown={async (e) => { if (e.key === 'Enter') { e.preventDefault(); await addVideo() } }}
                   />
                   <button
                     onClick={addVideo}
-                    style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#fff', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    style={{ padding: '10px 18px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
                   >
                     Ajouter
                   </button>
@@ -1911,12 +1912,12 @@ export default function ProfilePage() {
                 {
                   label: 'En examen',
                   sublabel: isDone ? 'Examinée' : 'En attente',
-                  done: isDone, active: !isDone, color: isDone ? '#10B981' : '#F59E0B',
+                  done: isDone, active: !isDone, color: isDone ? '#10B981' : colors.status.pending.dot,
                 },
                 {
                   label: isAccepted ? 'Acceptée ✓' : isRefused ? 'Refusée' : 'Décision',
                   done: isDone, active: !isDone,
-                  color: isAccepted ? '#10B981' : isRefused ? '#EF4444' : '#9CA3AF',
+                  color: isAccepted ? '#10B981' : isRefused ? '#EF4444' : colors.text.muted,
                 },
               ]
 
@@ -1947,11 +1948,11 @@ export default function ProfilePage() {
                       <div key={i} className="flex-1 flex flex-col items-center">
                         <div className="flex items-center w-full">
                           {i > 0 && (
-                            <div className="flex-1 h-[2px]" style={{ backgroundColor: steps[i-1].done ? steps[i-1].color : '#E5E7EB' }} />
+                            <div className="flex-1 h-[2px]" style={{ backgroundColor: steps[i-1].done ? steps[i-1].color : colors.border.default }} />
                           )}
                           <div className="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0"
                             style={{
-                              borderColor: step.done || step.active ? step.color : '#E5E7EB',
+                              borderColor: step.done || step.active ? step.color : colors.border.default,
                               backgroundColor: step.done ? step.color : 'white',
                             }}>
                             {step.done
@@ -1962,11 +1963,11 @@ export default function ProfilePage() {
                             }
                           </div>
                           {i < steps.length - 1 && (
-                            <div className="flex-1 h-[2px]" style={{ backgroundColor: step.done ? step.color : '#E5E7EB' }} />
+                            <div className="flex-1 h-[2px]" style={{ backgroundColor: step.done ? step.color : colors.border.default }} />
                           )}
                         </div>
                         <p className="text-[10px] font-semibold text-center mt-1.5 leading-tight px-1"
-                          style={{ color: step.done || step.active ? step.color : '#9CA3AF' }}>
+                          style={{ color: step.done || step.active ? step.color : colors.text.muted }}>
                           {step.label}
                         </p>
                         {step.sublabel && (

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface Shift {
   id: string
@@ -92,7 +93,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: '#9CA3AF' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: colors.text.muted }}>
       Chargement…
     </div>
   )
@@ -112,7 +113,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
           Merci {form.name} ! Votre inscription comme bénévole a bien été prise en compte.<br />
           Vous recevrez votre planning par email une fois les créneaux validés.
         </p>
-        <p style={{ fontSize: '12px', color: '#9CA3AF' }}>Vous pouvez fermer cette page.</p>
+        <p style={{ fontSize: '12px', color: colors.text.muted }}>Vous pouvez fermer cette page.</p>
       </motion.div>
     </div>
   )
@@ -126,14 +127,14 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Users size={22} color="#6366F1" />
+          <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Users size={22} color={colors.violet.primary} />
           </div>
           <div>
             <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 3px 0' }}>Inscription bénévole</p>
             <h1 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{event?.title || 'Événement'}</h1>
             {event?.start_date && (
-              <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '3px 0 0 0' }}>
+              <p style={{ fontSize: '12px', color: colors.text.muted, margin: '3px 0 0 0' }}>
                 {new Date(event.start_date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 {event.city ? ` · ${event.city}` : ''}
               </p>
@@ -170,10 +171,10 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
         {/* Créneaux */}
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
-            Créneaux disponibles <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({form.selectedShifts.length} sélectionné{form.selectedShifts.length > 1 ? 's' : ''})</span>
+            Créneaux disponibles <span style={{ color: colors.text.muted, fontWeight: 400 }}>({form.selectedShifts.length} sélectionné{form.selectedShifts.length > 1 ? 's' : ''})</span>
           </h2>
           {shifts.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', color: '#9CA3AF', border: '1px dashed #E5E7EB', borderRadius: '8px', fontSize: '13px' }}>
+            <div style={{ padding: '24px', textAlign: 'center', color: colors.text.muted, border: `1px dashed ${colors.border.default}`, borderRadius: '8px', fontSize: '13px' }}>
               Aucun créneau disponible pour le moment.
             </div>
           ) : (
@@ -188,7 +189,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: '12px',
                       padding: '12px 16px',
-                      backgroundColor: selected ? '#EEF2FF' : full ? 'var(--bg-secondary)' : 'var(--bg-primary)',
+                      backgroundColor: selected ? colors.violet.bg : full ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                       border: `1px solid ${selected ? '#A5B4FC' : 'var(--border-color)'}`,
                       borderRadius: '8px',
                       cursor: full ? 'not-allowed' : 'pointer',
@@ -196,13 +197,13 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                       transition: 'all 0.15s',
                     }}
                   >
-                    <div style={{ width: '20px', height: '20px', borderRadius: '4px', border: `2px solid ${selected ? '#6366F1' : '#D1D5DB'}`, backgroundColor: selected ? '#6366F1' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {selected && <span style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700 }}>✓</span>}
+                    <div style={{ width: '20px', height: '20px', borderRadius: '4px', border: `2px solid ${selected ? colors.violet.primary : '#D1D5DB'}`, backgroundColor: selected ? colors.violet.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {selected && <span style={{ color: colors.bg.primary, fontSize: '12px', fontWeight: 700 }}>✓</span>}
                     </div>
-                    <Clock size={14} color={selected ? '#6366F1' : '#9CA3AF'} />
+                    <Clock size={14} color={selected ? colors.violet.primary : colors.text.muted} />
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{shift.role}</span>
-                      <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: '8px' }}>
+                      <span style={{ fontSize: '12px', color: colors.text.muted, marginLeft: '8px' }}>
                         {shift.date ? new Date(shift.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : ''} · {shift.time}
                       </span>
                     </div>
@@ -223,7 +224,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
               style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', backgroundColor: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', marginBottom: '16px' }}
             >
               <AlertCircle size={14} color="#EF4444" />
-              <span style={{ fontSize: '13px', color: '#DC2626' }}>{error}</span>
+              <span style={{ fontSize: '13px', color: colors.feedback.danger.solid }}>{error}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -231,11 +232,11 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          style={{ width: '100%', padding: '12px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '10px', cursor: submitting ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: 600, opacity: submitting ? 0.7 : 1 }}
+          style={{ width: '100%', padding: '12px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '10px', cursor: submitting ? 'not-allowed' : 'pointer', fontSize: '15px', fontWeight: 600, opacity: submitting ? 0.7 : 1 }}
         >
           {submitting ? 'Inscription en cours…' : "S'inscrire comme bénévole"}
         </button>
-        <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '12px' }}>
+        <p style={{ fontSize: '11px', color: colors.text.muted, textAlign: 'center', marginTop: '12px' }}>
           Vos données sont utilisées uniquement pour la gestion des bénévoles de cet événement.
         </p>
       </motion.div>

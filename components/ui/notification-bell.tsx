@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { Bell, CheckCircle, Clock, X, MessageCircle, Calendar } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,11 +21,11 @@ interface Notification {
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
   application_accepted:    { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
-  application_rejected:    { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
-  application_received:    { icon: <Calendar size={16} />,    color: '#6366F1', bg: '#EEF2FF' },
+  application_rejected:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: '#FEF2F2' },
+  application_received:    { icon: <Calendar size={16} />,    color: colors.violet.primary, bg: colors.violet.bg },
   new_message:             { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
   verification_accepted:   { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
-  verification_refused:    { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
+  verification_refused:    { icon: <X size={16} />,           color: colors.feedback.danger.solid, bg: '#FEF2F2' },
   default:                 { icon: <Bell size={16} />,         color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
 }
 
@@ -122,7 +123,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
           <span style={{
             position: 'absolute', top: '-3px', right: '-3px',
             minWidth: '18px', height: '18px', borderRadius: '9999px',
-            backgroundColor: '#E05A5A', color: '#FFFFFF',
+            backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary,
             fontSize: '11px', fontWeight: '700',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '0 4px', border: '2px solid #FFFFFF',
@@ -157,7 +158,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
               {unread > 0 && (
                 <button
                   onClick={markAllRead}
-                  style={{ fontSize: '12px', fontWeight: '600', color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  style={{ fontSize: '12px', fontWeight: '600', color: colors.violet.primary, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                 >
                   Tout marquer lu
                 </button>
@@ -211,7 +212,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
                         </p>
                       </div>
                       {isUnread && (
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0, marginTop: '6px' }} />
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colors.violet.primary, flexShrink: 0, marginTop: '6px' }} />
                       )}
                     </div>
                   )
@@ -226,7 +227,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
 
             {notifications.length > 0 && (
               <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
-                <Link href="/notifications" onClick={() => setOpen(false)} style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
+                <Link href="/notifications" onClick={() => setOpen(false)} style={{ fontSize: '13px', color: colors.violet.primary, fontWeight: '600', textDecoration: 'none' }}>
                   Voir toutes les notifications
                 </Link>
               </div>

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Plus, Trash2, Copy, Mail, Megaphone, Calendar, Database, Euro, Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { NexTabs } from '@/components/ui/nex-tabs'
+import { colors } from '@/lib/design-tokens'
 
 const FR_MEDIA_DB: MediaContact[] = [
   { name: 'Ouest-France', email: 'redaction@ouest-france.fr', type: 'Presse régionale' },
@@ -282,8 +283,8 @@ const fetchMarketingPlan = async () => {
                   disabled={loading}
                   style={{
                     padding: '12px 24px',
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
+                    backgroundColor: colors.violet.primary,
+                    color: colors.bg.primary,
                     border: 'none',
                     borderRadius: '6px',
                     cursor: loading ? 'not-allowed' : 'pointer',
@@ -328,7 +329,7 @@ const fetchMarketingPlan = async () => {
                 </h2>
                 <button
                   onClick={handleLoadFRMedia}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: '#6366F1', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
                 >
                   <Database size={15} />
                   Importer médias France ({FR_MEDIA_DB.length})
@@ -407,8 +408,8 @@ const fetchMarketingPlan = async () => {
                   onClick={handleAddContact}
                   style={{
                     padding: '10px 20px',
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
+                    backgroundColor: colors.violet.primary,
+                    color: colors.bg.primary,
                     border: 'none',
                     borderRadius: '6px',
                     cursor: 'pointer',
@@ -476,7 +477,7 @@ const fetchMarketingPlan = async () => {
                 {AD_PRICING.map((item, i) => (
                   <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: '16px', alignItems: 'center', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{item.canal}</span>
-                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#6366F1' }}>{item.prix}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: colors.violet.primary }}>{item.prix}</span>
                     <span style={{ fontSize: '13px', color: '#888' }}>{item.conseil}</span>
                   </div>
                 ))}
@@ -496,7 +497,7 @@ const fetchMarketingPlan = async () => {
                   onClick={generateRetroPlanning}
                   disabled={!eventDate}
                   title={!eventDate ? 'Date d\'événement non disponible' : 'Générer le rétro-planning depuis la date de l\'événement'}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: eventDate ? '#6366F1' : '#ccc', color: '#fff', border: 'none', borderRadius: '8px', cursor: eventDate ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: 500 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: eventDate ? colors.violet.primary : '#ccc', color: '#fff', border: 'none', borderRadius: '8px', cursor: eventDate ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: 500 }}
                 >
                   <Zap size={15} />
                   Générer rétro-planning
@@ -554,8 +555,8 @@ const fetchMarketingPlan = async () => {
                   onClick={handleAddTimelineItem}
                   style={{
                     padding: '10px 20px',
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
+                    backgroundColor: colors.violet.primary,
+                    color: colors.bg.primary,
                     border: 'none',
                     borderRadius: '6px',
                     cursor: 'pointer',
@@ -587,7 +588,7 @@ const fetchMarketingPlan = async () => {
                           border: '1px solid var(--border-color)',
                           borderRadius: '8px',
                           padding: '16px',
-                          backgroundColor: item.status === 'completed' ? '#F0FDF4' : '#FFFFFF',
+                          backgroundColor: item.status === 'completed' ? '#F0FDF4' : colors.bg.primary,
                           display: 'flex',
                           gap: '12px',
                           alignItems: 'center'

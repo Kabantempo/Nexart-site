@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { AlertCircle, RefreshCw } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface Props {
   children: React.ReactNode
@@ -44,7 +45,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
               <button
                 onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload() }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
               >
                 <RefreshCw size={13} /> Réessayer
               </button>

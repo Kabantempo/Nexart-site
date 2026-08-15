@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Zap } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 type Props = {
   type: 'boost_application' | 'boost_profile'
@@ -23,8 +24,8 @@ export function BoostButton({ type, refId, boostedUntil, onSuccess }: Props) {
 
   if (isBoosted || done) {
     return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', color: '#6366F1', background: 'rgba(99,102,241,0.1)', padding: '3px 10px', borderRadius: '99px', border: '1px solid rgba(99,102,241,0.2)' }}>
-        <Zap size={11} fill="#6366F1" color="#6366F1" /> Boosté
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', color: colors.violet.primary, background: 'rgba(99,102,241,0.1)', padding: '3px 10px', borderRadius: '99px', border: '1px solid rgba(99,102,241,0.2)' }}>
+        <Zap size={11} fill={colors.violet.primary} color={colors.violet.primary} /> Boosté
       </span>
     )
   }

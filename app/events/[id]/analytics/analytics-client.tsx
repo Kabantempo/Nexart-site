@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { TrendingUp, Users, CheckCircle, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface EventStats {
   totalApplications: number
@@ -55,7 +56,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
   if (error) {
     return (
       <div style={{ minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', color: '#DC2626' }}>
+        <div style={{ textAlign: 'center', color: colors.feedback.danger.solid }}>
           ❌ {error}
         </div>
       </div>
@@ -106,9 +107,9 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Taux de remplissage</h3>
-              <TrendingUp size={20} color='#6366F1' />
+              <TrendingUp size={20} color={colors.violet.primary} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#6366F1', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.violet.primary, marginBottom: '8px' }}>
               {stats.fillRate}%
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
@@ -148,9 +149,9 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Confirmées</h3>
-              <CheckCircle size={20} color='#059669' />
+              <CheckCircle size={20} color={colors.feedback.success.solid} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#059669', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.feedback.success.solid, marginBottom: '8px' }}>
               {stats.acceptedCount}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
@@ -169,9 +170,9 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>En attente</h3>
-              <Clock size={20} color='#F59E0B' />
+              <Clock size={20} color={colors.status.pending.dot} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.status.pending.dot, marginBottom: '8px' }}>
               {stats.pendingCount}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
@@ -202,7 +203,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Acceptées</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#059669' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: colors.feedback.success.solid }}>
                   {stats.acceptedCount}
                 </span>
               </div>
@@ -214,7 +215,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
               }}>
                 <div
                   style={{
-                    backgroundColor: '#059669',
+                    backgroundColor: colors.feedback.success.solid,
                     height: '100%',
                     width: `${stats.totalApplications > 0 ? (stats.acceptedCount / stats.totalApplications) * 100 : 0}%`,
                     transition: 'width 0.3s',
@@ -227,7 +228,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>En attente</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#F59E0B' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: colors.status.pending.dot }}>
                   {stats.pendingCount}
                 </span>
               </div>
@@ -239,7 +240,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
               }}>
                 <div
                   style={{
-                    backgroundColor: '#F59E0B',
+                    backgroundColor: colors.status.pending.dot,
                     height: '100%',
                     width: `${stats.totalApplications > 0 ? (stats.pendingCount / stats.totalApplications) * 100 : 0}%`,
                     transition: 'width 0.3s',
@@ -252,7 +253,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Refusées</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: '#DC2626' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: colors.feedback.danger.solid }}>
                   {stats.refusedCount}
                 </span>
               </div>
@@ -264,7 +265,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
               }}>
                 <div
                   style={{
-                    backgroundColor: '#DC2626',
+                    backgroundColor: colors.feedback.danger.solid,
                     height: '100%',
                     width: `${stats.totalApplications > 0 ? (stats.refusedCount / stats.totalApplications) * 100 : 0}%`,
                     transition: 'width 0.3s',

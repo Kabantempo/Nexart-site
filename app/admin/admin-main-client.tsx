@@ -13,6 +13,7 @@ import {
   TrendingUp, BarChart2, Send, Search, X, ArrowUpRight,
   CheckCheck, Clock, LayoutGrid, User, AlertTriangle,
 } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -101,7 +102,7 @@ type StandPayment = {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  pending:   { label: 'En attente', color: '#F59E0B', bg: '#FFFBEB' },
+  pending:   { label: 'En attente', color: colors.status.pending.dot, bg: '#FFFBEB' },
   accepted:  { label: 'Acceptée',   color: '#10B981', bg: '#ECFDF5' },
   refused:   { label: 'Refusée',    color: '#EF4444', bg: '#FEF2F2' },
   draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: '#F3F4F6' },
@@ -484,7 +485,7 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     )
@@ -534,14 +535,14 @@ export default function AdminPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', animation: 'fadeIn 0.2s ease' }}>
             {analyticsLoading || !analytics ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
-                <div style={{ width: '36px', height: '36px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div style={{ width: '36px', height: '36px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               </div>
             ) : (
               <>
                 {/* KPIs Utilisateurs */}
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                    <Users size={16} color="#9CA3AF" />
+                    <Users size={16} color={colors.text.muted} />
                     <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Utilisateurs</h3>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: '12px' }}>
@@ -556,7 +557,7 @@ export default function AdminPage() {
                       <div key={kpi.label} style={{ padding: '18px', borderRadius: '14px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <p style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 2px', lineHeight: 1 }}>{kpi.value}</p>
-                          {'up' in kpi && kpi.up && <ArrowUpRight size={16} color="#6366F1" />}
+                          {'up' in kpi && kpi.up && <ArrowUpRight size={16} color={colors.violet.primary} />}
                         </div>
                         <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', margin: '0 0 2px' }}>{kpi.label}</p>
                         <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{kpi.sub}</p>
@@ -568,7 +569,7 @@ export default function AdminPage() {
                 {/* Graphique inscriptions */}
                 <div style={{ padding: '22px 24px', borderRadius: '14px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
-                    <TrendingUp size={16} color="#9CA3AF" />
+                    <TrendingUp size={16} color={colors.text.muted} />
                     <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Inscriptions — 30 derniers jours</h3>
                   </div>
                   {analytics.dailySignups.length === 0 ? (
@@ -584,7 +585,7 @@ export default function AdminPage() {
                               <div style={{
                                 width: '100%', borderRadius: '3px 3px 0 0',
                                 height: d.count > 0 ? `${Math.max((d.count / max) * 100, 8)}%` : '2px',
-                                backgroundColor: d.count > 0 ? '#6366F1' : 'var(--border-color)',
+                                backgroundColor: d.count > 0 ? colors.violet.primary : 'var(--border-color)',
                               }} />
                             </div>
                           ))}
@@ -603,7 +604,7 @@ export default function AdminPage() {
                   {/* Événements */}
                   <div style={{ padding: '22px 24px', borderRadius: '14px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      <Calendar size={16} color="#9CA3AF" />
+                      <Calendar size={16} color={colors.text.muted} />
                       <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Événements</h3>
                       <span style={{ marginLeft: 'auto', fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>{analytics.events.total}</span>
                     </div>
@@ -618,7 +619,7 @@ export default function AdminPage() {
                           <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)' }}>{item.value}</span>
                         </div>
                         <div style={{ height: '5px', borderRadius: '3px', backgroundColor: 'var(--border-color)' }}>
-                          <div style={{ height: '100%', width: `${analytics.events.total ? (item.value / analytics.events.total) * 100 : 0}%`, backgroundColor: '#6366F1', borderRadius: '3px' }} />
+                          <div style={{ height: '100%', width: `${analytics.events.total ? (item.value / analytics.events.total) * 100 : 0}%`, backgroundColor: colors.violet.primary, borderRadius: '3px' }} />
                         </div>
                       </div>
                     ))}
@@ -627,7 +628,7 @@ export default function AdminPage() {
                   {/* Candidatures */}
                   <div style={{ padding: '22px 24px', borderRadius: '14px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      <Package size={16} color="#9CA3AF" />
+                      <Package size={16} color={colors.text.muted} />
                       <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Candidatures</h3>
                       <span style={{ marginLeft: 'auto', fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>{analytics.applications.total}</span>
                     </div>
@@ -658,7 +659,7 @@ export default function AdminPage() {
                 {analytics.kpi && (
                   <div style={{ padding: '22px 24px', borderRadius: '14px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
-                      <BarChart2 size={16} color="#9CA3AF" />
+                      <BarChart2 size={16} color={colors.text.muted} />
                       <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>KPIs Business</h3>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '12px' }}>
@@ -699,7 +700,7 @@ export default function AdminPage() {
                   ] as const).map(f => (
                     <button key={f.k} onClick={() => setCreatorFilter(f.k)} style={{
                       padding: '5px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600',
-                      backgroundColor: creatorFilter === f.k ? '#6366F1' : 'var(--bg-secondary)',
+                      backgroundColor: creatorFilter === f.k ? colors.violet.primary : 'var(--bg-secondary)',
                       color: creatorFilter === f.k ? '#FFF' : 'var(--text-tertiary)',
                     }}>{f.label}</button>
                   ))}
@@ -759,7 +760,7 @@ export default function AdminPage() {
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                                     <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '1px', margin: 0, fontFamily: 'monospace' }}>{c.siret_number}</p>
                                     <a href={`https://pappers.fr/entreprise/${c.siret_number}`} target="_blank" rel="noopener noreferrer"
-                                      style={{ fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                                      style={{ fontSize: '11px', color: colors.violet.primary, textDecoration: 'none', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '3px' }}>
                                       <ExternalLink size={10} /> Pappers
                                     </a>
                                   </div>
@@ -769,7 +770,7 @@ export default function AdminPage() {
                                 {status === 'pending' && c.siret_number && (
                                   <div style={{ display: 'flex', gap: '6px' }}>
                                     <button onClick={() => handleVerifyCreator(c.user_id, 'siret_verified', true)} disabled={verifSaving === `${c.user_id}-siret_verified`}
-                                      style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                      style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                       <CheckCircle size={12} /> Valider
                                     </button>
                                     <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'siret_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
@@ -804,7 +805,7 @@ export default function AdminPage() {
                                   <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>RC Pro</p>
                                   <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px',
                                     backgroundColor: status === 'verified' ? 'var(--bg-tertiary)' : status === 'refused' ? 'rgba(239,68,68,0.2)' : status === 'doc' ? 'rgba(99,102,241,0.2)' : 'var(--border-color)',
-                                    color: status === 'verified' ? '#10B981' : status === 'refused' ? '#EF4444' : status === 'doc' ? '#6366F1' : '#6B7280' }}>
+                                    color: status === 'verified' ? '#10B981' : status === 'refused' ? '#EF4444' : status === 'doc' ? colors.violet.primary : '#6B7280' }}>
                                     {status === 'verified' ? 'Vérifié' : status === 'refused' ? 'Refusé' : status === 'doc' ? 'Doc reçu' : 'Aucun doc'}
                                   </span>
                                 </div>
@@ -819,7 +820,7 @@ export default function AdminPage() {
                                 {status === 'doc' && (
                                   <div style={{ display: 'flex', gap: '6px' }}>
                                     <button onClick={() => handleVerifyCreator(c.user_id, 'insurance_verified', true)} disabled={verifSaving === `${c.user_id}-insurance_verified`}
-                                      style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                      style={{ flex: 1, padding: '7px', borderRadius: '7px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                       <CheckCircle size={12} /> Valider
                                     </button>
                                     <button onClick={() => { setRefuseModal({ userId: c.user_id, field: 'insurance_verified', creatorName: c.profiles?.full_name || 'ce créateur' }); setRefuseComment('') }}
@@ -870,7 +871,7 @@ export default function AdminPage() {
                                 color: active ? '#A5B4FC' : '#6B7280',
                                 fontSize: '12px', fontWeight: '700', cursor: 'pointer',
                               }}>
-                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: active ? '#818CF8' : '#4B5563', flexShrink: 0 }} />
+                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: active ? colors.violet.hover : '#4B5563', flexShrink: 0 }} />
                                 {label}
                               </button>
                             )
@@ -894,7 +895,7 @@ export default function AdminPage() {
                   ] as const).map(f => (
                     <button key={f.k} onClick={() => setOrgaFilter(f.k)} style={{
                       padding: '5px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600',
-                      backgroundColor: orgaFilter === f.k ? '#6366F1' : 'var(--bg-secondary)',
+                      backgroundColor: orgaFilter === f.k ? colors.violet.primary : 'var(--bg-secondary)',
                       color: orgaFilter === f.k ? '#FFF' : 'var(--text-tertiary)',
                     }}>{f.label}</button>
                   ))}
@@ -936,12 +937,12 @@ export default function AdminPage() {
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                                 <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', fontFamily: 'monospace', letterSpacing: '1px', margin: 0 }}>{o.siret_number}</p>
                                 <a href={`https://pappers.fr/entreprise/${o.siret_number}`} target="_blank" rel="noopener noreferrer"
-                                  style={{ fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
+                                  style={{ fontSize: '11px', color: colors.violet.primary, textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
                               </div>
                               {!o.siret_verified && (
                                 <div style={{ display: 'flex', gap: '6px' }}>
                                   <button onClick={() => handleVerifyOrga(o.user_id, 'siret_verified', true)} disabled={orgaVerifSaving === `${o.user_id}-siret_verified`}
-                                    style={{ flex: 1, padding: '6px', borderRadius: '6px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                    style={{ flex: 1, padding: '6px', borderRadius: '6px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                     <CheckCircle size={12} /> Valider
                                   </button>
                                   <button onClick={() => handleVerifyOrga(o.user_id, 'siret_verified', false)} disabled={orgaVerifSaving === `${o.user_id}-siret_verified`}
@@ -960,7 +961,7 @@ export default function AdminPage() {
                             <div style={{ flex: 1, minWidth: '200px', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                                 <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Document</p>
-                                <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.verification_doc_verified ? 'rgba(16,185,129,0.2)' : 'rgba(99,102,241,0.2)', color: o.verification_doc_verified ? '#10B981' : '#6366F1' }}>
+                                <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 7px', borderRadius: '10px', backgroundColor: o.verification_doc_verified ? 'rgba(16,185,129,0.2)' : 'rgba(99,102,241,0.2)', color: o.verification_doc_verified ? '#10B981' : colors.violet.primary }}>
                                   {o.verification_doc_verified ? 'Vérifié' : 'Doc reçu'}
                                 </span>
                               </div>
@@ -970,7 +971,7 @@ export default function AdminPage() {
                               </a>
                               {!o.verification_doc_verified && (
                                 <button onClick={() => handleVerifyOrga(o.user_id, 'verification_doc_verified', true)} disabled={orgaVerifSaving === `${o.user_id}-verification_doc_verified`}
-                                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: 'none', backgroundColor: '#6366F1', color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                                  style={{ width: '100%', padding: '6px', borderRadius: '6px', border: 'none', backgroundColor: colors.violet.primary, color: '#FFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                                   <CheckCircle size={12} /> Valider
                                 </button>
                               )}
@@ -1001,7 +1002,7 @@ export default function AdminPage() {
 
               {!siretVerifsLoaded ? (
                 <div style={{ textAlign: 'center', padding: '40px' }}>
-                  <div style={{ width: '24px', height: '24px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                  <div style={{ width: '24px', height: '24px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
                 </div>
               ) : siretVerifs.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
@@ -1029,7 +1030,7 @@ export default function AdminPage() {
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                         <a href={`https://pappers.fr/entreprise/${v.siret}`} target="_blank" rel="noopener noreferrer"
-                          style={{ fontSize: '11px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
+                          style={{ fontSize: '11px', color: colors.violet.primary, textDecoration: 'none', fontWeight: '600' }}>Pappers →</a>
                         {v.status === 'pending' ? (
                           <>
                             <button onClick={() => handleSiretVerif(v.id, 'approve')} disabled={siretVerifSaving === v.id}
@@ -1155,7 +1156,7 @@ export default function AdminPage() {
             {/* Composer */}
             <div style={{ padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                <Send size={16} color="#9CA3AF" />
+                <Send size={16} color={colors.text.muted} />
                 <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Nouveau message</h3>
               </div>
 
@@ -1224,7 +1225,7 @@ export default function AdminPage() {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button onClick={handleSendMessage} disabled={msgSending || !msgRecipient || !msgContent.trim()}
-                  style={{ padding: '11px 24px', borderRadius: '8px', border: 'none', backgroundColor: msgRecipient && msgContent.trim() ? '#6366F1' : 'var(--bg-secondary)', color: msgRecipient && msgContent.trim() ? '#FFF' : '#6B7280', fontSize: '14px', fontWeight: '700', cursor: msgRecipient && msgContent.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  style={{ padding: '11px 24px', borderRadius: '8px', border: 'none', backgroundColor: msgRecipient && msgContent.trim() ? colors.violet.primary : 'var(--bg-secondary)', color: msgRecipient && msgContent.trim() ? '#FFF' : '#6B7280', fontSize: '14px', fontWeight: '700', cursor: msgRecipient && msgContent.trim() ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {msgSending ? (
                     <><div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFF', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> Envoi…</>
                   ) : msgSent ? (
@@ -1306,7 +1307,7 @@ export default function AdminPage() {
                   style={{ width: '100%', padding: '10px 14px 10px 36px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', boxSizing: 'border-box' }} />
                 {subSearching && (
                   <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
-                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                   </div>
                 )}
               </div>
@@ -1333,8 +1334,8 @@ export default function AdminPage() {
                       : TIERS.filter(t => t.role === 'creator')
                     const currentTier = u.subscription_tier || 'free'
                     const TIER_COLORS: Record<string, string> = {
-                      free: 'var(--text-tertiary)', boost: '#6366F1', pro: '#8B5CF6',
-                      premium: '#EC4899', org_pro: '#0EA5E9', org_studio: '#F59E0B',
+                      free: 'var(--text-tertiary)', boost: colors.violet.primary, pro: '#8B5CF6',
+                      premium: '#EC4899', org_pro: '#0EA5E9', org_studio: colors.status.pending.dot,
                     }
                     return (
                       <div key={u.id} style={{ padding: '14px 18px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
@@ -1364,7 +1365,7 @@ export default function AdminPage() {
                           style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', backgroundColor: 'var(--border-color)', color: 'var(--text-primary)', cursor: 'pointer', minWidth: '180px' }}>
                           {relevantTiers.map(t => <option key={t.value} value={t.value} style={{ backgroundColor: '#111827' }}>{t.label}</option>)}
                         </select>
-                        {subSaving === u.id && <div style={{ width: '16px', height: '16px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
+                        {subSaving === u.id && <div style={{ width: '16px', height: '16px', border: '2px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 0.8s linear infinite', flexShrink: 0 }} />}
                       </div>
                     )
                   })}
@@ -1376,7 +1377,7 @@ export default function AdminPage() {
               )}
 
               <div style={{ marginTop: '18px', padding: '12px 16px', borderRadius: '8px', backgroundColor: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
-                <p style={{ fontSize: '12px', color: '#F59E0B', margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontSize: '12px', color: colors.status.pending.dot, margin: 0, lineHeight: 1.5 }}>
                   ⚠️ Ces changements sont immédiats. Ils ne créent pas d&apos;abonnement Stripe — uniquement une mise à jour manuelle en base.
                 </p>
               </div>
@@ -1394,7 +1395,7 @@ export default function AdminPage() {
             </div>
             {!reportsLoaded ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-                <div style={{ width: '28px', height: '28px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div style={{ width: '28px', height: '28px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               </div>
             ) : reports.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
@@ -1457,8 +1458,8 @@ export default function AdminPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
                   {[
                     { label: 'Encaissé total', value: `${(total / 100).toFixed(2)} €`, color: '#4ade80' },
-                    { label: 'Commission Nexart (8%)', value: `${(commission / 100).toFixed(2)} €`, color: '#818CF8' },
-                    { label: 'Transactions', value: String(count), color: '#F59E0B' },
+                    { label: 'Commission Nexart (8%)', value: `${(commission / 100).toFixed(2)} €`, color: colors.violet.hover },
+                    { label: 'Transactions', value: String(count), color: colors.status.pending.dot },
                   ].map(kpi => (
                     <div key={kpi.label} style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: '#111827' }}>
                       <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{kpi.label}</p>
@@ -1471,7 +1472,7 @@ export default function AdminPage() {
 
             {!revenueLoaded ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-                <div style={{ width: '28px', height: '28px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div style={{ width: '28px', height: '28px', border: '3px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               </div>
             ) : standPayments.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
@@ -1503,7 +1504,7 @@ export default function AdminPage() {
                         <td style={{ padding: '10px 12px', color: '#4ade80', fontWeight: '700', whiteSpace: 'nowrap' }}>
                           {(p.amount_cents / 100).toFixed(2)} €
                         </td>
-                        <td style={{ padding: '10px 12px', color: '#818CF8', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '10px 12px', color: colors.violet.hover, whiteSpace: 'nowrap' }}>
                           {(p.commission_cents / 100).toFixed(2)} €
                         </td>
                         <td style={{ padding: '10px 12px' }}>
@@ -1604,15 +1605,15 @@ function PdfPreviewTab() {
       type: 'contrat',
       label: 'Contrat de participation',
       description: 'Contrat signé entre l\'organisateur et le créateur. Inclut les conditions financières, les clauses générales et la signature électronique simple (SES).',
-      color: '#6366F1',
-      bg: '#EEF2FF',
+      color: colors.violet.primary,
+      bg: colors.violet.bg,
       icon: '📄',
     },
     {
       type: 'reglement',
       label: 'Règlement intérieur',
       description: 'Document remis à tous les créateurs acceptés. Couvre les horaires, emplacements, interdictions, sécurité et sanctions.',
-      color: '#059669',
+      color: colors.feedback.success.solid,
       bg: '#ECFDF5',
       icon: '📋',
     },
@@ -1620,7 +1621,7 @@ function PdfPreviewTab() {
       type: 'convocation',
       label: 'Convocation / Confirmation',
       description: 'Document de confirmation de participation à présenter à l\'entrée. Récapitule les infos créateur, événement, stand et montant réglé.',
-      color: '#D97706',
+      color: colors.feedback.warning.solid,
       bg: '#FFFBEB',
       icon: '🎟️',
     },
@@ -1674,7 +1675,7 @@ function PdfPreviewTab() {
                   display: 'inline-flex', alignItems: 'center', gap: '8px',
                   padding: '9px 18px', borderRadius: '8px', border: 'none',
                   backgroundColor: loading === doc.type || !session ? '#374151' : doc.color,
-                  color: '#FFFFFF', fontSize: '13px', fontWeight: 600,
+                  color: colors.bg.primary, fontSize: '13px', fontWeight: 600,
                   cursor: loading === doc.type || !session ? 'not-allowed' : 'pointer',
                   width: '100%', justifyContent: 'center',
                   opacity: loading === doc.type || !session ? 0.6 : 1,

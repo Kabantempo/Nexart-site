@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Users, Plus, Trash2, Clock, CheckCircle, Mail, Download, Calendar, Link, ChevronRight, X, Shuffle, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { NexTabs } from '@/components/ui/nex-tabs'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -141,7 +142,7 @@ export default function VolunteersClient({ eventId }: { eventId: string }) {
           <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{volunteers.length} bénévoles · {shifts.length} activités</span>
           <button
             onClick={() => { navigator.clipboard.writeText(shareUrl); alert('Lien copié !') }}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', backgroundColor: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', backgroundColor: colors.violet.bg, color: colors.violet.primary, border: '1px solid #C7D2FE', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
           >
             <Link size={13} /> Copier lien inscription
           </button>
@@ -222,7 +223,7 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Définissez les créneaux à pourvoir</p>
         <button
           onClick={() => setShowForm(s => !s)}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
         >
           <Plus size={14} /> Nouvelle activité
         </button>
@@ -266,7 +267,7 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
               </div>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Annuler</button>
-                <button onClick={handleAdd} disabled={saving} style={{ padding: '8px 16px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
+                <button onClick={handleAdd} disabled={saving} style={{ padding: '8px 16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
                   {saving ? 'Enregistrement…' : 'Ajouter'}
                 </button>
               </div>
@@ -276,7 +277,7 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
       </AnimatePresence>
 
       {shifts.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           Aucune activité définie. Ajoutez un créneau pour commencer.
         </div>
       ) : (
@@ -285,8 +286,8 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
             const fillPct = shift.capacity > 0 ? Math.round((shift.assigned / shift.capacity) * 100) : 0
             return (
               <div key={shift.id} style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Clock size={20} color="#6366F1" />
+                <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Clock size={20} color={colors.violet.primary} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -296,8 +297,8 @@ function ShiftsTab({ eventId, shifts, onRefresh }: { eventId: string; shifts: Sh
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ flex: 1, height: '6px', backgroundColor: '#E5E7EB', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${fillPct}%`, backgroundColor: fillPct >= 100 ? '#10B981' : fillPct >= 50 ? '#F59E0B' : '#6366F1', borderRadius: '3px', transition: 'width 0.3s' }} />
+                    <div style={{ flex: 1, height: '6px', backgroundColor: colors.border.default, borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${fillPct}%`, backgroundColor: fillPct >= 100 ? '#10B981' : fillPct >= 50 ? colors.status.pending.dot : colors.violet.primary, borderRadius: '3px', transition: 'width 0.3s' }} />
                     </div>
                     <span style={{ fontSize: '12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{shift.assigned}/{shift.capacity} bénévoles</span>
                   </div>
@@ -383,13 +384,13 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
   return (
     <div>
       {/* Share banner */}
-      <div style={{ backgroundColor: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Link size={16} color="#6366F1" />
+      <div style={{ backgroundColor: colors.violet.bg, border: '1px solid #C7D2FE', borderRadius: '10px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <Link size={16} color={colors.violet.primary} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: '13px', fontWeight: 600, color: '#4338CA', margin: '0 0 2px 0' }}>Lien d'inscription bénévoles</p>
-          <p style={{ fontSize: '12px', color: '#6366F1', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shareUrl}</p>
+          <p style={{ fontSize: '12px', color: colors.violet.primary, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shareUrl}</p>
         </div>
-        <button onClick={copyLink} style={{ padding: '6px 14px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, flexShrink: 0 }}>
+        <button onClick={copyLink} style={{ padding: '6px 14px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, flexShrink: 0 }}>
           {linkCopied ? '✓ Copié !' : 'Copier'}
         </button>
       </div>
@@ -400,7 +401,7 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
           <button onClick={handleExportCSV} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>
             <Download size={13} /> Export CSV
           </button>
-          <button onClick={() => setShowForm(s => !s)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={() => setShowForm(s => !s)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
             <Plus size={14} /> Ajouter manuellement
           </button>
         </div>
@@ -424,7 +425,7 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
               </div>
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}>Annuler</button>
-                <button onClick={handleAdd} disabled={saving} style={{ padding: '8px 16px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
+                <button onClick={handleAdd} disabled={saving} style={{ padding: '8px 16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
                   {saving ? 'Enregistrement…' : 'Ajouter'}
                 </button>
               </div>
@@ -434,7 +435,7 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
       </AnimatePresence>
 
       {volunteers.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           <Users size={32} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
           Aucun bénévole pour le moment. Partagez le lien d'inscription !
         </div>
@@ -454,15 +455,15 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: {
                 <tr key={vol.id} style={{ borderBottom: i < volunteers.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
                   <td style={{ padding: '14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#6366F1' }}>{vol.name[0].toUpperCase()}</span>
+                      <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: colors.violet.primary }}>{vol.name[0].toUpperCase()}</span>
                       </div>
                       <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{vol.name}</span>
                     </div>
                   </td>
                   <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>{vol.email}</td>
                   <td style={{ padding: '14px 16px' }}>
-                    <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: vol.status === 'active' ? '#ECFDF5' : '#F3F4F6', color: vol.status === 'active' ? '#10B981' : '#9CA3AF', borderRadius: '4px', fontWeight: 500 }}>
+                    <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: vol.status === 'active' ? '#ECFDF5' : '#F3F4F6', color: vol.status === 'active' ? '#10B981' : colors.text.muted, borderRadius: '4px', fontWeight: 500 }}>
                       {vol.status === 'active' ? '✓ Disponible' : 'Indisponible'}
                     </span>
                   </td>
@@ -537,7 +538,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
 
   if (shifts.length === 0 || volunteers.length === 0) {
     return (
-      <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+      <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
         <AlertCircle size={32} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
         Ajoutez des activités et des bénévoles avant de générer un planning.
       </div>
@@ -552,16 +553,16 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Algo greedy — répartition équilibrée de la charge</p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={handleGenerate} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+          <button onClick={handleGenerate} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: colors.violet.primary, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
             <Shuffle size={14} /> Générer planning
           </button>
           {plan && !saved && (
-            <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
+            <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: '#10B981', color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
               {saving ? 'Enregistrement…' : '✓ Valider'}
             </button>
           )}
           {saved && (
-            <button onClick={handleSendEmails} disabled={sending} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: '#F59E0B', color: '#FFFFFF', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: sending ? 0.6 : 1 }}>
+            <button onClick={handleSendEmails} disabled={sending} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 18px', backgroundColor: colors.status.pending.dot, color: colors.bg.primary, border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, opacity: sending ? 0.6 : 1 }}>
               <Mail size={14} /> {sending ? 'Envoi…' : 'Envoyer assignations'}
             </button>
           )}
@@ -569,7 +570,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
       </div>
 
       {!plan ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           Cliquez sur "Générer planning" pour voir la proposition.
         </div>
       ) : (
@@ -580,8 +581,8 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
             return (
               <div key={shift.id} style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: isFull ? '#ECFDF5' : '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Clock size={18} color={isFull ? '#10B981' : '#6366F1'} />
+                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: isFull ? '#ECFDF5' : colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Clock size={18} color={isFull ? '#10B981' : colors.violet.primary} />
                   </div>
                   <div>
                     <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px 0' }}>{shift.role}</p>
@@ -589,7 +590,7 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
                       {shift.date ? new Date(shift.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : ''} à {shift.time}
                     </p>
                   </div>
-                  <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600, padding: '4px 10px', backgroundColor: isFull ? '#ECFDF5' : '#FEF3C7', color: isFull ? '#10B981' : '#D97706', borderRadius: '6px' }}>
+                  <span style={{ marginLeft: 'auto', fontSize: '12px', fontWeight: 600, padding: '4px 10px', backgroundColor: isFull ? '#ECFDF5' : '#FEF3C7', color: isFull ? '#10B981' : colors.feedback.warning.solid, borderRadius: '6px' }}>
                     {assigned.length}/{shift.capacity}
                   </span>
                 </div>
@@ -599,9 +600,9 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh }: { eventId: stri
                   ) : assigned.map(volId => {
                     const vol = getVolunteer(volId)
                     return vol ? (
-                      <div key={volId} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', backgroundColor: '#EEF2FF', borderRadius: '20px' }}>
-                        <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <span style={{ fontSize: '10px', fontWeight: 700, color: '#FFFFFF' }}>{vol.name[0].toUpperCase()}</span>
+                      <div key={volId} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', backgroundColor: colors.violet.bg, borderRadius: '20px' }}>
+                        <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: colors.bg.primary }}>{vol.name[0].toUpperCase()}</span>
                         </span>
                         <span style={{ fontSize: '12px', fontWeight: 500, color: '#4338CA' }}>{vol.name}</span>
                       </div>
@@ -637,7 +638,7 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
         </div>
         {totalItems > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '120px', height: '8px', backgroundColor: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
+            <div style={{ width: '120px', height: '8px', backgroundColor: colors.border.default, borderRadius: '4px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${totalItems > 0 ? (checkedCount / totalItems) * 100 : 0}%`, backgroundColor: '#10B981', borderRadius: '4px', transition: 'width 0.3s' }} />
             </div>
             <span style={{ fontSize: '13px', fontWeight: 600, color: '#10B981' }}>{totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0}%</span>
@@ -646,7 +647,7 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
       </div>
 
       {volunteers.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           Aucun bénévole inscrit.
         </div>
       ) : (
@@ -669,7 +670,7 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
                 }}
               >
                 <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isChecked ? '#10B981' : '#D1D5DB'}`, backgroundColor: isChecked ? '#10B981' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
-                  {isChecked && <span style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700 }}>✓</span>}
+                  {isChecked && <span style={{ color: colors.bg.primary, fontSize: '12px', fontWeight: 700 }}>✓</span>}
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px 0', textDecoration: isChecked ? 'line-through' : 'none', opacity: isChecked ? 0.6 : 1 }}>{vol.name}</p>

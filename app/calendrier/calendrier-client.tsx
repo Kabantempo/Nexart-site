@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar, Plus } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 interface EventItem {
   id: string
@@ -31,8 +32,8 @@ const STATUS_PILL_BG: Record<string, string> = {
 }
 
 const STATUS_PILL_COLOR: Record<string, string> = {
-  published: '#6366F1',
-  draft:     '#F59E0B',
+  published: colors.violet.primary,
+  draft:     colors.status.pending.dot,
   closed:    'var(--text-tertiary)',
 }
 
@@ -201,7 +202,7 @@ export default function CalendrierPage() {
                       {dayEvs.slice(0, 2).map(ev => (
                         <div key={ev.id}
                           className="px-1 py-0.5 rounded text-[10px] font-semibold truncate"
-                          style={{ backgroundColor: STATUS_PILL_BG[ev.status] ?? 'rgba(99,102,241,0.15)', color: STATUS_PILL_COLOR[ev.status] ?? '#6366F1' }}>
+                          style={{ backgroundColor: STATUS_PILL_BG[ev.status] ?? 'rgba(99,102,241,0.15)', color: STATUS_PILL_COLOR[ev.status] ?? colors.violet.primary }}>
                           {ev.title}
                         </div>
                       ))}

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { colors } from '@/lib/design-tokens'
 
 type ConnectStatus = 'none' | 'pending' | 'active' | 'restricted' | 'loading'
 
@@ -109,10 +110,10 @@ export function StripeConnectAlert({ searchParams }: { searchParams: URLSearchPa
 
   const configs: Record<string, { color: string; bg: string; message: string }> = {
     active: { bg: '#DCFCE7', color: '#15803D', message: '✅ Stripe Connect activé ! Vous recevrez désormais les paiements de stands directement.' },
-    restricted: { bg: '#FEF3C7', color: '#B45309', message: '⚠️ Compte Stripe en cours de vérification. Complétez votre dossier pour activer les paiements.' },
-    pending: { bg: '#FEF3C7', color: '#B45309', message: '⏳ Onboarding en cours. Revenez une fois votre compte Stripe validé.' },
-    refresh: { bg: '#FEF3C7', color: '#B45309', message: '🔄 Session Stripe expirée. Relancez le processus d\'onboarding.' },
-    error: { bg: '#FEE2E2', color: '#DC2626', message: '❌ Une erreur est survenue avec Stripe Connect. Réessayez.' },
+    restricted: { bg: '#FEF3C7', color: colors.feedback.warning.text, message: '⚠️ Compte Stripe en cours de vérification. Complétez votre dossier pour activer les paiements.' },
+    pending: { bg: '#FEF3C7', color: colors.feedback.warning.text, message: '⏳ Onboarding en cours. Revenez une fois votre compte Stripe validé.' },
+    refresh: { bg: '#FEF3C7', color: colors.feedback.warning.text, message: '🔄 Session Stripe expirée. Relancez le processus d\'onboarding.' },
+    error: { bg: '#FEE2E2', color: colors.feedback.danger.solid, message: '❌ Une erreur est survenue avec Stripe Connect. Réessayez.' },
   }
 
   const cfg = value ? configs[value] : null

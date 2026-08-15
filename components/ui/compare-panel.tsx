@@ -5,6 +5,7 @@ import { X, Pin, ArrowRight, Euro, Users, Calendar, MapPin, Tag } from 'lucide-r
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCompareStore, type CompareEvent } from '@/lib/compare-store'
+import { colors } from '@/lib/design-tokens'
 
 export function ComparePanel() {
   const { pinned, unpin, clear } = useCompareStore()
@@ -25,7 +26,7 @@ export function ComparePanel() {
           right: 0,
           zIndex: 9000,
           backgroundColor: '#fff',
-          borderTop: '1px solid #E5E7EB',
+          borderTop: `1px solid ${colors.border.default}`,
           boxShadow: '0 -8px 30px rgba(0,0,0,0.12)',
         }}
       >
@@ -33,11 +34,11 @@ export function ComparePanel() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto' }}>
             {/* Label */}
             <div style={{ flexShrink: 0 }}>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#6366F1', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: colors.violet.primary, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 <Pin size={11} style={{ display: 'inline', marginRight: '4px' }} />
                 Comparer
               </p>
-              <p style={{ fontSize: '10px', color: '#9CA3AF', margin: 0 }}>{pinned.length}/3</p>
+              <p style={{ fontSize: '10px', color: colors.text.muted, margin: 0 }}>{pinned.length}/3</p>
             </div>
 
             {/* Cards */}
@@ -50,12 +51,12 @@ export function ComparePanel() {
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
-                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                  <p style={{ fontSize: '11px', color: colors.text.muted, margin: 0 }}>
                     {ev.stand_price != null ? `${ev.stand_price === 0 ? 'Gratuit' : `${ev.stand_price}€`}` : '—'}
                     {ev.city ? ` · ${ev.city}` : ''}
                   </p>
                 </div>
-                <button onClick={() => unpin(ev.id)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', padding: '2px' }} aria-label="Retirer">
+                <button onClick={() => unpin(ev.id)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', cursor: 'pointer', color: colors.text.muted, padding: '2px' }} aria-label="Retirer">
                   <X size={12} />
                 </button>
               </div>
@@ -72,7 +73,7 @@ export function ComparePanel() {
             {pinned.length >= 2 && (
               <Link
                 href={`/compare?ids=${pinned.map(e => e.id).join(',')}`}
-                style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: '700', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 16px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: '700', textDecoration: 'none', whiteSpace: 'nowrap' }}
               >
                 Comparer <ArrowRight size={13} />
               </Link>
@@ -100,7 +101,7 @@ export function PinButton({ event }: { event: CompareEvent }) {
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: '28px', height: '28px', borderRadius: '8px',
-        backgroundColor: pinned_ ? '#6366F1' : 'rgba(255,255,255,0.85)',
+        backgroundColor: pinned_ ? colors.violet.primary : 'rgba(255,255,255,0.85)',
         color: pinned_ ? '#fff' : '#6B7280',
         border: pinned_ ? 'none' : '1px solid rgba(0,0,0,0.1)',
         cursor: full ? 'not-allowed' : 'pointer',

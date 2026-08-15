@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Circle, Trash2, Plus, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface ChecklistItem {
   title: string
@@ -144,7 +145,7 @@ const fetchChecklist = async () => {
         >
           {!checklist ? (
             <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '40px 32px', textAlign: 'center' }}>
-              <AlertCircle size={48} style={{ margin: '0 auto 16px', color: '#6366F1', opacity: 0.7 }} />
+              <AlertCircle size={48} style={{ margin: '0 auto 16px', color: colors.violet.primary, opacity: 0.7 }} />
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
                 Créer une checklist
               </h2>
@@ -190,7 +191,7 @@ const fetchChecklist = async () => {
                   <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
                     Progression
                   </h2>
-                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#6366F1' }}>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: colors.violet.primary }}>
                     {completionRate}%
                   </span>
                 </div>
@@ -198,7 +199,7 @@ const fetchChecklist = async () => {
                   <div
                     style={{
                       height: '100%',
-                      backgroundColor: '#6366F1',
+                      backgroundColor: colors.violet.primary,
                       width: `${completionRate}%`,
                       transition: 'width 0.3s'
                     }}
@@ -243,7 +244,7 @@ const fetchChecklist = async () => {
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '6px',
                                 padding: '12px 16px',
-                                backgroundColor: item.completed ? '#F0FDF4' : '#FFFFFF',
+                                backgroundColor: item.completed ? '#F0FDF4' : colors.bg.primary,
                                 display: 'flex',
                                 gap: '12px',
                                 alignItems: 'start'
@@ -313,10 +314,10 @@ const fetchChecklist = async () => {
                   onClick={addCustomItem}
                   style={{
                     padding: '12px 16px',
-                    border: '1px dashed #E5E7EB',
+                    border: `1px dashed ${colors.border.default}`,
                     borderRadius: '6px',
                     backgroundColor: 'var(--bg-secondary)',
-                    color: '#6366F1',
+                    color: colors.violet.primary,
                     cursor: 'pointer',
                     fontWeight: 500,
                     display: 'flex',

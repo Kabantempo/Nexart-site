@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, Users, FileText, BarChart3, Menu, X, Search, CheckCircle, XCircle, Shield, TrendingUp, Calendar, MessageSquare, Eye } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -132,8 +133,8 @@ export default function AdminClient() {
           <>
             <div style={{ padding: '0 20px 24px', borderBottom: '1px solid #1F2937' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                <Shield size={20} color="#6366F1" />
-                <span style={{ fontSize: '16px', fontWeight: 700, color: '#FFFFFF' }}>Admin Panel</span>
+                <Shield size={20} color={colors.violet.primary} />
+                <span style={{ fontSize: '16px', fontWeight: 700, color: colors.bg.primary }}>Admin Panel</span>
               </div>
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>Nexart — Tableau de bord</p>
             </div>
@@ -149,8 +150,8 @@ export default function AdminClient() {
                     width: '100%',
                     padding: '10px 12px',
                     marginBottom: '4px',
-                    backgroundColor: activeTab === tab.id ? '#6366F1' : 'transparent',
-                    color: activeTab === tab.id ? '#FFFFFF' : 'var(--text-secondary)',
+                    backgroundColor: activeTab === tab.id ? colors.violet.primary : 'transparent',
+                    color: activeTab === tab.id ? colors.bg.primary : 'var(--text-secondary)',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: 'pointer',
@@ -179,7 +180,7 @@ export default function AdminClient() {
           <h1 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
             {tabs.find(t => t.id === activeTab)?.label}
           </h1>
-          <button onClick={fetchData} style={{ marginLeft: 'auto', padding: '8px 16px', backgroundColor: '#6366F1', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}>
+          <button onClick={fetchData} style={{ marginLeft: 'auto', padding: '8px 16px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}>
             Rafraîchir
           </button>
         </div>
@@ -215,9 +216,9 @@ function StatsTab({ stats }: { stats: Stats | null }) {
   )
 
   const kpis = [
-    { label: 'Utilisateurs', value: stats.total_users ?? 0, icon: Users, color: '#6366F1', bg: '#EEF2FF' },
+    { label: 'Utilisateurs', value: stats.total_users ?? 0, icon: Users, color: colors.violet.primary, bg: colors.violet.bg },
     { label: 'Événements publiés', value: stats.published_events ?? stats.total_events ?? 0, icon: Calendar, color: '#10B981', bg: '#ECFDF5' },
-    { label: 'Signalements ouverts', value: stats.open_reports ?? 0, icon: AlertCircle, color: '#F59E0B', bg: '#FFFBEB' },
+    { label: 'Signalements ouverts', value: stats.open_reports ?? 0, icon: AlertCircle, color: colors.status.pending.dot, bg: '#FFFBEB' },
     { label: 'Total signalements', value: stats.total_reports ?? 0, icon: MessageSquare, color: '#EF4444', bg: '#FEF2F2' },
     { label: "Taux d'approbation", value: `${stats.approval_rate ?? 0}%`, icon: TrendingUp, color: '#8B5CF6', bg: '#F5F3FF' },
   ]
@@ -312,8 +313,8 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
           {(['all', 'open', 'resolved', 'dismissed'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
               padding: '6px 14px',
-              backgroundColor: filter === f ? '#6366F1' : '#F3F4F6',
-              color: filter === f ? '#FFFFFF' : '#6B7280',
+              backgroundColor: filter === f ? colors.violet.primary : '#F3F4F6',
+              color: filter === f ? colors.bg.primary : '#6B7280',
               border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500,
             }}>
               {f === 'all' ? 'Tous' : f === 'open' ? 'Ouverts' : f === 'resolved' ? 'Résolus' : 'Ignorés'}
@@ -323,7 +324,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           Aucun signalement dans cette catégorie
         </div>
       ) : (
@@ -355,7 +356,7 @@ function ReportsTab({ reports, onRefresh }: { reports: Report[]; onRefresh: () =
                     </button>
                     {report.status === 'open' && (
                       <>
-                        <button onClick={() => handleAction(report.id, 'resolved')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
+                        <button onClick={() => handleAction(report.id, 'resolved')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: '#10B981', color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
                           Résoudre
                         </button>
                         <button onClick={() => handleAction(report.id, 'dismissed')} disabled={busy === report.id} style={{ padding: '6px 12px', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500, opacity: busy === report.id ? 0.6 : 1 }}>
@@ -458,7 +459,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           {search ? 'Aucun résultat' : 'Aucun utilisateur'}
         </div>
       ) : (
@@ -478,16 +479,16 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                   <tr key={user.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
                     <td style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#6366F1' }}>{(user.full_name || '?')[0].toUpperCase()}</span>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: colors.violet.primary }}>{(user.full_name || '?')[0].toUpperCase()}</span>
                         </div>
                         <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{user.full_name || '—'}</span>
-                        {user.is_admin && <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: '#FEF3C7', color: '#D97706', borderRadius: '4px', fontWeight: 600 }}>ADMIN</span>}
+                        {user.is_admin && <span style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: '#FEF3C7', color: colors.feedback.warning.solid, borderRadius: '4px', fontWeight: 600 }}>ADMIN</span>}
                       </div>
                     </td>
                     <td style={{ padding: '14px 16px', fontSize: '13px', color: 'var(--text-secondary)' }}>{user.email || '—'}</td>
                     <td style={{ padding: '14px 16px' }}>
-                      <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: '#EEF2FF', color: '#6366F1', borderRadius: '4px', fontWeight: 500 }}>{user.role || 'user'}</span>
+                      <span style={{ fontSize: '12px', padding: '3px 8px', backgroundColor: colors.violet.bg, color: colors.violet.primary, borderRadius: '4px', fontWeight: 500 }}>{user.role || 'user'}</span>
                     </td>
                     <td style={{ padding: '14px 16px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {user.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR') : '—'}
@@ -504,7 +505,7 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
                         style={{
                           padding: '6px 14px',
                           backgroundColor: banned ? '#10B981' : '#EF4444',
-                          color: '#FFFFFF',
+                          color: colors.bg.primary,
                           border: 'none',
                           borderRadius: '6px',
                           cursor: busy === user.id || user.is_admin ? 'not-allowed' : 'pointer',
@@ -551,7 +552,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
   }
 
   const statusInfo: Record<string, { bg: string; color: string; label: string }> = {
-    draft: { bg: '#FEF3C7', color: '#D97706', label: '⏳ Brouillon' },
+    draft: { bg: '#FEF3C7', color: colors.feedback.warning.solid, label: '⏳ Brouillon' },
     published: { bg: '#ECFDF5', color: '#10B981', label: '✓ Publié' },
     closed: { bg: '#F3F4F6', color: 'var(--text-secondary)', label: '— Fermé' },
   }
@@ -569,8 +570,8 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
           {(['all', 'draft', 'published', 'closed'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
               padding: '6px 12px',
-              backgroundColor: filter === f ? '#6366F1' : '#F3F4F6',
-              color: filter === f ? '#FFFFFF' : '#6B7280',
+              backgroundColor: filter === f ? colors.violet.primary : '#F3F4F6',
+              color: filter === f ? colors.bg.primary : '#6B7280',
               border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500,
             }}>
               {f === 'all' ? 'Tous' : f === 'draft' ? 'En attente' : f === 'published' ? 'Publiés' : 'Fermés'}
@@ -580,7 +581,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px dashed #E5E7EB', borderRadius: '12px' }}>
+        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-secondary)', border: `1px dashed ${colors.border.default}`, borderRadius: '12px' }}>
           Aucun événement dans cette catégorie
         </div>
       ) : (
@@ -609,14 +610,14 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
                       <button
                         onClick={() => handleAction(event.id, 'approve')}
                         disabled={busy === event.id}
-                        style={{ padding: '8px 16px', backgroundColor: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
+                        style={{ padding: '8px 16px', backgroundColor: '#10B981', color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
                       >
                         <CheckCircle size={14} /> Approuver
                       </button>
                       <button
                         onClick={() => handleAction(event.id, 'reject')}
                         disabled={busy === event.id}
-                        style={{ padding: '8px 16px', backgroundColor: '#EF4444', color: '#FFFFFF', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
+                        style={{ padding: '8px 16px', backgroundColor: '#EF4444', color: colors.bg.primary, border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', opacity: busy === event.id ? 0.6 : 1 }}
                       >
                         <XCircle size={14} /> Rejeter
                       </button>

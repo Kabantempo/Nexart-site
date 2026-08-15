@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, Info, Trash2, X } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,19 +32,19 @@ const VARIANT_STYLES: Record<ConfirmVariant, {
   btnBg: string; btnHover: string; btnColor: string
 }> = {
   danger: {
-    iconBg: '#FEF2F2', iconColor: '#DC2626',
+    iconBg: '#FEF2F2', iconColor: colors.feedback.danger.solid,
     icon: <Trash2 size={22} />,
-    btnBg: '#DC2626', btnHover: '#B91C1C', btnColor: '#FFFFFF',
+    btnBg: colors.feedback.danger.solid, btnHover: '#B91C1C', btnColor: colors.bg.primary,
   },
   warning: {
-    iconBg: '#FFFBEB', iconColor: '#D97706',
+    iconBg: '#FFFBEB', iconColor: colors.feedback.warning.solid,
     icon: <AlertTriangle size={22} />,
-    btnBg: '#D97706', btnHover: '#B45309', btnColor: '#FFFFFF',
+    btnBg: colors.feedback.warning.solid, btnHover: colors.feedback.warning.text, btnColor: colors.bg.primary,
   },
   default: {
-    iconBg: '#EEF2FF', iconColor: 'var(--color-primary, #6366F1)',
+    iconBg: colors.violet.bg, iconColor: 'var(--color-primary, #6366F1)',
     icon: <Info size={22} />,
-    btnBg: 'var(--color-primary, #6366F1)', btnHover: 'var(--color-primary-dark, #5B5BD6)', btnColor: '#FFFFFF',
+    btnBg: 'var(--color-primary, #6366F1)', btnHover: 'var(--color-primary-dark, #5B5BD6)', btnColor: colors.bg.primary,
   },
 }
 

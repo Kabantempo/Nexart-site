@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ARTICLES, type Article } from '@/lib/blog-data'
+import { colors } from '@/lib/design-tokens'
 
 type Category = 'tous' | 'créateurs' | 'organisateurs' | 'actualités'
 
@@ -14,9 +15,9 @@ const CATEGORY_LABELS: Record<Category, string> = {
 }
 
 const CATEGORY_COLORS: Record<Exclude<Category, 'tous'>, { bg: string; text: string }> = {
-  créateurs: { bg: 'rgba(99,102,241,0.1)', text: '#6366F1' },
-  organisateurs: { bg: 'rgba(16,185,129,0.1)', text: '#059669' },
-  actualités: { bg: 'rgba(245,158,11,0.1)', text: '#D97706' },
+  créateurs: { bg: 'rgba(99,102,241,0.1)', text: colors.violet.primary },
+  organisateurs: { bg: 'rgba(16,185,129,0.1)', text: colors.feedback.success.solid },
+  actualités: { bg: 'rgba(245,158,11,0.1)', text: colors.feedback.warning.solid },
 }
 
 function formatDate(dateStr: string): string {
@@ -24,7 +25,7 @@ function formatDate(dateStr: string): string {
 }
 
 function ArticleCard({ article, index }: { article: Article; index: number }) {
-  const catColor = CATEGORY_COLORS[article.category] ?? { bg: 'rgba(99,102,241,0.1)', text: '#6366F1' }
+  const catColor = CATEGORY_COLORS[article.category] ?? { bg: 'rgba(99,102,241,0.1)', text: colors.violet.primary }
 
   return (
     <motion.div
@@ -32,9 +33,9 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.bg.primary,
         borderRadius: '16px',
-        border: '1px solid #E5E7EB',
+        border: `1px solid ${colors.border.default}`,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -77,7 +78,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
           }}>
             {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
           </span>
-          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+          <span style={{ fontSize: '12px', color: colors.text.muted }}>
             {article.readTime} min de lecture
           </span>
         </div>
@@ -86,7 +87,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
         <h2 style={{
           fontSize: '16px',
           fontWeight: '700',
-          color: '#1A1A1A',
+          color: colors.text.primary,
           lineHeight: '1.4',
           margin: 0,
         }}>
@@ -125,7 +126,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
         </div>
 
         {/* Date */}
-        <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+        <p style={{ fontSize: '12px', color: colors.text.muted, margin: 0 }}>
           {formatDate(article.date)}
         </p>
       </div>
@@ -146,7 +147,7 @@ export default function BlogClient() {
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 80px)' }}>
 
       {/* Hero */}
-      <div style={{ backgroundColor: '#F5F5F7', borderBottom: '1px solid #E5E7EB' }}>
+      <div style={{ backgroundColor: colors.bg.secondary, borderBottom: `1px solid ${colors.border.default}` }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 48px' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +161,7 @@ export default function BlogClient() {
               fontSize: '13px',
               fontWeight: '600',
               backgroundColor: 'rgba(99,102,241,0.1)',
-              color: '#6366F1',
+              color: colors.violet.primary,
               marginBottom: '16px',
             }}>
               Blog Nexart
@@ -168,7 +169,7 @@ export default function BlogClient() {
             <h1 style={{
               fontSize: '42px',
               fontWeight: '800',
-              color: '#1A1A1A',
+              color: colors.text.primary,
               marginBottom: '16px',
               letterSpacing: '-0.5px',
               lineHeight: '1.2',
@@ -202,9 +203,9 @@ export default function BlogClient() {
                 style={{
                   padding: '8px 20px',
                   borderRadius: '9999px',
-                  border: active ? '1px solid #6366F1' : '1px solid #E5E7EB',
-                  backgroundColor: active ? '#6366F1' : '#FFFFFF',
-                  color: active ? '#FFFFFF' : '#888888',
+                  border: active ? `1px solid ${colors.border.accent}` : `1px solid ${colors.border.default}`,
+                  backgroundColor: active ? colors.violet.primary : colors.bg.primary,
+                  color: active ? colors.bg.primary : '#888888',
                   fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
@@ -236,7 +237,7 @@ export default function BlogClient() {
         </div>
 
         {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '80px 24px', color: '#9CA3AF' }}>
+          <div style={{ textAlign: 'center', padding: '80px 24px', color: colors.text.muted }}>
             <p style={{ fontSize: '16px' }}>Aucun article dans cette catégorie pour le moment.</p>
           </div>
         )}

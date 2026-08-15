@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
+import { colors } from '@/lib/design-tokens'
 
 // Fragment Shader with custom color support
 const fragmentShaderSource = `#version 300 es
@@ -154,7 +155,7 @@ interface SmokeBackgroundProps {
   smokeColor?: string
 }
 
-export const SmokeBackground: React.FC<SmokeBackgroundProps> = ({ smokeColor = '#6366F1' }) => {
+export const SmokeBackground: React.FC<SmokeBackgroundProps> = ({ smokeColor = colors.violet.primary }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rendererRef = useRef<Renderer | null>(null)
 

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Heart, Target, Zap, Users } from 'lucide-react'
 import Link from 'next/link'
+import { colors } from '@/lib/design-tokens'
 
 export default function AboutPageClient() {
   const values = [
@@ -143,7 +144,7 @@ export default function AboutPageClient() {
                     transition: 'all 300ms ease',
                   }}
                   onMouseEnter={(e: any) => {
-                    e.currentTarget.style.borderColor = '#6366F1'
+                    e.currentTarget.style.borderColor = colors.violet.primary
                     e.currentTarget.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.1)'
                   }}
                   onMouseLeave={(e: any) => {
@@ -163,7 +164,7 @@ export default function AboutPageClient() {
                       marginBottom: '16px',
                     }}
                   >
-                    <Icon size={24} color="#6366F1" />
+                    <Icon size={24} color={colors.violet.primary} />
                   </div>
                   <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                     {value.title}
@@ -206,8 +207,8 @@ export default function AboutPageClient() {
               style={{
                 padding: '12px 32px',
                 borderRadius: '8px',
-                backgroundColor: '#6366F1',
-                color: '#FFFFFF',
+                backgroundColor: colors.violet.primary,
+                color: colors.bg.primary,
                 textDecoration: 'none',
                 fontSize: '16px',
                 fontWeight: '600',
@@ -216,11 +217,11 @@ export default function AboutPageClient() {
                 display: 'inline-block',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#5B5BD6'
+                e.currentTarget.style.backgroundColor = colors.violet.dark
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#6366F1'
+                e.currentTarget.style.backgroundColor = colors.violet.primary
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
@@ -232,12 +233,12 @@ export default function AboutPageClient() {
                 padding: '12px 32px',
                 borderRadius: '8px',
                 backgroundColor: 'rgba(99, 102, 241, 0.05)',
-                color: '#6366F1',
+                color: colors.violet.primary,
                 textDecoration: 'none',
                 fontSize: '16px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                border: '1px solid #6366F1',
+                border: `1px solid ${colors.border.accent}`,
                 transition: 'all 300ms ease',
                 display: 'inline-block',
               }}

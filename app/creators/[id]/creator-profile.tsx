@@ -15,6 +15,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
 import { ReviewForm } from '@/components/review-form'
 import { useToast } from '@/components/ui/toast-provider'
+import { colors } from '@/lib/design-tokens'
 
 function displayWebsite(url: string): string {
   try { return new URL(url).hostname.replace(/^www\./i, '') }
@@ -379,7 +380,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <button onClick={() => setShowMsg(false)} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">Annuler</button>
                   <button onClick={sendMessage} disabled={!msgText.trim() || sending}
                     className="flex-[2] py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-                    style={{ backgroundColor: '#6366F1' }}>
+                    style={{ backgroundColor: colors.violet.primary }}>
                     <Send size={15} /> {sending ? 'Envoi…' : 'Envoyer'}
                   </button>
                 </div>
@@ -495,7 +496,7 @@ export function CreatorProfileClient({ id }: Props) {
             ) : (
               <button onClick={() => { setShowMsg(true); setSent(false) }}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: '#6366F1' }}>
+                style={{ backgroundColor: colors.violet.primary }}>
                 <MessageCircle size={15} /> Envoyer un message
               </button>
             )}
@@ -583,7 +584,7 @@ export function CreatorProfileClient({ id }: Props) {
             {(() => {
               const grid = creator.portfolio_grid?.length ? creator.portfolio_grid : creator.portfolio_images?.map(url => ({ url, colSpan: 1 as const, rowSpan: 1 as const }))
               if (!grid?.length) return null
-              const brandColor = (creator as any)?.page_settings?.primary_color ?? '#6366F1'
+              const brandColor = (creator as any)?.page_settings?.primary_color ?? colors.violet.primary
               const brandBg = brandColor + '0D'
               return (
                 <section className="mb-8" style={{ backgroundColor: brandBg, borderRadius: '16px', padding: '16px' }}>
@@ -701,7 +702,7 @@ export function CreatorProfileClient({ id }: Props) {
                           {/* Étoiles */}
                           <div className="flex items-center gap-0.5 shrink-0">
                             {[1,2,3,4,5].map(n => (
-                              <Star key={n} size={15} fill={n <= r.rating ? '#F59E0B' : 'none'} color={n <= r.rating ? '#F59E0B' : 'var(--border-color)'} />
+                              <Star key={n} size={15} fill={n <= r.rating ? colors.status.pending.dot : 'none'} color={n <= r.rating ? colors.status.pending.dot : 'var(--border-color)'} />
                             ))}
                           </div>
                         </div>
@@ -746,12 +747,12 @@ export function CreatorProfileClient({ id }: Props) {
           {/* Sidebar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:sticky lg:top-20 h-fit">
-            <div style={{ borderRadius: '20px', border: '2px solid #6366F1', boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: '#FFFFFF', padding: '24px' }}>
+            <div style={{ borderRadius: '20px', border: '2px solid #6366F1', boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: colors.bg.primary, padding: '24px' }}>
 
               {/* Stats */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '24px' }}>
                 <div style={{ padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: colors.text.primary, margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {marchesCount ?? '—'}
                   </p>
                   <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
@@ -759,7 +760,7 @@ export function CreatorProfileClient({ id }: Props) {
                   </p>
                 </div>
                 <div style={{ padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: colors.text.primary, margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {reviews.length}
                   </p>
                   <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
@@ -767,7 +768,7 @@ export function CreatorProfileClient({ id }: Props) {
                   </p>
                 </div>
                 <div style={{ padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: colors.text.primary, margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {boutiqueCount ?? '—'}
                   </p>
                   <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
@@ -778,16 +779,16 @@ export function CreatorProfileClient({ id }: Props) {
 
               {/* Abonnés + Follow / Message */}
               <p style={{ fontSize: '12px', color: '#6B7280', fontWeight: '500', marginBottom: '12px' }}>
-                <span style={{ fontWeight: '800', color: '#1A1A1A', fontSize: '13px' }}>{followersCount.toLocaleString('fr-FR')}</span> abonné{followersCount !== 1 ? 's' : ''}
+                <span style={{ fontWeight: '800', color: colors.text.primary, fontSize: '13px' }}>{followersCount.toLocaleString('fr-FR')}</span> abonné{followersCount !== 1 ? 's' : ''}
               </p>
               {user && !isOwn && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
                   <button onClick={toggleFollow}
-                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? '#6366F1' : '#E0E1FF', color: isFollowing ? '#fff' : '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? colors.violet.primary : '#E0E1FF', color: isFollowing ? '#fff' : colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
                     {isFollowing ? 'Abonné(e)' : 'S\'abonner'}
                   </button>
                   <button onClick={() => { setShowMsg(true); setSent(false) }}
-                    style={{ padding: '10px', borderRadius: '12px', border: '1.5px solid #E5E7EB', backgroundColor: '#F5F5FF', color: '#1A1A1A', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}>
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid ${colors.border.default}`, backgroundColor: '#F5F5FF', color: colors.text.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}>
                     <MessageCircle size={13} /> Message
                   </button>
                 </div>
@@ -896,7 +897,7 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
     <div className="mt-3">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: '#1A1A1A', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: colors.text.primary, color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <Handshake size={16} /> Proposer une collaboration
         </button>
       ) : (
@@ -987,7 +988,7 @@ function DevisForm({ creatorId, requesterId }: { creatorId: string; requesterId:
     <div className="mt-5">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           Demander un devis
         </button>
       ) : (

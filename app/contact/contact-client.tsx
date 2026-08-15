@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react'
 import { useToast } from '@/components/ui/toast-provider'
+import { colors } from '@/lib/design-tokens'
 
 export default function ContactPageClient() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
@@ -53,7 +54,7 @@ export default function ContactPageClient() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            color: '#6366F1',
+            color: colors.violet.primary,
             textDecoration: 'none',
             fontSize: '14px',
             fontWeight: '600',
@@ -100,7 +101,7 @@ export default function ContactPageClient() {
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
+                  onFocus={(e) => { e.target.style.borderColor = colors.violet.primary; e.target.style.outline = 'none' }}
                   onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
@@ -126,7 +127,7 @@ export default function ContactPageClient() {
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
+                  onFocus={(e) => { e.target.style.borderColor = colors.violet.primary; e.target.style.outline = 'none' }}
                   onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
@@ -152,7 +153,7 @@ export default function ContactPageClient() {
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
+                  onFocus={(e) => { e.target.style.borderColor = colors.violet.primary; e.target.style.outline = 'none' }}
                   onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
@@ -179,7 +180,7 @@ export default function ContactPageClient() {
                     fontFamily: 'inherit',
                     resize: 'vertical',
                   }}
-                  onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.outline = 'none' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.outline = 'none' }}
                   onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
@@ -192,8 +193,8 @@ export default function ContactPageClient() {
                   width: '100%',
                   padding: '14px 24px',
                   borderRadius: '8px',
-                  backgroundColor: loading ? '#C4C7F0' : '#6366F1',
-                  color: '#FFFFFF',
+                  backgroundColor: loading ? '#C4C7F0' : colors.violet.primary,
+                  color: colors.bg.primary,
                   fontSize: '16px',
                   fontWeight: '600',
                   border: 'none',
@@ -206,13 +207,13 @@ export default function ContactPageClient() {
                 }}
                 onMouseEnter={(e) => {
                   if (!loading) {
-                    e.currentTarget.style.backgroundColor = '#5B5BD6'
+                    e.currentTarget.style.backgroundColor = colors.violet.dark
                     e.currentTarget.style.transform = 'scale(1.02)'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!loading) {
-                    e.currentTarget.style.backgroundColor = '#6366F1'
+                    e.currentTarget.style.backgroundColor = colors.violet.primary
                     e.currentTarget.style.transform = 'scale(1)'
                   }
                 }}
@@ -238,12 +239,12 @@ export default function ContactPageClient() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <Mail size={18} color="#6366F1" />
+                    <Mail size={18} color={colors.violet.primary} />
                     <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Email</span>
                   </div>
                   <a
                     href="mailto:contact@nexart.fr"
-                    style={{ fontSize: '14px', color: '#6366F1', textDecoration: 'none' }}
+                    style={{ fontSize: '14px', color: colors.violet.primary, textDecoration: 'none' }}
                   >
                     contact@nexart.fr
                   </a>
@@ -251,7 +252,7 @@ export default function ContactPageClient() {
 
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <MessageSquare size={18} color="#6366F1" />
+                    <MessageSquare size={18} color={colors.violet.primary} />
                     <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Messagerie</span>
                   </div>
                   <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
@@ -259,7 +260,7 @@ export default function ContactPageClient() {
                   </p>
                   <Link
                     href="/login"
-                    style={{ fontSize: '14px', color: '#6366F1', textDecoration: 'none', fontWeight: '600' }}
+                    style={{ fontSize: '14px', color: colors.violet.primary, textDecoration: 'none', fontWeight: '600' }}
                   >
                     Accéder à la messagerie →
                   </Link>

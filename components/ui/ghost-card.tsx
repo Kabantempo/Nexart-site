@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
+import { colors } from '@/lib/design-tokens'
 
 interface GhostCardProps {
   icon: ReactNode
@@ -38,7 +39,7 @@ export function GhostCard({ icon, title, description, cta, href, onAction }: Gho
           width: '64px',
           height: '64px',
           borderRadius: '16px',
-          backgroundColor: '#EEF2FF',
+          backgroundColor: colors.violet.bg,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -65,15 +66,15 @@ export function GhostCard({ icon, title, description, cta, href, onAction }: Gho
             gap: '6px',
             padding: '10px 20px',
             borderRadius: '10px',
-            backgroundColor: '#6366F1',
-            color: '#FFFFFF',
+            backgroundColor: colors.violet.primary,
+            color: colors.bg.primary,
             fontSize: '14px',
             fontWeight: '600',
             textDecoration: 'none',
             transition: 'background-color 200ms ease',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#5B5BD6' }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1' }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.violet.dark }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.violet.primary }}
         >
           {cta}
         </Link>
@@ -88,16 +89,16 @@ export function GhostCard({ icon, title, description, cta, href, onAction }: Gho
             gap: '6px',
             padding: '10px 20px',
             borderRadius: '10px',
-            backgroundColor: '#6366F1',
-            color: '#FFFFFF',
+            backgroundColor: colors.violet.primary,
+            color: colors.bg.primary,
             fontSize: '14px',
             fontWeight: '600',
             border: 'none',
             cursor: 'pointer',
             transition: 'background-color 200ms ease',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#5B5BD6' }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#6366F1' }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.violet.dark }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.violet.primary }}
         >
           {cta}
         </button>

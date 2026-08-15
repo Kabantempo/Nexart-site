@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, MessageCircle, Users, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface Task {
   id: string
@@ -117,9 +118,9 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'not_started':
-        return <AlertCircle size={16} color="#9CA3AF" />
+        return <AlertCircle size={16} color={colors.text.muted} />
       case 'in_progress':
-        return <Clock size={16} color="#6366F1" />
+        return <Clock size={16} color={colors.violet.primary} />
       case 'completed':
         return <CheckCircle2 size={16} color="#10B981" />
       default:
@@ -180,10 +181,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     onClick={() => setStatusFilter(status)}
                     style={{
                       padding: '8px 12px',
-                      border: statusFilter === status ? 'none' : '1px solid #E5E7EB',
+                      border: statusFilter === status ? 'none' : `1px solid ${colors.border.default}`,
                       borderRadius: '6px',
-                      backgroundColor: statusFilter === status ? '#6366F1' : 'var(--bg-secondary)',
-                      color: statusFilter === status ? '#FFFFFF' : 'var(--text-primary)',
+                      backgroundColor: statusFilter === status ? colors.violet.primary : 'var(--bg-secondary)',
+                      color: statusFilter === status ? colors.bg.primary : 'var(--text-primary)',
                       cursor: 'pointer',
                       fontSize: '14px',
                       fontWeight: 500
@@ -206,11 +207,11 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       key={task.id}
                       onClick={() => setSelectedTask(task)}
                       style={{
-                        border: selectedTask?.id === task.id ? '2px solid #6366F1' : '1px solid #E5E7EB',
+                        border: selectedTask?.id === task.id ? '2px solid #6366F1' : `1px solid ${colors.border.default}`,
                         borderRadius: '8px',
                         padding: '16px',
                         cursor: 'pointer',
-                        backgroundColor: selectedTask?.id === task.id ? '#F3F4F6' : '#FFFFFF',
+                        backgroundColor: selectedTask?.id === task.id ? '#F3F4F6' : colors.bg.primary,
                         transition: 'all 0.2s'
                       }}
                     >
@@ -332,8 +333,8 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                   style={{
                     width: '100%',
                     padding: '12px',
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
+                    backgroundColor: colors.violet.primary,
+                    color: colors.bg.primary,
                     border: 'none',
                     borderRadius: '6px',
                     cursor: loading ? 'not-allowed' : 'pointer',
@@ -378,10 +379,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                               onClick={() => handleUpdateStatus(selectedTask.id, status)}
                               style={{
                                 padding: '6px 12px',
-                                border: selectedTask.status === status ? 'none' : '1px solid #E5E7EB',
+                                border: selectedTask.status === status ? 'none' : `1px solid ${colors.border.default}`,
                                 borderRadius: '4px',
-                                backgroundColor: selectedTask.status === status ? '#6366F1' : 'var(--bg-secondary)',
-                                color: selectedTask.status === status ? '#FFFFFF' : 'var(--text-primary)',
+                                backgroundColor: selectedTask.status === status ? colors.violet.primary : 'var(--bg-secondary)',
+                                color: selectedTask.status === status ? colors.bg.primary : 'var(--text-primary)',
                                 cursor: 'pointer',
                                 fontSize: '12px',
                                 fontWeight: 500
@@ -417,8 +418,8 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     Commentaires
                   </h3>
 
-                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '20px', backgroundColor: '#EEF2FF' }}>
-                    <p style={{ fontSize: '14px', color: '#6366F1', fontWeight: 500, textAlign: 'center', margin: '0' }}>
+                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '20px', backgroundColor: colors.violet.bg }}>
+                    <p style={{ fontSize: '14px', color: colors.violet.primary, fontWeight: 500, textAlign: 'center', margin: '0' }}>
                       💬 Système de commentaires disponible en v1.0.1
                     </p>
                   </div>

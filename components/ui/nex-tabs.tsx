@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import { colors } from '@/lib/design-tokens'
 
 export interface NexTab<T extends string = string> {
   key: T
@@ -81,7 +82,7 @@ export function NexTabs<T extends string = string>({
                 padding: size === 'sm' ? '8px 14px' : '10px 18px',
                 fontSize,
                 fontWeight: isActive ? 600 : 500,
-                color: isActive ? '#6366F1' : 'var(--text-secondary)',
+                color: isActive ? colors.violet.primary : 'var(--text-secondary)',
                 background: 'none',
                 border: 'none',
                 borderBottom: isActive ? '2px solid #6366F1' : '2px solid transparent',
@@ -104,7 +105,7 @@ export function NexTabs<T extends string = string>({
                   borderRadius: '9px',
                   fontSize: '11px',
                   fontWeight: 700,
-                  backgroundColor: isActive ? '#6366F1' : 'var(--bg-secondary)',
+                  backgroundColor: isActive ? colors.violet.primary : 'var(--bg-secondary)',
                   color: isActive ? '#fff' : 'var(--text-secondary)',
                 }}>
                   {tab.badge}
@@ -158,7 +159,7 @@ export function NexTabs<T extends string = string>({
               whiteSpace: 'nowrap',
               transition: 'all 0.15s',
               backgroundColor: isActive ? '#fff' : 'transparent',
-              color: isActive ? '#6366F1' : 'var(--text-secondary)',
+              color: isActive ? colors.violet.primary : 'var(--text-secondary)',
               boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
             }}
           >
@@ -175,7 +176,7 @@ export function NexTabs<T extends string = string>({
                 borderRadius: '9px',
                 fontSize: '11px',
                 fontWeight: 700,
-                backgroundColor: isActive ? '#6366F1' : 'var(--border-color)',
+                backgroundColor: isActive ? colors.violet.primary : 'var(--border-color)',
                 color: isActive ? '#fff' : 'var(--text-secondary)',
               }}>
                 {tab.badge}

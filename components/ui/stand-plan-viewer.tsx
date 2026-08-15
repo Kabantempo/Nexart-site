@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { StandPlan, StandStatus } from '@/app/events/[id]/settings/stands/stands-client'
+import { colors } from '@/lib/design-tokens'
 
 const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: string; label: string }> = {
   available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
   reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
-  occupied:  { bg: '#EEF2FF', border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
+  occupied:  { bg: colors.violet.bg, border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
   blocked:   { bg: '#F3F4F6', border: '#D1D5DB', text: '#6B7280', label: 'Bloqué' },
 }
 
@@ -53,7 +54,7 @@ export default function StandPlanViewer({ eventId }: { eventId: string }) {
         {/* Col headers */}
         <div style={{ display: 'flex', marginLeft: `${CELL * 0.4}px`, marginBottom: '3px' }}>
           {Array.from({ length: plan.cols }, (_, i) => (
-            <div key={i} style={{ width: CELL, flexShrink: 0, textAlign: 'center', fontSize: '10px', fontWeight: '600', color: '#9CA3AF' }}>
+            <div key={i} style={{ width: CELL, flexShrink: 0, textAlign: 'center', fontSize: '10px', fontWeight: '600', color: colors.text.muted }}>
               {i + 1}
             </div>
           ))}
@@ -64,7 +65,7 @@ export default function StandPlanViewer({ eventId }: { eventId: string }) {
           const rowLetter = ALPHABET[r] ?? `R${r}`
           return (
             <div key={r} style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
-              <div style={{ width: `${CELL * 0.4}px`, flexShrink: 0, textAlign: 'center', fontSize: '10px', fontWeight: '600', color: '#9CA3AF' }}>
+              <div style={{ width: `${CELL * 0.4}px`, flexShrink: 0, textAlign: 'center', fontSize: '10px', fontWeight: '600', color: colors.text.muted }}>
                 {rowLetter}
               </div>
               {Array.from({ length: plan.cols }, (_, c) => {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Clock, Check, X, ArrowUp, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface WaitlistEntry {
   id: string
@@ -101,7 +102,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
           {[
             { label: 'En attente', value: waiting.length, icon: <Clock size={20} color="#FF6B6B" />, color: '#FF6B6B' },
             { label: 'Promus', value: promoted.length, icon: <Check size={20} color="#10B981" />, color: '#10B981' },
-            { label: 'Total', value: entries.length, icon: <Users size={20} color="#6366F1" />, color: '#6366F1' },
+            { label: 'Total', value: entries.length, icon: <Users size={20} color={colors.violet.primary} />, color: colors.violet.primary },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -166,8 +167,8 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  backgroundColor: entry.position === 1 ? '#6366F1' : 'var(--bg-secondary)',
-                  color: entry.position === 1 ? '#FFFFFF' : 'var(--text-secondary)',
+                  backgroundColor: entry.position === 1 ? colors.violet.primary : 'var(--bg-secondary)',
+                  color: entry.position === 1 ? colors.bg.primary : 'var(--text-secondary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -192,7 +193,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                   justifyContent: 'center',
                   fontSize: '16px',
                   fontWeight: 600,
-                  color: '#6366F1'
+                  color: colors.violet.primary
                 }}>
                   {!entry.profiles?.avatar_url && (entry.profiles?.full_name?.[0] || '?')}
                 </div>
@@ -216,7 +217,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#10B981',
-                      color: '#FFFFFF',
+                      color: colors.bg.primary,
                       border: 'none',
                       borderRadius: '6px',
                       cursor: actionLoading === entry.id ? 'not-allowed' : 'pointer',
@@ -279,7 +280,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                 <p style={{ fontWeight: 500, color: '#065F46', margin: 0, flex: 1 }}>
                   {entry.profiles?.full_name || 'Utilisateur inconnu'}
                 </p>
-                <p style={{ fontSize: '13px', color: '#059669', margin: 0 }}>
+                <p style={{ fontSize: '13px', color: colors.feedback.success.solid, margin: 0 }}>
                   Promu le {new Date(entry.created_at).toLocaleDateString('fr-FR')}
                 </p>
               </div>

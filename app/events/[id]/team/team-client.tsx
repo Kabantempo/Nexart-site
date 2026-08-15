@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Plus, Trash2, Crown, Mail } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface TeamMember {
   id: string
@@ -114,8 +115,8 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#6366F1',
-              color: '#FFFFFF',
+              backgroundColor: colors.violet.primary,
+              color: colors.bg.primary,
               border: 'none',
               borderRadius: '8px',
               padding: '12px 20px',
@@ -160,7 +161,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                     {member.email}
                   </span>
                   {member.role === 'owner' && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#F59E0B', fontWeight: '600' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: colors.status.pending.dot, fontWeight: '600' }}>
                       <Crown size={14} />
                       Propriétaire
                     </span>
@@ -176,7 +177,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                   onClick={() => handleRemove(member.id)}
                   style={{
                     backgroundColor: '#FEF2F2',
-                    color: '#DC2626',
+                    color: colors.feedback.danger.solid,
                     border: 'none',
                     borderRadius: '6px',
                     padding: '8px 12px',
@@ -258,8 +259,8 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                 <button
                   onClick={handleInvite}
                   style={{
-                    backgroundColor: '#6366F1',
-                    color: '#FFFFFF',
+                    backgroundColor: colors.violet.primary,
+                    color: colors.bg.primary,
                     border: 'none',
                     borderRadius: '8px',
                     padding: '12px',

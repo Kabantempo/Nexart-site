@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Bell, BellOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
@@ -85,7 +86,7 @@ export function PushNotificationButton() {
       title={subscribed ? 'Désactiver les notifications' : 'Activer les notifications'}
       style={{
         background: 'none', border: 'none', cursor: loading ? 'wait' : 'pointer',
-        color: subscribed ? '#6366F1' : '#9CA3AF', padding: '4px', display: 'flex', alignItems: 'center',
+        color: subscribed ? colors.violet.primary : colors.text.muted, padding: '4px', display: 'flex', alignItems: 'center',
       }}
     >
       {subscribed ? <Bell size={18} /> : <BellOff size={18} />}

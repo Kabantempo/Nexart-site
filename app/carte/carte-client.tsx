@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Event } from '@/lib/types'
 import { MapPin, Calendar, Users, SlidersHorizontal, X, Euro } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 const EVENT_TYPES = [
   { key: 'all',       label: 'Tous' },
@@ -140,8 +141,8 @@ export default function CarteClient() {
         const remaining = event.remaining_spots ?? 0
         const isFull = (event.stand_count || 0) > 0 && remaining === 0
         const isAlmostFull = !isFull && (event.stand_count || 0) > 0 && remaining <= 3
-        const color = isFull ? '#4B5563' : isAlmostFull ? '#F59E0B' : '#6366F1'
-        const border = isFull ? '#9CA3AF' : isAlmostFull ? '#FCD34D' : '#A5B4FC'
+        const color = isFull ? '#4B5563' : isAlmostFull ? colors.status.pending.dot : colors.violet.primary
+        const border = isFull ? colors.text.muted : isAlmostFull ? '#FCD34D' : '#A5B4FC'
         const imgHtml = event.cover_image
           ? `<img src="${event.cover_image}" alt="${event.title}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0" />`
           : `<svg style="position:absolute;inset:0;margin:auto" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
@@ -192,7 +193,7 @@ export default function CarteClient() {
 
       {/* Légende */}
       <div style={{ padding: '6px 16px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.12)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
-        {[{ color: '#6366F1', label: 'Places disponibles' }, { color: '#F59E0B', label: '≤ 3 places restantes' }, { color: 'var(--text-secondary)', label: 'Complet' }].map(({ color, label }) => (
+        {[{ color: colors.violet.primary, label: 'Places disponibles' }, { color: colors.status.pending.dot, label: '≤ 3 places restantes' }, { color: 'var(--text-secondary)', label: 'Complet' }].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }} />
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
@@ -207,7 +208,7 @@ export default function CarteClient() {
         {(loading || !mapReady) && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(15,12,41,0.85)', zIndex: 1000 }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.3)', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+              <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>Chargement de la carte…</p>
             </div>
           </div>
@@ -231,14 +232,14 @@ export default function CarteClient() {
             )}
 
             <div style={{ padding: '14px 16px 16px' }}>
-              <p style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 8px', lineHeight: 1.3 }}>{selected.title}</p>
+              <p style={{ fontSize: '15px', fontWeight: '700', color: colors.bg.primary, margin: '0 0 8px', lineHeight: 1.3 }}>{selected.title}</p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', marginBottom: '14px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.5)' }}><MapPin size={11} /> {selected.city}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.5)' }}><Calendar size={11} /> {new Date(selected.start_date).toLocaleDateString('fr-FR')}</span>
                 {(selected.stand_count || 0) > 0 && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600',
-                    color: (selected.remaining_spots ?? 0) === 0 ? 'var(--text-secondary)' : (selected.remaining_spots ?? 0) <= 3 ? '#F59E0B' : '#818CF8' }}>
+                    color: (selected.remaining_spots ?? 0) === 0 ? 'var(--text-secondary)' : (selected.remaining_spots ?? 0) <= 3 ? colors.status.pending.dot : colors.violet.hover }}>
                     <Users size={11} />
                     {(selected.remaining_spots ?? 0) === 0
                       ? 'Complet'
@@ -251,7 +252,7 @@ export default function CarteClient() {
               </div>
 
               <Link href={`/events/${selected.id}`}
-                style={{ display: 'block', textAlign: 'center', padding: '10px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', color: '#FFFFFF', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
+                style={{ display: 'block', textAlign: 'center', padding: '10px', background: 'linear-gradient(135deg,#6366F1,#4F46E5)', color: colors.bg.primary, borderRadius: '8px', fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}>
                 Voir l&apos;événement →
               </Link>
             </div>

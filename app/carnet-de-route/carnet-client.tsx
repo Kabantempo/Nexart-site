@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { MapPin, Plus, Trash2, Eye, EyeOff, ArrowLeft, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { colors } from '@/lib/design-tokens'
 
 interface ItineraryEntry {
   id: string
@@ -96,7 +97,7 @@ export default function CarnetDeRoutePage() {
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <h1 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: '0 0 6px' }}>
+              <h1 style={{ fontSize: '24px', fontWeight: '800', color: colors.bg.primary, margin: '0 0 6px' }}>
                 🗺️ Carnet de route
               </h1>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
@@ -154,10 +155,10 @@ export default function CarnetDeRoutePage() {
                 <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>Visible publiquement (organisateurs + visiteurs)</span>
               </label>
             </div>
-            {error && <p style={{ fontSize: '12px', color: '#E05A5A', marginTop: '8px' }}>{error}</p>}
+            {error && <p style={{ fontSize: '12px', color: colors.feedback.danger.solid, marginTop: '8px' }}>{error}</p>}
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button type="submit" disabled={submitting}
-                style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+                style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: '#111827', color: colors.bg.primary, fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
                 {submitting ? 'Ajout...' : 'Ajouter l\'étape'}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
@@ -181,7 +182,7 @@ export default function CarnetDeRoutePage() {
               Ajoutez vos prochains déplacements prévus. Les organisateurs de votre zone pourront vous contacter !
             </p>
             <button onClick={() => setShowForm(true)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', backgroundColor: '#111827', color: colors.bg.primary, fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
               <Plus size={13} /> Ajouter une étape
             </button>
           </div>
@@ -212,7 +213,7 @@ export default function CarnetDeRoutePage() {
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '6px', flexShrink: 0 }}
                   onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FEF2F2')}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-                  <Trash2 size={15} color="#9CA3AF" />
+                  <Trash2 size={15} color={colors.text.muted} />
                 </button>
               </div>
             ))}

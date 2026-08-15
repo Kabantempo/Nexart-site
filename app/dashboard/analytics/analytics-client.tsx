@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, CheckCircle, Star, Download } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 interface CreatorStats {
   profileViews: number
@@ -74,7 +75,7 @@ export default function CreatorAnalyticsClient() {
   if (error) {
     return (
       <div style={{ minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', color: '#DC2626' }}>
+        <div style={{ textAlign: 'center', color: colors.feedback.danger.solid }}>
           ❌ {error}
         </div>
       </div>
@@ -133,9 +134,9 @@ export default function CreatorAnalyticsClient() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Vues de profil</h3>
-              <Eye size={20} color='#6366F1' />
+              <Eye size={20} color={colors.violet.primary} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#6366F1', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.violet.primary, marginBottom: '8px' }}>
               {stats.profileViews}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Cette année</p>
@@ -173,9 +174,9 @@ export default function CreatorAnalyticsClient() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Note</h3>
-              <Star size={20} color='#F59E0B' />
+              <Star size={20} color={colors.status.pending.dot} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: '#F59E0B', marginBottom: '8px' }}>
+            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.status.pending.dot, marginBottom: '8px' }}>
               {(stats.averageRating ?? 0).toFixed(1)}
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
@@ -217,8 +218,8 @@ export default function CreatorAnalyticsClient() {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#6366F1',
-              color: '#FFFFFF',
+              backgroundColor: colors.violet.primary,
+              color: colors.bg.primary,
               border: 'none',
               borderRadius: '8px',
               padding: '12px 20px',
@@ -231,7 +232,7 @@ export default function CreatorAnalyticsClient() {
               e.currentTarget.style.backgroundColor = '#4F46E5'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#6366F1'
+              e.currentTarget.style.backgroundColor = colors.violet.primary
             }}
           >
             <Download size={16} />

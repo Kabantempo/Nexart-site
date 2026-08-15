@@ -7,6 +7,7 @@ import { BarChart2, Users, CheckCircle, Clock, Eye, TrendingUp, Calendar, ArrowL
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
+import { colors } from '@/lib/design-tokens'
 
 interface KPI {
   totalApplications: number
@@ -74,11 +75,11 @@ function Skeleton({ width, height }: { width?: string | number; height?: string 
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: '#F59E0B',
+  pending: colors.status.pending.dot,
   accepted: '#10B981',
   refused: '#EF4444',
-  draft: '#9CA3AF',
-  published: '#6366F1',
+  draft: colors.text.muted,
+  published: colors.violet.primary,
   closed: '#6B7280',
 }
 
@@ -139,7 +140,7 @@ export default function AnalyticsClient() {
 
   const pieTotal = totalEvents || 1
   const pieSlices = [
-    { label: 'Publié', value: eventsByStatus.published, color: '#6366F1' },
+    { label: 'Publié', value: eventsByStatus.published, color: colors.violet.primary },
     { label: 'Clôturé', value: eventsByStatus.closed, color: 'var(--text-secondary)' },
     { label: 'Brouillon', value: eventsByStatus.draft, color: 'var(--text-secondary)' },
   ]
@@ -181,9 +182,9 @@ export default function AnalyticsClient() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
               <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BarChart2 size={20} color="#6366F1" />
+                <BarChart2 size={20} color={colors.violet.primary} />
               </div>
-              <h1 style={{ fontSize: 32, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Analytics</h1>
+              <h1 style={{ fontSize: 32, fontWeight: 700, color: colors.bg.primary, margin: 0 }}>Analytics</h1>
             </div>
             <p style={{ fontSize: 15, color: 'var(--text-secondary)', margin: 0 }}>Vue d'ensemble des performances de vos événements</p>
           </motion.div>
@@ -196,7 +197,7 @@ export default function AnalyticsClient() {
         {/* KPI Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
           {[
-            { label: 'Total candidatures', value: kpi.totalApplications, icon: <Users size={18} color="#6366F1" />, color: '#EEF2FF' },
+            { label: 'Total candidatures', value: kpi.totalApplications, icon: <Users size={18} color={colors.violet.primary} />, color: colors.violet.bg },
             { label: 'Acceptées', value: kpi.accepted, icon: <CheckCircle size={18} color="#10B981" />, color: '#ECFDF5' },
             { label: 'Taux d\'acceptation', value: kpi.acceptanceRate, icon: <TrendingUp size={18} color="#F59E0B" />, color: '#FFFBEB', suffix: '%' },
             { label: 'Vues profil (30j)', value: kpi.profileViews, icon: <Eye size={18} color="#8B5CF6" />, color: '#F5F3FF' },
@@ -247,12 +248,12 @@ export default function AnalyticsClient() {
                         initial={{ width: 0 }}
                         animate={{ width: `${(ev.total / maxApps) * 100}%` }}
                         transition={{ delay: 0.5, duration: 0.6, ease: 'easeOut' }}
-                        style={{ height: '100%', background: '#6366F1', borderRadius: 6 }}
+                        style={{ height: '100%', background: colors.violet.primary, borderRadius: 6 }}
                       />
                     </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 3 }}>
                       <span style={{ fontSize: 11, color: '#10B981' }}>{ev.accepted} acc.</span>
-                      <span style={{ fontSize: 11, color: '#F59E0B' }}>{ev.pending} att.</span>
+                      <span style={{ fontSize: 11, color: colors.status.pending.dot }}>{ev.pending} att.</span>
                       <span style={{ fontSize: 11, color: '#EF4444' }}>{ev.refused} ref.</span>
                       {ev.stand_count > 0 && (
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
@@ -329,7 +330,7 @@ export default function AnalyticsClient() {
                       whileInView={{ width: `${(d.count / maxDiscipline) * 100}%` }}
                       transition={{ delay: i * 0.08, duration: 0.5 }}
                       viewport={{ once: true }}
-                      style={{ height: '100%', background: '#818CF8', borderRadius: 6 }}
+                      style={{ height: '100%', background: colors.violet.hover, borderRadius: 6 }}
                     />
                   </div>
                 </div>
@@ -387,12 +388,12 @@ export default function AnalyticsClient() {
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--text-primary)', fontWeight: 600 }}>{ev.total}</td>
                     <td style={{ padding: '12px 16px', fontSize: 14, color: '#10B981', fontWeight: 600 }}>{ev.accepted}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 14, color: '#F59E0B', fontWeight: 600 }}>{ev.pending}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 14, color: colors.status.pending.dot, fontWeight: 600 }}>{ev.pending}</td>
                     <td style={{ padding: '12px 16px' }}>
                       {ev.stand_count > 0 ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <div style={{ flex: 1, background: 'var(--bg-secondary)', borderRadius: 4, height: 6, minWidth: 60 }}>
-                            <div style={{ width: `${Math.min(ev.fill_rate, 100)}%`, height: '100%', background: '#6366F1', borderRadius: 4, transition: 'width 0.5s' }} />
+                            <div style={{ width: `${Math.min(ev.fill_rate, 100)}%`, height: '100%', background: colors.violet.primary, borderRadius: 4, transition: 'width 0.5s' }} />
                           </div>
                           <span style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{ev.fill_rate}%</span>
                         </div>

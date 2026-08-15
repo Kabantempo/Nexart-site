@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Bell, CheckCircle, X, MessageCircle, Calendar, ArrowLeft } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { GhostCard } from '@/components/ui/ghost-card'
+import { colors } from '@/lib/design-tokens'
 
 interface Notification {
   id: string
@@ -20,8 +21,8 @@ interface Notification {
 
 const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
   application_accepted: { icon: <CheckCircle size={18} />, color: '#10B981', bg: '#ECFDF5' },
-  application_rejected: { icon: <X size={18} />,           color: '#E05A5A', bg: '#FEF2F2' },
-  application_received: { icon: <Calendar size={18} />,    color: '#6366F1', bg: '#EEF2FF' },
+  application_rejected: { icon: <X size={18} />,           color: colors.feedback.danger.solid, bg: '#FEF2F2' },
+  application_received: { icon: <Calendar size={18} />,    color: colors.violet.primary, bg: colors.violet.bg },
   new_message:          { icon: <MessageCircle size={18} />,color: '#06B6D4', bg: '#ECFEFF' },
   default:              { icon: <Bell size={18} />,         color: 'var(--text-secondary)', bg: '#F3F4F6' },
 }
@@ -106,14 +107,14 @@ export default function NotificationsClient() {
 
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
-          <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '20px' }}>
+          <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '20px' }}>
             <ArrowLeft size={16} /> Tableau de bord
           </Link>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h1 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>Notifications</h1>
               {unread > 0 && (
-                <p style={{ fontSize: '14px', color: '#6366F1', fontWeight: '600', margin: '4px 0 0' }}>
+                <p style={{ fontSize: '14px', color: colors.violet.primary, fontWeight: '600', margin: '4px 0 0' }}>
                   {unread} non lue{unread > 1 ? 's' : ''}
                 </p>
               )}
@@ -121,7 +122,7 @@ export default function NotificationsClient() {
             {unread > 0 && (
               <button
                 onClick={markAllRead}
-                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: '#6366F1', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: colors.violet.primary, fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
               >
                 Tout marquer lu
               </button>
@@ -132,7 +133,7 @@ export default function NotificationsClient() {
         {/* List */}
         {notifications.length === 0 ? (
           <GhostCard
-            icon={<Bell size={32} color="#6366F1" />}
+            icon={<Bell size={32} color={colors.violet.primary} />}
             title="Aucune notification pour le moment"
             description="Vous serez notifié des réponses à vos candidatures, nouveaux messages et mises à jour."
           />
@@ -179,7 +180,7 @@ export default function NotificationsClient() {
                     <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{relativeTime(n.created_at)}</p>
                   </div>
                   {isUnread && (
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#6366F1', flexShrink: 0, marginTop: '8px' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colors.violet.primary, flexShrink: 0, marginTop: '8px' }} />
                   )}
                 </motion.div>
               )

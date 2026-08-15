@@ -5,6 +5,7 @@ import { Flag } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from './toast-provider'
 import { NexModal } from './nex-modal'
+import { colors } from '@/lib/design-tokens'
 
 interface Props {
   targetId: string
@@ -59,7 +60,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
         onClick={() => setOpen(true)}
         title="Signaler ce contenu"
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#E05A5A' }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = colors.feedback.danger.solid }}
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
       >
         <Flag size={14} /> Signaler
@@ -74,7 +75,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
         footer={
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={handleSubmit} disabled={!canSubmit || submitting}
-              style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : '#E05A5A', color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
+              style={{ flex: 1, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: !canSubmit || submitting ? 'var(--border-color)' : colors.feedback.danger.solid, color: '#FFF', fontSize: '14px', fontWeight: '700', cursor: !canSubmit || submitting ? 'not-allowed' : 'pointer' }}>
               {submitting ? 'Envoi…' : 'Envoyer'}
             </button>
             <button onClick={() => { setOpen(false); setReason(''); setCustomText('') }}
@@ -86,8 +87,8 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {REASONS.map(r => (
-            <label key={r} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${reason === r ? '#6366F1' : 'var(--border-color)'}`, backgroundColor: reason === r ? '#F0F4FF' : 'var(--bg-secondary)' }}>
-              <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} style={{ accentColor: '#6366F1' }} />
+            <label key={r} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${reason === r ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: reason === r ? '#F0F4FF' : 'var(--bg-secondary)' }}>
+              <input type="radio" name="reason" value={r} checked={reason === r} onChange={() => setReason(r)} style={{ accentColor: colors.violet.primary }} />
               <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: reason === r ? '600' : '400' }}>{r}</span>
             </label>
           ))}
@@ -99,7 +100,7 @@ export function ReportButton({ targetId, targetType, reporterId }: Props) {
               maxLength={500}
               rows={3}
               autoFocus
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #6366F1', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
           )}
         </div>

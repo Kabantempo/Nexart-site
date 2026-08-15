@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { BadgeCheck, ShieldCheck, TrendingUp, Star, ArrowLeft, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 type VerifStatus = 'idle' | 'pending' | 'approved' | 'rejected' | 'loading'
 
@@ -74,10 +75,10 @@ export default function VerifyClient() {
   }
 
   const benefits = [
-    { icon: <BadgeCheck size={20} color="#6366F1" />, title: 'Badge vérifié', desc: 'Un badge ✓ SIRET apparaît sur votre profil public.' },
-    { icon: <TrendingUp size={20} color="#6366F1" />, title: 'Priorité dans les résultats', desc: 'Les créateurs vérifiés sont mis en avant dans les recherches.' },
-    { icon: <Star size={20} color="#6366F1" />, title: 'Confiance accrue', desc: 'Les organisateurs préfèrent les créateurs avec statut vérifié.' },
-    { icon: <ShieldCheck size={20} color="#6366F1" />, title: 'Statut professionnel', desc: 'Prouvez que vous exercez en tant que professionnel déclaré.' },
+    { icon: <BadgeCheck size={20} color={colors.violet.primary} />, title: 'Badge vérifié', desc: 'Un badge ✓ SIRET apparaît sur votre profil public.' },
+    { icon: <TrendingUp size={20} color={colors.violet.primary} />, title: 'Priorité dans les résultats', desc: 'Les créateurs vérifiés sont mis en avant dans les recherches.' },
+    { icon: <Star size={20} color={colors.violet.primary} />, title: 'Confiance accrue', desc: 'Les organisateurs préfèrent les créateurs avec statut vérifié.' },
+    { icon: <ShieldCheck size={20} color={colors.violet.primary} />, title: 'Statut professionnel', desc: 'Prouvez que vous exercez en tant que professionnel déclaré.' },
   ]
 
   return (
@@ -119,7 +120,7 @@ export default function VerifyClient() {
               </div>
               <div>
                 <p style={{ fontSize: '16px', fontWeight: 800, color: '#92400E', margin: 0 }}>Vérification en cours…</p>
-                <p style={{ fontSize: '13px', color: '#B45309', margin: '4px 0 0', fontWeight: 600 }}>Vous recevrez une réponse sous 48h.</p>
+                <p style={{ fontSize: '13px', color: colors.feedback.warning.text, margin: '4px 0 0', fontWeight: 600 }}>Vous recevrez une réponse sous 48h.</p>
               </div>
             </div>
           )}
@@ -155,7 +156,7 @@ export default function VerifyClient() {
                   marginBottom: '6px',
                 }}
               />
-              <p style={{ fontSize: '12px', color: siret.length === 14 ? '#10B981' : '#9CA3AF', margin: '0 0 20px', fontWeight: 600 }}>
+              <p style={{ fontSize: '12px', color: siret.length === 14 ? '#10B981' : colors.text.muted, margin: '0 0 20px', fontWeight: 600 }}>
                 {siret.length}/14 chiffres
                 {siret.length === 14 && ' ✓'}
               </p>
@@ -177,8 +178,8 @@ export default function VerifyClient() {
                 disabled={siret.length !== 14 || submitting}
                 style={{
                   width: '100%', padding: '13px', borderRadius: '10px', border: 'none',
-                  backgroundColor: siret.length === 14 && !submitting ? '#6366F1' : 'var(--border-color)',
-                  color: siret.length === 14 && !submitting ? '#FFFFFF' : '#9CA3AF',
+                  backgroundColor: siret.length === 14 && !submitting ? colors.violet.primary : 'var(--border-color)',
+                  color: siret.length === 14 && !submitting ? colors.bg.primary : colors.text.muted,
                   fontSize: '15px', fontWeight: 700, cursor: siret.length === 14 && !submitting ? 'pointer' : 'not-allowed',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   transition: 'background 200ms',
@@ -186,7 +187,7 @@ export default function VerifyClient() {
                 {submitting ? <><Loader2 size={16} /> Envoi en cours…</> : 'Soumettre la demande'}
               </button>
 
-              <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '12px', lineHeight: '1.5' }}>
+              <p style={{ fontSize: '11px', color: colors.text.muted, textAlign: 'center', marginTop: '12px', lineHeight: '1.5' }}>
                 Votre numéro SIRET sera vérifié manuellement sous 48h ouvrées.
                 Vous recevrez une notification dès validation.
               </p>

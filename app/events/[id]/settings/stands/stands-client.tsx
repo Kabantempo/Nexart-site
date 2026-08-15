@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ui/toast-provider'
 import { Save, RotateCcw, Grid3X3, Plus, Minus, Eye, Trash2, Move } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,7 +32,7 @@ export interface StandPlan {
 const STATUS_COLORS: Record<StandStatus, { bg: string; border: string; text: string; label: string }> = {
   available: { bg: '#F0FDF4', border: '#86EFAC', text: '#15803D', label: 'Disponible' },
   reserved:  { bg: '#FEF9C3', border: '#FDE047', text: '#854D0E', label: 'Réservé' },
-  occupied:  { bg: '#EEF2FF', border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
+  occupied:  { bg: colors.violet.bg, border: '#A5B4FC', text: '#3730A3', label: 'Occupé' },
   blocked:   { bg: 'var(--bg-secondary)', border: '#D1D5DB', text: '#6B7280', label: 'Bloqué' },
 }
 
@@ -164,7 +165,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
             </button>
           )}
           <button onClick={save} disabled={saving || !isDirty}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: isDirty ? '#6366F1' : '#E5E7EB', color: isDirty ? '#fff' : 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: isDirty ? 'pointer' : 'not-allowed', transition: 'all 150ms' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', backgroundColor: isDirty ? colors.violet.primary : colors.border.default, color: isDirty ? '#fff' : 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: isDirty ? 'pointer' : 'not-allowed', transition: 'all 150ms' }}>
             <Save size={14} /> {saving ? 'Sauvegarde…' : 'Sauvegarder'}
           </button>
         </div>
@@ -175,7 +176,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
         {[
           { label: 'Total', value: stats.total, color: 'var(--text-primary)', bg: 'var(--bg-secondary)' },
           { label: 'Disponibles', value: stats.available, color: '#15803D', bg: '#F0FDF4' },
-          { label: 'Occupés', value: stats.occupied, color: '#3730A3', bg: '#EEF2FF' },
+          { label: 'Occupés', value: stats.occupied, color: '#3730A3', bg: colors.violet.bg },
           { label: 'Réservés', value: stats.reserved, color: '#854D0E', bg: '#FEF9C3' },
           { label: 'Bloqués', value: stats.blocked, color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
         ].map(s => (
@@ -239,8 +240,8 @@ export default function StandsClient({ eventId }: { eventId: string }) {
                       title={`Stand ${id}${stand?.assignee ? ` — ${stand.assignee}` : ''}`}
                       style={{
                         width: CELL - 4, height: CELL - 4, margin: '2px', flexShrink: 0,
-                        borderRadius: '8px', border: `2px solid ${isSelected ? '#6366F1' : s.border}`,
-                        backgroundColor: isSelected ? '#EEF2FF' : s.bg,
+                        borderRadius: '8px', border: `2px solid ${isSelected ? colors.violet.primary : s.border}`,
+                        backgroundColor: isSelected ? colors.violet.bg : s.bg,
                         cursor: 'pointer', display: 'flex', flexDirection: 'column',
                         alignItems: 'center', justifyContent: 'center', gap: '2px',
                         boxShadow: isSelected ? '0 0 0 3px rgba(99,102,241,0.25)' : undefined,
@@ -296,7 +297,7 @@ export default function StandsClient({ eventId }: { eventId: string }) {
                     const active = selected.status === st
                     return (
                       <button key={st} onClick={() => updateStand({ ...selected, status: st })}
-                        style={{ padding: '7px 10px', borderRadius: '8px', border: `1.5px solid ${active ? s.border : '#E5E7EB'}`, backgroundColor: active ? s.bg : 'var(--bg-primary)', color: active ? s.text : 'var(--text-primary)', fontSize: '12px', fontWeight: active ? '600' : '400', cursor: 'pointer', transition: 'all 100ms' }}>
+                        style={{ padding: '7px 10px', borderRadius: '8px', border: `1.5px solid ${active ? s.border : colors.border.default}`, backgroundColor: active ? s.bg : 'var(--bg-primary)', color: active ? s.text : 'var(--text-primary)', fontSize: '12px', fontWeight: active ? '600' : '400', cursor: 'pointer', transition: 'all 100ms' }}>
                         {s.label}
                       </button>
                     )

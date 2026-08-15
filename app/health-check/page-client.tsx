@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { RotateCw, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import { colors } from '@/lib/design-tokens'
 
 export default function HealthCheckDashboard() {
   const [report, setReport] = useState<any>(null);
@@ -75,7 +76,7 @@ export default function HealthCheckDashboard() {
 
   const statusColor = {
     healthy: '#10B981',
-    degraded: '#F59E0B',
+    degraded: colors.status.pending.dot,
     unhealthy: '#EF4444',
   };
 
@@ -148,7 +149,7 @@ export default function HealthCheckDashboard() {
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
               style={{
-                backgroundColor: autoRefresh ? '#10B981' : '#E5E7EB',
+                backgroundColor: autoRefresh ? '#10B981' : colors.border.default,
                 color: autoRefresh ? 'white' : '#666',
                 padding: '10px 20px',
                 border: 'none',
@@ -277,7 +278,7 @@ export default function HealthCheckDashboard() {
             </h2>
             <ul style={{ margin: 0, paddingLeft: '20px' }}>
               {report.critical_issues.map((issue: string, idx: number) => (
-                <li key={idx} style={{ color: '#DC2626', marginBottom: '8px' }}>
+                <li key={idx} style={{ color: colors.feedback.danger.solid, marginBottom: '8px' }}>
                   {issue}
                 </li>
               ))}
@@ -296,7 +297,7 @@ export default function HealthCheckDashboard() {
               marginBottom: '30px',
             }}
           >
-            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#D97706', margin: '0 0 15px 0' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: colors.feedback.warning.solid, margin: '0 0 15px 0' }}>
               ⚠️ Warnings
             </h2>
             <ul style={{ margin: 0, paddingLeft: '20px' }}>

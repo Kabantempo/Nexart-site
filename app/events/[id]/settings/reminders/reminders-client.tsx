@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Bell, Check, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 const getToken = async () => {
   const { data: { session } } = await supabase.auth.getSession()
@@ -103,7 +104,7 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
                   onChange={(e) => setReminderDays(parseInt(e.target.value))}
                   style={{ flex: 1, height: '8px', borderRadius: '4px', cursor: 'pointer' }}
                 />
-                <span style={{ fontSize: '18px', fontWeight: 600, color: '#6366F1', minWidth: '100px' }}>
+                <span style={{ fontSize: '18px', fontWeight: 600, color: colors.violet.primary, minWidth: '100px' }}>
                   {reminderDays} jour{reminderDays > 1 ? 's' : ''}
                 </span>
               </div>
@@ -114,10 +115,10 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
 
             {/* Info Box */}
             <div style={{ backgroundColor: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '6px', padding: '16px', marginBottom: '32px', display: 'flex', gap: '12px' }}>
-              <AlertCircle size={20} color="#D97706" style={{ flexShrink: 0 }} />
+              <AlertCircle size={20} color={colors.feedback.warning.solid} style={{ flexShrink: 0 }} />
               <div>
                 <p style={{ color: '#92400E', fontWeight: 500 }}>Automatisation</p>
-                <p style={{ color: '#B45309', fontSize: '14px', marginTop: '4px' }}>
+                <p style={{ color: colors.feedback.warning.text, fontSize: '14px', marginTop: '4px' }}>
                   Les relances seront envoyées automatiquement chaque jour via email
                 </p>
               </div>
@@ -130,8 +131,8 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
                 disabled={loading}
                 style={{
                   padding: '12px 24px',
-                  backgroundColor: '#6366F1',
-                  color: '#FFFFFF',
+                  backgroundColor: colors.violet.primary,
+                  color: colors.bg.primary,
                   border: 'none',
                   borderRadius: '6px',
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -211,7 +212,7 @@ const fetchWaitlist = async () => {
           <tbody>
             {waitlist.map((item: any) => (
               <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: '12px 16px', fontWeight: 600, color: '#6366F1' }}>#{item.position}</td>
+                <td style={{ padding: '12px 16px', fontWeight: 600, color: colors.violet.primary }}>#{item.position}</td>
                 <td style={{ padding: '12px 16px', color: 'var(--text-primary)' }}>{item.profiles?.full_name || 'N/A'}</td>
                 <td style={{ padding: '12px 16px', color: 'var(--text-secondary)' }}>{item.profiles?.email || 'N/A'}</td>
                 <td style={{ padding: '12px 16px' }}>

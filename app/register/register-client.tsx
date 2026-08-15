@@ -7,6 +7,7 @@ import { Mail, Lock, User, ArrowRight, Palette, Calendar, Eye, EyeOff } from 'lu
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 function GoogleIcon() {
   return (
@@ -25,8 +26,8 @@ const roles = [
     label: 'Créateur',
     description: 'Artiste, designer, artisan indépendant',
     icon: Palette,
-    color: '#6366F1',
-    bg: '#EEF2FF',
+    color: colors.violet.primary,
+    bg: colors.violet.bg,
   },
   {
     value: 'organizer',
@@ -42,7 +43,7 @@ const roles = [
     description: 'Explorez et découvrez',
     icon: Eye,
     color: '#10B981',
-    bg: '#E8F5E9',
+    bg: colors.feedback.success.bg,
   },
 ]
 
@@ -161,7 +162,7 @@ export default function RegisterPage() {
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               padding: '13px 28px', borderRadius: '10px',
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              color: '#FFFFFF', textDecoration: 'none',
+              color: colors.bg.primary, textDecoration: 'none',
               fontSize: '15px', fontWeight: '700',
               boxShadow: '0 4px 14px rgba(99,102,241,0.4)',
             }}
@@ -170,13 +171,13 @@ export default function RegisterPage() {
           </Link>
           <div style={{ marginTop: '20px' }}>
             {resendMsg ? (
-              <p style={{ fontSize: '13px', color: resendMsg.startsWith('Erreur') ? '#BE123C' : '#059669', margin: 0 }}>{resendMsg}</p>
+              <p style={{ fontSize: '13px', color: resendMsg.startsWith('Erreur') ? '#BE123C' : colors.feedback.success.solid, margin: 0 }}>{resendMsg}</p>
             ) : (
               <button
                 onClick={handleResend}
                 disabled={resending}
                 style={{
-                  background: 'none', border: 'none', color: '#6366F1',
+                  background: 'none', border: 'none', color: colors.violet.primary,
                   fontSize: '13px', fontWeight: '600', cursor: 'pointer',
                   opacity: resending ? 0.6 : 1, textDecoration: 'underline',
                 }}
@@ -229,7 +230,7 @@ export default function RegisterPage() {
           <Link href="/" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Image src="/logo-mark.png" alt="Nexart" width={36} height={36} style={{ borderRadius: '10px' }} />
-              <span style={{ fontSize: '22px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.5px' }}>Nexart</span>
+              <span style={{ fontSize: '22px', fontWeight: '800', color: colors.bg.primary, letterSpacing: '-0.5px' }}>Nexart</span>
             </div>
           </Link>
         </div>
@@ -241,7 +242,7 @@ export default function RegisterPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 style={{ fontSize: '34px', fontWeight: '800', color: '#FFFFFF', lineHeight: '1.2', marginBottom: '16px', letterSpacing: '-0.5px' }}>
+            <h2 style={{ fontSize: '34px', fontWeight: '800', color: colors.bg.primary, lineHeight: '1.2', marginBottom: '16px', letterSpacing: '-0.5px' }}>
               Rejoignez la communauté Nexart
             </h2>
             <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.7', marginBottom: '40px' }}>
@@ -273,7 +274,7 @@ export default function RegisterPage() {
                       <Icon size={18} color="#A5B4FC" />
                     </div>
                     <div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>{r.label}</div>
+                      <div style={{ fontSize: '14px', fontWeight: '700', color: colors.bg.primary }}>{r.label}</div>
                       <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{r.description}</div>
                     </div>
                   </motion.div>
@@ -287,7 +288,7 @@ export default function RegisterPage() {
         <div style={{ position: 'relative', zIndex: 10, display: 'flex', gap: '32px' }}>
           {[['500+', 'Créateurs'], ['200+', 'Événements'], ['Gratuit', 'Pour commencer']].map(([n, l]) => (
             <div key={l}>
-              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF' }}>{n}</div>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: colors.bg.primary }}>{n}</div>
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: '500' }}>{l}</div>
             </div>
           ))}
@@ -323,7 +324,7 @@ export default function RegisterPage() {
             </h1>
             <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
               Déjà inscrit ?{' '}
-              <Link href="/login" style={{ color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
+              <Link href="/login" style={{ color: colors.violet.primary, fontWeight: '600', textDecoration: 'none' }}>
                 Se connecter
               </Link>
             </p>
@@ -380,7 +381,7 @@ export default function RegisterPage() {
                 Nom complet
               </label>
               <div style={{ position: 'relative' }}>
-                <User size={16} color={focused === 'name' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
+                <User size={16} color={focused === 'name' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
                   id="register-name"
                   type="text"
@@ -393,7 +394,7 @@ export default function RegisterPage() {
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'name' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
+                    border: focused === 'name' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
                     backgroundColor: focused === 'name' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'name' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
@@ -408,7 +409,7 @@ export default function RegisterPage() {
                 Adresse email
               </label>
               <div style={{ position: 'relative' }}>
-                <Mail size={16} color={focused === 'email' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
+                <Mail size={16} color={focused === 'email' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
                   id="register-email"
                   type="email"
@@ -421,7 +422,7 @@ export default function RegisterPage() {
                   style={{
                     width: '100%', padding: '13px 16px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'email' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
+                    border: focused === 'email' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
                     backgroundColor: focused === 'email' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'email' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
@@ -459,7 +460,7 @@ export default function RegisterPage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'all 200ms ease',
                       }}>
-                        <Icon size={18} color={selected ? '#FFFFFF' : 'var(--text-tertiary)'} />
+                        <Icon size={18} color={selected ? colors.bg.primary : 'var(--text-tertiary)'} />
                       </div>
                       <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : 'var(--text-body, #374151)' }}>
                         {r.label}
@@ -476,7 +477,7 @@ export default function RegisterPage() {
                 Mot de passe
               </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'password' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
+                <Lock size={16} color={focused === 'password' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
                   id="register-password"
                   type={showPassword ? 'text' : 'password'}
@@ -490,7 +491,7 @@ export default function RegisterPage() {
                   style={{
                     width: '100%', padding: '13px 42px 13px 42px',
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
-                    border: focused === 'password' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
+                    border: focused === 'password' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
                     backgroundColor: focused === 'password' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'password' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
@@ -510,11 +511,11 @@ export default function RegisterPage() {
                 const strength = password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'Fort'
                   : password.length >= 8 ? 'Moyen'
                   : 'Faible'
-                const color = strength === 'Fort' ? '#4CAF50' : strength === 'Moyen' ? '#FF9800' : '#E05A5A'
+                const color = strength === 'Fort' ? colors.feedback.success.solid : strength === 'Moyen' ? '#FF9800' : colors.feedback.danger.solid
                 const width = strength === 'Fort' ? '100%' : strength === 'Moyen' ? '60%' : '30%'
                 return (
                   <div style={{ marginTop: '8px' }}>
-                    <div style={{ height: '4px', borderRadius: '4px', backgroundColor: '#E5E7EB', overflow: 'hidden' }}>
+                    <div style={{ height: '4px', borderRadius: '4px', backgroundColor: colors.border.default, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width, backgroundColor: color, borderRadius: '4px', transition: 'width 300ms ease, background-color 300ms ease' }} />
                     </div>
                     <p style={{ fontSize: '12px', color, marginTop: '4px', fontWeight: 500 }}>
@@ -531,7 +532,7 @@ export default function RegisterPage() {
                 Confirmer le mot de passe
               </label>
               <div style={{ position: 'relative' }}>
-                <Lock size={16} color={focused === 'confirmPassword' ? '#6366F1' : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
+                <Lock size={16} color={focused === 'confirmPassword' ? colors.violet.primary : 'var(--text-tertiary)'} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', transition: 'color 200ms' }} aria-hidden="true" />
                 <input
                   id="register-confirm-password"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -547,7 +548,7 @@ export default function RegisterPage() {
                     borderRadius: '10px', fontSize: '15px', color: 'var(--text-primary)',
                     border: confirmPassword && password !== confirmPassword
                       ? '1.5px solid #FCA5A5'
-                      : focused === 'confirmPassword' ? '1.5px solid #6366F1' : '1.5px solid #E2E8F0',
+                      : focused === 'confirmPassword' ? `1.5px solid ${colors.border.accent}` : '1.5px solid #E2E8F0',
                     backgroundColor: focused === 'confirmPassword' ? '#FAFBFF' : 'var(--bg-secondary)',
                     outline: 'none', transition: 'all 200ms ease', fontFamily: 'inherit',
                     boxShadow: focused === 'confirmPassword' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
@@ -574,7 +575,7 @@ export default function RegisterPage() {
                 width: '100%', padding: '14px 16px', marginTop: '4px',
                 borderRadius: '10px',
                 background: loading ? '#A5B4FC' : 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                color: '#FFFFFF', fontSize: '15px', fontWeight: '700',
+                color: colors.bg.primary, fontSize: '15px', fontWeight: '700',
                 border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'all 200ms ease', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 boxShadow: loading ? 'none' : '0 4px 14px rgba(99,102,241,0.4)',
@@ -588,9 +589,9 @@ export default function RegisterPage() {
 
           <p style={{ marginTop: '24px', fontSize: '13px', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: '1.6' }}>
             En vous inscrivant, vous acceptez nos{' '}
-            <Link href="/conditions" style={{ color: '#6366F1', textDecoration: 'none' }}>CGU</Link>
+            <Link href="/conditions" style={{ color: colors.violet.primary, textDecoration: 'none' }}>CGU</Link>
             {' '}et notre{' '}
-            <Link href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none' }}>politique de confidentialité</Link>.
+            <Link href="/confidentialite" style={{ color: colors.violet.primary, textDecoration: 'none' }}>politique de confidentialité</Link>.
           </p>
         </motion.div>
       </div>

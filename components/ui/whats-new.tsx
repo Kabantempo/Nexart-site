@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -21,9 +22,9 @@ interface ChangelogVersion {
 }
 
 const TYPE_META: Record<string, { emoji: string; label: string; color: string }> = {
-  new:         { emoji: '✨', label: 'Nouveauté',   color: '#6366F1' },
+  new:         { emoji: '✨', label: 'Nouveauté',   color: colors.violet.primary },
   improvement: { emoji: '🛠️', label: 'Amélioration', color: '#2196F3' },
-  fix:         { emoji: '🐛', label: 'Correctif',   color: '#4CAF50' },
+  fix:         { emoji: '🐛', label: 'Correctif',   color: colors.feedback.success.solid },
   perf:        { emoji: '⚡', label: 'Performance',  color: '#FF9800' },
   security:    { emoji: '🔒', label: 'Sécurité',    color: 'var(--text-secondary)' },
 }
@@ -113,7 +114,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
           <span style={{
             position: 'absolute', top: '-2px', right: '-2px',
             width: '9px', height: '9px', borderRadius: '9999px',
-            backgroundColor: '#6366F1', border: '2px solid var(--bg-primary)',
+            backgroundColor: colors.violet.primary, border: '2px solid var(--bg-primary)',
           }} />
         )}
       </button>
@@ -139,7 +140,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
           >
             {/* Header */}
             <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)' }}>
-              <Sparkles size={16} color="#6366F1" />
+              <Sparkles size={16} color={colors.violet.primary} />
               <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>Nouveautés</span>
             </div>
 
@@ -149,8 +150,8 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
                 <div key={v.id} style={{ padding: '16px 18px', borderBottom: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '10px' }}>
                     <span style={{
-                      fontSize: '12px', fontWeight: 700, color: '#6366F1',
-                      backgroundColor: '#EEF2FF', borderRadius: '6px', padding: '2px 7px',
+                      fontSize: '12px', fontWeight: 700, color: colors.violet.primary,
+                      backgroundColor: colors.violet.bg, borderRadius: '6px', padding: '2px 7px',
                     }}>
                       v{v.version}
                     </span>

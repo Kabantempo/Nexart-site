@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Mail } from 'lucide-react'
 import { SmokeBackground } from '@/components/smoke-background'
 import { supabase } from '@/lib/supabase'
+import { colors } from '@/lib/design-tokens'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -45,9 +46,9 @@ export default function ForgotPasswordPage() {
         >
           <Link
             href="/login"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#5B5BD6' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#6366F1' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.dark }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = colors.violet.primary }}
           >
             <ArrowLeft size={16} />
             Retour à la connexion
@@ -73,7 +74,7 @@ export default function ForgotPasswordPage() {
               </p>
 
               {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#E05A5A', fontSize: '14px', marginBottom: '20px' }}>
+                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
                   {error}
                 </div>
               )}
@@ -81,7 +82,7 @@ export default function ForgotPasswordPage() {
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
-                    <Mail size={16} color="#6366F1" />
+                    <Mail size={16} color={colors.violet.primary} />
                     Email
                   </label>
                   <input
@@ -91,7 +92,7 @@ export default function ForgotPasswordPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '16px', color: 'var(--text-primary)', fontFamily: 'inherit', transition: 'all 300ms ease', boxSizing: 'border-box' }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)' }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   />
                 </div>
@@ -99,9 +100,9 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', backgroundColor: loading ? '#A5A6F6' : '#6366F1', color: '#FFFFFF', fontSize: '16px', fontWeight: '600', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
-                  onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#5B5BD6' }}
-                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#6366F1' }}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', backgroundColor: loading ? '#A5A6F6' : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 300ms ease' }}
+                  onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = colors.violet.dark }}
+                  onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary }}
                 >
                   {loading ? 'Envoi...' : 'Envoyer le lien'}
                 </button>

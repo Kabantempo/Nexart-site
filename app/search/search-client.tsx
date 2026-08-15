@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Search, Calendar, MapPin, Users, ArrowRight } from 'lucide-react'
+import { colors } from '@/lib/design-tokens'
 
 type Tab = 'all' | 'events' | 'creators'
 
@@ -68,8 +69,8 @@ function SearchContent() {
     padding: '10px 20px',
     borderRadius: '8px',
     border: 'none',
-    backgroundColor: tab === t ? '#6366F1' : 'transparent',
-    color: tab === t ? '#FFFFFF' : 'var(--text-secondary)',
+    backgroundColor: tab === t ? colors.violet.primary : 'transparent',
+    color: tab === t ? colors.bg.primary : 'var(--text-secondary)',
     fontSize: '14px',
     fontWeight: '600' as const,
     cursor: 'pointer',
@@ -110,7 +111,7 @@ function SearchContent() {
               transition: 'all 300ms ease',
               fontFamily: 'inherit',
             }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)' }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.1)' }}
             onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
           />
         </div>
@@ -136,7 +137,7 @@ function SearchContent() {
                 <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)' }}>
                   Événements ({matchedEvents.length})
                 </h2>
-                <Link href="/events" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Link href="/events" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   Voir tout <ArrowRight size={14} />
                 </Link>
               </div>
@@ -147,7 +148,7 @@ function SearchContent() {
                   <Link
                     href={`/events/${event.id}`}
                     style={{ display: 'block', textDecoration: 'none', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden', backgroundColor: 'var(--bg-primary)', transition: 'all 300ms ease' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.1)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.1)' }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     <div style={{ width: '100%', height: '160px', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
@@ -169,7 +170,7 @@ function SearchContent() {
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         {event.start_date && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Calendar size={12} color="#6366F1" />
+                            <Calendar size={12} color={colors.violet.primary} />
                             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                               {new Date(event.start_date).toLocaleDateString('fr-FR')}
                             </span>
@@ -177,7 +178,7 @@ function SearchContent() {
                         )}
                         {event.city && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <MapPin size={12} color="#6366F1" />
+                            <MapPin size={12} color={colors.violet.primary} />
                             <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{highlight(event.city, query)}</span>
                           </div>
                         )}
@@ -198,7 +199,7 @@ function SearchContent() {
                 <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)' }}>
                   Créateurs ({matchedCreators.length})
                 </h2>
-                <Link href="/creators" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Link href="/creators" style={{ color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   Voir tout <ArrowRight size={14} />
                 </Link>
               </div>
@@ -209,7 +210,7 @@ function SearchContent() {
                   <Link
                     href={`/creators/${creator.id}`}
                     style={{ display: 'flex', gap: '12px', padding: '16px', textDecoration: 'none', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', transition: 'all 300ms ease', alignItems: 'center' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.1)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.violet.primary; e.currentTarget.style.boxShadow = '0 8px 20px rgba(99,102,241,0.1)' }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)'; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     <div style={{ width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', position: 'relative', backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
@@ -217,7 +218,7 @@ function SearchContent() {
                         <Image src={creator.avatar_url} alt={creator.full_name} fill style={{ objectFit: 'cover' }} />
                       ) : (
                         <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <span style={{ fontSize: '20px', color: '#FFFFFF', fontWeight: '700' }}>{creator.full_name?.charAt(0) || '?'}</span>
+                          <span style={{ fontSize: '20px', color: colors.bg.primary, fontWeight: '700' }}>{creator.full_name?.charAt(0) || '?'}</span>
                         </div>
                       )}
                     </div>

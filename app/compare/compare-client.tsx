@@ -8,6 +8,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Calendar, MapPin, Euro, Users, Tag, Star, CheckCircle } from 'lucide-react'
 import type { Event } from '@/lib/types'
+import { colors } from '@/lib/design-tokens'
 
 type EventWithRating = Event & { avg_rating?: number; review_count?: number; discipline_tags?: string[] }
 
@@ -70,7 +71,7 @@ function CompareContent() {
           href="/events"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
-            backgroundColor: '#6366F1', color: '#FFFFFF', fontWeight: '700',
+            backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: '700',
             fontSize: '15px', padding: '12px 24px', borderRadius: '12px',
             textDecoration: 'none', transition: 'background-color 0.2s',
           }}
@@ -90,7 +91,7 @@ function CompareContent() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 80px)' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '40px 16px 80px' }}>
-        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6366F1', fontSize: '14px', fontWeight: '600', textDecoration: 'none', marginBottom: '24px' }}>
+        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: colors.violet.primary, fontSize: '14px', fontWeight: '600', textDecoration: 'none', marginBottom: '24px' }}>
           <ArrowLeft size={15} /> Retour aux événements
         </Link>
 
@@ -119,16 +120,16 @@ function CompareContent() {
                     </div>
                   )}
                   <p style={{ fontWeight: '700', fontSize: '14px', color: 'var(--text-primary)', margin: '0 0 6px' }}>{ev.title}</p>
-                  <Link href={`/events/${ev.id}`} style={{ fontSize: '12px', color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>Voir le détail →</Link>
+                  <Link href={`/events/${ev.id}`} style={{ fontSize: '12px', color: colors.violet.primary, fontWeight: '600', textDecoration: 'none' }}>Voir le détail →</Link>
                 </div>
               ))}
 
               <Row label="Date">
-                {events.map(ev => <Cell key={ev.id}><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={13} color="#6366F1" />{fmtDate(ev.start_date)}</span></Cell>)}
+                {events.map(ev => <Cell key={ev.id}><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Calendar size={13} color={colors.violet.primary} />{fmtDate(ev.start_date)}</span></Cell>)}
               </Row>
 
               <Row label="Ville">
-                {events.map(ev => <Cell key={ev.id}><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={13} color="#6366F1" />{ev.city ?? '—'}</span></Cell>)}
+                {events.map(ev => <Cell key={ev.id}><span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={13} color={colors.violet.primary} />{ev.city ?? '—'}</span></Cell>)}
               </Row>
 
               <Row label="Prix stand">
@@ -138,7 +139,7 @@ function CompareContent() {
                   return (
                     <Cell key={ev.id}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isBest ? '#10B981' : 'inherit', fontWeight: isBest ? '700' : '400' }}>
-                        <Euro size={13} color={isBest ? '#10B981' : '#6366F1'} />
+                        <Euro size={13} color={isBest ? '#10B981' : colors.violet.primary} />
                         {fmtPrice(ev.stand_price)}
                         {isBest && <span style={{ fontSize: '10px', backgroundColor: '#DCFCE7', color: '#15803D', padding: '1px 6px', borderRadius: '9999px', fontWeight: '700' }}>Meilleur prix</span>}
                       </span>
@@ -153,8 +154,8 @@ function CompareContent() {
                   const isBest = ev.stand_count != null && ev.stand_count === max
                   return (
                     <Cell key={ev.id}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isBest ? '#6366F1' : 'inherit', fontWeight: isBest ? '700' : '400' }}>
-                        <Users size={13} color="#6366F1" />
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isBest ? colors.violet.primary : 'inherit', fontWeight: isBest ? '700' : '400' }}>
+                        <Users size={13} color={colors.violet.primary} />
                         {ev.stand_count != null ? `${ev.stand_count} stands` : '—'}
                       </span>
                     </Cell>
@@ -169,7 +170,7 @@ function CompareContent() {
                     <Cell key={ev.id}>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                         {tags.length > 0 ? tags.slice(0, 4).map(t => (
-                          <span key={t} style={{ padding: '2px 8px', borderRadius: '9999px', backgroundColor: '#EEF2FF', color: '#6366F1', fontSize: '11px', fontWeight: '600' }}>{t}</span>
+                          <span key={t} style={{ padding: '2px 8px', borderRadius: '9999px', backgroundColor: colors.violet.bg, color: colors.violet.primary, fontSize: '11px', fontWeight: '600' }}>{t}</span>
                         )) : <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>—</span>}
                         {tags.length > 4 && <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>+{tags.length - 4}</span>}
                       </div>
@@ -195,7 +196,7 @@ function CompareContent() {
               <Row label="Accès au profil">
                 {events.map(ev => (
                   <Cell key={ev.id}>
-                    <Link href={`/events/${ev.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#6366F1', fontWeight: '600', fontSize: '13px', textDecoration: 'none', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E0E7FF', backgroundColor: '#EEF2FF' }}>
+                    <Link href={`/events/${ev.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: colors.violet.primary, fontWeight: '600', fontSize: '13px', textDecoration: 'none', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E0E7FF', backgroundColor: colors.violet.bg }}>
                       <CheckCircle size={12} /> Voir le marché
                     </Link>
                   </Cell>
