@@ -9,6 +9,7 @@ import { useFavorites } from '@/lib/hooks'
 import { Heart, Calendar, MapPin, Users, Palette, ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { GhostCard } from '@/components/ui/ghost-card'
+import { NexTabs } from '@/components/ui/nex-tabs'
 
 export default function FavoritesClient() {
   const router = useRouter()
@@ -50,22 +51,16 @@ export default function FavoritesClient() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '32px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '4px', width: 'fit-content' }}>
-          {(['events', 'creators'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              style={{
-                padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-                fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                backgroundColor: tab === t ? '#FFFFFF' : 'transparent',
-                color: tab === t ? '#0F172A' : '#64748B',
-                boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-              }}
-            >
-              {t === 'events' ? `Événements (${favEvents.length})` : `Créateurs (${favCreators.length})`}
-            </button>
-          ))}
+        <div style={{ marginBottom: '32px' }}>
+          <NexTabs
+            tabs={[
+              { key: 'events',   label: `Événements (${favEvents.length})` },
+              { key: 'creators', label: `Créateurs (${favCreators.length})` },
+            ]}
+            activeTab={tab}
+            onChange={setTab}
+            ariaLabel="Mes favoris"
+          />
         </div>
 
         {/* Events tab */}
