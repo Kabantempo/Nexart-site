@@ -2,15 +2,15 @@
 
 export default function TermsPageClient() {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '64px 16px' }}>
-        <h1 style={{ fontSize: '48px', fontWeight: '700', color: '#1A1A1A', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '32px' }}>
           Conditions d'Utilisation
         </h1>
 
         <div style={{ fontSize: '16px', color: '#555555', lineHeight: '1.8' }}>
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               1. Acceptation des conditions
             </h2>
             <p>
@@ -20,7 +20,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               2. Utilisation du service
             </h2>
             <p>Vous vous engagez à :</p>
@@ -34,7 +34,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               3. Contenu utilisateur
             </h2>
             <p>
@@ -47,7 +47,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               4. Responsabilité
             </h2>
             <p>
@@ -60,7 +60,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               5. Frais et paiements
             </h2>
             <p>
@@ -70,7 +70,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               6. Modification du service
             </h2>
             <p>
@@ -80,7 +80,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               7. Suspension de compte
             </h2>
             <p>
@@ -90,7 +90,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               8. Propriété intellectuelle
             </h2>
             <p>
@@ -100,7 +100,7 @@ export default function TermsPageClient() {
           </section>
 
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               9. Loi applicable
             </h2>
             <p>
@@ -110,7 +110,7 @@ export default function TermsPageClient() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               10. Contact
             </h2>
             <p>
@@ -118,7 +118,7 @@ export default function TermsPageClient() {
             </p>
           </section>
 
-          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid #E5E7EB', color: '#AAAAAA', fontSize: '14px' }}>
+          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid var(--border-color)', color: '#AAAAAA', fontSize: '14px' }}>
             <p>Dernière mise à jour : 6 juin 2026</p>
           </div>
         </div>

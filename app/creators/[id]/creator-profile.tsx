@@ -16,6 +16,50 @@ import { useFavorites } from '@/lib/hooks'
 import { ReviewForm } from '@/components/review-form'
 import { useToast } from '@/components/ui/toast-provider'
 
+function displayWebsite(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./i, '') }
+  catch { return url.replace(/^https?:\/\/(www\.)?/i, '').replace(/^www\./i, '') }
+}
+
+function displayInstagram(val: string): string {
+  try {
+    const u = new URL(val)
+    if (u.hostname.includes('instagram.com')) {
+      const seg = u.pathname.split('/').filter(Boolean)[0]
+      return seg ? `@${seg}` : `@${val}`
+    }
+  } catch {}
+  return `@${val.replace('@', '')}`
+}
+
+function instagramHref(val: string): string {
+  try {
+    const u = new URL(val)
+    if (u.hostname.includes('instagram.com')) return val
+  } catch {}
+  return `https://instagram.com/${val.replace('@', '')}`
+}
+
+function getVideoEmbed(url: string): string | null {
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes('youtu.be')) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`
+    if (u.hostname.includes('youtube.com')) {
+      const v = u.searchParams.get('v') || u.pathname.split('/').pop()
+      if (v) return `https://www.youtube.com/embed/${v}`
+    }
+    if (u.hostname.includes('tiktok.com')) {
+      const m = u.pathname.match(/\/video\/(\d+)/)
+      if (m) return `https://www.tiktok.com/embed/v2/${m[1]}`
+    }
+    if (u.hostname.includes('instagram.com')) {
+      const m = u.pathname.match(/\/reel\/([^/]+)/)
+      if (m) return `https://www.instagram.com/reel/${m[1]}/embed`
+    }
+    return null
+  } catch { return null }
+}
+
 interface Props { id: string }
 
 interface CreatorData {
@@ -24,6 +68,7 @@ interface CreatorData {
   city?: string; region?: string; department?: string; travel_radius?: string
   disciplines?: string[]; portfolio_images?: string[]
   portfolio_grid?: { url: string; colSpan: 1|2|3; rowSpan: 1|2|3 }[]
+  portfolio_videos?: string[]
   website?: string; instagram?: string; etsy?: string
   siret_verified?: boolean; insurance_verified?: boolean; created_at?: string
   open_to_collab?: boolean
@@ -42,11 +87,15 @@ type Review = {
   profiles?: { full_name: string; avatar_url?: string | null } | null
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export function CreatorProfileClient({ id }: Props) {
+  const [resolvedId, setResolvedId] = useState<string>(id)
   const [creator, setCreator] = useState<CreatorData | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [portfolioImgErrors, setPortfolioImgErrors] = useState<Set<number>>(new Set())
   const [showMsg, setShowMsg] = useState(false)
   const [msgText, setMsgText] = useState('')
   const [sending, setSending] = useState(false)
@@ -56,33 +105,53 @@ export function CreatorProfileClient({ id }: Props) {
   const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const [marchesCount, setMarchesCount] = useState<number | null>(null)
   const [boutiqueCount, setBoutiqueCount] = useState<number | null>(null)
+  const [followersCount, setFollowersCount] = useState<number>(0)
+  const [isFollowing, setIsFollowing] = useState(false)
   const [isActive, setIsActive] = useState(false)
+  const [respondsQuickly, setRespondsQuickly] = useState(false)
   const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
+  const [localPortfolioGrid, setLocalPortfolioGrid] = useState<NonNullable<CreatorData['portfolio_grid']>>([])
+  const [portfolioSaving, setPortfolioSaving] = useState(false)
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
+  const { success } = useToast()
 
   useEffect(() => {
     const load = async () => {
+      // Résolution username → UUID si nécessaire
+      let uid = id
+      if (!UUID_RE.test(id)) {
+        const { data: byUsername } = await supabase.from('profiles').select('id').eq('username', id).eq('role', 'creator').maybeSingle()
+        if (!byUsername) { setError(true); setLoading(false); return }
+        uid = byUsername.id
+        setResolvedId(uid)
+      }
+
       const [{ data: p }, { data: cp }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', id).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab').eq('user_id', id).maybeSingle(),
+        supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', uid).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', uid).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
-      setCreator({ ...p, ...cp })
+      setCreator({ ...(p as Record<string, unknown>), ...(cp as Record<string, unknown> | null ?? {}) } as any)
       setLoading(false)
+
+      // Remplacer l'UUID dans l'URL par le username sans recharger la page
+      if (typeof window !== 'undefined' && p.username && UUID_RE.test(window.location.pathname.split('/').pop() ?? '')) {
+        window.history.replaceState(null, '', `/creators/${p.username}`)
+      }
 
       // Enregistrer la vue de profil (anonyme ou connectée)
       const { data: { session } } = await supabase.auth.getSession()
       const viewerId = session?.user?.id ?? null
-      if (!viewerId || viewerId !== id) {
-        supabase.from('profile_views').insert({ profile_id: id, viewer_id: viewerId }).then(() => {})
+      if (!viewerId || viewerId !== uid) {
+        supabase.from('profile_views').insert({ profile_id: uid, viewer_id: viewerId }).then(() => {})
       }
 
       // Nombre de marchés participés (candidatures acceptées)
       const { count } = await supabase
         .from('applications')
         .select('id', { count: 'exact', head: true })
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('status', 'accepted')
       setMarchesCount(count ?? 0)
 
@@ -91,36 +160,80 @@ export function CreatorProfileClient({ id }: Props) {
       const { count: recentCount } = await supabase
         .from('applications')
         .select('id', { count: 'exact', head: true })
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('status', 'accepted')
         .gte('updated_at', sixMonthsAgo)
       setIsActive((recentCount ?? 0) > 0)
+
+      // Follower count + follow status
+      const { count: fCount } = await supabase
+        .from('follows')
+        .select('id', { count: 'exact', head: true })
+        .eq('followed_id', uid)
+      setFollowersCount(fCount ?? 0)
+      if (session?.user?.id) {
+        const { data: fRow } = await supabase
+          .from('follows')
+          .select('id')
+          .eq('follower_id', session.user.id)
+          .eq('followed_id', uid)
+          .maybeSingle()
+        setIsFollowing(!!fRow)
+      }
 
       // Boutique count
       const { count: prodCount } = await supabase
         .from('products')
         .select('id', { count: 'exact', head: true })
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('is_available', true)
       setBoutiqueCount(prodCount ?? 0)
+
+      // Badge "Répond rapidement" : délai moyen première réponse < 24h
+      const { data: convs } = await supabase
+        .from('conversations')
+        .select('id, created_at')
+        .eq('creator_id', uid)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      if (convs && convs.length >= 3) {
+        const deltas: number[] = []
+        for (const conv of convs) {
+          const { data: firstReply } = await supabase
+            .from('messages')
+            .select('created_at')
+            .eq('conversation_id', conv.id)
+            .eq('sender_id', uid)
+            .order('created_at', { ascending: true })
+            .limit(1)
+            .maybeSingle()
+          if (firstReply) {
+            deltas.push(new Date(firstReply.created_at).getTime() - new Date(conv.created_at).getTime())
+          }
+        }
+        if (deltas.length >= 2) {
+          const avgMs = deltas.reduce((a, b) => a + b, 0) / deltas.length
+          setRespondsQuickly(avgMs < 24 * 3600 * 1000)
+        }
+      }
 
       // Carnet de route public
       const today = new Date().toISOString().split('T')[0]
       const { data: itin } = await supabase
         .from('itinerary')
         .select('id, label, city, start_date, end_date')
-        .eq('creator_id', id)
+        .eq('creator_id', uid)
         .eq('is_public', true)
         .gte('end_date', today)
         .order('start_date', { ascending: true })
         .limit(3)
-      setItinerary(itin || [])
+      setItinerary((itin || []) as any)
 
       // Charger les avis séparément
       const { data: rv, error: rvErr } = await supabase
         .from('reviews')
         .select('id, rating, comment, tags, created_at, reviewer:profiles!reviewer_id(full_name, avatar_url)')
-        .eq('reviewed_id', id)
+        .eq('reviewed_id', uid)
         .order('created_at', { ascending: false })
 
       if (!rvErr && rv?.length) {
@@ -141,7 +254,7 @@ export function CreatorProfileClient({ id }: Props) {
       const { data: apps } = await supabase
         .from('applications')
         .select('event_id, events!inner(organizer_id)')
-        .eq('creator_id', id)
+        .eq('creator_id', resolvedId)
         .eq('status', 'accepted')
         .eq('events.organizer_id', user.id)
         .limit(1)
@@ -149,27 +262,39 @@ export function CreatorProfileClient({ id }: Props) {
       if (!apps) return
       const eventId = apps.event_id as string
       setSharedEventId(eventId)
-      // Vérifier si l'avis existe déjà
       const { data: existing } = await supabase
         .from('reviews')
         .select('id')
         .eq('event_id', eventId)
         .eq('reviewer_id', user.id)
-        .eq('reviewed_id', id)
+        .eq('reviewed_id', resolvedId)
         .maybeSingle()
       setAlreadyReviewed(!!existing)
     }
     checkSharedEvent()
-  }, [id, user])
+  }, [resolvedId, user])
+
+  const toggleFollow = async () => {
+    if (!user) return
+    if (isFollowing) {
+      await supabase.from('follows').delete().eq('follower_id', user.id).eq('followed_id', resolvedId)
+      setIsFollowing(false)
+      setFollowersCount(c => Math.max(0, c - 1))
+    } else {
+      await supabase.from('follows').insert({ follower_id: user.id, followed_id: resolvedId })
+      setIsFollowing(true)
+      setFollowersCount(c => c + 1)
+    }
+  }
 
   const sendMessage = async () => {
     if (!msgText.trim() || !user) return
     setSending(true)
     let convId: string | null = null
-    const { data: existing } = await supabase.from('conversations').select('id').eq('creator_id', id).eq('organizer_id', user.id).maybeSingle()
+    const { data: existing } = await supabase.from('conversations').select('id').eq('creator_id', resolvedId).eq('organizer_id', user.id).maybeSingle()
     if (existing) { convId = existing.id }
     else {
-      const { data: created } = await supabase.from('conversations').insert({ creator_id: id, organizer_id: user.id }).select('id').single()
+      const { data: created } = await supabase.from('conversations').insert({ creator_id: resolvedId, organizer_id: user.id }).select('id').single()
       convId = created?.id ?? null
     }
     if (convId) {
@@ -180,9 +305,31 @@ export function CreatorProfileClient({ id }: Props) {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div style={{ width: '36px', height: '36px', border: '3px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      {/* Banner skeleton */}
+      <div className="h-52 bg-gray-100 animate-pulse" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+        {/* Avatar + name skeleton */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5 -mt-12 mb-8">
+          <div className="w-24 h-24 rounded-2xl bg-gray-200 animate-pulse border-4 border-white shrink-0" />
+          <div className="flex-1 pb-1 space-y-2">
+            <div className="h-7 w-48 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-4 w-32 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+        </div>
+        {/* Content skeletons */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="h-4 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-4 w-4/5 bg-gray-100 rounded-lg animate-pulse" />
+            <div className="h-4 w-3/5 bg-gray-100 rounded-lg animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+            <div className="h-24 bg-gray-100 rounded-2xl animate-pulse" />
+          </div>
+        </div>
+      </div>
     </div>
   )
 
@@ -193,13 +340,14 @@ export function CreatorProfileClient({ id }: Props) {
     </div>
   )
 
-  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${id}` : `https://nexart.fr/creators/${id}`
-  const isOwn = user?.id === id
+  const creatorSlug = creator.username || resolvedId
+  const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${creatorSlug}` : `https://nexart.fr/creators/${creatorSlug}`
+  const isOwn = user?.id === resolvedId
   const displayName = creator.username || creator.full_name
   const showReal = creator.show_real_name !== false
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Message modal */}
       {showMsg && (
@@ -246,7 +394,7 @@ export function CreatorProfileClient({ id }: Props) {
         {/* Banner image */}
         {creator.banner_url && (
           <div className="absolute inset-0 z-0">
-            <img src={creator.banner_url} alt="" className="w-full h-full object-cover opacity-30" />
+            <Image src={creator.banner_url} alt={`Bannière de ${creator.full_name}`} fill style={{ objectFit: 'cover', opacity: 0.3 }} />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#06060f]/60 to-[#06060f]" />
           </div>
         )}
@@ -260,10 +408,10 @@ export function CreatorProfileClient({ id }: Props) {
             <ArrowLeft size={15} /> Retour aux créateurs
           </Link>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <div className="flex flex-col items-center gap-6 text-center">
             {/* Avatar */}
             <div className="relative shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: '#1e1b4b' }}>
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: '#1e1b4b' }}>
                 {creator.avatar_url ? (
                   <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
                 ) : (
@@ -288,7 +436,7 @@ export function CreatorProfileClient({ id }: Props) {
                 )}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="flex flex-wrap justify-center items-center gap-2 mb-3">
                 {creator.city && (
                   <div className="flex items-center gap-1.5 text-white/50 text-sm">
                     <MapPin size={13} className="text-white/40 shrink-0" />
@@ -303,25 +451,30 @@ export function CreatorProfileClient({ id }: Props) {
               </div>
 
               {/* Verification badges */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 {creator.siret_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
-                    <CheckCircle size={12} /> SIRET vérifié
+                  <span style={{ padding: '3px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)', fontSize: '11px', fontWeight: 600 }}>
+                    SIRET vérifié
                   </span>
                 )}
                 {creator.insurance_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-semibold">
-                    <CheckCircle size={12} /> Assurance RC
+                  <span style={{ padding: '3px 12px', borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)', fontSize: '11px', fontWeight: 600 }}>
+                    Assurance RC
                   </span>
                 )}
                 {creator.siret_verified && creator.insurance_verified && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#A5B4FC' }}>
-                    ⭐ Créateur vérifié
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)' }}>
+                    Créateur vérifié
                   </span>
                 )}
                 {isActive && (
-                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.35)', color: '#4ADE80' }}>
-                    ● Créateur actif
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)' }}>
+                    Actif
+                  </span>
+                )}
+                {respondsQuickly && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.55)' }}>
+                    Répond rapidement
                   </span>
                 )}
                 {creator.created_at && (
@@ -334,12 +487,8 @@ export function CreatorProfileClient({ id }: Props) {
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap gap-3 mt-7">
-            {!user ? (
-              <Link href="/login" className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold" style={{ backgroundColor: '#6366F1' }}>
-                <MessageCircle size={15} /> Contacter
-              </Link>
-            ) : isOwn ? (
+          <div className="flex flex-wrap justify-center gap-3 mt-7">
+            {isOwn ? (
               <Link href="/profile" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-white text-sm font-semibold hover:bg-white/15 transition-colors">
                 Éditer mon profil
               </Link>
@@ -352,14 +501,13 @@ export function CreatorProfileClient({ id }: Props) {
             )}
 
             {user && !isOwn && (
-              <button onClick={() => toggleCreatorFav(id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${
+              <button onClick={() => toggleCreatorFav(resolvedId)}
+                className={`flex items-center justify-center px-3 py-2.5 rounded-xl border transition-all ${
                   favCreatorIds.has(id)
                     ? 'bg-rose-500/15 border-rose-500/30 text-rose-400'
                     : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
                 }`}>
-                <Heart size={15} fill={favCreatorIds.has(id) ? 'currentColor' : 'none'} />
-                {favCreatorIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
+                <Heart size={16} fill={favCreatorIds.has(id) ? 'currentColor' : 'none'} />
               </button>
             )}
 
@@ -368,23 +516,37 @@ export function CreatorProfileClient({ id }: Props) {
               <QrCode size={15} /> QR code
             </button>
             {user && user.id !== id && (
-              <div className="flex items-center" style={{ opacity: 0.5 }}>
-                <ReportButton targetId={id} targetType="creator" reporterId={user.id} />
+              <div className="flex items-center">
+                <ReportButton targetId={resolvedId} targetType="creator" reporterId={user.id} />
               </div>
             )}
           </div>
 
-          {/* QR code inline */}
-          {showQR && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-              className="mt-5 inline-flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <div className="p-3 bg-white rounded-xl">
-                <QRCodeSVG value={profileUrl} size={120} level="M" />
-              </div>
-              <p className="text-white/40 text-xs text-center">Scannez pour voir le profil de {creator.full_name}</p>
-            </motion.div>
-          )}
         </div>
+
+        {/* QR panel — positionné en absolu à droite, toute la hauteur du hero */}
+        {showQR && (
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            style={{
+              position: 'absolute', top: 0, right: 0, bottom: 0,
+              width: '140px', zIndex: 20,
+              backgroundColor: 'rgba(255,255,255,0.04)',
+              borderLeft: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(12px)',
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: '12px'
+            }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '10px' }}>
+              <QRCodeSVG value={profileUrl} size={90} level="M" />
+            </div>
+            <p style={{ fontSize: '10px', fontWeight: 600, color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.5, padding: '0 12px' }}>
+              nexart.fr/creators/<br />{creator.username || creator.id.slice(0, 8)}
+            </p>
+          </motion.div>
+        )}
+
         <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
       </div>
 
@@ -421,13 +583,28 @@ export function CreatorProfileClient({ id }: Props) {
             {(() => {
               const grid = creator.portfolio_grid?.length ? creator.portfolio_grid : creator.portfolio_images?.map(url => ({ url, colSpan: 1 as const, rowSpan: 1 as const }))
               if (!grid?.length) return null
+              const brandColor = (creator as any)?.page_settings?.primary_color ?? '#6366F1'
+              const brandBg = brandColor + '0D'
               return (
-                <section className="mb-8">
-                  <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
+                <section className="mb-8" style={{ backgroundColor: brandBg, borderRadius: '16px', padding: '16px' }}>
+                  <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ color: brandColor }}>Portfolio</h2>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(120px, 100%), 1fr))', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
                     {grid.map((item, idx) => (
-                      <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: '#F3F4F6', position: 'relative' }} className="group">
-                        <Image src={item.url} alt={`Portfolio ${idx + 1}`} fill style={{ objectFit: 'cover' }} className="group-hover:scale-105 transition-transform duration-500" />
+                      <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative' }} className="group">
+                        {!portfolioImgErrors.has(idx) ? (
+                          <Image
+                            src={item.url}
+                            alt={`Portfolio ${idx + 1}`}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            className="group-hover:scale-105 transition-transform duration-500"
+                            onError={() => setPortfolioImgErrors(prev => new Set([...prev, idx]))}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: '28px', opacity: 0.4 }}>🖼️</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -435,17 +612,35 @@ export function CreatorProfileClient({ id }: Props) {
               )
             })()}
 
+            {/* Portfolio Videos */}
+            {creator.portfolio_videos && creator.portfolio_videos.length > 0 && (
+              <section className="mb-8">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">Vidéos</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px' }}>
+                  {creator.portfolio_videos.map((url, i) => {
+                    const embed = getVideoEmbed(url)
+                    if (!embed) return null
+                    return (
+                      <div key={i} style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', aspectRatio: '16/9', backgroundColor: '#000' }}>
+                        <iframe src={embed} style={{ width: '100%', height: '100%', border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            )}
+
             {/* Carnet de route */}
             {itinerary.length > 0 && (
               <section className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-3">🗺️ Carnet de route</h2>
                 <div className="flex flex-col gap-2.5">
                   {itinerary.map(entry => (
-                    <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <MapPin size={14} color="#6B7280" />
+                    <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <MapPin size={14} color="var(--text-secondary)" />
                       <div>
-                        <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{entry.label}</p>
-                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>{entry.label}</p>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
                           {new Date(entry.start_date).toLocaleDateString('fr-FR')} → {new Date(entry.end_date).toLocaleDateString('fr-FR')}
                           {entry.city && ` · ${entry.city}`}
                         </p>
@@ -461,16 +656,16 @@ export function CreatorProfileClient({ id }: Props) {
               <section className="mb-8">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-lg font-bold text-gray-900">Boutique</h2>
-                  <Link href={`/boutique/${id}`} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                  <Link href={`/boutique/${resolvedId}`} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
                     Voir tout ({boutiqueCount}) →
                   </Link>
                 </div>
-                <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid #E5E7EB', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+                <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
                     {boutiqueCount} création{boutiqueCount > 1 ? 's' : ''} disponible{boutiqueCount > 1 ? 's' : ''}
                   </p>
-                  <Link href={`/boutique/${id}`}
-                    style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#111827', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}>
+                  <Link href={`/boutique/${resolvedId}`}
+                    style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}>
                     Voir la boutique
                   </Link>
                 </div>
@@ -506,7 +701,7 @@ export function CreatorProfileClient({ id }: Props) {
                           {/* Étoiles */}
                           <div className="flex items-center gap-0.5 shrink-0">
                             {[1,2,3,4,5].map(n => (
-                              <Star key={n} size={15} fill={n <= r.rating ? '#F59E0B' : 'none'} color={n <= r.rating ? '#F59E0B' : '#D1D5DB'} />
+                              <Star key={n} size={15} fill={n <= r.rating ? '#F59E0B' : 'none'} color={n <= r.rating ? '#F59E0B' : 'var(--border-color)'} />
                             ))}
                           </div>
                         </div>
@@ -530,11 +725,11 @@ export function CreatorProfileClient({ id }: Props) {
               <section className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Laisser un avis</h2>
                 {alreadyReviewed ? (
-                  <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', textAlign: 'center' }}>
-                    <p style={{ color: '#6B7280', fontSize: '14px', margin: 0 }}>Vous avez déjà laissé un avis pour ce créateur.</p>
+                  <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Vous avez déjà laissé un avis pour ce créateur.</p>
                   </div>
                 ) : (
-                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' }}>
+                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
                     <ReviewForm
                       eventId={sharedEventId}
                       reviewerId={user!.id}
@@ -551,35 +746,52 @@ export function CreatorProfileClient({ id }: Props) {
           {/* Sidebar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:sticky lg:top-20 h-fit">
-            <div className="rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <div style={{ borderRadius: '20px', border: '2px solid #6366F1', boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: '#FFFFFF', padding: '24px' }}>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mb-6">
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '24px' }}>
+                <div style={{ padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {marchesCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Marchés
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {reviews.length}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Avis
                   </p>
                 </div>
-                <div style={{ borderRadius: '12px', border: '1px solid #F3F4F6', backgroundColor: '#FAFAFA', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2 }}>
+                <div style={{ padding: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '800', color: '#1A1A1A', margin: 0, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                     {boutiqueCount ?? '—'}
                   </p>
-                  <p style={{ fontSize: '10px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  <p style={{ fontSize: '9px', color: '#6B7280', fontWeight: '600', margin: '4px 0 0', textTransform: 'uppercase', letterSpacing: '0.7px' }}>
                     Créations
                   </p>
                 </div>
               </div>
+
+              {/* Abonnés + Follow / Message */}
+              <p style={{ fontSize: '12px', color: '#6B7280', fontWeight: '500', marginBottom: '12px' }}>
+                <span style={{ fontWeight: '800', color: '#1A1A1A', fontSize: '13px' }}>{followersCount.toLocaleString('fr-FR')}</span> abonné{followersCount !== 1 ? 's' : ''}
+              </p>
+              {user && !isOwn && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+                  <button onClick={toggleFollow}
+                    style={{ padding: '10px', borderRadius: '12px', border: `1.5px solid #6366F1`, backgroundColor: isFollowing ? '#6366F1' : '#E0E1FF', color: isFollowing ? '#fff' : '#6366F1', fontSize: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    {isFollowing ? 'Abonné(e)' : 'S\'abonner'}
+                  </button>
+                  <button onClick={() => { setShowMsg(true); setSent(false) }}
+                    style={{ padding: '10px', borderRadius: '12px', border: '1.5px solid #E5E7EB', backgroundColor: '#F5F5FF', color: '#1A1A1A', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s' }}>
+                    <MessageCircle size={13} /> Message
+                  </button>
+                </div>
+              )}
 
               {/* Links */}
               {(creator.website || creator.instagram || creator.etsy) && (
@@ -590,21 +802,23 @@ export function CreatorProfileClient({ id }: Props) {
                       <a href={creator.website} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Globe size={15} className="shrink-0" />
-                        <span className="truncate">{creator.website.replace(/^https?:\/\//, '')}</span>
+                        <span className="truncate">{displayWebsite(creator.website)}</span>
                       </a>
                     )}
                     {creator.instagram && (
-                      <a href={`https://instagram.com/${creator.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
+                      <a href={instagramHref(creator.instagram)} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
-                        <Link2 size={15} className="shrink-0" />
-                        @{creator.instagram.replace('@', '')}
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" className="shrink-0" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        {displayInstagram(creator.instagram)}
                       </a>
                     )}
                     {creator.etsy && (
                       <a href={`https://etsy.com/shop/${creator.etsy}`} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors">
                         <Link2 size={15} className="shrink-0" />
-                        Etsy : {creator.etsy}
+                        {creator.etsy}
                       </a>
                     )}
                   </div>
@@ -612,11 +826,11 @@ export function CreatorProfileClient({ id }: Props) {
               )}
 
               {/* Demande de devis */}
-              {user && !isOwn && <DevisForm creatorId={id} requesterId={user.id} />}
+              {user && !isOwn && <DevisForm creatorId={resolvedId} requesterId={user.id} />}
 
               {/* Proposition de collab — visible seulement si le créateur l'a activé et le visiteur est aussi créateur */}
-              {user && !isOwn && creator.open_to_collab && (user.is_creator || user.role === 'creator') && (
-                <CollabForm creatorId={id} requesterId={user.id} requesterName={user.full_name ?? 'Créateur'} />
+              {user && !isOwn && (
+                <CollabForm creatorId={resolvedId} requesterId={user.id} requesterName={user.full_name ?? 'Créateur'} />
               )}
             </div>
           </motion.div>
@@ -682,7 +896,7 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
     <div className="mt-3">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-violet-200 bg-violet-50 text-violet-700 text-sm font-bold hover:bg-violet-100 transition-colors">
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: '#1A1A1A', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <Handshake size={16} /> Proposer une collaboration
         </button>
       ) : (
@@ -694,15 +908,15 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
 
           {/* Type de collab */}
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Type de collaboration</p>
-          <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="flex flex-col gap-2 mb-4">
             {COLLAB_TYPES.map(t => (
               <button key={t.value} onClick={() => setCollabType(t.value)}
-                className={`flex items-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-all ${
+                className={`flex items-center p-3 rounded-xl border text-sm font-semibold transition-all ${
                   collabType === t.value
                     ? 'border-violet-400 bg-violet-100 text-violet-800'
                     : 'border-gray-200 bg-white text-gray-600 hover:border-violet-200 hover:bg-violet-50'
                 }`}>
-                <span className="text-base">{t.emoji}</span> {t.label}
+                {t.label}
               </button>
             ))}
           </div>
@@ -773,7 +987,7 @@ function DevisForm({ creatorId, requesterId }: { creatorId: string; requesterId:
     <div className="mt-5">
       {!open ? (
         <button onClick={() => setOpen(true)}
-          className="w-full py-3 rounded-2xl border border-indigo-200 bg-indigo-50 text-indigo-700 text-sm font-bold hover:bg-indigo-100 transition-colors">
+          style={{ width: '100%', padding: '12px', borderRadius: '14px', border: 'none', backgroundColor: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           Demander un devis
         </button>
       ) : (

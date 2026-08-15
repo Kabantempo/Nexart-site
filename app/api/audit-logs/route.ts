@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 
@@ -18,14 +19,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if admin (query user's role from profiles table)
     const { data: profile, error: profileError } = await admin
       .from('profiles')
-      .select('role')
+      .select('is_admin')
       .eq('id', user.id)
       .single()
 
-    if (profileError || profile?.role !== 'admin') {
+    if (profileError || !profile?.is_admin) {
       return NextResponse.json(
         { error: 'Only admins can view audit logs' },
         { status: 403 }
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get('user_id')
     const action = searchParams.get('action')
     const resourceType = searchParams.get('resource_type')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50') || 50, 500)
     const offset = parseInt(searchParams.get('offset') || '0')
     const sensitiveOnly = searchParams.get('sensitive_only') === 'true'
 
@@ -72,12 +72,9 @@ export async function GET(req: NextRequest) {
       offset,
       page: Math.ceil(offset / limit) + 1,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Audit logs error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch audit logs' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch audit logs' }, { status: 500 })
   }
 }
 
@@ -99,25 +96,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get request body
-    const body = await req.json()
-    const {
-      action,
-      resource_type,
-      resource_id,
-      description,
-      changes,
-      accessed_sensitive_data,
-      sensitive_fields,
-    } = body
+    // Only admins can manually create audit logs
+    const { data: profile, error: profileError } = await admin
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
 
-    // Validate required fields
-    if (!action || !resource_type) {
-      return NextResponse.json(
-        { error: 'action and resource_type required' },
-        { status: 400 }
-      )
+    if (profileError || !profile?.is_admin) {
+      return NextResponse.json({ error: 'Only admins can create audit logs' }, { status: 403 })
     }
+
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      action: z.string().min(1).max(100),
+      resource_type: z.string().min(1).max(100),
+      resource_id: z.string().optional(),
+      description: z.string().max(1000).optional(),
+      changes: z.record(z.string(), z.unknown()).optional(),
+      accessed_sensitive_data: z.boolean().optional(),
+      sensitive_fields: z.array(z.string()).optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { action, resource_type, resource_id, description, changes, accessed_sensitive_data, sensitive_fields } = body
 
     // Get client IP
     const ip =
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get('user-agent') || 'unknown'
 
     // Call stored procedure to log
-    const { data, error } = await admin.rpc('log_audit_action', {
+    const { data, error } = await (admin as any).rpc('log_audit_action', {
       p_user_id: user.id,
       p_action: action.toUpperCase(),
       p_resource_type: resource_type,
@@ -147,11 +149,8 @@ export async function POST(req: NextRequest) {
       { success: true, log_id: data },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Audit log creation error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to create audit log' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create audit log' }, { status: 500 })
   }
 }

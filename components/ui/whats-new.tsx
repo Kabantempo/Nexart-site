@@ -25,7 +25,7 @@ const TYPE_META: Record<string, { emoji: string; label: string; color: string }>
   improvement: { emoji: '🛠️', label: 'Amélioration', color: '#2196F3' },
   fix:         { emoji: '🐛', label: 'Correctif',   color: '#4CAF50' },
   perf:        { emoji: '⚡', label: 'Performance',  color: '#FF9800' },
-  security:    { emoji: '🔒', label: 'Sécurité',    color: '#6B7280' },
+  security:    { emoji: '🔒', label: 'Sécurité',    color: 'var(--text-secondary)' },
 }
 
 const SEEN_KEY = 'nexart_last_seen_changelog'
@@ -46,6 +46,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
   const [open, setOpen] = useState(false)
   const [supported, setSupported] = useState(true)
   const [hasUnseen, setHasUnseen] = useState(false)
+  const [seenChecked, setSeenChecked] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   const latestVersion = versions[0]?.version
@@ -61,7 +62,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
 
       if (error?.code === '42P01') { setSupported(false); return }
       if (error) return
-      setVersions((data as ChangelogVersion[]) || [])
+      setVersions((data as unknown as ChangelogVersion[]) || [])
     } catch {
       setSupported(false)
     }
@@ -75,6 +76,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
     if (!latestVersion) return
     const seen = typeof window !== 'undefined' ? window.localStorage.getItem(SEEN_KEY) : null
     setHasUnseen(seen !== latestVersion)
+    setSeenChecked(true)
   }, [latestVersion])
 
   // Close on outside click
@@ -96,6 +98,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
   }
 
   if (!supported || versions.length === 0) return null
+  if (seenChecked && !hasUnseen) return null
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
@@ -110,7 +113,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
           <span style={{
             position: 'absolute', top: '-2px', right: '-2px',
             width: '9px', height: '9px', borderRadius: '9999px',
-            backgroundColor: '#6366F1', border: '2px solid #FFFFFF',
+            backgroundColor: '#6366F1', border: '2px solid var(--bg-primary)',
           }} />
         )}
       </button>
@@ -126,24 +129,24 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
             style={{
               position: 'absolute', top: 'calc(100% + 10px)', right: 0,
               width: '360px', maxWidth: '90vw',
-              backgroundColor: '#FFFFFF',
+              backgroundColor: 'var(--bg-primary)',
               borderRadius: '16px',
-              border: '1px solid #E5E7EB',
+              border: '1px solid var(--border-color)',
               boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
               zIndex: 9999,
               overflow: 'hidden',
             }}
           >
             {/* Header */}
-            <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #F3F4F6' }}>
+            <div style={{ padding: '16px 18px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)' }}>
               <Sparkles size={16} color="#6366F1" />
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#1A1A1A' }}>Nouveautés</span>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>Nouveautés</span>
             </div>
 
             {/* Versions list */}
             <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
               {versions.map(v => (
-                <div key={v.id} style={{ padding: '16px 18px', borderBottom: '1px solid #F9FAFB' }}>
+                <div key={v.id} style={{ padding: '16px 18px', borderBottom: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '10px' }}>
                     <span style={{
                       fontSize: '12px', fontWeight: 700, color: '#6366F1',
@@ -152,9 +155,9 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
                       v{v.version}
                     </span>
                     {v.title && (
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#1A1A1A' }}>{v.title}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{v.title}</span>
                     )}
-                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#6B7280', flexShrink: 0 }}>
+                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-secondary)', flexShrink: 0 }}>
                       {formatDate(v.date)}
                     </span>
                   </div>
@@ -167,7 +170,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
                           <span style={{ fontSize: '14px', lineHeight: 1.4, flexShrink: 0 }} title={meta.label}>
                             {meta.emoji}
                           </span>
-                          <span style={{ fontSize: '13px', color: '#374151', lineHeight: 1.5 }}>
+                          <span style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
                             {e.text}
                           </span>
                         </div>

@@ -1,21 +1,31 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendPushToUsers } from '@/lib/push'
 
 // POST /api/contracts/sign  — signature simple (SES)
 export async function POST(req: NextRequest) {
   try {
     const admin = getAdminClient()
-    const body = await req.json()
+
+    // Auth requise
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+    if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ contract_id: uuidSchema, signer_id: uuidSchema })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { contract_id, signer_id } = body
 
-    if (!contract_id || !signer_id) {
-      return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
-    }
+    if (authUser.id !== signer_id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
     const { data: contract } = await admin.from('contracts').select('*').eq('id', contract_id).single()
     if (!contract) return NextResponse.json({ error: 'Contrat introuvable' }, { status: 404 })
 
-    if (contract.creator_id !== signer_id && contract.organizer_id !== signer_id) {
+    if ((contract as any).creator_id !== signer_id && (contract as any).organizer_id !== signer_id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
@@ -30,7 +40,8 @@ export async function POST(req: NextRequest) {
     if (error) throw error
 
     // Notifier l'autre partie
-    const notifiedId = signer_id === contract.creator_id ? contract.organizer_id : contract.creator_id
+    const c = contract as any
+    const notifiedId = signer_id === c.creator_id ? c.organizer_id : c.creator_id
     await admin.from('notifications').insert({
       user_id: notifiedId,
       type: 'contract_signed',
@@ -39,10 +50,11 @@ export async function POST(req: NextRequest) {
       link: `/dashboard`,
     })
 
-    console.log('✓ Contract signed:', { contract_id, signer_id })
+    await sendPushToUsers([notifiedId], '📄 Contrat signé', 'Un contrat vient d\'être signé pour votre événement.', '/dashboard')
     return NextResponse.json({ contract: data })
-  } catch (error: any) {
-    console.error('❌ Contract sign error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur signature contrat', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Contract sign error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur signature contrat' }, { status: 500 })
   }
 }
+

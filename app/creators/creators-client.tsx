@@ -4,9 +4,9 @@ import { useCreators } from '@/lib/hooks'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck, Star, TrendingUp, Navigation } from 'lucide-react'
+import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, BadgeCheck, Star, TrendingUp, Navigation, Zap } from 'lucide-react'
 import { useState, useEffect, Suspense, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 const ITEMS_PER_PAGE = 12
@@ -40,7 +40,7 @@ const DISCIPLINE_PILL = 'bg-black/60 backdrop-blur-sm'
 
 function Skeleton() {
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="h-48 bg-[#06060f] animate-pulse" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
         <div className="h-12 bg-gray-100 rounded-2xl mb-4 animate-pulse" />
@@ -65,7 +65,7 @@ function CreatorsContent() {
   const { creators, loading, error } = useCreators()
   const searchParams = useSearchParams()
 
-  const [searchTerm,       setSearchTerm]       = useState(searchParams.get('q') || '')
+  const [searchTerm,       setSearchTerm]       = useState(searchParams?.get('q') || '')
   const [cityFilter,       setCityFilter]       = useState('all')
   const [disciplineFilter, setDisciplineFilter] = useState('all')
   const [sortOrder,        setSortOrder]        = useState<'alpha' | 'newest' | 'rating' | 'popular'>('alpha')
@@ -75,9 +75,36 @@ function CreatorsContent() {
   const [userCoords,       setUserCoords]       = useState<{ lat: number; lng: number } | null>(null)
   const [geoLoading,       setGeoLoading]       = useState(false)
   const [geoError,         setGeoError]         = useState<string | null>(null)
+  const [showSuggestions,  setShowSuggestions]  = useState(false)
+  const [activeSuggestion, setActiveSuggestion] = useState(-1)
+  const [availableOnly,    setAvailableOnly]    = useState(false)
+  const [openToCollab,     setOpenToCollab]     = useState(false)
+  const searchContainerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
-  useEffect(() => { const q = searchParams.get('q'); if (q) setSearchTerm(q) }, [searchParams])
-  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder])
+  // Sync URL → state on mount
+  useEffect(() => {
+    const q = searchParams?.get('q'); if (q) setSearchTerm(q)
+    const city = searchParams?.get('city'); if (city) setCityFilter(city)
+    const disc = searchParams?.get('disc'); if (disc) setDisciplineFilter(disc)
+    if (searchParams?.get('available') === '1') setAvailableOnly(true)
+    if (searchParams?.get('collab') === '1') setOpenToCollab(true)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, disciplineFilter, sortOrder, availableOnly, openToCollab])
+  useEffect(() => { setActiveSuggestion(-1) }, [searchTerm, showSuggestions])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSuggestions(false) }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => { document.removeEventListener('mousedown', handleClickOutside); document.removeEventListener('keydown', handleEscape) }
+  }, [])
 
   useEffect(() => {
     const loadStats = async () => {
@@ -102,6 +129,14 @@ function CreatorsContent() {
   const uniqueCities      = [...new Set(creators.map((c) => c.city).filter(Boolean))].sort() as string[]
   const uniqueDisciplines = [...new Set(creators.flatMap((c) => c.disciplines || []).filter(Boolean))].sort() as string[]
 
+  const suggestions = searchTerm.length >= 2 ? (() => {
+    const term = searchTerm.toLowerCase()
+    const matchedCreators = creators.filter(c => c.full_name?.toLowerCase().includes(term)).slice(0, 6).map(c => ({ type: 'creator' as const, value: c.full_name }))
+    const matchedDiscs = uniqueDisciplines.filter(d => d.toLowerCase().includes(term)).slice(0, 3).map(d => ({ type: 'discipline' as const, value: d }))
+    const matchedCities = uniqueCities.filter(c => c.toLowerCase().includes(term)).slice(0, 3).map(c => ({ type: 'city' as const, value: c }))
+    return [...matchedCreators, ...matchedDiscs, ...matchedCities].slice(0, 6)
+  })() : []
+
   const creatorsWithDist = userCoords
     ? creators.map(c => ({
         ...c,
@@ -119,6 +154,8 @@ function CreatorsContent() {
     )
     .filter((c) => cityFilter === 'all' || c.city === cityFilter)
     .filter((c) => disciplineFilter === 'all' || (c.disciplines || []).includes(disciplineFilter))
+    .filter((c) => !availableOnly || (c as any).availability === 'available')
+    .filter((c) => !openToCollab || (c as any).open_to_collab === true)
     .sort((a, b) => {
       if (userCoords)              return a._dist - b._dist
       if (sortOrder === 'alpha')   return (a.full_name || '').localeCompare(b.full_name || '', 'fr')
@@ -130,12 +167,24 @@ function CreatorsContent() {
 
   const visible     = filtered.slice(0, visibleCount)
   const hasMore     = visibleCount < filtered.length
-  const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm
+  const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm || availableOnly || openToCollab
   const sortLabels: Record<string, string> = { alpha: 'A → Z', newest: 'Récents', rating: 'Note', popular: 'Popularité' }
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const verifiedCount = creators.filter(c => c.siret_verified).length
 
-  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm(''); setUserCoords(null); setGeoError(null) }
+  const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm(''); setUserCoords(null); setGeoError(null); setAvailableOnly(false); setOpenToCollab(false) }
+
+  const shareFilters = () => {
+    const params = new URLSearchParams()
+    if (searchTerm) params.set('q', searchTerm)
+    if (cityFilter !== 'all') params.set('city', cityFilter)
+    if (disciplineFilter !== 'all') params.set('disc', disciplineFilter)
+    if (availableOnly) params.set('available', '1')
+    if (openToCollab) params.set('collab', '1')
+    const url = `${window.location.pathname}?${params.toString()}`
+    router.push(url, { scroll: false })
+    navigator.clipboard.writeText(window.location.origin + url).catch(() => {})
+  }
 
   const handleGeolocate = () => {
     if (!navigator.geolocation) { setGeoError('Géolocalisation non supportée'); return }
@@ -169,7 +218,7 @@ function CreatorsContent() {
   )
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
       <div className="bg-[#06060f] relative overflow-hidden">
@@ -222,19 +271,67 @@ function CreatorsContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
 
         {/* Search */}
-        <div className="relative mb-4">
+        <div className="relative mb-4" ref={searchContainerRef}>
           <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Nom, discipline, ville…"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => { setSearchTerm(e.target.value); setShowSuggestions(true) }}
+            onFocus={() => { if (searchTerm.length >= 2) setShowSuggestions(true) }}
+            onKeyDown={(e) => {
+              if (!showSuggestions || !suggestions.length) return
+              if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                setActiveSuggestion(i => Math.min(i + 1, suggestions.length - 1))
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault()
+                setActiveSuggestion(i => Math.max(i - 1, -1))
+              } else if (e.key === 'Enter' && activeSuggestion >= 0) {
+                e.preventDefault()
+                setSearchTerm(suggestions[activeSuggestion].value)
+                setShowSuggestions(false)
+                setActiveSuggestion(-1)
+              }
+            }}
             className="w-full pl-11 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <button onClick={() => { setSearchTerm(''); setShowSuggestions(false) }} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
               <X size={16} />
             </button>
+          )}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden" role="listbox">
+              {(() => {
+                let globalIdx = -1
+                const labels: Record<string, string> = { creator: 'Créateurs', discipline: 'Disciplines', city: 'Villes' }
+                return (['creator', 'discipline', 'city'] as const).map(type => {
+                  const group = suggestions.filter(s => s.type === type)
+                  if (!group.length) return null
+                  return (
+                    <div key={type}>
+                      <p className="px-4 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{labels[type]}</p>
+                      {group.map(s => {
+                        globalIdx++
+                        const idx = globalIdx
+                        const isActive = activeSuggestion === idx
+                        return (
+                          <button key={s.value}
+                            role="option"
+                            aria-selected={isActive}
+                            onMouseDown={() => { setSearchTerm(s.value); setShowSuggestions(false); setActiveSuggestion(-1) }}
+                            style={{ backgroundColor: isActive ? '#EEF2FF' : undefined, color: isActive ? '#4338CA' : undefined }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors">
+                            {s.value}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })
+              })()}
+            </div>
           )}
         </div>
 
@@ -278,6 +375,53 @@ function CreatorsContent() {
                 ))}
               </div>
             </div>
+            <div className="w-full sm:w-auto">
+              <p className="text-[11px] font-bold text-gray-400 mb-3">Disponibilité</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <div
+                    onClick={() => setAvailableOnly(v => !v)}
+                    style={{
+                      width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+                      backgroundColor: availableOnly ? '#10b981' : '#e5e7eb',
+                      position: 'relative', transition: 'background 0.2s', flexShrink: 0
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute', top: '2px',
+                      left: availableOnly ? '18px' : '2px',
+                      width: '16px', height: '16px', borderRadius: '50%',
+                      backgroundColor: '#fff', transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                    }} />
+                  </div>
+                  <span style={{ fontSize: '13px', color: availableOnly ? '#065f46' : '#4b5563', fontWeight: availableOnly ? 600 : 400 }}>
+                    Disponible pour événements
+                  </span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <div
+                    onClick={() => setOpenToCollab(v => !v)}
+                    style={{
+                      width: '36px', height: '20px', borderRadius: '10px', cursor: 'pointer',
+                      backgroundColor: openToCollab ? '#6366f1' : '#e5e7eb',
+                      position: 'relative', transition: 'background 0.2s', flexShrink: 0
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute', top: '2px',
+                      left: openToCollab ? '18px' : '2px',
+                      width: '16px', height: '16px', borderRadius: '50%',
+                      backgroundColor: '#fff', transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                    }} />
+                  </div>
+                  <span style={{ fontSize: '13px', color: openToCollab ? '#3730a3' : '#4b5563', fontWeight: openToCollab ? 600 : 400 }}>
+                    Ouvert aux collaborations
+                  </span>
+                </label>
+              </div>
+            </div>
             <div className="w-full sm:w-auto sm:ml-auto">
               <p className="text-[11px] font-bold text-gray-400 mb-3">Proximité</p>
               <button
@@ -303,7 +447,21 @@ function CreatorsContent() {
               {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
               {disciplineFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{disciplineFilter} <button onClick={() => setDisciplineFilter('all')}><X size={11} /></button></span>}
               {sortOrder !== 'alpha' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{sortLabels[sortOrder]} <button onClick={() => setSortOrder('alpha')}><X size={11} /></button></span>}
+              {availableOnly && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Disponible <button onClick={() => setAvailableOnly(false)}><X size={11} /></button></span>}
+              {openToCollab && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Open collab <button onClick={() => setOpenToCollab(false)}><X size={11} /></button></span>}
               <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
+              <div className="ml-auto">
+                <button onClick={shareFilters}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '5px 11px', borderRadius: '20px', border: '1px solid #e5e7eb',
+                    backgroundColor: '#fff', color: '#6b7280', fontSize: '11px', fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔗 Partager ces filtres
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -332,15 +490,15 @@ function CreatorsContent() {
                         /* Mini gallery: 1 large + column of 2 */
                         <div className="flex h-48 gap-px">
                           <div className="relative flex-1 overflow-hidden">
-                            <Image src={creator.portfolio_images[0]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <Image src={creator.portfolio_images[0]} alt={`Portfolio de ${creator.full_name}`} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                           </div>
                           <div className="flex flex-col gap-px w-[38%]">
                             <div className="relative flex-1 overflow-hidden">
-                              <Image src={creator.portfolio_images[1]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                              <Image src={creator.portfolio_images[1]} alt={`Portfolio de ${creator.full_name}`} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                             </div>
                             {creator.portfolio_images[2] ? (
                               <div className="relative flex-1 overflow-hidden">
-                                <Image src={creator.portfolio_images[2]} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <Image src={creator.portfolio_images[2]} alt={`Portfolio de ${creator.full_name}`} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                                 {creator.portfolio_images.length > 3 && (
                                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                     <span className="text-white font-bold text-sm">+{creator.portfolio_images.length - 3}</span>
@@ -359,9 +517,9 @@ function CreatorsContent() {
                           <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                         </div>
                       ) : (
-                        <div className="aspect-square w-full flex items-center justify-center bg-[#111827]">
-                          <span className="text-5xl font-bold text-white/70 select-none">
-                            {creator.full_name?.charAt(0)?.toUpperCase() || '?'}
+                        <div className="aspect-square w-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%)' }}>
+                          <span className="text-5xl font-bold select-none" style={{ color: '#6366F1', opacity: 0.85 }}>
+                            {creator.full_name?.slice(0, 2).toUpperCase() || '?'}
                           </span>
                         </div>
                       )}
@@ -372,7 +530,7 @@ function CreatorsContent() {
                       {/* Avatar circle (when showing portfolio) */}
                       {creator.portfolio_images?.length > 0 && creator.avatar_url && (
                         <div className="absolute bottom-3 left-3 w-9 h-9 rounded-full border-2 border-white overflow-hidden shadow-md">
-                          <Image src={creator.avatar_url} alt="" fill className="object-cover" />
+                          <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
                         </div>
                       )}
 
@@ -396,10 +554,21 @@ function CreatorsContent() {
 
                       {/* Badges */}
                       <div className="absolute top-2.5 right-2.5 flex flex-col gap-1 items-end">
+                        {(creator as any).profile_boosted_until && new Date((creator as any).profile_boosted_until) > new Date() && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-600 border border-indigo-500 shadow-sm shadow-indigo-300">
+                            <Zap size={9} className="text-white" fill="white" />
+                            <span className="text-[10px] font-bold text-white">Boosté</span>
+                          </div>
+                        )}
                         {creator.siret_verified && creator.insurance_verified && (
                           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-sm border border-indigo-200">
                             <BadgeCheck size={10} className="text-indigo-600" />
                             <span className="text-[10px] font-semibold text-indigo-600">Vérifié</span>
+                          </div>
+                        )}
+                        {creator.created_at && Date.now() - new Date(creator.created_at).getTime() < 30 * 24 * 3600 * 1000 && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/90 backdrop-blur-sm border border-amber-300">
+                            <span className="text-[10px] font-bold text-white">Nouveau</span>
                           </div>
                         )}
                         {(creator as { is_active?: boolean }).is_active && (

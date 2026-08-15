@@ -1,19 +1,31 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+async function requireAdmin(req: NextRequest) {
+  const token = req.headers.get('authorization')?.replace('Bearer ', '')
+  if (!token) return null
+  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { autoRefreshToken: false, persistSession: false } })
+  const { data: { user } } = await anon.auth.getUser(token)
+  if (!user) return null
+  const { data: prof } = await anon.from('profiles').select('is_admin').eq('id', user.id).single()
+  if (!prof?.is_admin) return null
+  return user
+}
 
 export async function GET(req: NextRequest) {
+  const admin_user = await requireAdmin(req)
+  if (!admin_user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status') || 'open'
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    const { data, error, count } = await supabase
+    const { data, error, count } = await (supabase as any)
       .from('reports')
       .select('*', { count: 'exact' })
       .eq('status', status)
@@ -29,18 +41,28 @@ export async function GET(req: NextRequest) {
       offset,
       total_pages: Math.ceil((count || 0) / limit)
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
+  const admin_user = await requireAdmin(req)
+  if (!admin_user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const supabase = getAdminClient()
   try {
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      report_id: uuidSchema,
+      action: z.enum(['resolve', 'dismiss']),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { report_id, action } = body
 
     if (action === 'resolve') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('reports')
         .update({ status: 'resolved', resolved_at: new Date().toISOString() })
         .eq('id', report_id)
@@ -51,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

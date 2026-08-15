@@ -1,15 +1,13 @@
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const admin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const admin = getAdminClient()
   try {
     const { data: { user }, error: authError } = await admin.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
@@ -28,13 +26,15 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      status: z.enum(['open', 'resolved', 'dismissed', 'reviewing']).optional(),
+      resolution_notes: z.string().max(2000).optional(),
+      action_taken: z.string().max(500).optional(),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { status, resolution_notes, action_taken } = body
-
-    const validStatuses = ['open', 'resolved', 'dismissed', 'reviewing']
-    if (status && !validStatuses.includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-    }
 
     const updateData: Record<string, any> = {}
     if (status) updateData.status = status
@@ -46,7 +46,7 @@ export async function PATCH(
 
     const { data, error } = await admin
       .from('reports')
-      .update(updateData)
+      .update(updateData as any)
       .eq('id', params.id)
       .select()
       .single()
@@ -54,8 +54,8 @@ export async function PATCH(
     if (error) throw error
 
     return NextResponse.json({ success: true, report: data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('PATCH /api/admin/reports/[id]:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

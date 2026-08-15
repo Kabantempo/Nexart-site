@@ -1,8 +1,21 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Compte suspendu — Nexart',
+  description: 'Votre compte a été suspendu. Contactez le support Nexart.',
+  alternates: { canonical: 'https://nexart.fr/banned' },
+  openGraph: {
+    title: 'Compte suspendu — Nexart',
+    description: 'Votre compte a été suspendu. Contactez le support Nexart.',
+    url: 'https://nexart.fr/banned',
+    type: 'website',
+  },
+}
 
 export default function BannedPage() {
   return (
-    <div className="min-h-screen bg-[#06060f] flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="relative z-10 text-center max-w-md">
         <div className="w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-8 text-4xl">
           ⛔

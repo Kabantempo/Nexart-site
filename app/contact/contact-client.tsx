@@ -4,12 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react'
+import { useToast } from '@/components/ui/toast-provider'
 
 export default function ContactPageClient() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
   const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
+  const toast = useToast()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -17,10 +17,9 @@ export default function ContactPageClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
 
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      setError('Tous les champs sont obligatoires')
+      toast.error('Tous les champs sont obligatoires')
       return
     }
 
@@ -35,19 +34,18 @@ export default function ContactPageClient() {
         const data = await res.json()
         throw new Error(data.error || 'Erreur lors de l\'envoi')
       }
-      setSubmitted(true)
+      toast.success('Message envoyé avec succès. Merci de nous avoir contactés !')
       setFormData({ name: '', email: '', subject: '', message: '' })
-      setTimeout(() => setSubmitted(false), 5000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'envoi')
+      toast.error(err instanceof Error ? err.message : 'Erreur lors de l\'envoi')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '40px 16px' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
         {/* Back Button */}
         <Link
           href="/"
@@ -66,27 +64,28 @@ export default function ContactPageClient() {
           Retour à l'accueil
         </Link>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '48px' }}>
+        <div className="contact-grid">
           {/* Main Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 style={{ fontSize: '48px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               Nous contacter
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280', marginBottom: '40px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: '1.6' }}>
               Vous avez une question, une suggestion ou besoin d'aide ? Remplissez le formulaire ci-dessous et nous vous répondrons dès que possible.
             </p>
 
             <form onSubmit={handleSubmit}>
               {/* Name */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label htmlFor="contact-name" style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Nom complet
                 </label>
                 <input
+                  id="contact-name"
                   type="text"
                   name="name"
                   value={formData.name}
@@ -96,22 +95,23 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
                   onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
               {/* Email */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label htmlFor="contact-email" style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Adresse email
                 </label>
                 <input
+                  id="contact-email"
                   type="email"
                   name="email"
                   value={formData.email}
@@ -121,22 +121,23 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
                   onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
               {/* Subject */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label htmlFor="contact-subject" style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Sujet
                 </label>
                 <input
+                  id="contact-subject"
                   type="text"
                   name="subject"
                   value={formData.subject}
@@ -146,22 +147,23 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                   }}
                   onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.outline = 'none' }}
-                  onBlur={(e) => { e.target.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
 
               {/* Message */}
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#1A1A1A', marginBottom: '8px' }}>
+                <label htmlFor="contact-message" style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>
                   Message
                 </label>
                 <textarea
+                  id="contact-message"
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
@@ -171,30 +173,16 @@ export default function ContactPageClient() {
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     fontSize: '16px',
                     boxSizing: 'border-box',
                     fontFamily: 'inherit',
                     resize: 'vertical',
                   }}
                   onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.outline = 'none' }}
-                  onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
                 />
               </div>
-
-              {/* Error */}
-              {error && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FFE5E5', color: '#E05A5A', fontSize: '14px', marginBottom: '24px' }}>
-                  {error}
-                </div>
-              )}
-
-              {/* Success */}
-              {submitted && (
-                <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#E8F5E9', color: '#4CAF50', fontSize: '14px', marginBottom: '24px' }}>
-                  ✓ Message envoyé avec succès. Merci de nous avoir contactés !
-                </div>
-              )}
 
               {/* Submit Button */}
               <button
@@ -241,9 +229,9 @@ export default function ContactPageClient() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              style={{ borderRadius: '16px', border: '1px solid #E5E7EB', padding: '24px', backgroundColor: '#FFFFFF', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+              style={{ borderRadius: '16px', border: '1px solid var(--border-color)', padding: '24px', backgroundColor: 'var(--bg-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
             >
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '24px' }}>
                 Autres moyens de nous contacter
               </h3>
 
@@ -251,7 +239,7 @@ export default function ContactPageClient() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <Mail size={18} color="#6366F1" />
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Email</span>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Email</span>
                   </div>
                   <a
                     href="mailto:contact@nexart.fr"
@@ -264,9 +252,9 @@ export default function ContactPageClient() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <MessageSquare size={18} color="#6366F1" />
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Messagerie</span>
+                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>Messagerie</span>
                   </div>
-                  <p style={{ fontSize: '14px', color: '#6B7280', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
                     Connectez-vous et utilisez la messagerie directe
                   </p>
                   <Link
@@ -278,7 +266,7 @@ export default function ContactPageClient() {
                 </div>
               </div>
 
-              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #E5E7EB' }}>
+              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
                 <p style={{ fontSize: '12px', color: '#AAAAAA', lineHeight: '1.5' }}>
                   Nous vous répondrons dans un délai de 24 à 48 heures.
                 </p>

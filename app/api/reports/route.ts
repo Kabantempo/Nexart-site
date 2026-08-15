@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
@@ -22,11 +23,11 @@ export async function GET(req: NextRequest) {
     // Check if admin
     const { data: profile } = await admin
       .from('profiles')
-      .select('role')
+      .select('is_admin')
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (!profile?.is_admin) {
       return NextResponse.json(
         { error: 'Only admins can view reports' },
         { status: 403 }
@@ -54,10 +55,10 @@ export async function GET(req: NextRequest) {
       status,
       page: Math.ceil(offset / limit) + 1,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reports GET error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch reports' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch reports' },
       { status: 500 }
     )
   }
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
     const token = authHeader.split(' ')[1]
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -84,32 +85,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get request body
-    const body = await req.json()
-    const {
-      reported_user_id,
-      reported_post_id,
-      reported_event_id,
-      reason,
-      description,
-    } = body
-
-    // Validate: at least one thing reported
-    if (!reported_user_id && !reported_post_id && !reported_event_id) {
-      return NextResponse.json(
-        { error: 'Must report a user, post, or event' },
-        { status: 400 }
-      )
-    }
-
-    // Validate reason
-    const validReasons = ['spam', 'harassment', 'inappropriate', 'copyright', 'fraud', 'other']
-    if (!reason || !validReasons.includes(reason)) {
-      return NextResponse.json(
-        { error: `Reason must be one of: ${validReasons.join(', ')}` },
-        { status: 400 }
-      )
-    }
+    const { validate: v, z } = await import('@/lib/validate')
+    const reportPostSchema = z.object({
+      reported_user_id: z.string().uuid().optional(),
+      reported_post_id: z.string().uuid().optional(),
+      reported_event_id: z.string().uuid().optional(),
+      reason: z.enum(['spam', 'harassment', 'inappropriate', 'copyright', 'fraud', 'other']),
+      description: z.string().max(2000).optional(),
+    }).refine(d => d.reported_user_id || d.reported_post_id || d.reported_event_id, {
+      message: 'Must report a user, post, or event',
+    })
+    const { data: body, error: validErr } = v(reportPostSchema, await req.json())
+    if (validErr) return validErr
+    const { reported_user_id, reported_post_id, reported_event_id, reason, description } = body
 
     // Get reporter IP
     const ip =
@@ -130,7 +118,7 @@ export async function POST(req: NextRequest) {
         status: 'pending',
         ip_address: ip,
         created_at: new Date().toISOString(),
-      })
+      } as any)
       .select()
 
     if (error) throw error
@@ -143,10 +131,10 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Report creation error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create report' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to create report' },
       { status: 500 }
     )
   }
@@ -221,10 +209,10 @@ export async function PATCH(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, report: data[0] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Report update error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to update report' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to update report' },
       { status: 500 }
     )
   }

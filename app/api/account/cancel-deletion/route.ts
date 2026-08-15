@@ -1,27 +1,38 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
+import { emailDeleteCancelled } from '@/lib/email-templates'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
     const token = req.nextUrl.searchParams.get('token')
 
     if (!token) {
       return NextResponse.json({ error: 'Token manquant' }, { status: 400 })
     }
 
-    // Décoder le token
+    // Décoder et vérifier le token HMAC-SHA256
     let userId: string
     let tokenTimestamp: number
 
     try {
       const decoded = Buffer.from(token, 'base64').toString('utf-8')
-      const [id, timestamp] = decoded.split(':')
+      const parts = decoded.split(':')
+      if (parts.length !== 3) throw new Error('format invalide')
+      const [id, timestamp, sig] = parts
       userId = id
       tokenTimestamp = parseInt(timestamp, 10)
+
+      const tokenSecret = process.env.DELETION_TOKEN_SECRET || process.env.CRON_SECRET_TOKEN
+      if (!tokenSecret) throw new Error('Server misconfigured: token secret missing')
+      const expectedSig = createHmac('sha256', tokenSecret).update(`${userId}:${timestamp}`).digest('hex')
+      const sigBuf = Buffer.from(sig, 'hex')
+      const expectedBuf = Buffer.from(expectedSig, 'hex')
+      if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
+        throw new Error('signature invalide')
+      }
     } catch (e) {
       return NextResponse.json({ error: 'Token invalide' }, { status: 400 })
     }
@@ -35,11 +46,11 @@ export async function GET(req: NextRequest) {
     }
 
     // Vérifier que l'utilisateur existe et est en soft-delete
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await (supabase as any)
       .from('users')
       .select('id, deleted_at, email')
       .eq('id', userId)
-      .single()
+      .single() as any
 
     if (userError || !user) {
       return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
@@ -50,7 +61,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Annuler la suppression (soft-delete)
-    const { error: restoreError } = await supabase
+    const { error: restoreError } = await (supabase as any)
       .from('users')
       .update({
         deleted_at: null,
@@ -80,12 +91,7 @@ export async function GET(req: NextRequest) {
         from: 'noreply@nexart.fr',
         to: user.email,
         subject: 'Suppression de compte annulée',
-        html: `
-          <h2>Annulation confirmée</h2>
-          <p>Votre demande de suppression de compte a été annulée.</p>
-          <p>Votre compte Nexart est réactivé et accessible.</p>
-          <p>Connectez-vous normalement : <a href="https://nexart.fr/login">nexart.fr/login</a></p>
-        `,
+        html: emailDeleteCancelled(),
       }),
     })
 

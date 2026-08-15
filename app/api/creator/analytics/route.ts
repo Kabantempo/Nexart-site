@@ -1,14 +1,11 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
-    // Get current user from auth header
     const authHeader = req.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
@@ -23,26 +20,26 @@ export async function GET(req: NextRequest) {
 
     const creatorId = user.id
 
-    // Get profile views
-    const { data: profileViews } = await supabase
-      .from('profile_views')
-      .select('id')
-      .eq('profile_id', creatorId)
-      .gte('viewed_at', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString())
+    const [profileViewsResult, applicationsResult, reviewsResult] = await Promise.allSettled([
+      supabase
+        .from('profile_views')
+        .select('id')
+        .eq('profile_id', creatorId)
+        .gte('viewed_at', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()),
+      supabase
+        .from('applications')
+        .select('id, status')
+        .eq('creator_id', creatorId),
+      supabase
+        .from('reviews')
+        .select('rating')
+        .eq('reviewed_id', creatorId),
+    ])
 
-    // Get applications
-    const { data: applications } = await supabase
-      .from('applications')
-      .select('id, status')
-      .eq('creator_id', creatorId)
+    const profileViews = profileViewsResult.status === 'fulfilled' ? profileViewsResult.value.data : []
+    const applications = applicationsResult.status === 'fulfilled' ? applicationsResult.value.data : []
+    const reviews = reviewsResult.status === 'fulfilled' ? reviewsResult.value.data : []
 
-    // Get reviews
-    const { data: reviews } = await supabase
-      .from('reviews')
-      .select('rating')
-      .eq('reviewed_id', creatorId)
-
-    // Calculate stats
     const acceptedCount = applications?.filter(a => a.status === 'accepted').length || 0
     const rejectedCount = applications?.filter(a => a.status === 'refused').length || 0
     const totalApplications = applications?.length || 0
@@ -60,7 +57,7 @@ export async function GET(req: NextRequest) {
       reviewCount: reviews?.length || 0,
       acceptanceRate,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Analytics error:', error)
     return NextResponse.json({ error: 'Erreur chargement analytics' }, { status: 500 })
   }

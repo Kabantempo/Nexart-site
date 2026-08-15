@@ -1,24 +1,28 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = getAdminClient()
+    // Public read — use anon client so RLS applies
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
     const searchParams = req.nextUrl.searchParams
-    const city = searchParams.get('city')
-    const region = searchParams.get('region')
-    const status = searchParams.get('status') || 'published'
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const city = searchParams.get('city')?.slice(0, 100) || null
+    const region = searchParams.get('region')?.slice(0, 100) || null
+    const rawStatus = searchParams.get('status') || 'published'
+    const status = ['draft', 'published', 'closed'].includes(rawStatus) ? rawStatus : 'published'
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 100)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
-    let query = admin.from('events')
+    let query = anon.from('events')
       .select(`
         id, title, description, event_type, theme, location, city, region,
         start_date, end_date, stand_count, stand_price, cover_image,
         organizer_id, organizer:profiles!organizer_id(full_name, avatar_url),
         created_at
       `)
-      .eq('status', status)
+      .eq('status', status as 'draft' | 'published' | 'closed')
       .order('start_date', { ascending: true })
       .range(offset, offset + limit - 1)
 
@@ -27,29 +31,51 @@ export async function GET(req: NextRequest) {
 
     const { data, error } = await query
     if (error) throw error
-
-    console.log('✓ Events fetched:', { city, region, status, count: data?.length })
     return NextResponse.json({ events: data || [] })
-  } catch (error: any) {
-    console.error('❌ Events GET error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur chargement événements', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Events GET error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur chargement événements' }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const admin = getAdminClient()
-    const body = await req.json()
-    const { organizer_id, title, description, event_type, start_date, end_date, location, city, region } = body
 
-    if (!organizer_id || !title || !start_date || !end_date) {
-      return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
+    // Auth — caller must be authenticated
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+    if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
+    const { validate: v, eventCreateSchema, z } = await import('@/lib/validate')
+    const fullSchema = eventCreateSchema.extend({ title: z.string().min(3).max(200) })
+    const { data: body, error: validErr } = v(fullSchema, await req.json())
+    if (validErr) return validErr
+    const { title, description, event_type, start_date, end_date, location, city, region } = body
+
+    // organizer_id is always the authenticated user — never trust the body
+    const organizer_id = authUser.id
+
+    // Plan check: free organizers limited to 1 active event (draft or published)
+    const { data: profile } = await admin.from('profiles').select('subscription_tier, role').eq('id', organizer_id).single()
+    if ((profile as any)?.role !== 'organizer') {
+      return NextResponse.json({ error: 'Réservé aux organisateurs' }, { status: 403 })
     }
-
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(organizer_id)) {
-      return NextResponse.json({ error: 'organizer_id doit être un UUID valide' }, { status: 400 })
+    const tier = (profile as any)?.subscription_tier ?? 'free'
+    const isPro = ['org_pro', 'org_studio'].includes(tier)
+    if (!isPro) {
+      const { count } = await admin.from('events')
+        .select('id', { count: 'exact', head: true })
+        .eq('organizer_id', organizer_id)
+        .in('status', ['draft', 'published'])
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json({
+          error: 'Limite atteinte',
+          message: 'Le plan gratuit est limité à 1 événement actif. Passez au plan Pro pour en créer davantage.',
+          upgrade_url: '/offres',
+        }, { status: 403 })
+      }
     }
 
     const { data, error } = await admin.from('events').insert({
@@ -57,19 +83,18 @@ export async function POST(req: NextRequest) {
       title,
       description,
       event_type,
-      start_date,
-      end_date,
+      start_date: (start_date ?? null) as any,
+      end_date: (end_date ?? null) as any,
       location,
-      city,
-      region,
+      city: city ?? null,
+      region: region ?? null,
       status: 'draft',
     }).select().single()
 
     if (error) throw error
-    console.log('✓ Event created:', { organizer_id, title })
     return NextResponse.json({ event: data }, { status: 201 })
-  } catch (error: any) {
-    console.error('❌ Events POST error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur création événement', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Events POST error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur création événement' }, { status: 500 })
   }
 }

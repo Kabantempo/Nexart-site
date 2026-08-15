@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 
@@ -44,21 +45,19 @@ export async function DELETE(req: Request) {
         timestamp: new Date().toISOString(),
       })
       return NextResponse.json(
-        { error: 'Erreur suppression compte', details: deleteError.message },
+        { error: "Erreur suppression compte" },
         { status: 500 }
       )
     }
-
-    console.log('✓ Account deleted:', { userId, timestamp: new Date().toISOString() })
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
+  } catch (error: unknown) {
+    const errorMsg = (error as Error)?.message || 'Unknown error'
     console.error('❌ Delete account error:', {
       error: errorMsg,
       timestamp: new Date().toISOString(),
     })
     return NextResponse.json(
-      { error: 'Erreur suppression compte', details: errorMsg },
+      { error: 'Erreur suppression compte' },
       { status: 500 }
     )
   }

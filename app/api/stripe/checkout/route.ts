@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { getStripe, isStripeConfigured, STRIPE_PRICES, STRIPE_CREDIT_PRICES } from '@/lib/stripe'
@@ -8,13 +9,29 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { priceId, mode, userId, successUrl, cancelUrl } = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      priceId: z.string().min(1),
+      mode: z.enum(['payment', 'subscription']),
+      userId: uuidSchema,
+      successUrl: z.string().url(),
+      cancelUrl: z.string().url(),
+    })
+    const { data: parsed, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { priceId, mode, userId, successUrl, cancelUrl } = parsed
 
+    // Verify the authenticated user matches the userId in the request
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
+
+    const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
+    if (!authUser || authUser.id !== userId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     // Récupérer ou créer le customer Stripe pour cet utilisateur
     const { data: profile } = await admin.from('profiles').select('stripe_customer_id, full_name').eq('id', userId).single()
@@ -47,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Erreur inconnue'
+    const message = err instanceof Error ? (err instanceof Error ? err.message : String(err)) : 'Erreur inconnue'
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

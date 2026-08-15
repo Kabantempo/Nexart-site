@@ -2,30 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Dark mode CSS variables ── */
 :root {
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F9FAFB;
-  --text-primary: #1A1A1A;
-  --text-secondary: #6B7280;
-  --border-color: #E5E7EB;
-  --accent: #6366F1;
-  --accent-red: #FF6B6B;
-  --card-bg: #FFFFFF;
-  --navbar-bg: rgba(255, 255, 255, 0.95);
+  --font-geist-sans: var(--font-inter, 'Inter', sans-serif);
+  --font-geist-mono: var(--font-mono, 'JetBrains Mono', monospace);
 }
 
-[data-theme="dark"] {
+body {
+  font-family: var(--font-inter, 'Inter', system-ui, sans-serif);
+}
+
+/* ── CSS variables — dark par défaut ── */
+:root {
+  --nav-height: 58px;
   --bg-primary: #0F0F0F;
   --bg-secondary: #1A1A1A;
+  --bg-tertiary: #111111;
   --text-primary: #F9FAFB;
   --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
   --border-color: #2D2D2D;
   --accent: #818CF8;
   --accent-red: #FF8585;
   --card-bg: #1A1A1A;
   --navbar-bg: rgba(15, 15, 15, 0.95);
+  --input-bg: #1A1A1A;
 }
+
+[data-theme="light"] {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --bg-tertiary: #F4F4F8;
+  --text-primary: #1A1A1A;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --border-color: #E5E7EB;
+  --accent: #6366F1;
+  --accent-red: #FF6B6B;
+  --card-bg: #FFFFFF;
+  --navbar-bg: rgba(255, 255, 255, 0.95);
+  --input-bg: #FFFFFF;
+  --hero-bg: #F8F8FF;
+}
+
+/* ── Homepage light mode overrides ─────────────────────────────────────────── */
+[data-theme="light"] .home-page {
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+}
+[data-theme="light"] .home-page section {
+  background-color: #FFFFFF !important;
+}
+[data-theme="light"] .home-page [class*="text-white"] {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .home-page [class*="border-white"] {
+  border-color: #E5E7EB !important;
+}
+[data-theme="light"] .home-page [class*="bg-white/"] {
+  background-color: rgba(0,0,0,0.04) !important;
+}
+/* Phone mockup stays dark in light mode (higher specificity overrides above) */
+[data-theme="light"] .home-page .phone-mockup-dark [class*="text-white"] {
+  color: white !important;
+}
+[data-theme="light"] .home-page .phone-mockup-dark [class*="border-white"] {
+  border-color: rgba(255,255,255,0.12) !important;
+}
+[data-theme="light"] .home-page .phone-mockup-dark [class*="bg-white/"] {
+  background-color: rgba(255,255,255,0.05) !important;
+}
+[data-theme="light"] .home-page .text-indigo-400,
+[data-theme="light"] .home-page .text-indigo-300 {
+  color: #6366F1 !important;
+}
+[data-theme="light"] .home-page [class*="bg-indigo-500\/"],
+[data-theme="light"] .home-page [class*="bg-indigo-600\/"] {
+  background-color: rgba(99,102,241,0.08) !important;
+}
+[data-theme="light"] .home-page [class*="border-indigo-500\/"] {
+  border-color: rgba(99,102,241,0.3) !important;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0F0F0F;
+  --bg-secondary: #1A1A1A;
+  --bg-tertiary: #111111;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --border-color: #2D2D2D;
+  --accent: #818CF8;
+  --accent-red: #FF8585;
+  --card-bg: #1A1A1A;
+  --navbar-bg: rgba(15, 15, 15, 0.95);
+  --input-bg: #1A1A1A;
+}
+
+/* ── Syne display font pour H1/H2/H3 ── */
+h1, h2, h3 {
+  font-family: var(--font-syne), 'Syne', system-ui, sans-serif;
+}
+
+/* ── Sélection de texte violet ── */
+::selection {
+  background: #6366F1;
+  color: #ffffff;
+}
+
+/* ── Scrollbar fine violette ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #6366F1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #818CF8; }
+
+/* ── Smooth scroll + ancres sous la navbar ── */
+html { scroll-behavior: smooth; }
+[id] { scroll-margin-top: 80px; }
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -178,6 +270,18 @@ p, li, h1, h2, h3, h4, h5, h6 {
   z-index: 1;
 }
 
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 48px;
+}
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
 .blog-nav-link {
   display: flex;
   flex-direction: column;
@@ -256,3 +360,230 @@ p, li, h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
   z-index: 1;
 }
+
+/* ── Theme — body overrides ── */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ── Light mode — Tailwind class overrides ── */
+[data-theme="light"] :not(footer) .text-gray-900,
+[data-theme="light"] :not(footer) .text-gray-800,
+[data-theme="light"] :not(footer) .text-gray-700 { color: #1A1A1A !important; }
+
+[data-theme="light"] :not(footer) .text-gray-500,
+[data-theme="light"] :not(footer) .text-gray-400,
+[data-theme="light"] :not(footer) .text-gray-600 { color: #6B7280 !important; }
+
+[data-theme="light"] :not(footer) .bg-white { background-color: #FFFFFF !important; }
+[data-theme="light"] :not(footer) .bg-white\/95 { background-color: rgba(255,255,255,0.95) !important; }
+[data-theme="light"] :not(footer) .bg-gray-50,
+[data-theme="light"] :not(footer) .bg-gray-100 { background-color: #F9FAFB !important; }
+
+[data-theme="light"] :not(footer) .border-gray-100,
+[data-theme="light"] :not(footer) .border-gray-200,
+[data-theme="light"] :not(footer) .border-gray-300 { border-color: #E5E7EB !important; }
+
+[data-theme="light"] :not(footer) input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] :not(footer) select,
+[data-theme="light"] :not(footer) textarea {
+  background-color: #FFFFFF !important;
+  color: #1A1A1A !important;
+  border-color: #E5E7EB !important;
+}
+
+[data-theme="light"] [style*="background-color: rgb(15, 15, 15)"],
+[data-theme="light"] [style*="background-color: rgb(26, 26, 26)"] {
+  background-color: #FFFFFF !important;
+}
+
+[data-theme="light"] [style*="color: rgb(249, 250, 251)"],
+[data-theme="light"] [style*="color: rgb(156, 163, 175)"] {
+  color: #1A1A1A !important;
+}
+
+/* ── Dark mode — Tailwind class overrides ── */
+[data-theme="dark"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Tailwind text-gray-* overrides (not footer) */
+[data-theme="dark"] :not(footer) .text-gray-900,
+[data-theme="dark"] :not(footer) .text-gray-800,
+[data-theme="dark"] :not(footer) .text-gray-700 { color: var(--text-primary) !important; }
+
+[data-theme="dark"] :not(footer) .text-gray-500,
+[data-theme="dark"] :not(footer) .text-gray-400,
+[data-theme="dark"] :not(footer) .text-gray-600 { color: var(--text-secondary) !important; }
+
+/* Tailwind bg-white / bg-gray-* overrides (not footer) */
+[data-theme="dark"] :not(footer) .bg-white { background-color: var(--bg-primary) !important; }
+[data-theme="dark"] :not(footer) .bg-white\/95 { background-color: rgba(26,26,26,0.95) !important; }
+[data-theme="dark"] :not(footer) .bg-gray-50,
+[data-theme="dark"] :not(footer) .bg-gray-100 { background-color: var(--bg-secondary) !important; }
+
+/* Tailwind border overrides (not footer) */
+[data-theme="dark"] :not(footer) .border-gray-100,
+[data-theme="dark"] :not(footer) .border-gray-200,
+[data-theme="dark"] :not(footer) .border-gray-300 { border-color: var(--border-color) !important; }
+
+/* Navbar scrolled — theme-aware pill */
+.nexart-navbar-scrolled {
+  background-color: rgba(26, 26, 26, 0.95);
+  border: 1px solid rgba(45, 45, 45, 0.8);
+}
+[data-theme="light"] .nexart-navbar-scrolled {
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+}
+[data-theme="dark"] .nexart-navbar-scrolled {
+  background-color: rgba(26, 26, 26, 0.95);
+  border: 1px solid rgba(45, 45, 45, 0.8);
+}
+
+/* Tailwind shadow */
+[data-theme="dark"] .shadow-sm { box-shadow: 0 1px 4px rgba(0,0,0,0.4) !important; }
+
+/* Input / select backgrounds (not footer) */
+[data-theme="dark"] :not(footer) input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] :not(footer) select,
+[data-theme="dark"] :not(footer) textarea {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Navbar (main header only, not footer nav) */
+[data-theme="dark"] header nav,
+[data-theme="dark"] > nav {
+  background-color: var(--navbar-bg) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Footer: always dark regardless of theme */
+footer {
+  background-color: #06060f !important;
+  color: #fff;
+}
+
+/* Cards hover in dark */
+[data-theme="dark"] a:hover,
+[data-theme="dark"] button:hover {
+  transition: all 200ms ease;
+}
+
+/* ── Shimmer skeleton animation ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+[data-theme="light"] .animate-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+}
+
+/* ── Aggressive dark mode inline style overrides ── */
+/* These cover elements that still have hardcoded colors we couldn't reach via sed */
+
+[data-theme="dark"] [style*="background-color: rgb(255, 255, 255)"],
+[data-theme="dark"] [style*="background-color: white"] {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] [style*="color: rgb(26, 26, 26)"],
+[data-theme="dark"] [style*="color: rgb(17, 24, 39)"],
+[data-theme="dark"] [style*="color: rgb(55, 65, 81)"] {
+  color: var(--text-primary) !important;
+}
+
+/* Input backgrounds */
+[data-theme="dark"] input[style],
+[data-theme="dark"] textarea[style],
+[data-theme="dark"] select[style] {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Cards with white background */
+[data-theme="dark"] div[style*="border-radius"][style*="background"] {
+  border-color: var(--border-color);
+}
+
+/* ── Aggressive light mode inline style overrides ── */
+/* Covers dashboard/admin pages built with dark-first inline styles */
+
+/* White rgba text → dark text */
+[data-theme="light"] [style*="color: rgba(255, 255, 255"] {
+  color: var(--text-secondary) !important;
+}
+
+/* White rgba backgrounds → near-transparent light bg */
+[data-theme="light"] [style*="background-color: rgba(255, 255, 255, 0.0"],
+[data-theme="light"] [style*="background-color: rgba(255, 255, 255, 0.1"],
+[data-theme="light"] [style*="background-color: rgba(255, 255, 255, 0.2"] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Hardcoded dark backgrounds → light */
+[data-theme="light"] [style*="background-color: rgb(15, 15, 26)"],
+[data-theme="light"] [style*="background-color: rgb(15, 15, 15)"],
+[data-theme="light"] [style*="background-color: rgb(26, 26, 26)"],
+[data-theme="light"] [style*="background-color: rgb(17, 17, 17)"],
+[data-theme="light"] [style*="background-color: rgb(10, 10, 10)"],
+[data-theme="light"] [style*="background-color: rgb(6, 6, 15)"],
+[data-theme="light"] [style*="background-color: rgb(15, 12, 41)"] {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* White rgba borders → light border */
+[data-theme="light"] [style*="border: 1px solid rgba(255, 255, 255"] {
+  border-color: var(--border-color) !important;
+}
+[data-theme="light"] [style*="border-bottom: 1px solid rgba(255, 255, 255"] {
+  border-bottom-color: var(--border-color) !important;
+}
+
+/* Inputs in dark-built pages */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+[data-theme="light"] option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Cookie banner — always uses CSS vars */
+.cookie-banner-wrapper {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+
+/* ── Hero LCP — CSS-native word reveal (no JS blocking) ── */
+@keyframes wordReveal {
+  from { opacity: 0; transform: translateY(110%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-word {
+  display: inline-block;
+  margin-right: 0.22em;
+  animation: wordReveal 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-word:last-child { margin-right: 0; }

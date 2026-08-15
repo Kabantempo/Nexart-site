@@ -1,8 +1,24 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Plus, X, Trash2, Check } from 'lucide-react'
+import { Plus, Trash2, Check, GripVertical } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { NexModal } from '@/components/ui/nex-modal'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -122,54 +138,14 @@ function AddModal({
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Ajouter une photo</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={20} color="#888" /></button>
-        </div>
-
-        {/* Upload zone */}
-        <div
-          onClick={() => fileRef.current?.click()}
-          style={{
-            width: '100%', aspectRatio: `${col}/${row}`, maxHeight: '260px',
-            borderRadius: '10px', border: '2px dashed #E5E7EB',
-            backgroundColor: '#FAFAFA', cursor: 'pointer', overflow: 'hidden',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: '20px', transition: 'border-color 150ms ease',
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
-        >
-          {preview
-            // eslint-disable-next-line @next/next/no-img-element
-            ? <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            : (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                <Plus size={32} color="#9CA3AF" />
-                <p style={{ fontSize: '14px', color: '#6B7280', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
-              </div>
-            )
-          }
-        </div>
-        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
-
-        {/* Taille */}
-        <div style={{ marginBottom: '20px' }}>
-          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>Taille dans la grille</p>
-          <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
-        </div>
-
-        {/* Info taille */}
-        <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#EEF2FF', marginBottom: '20px' }}>
-          <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', margin: 0 }}>
-            Format sélectionné : {col} colonne{col > 1 ? 's' : ''} × {row} ligne{row > 1 ? 's' : ''} — {SIZES.find(s => s.col === col && s.row === row)?.desc ?? 'Personnalisé'}
-          </p>
-        </div>
-
+    <NexModal
+      isOpen={true}
+      onClose={onClose}
+      title="Ajouter une photo"
+      size="md"
+      footer={
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#FFF', color: '#1A1A1A', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
             Annuler
           </button>
           <button onClick={handleSave} disabled={!file || uploading}
@@ -177,8 +153,47 @@ function AddModal({
             <Check size={15} /> {uploading ? 'Envoi…' : 'Ajouter'}
           </button>
         </div>
+      }
+    >
+      {/* Upload zone */}
+      <div
+        onClick={() => fileRef.current?.click()}
+        style={{
+          width: '100%', aspectRatio: `${col}/${row}`, maxHeight: '260px',
+          borderRadius: '10px', border: '2px dashed #E5E7EB',
+          backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', overflow: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: '20px', transition: 'border-color 150ms ease',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
+      >
+        {preview
+          // eslint-disable-next-line @next/next/no-img-element
+          ? <img src={preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <Plus size={32} color="#9CA3AF" />
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '8px 0 0' }}>Cliquez pour choisir une photo</p>
+            </div>
+          )
+        }
       </div>
-    </div>
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
+
+      {/* Taille */}
+      <div style={{ marginBottom: '16px' }}>
+        <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
+        <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
+      </div>
+
+      {/* Info taille */}
+      <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#EEF2FF' }}>
+        <p style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', margin: 0 }}>
+          Format sélectionné : {col} colonne{col > 1 ? 's' : ''} × {row} ligne{row > 1 ? 's' : ''} — {SIZES.find(s => s.col === col && s.row === row)?.desc ?? 'Personnalisé'}
+        </p>
+      </div>
+    </NexModal>
   )
 }
 
@@ -201,23 +216,13 @@ function ResizeModal({
   const [row, setRow] = useState<1|2|3>(item.rowSpan)
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 200, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-      <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '420px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', margin: 0 }}>Modifier la photo</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} color="#888" /></button>
-        </div>
-
-        {/* Preview */}
-        <div style={{ width: '100%', height: '160px', borderRadius: '10px', overflow: 'hidden', marginBottom: '20px' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-
-        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1A1A1A', marginBottom: '10px' }}>Taille dans la grille</p>
-        <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
-
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+    <NexModal
+      isOpen={true}
+      onClose={onClose}
+      title="Modifier la photo"
+      size="sm"
+      footer={
+        <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={() => { onDelete(index); onClose() }}
             style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FEF2F2', color: '#E05A5A', fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={15} /> Supprimer
@@ -227,6 +232,104 @@ function ResizeModal({
             <Check size={15} /> Enregistrer
           </button>
         </div>
+      }
+    >
+      {/* Preview */}
+      <div style={{ width: '100%', height: '160px', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+
+      <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
+      <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
+    </NexModal>
+  )
+}
+
+// ─── Sortable Grid Item ───────────────────────────────────────────────────────
+
+function SortableGridItem({
+  item,
+  sortableId,
+  onEdit,
+}: {
+  item: GridItem
+  sortableId: string
+  onEdit: () => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: sortableId,
+  })
+
+  const style: React.CSSProperties = {
+    gridColumn: `span ${item.colSpan}`,
+    gridRow: `span ${item.rowSpan}`,
+    borderRadius: '8px',
+    overflow: 'hidden',
+    cursor: 'pointer',
+    position: 'relative',
+    border: isDragging ? '2px solid #6366F1' : '2px solid transparent',
+    transition: `border-color 150ms ease, ${transition ?? ''}`,
+    transform: CSS.Transform.toString(transform),
+    opacity: isDragging ? 0.7 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onMouseEnter={(e) => {
+        if (!isDragging) {
+          (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1'
+          const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLDivElement
+          if (overlay) overlay.style.opacity = '1'
+        }
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLDivElement).style.borderColor = 'transparent'
+        const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLDivElement
+        if (overlay) overlay.style.opacity = '0'
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={item.url} alt="" onClick={onEdit} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      {/* Hover overlay */}
+      <div className="hover-overlay" style={{
+        position: 'absolute', inset: 0,
+        backgroundColor: 'rgba(99,102,241,0.4)',
+        opacity: 0, transition: 'opacity 150ms ease',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexDirection: 'column', gap: '4px',
+        pointerEvents: 'none',
+      }}>
+        <span style={{ fontSize: '13px', fontWeight: '700', color: '#FFF' }}>{item.colSpan}×{item.rowSpan}</span>
+        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)' }}>Cliquer pour modifier</span>
+      </div>
+      {/* Taille badge */}
+      <div style={{
+        position: 'absolute', top: '6px', right: '6px',
+        padding: '2px 7px', borderRadius: '10px',
+        backgroundColor: 'rgba(0,0,0,0.55)',
+        fontSize: '11px', fontWeight: '700', color: '#FFF',
+      }}>
+        {item.colSpan}×{item.rowSpan}
+      </div>
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        style={{
+          position: 'absolute', bottom: '5px', left: '5px',
+          width: '24px', height: '24px', borderRadius: '6px',
+          backgroundColor: 'rgba(0,0,0,0.65)', cursor: 'grab',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          touchAction: 'none',
+        }}
+        title="Glisser pour réordonner"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <GripVertical size={13} color="#FFF" />
       </div>
     </div>
   )
@@ -238,15 +341,21 @@ export function PortfolioGridEditor({
   items,
   userId,
   onChange,
+  onReorder,
   maxPhotos = 30,
 }: {
   items: GridItem[]
   userId: string
   onChange: (items: GridItem[]) => void
+  onReorder?: (items: GridItem[]) => void
   maxPhotos?: number
 }) {
   const [showAdd, setShowAdd] = useState(false)
   const [editIdx, setEditIdx] = useState<number | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  )
 
   const handleAdd = (item: GridItem) => {
     const next = [...items, item]
@@ -264,13 +373,25 @@ export function PortfolioGridEditor({
     onChange(next)
   }
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = sortableIds.indexOf(active.id as string)
+    const newIndex = sortableIds.indexOf(over.id as string)
+    if (oldIndex === -1 || newIndex === -1) return
+    const newItems = arrayMove(items, oldIndex, newIndex)
+    onChange(newItems)
+    onReorder?.(newItems)
+  }
+
   const MAX = maxPhotos
+  const sortableIds = items.map((item, i) => `item-${i}-${item.url}`)
 
   return (
     <>
       {/* Légende */}
-      <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '16px' }}>
-        {items.length}/{MAX} photos · Cliquez sur une photo pour la redimensionner ou la supprimer
+      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+        {items.length}/{MAX} photos · Cliquez sur une photo pour la modifier · Glissez pour réordonner
         {items.length >= MAX && MAX <= 10 && (
           <span style={{ display: 'block', marginTop: '4px', color: '#F59E0B', fontWeight: '600' }}>
             Limite atteinte — passez au plan Boost pour 30 photos ou Pro pour un portfolio illimité
@@ -278,84 +399,49 @@ export function PortfolioGridEditor({
         )}
       </p>
 
-      {/* Grille */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridAutoRows: 'clamp(90px, 18vw, 180px)',
-        gridAutoFlow: 'dense',
-        gap: '6px',
-      }}>
-        {items.map((item, i) => (
-          <div
-            key={i}
-            onClick={() => setEditIdx(i)}
-            style={{
-              gridColumn: `span ${item.colSpan}`,
-              gridRow: `span ${item.rowSpan}`,
-              borderRadius: '8px', overflow: 'hidden',
-              cursor: 'pointer', position: 'relative',
-              border: '2px solid transparent',
-              transition: 'border-color 150ms ease',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1'
-              const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLDivElement
-              if (overlay) overlay.style.opacity = '1'
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.borderColor = 'transparent'
-              const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLDivElement
-              if (overlay) overlay.style.opacity = '0'
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            {/* Hover overlay */}
-            <div className="hover-overlay" style={{
-              position: 'absolute', inset: 0,
-              backgroundColor: 'rgba(99,102,241,0.4)',
-              opacity: 0, transition: 'opacity 150ms ease',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexDirection: 'column', gap: '4px',
-            }}>
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#FFF' }}>{item.colSpan}×{item.rowSpan}</span>
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)' }}>Cliquer pour modifier</span>
-            </div>
-            {/* Taille badge */}
-            <div style={{
-              position: 'absolute', top: '6px', right: '6px',
-              padding: '2px 7px', borderRadius: '10px',
-              backgroundColor: 'rgba(0,0,0,0.55)',
-              fontSize: '11px', fontWeight: '700', color: '#FFF',
-            }}>
-              {item.colSpan}×{item.rowSpan}
-            </div>
-          </div>
-        ))}
+      {/* Grille avec drag & drop */}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridAutoRows: 'clamp(90px, 18vw, 180px)',
+            gridAutoFlow: 'dense',
+            gap: '6px',
+          }}>
+            {items.map((item, i) => (
+              <SortableGridItem
+                key={sortableIds[i]}
+                item={item}
+                sortableId={sortableIds[i]}
+                onEdit={() => setEditIdx(i)}
+              />
+            ))}
 
-        {/* Bouton ajouter */}
-        {items.length < MAX && (
-          <div
-            onClick={() => setShowAdd(true)}
-            style={{
-              gridColumn: 'span 1', gridRow: 'span 1',
-              borderRadius: '8px', border: '2px dashed #E5E7EB',
-              backgroundColor: '#FAFAFA', cursor: 'pointer',
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
-              gap: '6px', transition: 'border-color 150ms ease',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
-          >
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Plus size={20} color="#6366F1" />
-            </div>
-            <span style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600' }}>Ajouter</span>
+            {/* Bouton ajouter */}
+            {items.length < MAX && (
+              <div
+                onClick={() => setShowAdd(true)}
+                style={{
+                  gridColumn: 'span 1', gridRow: 'span 1',
+                  borderRadius: '8px', border: '2px dashed var(--border-color)',
+                  backgroundColor: 'var(--bg-secondary)', cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center',
+                  gap: '6px', transition: 'border-color 150ms ease',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = '#E5E7EB' }}
+              >
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Plus size={20} color="#6366F1" />
+                </div>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '600' }}>Ajouter</span>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Modals */}
       {showAdd && <AddModal userId={userId} onAdd={handleAdd} onClose={() => setShowAdd(false)} />}

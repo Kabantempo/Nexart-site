@@ -1,17 +1,19 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
+import { requireAdmin } from '@/lib/require-admin'
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
+
+  const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get('status') || 'draft'
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const rawStatus = searchParams.get('status') || 'draft'
+    const status = ['draft', 'published', 'closed'].includes(rawStatus) ? rawStatus : 'draft'
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 200)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
     const { data, error, count } = await supabase
       .from('events')
@@ -26,7 +28,7 @@ export async function GET(req: NextRequest) {
         created_at,
         profiles!events_organizer_id_fkey (full_name, email)
       `, { count: 'exact' })
-      .eq('status', status)
+      .eq('status', status as 'draft' | 'published' | 'closed')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -39,14 +41,24 @@ export async function GET(req: NextRequest) {
       offset,
       total_pages: Math.ceil((count || 0) / limit)
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
+  const admin_user = await requireAdmin(req)
+  if (!admin_user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const supabase = getAdminClient()
   try {
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      event_id: uuidSchema,
+      action: z.enum(['approve', 'reject', 'unpublish']),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { event_id, action } = body
 
     if (action === 'approve') {
@@ -70,7 +82,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

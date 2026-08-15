@@ -1,153 +1,161 @@
-import { NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
-const PAT = process.env.SUPABASE_PAT!
-const PROJECT = process.env.SUPABASE_PROJECT_REF!
-
-async function sql(query: string) {
-  const res = await fetch(`https://api.supabase.com/v1/projects/${PROJECT}/database/query`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${PAT}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query }),
-    cache: 'no-store',
-  })
-  if (!res.ok) return []
-  return res.json()
+async function requireAdmin(req: NextRequest) {
+  const token = req.headers.get('authorization')?.replace('Bearer ', '')
+  if (!token) return null
+  const anon = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } },
+  )
+  const { data: { user } } = await anon.auth.getUser(token)
+  if (!user) return null
+  const { data: prof } = await anon.from('profiles').select('is_admin').eq('id', user.id).single()
+  if (!prof?.is_admin) return null
+  return user
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const user = await requireAdmin(req)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
+    const admin = getAdminClient()
+
     const [
-      users, events, applications, dailySignups, eventTypes, verifications, messages,
-      conversionCreator, conversionOrganizer, fillRate, liquidity, retention30,
+      { count: totalUsers },
+      { count: creatorCount },
+      { count: orgaCount },
+      { count: newWeek },
+      { count: newMonth },
+      { count: newToday },
+      { count: totalEvents },
+      { count: publishedEvents },
+      { count: draftEvents },
+      { count: closedEvents },
+      { count: totalApps },
+      { count: pendingApps },
+      { count: acceptedApps },
+      { count: refusedApps },
+      { count: totalMessages },
+      { count: siretVerified },
+      { count: insuranceVerified },
     ] = await Promise.all([
-    sql(`
-      SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE role = 'creator')::int AS creators,
-        COUNT(*) FILTER (WHERE role = 'organizer')::int AS organizers,
-        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days')::int AS new_week,
-        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::int AS new_month,
-        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '1 day')::int AS new_today
-      FROM profiles
-    `),
-    sql(`
-      SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE status = 'published')::int AS published,
-        COUNT(*) FILTER (WHERE status = 'draft')::int AS draft,
-        COUNT(*) FILTER (WHERE status = 'closed')::int AS closed
-      FROM events
-    `),
-    sql(`
-      SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE status = 'pending')::int AS pending,
-        COUNT(*) FILTER (WHERE status = 'accepted')::int AS accepted,
-        COUNT(*) FILTER (WHERE status = 'refused')::int AS refused
-      FROM applications
-    `),
-    sql(`
-      SELECT
-        TO_CHAR(created_at::date, 'DD/MM') AS date,
-        COUNT(*)::int AS count
-      FROM profiles
-      WHERE created_at >= NOW() - INTERVAL '30 days'
-      GROUP BY created_at::date
-      ORDER BY created_at::date ASC
-    `),
-    sql(`
-      SELECT event_type, COUNT(*)::int AS count
-      FROM events
-      GROUP BY event_type
-      ORDER BY count DESC
-    `),
-    sql(`
-      SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE siret_verified = true)::int AS siret_verified,
-        COUNT(*) FILTER (WHERE siret_verified = false AND siret_number IS NOT NULL)::int AS siret_pending,
-        COUNT(*) FILTER (WHERE insurance_verified = true)::int AS insurance_verified,
-        COUNT(*) FILTER (WHERE insurance_verified = false AND insurance_doc_url IS NOT NULL)::int AS insurance_pending
-      FROM creator_profiles
-    `),
-    sql(`SELECT COUNT(*)::int AS total FROM messages`),
+      admin.from('profiles').select('*', { count: 'exact', head: true }),
+      admin.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'creator'),
+      admin.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'organizer'),
+      admin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+      admin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString()),
+      admin.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', new Date(Date.now() - 86400000).toISOString()),
+      admin.from('events').select('*', { count: 'exact', head: true }),
+      admin.from('events').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+      admin.from('events').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
+      admin.from('events').select('*', { count: 'exact', head: true }).eq('status', 'closed'),
+      admin.from('applications').select('*', { count: 'exact', head: true }),
+      admin.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      admin.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'accepted'),
+      admin.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'refused'),
+      admin.from('messages').select('*', { count: 'exact', head: true }),
+      admin.from('creator_profiles').select('*', { count: 'exact', head: true }).eq('siret_verified', true),
+      admin.from('creator_profiles').select('*', { count: 'exact', head: true }).eq('insurance_verified', true),
+    ])
 
-    // Taux de conversion créateurs (au moins 1 candidature / total créateurs)
-    sql(`
-      SELECT
-        COUNT(DISTINCT a.creator_id)::int AS active,
-        COUNT(p.id)::int AS total
-      FROM profiles p
-      LEFT JOIN applications a ON a.creator_id = p.id
-      WHERE p.role = 'creator'
-    `),
+    // Daily signups last 30 days
+    const { data: recentProfiles } = await (admin as any)
+      .from('profiles')
+      .select('created_at')
+      .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString())
+      .order('created_at', { ascending: true })
 
-    // Taux de conversion organisateurs (au moins 1 événement publié / total organisateurs)
-    sql(`
-      SELECT
-        COUNT(DISTINCT e.organizer_id)::int AS active,
-        COUNT(p.id)::int AS total
-      FROM profiles p
-      LEFT JOIN events e ON e.organizer_id = p.id AND e.status = 'published'
-      WHERE p.role = 'organizer'
-    `),
+    const dailyMap: Record<string, number> = {}
+    for (const p of recentProfiles ?? []) {
+      const d = new Date(p.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+      dailyMap[d] = (dailyMap[d] ?? 0) + 1
+    }
+    const dailySignups = Object.entries(dailyMap).map(([date, count]) => ({ date, count }))
 
-    // Taux de remplissage : candidatures acceptées / total stands publiés
-    sql(`
-      SELECT
-        COALESCE(SUM(e.stand_count), 0)::int AS total_stands,
-        COUNT(a.id) FILTER (WHERE a.status = 'accepted')::int AS filled_stands
-      FROM events e
-      LEFT JOIN applications a ON a.event_id = e.id
-      WHERE e.status = 'published' AND e.stand_count IS NOT NULL
-    `),
+    // Event types distribution
+    const { data: eventsData } = await (admin as any)
+      .from('events')
+      .select('event_type')
 
-    // Liquidité : temps moyen (en heures) entre création événement et première candidature
-    sql(`
-      SELECT
-        ROUND(AVG(EXTRACT(EPOCH FROM (first_app.created_at - e.created_at)) / 3600))::int AS avg_hours
-      FROM events e
-      INNER JOIN (
-        SELECT event_id, MIN(created_at) AS created_at
-        FROM applications
-        GROUP BY event_id
-      ) first_app ON first_app.event_id = e.id
-    `),
+    const typeMap: Record<string, number> = {}
+    for (const e of eventsData ?? []) {
+      if (e.event_type) typeMap[e.event_type] = (typeMap[e.event_type] ?? 0) + 1
+    }
+    const eventTypes = Object.entries(typeMap)
+      .map(([event_type, count]) => ({ event_type, count }))
+      .sort((a, b) => b.count - a.count)
 
-    // Rétention 30 jours : utilisateurs inscrits il y a 30-60 jours ayant une activité récente
-    sql(`
-      SELECT
-        COUNT(*)::int AS cohort_total,
-        COUNT(*) FILTER (
-          WHERE id IN (
-            SELECT DISTINCT creator_id FROM applications WHERE created_at >= NOW() - INTERVAL '30 days'
-            UNION
-            SELECT DISTINCT organizer_id FROM events WHERE updated_at >= NOW() - INTERVAL '30 days'
-            UNION
-            SELECT DISTINCT sender_id FROM messages WHERE created_at >= NOW() - INTERVAL '30 days'
-          )
-        )::int AS retained
-      FROM profiles
-      WHERE created_at BETWEEN NOW() - INTERVAL '60 days' AND NOW() - INTERVAL '30 days'
-    `),
-  ])
+    // Creators with siret pending
+    const { count: siretPending } = await (admin as any)
+      .from('creator_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('siret_verified', false)
+      .not('siret_number', 'is', null)
 
-    console.log('✓ Admin analytics loaded')
+    const { count: insurancePending } = await (admin as any)
+      .from('creator_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('insurance_verified', false)
+      .not('insurance_doc_url', 'is', null)
+
+    // Creators with at least 1 application
+    const { data: activeCreators } = await (admin as any)
+      .from('applications')
+      .select('creator_id')
+
+    const uniqueActiveCreators = new Set((activeCreators ?? []).map((a: any) => a.creator_id)).size
+
+    // Fill rate
+    const { data: eventsWithStands } = await (admin as any)
+      .from('events')
+      .select('id, stand_count')
+      .eq('status', 'published')
+      .not('stand_count', 'is', null)
+
+    const totalStands = (eventsWithStands ?? []).reduce((s: number, e: any) => s + (e.stand_count ?? 0), 0)
+
     return NextResponse.json({
-      users: users[0] ?? {},
-      events: events[0] ?? {},
-      applications: applications[0] ?? {},
-      dailySignups: dailySignups ?? [],
-      eventTypes: eventTypes ?? [],
-      verifications: verifications[0] ?? {},
-      messages: messages[0] ?? {},
+      users: {
+        total: totalUsers ?? 0,
+        creators: creatorCount ?? 0,
+        organizers: orgaCount ?? 0,
+        new_week: newWeek ?? 0,
+        new_month: newMonth ?? 0,
+        new_today: newToday ?? 0,
+      },
+      events: {
+        total: totalEvents ?? 0,
+        published: publishedEvents ?? 0,
+        draft: draftEvents ?? 0,
+        closed: closedEvents ?? 0,
+      },
+      applications: {
+        total: totalApps ?? 0,
+        pending: pendingApps ?? 0,
+        accepted: acceptedApps ?? 0,
+        refused: refusedApps ?? 0,
+      },
+      dailySignups,
+      eventTypes,
+      verifications: {
+        total: (creatorCount ?? 0),
+        siret_verified: siretVerified ?? 0,
+        siret_pending: siretPending ?? 0,
+        insurance_verified: insuranceVerified ?? 0,
+        insurance_pending: insurancePending ?? 0,
+      },
+      messages: { total: totalMessages ?? 0 },
       kpi: {
-        conversionCreator: conversionCreator[0] ?? { active: 0, total: 0 },
-        conversionOrganizer: conversionOrganizer[0] ?? { active: 0, total: 0 },
-        fillRate: fillRate[0] ?? { total_stands: 0, filled_stands: 0 },
-        liquidity: liquidity[0] ?? { avg_hours: null },
-        retention30: retention30[0] ?? { cohort_total: 0, retained: 0 },
-        // Stripe / abonnements — disponible après intégration Stripe Connect
+        conversionCreator: { active: uniqueActiveCreators, total: creatorCount ?? 0 },
+        conversionOrganizer: { active: publishedEvents ?? 0, total: orgaCount ?? 0 },
+        fillRate: { total_stands: totalStands, filled_stands: acceptedApps ?? 0 },
+        liquidity: { avg_hours: null },
+        retention30: { cohort_total: 0, retained: 0 },
         mrr: 0,
         churnRate: null,
         cac: null,
@@ -156,8 +164,8 @@ export async function GET() {
         arpu: 0,
       },
     })
-  } catch (error: any) {
-    console.error('❌ Admin analytics error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur chargement analytics', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Admin analytics error:', (error as Error)?.message)
+    return NextResponse.json({ error: 'Erreur chargement analytics' }, { status: 500 })
   }
 }

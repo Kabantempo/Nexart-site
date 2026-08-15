@@ -1,0 +1,11 @@
+# LiteSpeed cache bypass for HTML responses
+<IfModule LiteSpeed>
+  CacheLookup off
+</IfModule>
+
+# Disable proxy caching for HTML
+<FilesMatch "\.(html|htm)$">
+  Header set Cache-Control "no-store, no-cache, must-revalidate"
+  Header set Pragma "no-cache"
+  Header unset ETag
+</FilesMatch>

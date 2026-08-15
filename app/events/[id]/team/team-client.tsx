@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Plus, Trash2, Crown, Mail } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface TeamMember {
   id: string
@@ -22,10 +23,32 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
     fetchTeam()
   }, [eventId])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
+  const handleRemove = async (memberId: string) => {
+    if (!confirm('Supprimer ce membre de l\'équipe ?')) return
+    try {
+      const token = await getToken()
+      await fetch(`/api/events/${eventId}/team/${memberId}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      await fetchTeam()
+    } catch (err) {
+      console.error('Error removing member:', err)
+    }
+  }
+
   const fetchTeam = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/events/${eventId}/team`)
+      const token = await getToken()
+      const response = await fetch(`/api/events/${eventId}/team`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       if (!response.ok) throw new Error('Erreur chargement')
       const data = await response.json()
       setMembers(data)
@@ -43,9 +66,10 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
     }
 
     try {
+      const token = await getToken()
       const response = await fetch(`/api/events/${eventId}/team/invite`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ email: inviteEmail }),
       })
       if (!response.ok) throw new Error('Erreur invitation')
@@ -67,7 +91,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
   }
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
         {/* Header */}
         <motion.div
@@ -77,10 +101,10 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '60px' }}
         >
           <div>
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '12px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
               Mon Équipe
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
               {members.length} membre{members.length > 1 ? 's' : ''}
             </p>
           </div>
@@ -121,8 +145,8 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
               transition={{ duration: 0.6, delay: idx * 0.1 }}
               viewport={{ once: true }}
               style={{
-                backgroundColor: '#F9FAFB',
-                border: '1px solid #E5E7EB',
+                backgroundColor: 'var(--bg-secondary)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '12px',
                 padding: '16px',
                 display: 'flex',
@@ -132,7 +156,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
             >
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: '600', color: '#1A1A1A' }}>
+                  <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
                     {member.email}
                   </span>
                   {member.role === 'owner' && (
@@ -142,13 +166,14 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                     </span>
                   )}
                 </div>
-                <span style={{ fontSize: '13px', color: '#6B7280' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {member.status === 'invited' ? 'Invitation en attente' : `Rejoint le ${new Date(member.joinedAt).toLocaleDateString('fr-FR')}`}
                 </span>
               </div>
 
               {member.role !== 'owner' && (
                 <button
+                  onClick={() => handleRemove(member.id)}
                   style={{
                     backgroundColor: '#FEF2F2',
                     color: '#DC2626',
@@ -189,7 +214,7 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
               animate={{ scale: 1, opacity: 1 }}
               onClick={(e) => e.stopPropagation()}
               style={{
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'var(--bg-primary)',
                 borderRadius: '12px',
                 padding: '32px',
                 maxWidth: '500px',
@@ -208,19 +233,19 @@ export default function TeamCollaborationClient({ eventId }: { eventId: string }
                   onChange={(e) => setInviteEmail(e.target.value)}
                   style={{
                     padding: '12px',
-                    border: '1px solid #E5E7EB',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '8px',
                     fontSize: '14px',
                   }}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '12px' }}>
                 <button
                   onClick={() => setShowInvite(false)}
                   style={{
-                    backgroundColor: '#E5E7EB',
-                    color: '#1A1A1A',
+                    backgroundColor: 'var(--border-color)',
+                    color: 'var(--text-primary)',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '12px',

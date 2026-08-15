@@ -25,7 +25,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: st
   new_message:             { icon: <MessageCircle size={16} />,color: '#06B6D4', bg: '#ECFEFF' },
   verification_accepted:   { icon: <CheckCircle size={16} />, color: '#10B981', bg: '#ECFDF5' },
   verification_refused:    { icon: <X size={16} />,           color: '#E05A5A', bg: '#FEF2F2' },
-  default:                 { icon: <Bell size={16} />,         color: '#6B7280', bg: '#F3F4F6' },
+  default:                 { icon: <Bell size={16} />,         color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
 }
 
 function relativeTime(dateStr: string): string {
@@ -59,7 +59,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
 
       if (error?.code === '42P01') { setSupported(false); return }
       if (error) return
-      setNotifications(data || [])
+      setNotifications((data || []) as any)
     } catch {
       setSupported(false)
     }
@@ -143,17 +143,17 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             style={{
               position: 'absolute', top: 'calc(100% + 10px)', right: 0,
               width: '340px', maxWidth: '90vw',
-              backgroundColor: '#FFFFFF',
+              backgroundColor: 'var(--bg-primary)',
               borderRadius: '16px',
-              border: '1px solid #E5E7EB',
+              border: '1px solid var(--border-color)',
               boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
               zIndex: 9999,
               overflow: 'hidden',
             }}
           >
             {/* Header */}
-            <div style={{ padding: '16px 18px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F3F4F6' }}>
-              <span style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A' }}>Notifications</span>
+            <div style={{ padding: '16px 18px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
+              <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)' }}>Notifications</span>
               {unread > 0 && (
                 <button
                   onClick={markAllRead}
@@ -168,8 +168,8 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
               {notifications.length === 0 ? (
                 <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-                  <Bell size={32} color="#E5E7EB" style={{ marginBottom: '10px' }} />
-                  <p style={{ fontSize: '14px', color: '#6B7280' }}>Aucune notification</p>
+                  <Bell size={32} color="var(--border-color)" style={{ marginBottom: '10px' }} />
+                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Aucune notification</p>
                 </div>
               ) : (
                 notifications.map(n => {
@@ -181,13 +181,13 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
                       onClick={() => { if (isUnread) markRead(n.id); setOpen(false) }}
                       style={{
                         display: 'flex', gap: '12px', padding: '14px 18px',
-                        borderBottom: '1px solid #F9FAFB',
-                        backgroundColor: isUnread ? '#FAFBFF' : '#FFFFFF',
+                        borderBottom: '1px solid var(--border-color)',
+                        backgroundColor: isUnread ? 'var(--bg-secondary)' : 'var(--bg-primary)',
                         cursor: n.link ? 'pointer' : 'default',
                         transition: 'background-color 150ms',
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isUnread ? '#FAFBFF' : '#FFFFFF' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isUnread ? 'var(--bg-secondary)' : 'var(--bg-primary)' }}
                     >
                       <div style={{
                         width: '36px', height: '36px', borderRadius: '10px',
@@ -198,15 +198,15 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
                         {tc.icon}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: '13px', fontWeight: isUnread ? '700' : '500', color: '#1A1A1A', marginBottom: '2px', lineHeight: 1.4 }}>
+                        <p style={{ fontSize: '13px', fontWeight: isUnread ? '700' : '500', color: 'var(--text-primary)', marginBottom: '2px', lineHeight: 1.4 }}>
                           {n.title}
                         </p>
                         {n.body && (
-                          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {n.body}
                           </p>
                         )}
-                        <p style={{ fontSize: '11px', color: '#6B7280' }}>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                           {relativeTime(n.created_at)}
                         </p>
                       </div>
@@ -225,7 +225,7 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
             </div>
 
             {notifications.length > 0 && (
-              <div style={{ padding: '10px 18px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
+              <div style={{ padding: '10px 18px', borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
                 <Link href="/notifications" onClick={() => setOpen(false)} style={{ fontSize: '13px', color: '#6366F1', fontWeight: '600', textDecoration: 'none' }}>
                   Voir toutes les notifications
                 </Link>

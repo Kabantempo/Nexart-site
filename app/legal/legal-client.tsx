@@ -2,16 +2,16 @@
 
 export default function LegalPageClient() {
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '64px 16px' }}>
-        <h1 style={{ fontSize: '48px', fontWeight: '700', color: '#1A1A1A', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '32px' }}>
           Mentions Légales
         </h1>
 
         <div style={{ fontSize: '16px', color: '#555555', lineHeight: '1.8' }}>
           {/* Editeur */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               1. Éditeur du site
             </h2>
             <p>
@@ -25,7 +25,7 @@ export default function LegalPageClient() {
 
           {/* Directeur de publication */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               2. Directeur de publication
             </h2>
             <p>
@@ -35,7 +35,7 @@ export default function LegalPageClient() {
 
           {/* Hébergeur */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               3. Hébergeur
             </h2>
             <p>
@@ -47,7 +47,7 @@ export default function LegalPageClient() {
 
           {/* Conditions d'utilisation */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               4. Conditions d'utilisation
             </h2>
             <p>
@@ -60,7 +60,7 @@ export default function LegalPageClient() {
 
           {/* Propriété intellectuelle */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               5. Propriété intellectuelle
             </h2>
             <p>
@@ -70,7 +70,7 @@ export default function LegalPageClient() {
 
           {/* Responsabilité */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               6. Responsabilité
             </h2>
             <p>
@@ -83,7 +83,7 @@ export default function LegalPageClient() {
 
           {/* Protection des données */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               7. Protection des données personnelles
             </h2>
             <p>
@@ -97,7 +97,7 @@ export default function LegalPageClient() {
 
           {/* Cookies */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               8. Cookies
             </h2>
             <p>
@@ -108,7 +108,7 @@ export default function LegalPageClient() {
 
           {/* Liens externes */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               9. Liens externes
             </h2>
             <p>
@@ -118,7 +118,7 @@ export default function LegalPageClient() {
 
           {/* Contact */}
           <section style={{ marginBottom: '48px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               10. Signalement de contenu illégal
             </h2>
             <p>
@@ -128,7 +128,7 @@ export default function LegalPageClient() {
 
           {/* Modification */}
           <section>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               11. Modifications
             </h2>
             <p>
@@ -137,7 +137,7 @@ export default function LegalPageClient() {
           </section>
 
           {/* Footer */}
-          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid #E5E7EB', color: '#AAAAAA', fontSize: '14px' }}>
+          <div style={{ marginTop: '64px', paddingTop: '24px', borderTop: '1px solid var(--border-color)', color: '#AAAAAA', fontSize: '14px' }}>
             <p>
               Dernière mise à jour : 6 juin 2026
             </p>

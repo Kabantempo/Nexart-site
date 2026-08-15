@@ -1,95 +1,108 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
+import { sendPushToUsers } from '@/lib/push'
 
-// GET /api/reviews?event_id=xxx  or  ?profile_id=xxx
+async function getAuthUser(req: NextRequest) {
+  const header = req.headers.get('Authorization')
+  if (!header || !header.startsWith('Bearer ')) return null
+  const token = header.slice(7)
+  if (!token) return null
+  try {
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error } = await anon.auth.getUser(token)
+    if (error || !user) return null
+    return user
+  } catch { return null }
+}
+
+// GET /api/reviews?event_id=xxx  or  ?profile_id=xxx (public)
 export async function GET(req: NextRequest) {
   try {
     const admin = getAdminClient()
-    const url = req.nextUrl
-    const eventId = url.searchParams.get('event_id')
-    const profileId = url.searchParams.get('profile_id')
+    const eventId = req.nextUrl.searchParams.get('event_id')
+    const profileId = req.nextUrl.searchParams.get('profile_id')
+
+    const rawLimit = parseInt(req.nextUrl.searchParams.get('limit') ?? '20', 10)
+    const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 100)
+    const rawOffset = parseInt(req.nextUrl.searchParams.get('offset') ?? '0', 10)
+    const offset = Math.max(0, isNaN(rawOffset) ? 0 : rawOffset)
 
     let query = admin.from('reviews').select(`
       id, event_id, reviewer_id, reviewed_id, reviewer_role, rating, comment, tags, created_at,
       reviewer:profiles!reviewer_id(full_name, avatar_url),
       reviewed:profiles!reviewed_id(full_name, avatar_url)
-    `).order('created_at', { ascending: false })
+    `, { count: 'exact' }).order('created_at', { ascending: false })
 
     if (eventId) query = query.eq('event_id', eventId)
     else if (profileId) query = query.eq('reviewed_id', profileId)
     else return NextResponse.json({ error: 'event_id ou profile_id requis' }, { status: 400 })
 
-    const { data, error } = await query
+    const { data, count, error } = await query.range(offset, offset + limit - 1)
     if (error) throw error
-    console.log('✓ Reviews fetched:', { eventId, profileId })
-    return NextResponse.json({ reviews: data })
-  } catch (error: any) {
-    console.error('❌ Reviews GET error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur chargement avis', details: error?.message }, { status: 500 })
+    return NextResponse.json({ data, total: count ?? 0, limit, offset })
+  } catch (error: unknown) {
+    console.error('❌ Reviews GET error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur chargement avis' }, { status: 500 })
   }
 }
 
-// POST /api/reviews
+// POST /api/reviews — auth requise, reviewer_id forcé à l'utilisateur connecté
 export async function POST(req: NextRequest) {
+  const user = await getAuthUser(req)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const admin = getAdminClient()
-    const body = await req.json()
-    const { event_id, reviewer_id, reviewed_id, reviewer_role, rating, comment, tags } = body
+    const { validate: v, reviewSchema } = await import('@/lib/validate')
+    const { data, error: validErr } = v(reviewSchema, await req.json())
+    if (validErr) return validErr
+    const { event_id, reviewed_id, reviewer_role, rating, comment, tags } = data
 
-    if (!event_id || !reviewer_id || !reviewed_id || !reviewer_role || !rating) {
-      return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
-    }
-    if (rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Note entre 1 et 5' }, { status: 400 })
-    }
+    const reviewer_id = user.id
 
-    // Vérifier que le reviewer a bien participé à cet événement
     if (reviewer_role === 'creator') {
       const { data: app } = await admin.from('applications')
-        .select('id')
-        .eq('event_id', event_id)
-        .eq('creator_id', reviewer_id)
-        .eq('status', 'accepted')
-        .maybeSingle()
-      if (!app) {
-        return NextResponse.json({ error: 'Seuls les créateurs acceptés peuvent noter cet événement' }, { status: 403 })
+        .select('id').eq('event_id', event_id).eq('creator_id', reviewer_id).eq('status', 'accepted').maybeSingle()
+      if (!app) return NextResponse.json({ error: 'Seuls les créateurs acceptés peuvent noter cet événement' }, { status: 403 })
+      // reviewed_id must be the event organizer
+      const { data: ev } = await admin.from('events').select('organizer_id').eq('id', event_id).single()
+      if (!ev || ev.organizer_id !== reviewed_id) {
+        return NextResponse.json({ error: 'reviewed_id invalide : doit être l\'organisateur de l\'événement' }, { status: 400 })
       }
     } else {
       const { data: ev } = await admin.from('events')
-        .select('id')
-        .eq('id', event_id)
-        .eq('organizer_id', reviewer_id)
-        .maybeSingle()
-      if (!ev) {
-        return NextResponse.json({ error: 'Seul l\'organisateur peut noter les créateurs' }, { status: 403 })
-      }
+        .select('id').eq('id', event_id).eq('organizer_id', reviewer_id).maybeSingle()
+      if (!ev) return NextResponse.json({ error: "Seul l'organisateur peut noter les créateurs" }, { status: 403 })
+      // reviewed_id must be an accepted creator for this event
+      const { data: app } = await admin.from('applications')
+        .select('id').eq('event_id', event_id).eq('creator_id', reviewed_id).eq('status', 'accepted').maybeSingle()
+      if (!app) return NextResponse.json({ error: 'reviewed_id invalide : créateur non accepté pour cet événement' }, { status: 400 })
     }
 
-    const { data, error } = await admin.from('reviews').insert({
+    const { data: review, error: insertErr } = await admin.from('reviews').insert({
       event_id, reviewer_id, reviewed_id, reviewer_role,
       rating, comment: comment || null, tags: tags || [],
     }).select().single()
 
-    if (error) {
-      if (error.code === '23505') {
-        return NextResponse.json({ error: 'Vous avez déjà noté cette personne pour cet événement' }, { status: 409 })
-      }
-      throw error
+    if (insertErr) {
+      if (insertErr.code === '23505') return NextResponse.json({ error: 'Vous avez déjà noté cette personne pour cet événement' }, { status: 409 })
+      throw insertErr
     }
 
-    // Notification à la personne notée
     await admin.from('notifications').insert({
       user_id: reviewed_id,
       type: 'new_review',
-      title: `Nouvelle évaluation reçue`,
+      title: 'Nouvelle évaluation reçue',
       body: `Vous avez reçu une note de ${rating}/5 pour l'événement.`,
       link: `/events/${event_id}`,
     })
 
-    console.log('✓ Review created:', { reviewer_id, reviewed_id, rating })
-    return NextResponse.json({ review: data }, { status: 201 })
-  } catch (error: any) {
-    console.error('❌ Reviews POST error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur création avis', details: error?.message }, { status: 500 })
+    await sendPushToUsers([reviewed_id], '⭐ Nouvelle évaluation', `Vous avez reçu une note de ${rating}/5`, `/events/${event_id}`)
+    return NextResponse.json({ review }, { status: 201 })
+  } catch (error: unknown) {
+    console.error('❌ Reviews POST error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur création avis' }, { status: 500 })
   }
 }

@@ -4,14 +4,20 @@ import HomeClient from './home-client'
 
 export const metadata: Metadata = {
   title: 'Nexart — Marketplace créateurs & marchés artisanaux',
-  description: 'Nexart connecte créateurs, artisans et organisateurs de marchés artisanaux en France. Candidatez à des marchés, pop-ups, salons et festivals en quelques clics. Gratuit pour les créateurs.',
+  description: 'Nexart connecte créateurs et organisateurs de marchés artisanaux en France. Candidatez à des marchés, pop-ups, salons et festivals. Gratuit pour les créateurs.',
   alternates: { canonical: 'https://nexart.fr' },
   openGraph: {
     title: 'Nexart — Marketplace créateurs & marchés artisanaux',
-    description: 'Nexart connecte créateurs, artisans et organisateurs de marchés artisanaux en France. Gratuit pour les créateurs.',
+    description: 'Nexart connecte créateurs et organisateurs de marchés artisanaux en France. Gratuit pour les créateurs.',
     url: 'https://nexart.fr',
     type: 'website',
-    images: [{ url: '/logo-full.png', width: 502, height: 594, alt: 'Nexart' }],
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Marketplace créateurs & marchés artisanaux' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nexart — Marketplace créateurs & marchés artisanaux',
+    description: 'Nexart connecte créateurs et organisateurs de marchés artisanaux en France. Gratuit pour les créateurs.',
+    images: ['https://nexart.fr/og-image.png'],
   },
 }
 
@@ -22,12 +28,18 @@ const organizationJsonLd = {
   url: 'https://nexart.fr',
   logo: 'https://nexart.fr/logo-full.png',
   description: 'Marketplace connectant créateurs artisanaux et organisateurs de marchés en France.',
-  sameAs: [],
+  sameAs: [
+    'https://x.com/nexartfr',
+    'https://twitter.com/nexartfr',
+  ],
+  areaServed: { '@type': 'Country', name: 'France', sameAs: 'https://www.wikidata.org/wiki/Q142' },
+  knowsAbout: ['marché artisanal', 'artisanat', 'créateurs', 'pop-up', 'salon artisanat'],
   contactPoint: {
     '@type': 'ContactPoint',
     email: 'contact@nexart.fr',
     contactType: 'customer support',
     availableLanguage: 'French',
+    areaServed: 'FR',
   },
 }
 

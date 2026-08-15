@@ -1,6 +1,8 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,22 +19,31 @@ export async function POST(req: NextRequest) {
     const { data: prof } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
     if (!prof?.is_admin) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
-    const { userId, field, value } = await req.json()
-    if (!userId || !field || typeof value !== 'boolean') {
-      return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 })
-    }
-    if (!['is_creator', 'is_organizer'].includes(field)) {
-      return NextResponse.json({ error: 'Champ invalide' }, { status: 400 })
-    }
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ userId: uuidSchema, field: z.enum(['is_creator', 'is_organizer']), value: z.boolean() })
+    const { data, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { userId, field, value } = data
 
     const admin = getAdminClient()
-    const { error } = await admin.from('profiles').update({ [field]: value }).eq('id', userId)
+    const { error } = await admin.from('profiles').update({ [field]: value } as any).eq('id', userId)
     if (error) throw error
 
-    console.log('✓ Role set:', { userId, field, value })
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId: user.id,
+      action: 'UPDATE',
+      resourceType: 'profiles',
+      resourceId: userId,
+      description: `Admin — modification rôle ${field} → ${value} pour l'utilisateur ${userId}`,
+      changes: { [field]: { new: value } },
+      ipAddress: ip,
+      userAgent,
+    })
+
     return NextResponse.json({ ok: true })
-  } catch (error: any) {
-    console.error('❌ Set-role error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur modification rôle', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Set-role error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur modification rôle' }, { status: 500 })
   }
 }

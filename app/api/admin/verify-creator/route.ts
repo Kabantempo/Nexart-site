@@ -1,6 +1,8 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,26 +20,38 @@ export async function POST(req: NextRequest) {
     const { data: prof } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
     if (!prof?.is_admin) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
-    const { userId, field, value, table } = await req.json()
-
-    if (!['siret_verified', 'insurance_verified', 'verification_doc_verified'].includes(field)) {
-      return NextResponse.json({ error: 'Champ invalide' }, { status: 400 })
-    }
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      userId: uuidSchema,
+      field: z.enum(['siret_verified', 'insurance_verified', 'verification_doc_verified']),
+      value: z.boolean(),
+      table: z.enum(['creator_profiles', 'organizer_profiles']).optional(),
+    })
+    const { data, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { userId, field, value, table } = data
 
     const admin = getAdminClient()
 
-    if (table === 'organizer_profiles') {
-      const { error } = await admin.from('organizer_profiles').update({ [field]: value }).eq('user_id', userId)
-      if (error) throw error
-    } else {
-      const { error } = await admin.from('creator_profiles').update({ [field]: value }).eq('user_id', userId)
-      if (error) throw error
-    }
+    const targetTable = table === 'organizer_profiles' ? 'organizer_profiles' : 'creator_profiles'
+    const { error } = await admin.from(targetTable as any).update({ [field]: value } as any).eq('user_id', userId)
+    if (error) throw error
 
-    console.log('✓ Creator verified:', { userId, field, value })
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId: user.id,
+      action: 'UPDATE',
+      resourceType: targetTable,
+      resourceId: userId,
+      description: `Admin — vérification ${field} → ${value} sur ${targetTable} pour l'utilisateur ${userId}`,
+      changes: { [field]: { new: value } },
+      ipAddress: ip,
+      userAgent,
+    })
+
     return NextResponse.json({ ok: true })
-  } catch (error: any) {
-    console.error('❌ Verify-creator error:', { error: error?.message, timestamp: new Date().toISOString() })
-    return NextResponse.json({ error: 'Erreur vérification créateur', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Verify-creator error:', { error: (error as Error)?.message, timestamp: new Date().toISOString() })
+    return NextResponse.json({ error: 'Erreur vérification créateur' }, { status: 500 })
   }
 }

@@ -1,19 +1,61 @@
 'use client'
 
-import { motion, AnimatePresence, useScroll, useTransform, useInView, animate } from 'framer-motion'
+import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Users, Calendar, CheckCircle, ChevronRight, Zap, Target, Bell, Shield, BadgeCheck, MapPin, Search } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
+import { colors } from '@/lib/design-tokens'
+
+// ── Dark theme constants (home page seule — pas de dark mode tokens dans le design system) ──
+const D = {
+  bg:        '#08081a',
+  phoneBg:   '#0c0c1a',
+  indigo400: '#818CF8',
+  violet400: '#A78BFA',
+  emerald400:'#34D399',
+  amber400:  '#FBBF24',
+  i10:  'rgba(99,102,241,0.10)',
+  i15:  'rgba(99,102,241,0.15)',
+  i20:  'rgba(99,102,241,0.20)',
+  i25:  'rgba(99,102,241,0.25)',
+  i30:  'rgba(99,102,241,0.30)',
+  i40:  'rgba(99,102,241,0.40)',
+  i50:  'rgba(99,102,241,0.50)',
+  i80:  'rgba(99,102,241,0.80)',
+  v8:   'rgba(139,92,246,0.08)',
+  v15:  'rgba(139,92,246,0.15)',
+  v30:  'rgba(139,92,246,0.30)',
+  em8:  'rgba(16,185,129,0.08)',
+  em15: 'rgba(16,185,129,0.15)',
+  em30: 'rgba(16,185,129,0.30)',
+  w80:  'rgba(255,255,255,0.80)',
+  w60:  'rgba(255,255,255,0.60)',
+  w55:  'rgba(255,255,255,0.55)',
+  w50:  'rgba(255,255,255,0.50)',
+  w40:  'rgba(255,255,255,0.40)',
+  w35:  'rgba(255,255,255,0.35)',
+  w30:  'rgba(255,255,255,0.30)',
+  w25:  'rgba(255,255,255,0.25)',
+  w22:  'rgba(255,255,255,0.22)',
+  w20:  'rgba(255,255,255,0.20)',
+  w12:  'rgba(255,255,255,0.12)',
+  w8:   'rgba(255,255,255,0.08)',
+  w7:   'rgba(255,255,255,0.07)',
+  w6:   'rgba(255,255,255,0.06)',
+  w5:   'rgba(255,255,255,0.05)',
+  w4:   'rgba(255,255,255,0.04)',
+  w035: 'rgba(255,255,255,0.035)',
+}
 
 // ── Grain overlay ──────────────────────────────────────────────────────
 function Grain() {
   return (
     <div
-      className="fixed inset-0 z-[9998] pointer-events-none opacity-[0.035] mix-blend-overlay"
       style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 0, pointerEvents: 'none', opacity: 0.035, mixBlendMode: 'overlay',
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: '180px 180px',
+        backgroundRepeat: 'repeat', backgroundSize: '180px 180px',
       }}
     />
   )
@@ -33,27 +75,25 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
 }
 
 // ── Word reveal ────────────────────────────────────────────────────────
-function WordReveal({ children, delay = 0, className = '' }: { children: string; delay?: number; className?: string }) {
+function WordReveal({ children, delay = 0 }: { children: string; delay?: number }) {
   return (
-    <span className={className}>
+    <span>
       {children.split(' ').map((w, i) => (
-        <motion.span key={i} className="inline-block mr-[0.22em] last:mr-0"
-          initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.58, delay: delay + i * 0.075, ease: [0.22, 1, 0.36, 1] }}>
+        <span key={i} className="hero-word" style={{ animationDelay: `${delay + i * 0.075}s` }}>
           {w}
-        </motion.span>
+        </span>
       ))}
     </span>
   )
 }
 
 // ── Scroll fade ────────────────────────────────────────────────────────
-function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+function FadeUp({ children, delay = 0, style }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
     <motion.div ref={ref} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }} className={className}>
+      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }} style={style}>
       {children}
     </motion.div>
   )
@@ -61,10 +101,10 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
 
 // ── Phone mockup ───────────────────────────────────────────────────────
 const FAKE_EVENTS = [
-  { title: 'Marché de Noël — Paris 12e', date: '14–16 déc.', stands: 48, type: 'Marché', color: 'text-indigo-400' },
-  { title: 'Pop-up Créateurs Montmartre', date: '20 jan.',   stands: 24, type: 'Pop-up',  color: 'text-violet-400' },
-  { title: 'Salon du Fait Main Lyon',     date: '3–5 fév.',  stands: 120, type: 'Salon',  color: 'text-emerald-400' },
-  { title: 'Foire Artisanale Bordeaux',   date: '15 mar.',   stands: 60,  type: 'Foire',  color: 'text-amber-400' },
+  { title: 'Marché de Noël — Paris 12e', date: '14–16 déc.', stands: 48,  type: 'Marché', color: D.indigo400 },
+  { title: 'Pop-up Créateurs Montmartre', date: '20 jan.',   stands: 24,  type: 'Pop-up',  color: D.violet400 },
+  { title: 'Salon du Fait Main Lyon',     date: '3–5 fév.',  stands: 120, type: 'Salon',   color: D.emerald400 },
+  { title: 'Foire Artisanale Bordeaux',   date: '15 mar.',   stands: 60,  type: 'Foire',   color: D.amber400 },
 ]
 
 function PhoneMockup() {
@@ -73,71 +113,71 @@ function PhoneMockup() {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="relative"
+      style={{ position: 'relative' }}
     >
       {/* Glow */}
-      <div className="absolute inset-x-4 -bottom-10 h-32 bg-indigo-600/25 blur-[50px] rounded-full pointer-events-none" />
+      <div style={{ position: 'absolute', left: '16px', right: '16px', bottom: '-40px', height: '128px', background: 'rgba(79,70,229,0.25)', filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
       {/* Phone frame */}
-      <div className="relative w-[270px] mx-auto rounded-[3rem] border-[1.5px] border-white/12 bg-[#0c0c1a] shadow-2xl shadow-black/70 overflow-hidden" style={{ height: '580px' }}>
+      <div style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: `1.5px solid ${D.w12}`, backgroundColor: D.phoneBg, boxShadow: '0 25px 50px rgba(0,0,0,0.70)', overflow: 'hidden', height: '580px' }}>
 
         {/* Status bar */}
-        <div className="flex items-center justify-between px-6 pt-4 pb-1">
-          <span className="text-[11px] font-semibold text-white/60">9:41</span>
-          <div className="w-20 h-5 rounded-full bg-black mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
-          <div className="flex items-center gap-1">
-            <div className="flex gap-[2px] items-end h-3">
-              {[3,5,7,9].map((h,i) => <div key={i} className="w-[2.5px] rounded-sm bg-white/50" style={{height:`${h}px`}}/>)}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 4px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: D.w60 }}>9:41</span>
+          <div style={{ width: '80px', height: '20px', borderRadius: '9999px', backgroundColor: '#000', position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '12px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ display: 'flex', gap: '2.5px', alignItems: 'flex-end', height: '12px' }}>
+              {[3,5,7,9].map((h,i) => <div key={i} style={{ width: '2.5px', borderRadius: '2px', backgroundColor: D.w50, height: `${h}px` }} />)}
             </div>
-            <div className="w-4 h-2.5 rounded-sm border border-white/40 relative ml-0.5">
-              <div className="absolute inset-[2px] right-[3px] bg-white/50 rounded-[1px]" />
-              <div className="absolute -right-[2px] top-1/2 -translate-y-1/2 w-[2px] h-1.5 bg-white/30 rounded-r-sm" />
+            <div style={{ width: '16px', height: '10px', borderRadius: '2px', border: `1px solid ${D.w40}`, position: 'relative', marginLeft: '2px' }}>
+              <div style={{ position: 'absolute', inset: '2px', right: '3px', backgroundColor: D.w50, borderRadius: '1px' }} />
+              <div style={{ position: 'absolute', right: '-2px', top: '50%', transform: 'translateY(-50%)', width: '2px', height: '6px', backgroundColor: D.w30, borderRadius: '2px' }} />
             </div>
           </div>
         </div>
 
         {/* App header */}
-        <div className="px-5 pt-3 pb-4">
-          <p className="text-[11px] text-white/35 font-medium mb-0.5">Bonjour, Marie</p>
-          <h3 className="text-[18px] font-bold text-white leading-tight">Événements près de toi</h3>
+        <div style={{ padding: '12px 20px 16px' }}>
+          <p style={{ fontSize: '11px', color: D.w35, fontWeight: 500, marginBottom: '2px' }}>Bonjour, Marie</p>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.2 }}>Événements près de toi</h3>
         </div>
 
         {/* Search bar */}
-        <div className="px-5 mb-4">
-          <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-white/7 border border-white/8">
-            <Search size={14} className="text-white/30 shrink-0" />
-            <span className="text-[12px] text-white/25">Rechercher…</span>
+        <div style={{ padding: '0 20px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '16px', backgroundColor: D.w8, border: `1px solid ${D.w8}` }}>
+            <Search size={14} style={{ color: D.w30, flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', color: D.w25 }}>Rechercher…</span>
           </div>
         </div>
 
         {/* Section label */}
-        <div className="flex items-center justify-between px-5 mb-3">
-          <span className="text-[11px] font-bold text-white/40 uppercase tracking-widest">À proximité</span>
-          <span className="text-[11px] text-indigo-400 font-semibold">Voir tout</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px 12px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: D.w40, textTransform: 'uppercase', letterSpacing: '0.1em' }}>À proximité</span>
+          <span style={{ fontSize: '11px', color: D.indigo400, fontWeight: 600 }}>Voir tout</span>
         </div>
 
-        {/* Event cards — only 3 */}
-        <div className="px-5 flex flex-col gap-3">
+        {/* Event cards */}
+        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {FAKE_EVENTS.slice(0, 3).map((ev, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.45, delay: 0.7 + i * 0.12, ease: 'easeOut' }}
-              className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/[0.05] border border-white/7"
+              style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px', borderRadius: '16px', backgroundColor: D.w5, border: `1px solid ${D.w7}` }}
             >
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                <Calendar size={15} className={ev.color} />
+              <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: D.i15, border: `1px solid ${D.i20}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Calendar size={15} style={{ color: ev.color }} />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-semibold text-white leading-tight truncate">{ev.title}</p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className={`text-[10px] font-bold ${ev.color}`}>{ev.type}</span>
-                  <span className="text-white/20 text-[10px]">·</span>
-                  <span className="text-[10px] text-white/40">{ev.date}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, color: ev.color }}>{ev.type}</span>
+                  <span style={{ color: D.w20, fontSize: '10px' }}>·</span>
+                  <span style={{ fontSize: '10px', color: D.w40 }}>{ev.date}</span>
                 </div>
               </div>
-              <div className="shrink-0 px-2.5 py-1.5 rounded-xl bg-indigo-600/80 text-[10px] font-bold text-white">
+              <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: '12px', backgroundColor: D.i80, fontSize: '10px', fontWeight: 700, color: '#FFFFFF' }}>
                 Voir
               </div>
             </motion.div>
@@ -145,16 +185,16 @@ function PhoneMockup() {
         </div>
 
         {/* Bottom tab bar */}
-        <div className="absolute bottom-0 inset-x-0 flex items-center justify-around px-6 pb-6 pt-3.5 border-t border-white/6 bg-[#0c0c1a]">
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '14px 24px 24px', borderTop: `1px solid ${D.w6}`, backgroundColor: D.phoneBg }}>
           {[
             { icon: <Search size={18} />, active: false },
             { icon: <MapPin size={18} />, active: true },
             { icon: <Bell size={18} />, active: false },
             { icon: <Users size={18} />, active: false },
           ].map((item, i) => (
-            <div key={i} className={`flex flex-col items-center gap-1 ${item.active ? 'text-indigo-400' : 'text-white/20'}`}>
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', color: item.active ? D.indigo400 : D.w20 }}>
               {item.icon}
-              {item.active && <div className="w-1 h-1 rounded-full bg-indigo-400" />}
+              {item.active && <div style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: D.indigo400 }} />}
             </div>
           ))}
         </div>
@@ -173,26 +213,26 @@ const TESTIMONIALS_ROW1 = [
   { name: 'Lucas P.',   role: 'Sculpteur',     text: "Candidature envoyée, réponse en 24h. Exactement ce qu'il me fallait." },
 ]
 const TESTIMONIALS_ROW2 = [
-  { name: 'Emma V.',   role: 'Potière',     text: "Mon stand était complet pour la première fois. Merci Nexart." },
-  { name: 'Jules H.',  role: 'Peintre',     text: "Interface impeccable, candidature en 2 minutes chrono." },
-  { name: 'Camille T.',role: 'Textilière',  text: "Nexart a changé ma façon de développer mon activité artisanale." },
-  { name: 'Hugo M.',   role: 'Graveur',     text: "La transparence sur les stands disponibles est vraiment appréciable." },
-  { name: 'Alice R.',  role: 'Broderie',    text: "Je recommande à tous les artisans qui cherchent à se développer." },
-  { name: 'Marc D.',   role: 'Luthier',     text: "Le suivi des candidatures est clair et bien fait. Top." },
+  { name: 'Emma V.',    role: 'Potière',    text: "Mon stand était complet pour la première fois. Merci Nexart." },
+  { name: 'Jules H.',   role: 'Peintre',    text: "Interface impeccable, candidature en 2 minutes chrono." },
+  { name: 'Camille T.', role: 'Textilière', text: "Nexart a changé ma façon de développer mon activité artisanale." },
+  { name: 'Hugo M.',    role: 'Graveur',    text: "La transparence sur les stands disponibles est vraiment appréciable." },
+  { name: 'Alice R.',   role: 'Broderie',   text: "Je recommande à tous les artisans qui cherchent à se développer." },
+  { name: 'Marc D.',    role: 'Luthier',    text: "Le suivi des candidatures est clair et bien fait. Top." },
 ]
 
 function TestimonialCard({ name, role, text }: { name: string; role: string; text: string }) {
   const initials = name.split(' ').map(n => n[0]).join('')
   return (
-    <div className="shrink-0 w-[280px] p-5 rounded-2xl border border-white/6 bg-white/[0.035] mx-2">
-      <p className="text-sm text-white/55 leading-relaxed mb-4">"{text}"</p>
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+    <div style={{ flexShrink: 0, width: '280px', padding: '20px', borderRadius: '16px', border: `1px solid ${D.w6}`, backgroundColor: D.w035, margin: '0 8px' }}>
+      <p style={{ fontSize: '14px', color: D.w55, lineHeight: 1.6, marginBottom: '16px' }}>&ldquo;{text}&rdquo;</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
           {initials}
         </div>
         <div>
-          <p className="text-sm font-semibold text-white leading-tight">{name}</p>
-          <p className="text-xs text-white/35">{role}</p>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2 }}>{name}</p>
+          <p style={{ fontSize: '12px', color: D.w35 }}>{role}</p>
         </div>
       </div>
     </div>
@@ -201,19 +241,22 @@ function TestimonialCard({ name, role, text }: { name: string; role: string; tex
 
 function TestimonialsMarquee() {
   return (
-    <section className="py-20 overflow-hidden" style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
-      {/* Row 1 — left */}
-      <div className="flex mb-4" style={{ animation: 'ticker 45s linear infinite', width: 'max-content' }}>
+    <section aria-label="Témoignages illustratifs" style={{ padding: '80px 0', overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
+      <div aria-hidden="true" style={{ display: 'flex', marginBottom: '16px', animation: 'ticker 45s linear infinite', width: 'max-content' }}>
         {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((t, i) => (
           <TestimonialCard key={i} {...t} />
         ))}
       </div>
-      {/* Row 2 — right */}
-      <div className="flex" style={{ animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
+      <div aria-hidden="true" style={{ display: 'flex', animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
         {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((t, i) => (
           <TestimonialCard key={i} {...t} />
         ))}
       </div>
+      <ul className="sr-only">
+        {TESTIMONIALS_ROW1.map(t => (
+          <li key={t.name}><q>{t.text}</q> — {t.name}, {t.role}</li>
+        ))}
+      </ul>
     </section>
   )
 }
@@ -225,118 +268,181 @@ const DISCIPLINES = [
   'Cosmétique', 'Papeterie', 'Lutherie', 'Gravure', 'Forge artisanale',
 ]
 
-const STATS = [
-  { value: 2400, suffix: '+',  label: 'Créateurs inscrits' },
-  { value: 380,  suffix: '+',  label: 'Événements référencés' },
-  { value: 94,   suffix: ' %', label: 'Taux de satisfaction' },
-]
-
 // ── 3 Faces section ────────────────────────────────────────────────────
 const FACES = [
   {
     key: 'createurs',
     label: 'Créateurs',
-    color: 'indigo',
-    accent: 'text-indigo-400',
-    border: 'border-indigo-500/30',
-    bg: 'bg-indigo-500/8',
-    activeBg: 'bg-indigo-500/15 border-indigo-500/40',
+    accentColor: D.indigo400,
+    borderColor: D.i30,
+    bgColor: D.i10,
     tagline: 'Exposez sans galère.',
     desc: 'Un profil, toutes les opportunités. Candidatez en 2 minutes, suivez vos réponses en temps réel.',
+    href: '/register',
+    cta: 'Créer mon profil',
     features: [
-      { Icon: Zap,       label: 'Candidature en 2 min', desc: 'Aucun email, aucun formulaire à rallonge.' },
-      { Icon: Target,    label: 'Matching intelligent',  desc: 'Les événements qui vous correspondent remontent en priorité.' },
-      { Icon: Bell,      label: 'Suivi en temps réel',   desc: 'Notifications et timeline de statut instantanés.' },
-      { Icon: BadgeCheck,label: 'Profil vérifiable',     desc: 'SIRET, portfolio, avis — tout en un seul endroit.' },
+      { Icon: Zap,        label: 'Candidature en 2 min', desc: 'Aucun email, aucun formulaire à rallonge.' },
+      { Icon: Target,     label: 'Matching intelligent',  desc: 'Les événements qui vous correspondent remontent en priorité.' },
+      { Icon: Bell,       label: 'Suivi en temps réel',   desc: 'Notifications et timeline de statut instantanés.' },
+      { Icon: BadgeCheck, label: 'Profil vérifiable',     desc: 'SIRET, portfolio, avis — tout en un seul endroit.' },
     ],
   },
   {
     key: 'organisateurs',
     label: 'Organisateurs',
-    color: 'violet',
-    accent: 'text-violet-400',
-    border: 'border-violet-500/30',
-    bg: 'bg-violet-500/8',
-    activeBg: 'bg-violet-500/15 border-violet-500/40',
+    accentColor: D.violet400,
+    borderColor: D.v30,
+    bgColor: D.v8,
     tagline: 'Remplissez vos stands.',
     desc: 'Publiez votre événement, recevez des candidatures qualifiées et gérez tout depuis votre tableau de bord.',
+    href: '/register',
+    cta: 'Publier un événement',
     features: [
-      { Icon: Calendar,  label: 'Publication en 5 min',  desc: 'Dates, stands, critères — votre événement est en ligne immédiatement.' },
-      { Icon: Users,     label: 'Candidatures triées',    desc: 'Filtrez par discipline, ville, profil vérifié.' },
-      { Icon: Shield,    label: 'Événement validé',       desc: "Notre équipe vérifie chaque publication. Zéro arnaque." },
-      { Icon: Zap,       label: 'Gestion centralisée',    desc: 'Acceptez, refusez, communiquez — tout depuis un seul dashboard.' },
+      { Icon: Calendar, label: 'Publication en 5 min',  desc: 'Dates, stands, critères — votre événement est en ligne immédiatement.' },
+      { Icon: Users,    label: 'Candidatures triées',    desc: 'Filtrez par discipline, ville, profil vérifié.' },
+      { Icon: Shield,   label: 'Événement validé',       desc: "Notre équipe vérifie chaque publication. Zéro arnaque." },
+      { Icon: Zap,      label: 'Gestion centralisée',    desc: 'Acceptez, refusez, communiquez — tout depuis un seul dashboard.' },
     ],
   },
   {
     key: 'visiteurs',
     label: 'Visiteurs',
-    color: 'emerald',
-    accent: 'text-emerald-400',
-    border: 'border-emerald-500/30',
-    bg: 'bg-emerald-500/8',
-    activeBg: 'bg-emerald-500/15 border-emerald-500/40',
+    accentColor: D.emerald400,
+    borderColor: D.em30,
+    bgColor: D.em8,
     tagline: 'Découvrez. Réservez. Soutenez.',
     desc: 'Trouvez les marchés et événements artisanaux près de chez vous, réservez votre place et explorez les créateurs.',
+    href: '/events',
+    cta: 'Explorer les événements',
     features: [
-      { Icon: MapPin,    label: 'Événements près de toi', desc: 'Géolocalisation et filtres par type, date, distance.' },
-      { Icon: Users,     label: 'Portfolios créateurs',   desc: 'Parcourez les artisans inscrits avant même le jour J.' },
-      { Icon: CheckCircle, label: 'Réservation de place', desc: 'Réservez votre entrée en quelques secondes.' },
-      { Icon: Bell,      label: 'Alertes personnalisées', desc: 'Notifié dès qu\'un événement correspond à vos intérêts.' },
+      { Icon: MapPin,      label: 'Événements près de toi', desc: 'Géolocalisation et filtres par type, date, distance.' },
+      { Icon: Users,       label: 'Portfolios créateurs',   desc: 'Parcourez les artisans inscrits avant même le jour J.' },
+      { Icon: CheckCircle, label: 'Réservation de place',   desc: 'Réservez votre entrée en quelques secondes.' },
+      { Icon: Bell,        label: 'Alertes personnalisées', desc: "Notifié dès qu'un événement correspond à vos intérêts." },
     ],
   },
 ]
 
 function FacesSection() {
   return (
-    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-32">
-      <FadeUp className="mb-16">
-        <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-5">Créateurs · Organisateurs · Visiteurs</p>
-        <h2 className="text-[clamp(2.2rem,4.5vw,3.8rem)] font-black tracking-tight leading-[0.95] text-white max-w-2xl">
+    <section style={{ maxWidth: '1152px', margin: '0 auto', padding: '128px 16px' }}>
+      <FadeUp style={{ marginBottom: '64px' }}>
+        <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Créateurs · Organisateurs · Visiteurs</p>
+        <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: '#FFFFFF', maxWidth: '600px' }}>
           Pour qui est{' '}
-          <span className="text-white/30">Nexart ?</span>
+          <span style={{ color: D.w30 }}>Nexart ?</span>
         </h2>
       </FadeUp>
 
-      <div className="grid md:grid-cols-3 gap-5">
-        {FACES.map(({ key, label, accent, border, bg, tagline, desc, features }, i) => (
-          <motion.div key={key}
+      <div className="home-faces-grid">
+        {FACES.map((face, i) => (
+          <motion.div key={face.key}
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className={`flex flex-col p-7 rounded-3xl border ${border} ${bg} hover:brightness-110 transition-all duration-300`}
+            style={{ display: 'flex', flexDirection: 'column', padding: '28px', borderRadius: '24px', border: `1px solid ${face.borderColor}`, backgroundColor: face.bgColor, transition: 'filter 0.3s ease' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1.1)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1)' }}
           >
-            {/* Header */}
-            <p className={`text-[11px] font-black tracking-widest uppercase mb-4 ${accent}`}>{label}</p>
-            <h3 className="text-2xl font-black text-white leading-tight mb-3">{tagline}</h3>
-            <p className="text-white/40 text-sm leading-relaxed mb-8">{desc}</p>
+            <p style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', color: face.accentColor }}>{face.label}</p>
+            <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: '12px' }}>{face.tagline}</h3>
+            <p style={{ color: D.w40, fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>{face.desc}</p>
 
-            {/* Features */}
-            <ul className="flex flex-col gap-3 flex-1">
-              {features.map(({ Icon, label: fl, desc: fd }) => (
-                <li key={fl} className="flex items-start gap-3">
-                  <div className={`w-7 h-7 rounded-lg ${bg} border ${border} flex items-center justify-center shrink-0 mt-0.5`}>
-                    <Icon size={13} className={accent} />
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, listStyle: 'none', padding: 0, margin: 0 }}>
+              {face.features.map(({ Icon, label: fl, desc: fd }) => (
+                <li key={fl} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: face.bgColor, border: `1px solid ${face.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                    <Icon size={13} style={{ color: face.accentColor }} />
                   </div>
                   <div>
-                    <p className="text-[12px] font-semibold text-white leading-tight">{fl}</p>
-                    <p className="text-[11px] text-white/30 leading-relaxed">{fd}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF', lineHeight: 1.2 }}>{fl}</p>
+                    <p style={{ fontSize: '11px', color: D.w30, lineHeight: 1.5 }}>{fd}</p>
                   </div>
                 </li>
               ))}
             </ul>
 
-            {/* CTA */}
             <Link
-              href={key === 'visiteurs' ? '/events' : '/register'}
-              className={`mt-8 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white border ${border} hover:opacity-80 transition-opacity`}
+              href={face.href}
+              style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, color: '#FFFFFF', border: `1px solid ${face.borderColor}`, textDecoration: 'none', transition: 'opacity 0.2s ease' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.8' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             >
-              {key === 'visiteurs' ? 'Explorer les événements' : key === 'organisateurs' ? 'Publier un événement' : 'Créer mon profil'}
-              <ArrowRight size={13} />
+              {face.cta} <ArrowRight size={13} />
             </Link>
           </motion.div>
         ))}
       </div>
     </section>
+  )
+}
+
+// ── Email Capture ──────────────────────────────────────────────────────
+function EmailCaptureSection() {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(false)
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error('error')
+      setSuccess(true)
+      setEmail('')
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <FadeUp>
+      <div style={{ background: D.i10, borderRadius: '12px', padding: '24px', border: `1px solid ${D.i15}`, maxWidth: '480px', margin: '0 auto' }}>
+        <p style={{ fontSize: '13px', fontWeight: 600, color: D.w60, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Application mobile
+        </p>
+        <p style={{ fontSize: '15px', color: '#FFFFFF', marginBottom: '16px', lineHeight: 1.5 }}>
+          Soyez prévenu dès que l&apos;app est disponible sur iOS et Android.
+        </p>
+        {success ? (
+          <p style={{ color: colors.feedback.success.solid, fontWeight: 600, fontSize: '14px' }}>
+            Super ! On vous préviendra dès le lancement.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <input
+              type="email"
+              required
+              placeholder="votre@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ flex: 1, minWidth: '200px', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${D.w12}`, background: D.w6, color: '#FFFFFF', fontSize: '14px', outline: 'none' }}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ padding: '10px 20px', borderRadius: '8px', background: colors.violet.primary, color: '#FFFFFF', fontWeight: 700, fontSize: '14px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, whiteSpace: 'nowrap' }}
+            >
+              {loading ? '...' : 'Être notifié'}
+            </button>
+          </form>
+        )}
+        {error && (
+          <p style={{ color: colors.feedback.danger.solid, fontSize: '13px', marginTop: '8px' }}>
+            Une erreur est survenue.
+          </p>
+        )}
+      </div>
+    </FadeUp>
   )
 }
 
@@ -348,87 +454,111 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="bg-[#06060f] text-white overflow-x-hidden">
+    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <style>{`
+        .home-faces-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .home-faces-grid { grid-template-columns: repeat(3, 1fr); } }
+        .home-steps-grid { display: grid; grid-template-columns: 1fr; gap: 32px; position: relative; }
+        @media (min-width: 768px) { .home-steps-grid { grid-template-columns: repeat(3, 1fr); } }
+        .home-steps-connector { display: none; }
+        @media (min-width: 768px) { .home-steps-connector { display: block; } }
+        .home-app-layout { position: relative; display: flex; flex-direction: column; align-items: center; gap: 64px; }
+        @media (min-width: 1024px) { .home-app-layout { flex-direction: row; } }
+        .home-app-text { text-align: center; }
+        @media (min-width: 1024px) { .home-app-text { text-align: left; } }
+        .home-store-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+        @media (min-width: 640px) { .home-store-buttons { flex-direction: row; } }
+        @media (min-width: 1024px) { .home-store-buttons { justify-content: flex-start; } }
+        .home-hero-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; margin-bottom: 24px; }
+        @media (min-width: 640px) { .home-hero-buttons { flex-direction: row; } }
+        .home-cta-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+        @media (min-width: 640px) { .home-cta-buttons { flex-direction: row; } }
+      `}</style>
+
       <Grain />
 
       {/* ══ HERO ══════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col overflow-hidden">
+      <section ref={heroRef} style={{ position: 'relative', minHeight: '100svh', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: D.bg }}>
 
-        {/* Grid */}
-        <div className="absolute inset-0 opacity-[0.14]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div style={{ height: '58px', flexShrink: 0 }} />
+
+        {/* Grid pattern */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.14, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
         {/* Glows */}
         <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.18, 0.3, 0.18] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-40 -left-48 w-[800px] h-[800px] rounded-full bg-indigo-600/20 blur-[130px] pointer-events-none" />
+          style={{ position: 'absolute', top: '-160px', left: '-192px', width: '800px', height: '800px', borderRadius: '50%', backgroundColor: 'rgba(79,70,229,0.20)', filter: 'blur(130px)', pointerEvents: 'none' }} />
         <motion.div animate={{ scale: [1, 1.12, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute top-1/3 -right-32 w-[500px] h-[500px] rounded-full bg-violet-600/15 blur-[100px] pointer-events-none" />
+          style={{ position: 'absolute', top: '33%', right: '-128px', width: '500px', height: '500px', borderRadius: '50%', backgroundColor: 'rgba(139,92,246,0.15)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
-        {/* Split layout */}
-        <motion.div style={{ y: heroY, opacity: heroOpacity }}
-          className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 flex flex-col items-center justify-center py-20"
-        >
-          {/* Center — text */}
-          <div className="w-full text-center">
+        {/* Hero content */}
+        <motion.div style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', padding: '80px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', textAlign: 'center' }}>
             <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-semibold tracking-widest uppercase mb-8"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.i30}`, backgroundColor: D.i10, color: '#C7D2FE', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
             >
               <Sparkles size={11} /> La plateforme des artisans
             </motion.div>
 
-            <h1 className="text-[clamp(3rem,7vw,5.5rem)] font-black leading-[0.9] tracking-[-0.04em] mb-7">
-              <span className="block overflow-hidden pb-1">
+            <h1 style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 900, lineHeight: 0.9, letterSpacing: '-0.04em', marginBottom: '28px' }}>
+              <span style={{ display: 'block', overflow: 'hidden', paddingBottom: '4px' }}>
                 <WordReveal delay={0.05}>Exposez vos</WordReveal>
               </span>
-              <span className="block overflow-hidden pb-1">
+              <span style={{ display: 'block', overflow: 'hidden', paddingBottom: '4px' }}>
                 <motion.span initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="inline-block bg-gradient-to-r from-indigo-400 via-violet-300 to-indigo-400 bg-clip-text text-transparent"
-                  style={{ backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
+                  style={{ display: 'inline-block', background: 'linear-gradient(90deg, #818CF8, #C4B5FD, #818CF8)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                   créations
                 </motion.span>
               </span>
-              <span className="block text-white/35 text-[0.55em] font-bold tracking-[-0.01em] overflow-hidden pb-1">
+              <span style={{ display: 'block', color: D.w35, fontSize: '0.55em', fontWeight: 700, letterSpacing: '-0.01em', overflow: 'hidden', paddingBottom: '4px' }}>
                 <WordReveal delay={0.3}>dans les meilleurs événements</WordReveal>
               </span>
             </h1>
 
-            <motion.p initial={{ opacity: 0, filter: 'blur(8px)' }} animate={{ opacity: 1, filter: 'blur(0px)' }}
+            <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="text-white/45 text-base leading-relaxed mb-9"
+              style={{ color: D.w80, fontSize: '16px', lineHeight: 1.6, marginBottom: '36px' }}
             >
-              Nexart connecte créateurs et organisateurs d'événements artisanaux —{' '}
-              <span className="text-white/65">marchés, pop-ups, salons, festivals</span>.
+              Nexart connecte créateurs et organisateurs d&apos;événements artisanaux —{' '}
+              <span style={{ color: '#FFFFFF' }}>marchés, pop-ups, salons, festivals</span>.
             </motion.p>
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.62 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center mb-6"
-            >
-              <Link href="/register" className="group flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-all duration-200 shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
-                S'inscrire gratuitement <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link href="/events" className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl border border-white/10 text-white/55 hover:text-white hover:bg-white/6 hover:border-white/18 font-semibold text-sm transition-all duration-200">
-                Explorer les événements
-              </Link>
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.62 }}>
+              <div className="home-hero-buttons">
+                <Link href="/register"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: '#FFFFFF', fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 20px 25px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.hover; (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
+                >
+                  S&apos;inscrire gratuitement <ArrowRight size={15} />
+                </Link>
+                <Link href="/events"
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px 28px', borderRadius: '16px', border: `1px solid ${D.w8}`, color: D.w55, fontWeight: 600, fontSize: '14px', textDecoration: 'none', transition: 'all 0.2s ease' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w55; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+                >
+                  Explorer les événements
+                </Link>
+              </div>
             </motion.div>
 
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
-              className="text-xs text-white/22 font-medium"
+              style={{ fontSize: '12px', color: D.w22, fontWeight: 500 }}
             >
               Gratuit pour les créateurs · Pas de carte bancaire requise
             </motion.p>
           </div>
-
         </motion.div>
 
         {/* Ticker */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-          className="relative z-10 w-full pb-10 overflow-hidden"
-          style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)' }}
+          style={{ position: 'relative', zIndex: 10, width: '100%', paddingBottom: '40px', overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)' }}
         >
-          <div className="flex flex-nowrap gap-3" style={{ animation: 'ticker 40s linear infinite', width: 'max-content' }}>
+          <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '12px', animation: 'ticker 40s linear infinite', width: 'max-content' }}>
             {[...DISCIPLINES, ...DISCIPLINES, ...DISCIPLINES].map((d, i) => (
-              <span key={i} className="inline-flex shrink-0 items-center gap-1.5 px-4 py-1.5 rounded-full border border-white/8 bg-white/[0.04] text-white/30 text-xs font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50 shrink-0" />
+              <span key={i} style={{ display: 'inline-flex', flexShrink: 0, alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.w8}`, backgroundColor: D.w4, color: D.w30, fontSize: '12px', fontWeight: 500 }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: D.i50, flexShrink: 0 }} />
                 {d}
               </span>
             ))}
@@ -440,25 +570,17 @@ export default function HomeClient() {
       <FacesSection />
 
       {/* ══ TESTIMONIALS ═══════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 bg-white/[0.015]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-20 pb-4">
-          <FadeUp className="text-center mb-12">
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-4">Ils nous font confiance</p>
-            <h2 className="text-[clamp(1.8rem,3.5vw,3rem)] font-black tracking-tight text-white">Ce qu'ils en disent</h2>
-          </FadeUp>
-        </div>
-        <TestimonialsMarquee />
-      </section>
+      <TestimonialsMarquee />
 
       {/* ══ STEPS ══════════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 py-32">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <FadeUp className="mb-20 text-center">
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-4">En 3 étapes</p>
-            <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight text-white">Simple comme bonjour</h2>
+      <section style={{ borderTop: `1px solid ${D.w6}`, padding: '128px 0' }}>
+        <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
+          <FadeUp style={{ marginBottom: '80px', textAlign: 'center' }}>
+            <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>En 3 étapes</p>
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFFFFF' }}>Simple comme bonjour</h2>
           </FadeUp>
-          <div className="grid md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-[38px] left-[calc(16.67%+28px)] right-[calc(16.67%+28px)] h-px bg-gradient-to-r from-transparent via-indigo-500/25 to-transparent" />
+          <div className="home-steps-grid">
+            <div className="home-steps-connector" style={{ position: 'absolute', top: '38px', left: 'calc(16.67% + 28px)', right: 'calc(16.67% + 28px)', height: '1px', background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.25), transparent)' }} />
             {[
               { n: '01', title: 'Créez votre profil',      desc: 'Photos, disciplines, tarifs — en moins de 10 minutes.' },
               { n: '02', title: 'Explorez les événements', desc: 'Filtrez par type, date, ville ou nombre de stands.' },
@@ -467,75 +589,16 @@ export default function HomeClient() {
               <motion.div key={n}
                 initial={{ opacity: 0, y: 48 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay: i * 0.14, ease: [0.22, 1, 0.36, 1] }}
-                className="text-center"
+                style={{ textAlign: 'center' }}
               >
                 <motion.div whileInView={{ scale: [0.75, 1.06, 1] }} viewport={{ once: true }}
                   transition={{ duration: 0.55, delay: i * 0.14 + 0.15 }}
-                  className="w-20 h-20 mx-auto mb-7 rounded-2xl border border-indigo-500/20 bg-indigo-500/8 flex items-center justify-center"
+                  style={{ width: '80px', height: '80px', margin: '0 auto 28px', borderRadius: '16px', border: `1px solid ${D.i20}`, backgroundColor: D.i10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <span className="text-2xl font-black text-indigo-400 font-mono">{n}</span>
+                  <span style={{ fontSize: '24px', fontWeight: 900, color: D.indigo400, fontFamily: 'monospace' }}>{n}</span>
                 </motion.div>
-                <h3 className="text-lg font-bold text-white mb-3">{title}</h3>
-                <p className="text-white/35 text-sm leading-relaxed max-w-[210px] mx-auto">{desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ SPLIT CTA ══════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 bg-white/[0.015] py-32">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <FadeUp className="text-center mb-14">
-            <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white">
-              Pour qui est Nexart ?
-            </h2>
-          </FadeUp>
-          <div className="grid md:grid-cols-3 gap-5">
-            {[
-              { delay: 0, glow: 'bg-indigo-600/15 group-hover:bg-indigo-600/28', bg: 'from-indigo-600/18 to-indigo-950/30', border: 'border-indigo-500/18',
-                badgeBg: 'bg-indigo-500/12 border-indigo-500/22 text-indigo-300', badgeIcon: <Users size={11} />, badgeLabel: 'Créateurs',
-                title: 'Trouvez vos prochains événements',
-                desc: "Candidatez aux marchés, pop-ups et salons qui correspondent à votre univers créatif.",
-                items: ['Profil créateur en 10 min', 'Candidature en 2 clics', 'Suivi en temps réel'],
-                checkClass: 'text-indigo-400', ctaHref: '/register?role=creator', ctaLabel: 'Créer mon profil', ctaClass: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/25' },
-              { delay: 0.1, glow: 'bg-violet-600/12 group-hover:bg-violet-600/22', bg: 'from-violet-600/14 to-violet-950/25', border: 'border-violet-500/14',
-                badgeBg: 'bg-violet-500/10 border-violet-500/18 text-violet-300', badgeIcon: <Calendar size={11} />, badgeLabel: 'Organisateurs',
-                title: 'Remplissez vos événements',
-                desc: "Publiez votre événement et recevez des candidatures qualifiées en quelques heures.",
-                items: ["Publication en 5 min", 'Candidatures qualifiées auto', 'Gestion des stands simplifiée'],
-                checkClass: 'text-violet-400', ctaHref: '/register?role=organizer', ctaLabel: 'Publier un événement', ctaClass: 'bg-violet-600 hover:bg-violet-500 shadow-violet-500/25' },
-              { delay: 0.2, glow: 'bg-emerald-600/12 group-hover:bg-emerald-600/22', bg: 'from-emerald-600/14 to-emerald-950/25', border: 'border-emerald-500/14',
-                badgeBg: 'bg-emerald-500/10 border-emerald-500/18 text-emerald-300', badgeIcon: <MapPin size={11} />, badgeLabel: 'Visiteurs',
-                title: 'Découvrez les marchés près de toi',
-                desc: "Trouvez les événements artisanaux autour de vous, réservez votre place et explorez les créateurs.",
-                items: ['Événements géolocalisés', 'Portfolios créateurs', 'Réservation en 2 clics'],
-                checkClass: 'text-emerald-400', ctaHref: '/events', ctaLabel: 'Explorer les événements', ctaClass: 'bg-emerald-700 hover:bg-emerald-600 shadow-emerald-500/25' },
-            ].map(({ delay, glow, bg, border, badgeBg, badgeIcon, badgeLabel, title, desc, items, checkClass, ctaHref, ctaLabel, ctaClass }) => (
-              <motion.div key={title}
-                initial={{ opacity: 0, y: 52, scale: 0.97 }} whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -6, transition: { duration: 0.22 } }}
-                className={`group relative p-8 rounded-3xl bg-gradient-to-br ${bg} border ${border} overflow-hidden flex flex-col`}
-              >
-                <div className={`absolute -top-24 -right-24 w-80 h-80 rounded-full ${glow} blur-[100px] transition-all duration-700 pointer-events-none`} />
-                <div className="relative z-10 flex flex-col flex-1">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border ${badgeBg} text-xs font-semibold mb-7 w-fit`}>
-                    {badgeIcon} {badgeLabel}
-                  </div>
-                  <h3 className="text-[1.4rem] font-black text-white tracking-tight leading-tight mb-4">{title}</h3>
-                  <p className="text-white/42 text-sm leading-relaxed mb-7">{desc}</p>
-                  <ul className="space-y-3 mb-8 flex-1">
-                    {items.map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-white/52">
-                        <CheckCircle size={14} className={`${checkClass} shrink-0`} /> {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href={ctaHref} className={`group/btn inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl ${ctaClass} text-white font-bold text-sm transition-all duration-200 shadow-xl hover:scale-[1.03] active:scale-[0.97]`}>
-                    {ctaLabel} <ArrowRight size={14} className="group-hover/btn:translate-x-0.5 transition-transform" />
-                  </Link>
-                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', marginBottom: '12px' }}>{title}</h3>
+                <p style={{ color: D.w35, fontSize: '14px', lineHeight: 1.6, maxWidth: '210px', margin: '0 auto' }}>{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -543,50 +606,55 @@ export default function HomeClient() {
       </section>
 
       {/* ══ APP DOWNLOAD ═══════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 py-28 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="relative flex flex-col lg:flex-row items-center gap-16">
+      <section style={{ borderTop: `1px solid ${D.w6}`, padding: '112px 0', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
+          <div className="home-app-layout">
 
             {/* Glow bg */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full" />
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '400px', backgroundColor: 'rgba(79,70,229,0.10)', filter: 'blur(120px)', borderRadius: '50%' }} />
             </div>
 
             {/* Left — text */}
-            <FadeUp className="relative z-10 flex-1 text-center lg:text-left">
-              <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-5">Bientôt disponible</p>
-              <h2 className="text-[clamp(2rem,4vw,3.5rem)] font-black tracking-tight text-white leading-[1.05] mb-5">
-                Nexart dans<br />votre poche
-              </h2>
-              <p className="text-white/35 text-base leading-relaxed mb-10 max-w-md mx-auto lg:mx-0">
-                Candidatez, suivez vos marchés et échangez avec les organisateurs — où que vous soyez.
-              </p>
+            <FadeUp style={{ position: 'relative', zIndex: 10, flex: 1 }}>
+              <div className="home-app-text">
+                <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Bientôt disponible</p>
+                <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFFFFF', lineHeight: 1.05, marginBottom: '20px' }}>
+                  Nexart dans<br />votre poche
+                </h2>
+                <p style={{ color: D.w35, fontSize: '16px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '400px' }}>
+                  Candidatez, suivez vos marchés et échangez avec les organisateurs — où que vous soyez.
+                </p>
 
-              {/* Store buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <button disabled className="flex items-center gap-3.5 px-6 py-3.5 rounded-2xl border border-white/12 bg-white/[0.04] text-left opacity-70 cursor-not-allowed">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                  </svg>
-                  <div>
-                    <p className="text-[10px] text-white/40 font-medium leading-none mb-0.5">Bientôt sur</p>
-                    <p className="text-[15px] font-bold text-white leading-none">App Store</p>
+                <div style={{ marginBottom: '32px' }}>
+                  <EmailCaptureSection />
+                </div>
+
+                <div className="home-store-buttons">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: `1px solid ${D.w12}`, backgroundColor: D.w4, textAlign: 'left', userSelect: 'none' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
+                    <div>
+                      <p style={{ fontSize: '10px', color: D.w30, fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
+                      <p style={{ fontSize: '15px', fontWeight: 700, color: D.w50, lineHeight: 1 }}>App Store</p>
+                    </div>
                   </div>
-                </button>
-                <button disabled className="flex items-center gap-3.5 px-6 py-3.5 rounded-2xl border border-white/12 bg-white/[0.04] text-left opacity-70 cursor-not-allowed">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3.18 23.76c.3.17.65.19.97.08l12.49-7.17-2.64-2.64-10.82 9.73zm-1.14-20.3C1.73 3.83 1.5 4.28 1.5 4.85v14.3c0 .57.23 1.02.54 1.39l.07.07 8.01-8.01v-.19L2.11 3.39l-.07.07zM20.37 10.5l-2.61-1.5-2.94 2.94 2.94 2.94 2.64-1.52c.75-.43.75-1.43-.03-1.86zM4.14.24L16.63 7.41l-2.64 2.64L3.17.32C3.49.21 3.84.23 4.14.24z"/>
-                  </svg>
-                  <div>
-                    <p className="text-[10px] text-white/40 font-medium leading-none mb-0.5">Bientôt sur</p>
-                    <p className="text-[15px] font-bold text-white leading-none">Google Play</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: `1px solid ${D.w12}`, backgroundColor: D.w4, textAlign: 'left', userSelect: 'none' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.18 23.76c.3.17.65.19.97.08l12.49-7.17-2.64-2.64-10.82 9.73zm-1.14-20.3C1.73 3.83 1.5 4.28 1.5 4.85v14.3c0 .57.23 1.02.54 1.39l.07.07 8.01-8.01v-.19L2.11 3.39l-.07.07zM20.37 10.5l-2.61-1.5-2.94 2.94 2.94 2.94 2.64-1.52c.75-.43.75-1.43-.03-1.86zM4.14.24L16.63 7.41l-2.64 2.64L3.17.32C3.49.21 3.84.23 4.14.24z"/>
+                    </svg>
+                    <div>
+                      <p style={{ fontSize: '10px', color: D.w30, fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
+                      <p style={{ fontSize: '15px', fontWeight: 700, color: D.w50, lineHeight: 1 }}>Google Play</p>
+                    </div>
                   </div>
-                </button>
+                </div>
               </div>
             </FadeUp>
 
             {/* Right — phone */}
-            <div className="relative z-10 flex-shrink-0">
+            <div style={{ position: 'relative', zIndex: 10, flexShrink: 0 }}>
               <PhoneMockup />
             </div>
 
@@ -595,25 +663,29 @@ export default function HomeClient() {
       </section>
 
       {/* ══ FINAL CTA ══════════════════════════════════════════════════ */}
-      <section className="border-t border-white/6 py-32">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      <section style={{ borderTop: `1px solid ${D.w6}`, padding: '128px 0' }}>
+        <div style={{ maxWidth: '768px', margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
           <FadeUp>
-            <p className="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-7">Rejoignez la communauté</p>
-            <h2 className="text-[clamp(2.8rem,6vw,5rem)] font-black tracking-tight text-white leading-[0.9] mb-7">
+            <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '28px' }}>Rejoignez la communauté</p>
+            <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: '#FFFFFF', lineHeight: 0.9, marginBottom: '28px' }}>
               Prêt à exposer{' '}
-              <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-indigo-400 bg-clip-text text-transparent"
-                style={{ backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
+              <span style={{ background: 'linear-gradient(90deg, #818CF8, #C4B5FD, #818CF8)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                 vos créations ?
               </span>
             </h2>
-            <p className="text-white/35 text-lg leading-relaxed mb-12 max-w-lg mx-auto">
-              Rejoignez 2 400 créateurs et 380 événements qui font confiance à Nexart.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/register" className="group flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all duration-200 shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.97]">
-                S'inscrire gratuitement <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+            <div className="home-cta-buttons">
+              <Link href="/register"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '16px 36px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: '#FFFFFF', fontWeight: 700, textDecoration: 'none', boxShadow: '0 25px 50px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.hover; (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
+              >
+                S&apos;inscrire gratuitement <ArrowRight size={16} />
               </Link>
-              <Link href="/events" className="flex items-center justify-center gap-2 px-9 py-4 rounded-2xl border border-white/10 text-white/50 hover:text-white hover:bg-white/5 hover:border-white/20 font-semibold transition-all duration-200">
+              <Link href="/events"
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 36px', borderRadius: '16px', border: `1px solid ${D.w8}`, color: D.w50, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s ease' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w50; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+              >
                 Explorer <ChevronRight size={15} />
               </Link>
             </div>

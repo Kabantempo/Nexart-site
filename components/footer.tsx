@@ -3,152 +3,259 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Mail, Globe, Share2, Heart, MessageCircle } from 'lucide-react'
+import { Mail, Globe, MessageCircle, MapPin } from 'lucide-react'
+
+function InstagramIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+  )
+}
 
 const NAV = {
   'Pour créateurs': [
     { label: 'Parcourir les événements', href: '/events' },
+    { label: 'Créateurs artisanaux',     href: '/creators' },
+    { label: 'Carte interactive',        href: '/carte' },
+    { label: 'Calendrier',               href: '/calendrier' },
     { label: "Comment ça marche",        href: '/about' },
     { label: "S'inscrire",               href: '/register' },
-    { label: 'Contact',                  href: '/contact' },
   ],
   'Pour organisateurs': [
-    { label: 'Créer un événement',    href: '/events' },
+    { label: 'Créer un événement',    href: '/events/create' },
     { label: 'Trouver des créateurs', href: '/creators' },
-    { label: "S'inscrire",            href: '/register' },
-    { label: 'À propos',              href: '/about' },
+    { label: 'Offres & tarifs',       href: '/offres' },
+    { label: 'Analytiques',           href: '/organizer/analytics' },
   ],
-  'Pour visiteurs': [
-    { label: 'Carte interactive',      href: '/carte' },
-    { label: 'Événements près de moi', href: '/events' },
-    { label: 'Découvrir les créateurs', href: '/creators' },
-    { label: "S'inscrire",             href: '/register' },
+  'Communauté': [
+    { label: 'Recherche',   href: '/search' },
+    { label: 'Mes favoris', href: '/favorites' },
+    { label: 'Messagerie',  href: '/messages' },
   ],
-  'Ressources': [
-    { label: 'Patch Notes',         href: '/patch-notes' },
-    { label: 'Carnet de route',     href: '/carnet-de-route' },
-    { label: 'À propos',            href: '/about' },
+  'Nexart': [
+    { label: 'À propos',          href: '/about' },
+    { label: 'Carnet de route',   href: '/carnet-de-route' },
+    { label: 'Patch Notes',       href: '/patch-notes' },
+    { label: 'Contact',           href: '/contact' },
   ],
 }
 
 const SOCIALS = [
-  { icon: Globe,         href: '#', label: 'Site web' },
-  { icon: Share2,        href: '#', label: 'Twitter / X' },
-  { icon: Heart,         href: '#', label: 'Instagram' },
-  { icon: MessageCircle, href: '#', label: 'Contact' },
+  {
+    icon: InstagramIcon,
+    href: 'https://instagram.com/nexart_app',
+    label: 'Instagram @nexart_app',
+  },
+  {
+    icon: Globe,
+    href: 'https://nexart.fr',
+    label: 'Site web',
+  },
+  {
+    icon: MessageCircle,
+    href: '/contact',
+    label: 'Contact',
+  },
 ]
 
 const LEGAL = [
-  { label: 'Conditions d\'utilisation', href: '/conditions' },
-  { label: 'Politique de confidentialité', href: '/confidentialite' },
-  { label: 'Mentions légales',           href: '/mentions-legales' },
-  { label: 'Contact support',             href: '/contact' },
+  { label: 'CGU',                           href: '/conditions' },
+  { label: 'Confidentialité',               href: '/confidentialite' },
+  { label: 'Mentions légales',              href: '/mentions-legales' },
+  { label: 'Support',                       href: '/contact' },
 ]
 
 export function Footer() {
-  const [newsletterEmail, setNewsletterEmail] = useState('')
-  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newsletterEmail || newsletterStatus === 'loading') return
-    setNewsletterStatus('loading')
+    if (!email || status === 'loading') return
+    setStatus('loading')
     try {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newsletterEmail }),
+        body: JSON.stringify({ email }),
       })
-      setNewsletterStatus(res.ok ? 'success' : 'error')
-      if (res.ok) setNewsletterEmail('')
+      setStatus(res.ok ? 'success' : 'error')
+      if (res.ok) setEmail('')
     } catch {
-      setNewsletterStatus('error')
+      setStatus('error')
     }
-    setTimeout(() => setNewsletterStatus('idle'), 4000)
+    setTimeout(() => setStatus('idle'), 4000)
   }
 
   return (
-    <footer className="bg-[#06060f] border-t border-white/6 text-white">
+    <footer style={{ backgroundColor: '#06060f', borderTop: '1px solid rgba(255,255,255,0.06)', color: '#fff' }}>
       {/* Top section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-6">
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 24px 56px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: '48px 32px',
+        }}>
 
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 mb-5">
-              <Image src="/logo-mark.png" alt="Nexart" width={30} height={30} className="rounded-lg" />
-              <span className="text-xl font-bold text-white">Nexart</span>
+          {/* Brand + newsletter */}
+          <div style={{ minWidth: '220px' }}>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', textDecoration: 'none' }}>
+              <Image src="/logo-mark.png" alt="Nexart" width={30} height={30} style={{ borderRadius: '8px' }} />
+              <span style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>Nexart</span>
             </Link>
-            <p className="text-white/40 text-sm leading-relaxed mb-7">
+
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: '1.65', marginBottom: '12px' }}>
               La plateforme qui connecte créateurs artisanaux et organisateurs d'événements en France.
             </p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '20px' }}>
+              <MapPin size={13} style={{ color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>France</span>
+            </div>
+
+            {/* Socials */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
+              {SOCIALS.map(({ icon: Icon, href, label }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  target={href.startsWith('http') ? '_blank' : undefined}
+                  rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    backgroundColor: 'rgba(255,255,255,0.04)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'rgba(255,255,255,0.45)',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLAnchorElement
+                    el.style.color = '#fff'
+                    el.style.backgroundColor = 'rgba(255,255,255,0.1)'
+                    el.style.borderColor = 'rgba(255,255,255,0.15)'
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLAnchorElement
+                    el.style.color = 'rgba(255,255,255,0.45)'
+                    el.style.backgroundColor = 'rgba(255,255,255,0.04)'
+                    el.style.borderColor = 'rgba(255,255,255,0.08)'
+                  }}
+                >
+                  <Icon size={15} />
+                </Link>
+              ))}
+            </div>
+
             {/* Newsletter */}
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-3">Newsletter</p>
-            <form onSubmit={handleNewsletter} className="flex gap-2">
+            <p style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px' }}>
+              Newsletter
+            </p>
+            <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="email"
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="votre@email.fr"
-                disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
-                className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-white/8 bg-white/4 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-indigo-500/50 focus:bg-white/6 transition disabled:opacity-50"
+                disabled={status === 'loading' || status === 'success'}
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  backgroundColor: 'rgba(255,255,255,0.04)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  outline: 'none',
+                  opacity: status === 'loading' || status === 'success' ? 0.5 : 1,
+                }}
               />
               <button
                 type="submit"
-                disabled={newsletterStatus === 'loading' || newsletterStatus === 'success'}
-                className="shrink-0 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50"
+                aria-label="S'inscrire à la newsletter"
+                disabled={status === 'loading' || status === 'success'}
+                style={{
+                  flexShrink: 0,
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: '#6366F1',
+                  cursor: 'pointer',
+                  opacity: status === 'loading' || status === 'success' ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
-                <Mail size={16} className="text-white" />
+                <Mail size={15} color="#fff" />
               </button>
             </form>
-            {newsletterStatus === 'success' && (
-              <p className="text-xs text-emerald-400 mt-2">Inscription confirmée !</p>
+            {status === 'success' && (
+              <p style={{ fontSize: '12px', color: '#4ade80', marginTop: '6px' }}>Inscription confirmée !</p>
             )}
-            {newsletterStatus === 'error' && (
-              <p className="text-xs text-red-400 mt-2">Erreur, réessayez.</p>
+            {status === 'error' && (
+              <p style={{ fontSize: '12px', color: '#f87171', marginTop: '6px' }}>Erreur, réessayez.</p>
             )}
           </div>
 
           {/* Nav columns */}
           {Object.entries(NAV).map(([title, links]) => (
             <div key={title}>
-              <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-5">{title}</p>
-              <nav className="flex flex-col gap-3">
+              <p style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '18px' }}>
+                {title}
+              </p>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {links.map(({ label, href }) => (
-                  <Link key={href + label} href={href} className="text-sm text-white/45 hover:text-white transition-colors duration-150">
+                  <Link
+                    key={href + label}
+                    href={href}
+                    style={{ fontSize: '14px', color: 'rgba(255,255,255,0.6)', textDecoration: 'none', transition: 'color 0.15s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#fff' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.6)' }}
+                  >
                     {label}
                   </Link>
                 ))}
               </nav>
             </div>
           ))}
-
-          {/* Socials */}
-          <div>
-            <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-5">Nous suivre</p>
-            <div className="flex flex-wrap gap-2">
-              {SOCIALS.map(({ icon: Icon, href, label }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="w-10 h-10 rounded-xl border border-white/8 bg-white/4 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 hover:border-white/15 transition-all duration-150"
-                >
-                  <Icon size={16} />
-                </Link>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="border-t border-white/6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/25">© 2026 Nexart. Tous droits réservés.</p>
-          <nav className="flex flex-wrap gap-6 justify-center">
+      {/* Divider + bottom bar */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{
+          maxWidth: '1280px',
+          margin: '0 auto',
+          padding: '20px 24px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}>
+          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+            © 2026 Nexart. Tous droits réservés.
+          </p>
+          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center' }}>
             {LEGAL.map(({ label, href }) => (
-              <Link key={href} href={href} className="text-xs text-white/25 hover:text-white/55 transition-colors duration-150">
+              <Link
+                key={href}
+                href={href}
+                style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none', transition: 'color 0.15s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.75)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.4)' }}
+              >
                 {label}
               </Link>
             ))}

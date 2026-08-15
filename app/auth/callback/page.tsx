@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthCallbackPage() {
@@ -30,10 +31,12 @@ export default function AuthCallbackPage() {
               id: user.id,
               full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0],
               avatar_url: user.user_metadata?.avatar_url ?? null,
-              role: null,
+              role: 'visitor' as const,
             })
+            router.push('/onboarding')
+          } else {
+            router.push('/dashboard')
           }
-          router.push('/')
         }
       } else {
         // Fallback : session déjà active (connexion email/password)
@@ -53,7 +56,7 @@ export default function AuthCallbackPage() {
           <>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
             <p style={{ color: '#E05A5A', fontSize: '16px', marginBottom: '16px' }}>{error}</p>
-            <a href="/login" style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>Retour à la connexion</a>
+            <Link href="/login" style={{ color: '#6366F1', fontSize: '14px', fontWeight: '600' }}>Retour à la connexion</Link>
           </>
         ) : (
           <>
@@ -63,7 +66,7 @@ export default function AuthCallbackPage() {
               borderRadius: '50%', animation: 'spin 1s linear infinite',
               margin: '0 auto 24px',
             }} />
-            <p style={{ color: '#6B7280', fontSize: '16px' }}>Connexion en cours…</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>Connexion en cours…</p>
           </>
         )}
       </div>

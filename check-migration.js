@@ -1,8 +1,8 @@
 const { createClient } = require('@supabase/supabase-js')
 
 const supabase = createClient(
-  'https://cvqeysnymnkfxfithhsr.supabase.co',
-  'sb_publishable_Q59WmYgpYsdmW2pPRF6sfA_g2inbZei'
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
 async function check() {

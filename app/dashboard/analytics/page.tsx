@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import CreatorAnalyticsClient from './analytics-client'
 
 export const metadata: Metadata = {
-  title: 'Mes Statistiques — Nexart',
+  title: 'Mes Statistiques',
   description: 'Votre tableau de bord de statistiques créateur',
 }
 

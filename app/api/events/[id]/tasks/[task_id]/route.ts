@@ -1,0 +1,81 @@
+export const dynamic = 'force-dynamic'
+import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function requireOrganizerLocal(req: NextRequest, eventId: string) {
+  const token = req.headers.get('Authorization')?.split(' ')[1]
+  if (!token) return null
+  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user } } = await anon.auth.getUser(token)
+  if (!user) return null
+  const admin = getAdminClient()
+  const { data: event } = await admin.from('events').select('organizer_id').eq('id', eventId).single()
+  if (event?.organizer_id !== user.id) return null
+  return user
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string; task_id: string } }
+) {
+  if (!UUID_RE.test(params.id) || !UUID_RE.test(params.task_id)) {
+    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
+  }
+  try {
+    const user = await requireOrganizerLocal(req, params.id)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const body = await req.json()
+    const { status, title, description, assignee_id, deadline } = body
+
+    const admin = getAdminClient()
+    const updates: Record<string, any> = { updated_at: new Date().toISOString() }
+    if (status !== undefined) updates.status = status
+    if (title !== undefined) updates.title = title
+    if (description !== undefined) updates.description = description
+    if (assignee_id !== undefined) updates.assignee_id = assignee_id
+    if (deadline !== undefined) updates.deadline = deadline
+
+    const { data, error } = await admin
+      .from('event_tasks')
+      .update(updates as any)
+      .eq('id', params.task_id)
+      .eq('event_id', params.id)
+      .select()
+
+    if (error) throw error
+    return NextResponse.json({ success: true, task: data?.[0] })
+  } catch (error: unknown) {
+    console.error('PATCH /tasks/[task_id]:', error)
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string; task_id: string } }
+) {
+  if (!UUID_RE.test(params.id) || !UUID_RE.test(params.task_id)) {
+    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
+  }
+  try {
+    const user = await requireOrganizerLocal(req, params.id)
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const admin = getAdminClient()
+    const { error } = await admin
+      .from('event_tasks')
+      .delete()
+      .eq('id', params.task_id)
+      .eq('event_id', params.id)
+
+    if (error) throw error
+    return NextResponse.json({ success: true })
+  } catch (error: unknown) {
+    console.error('DELETE /tasks/[task_id]:', error)
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
+  }
+}

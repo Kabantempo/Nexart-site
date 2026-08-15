@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, MessageCircle, Users, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface Task {
   id: string
@@ -39,9 +40,17 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
     fetchTeamMembers()
   }, [eventId])
 
+  const getToken = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token
+  }
+
   const fetchTasks = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/tasks`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/tasks`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setTasks(data.tasks || [])
     } catch (error) {
@@ -51,7 +60,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
   const fetchTeamMembers = async () => {
     try {
-      const res = await fetch(`/api/events/${eventId}/team`)
+      const token = await getToken()
+      const res = await fetch(`/api/events/${eventId}/team`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setTeamMembers(data.members || [])
     } catch (error) {
@@ -67,9 +79,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
     try {
       setLoading(true)
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/tasks`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(newTask)
       })
 
@@ -86,9 +99,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
 
   const handleUpdateStatus = async (taskId: string, newStatus: string) => {
     try {
+      const token = await getToken()
       const res = await fetch(`/api/events/${eventId}/tasks/${taskId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status: newStatus })
       })
 
@@ -127,7 +141,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
     : tasks.filter(t => t.status === statusFilter)
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Header */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div
@@ -135,10 +149,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             Espace Collaboration
           </h1>
-          <p style={{ fontSize: '18px', color: '#6B7280' }}>
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
             Coordonnez votre équipe, assignez des tâches et suivez la progression
           </p>
         </motion.div>
@@ -151,10 +165,10 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '32px' }}>
             {/* Left: Task List */}
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
                 Tâches ({filteredTasks.length})
               </h2>
 
@@ -168,8 +182,8 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       padding: '8px 12px',
                       border: statusFilter === status ? 'none' : '1px solid #E5E7EB',
                       borderRadius: '6px',
-                      backgroundColor: statusFilter === status ? '#6366F1' : '#F9FAFB',
-                      color: statusFilter === status ? '#FFFFFF' : '#1A1A1A',
+                      backgroundColor: statusFilter === status ? '#6366F1' : 'var(--bg-secondary)',
+                      color: statusFilter === status ? '#FFFFFF' : 'var(--text-primary)',
                       cursor: 'pointer',
                       fontSize: '14px',
                       fontWeight: 500
@@ -183,7 +197,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
               {/* Task List */}
               <div style={{ display: 'grid', gap: '12px', marginBottom: '32px' }}>
                 {filteredTasks.length === 0 ? (
-                  <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+                  <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                     <p>Aucune tâche pour le moment</p>
                   </div>
                 ) : (
@@ -203,14 +217,14 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'start' }}>
                         {getStatusIcon(task.status)}
                         <div style={{ flex: 1 }}>
-                          <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', margin: 0, marginBottom: '4px' }}>
+                          <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginBottom: '4px' }}>
                             {task.title}
                           </h3>
-                          <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, marginBottom: '8px' }}>
+                          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0, marginBottom: '8px' }}>
                             {task.profiles?.full_name || 'Non assigné'}
                           </p>
                           {task.deadline && (
-                            <p style={{ fontSize: '12px', color: '#6B7280' }}>
+                            <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                               Deadline: {new Date(task.deadline).toLocaleDateString('fr-FR')}
                             </p>
                           )}
@@ -222,13 +236,13 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
               </div>
 
               {/* Create Task Form */}
-              <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', backgroundColor: '#F9FAFB' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+              <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', backgroundColor: 'var(--bg-secondary)' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                   Nouvelle tâche
                 </h3>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                     Titre
                   </label>
                   <input
@@ -239,7 +253,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -248,7 +262,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                     Description
                   </label>
                   <textarea
@@ -258,7 +272,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
                       minHeight: '80px',
@@ -269,7 +283,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                     Assigner à
                   </label>
                   <select
@@ -278,7 +292,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -294,7 +308,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: '#1A1A1A' }}>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                     Deadline
                   </label>
                   <input
@@ -304,7 +318,7 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '1px solid #E5E7EB',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
                       boxSizing: 'border-box'
@@ -341,22 +355,22 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
             <div>
               {selectedTask ? (
                 <div>
-                  <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '24px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px' }}>
                     Détails de la tâche
                   </h2>
 
-                  <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px' }}>
+                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '24px', marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>
                       {selectedTask.title}
                     </h3>
 
-                    <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', marginBottom: '20px' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '20px' }}>
                       {selectedTask.description}
                     </p>
 
                     <div style={{ display: 'grid', gap: '12px', marginBottom: '20px' }}>
                       <div>
-                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Statut</p>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Statut</p>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           {(['not_started', 'in_progress', 'completed'] as const).map(status => (
                             <button
@@ -366,8 +380,8 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                                 padding: '6px 12px',
                                 border: selectedTask.status === status ? 'none' : '1px solid #E5E7EB',
                                 borderRadius: '4px',
-                                backgroundColor: selectedTask.status === status ? '#6366F1' : '#F9FAFB',
-                                color: selectedTask.status === status ? '#FFFFFF' : '#1A1A1A',
+                                backgroundColor: selectedTask.status === status ? '#6366F1' : 'var(--bg-secondary)',
+                                color: selectedTask.status === status ? '#FFFFFF' : 'var(--text-primary)',
                                 cursor: 'pointer',
                                 fontSize: '12px',
                                 fontWeight: 500
@@ -380,16 +394,16 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                       </div>
 
                       <div>
-                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Assigné à</p>
-                        <p style={{ fontSize: '14px', color: '#1A1A1A', margin: 0 }}>
+                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Assigné à</p>
+                        <p style={{ fontSize: '14px', color: 'var(--text-primary)', margin: 0 }}>
                           {selectedTask.profiles?.full_name || 'Non assigné'}
                         </p>
                       </div>
 
                       {selectedTask.deadline && (
                         <div>
-                          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '4px' }}>Deadline</p>
-                          <p style={{ fontSize: '14px', color: '#1A1A1A', margin: 0 }}>
+                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Deadline</p>
+                          <p style={{ fontSize: '14px', color: 'var(--text-primary)', margin: 0 }}>
                             {new Date(selectedTask.deadline).toLocaleDateString('fr-FR')}
                           </p>
                         </div>
@@ -398,19 +412,19 @@ export default function CollaborationClient({ eventId }: { eventId: string }) {
                   </div>
 
                   {/* Comments - Coming in v1.0.1 */}
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#1A1A1A', marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <MessageCircle size={18} />
                     Commentaires
                   </h3>
 
-                  <div style={{ border: '1px solid #E5E7EB', borderRadius: '8px', padding: '20px', backgroundColor: '#EEF2FF' }}>
+                  <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', padding: '20px', backgroundColor: '#EEF2FF' }}>
                     <p style={{ fontSize: '14px', color: '#6366F1', fontWeight: 500, textAlign: 'center', margin: '0' }}>
                       💬 Système de commentaires disponible en v1.0.1
                     </p>
                   </div>
                 </div>
               ) : (
-                <div style={{ padding: '40px 16px', textAlign: 'center', color: '#6B7280' }}>
+                <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
                   <Users size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
                   <p>Sélectionnez une tâche pour voir les détails</p>
                 </div>

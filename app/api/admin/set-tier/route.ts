@@ -1,19 +1,21 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 const VALID_TIERS = ['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']
 
 export async function POST(req: NextRequest) {
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
   const admin = getAdminClient()
   try {
-    const { user_id, tier } = await req.json()
-
-    if (!user_id || !tier) {
-      return NextResponse.json({ error: 'user_id et tier requis' }, { status: 400 })
-    }
-    if (!VALID_TIERS.includes(tier)) {
-      return NextResponse.json({ error: 'Tier invalide' }, { status: 400 })
-    }
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({ user_id: uuidSchema, tier: z.enum(['free', 'boost', 'pro', 'premium', 'org_pro', 'org_studio']) })
+    const { data, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { user_id, tier } = data
 
     const { error } = await admin
       .from('profiles')
@@ -21,18 +23,29 @@ export async function POST(req: NextRequest) {
       .eq('id', user_id)
 
     if (error) {
-      // Colonne pas encore créée → migration Stripe pas encore exécutée
-      if (error.code === '42703' || error.message?.includes('subscription_tier')) {
+      if (error.code === '42703' || (error instanceof Error ? error.message : String(error))?.includes('subscription_tier')) {
         return NextResponse.json({
           error: 'Colonne subscription_tier manquante. Exécutez la migration stripe_skeleton.sql dans Supabase SQL Editor.',
           migration_needed: true,
         }, { status: 503 })
       }
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
     }
+
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId: check.userId,
+      action: 'UPDATE',
+      resourceType: 'profiles',
+      resourceId: user_id,
+      description: `Admin — modification subscription_tier → ${tier} pour l'utilisateur ${user_id}`,
+      changes: { subscription_tier: { new: tier } },
+      ipAddress: ip,
+      userAgent,
+    })
 
     return NextResponse.json({ success: true, tier })
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur inconnue' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err)}, { status: 500 })
   }
 }

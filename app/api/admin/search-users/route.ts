@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
-  const admin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  )
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
+  const admin = getAdminClient()
 
   const q = req.nextUrl.searchParams.get('q')
   if (!q || q.length < 2) return NextResponse.json({ users: [] })
@@ -37,6 +37,6 @@ export async function GET(req: NextRequest) {
       users: (data || []).map(u => ({ ...u, subscription_tier: u.subscription_tier ?? 'free' })),
     })
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erreur' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err)}, { status: 500 })
   }
 }

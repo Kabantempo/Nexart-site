@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Event } from '@/lib/types'
 import { MapPin, Calendar, Users, SlidersHorizontal, X, Euro } from 'lucide-react'
@@ -49,8 +50,8 @@ export default function CarteClient() {
         setEvents(data.map(e => ({
           ...e,
           accepted_count: countMap[e.id] || 0,
-          remaining_spots: Math.max((e.stand_count || 0) - (countMap[e.id] || 0), 0),
-        })))
+          remaining_spots: Math.max((e.stand_count ?? 0) - (countMap[e.id] || 0), 0),
+        })) as any)
         setLoading(false)
       })
   }, [])
@@ -76,10 +77,10 @@ export default function CarteClient() {
 
       const map = L.map(mapRef.current!, { center: [46.6, 2.3], zoom: 6 })
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
+      L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributeurs',
+        subdomains: 'abc',
+        maxZoom: 20,
       }).addTo(map)
 
       mapInstanceRef.current = { map, L }
@@ -95,40 +96,76 @@ export default function CarteClient() {
     }
   }, [loading])
 
+  const clusterGroupRef = useRef<any>(null)
+
   useEffect(() => {
     if (!mapReady || !mapInstanceRef.current) return
     const { map, L } = mapInstanceRef.current
 
-    markersRef.current.forEach(m => m.remove())
+    // Remove previous cluster group
+    if (clusterGroupRef.current) {
+      map.removeLayer(clusterGroupRef.current)
+      clusterGroupRef.current = null
+    }
     markersRef.current = []
 
     const filtered = typeFilter === 'all' ? events : events.filter(e => e.event_type === typeFilter)
 
-    filtered.forEach(event => {
-      if (!event.lat || !event.lng) return
-
-      const remaining = event.remaining_spots ?? 0
-      const isFull = (event.stand_count || 0) > 0 && remaining === 0
-      const isAlmostFull = !isFull && (event.stand_count || 0) > 0 && remaining <= 3
-      const color = isFull ? '#4B5563' : isAlmostFull ? '#F59E0B' : '#6366F1'
-      const border = isFull ? '#6B7280' : isAlmostFull ? '#FCD34D' : '#A5B4FC'
-
-      const imgHtml = event.cover_image
-        ? `<img src="${event.cover_image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0" />`
-        : `<svg style="position:absolute;inset:0;margin:auto" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
-
-      const icon = L.divIcon({
-        className: '',
-        html: `<div style="width:36px;height:36px;border-radius:50%;background:${color};border:2.5px solid ${border};box-shadow:0 2px 10px rgba(99,102,241,.4);position:relative;overflow:hidden;cursor:pointer">${imgHtml}</div>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 36],
+    Promise.all([
+      import('leaflet.markercluster'),
+      import('leaflet.markercluster/dist/MarkerCluster.css' as string),
+      import('leaflet.markercluster/dist/MarkerCluster.Default.css' as string),
+    ]).then(([mc]) => {
+      if (!mapInstanceRef.current) return
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const MCG = (mc as any).default ?? mc
+      const cluster = MCG.markerClusterGroup({
+        maxClusterRadius: 50,
+        iconCreateFunction: (c: any) => {
+          const count = c.getChildCount()
+          return L.divIcon({
+            className: '',
+            html: `<div style="width:42px;height:42px;border-radius:50%;background:#6366F1;border:2.5px solid #A5B4FC;box-shadow:0 2px 14px rgba(99,102,241,.5);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff">${count}</div>`,
+            iconSize: [42, 42],
+            iconAnchor: [21, 42],
+          })
+        },
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
       })
 
-      const marker = L.marker([event.lat, event.lng], { icon })
-        .addTo(map)
-        .on('click', () => setSelected(event))
+      filtered.forEach(event => {
+        if (!event.lat || !event.lng) return
+        const remaining = event.remaining_spots ?? 0
+        const isFull = (event.stand_count || 0) > 0 && remaining === 0
+        const isAlmostFull = !isFull && (event.stand_count || 0) > 0 && remaining <= 3
+        const color = isFull ? '#4B5563' : isAlmostFull ? '#F59E0B' : '#6366F1'
+        const border = isFull ? '#9CA3AF' : isAlmostFull ? '#FCD34D' : '#A5B4FC'
+        const imgHtml = event.cover_image
+          ? `<img src="${event.cover_image}" alt="${event.title}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0" />`
+          : `<svg style="position:absolute;inset:0;margin:auto" width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:36px;height:36px;border-radius:50%;background:${color};border:2.5px solid ${border};box-shadow:0 2px 10px rgba(99,102,241,.4);position:relative;overflow:hidden;cursor:pointer">${imgHtml}</div>`,
+          iconSize: [36, 36],
+          iconAnchor: [18, 36],
+        })
+        const marker = L.marker([event.lat, event.lng], { icon }).on('click', () => setSelected(event))
+        cluster.addLayer(marker)
+        markersRef.current.push(marker)
+      })
 
-      markersRef.current.push(marker)
+      map.addLayer(cluster)
+      clusterGroupRef.current = cluster
+    }).catch(() => {
+      // Fallback: add markers directly without clustering
+      filtered.forEach(event => {
+        if (!event.lat || !event.lng || !mapInstanceRef.current) return
+        const { map: m, L: Lf } = mapInstanceRef.current
+        const icon = Lf.divIcon({ className: '', html: `<div style="width:36px;height:36px;border-radius:50%;background:#6366F1;border:2.5px solid #A5B4FC;box-shadow:0 2px 10px rgba(99,102,241,.4)"></div>`, iconSize: [36, 36], iconAnchor: [18, 36] })
+        Lf.marker([event.lat, event.lng], { icon }).addTo(m).on('click', () => setSelected(event))
+      })
     })
   }, [mapReady, events, typeFilter])
 
@@ -139,10 +176,10 @@ export default function CarteClient() {
       <div style={{ padding: '12px 20px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <MapPin size={16} color="#A5B4FC" />
-          <span style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>Carte des événements</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Carte des événements</span>
           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{events.length} événements</span>
         </div>
-        <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px' }}>
+        <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <SlidersHorizontal size={13} color="rgba(255,255,255,0.3)" style={{ flexShrink: 0, marginTop: '3px' }} />
           {EVENT_TYPES.map(t => (
             <button key={t.key} onClick={() => setTypeFilter(t.key)}
@@ -155,7 +192,7 @@ export default function CarteClient() {
 
       {/* Légende */}
       <div style={{ padding: '6px 16px', backgroundColor: '#0F0C29', borderBottom: '1px solid rgba(99,102,241,0.12)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
-        {[{ color: '#6366F1', label: 'Places disponibles' }, { color: '#F59E0B', label: '≤ 3 places restantes' }, { color: '#4B5563', label: 'Complet' }].map(({ color, label }) => (
+        {[{ color: '#6366F1', label: 'Places disponibles' }, { color: '#F59E0B', label: '≤ 3 places restantes' }, { color: 'var(--text-secondary)', label: 'Complet' }].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }} />
             <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
@@ -186,7 +223,7 @@ export default function CarteClient() {
 
             {selected.cover_image ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={selected.cover_image} alt={selected.title} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
+              <Image src={selected.cover_image} alt={selected.title} width={560} height={120} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
             ) : (
               <div style={{ width: '100%', height: '80px', background: 'linear-gradient(135deg,#1E1B4B,#2D1B69)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <MapPin size={28} color="rgba(165,180,252,0.3)" />
@@ -201,7 +238,7 @@ export default function CarteClient() {
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.5)' }}><Calendar size={11} /> {new Date(selected.start_date).toLocaleDateString('fr-FR')}</span>
                 {(selected.stand_count || 0) > 0 && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600',
-                    color: (selected.remaining_spots ?? 0) === 0 ? '#6B7280' : (selected.remaining_spots ?? 0) <= 3 ? '#F59E0B' : '#818CF8' }}>
+                    color: (selected.remaining_spots ?? 0) === 0 ? 'var(--text-secondary)' : (selected.remaining_spots ?? 0) <= 3 ? '#F59E0B' : '#818CF8' }}>
                     <Users size={11} />
                     {(selected.remaining_spots ?? 0) === 0
                       ? 'Complet'

@@ -38,7 +38,7 @@ export function CookieConsent() {
       justifyContent: 'space-between',
       alignItems: 'center',
       gap: '16px',
-      borderTop: '1px solid #E5E7EB',
+      borderTop: '1px solid var(--border-color)',
     }}>
       <div style={{ flex: 1 }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '16px' }}>
@@ -118,9 +118,9 @@ function loadAnalytics() {
   document.head.appendChild(script)
 
   // Initialize gtag
-  window.dataLayer = window.dataLayer || []
-  function gtag() {
-    window.dataLayer.push(arguments)
+  ;(window as any).dataLayer = (window as any).dataLayer || []
+  function gtag(...args: any[]) {
+    ;(window as any).dataLayer.push(args)
   }
   gtag('js', new Date())
   gtag('config', 'GTM-PC469WF9', {

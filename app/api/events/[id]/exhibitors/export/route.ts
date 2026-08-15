@@ -1,37 +1,46 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const admin = getAdminClient()
   try {
-    // Auth: only organizer of this event can export
+    const escapeCsv = (val: unknown): string => {
+      const s = String(val ?? '')
+      // Prefix formula-starting chars to prevent CSV injection
+      const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s
+      return `"${safe.replace(/"/g, '""')}"`
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
     )
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const { data: event } = await supabase.from('events').select('organizer_id').eq('id', params.id).single()
+    const { data: event } = await admin.from('events').select('organizer_id').eq('id', params.id).single()
     if (!event || event.organizer_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get event fields to know column order
-    const { data: fields } = await supabase
+    const { data: fields } = await (admin as any)
       .from('event_exhibitor_fields')
       .select('field_name, field_label')
       .eq('event_id', params.id)
       .order('field_order', { ascending: true })
 
-    // Get all exhibitor responses
-    const { data: exhibitors, error } = await supabase
+    const { data: exhibitors, error } = await (admin as any)
       .from('event_exhibitor_responses')
       .select(`
         id,
@@ -46,28 +55,26 @@ export async function GET(
 
     if (error) throw error
 
-    // Build CSV
     const headers = ['ID', 'Name', 'Email', 'Status', 'Tables', 'Submitted At']
-    const fieldLabels = (fields || []).map(f => f.field_label)
+    const fieldLabels = (fields || []).map((f: any) => f.field_label)
     const csvHeaders = [...headers, ...fieldLabels].join(',')
 
-    const rows = (exhibitors || []).map(e => {
-      const profile = (e as any).profiles
+    const rows = (exhibitors || []).map((e: any) => {
+      const profile = e.profiles
       const data = [
-        `"${e.id}"`,
-        `"${profile?.full_name || ''}"`,
-        `"${profile?.email || ''}"`,
-        `"${e.status}"`,
-        e.tables_count,
-        `"${new Date(e.submitted_at).toISOString()}"`
+        escapeCsv(e.id),
+        escapeCsv(profile?.full_name || ''),
+        escapeCsv(profile?.email || ''),
+        escapeCsv(e.status),
+        escapeCsv(e.tables_count),
+        escapeCsv(new Date(e.submitted_at).toISOString()),
       ]
 
-      // Add custom fields
       const responseData = e.response_data as Record<string, any>
-      fieldLabels.forEach(label => {
-        const fieldName = (fields || []).find(f => f.field_label === label)?.field_name
+      fieldLabels.forEach((label: string) => {
+        const fieldName = (fields || []).find((f: any) => f.field_label === label)?.field_name
         const value = fieldName ? responseData?.[fieldName] : ''
-        data.push(`"${value || ''}"`)
+        data.push(escapeCsv(value || ''))
       })
 
       return data.join(',')
@@ -82,7 +89,7 @@ export async function GET(
         'Content-Disposition': `attachment; filename="exhibitors-${params.id}-${Date.now()}.csv"`
       }
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

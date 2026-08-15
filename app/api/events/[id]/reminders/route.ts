@@ -1,8 +1,14 @@
+export const dynamic = 'force-dynamic'
 import { createClient } from '@supabase/supabase-js'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
+import { emailReminder } from '@/lib/email-templates'
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // GET: Check overdue exhibitors and send reminders (called by cron job)
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
     // Verify cron token
     const authHeader = req.headers.get('authorization')
@@ -19,10 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     // Get event + reminder settings
     const { data: event } = await supabase
@@ -51,7 +54,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .from('event_exhibitor_responses')
       .select(
         `id, exhibitor_id, submitted_at,
-         profiles:exhibitor_id (id, full_name)`
+         profiles:exhibitor_id (id, full_name, email)`
       )
       .eq('event_id', params.id)
       .eq('status', 'approved')
@@ -71,7 +74,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         if (!alreadyReminded?.length) {
           // Send email via Resend
-          if (exhibitor.profiles?.email) {
+          if ((exhibitor.profiles as any)?.email) {
             try {
               await fetch('https://api.resend.com/emails', {
                 method: 'POST',
@@ -81,20 +84,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 },
                 body: JSON.stringify({
                   from: 'noreply@nexart.fr',
-                  to: exhibitor.profiles.email,
+                  to: (exhibitor.profiles as any).email,
                   subject: `Rappel: Confirmez votre participation à ${event.title}`,
-                  html: `
-                    <h2>Bonjour ${exhibitor.profiles.full_name},</h2>
-                    <p>Votre candidature pour <strong>${event.title}</strong> a été acceptée.</p>
-                    <p>Pouvez-vous confirmer votre participation au plus tôt?</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
-                       style="display: inline-block; padding: 12px 24px; background-color: #6366F1; color: white; text-decoration: none; border-radius: 8px;">
-                      Confirmer ma candidature
-                    </a>
-                    <p style="color: #888; font-size: 12px; margin-top: 24px;">
-                      Si vous avez des questions, contactez l'organisateur de l'événement.
-                    </p>
-                  `,
+                  html: emailReminder(event.title, params.id as string, false),
                 }),
               })
             } catch (emailError) {
@@ -121,7 +113,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .from('event_exhibitor_responses')
       .select(
         `id, exhibitor_id, submitted_at,
-         profiles:exhibitor_id (id, full_name)`
+         profiles:exhibitor_id (id, full_name, email)`
       )
       .eq('event_id', params.id)
       .eq('status', 'approved')
@@ -147,7 +139,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
         if (firstReminded?.length && !alreadyReminded2?.length) {
           // Send urgent follow-up email
-          if (exhibitor.profiles?.email) {
+          if ((exhibitor.profiles as any)?.email) {
             try {
               await fetch('https://api.resend.com/emails', {
                 method: 'POST',
@@ -157,20 +149,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
                 },
                 body: JSON.stringify({
                   from: 'noreply@nexart.fr',
-                  to: exhibitor.profiles.email,
+                  to: (exhibitor.profiles as any).email,
                   subject: `⚠️ Dernière relance: Confirmez votre participation à ${event.title}`,
-                  html: `
-                    <h2>Bonjour ${exhibitor.profiles.full_name},</h2>
-                    <p>Ceci est notre dernier rappel avant la clôture des candidatures.</p>
-                    <p>Veuillez confirmer votre participation à <strong>${event.title}</strong> au plus tôt.</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
-                       style="display: inline-block; padding: 12px 24px; background-color: #DC2626; color: white; text-decoration: none; border-radius: 8px;">
-                      Confirmer maintenant
-                    </a>
-                    <p style="color: #888; font-size: 12px; margin-top: 24px;">
-                      Passé ce délai, votre place pourrait être attribuée à un autre candidat.
-                    </p>
-                  `,
+                  html: emailReminder(event.title, params.id as string, true),
                 }),
               })
             } catch (emailError) {
@@ -196,9 +177,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       second_reminders_sent: secondRemindersSent,
       timestamp: new Date().toISOString(),
     })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
-    const errorStack = error?.stack || ''
+  } catch (error: unknown) {
+    const errorMsg = (error as Error)?.message || 'Unknown error'
+    const errorStack = (error as Error)?.stack || ''
     console.error('❌ Reminders cron failed:', {
       event_id: params.id,
       error: errorMsg,
@@ -209,7 +190,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       {
         success: false,
         error: 'Reminders cron failed',
-        details: errorMsg,
         event_id: params.id,
         timestamp: new Date().toISOString(),
       },
@@ -220,19 +200,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 // POST: Update reminder settings for event
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('Supabase env vars not configured')
-      return NextResponse.json(
-        { error: 'Server misconfigured: Supabase env vars missing' },
-        { status: 500 }
-      )
-    }
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    )
+  // Auth: organizer only
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const anonClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user } } = await anonClient.auth.getUser(authHeader.substring(7))
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+  const adminClient = getAdminClient()
+  const { data: ev } = await adminClient.from('events').select('organizer_id').eq('id', params.id).single()
+  if (ev?.organizer_id !== user.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+
+  try {
+    const supabase = adminClient
 
     const body = await req.json()
     const { first_reminder_days = 7, second_reminder_days = 14 } = body
@@ -263,11 +244,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       throw error
     }
 
-    console.log('✓ Reminder settings updated:', {
-      event_id: params.id,
-      first_reminder_days,
-      second_reminder_days,
-    })
 
     return NextResponse.json({
       success: true,
@@ -275,8 +251,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       first_reminder_days,
       second_reminder_days,
     })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
+  } catch (error: unknown) {
+    const errorMsg = (error as Error)?.message || 'Unknown error'
     console.error('❌ Settings update failed:', {
       event_id: params.id,
       error: errorMsg,
@@ -285,7 +261,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json(
       {
         error: 'Failed to update reminder settings',
-        details: errorMsg,
       },
       { status: 500 }
     )

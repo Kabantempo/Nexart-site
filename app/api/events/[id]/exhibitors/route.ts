@@ -1,10 +1,14 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
     const admin = getAdminClient()
 
@@ -48,10 +52,10 @@ export async function GET(
       exhibitors: data || [],
       total: count,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Exhibitors GET error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch exhibitors' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to fetch exhibitors' },
       { status: 500 }
     )
   }
@@ -61,18 +65,19 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
     const admin = getAdminClient()
 
-    const body = await req.json()
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      exhibitor_email: z.string().email(),
+      exhibitor_name: z.string().max(200).optional(),
+      form_data: z.record(z.string(), z.unknown()),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { exhibitor_email, exhibitor_name, form_data } = body
-
-    if (!exhibitor_email || !form_data) {
-      return NextResponse.json(
-        { error: 'exhibitor_email and form_data required' },
-        { status: 400 }
-      )
-    }
 
     // Create response (public endpoint)
     const { data, error } = await admin
@@ -81,7 +86,7 @@ export async function POST(
         event_id: params.id,
         exhibitor_email,
         exhibitor_name: exhibitor_name || null,
-        form_data,
+        form_data: form_data as any,
         status: 'pending',
       })
       .select()
@@ -96,10 +101,10 @@ export async function POST(
       },
       { status: 201 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Exhibitor POST error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to submit application' },
+      { error: (error instanceof Error ? error.message : String(error)) || 'Failed to submit application' },
       { status: 500 }
     )
   }

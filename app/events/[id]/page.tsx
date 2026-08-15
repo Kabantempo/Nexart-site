@@ -20,15 +20,45 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     const { data: event } = await supabase.from('events').select('*').eq('id', params.id).single()
     if (!event) return { title: 'Événement non trouvé' }
 
+    const locationLabel = [event.city, event.region].filter(Boolean).join(', ')
+    const title = locationLabel ? `${event.title} — ${locationLabel}` : event.title
+    const description = event.description?.substring(0, 160) || `Marché artisanal${event.city ? ` à ${event.city}` : ''} — Nexart`
+    const dynamicOgUrl = new URL('https://nexart.fr/api/og')
+    dynamicOgUrl.searchParams.set('title', event.title || '')
+    if (event.city) dynamicOgUrl.searchParams.set('city', event.city)
+    if (event.start_date) dynamicOgUrl.searchParams.set('date', event.start_date)
+    if (event.event_type) dynamicOgUrl.searchParams.set('type', event.event_type)
+
+    const ogImages = event.cover_image
+      ? [{ url: event.cover_image, width: 1200, height: 630, alt: title }]
+      : [{ url: dynamicOgUrl.toString(), width: 1200, height: 630, alt: title }]
+
     return {
-      title: `${event.title} — Nexart`,
-      description: event.description?.substring(0, 160) || 'Découvrez cet événement sur Nexart',
+      title,
+      description,
+      alternates: { canonical: `https://nexart.fr/events/${params.id}` },
+      keywords: ['marché artisanal', event.city, event.region, ...(event.discipline_tags || [])].filter(Boolean) as string[],
       openGraph: {
-        title: event.title,
-        description: event.description?.substring(0, 160),
+        title,
+        description,
         type: 'website',
         url: `https://nexart.fr/events/${params.id}`,
-        images: event.cover_image ? [{ url: event.cover_image, width: 1200, height: 630 }] : [],
+        images: ogImages,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImages[0].url],
+      },
+      other: event.lat && event.lng ? {
+        'geo.position': `${event.lat};${event.lng}`,
+        'ICBM': `${event.lat}, ${event.lng}`,
+        'geo.placename': event.city || event.region || 'France',
+        'geo.region': 'FR',
+      } : {
+        'geo.region': 'FR',
+        'geo.placename': event.city || event.region || 'France',
       },
     }
   } catch {
@@ -39,7 +69,6 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
 export default async function EventPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params
 
-  // Fetch event data for JSON-LD
   let event = null
   try {
     const { data } = await supabase.from('events').select('*').eq('id', params.id).single()
@@ -48,7 +77,7 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     console.error('Error fetching event:', error)
   }
 
-  const jsonLd = event ? {
+  const eventJsonLd = event ? {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: event.title,
@@ -59,27 +88,64 @@ export default async function EventPage(props: { params: Promise<{ id: string }>
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
       '@type': 'Place',
-      name: event.location || 'France',
-      address: event.address,
+      name: event.location || event.city || 'France',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: event.city || undefined,
+        addressRegion: event.region || undefined,
+        addressCountry: 'FR',
+      },
+      ...(event.lat && event.lng ? {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: event.lat,
+          longitude: event.lng,
+        },
+      } : {}),
     },
     organizer: {
       '@type': 'Organization',
       name: 'Nexart',
       url: 'https://nexart.fr',
     },
-    image: event.cover_image,
+    image: event.cover_image
+      ? { '@type': 'ImageObject', url: event.cover_image, width: 1200, height: 630 }
+      : undefined,
     url: `https://nexart.fr/events/${event.id}`,
+    keywords: [
+      'marché artisanal',
+      event.city,
+      event.region,
+      ...(event.discipline_tags || []),
+    ].filter(Boolean).join(', '),
   } : null
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://nexart.fr' },
+      { '@type': 'ListItem', position: 2, name: 'Événements', item: 'https://nexart.fr/events' },
+      ...(event ? [{ '@type': 'ListItem', position: 3, name: event.title, item: `https://nexart.fr/events/${event.id}` }] : []),
+    ],
+  }
 
   return (
     <>
-      {jsonLd && (
+      {eventJsonLd && (
         <Script
           id="event-schema"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd).replace(/</g, '\\u003c') }}
         />
       )}
+      <Script
+        id="breadcrumb-schema"
+        type="application/ld+json"
+        // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
+      />
       <EventDetailClient id={params.id} />
     </>
   )

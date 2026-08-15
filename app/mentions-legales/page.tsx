@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 import MentionsLegalesClient from './mentions-legales-client'
 
 export const metadata: Metadata = {
-  title: 'Mentions Légales — Nexart',
+  title: 'Mentions Légales',
   description: 'Informations légales de Nexart SAS - SIRET, hébergeur, directeur publication.',
   alternates: { canonical: 'https://nexart.fr/mentions-legales' },
   openGraph: {
-    title: 'Mentions Légales — Nexart',
+    title: 'Mentions Légales',
     description: 'Informations légales de Nexart SAS',
     url: 'https://nexart.fr/mentions-legales',
     type: 'website',
+    images: [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: 'Nexart — Mentions légales' }],
   },
 }
 

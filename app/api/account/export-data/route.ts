@@ -1,12 +1,12 @@
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAudit, getRequestMeta } from '@/lib/audit'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     // Récupérer l'utilisateur depuis la session/auth
     const authHeader = req.headers.get('authorization')
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         supabase.from('conversations').select('*').eq('creator_id', userId),
         supabase.from('messages').select('*').eq('sender_id', userId),
         supabase.from('reviews').select('*').eq('reviewer_id', userId),
-        supabase.from('posts').select('*').eq('author_id', userId),
+        (supabase.from('posts') as any).select('*').eq('author_id', userId),
       ])
 
     // Créer JSON export
@@ -51,6 +51,19 @@ export async function GET(req: NextRequest) {
         'Cet export contient toutes vos données personnelles stockées sur Nexart. Droits RGPD Articles 15-21 appliqués.',
     }
 
+    const { ip, userAgent } = getRequestMeta(req)
+    await logAudit({
+      userId,
+      action: 'EXPORT',
+      resourceType: 'profiles',
+      resourceId: userId,
+      description: 'Export RGPD — téléchargement de toutes les données personnelles',
+      accessedSensitiveData: true,
+      sensitiveFields: ['email', 'full_name', 'bio', 'messages', 'applications'],
+      ipAddress: ip,
+      userAgent,
+    })
+
     // Retourner le JSON comme téléchargement
     return new NextResponse(JSON.stringify(exportData, null, 2), {
       headers: {
@@ -58,7 +71,7 @@ export async function GET(req: NextRequest) {
         'Content-Disposition': `attachment; filename="nexart-data-${new Date().toISOString().split('T')[0]}.json"`,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Export error:', error)
     return NextResponse.json({ error: 'Erreur export données' }, { status: 500 })
   }

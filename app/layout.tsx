@@ -1,24 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Syne, Inter, JetBrains_Mono } from 'next/font/google'
 import "./globals.css";
+
+const syne = Syne({ subsets: ['latin'], weight: ['400', '600', '700', '800'], variable: '--font-syne', display: 'swap' })
+const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-inter', display: 'swap' })
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono', display: 'swap' })
 import { NavbarFull } from "@/components/navbar-full";
 import { Footer } from "@/components/footer";
 import { Providers } from "@/components/providers";
 import { CookieConsent } from "@/components/CookieConsent";
 import { EmailConfirmationBanner } from "@/components/ui/email-confirmation-banner";
-import { PageTransition } from "@/components/page-transition";
 
-const geistSans = Inter({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: 'swap',
-});
-
-const geistMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nexart.fr'),
@@ -31,6 +23,12 @@ export const metadata: Metadata = {
   authors: [{ name: 'Nexart', url: 'https://nexart.fr' }],
   creator: 'Nexart',
   publisher: 'Nexart',
+  other: {
+    'geo.region': 'FR',
+    'geo.placename': 'France',
+    'geo.position': '46.2276;2.2137',
+    'ICBM': '46.2276, 2.2137',
+  },
   robots: {
     index: true,
     follow: true,
@@ -74,22 +72,11 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <script dangerouslySetInnerHTML={{__html: `
-          if (typeof window !== 'undefined') {
-            console.log('🎨 CSS loaded:', document.styleSheets.length > 0);
-            if (document.body) {
-              const bgColor = window.getComputedStyle(document.body).backgroundColor;
-              console.log('📐 Body background:', bgColor);
-            }
-          }
-        `}} />
       </head>
-      <body className="flex min-h-screen flex-col bg-white text-gray-900">
+      <body className={`flex min-h-screen flex-col text-gray-900 ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`} style={{ backgroundColor: 'var(--bg-primary, #FFFFFF)' }}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-semibold">
           Aller au contenu principal
         </a>
@@ -97,11 +84,20 @@ export default function RootLayout({
           <NavbarFull />
           <EmailConfirmationBanner />
           <main id="main-content" className="flex-1 pt-[58px]">
-            <PageTransition>{children}</PageTransition>
+            {children}
           </main>
           <Footer />
           <CookieConsent />
         </Providers>
+        {/* Framer Motion safety net — force visibilité si animation bloquée après 1s */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          setTimeout(function(){
+            document.querySelectorAll('[style*="opacity:0"],[style*="opacity: 0"]').forEach(function(el){
+              el.style.opacity='1';
+              el.style.transform='none';
+            });
+          }, 1000);
+        `}} />
       </body>
     </html>
   );

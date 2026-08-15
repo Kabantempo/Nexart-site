@@ -1,17 +1,17 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { getAdminClient } from '@/lib/supabase-admin'
 
 export async function GET(req: NextRequest) {
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
+  const supabase = getAdminClient()
   try {
     const { searchParams } = new URL(req.url)
-    const search = searchParams.get('search') || ''
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const search = (searchParams.get('search') || '').slice(0, 200)
+    const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '50') || 50, 1), 200)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0') || 0, 0)
 
     let query = supabase
       .from('profiles')
@@ -34,18 +34,25 @@ export async function GET(req: NextRequest) {
       offset,
       total_pages: Math.ceil((count || 0) / limit)
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
+  const supabase = getAdminClient()
   try {
-    const body = await req.json()
+    const { validate: v, z, uuidSchema } = await import('@/lib/validate')
+    const schema = z.object({
+      user_id: uuidSchema,
+      action: z.enum(['ban', 'unban', 'make_admin', 'remove_admin']),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
     const { user_id, action } = body
 
     if (action === 'ban') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ banned: true, banned_at: new Date().toISOString() })
         .eq('id', user_id)
@@ -55,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'unban') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ banned: false, banned_at: null })
         .eq('id', user_id)
@@ -65,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'make_admin') {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('profiles')
         .update({ is_admin: true })
         .eq('id', user_id)
@@ -75,7 +82,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

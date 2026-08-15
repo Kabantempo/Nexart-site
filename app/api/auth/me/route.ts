@@ -1,12 +1,11 @@
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     const authHeader = req.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
@@ -15,7 +14,8 @@ export async function GET(req: NextRequest) {
 
     const token = authHeader.substring(7)
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    const anonClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error: authError } = await anonClient.auth.getUser(token)
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       email: user.email,
       profile: profile,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Auth error:', error)
     return NextResponse.json({ error: 'Erreur authentification' }, { status: 500 })
   }

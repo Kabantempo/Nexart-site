@@ -1,7 +1,20 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { sendMail } from '@/lib/mailer'
+import { emailWelcomeOrganizer } from '@/lib/email-templates'
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function getAuthUser(req: NextRequest) {
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) return null
+  const { data: { user } } = await getAdminClient().auth.getUser(authHeader.substring(7))
+  return user ?? null
+}
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
     const admin = getAdminClient()
 
@@ -20,19 +33,31 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (!data) {
       return NextResponse.json({ error: 'Event not found' }, { status: 404 })
     }
-
-    console.log('✓ Event fetched:', { id: params.id, title: data.title })
     return NextResponse.json({ event: data })
-  } catch (error: any) {
-    console.error('❌ Event GET error:', { id: params.id, error: error?.message })
-    return NextResponse.json({ error: 'Erreur chargement événement', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Event GET error:', { id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur chargement événement' }, { status: 500 })
   }
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
+    const user = await getAuthUser(req)
+    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
     const admin = getAdminClient()
-    const body = await req.json()
+
+    // Vérifier que l'utilisateur est l'organisateur de l'événement
+    const { data: event } = await admin.from('events').select('organizer_id').eq('id', params.id).single()
+    if (!event) return NextResponse.json({ error: 'Événement introuvable' }, { status: 404 })
+    if (event.organizer_id !== user.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+
+    const { validate: v, eventCreateSchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = v(eventCreateSchema.partial(), await req.json())
+    if (validErr) return validErr
+
+    const prevStatus = event.organizer_id ? (await admin.from('events').select('status').eq('id', params.id).single()).data?.status : null
 
     const { data, error } = await admin
       .from('events')
@@ -43,17 +68,54 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     if (error) throw error
 
-    console.log('✓ Event updated:', { id: params.id })
+    // Send welcome email on first publish
+    if (body.status === 'published' && prevStatus !== 'published') {
+      const { count } = await admin
+        .from('events')
+        .select('id', { count: 'exact', head: true })
+        .eq('organizer_id', user.id)
+        .eq('status', 'published')
+
+      if ((count ?? 0) === 1) {
+        const { data: profile } = await (admin as any)
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (profile?.email) {
+          await sendMail({
+            to: profile.email,
+            subject: `🎉 Votre marché "${data.title}" est en ligne !`,
+            html: emailWelcomeOrganizer(
+              profile.full_name?.split(' ')[0] ?? 'vous',
+              data.title,
+              params.id,
+            ),
+          }).catch(() => null)
+        }
+      }
+    }
+
     return NextResponse.json({ event: data })
-  } catch (error: any) {
-    console.error('❌ Event PUT error:', { id: params.id, error: error?.message })
-    return NextResponse.json({ error: 'Erreur mise à jour événement', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Event PUT error:', { id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur mise à jour événement' }, { status: 500 })
   }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
+    const user = await getAuthUser(req)
+    if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+
     const admin = getAdminClient()
+
+    // Vérifier que l'utilisateur est l'organisateur de l'événement
+    const { data: event } = await admin.from('events').select('organizer_id').eq('id', params.id).single()
+    if (!event) return NextResponse.json({ error: 'Événement introuvable' }, { status: 404 })
+    if (event.organizer_id !== user.id) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
 
     const { error } = await admin
       .from('events')
@@ -61,11 +123,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       .eq('id', params.id)
 
     if (error) throw error
-
-    console.log('✓ Event deleted:', { id: params.id })
     return NextResponse.json({ message: 'Event deleted' })
-  } catch (error: any) {
-    console.error('❌ Event DELETE error:', { id: params.id, error: error?.message })
-    return NextResponse.json({ error: 'Erreur suppression événement', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Event DELETE error:', { id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur suppression événement' }, { status: 500 })
   }
 }

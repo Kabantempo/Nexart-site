@@ -1,11 +1,21 @@
-import { execSync } from 'child_process'
-import { writeFileSync } from 'fs'
+import { execSync, spawnSync } from 'child_process'
+import { writeFileSync, mkdirSync } from 'fs'
+
+// Vérifie que Lighthouse est installé
+const lhCheck = spawnSync('lighthouse', ['--version'], { encoding: 'utf8' })
+if (lhCheck.status !== 0) {
+  console.log('⚠️  Lighthouse non installé — audit ignoré.')
+  console.log('   Pour l\'activer : npm install -g lighthouse')
+  process.exit(0)
+}
+
+const BASE = process.env.AUDIT_BASE_URL || 'https://nexart.fr'
 
 const pages = [
-  { name: 'home', url: 'http://localhost:3000' },
-  { name: 'events', url: 'http://localhost:3000/events' },
-  { name: 'creators', url: 'http://localhost:3000/creators' },
-  { name: 'contact', url: 'http://localhost:3000/contact' },
+  { name: 'home', url: `${BASE}` },
+  { name: 'events', url: `${BASE}/events` },
+  { name: 'creators', url: `${BASE}/creators` },
+  { name: 'contact', url: `${BASE}/contact` },
 ]
 
 const timestamp = new Date().toISOString().split('T')[0]
@@ -40,7 +50,7 @@ for (const page of pages) {
 
     console.log(`✓ ${page.name}: Performance ${results[results.length - 1].performance}/100\n`)
   } catch (err) {
-    console.error(`✗ Failed to audit ${page.name}:`, err.message)
+    console.error('✗ Failed to audit', page.name, ':', err.message) // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
   }
 }
 
@@ -79,6 +89,7 @@ ${results.filter(r => r.accessibility < 90).length > 0 ? '### Accessibility Issu
 Detailed Lighthouse reports: \`${reportDir}/\`
 `
 
+mkdirSync(reportDir, { recursive: true })
 writeFileSync(`${reportDir}/REPORT.md`, summary)
 console.log('\n✅ Audit complete!')
 console.log(`📄 Summary: ${reportDir}/REPORT.md`)

@@ -1,30 +1,27 @@
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
+  if (!process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'CRON_SECRET_TOKEN non configuré' }, { status: 500 })
+  }
+  const authHeader = req.headers.get('authorization')
+  if (!authHeader?.startsWith('Bearer ')) {
+    return NextResponse.json({ error: 'Token manquant' }, { status: 401 })
+  }
+  if (authHeader.substring(7) !== process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
+  }
+
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
-    const CRON_SECRET = process.env.CRON_SECRET_TOKEN || 'dev-token'
-
-    // Vérifier le token de sécurité
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Token manquant' }, { status: 401 })
-    }
-
-    const token = authHeader.substring(7)
-    if (token !== CRON_SECRET) {
-      return NextResponse.json({ error: 'Token invalide' }, { status: 401 })
-    }
+    const supabase = getAdminClient()
 
     // Trouver tous les utilisateurs supprimés depuis > 30 jours
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const { data: usersToDelete, error: selectError } = await supabase
+    const { data: usersToDelete, error: selectError } = await (supabase as any)
       .from('users')
       .select('id, email, deleted_at')
       .eq('is_hard_deleted', false)
@@ -55,10 +52,10 @@ export async function POST(req: NextRequest) {
         await supabase.from('messages').delete().eq('sender_id', user.id)
         await supabase.from('conversations').delete().eq('creator_id', user.id)
         await supabase.from('reviews').delete().eq('reviewer_id', user.id)
-        await supabase.from('posts').delete().eq('author_id', user.id)
+        await (supabase as any).from('posts').delete().eq('author_id', user.id)
 
         // 2. Marquer as hard-deleted (pas de DELETE de users table pour audit)
-        const { error: hardDeleteError } = await supabase
+        const { error: hardDeleteError } = await (supabase as any)
           .from('users')
           .update({
             is_hard_deleted: true,
@@ -69,15 +66,12 @@ export async function POST(req: NextRequest) {
         if (hardDeleteError) throw hardDeleteError
 
         deletedIds.push(user.id)
-
-        // 3. Log suppression
-        console.log(`[HARD-DELETE] User ${user.id} (${user.email}) supprimé après 30 jours`)
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           userId: user.id,
-          error: error.message,
+          error: (error instanceof Error ? error.message : String(error)),
         })
-        console.error(`[ERROR] Hard-delete user ${user.id}:`, error)
+        console.error('[ERROR] Hard-delete user', user.id, ':', error) // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
       }
     }
 
@@ -99,27 +93,25 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Cron error:', error)
-    return NextResponse.json({ error: 'Erreur serveur', detail: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur', detail: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }
 
-// GET pour test/debug (dev seulement)
+// GET pour test/debug (protégé par CRON_SECRET)
 export async function GET(req: NextRequest) {
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Méthode GET interdite en production' }, { status: 405 })
+  const secret = req.headers.get('Authorization')?.replace('Bearer ', '')
+  if (!secret || secret !== process.env.CRON_SECRET_TOKEN) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    const { data: users } = await supabase
+    const { data: users } = await (supabase as any)
       .from('users')
       .select('id, email, deleted_at')
       .eq('is_hard_deleted', false)
@@ -131,7 +123,7 @@ export async function GET(req: NextRequest) {
       count: users?.length || 0,
       users: users,
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
 }

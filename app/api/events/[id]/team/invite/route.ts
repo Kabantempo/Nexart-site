@@ -1,7 +1,12 @@
+export const dynamic = 'force-dynamic'
+import { getAdminClient } from '@/lib/supabase-admin'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
   try {
     const authHeader = req.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
@@ -9,10 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     const token = authHeader.substring(7)
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getAdminClient()
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !user) {
@@ -20,16 +22,25 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     const eventId = params.id
-    const body = await req.json()
-    const { email, role } = body
 
-    if (!email || !role) {
-      return NextResponse.json({ error: 'Email and role required' }, { status: 400 })
+    // Verify caller owns this event
+    const { data: eventCheck } = await supabase.from('events').select('organizer_id').eq('id', eventId).single()
+    if (!eventCheck || eventCheck.organizer_id !== user.id) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
-    const { data: invitedUser, error: userError } = await supabase
+    const { validate: v, z } = await import('@/lib/validate')
+    const schema = z.object({
+      email: z.string().email(),
+      role: z.enum(['co-organizer', 'staff', 'volunteer', 'admin']),
+    })
+    const { data: body, error: validErr } = v(schema, await req.json())
+    if (validErr) return validErr
+    const { email, role } = body
+
+    const { data: invitedUser, error: userError } = await (supabase as any)
       .from('profiles')
-      .select('id')
+      .select('id, email')
       .eq('email', email)
       .single()
 
@@ -45,14 +56,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         role: role,
         invited_by: user.id,
         joined_at: new Date().toISOString(),
-      })
+      } as any)
 
     if (insertError) throw insertError
-
-    console.log('✓ Team member invited:', { eventId, userId: invitedUser.id, role })
     return NextResponse.json({ success: true }, { status: 201 })
-  } catch (error: any) {
-    console.error('❌ Team invite error:', { error: error?.message })
-    return NextResponse.json({ error: 'Erreur invitation équipe', details: error?.message }, { status: 500 })
+  } catch (error: unknown) {
+    console.error('❌ Team invite error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur invitation équipe' }, { status: 500 })
   }
 }

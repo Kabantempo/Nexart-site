@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { CheckCircle2, AlertCircle, Users, DollarSign, Scale, Mail } from 'lucide-react'
 
@@ -190,7 +191,69 @@ export default function ConditionsClient() {
       ],
     },
     {
-      title: '11. Modifications des Conditions',
+      title: '11. Cookies et Technologies de Suivi',
+      icon: AlertCircle,
+      subsections: [
+        {
+          title: '11.1 Cookies Strictement Nécessaires',
+          items: [
+            'Session d\'authentification (Supabase Auth) — indispensable au fonctionnement',
+            'Préférences utilisateur (thème, langue) — stockées localement',
+            'Ces cookies ne peuvent pas être désactivés sans empêcher l\'utilisation du service',
+          ],
+        },
+        {
+          title: '11.2 Cookies Analytiques (avec consentement)',
+          items: [
+            'Nexart peut utiliser des outils d\'analyse de trafic anonymisés',
+            'Ces cookies sont activés uniquement avec votre accord explicite',
+            'Vous pouvez retirer votre consentement à tout moment via kalvin@nexart.fr',
+          ],
+        },
+        {
+          title: '11.3 Pas de Cookies Tiers Publicitaires',
+          items: [
+            'Nexart n\'utilise pas de cookies publicitaires tiers (Google Ads, Facebook Pixel, etc.)',
+            'Aucune donnée de navigation n\'est vendue à des annonceurs',
+          ],
+        },
+      ],
+    },
+    {
+      title: '12. Paiements et Facturation (Stripe)',
+      icon: DollarSign,
+      subsections: [
+        {
+          title: '12.1 Traitement des Paiements',
+          items: [
+            'Tous les paiements sont traités par Stripe (certifié PCI-DSS niveau 1)',
+            'Nexart ne stocke JAMAIS vos coordonnées bancaires',
+            'Les données de carte sont transmises directement à Stripe via chiffrement TLS',
+            'Stripe est un sous-traitant RGPD avec DPA signé — région EU',
+          ],
+        },
+        {
+          title: '12.2 Remboursements',
+          items: [
+            'Abonnements : remboursement prorata possible dans les 7 jours après souscription',
+            'Crédits déjà utilisés : non remboursables',
+            'Demande de remboursement : kalvin@nexart.fr avec votre numéro de transaction',
+            'Délai de traitement : 5-10 jours ouvrés selon votre banque',
+          ],
+        },
+        {
+          title: '12.3 Échec de Paiement',
+          items: [
+            'En cas d\'échec, vous recevez un email d\'alerte automatique',
+            'Votre abonnement reste actif 7 jours après l\'échec',
+            'Sans mise à jour du moyen de paiement : passage automatique au plan Gratuit',
+            'Aucune donnée n\'est perdue lors du changement de plan',
+          ],
+        },
+      ],
+    },
+    {
+      title: '13. Modifications des Conditions',
       icon: AlertCircle,
       items: [
         'Nexart peut modifier ces conditions à tout moment',
@@ -211,22 +274,22 @@ export default function ConditionsClient() {
   ]
 
   return (
-    <div style={{ backgroundColor: '#FFFFFF', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       {/* Hero Section */}
-      <div style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 16px 60px' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: '#1A1A1A', marginBottom: '16px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
               Conditions d'Utilisation
             </h1>
-            <p style={{ fontSize: '18px', color: '#6B7280', maxWidth: '600px', lineHeight: '1.6' }}>
+            <p style={{ fontSize: '18px', color: 'var(--text-secondary)', maxWidth: '600px', lineHeight: '1.6' }}>
               Consulter les règles et responsabilités de la plateforme Nexart. Lisez attentivement avant d'utiliser.
             </p>
-            <p style={{ fontSize: '14px', color: '#6B7280', marginTop: '24px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '24px' }}>
               Dernière mise à jour : 11 juillet 2026 | Version 1.0
             </p>
           </motion.div>
@@ -253,10 +316,10 @@ export default function ConditionsClient() {
               {/* Section Header */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
                 <div style={{ marginTop: '4px' }}>
-                  <IconComponent size={32} color="#FF6B6B" strokeWidth={1.5} />
+                  <IconComponent size={32} color="#6366F1" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h2 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1A1A', marginBottom: '8px' }}>
+                  <h2 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                     {section.title}
                   </h2>
                 </div>
@@ -295,7 +358,7 @@ export default function ConditionsClient() {
                 <div style={{ marginLeft: '0' }}>
                   {section.subsections.map((subsec, subIdx) => (
                     <div key={subIdx} style={{ marginBottom: '32px' }}>
-                      <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1A1A', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                         {subsec.title}
                       </h3>
                       <ul style={{ marginLeft: '0' }}>
@@ -330,17 +393,17 @@ export default function ConditionsClient() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
           style={{
-            backgroundColor: '#F9FAFB',
+            backgroundColor: 'var(--bg-secondary)',
             padding: '40px',
             borderRadius: '12px',
             marginTop: '60px',
-            border: '1px solid #E5E7EB',
+            border: '1px solid var(--border-color)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
-            <Mail size={24} color="#FF6B6B" strokeWidth={1.5} />
+            <Mail size={24} color="#6366F1" strokeWidth={1.5} />
             <div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#1A1A1A', marginBottom: '8px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Questions ou Signalement?
               </h3>
               <p style={{ fontSize: '16px', color: '#666666', lineHeight: '1.6', marginBottom: '16px' }}>
@@ -351,7 +414,7 @@ export default function ConditionsClient() {
                 style={{
                   display: 'inline-block',
                   padding: '12px 24px',
-                  backgroundColor: '#FF6B6B',
+                  backgroundColor: '#6366F1',
                   color: 'white',
                   textDecoration: 'none',
                   borderRadius: '8px',
@@ -359,8 +422,8 @@ export default function ConditionsClient() {
                   fontSize: '16px',
                   transition: 'background-color 0.2s',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#E53E3E')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#FF6B6B')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4F46E5')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#6366F1')}
               >
                 Nous Contacter
               </a>
@@ -370,43 +433,43 @@ export default function ConditionsClient() {
       </div>
 
       {/* Footer Links */}
-      <div style={{ backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', marginTop: '60px' }}>
+      <div style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', marginTop: '60px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px' }}>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
                 Légal
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/conditions" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/conditions" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Conditions d'Utilisation
                   </a>
                 </li>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/confidentialite" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/confidentialite" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Politique de Confidentialité
                   </a>
                 </li>
                 <li>
-                  <a href="/mentions-legales" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/mentions-legales" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Mentions Légales
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#1A1A1A', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
                 Support
               </h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ marginBottom: '8px' }}>
-                  <a href="/contact" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="/contact" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Contact Support
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:kalvin@nexart.fr" style={{ color: '#FF6B6B', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#E53E3E')} onMouseLeave={(e) => (e.currentTarget.style.color = '#FF6B6B')}>
+                  <a href="mailto:kalvin@nexart.fr" style={{ color: '#6366F1', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#4F46E5')} onMouseLeave={(e) => (e.currentTarget.style.color = '#6366F1')}>
                     Email: kalvin@nexart.fr
                   </a>
                 </li>

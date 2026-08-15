@@ -1,298 +1,196 @@
-import { createClient } from '@supabase/supabase-js'
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
+import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
+import { sendPushToUsers } from '@/lib/push'
+import { sendMail } from '@/lib/mailer'
+import { emailWaitlistPromotion } from '@/lib/email-templates'
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+async function requireOrganizer(req: NextRequest, eventId: string) {
+  const token = req.headers.get('Authorization')?.split(' ')[1]
+  if (!token) return null
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user } } = await supabase.auth.getUser(token)
+  if (!user) return null
+  const admin = getAdminClient()
+  const { data: event } = await admin.from('events').select('organizer_id').eq('id', eventId).single()
+  if (event?.organizer_id !== user.id) return null
+  return user
+}
 
 // GET: List waitlist ordered by position
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data, error } = await supabase
+  const admin = getAdminClient()
+  try {
+    const { data, error } = await (admin as any)
       .from('event_exhibitor_waitlist')
       .select(`
         id,
-        exhibitor_id,
         position,
-        reason,
-        notified_at,
+        status,
         created_at,
-        profiles:exhibitor_id (id, full_name)
+        profiles:creator_id (id, full_name, email, avatar_url)
       `)
       .eq('event_id', params.id)
       .order('position', { ascending: true })
 
     if (error) throw error
-
-    return NextResponse.json(data || [])
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
-    console.error('❌ Waitlist GET error:', {
-      event_id: params.id,
-      error: errorMsg,
-      timestamp: new Date().toISOString(),
-    })
-    return NextResponse.json(
-      { error: 'Erreur chargement waitlist', details: errorMsg },
-      { status: 500 }
-    )
+    return NextResponse.json({ waitlist: data || [] })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist GET error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur chargement waitlist' }, { status: 500 })
   }
 }
 
-// POST: Add exhibitor to waitlist OR handle cancellation
+// POST: Add creator to waitlist (auth required — creator adds themselves)
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const token = req.headers.get('Authorization')?.split(' ')[1]
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const { data: { user: authUser } } = await anon.auth.getUser(token)
+  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const admin = getAdminClient()
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
     const body = await req.json()
-    const { exhibitor_id, action, reason = 'Sold out' } = body
+    const creator_id = authUser.id
+    const { reason = 'Sold out' } = body
 
-    // Action 1: Add to waitlist
-    if (action === 'add' || !action) {
-      // Get current max position
-      const { data: maxPos } = await supabase
-        .from('event_exhibitor_waitlist')
-        .select('position')
-        .eq('event_id', params.id)
-        .order('position', { ascending: false })
-        .limit(1)
+    const { data: maxPos } = await (admin as any)
+      .from('event_exhibitor_waitlist')
+      .select('position')
+      .eq('event_id', params.id)
+      .order('position', { ascending: false })
+      .limit(1)
 
-      const nextPosition = (maxPos?.[0]?.position || 0) + 1
+    const nextPosition = (maxPos?.[0]?.position || 0) + 1
 
-      const { data, error } = await supabase
-        .from('event_exhibitor_waitlist')
-        .insert([
-          {
-            event_id: params.id,
-            exhibitor_id,
-            position: nextPosition,
-            reason,
-          },
-        ])
-        .select()
+    const { data, error } = await (admin as any)
+      .from('event_exhibitor_waitlist')
+      .insert([{ event_id: params.id, creator_id, position: nextPosition, reason, status: 'waiting' }])
+      .select()
 
-      if (error) throw error
-      return NextResponse.json(data?.[0], { status: 201 })
-    }
+    if (error) throw error
+    return NextResponse.json(data?.[0], { status: 201 })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist POST error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur traitement waitlist' }, { status: 500 })
+  }
+}
 
-    // Action 2: Cancel exhibitor, notify next in queue
-    if (action === 'cancel') {
-      // Mark as cancelled
-      await supabase
-        .from('event_exhibitor_responses')
-        .update({ status: 'cancelled' })
-        .eq('event_id', params.id)
-        .eq('exhibitor_id', exhibitor_id)
+// PATCH: Promote waitlist entry (organizer only)
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-      // Get next in waitlist
-      const { data: nextInQueue } = await supabase
-        .from('event_exhibitor_waitlist')
-        .select(`id, exhibitor_id, position, profiles:exhibitor_id (full_name)`)
-        .eq('event_id', params.id)
-        .order('position', { ascending: true })
-        .limit(1)
+  const admin = getAdminClient()
+  try {
+    const body = await req.json()
+    const { waitlist_id } = body
+    if (!waitlist_id) return NextResponse.json({ error: 'waitlist_id required' }, { status: 400 })
 
-      if (nextInQueue?.length) {
-        const next = nextInQueue[0]
-        const event_name = 'your event'
+    // Fetch creator info before promoting — constrain to this event to prevent cross-event access
+    const { data: entry } = await (admin as any)
+      .from('event_exhibitor_waitlist')
+      .select('creator_id, profiles:creator_id(full_name)')
+      .eq('id', waitlist_id)
+      .eq('event_id', params.id)
+      .single()
+    if (!entry) return NextResponse.json({ error: 'Entrée waitlist introuvable' }, { status: 404 })
 
-        // Send email to next in queue
-        if (next.profiles?.email) {
-          try {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                from: 'noreply@nexart.fr',
-                to: next.profiles.email,
-                subject: '🎉 Bonne nouvelle: Une place vous attend!',
-                html: `
-                  <h2>Bonjour ${next.profiles.full_name},</h2>
-                  <p>Une place s'est libérée et nous vous offrons l'opportunité de participer!</p>
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL}/events/${params.id}/apply"
-                     style="display: inline-block; padding: 12px 24px; background-color: #10B981; color: white; text-decoration: none; border-radius: 8px;">
-                    Confirmer ma participation
-                  </a>
-                  <p style="color: #888; font-size: 12px; margin-top: 24px;">
-                    Veuillez confirmer dans les 48 heures.
-                  </p>
-                `,
-              }),
-            })
-          } catch (emailError) {
-            console.error('Email send failed:', emailError)
-          }
-        }
+    const { data: eventData } = await admin.from('events').select('title').eq('id', params.id).single()
 
-        // Mark as notified
-        await supabase
-          .from('event_exhibitor_waitlist')
-          .update({ notified_at: new Date().toISOString() })
-          .eq('id', next.id)
+    const { error } = await (admin as any)
+      .from('event_exhibitor_waitlist')
+      .update({ status: 'promoted' })
+      .eq('id', waitlist_id)
+      .eq('event_id', params.id)
 
-        return NextResponse.json({
-          success: true,
-          message: 'Exhibitor cancelled, next notified',
-          next_exhibitor_id: next.exhibitor_id,
+    if (error) throw error
+
+    // Notify promoted creator
+    if (entry?.creator_id) {
+      await admin.from('notifications').insert({
+        user_id: entry.creator_id,
+        type: 'waitlist_promoted',
+        title: 'Une place est disponible !',
+        body: `Une place s'est libérée pour "${eventData?.title}". Complétez votre inscription rapidement.`,
+        link: `/events/${params.id}`,
+      })
+      await sendPushToUsers([entry.creator_id], '🎉 Une place est disponible !', `Une place s'est libérée pour "${eventData?.title}".`, `/events/${params.id}`)
+
+      // Email via Resend / SMTP
+      const { data: { user: creatorAuth } } = await admin.auth.admin.getUserById(entry.creator_id)
+      if (creatorAuth?.email) {
+        await sendMail({
+          to: creatorAuth.email,
+          subject: `🎉 Une place s'est libérée — ${eventData?.title}`,
+          html: emailWaitlistPromotion(eventData?.title || '', params.id as string),
         })
       }
-
-      return NextResponse.json({ success: true, message: 'Exhibitor cancelled' })
     }
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
-    console.error('❌ Waitlist POST error:', {
-      event_id: params.id,
-      error: errorMsg,
-      action: body?.action,
-      timestamp: new Date().toISOString(),
-    })
-    return NextResponse.json(
-      { error: 'Erreur traitement waitlist', details: errorMsg },
-      { status: 500 }
-    )
-  }
-}
-
-// PATCH: Move exhibitor from waitlist to approved
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
-    const body = await req.json()
-    const { exhibitor_id } = body
-
-    // Get exhibitor
-    const { data: exhibitor } = await supabase
-      .from('event_exhibitor_responses')
-      .select('id, profiles:exhibitor_id (full_name)')
-      .eq('event_id', params.id)
-      .eq('exhibitor_id', exhibitor_id)
-      .single()
-
-    if (!exhibitor) {
-      return NextResponse.json({ error: 'Exhibitor not found' }, { status: 404 })
-    }
-
-    // Move to approved
-    await supabase
-      .from('event_exhibitor_responses')
-      .update({ status: 'approved' })
-      .eq('event_id', params.id)
-      .eq('exhibitor_id', exhibitor_id)
-
-    // Remove from waitlist
-    await supabase
-      .from('event_exhibitor_waitlist')
-      .delete()
-      .eq('event_id', params.id)
-      .eq('exhibitor_id', exhibitor_id)
-
-    // Reorder remaining waitlist positions
-    const { data: remaining } = await supabase
+    // Reorder remaining waiting entries (batch)
+    const { data: remaining } = await (admin as any)
       .from('event_exhibitor_waitlist')
       .select('id')
       .eq('event_id', params.id)
+      .eq('status', 'waiting')
       .order('position', { ascending: true })
 
-    for (let i = 0; i < (remaining?.length || 0); i++) {
-      await supabase
-        .from('event_exhibitor_waitlist')
-        .update({ position: i + 1 })
-        .eq('id', remaining![i].id)
-    }
+    await Promise.all((remaining || []).map((entry: { id: string }, i: number) =>
+      admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', entry.id)
+    ))
 
-    return NextResponse.json({ success: true, exhibitor_id })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
-    console.error('❌ Waitlist PATCH error:', {
-      event_id: params.id,
-      exhibitor_id: body?.exhibitor_id,
-      error: errorMsg,
-      timestamp: new Date().toISOString(),
-    })
-    return NextResponse.json(
-      { error: 'Erreur mise à jour waitlist', details: errorMsg },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: true })
+  } catch (error: unknown) {
+    console.error('❌ Waitlist PATCH error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur mise à jour waitlist' }, { status: 500 })
   }
 }
 
-// DELETE: Remove from waitlist
+// DELETE: Remove from waitlist (organizer only)
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+  const user = await requireOrganizer(req, params.id)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const admin = getAdminClient()
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
-
     const body = await req.json()
-    const { exhibitor_id } = body
+    const { waitlist_id } = body
+    if (!waitlist_id) return NextResponse.json({ error: 'waitlist_id required' }, { status: 400 })
 
-    if (!exhibitor_id) {
-      return NextResponse.json(
-        { error: 'exhibitor_id required' },
-        { status: 400 }
-      )
-    }
-
-    const { error: deleteError } = await supabase
+    const { error } = await (admin as any)
       .from('event_exhibitor_waitlist')
       .delete()
+      .eq('id', waitlist_id)
       .eq('event_id', params.id)
-      .eq('exhibitor_id', exhibitor_id)
 
-    if (deleteError) throw deleteError
+    if (error) throw error
 
     // Reorder remaining
-    const { data: remaining, error: fetchError } = await supabase
+    const { data: remaining } = await (admin as any)
       .from('event_exhibitor_waitlist')
       .select('id')
       .eq('event_id', params.id)
+      .eq('status', 'waiting')
       .order('position', { ascending: true })
 
-    if (fetchError) throw fetchError
-
-    for (let i = 0; i < (remaining?.length || 0); i++) {
-      const { error: updateError } = await supabase
-        .from('event_exhibitor_waitlist')
-        .update({ position: i + 1 })
-        .eq('id', remaining![i].id)
-
-      if (updateError) {
-        console.warn('Failed to reorder position:', updateError)
-      }
-    }
-
-    console.log('✓ Exhibitor removed from waitlist:', {
-      event_id: params.id,
-      exhibitor_id,
-      remaining_count: remaining?.length,
-    })
+    await Promise.all((remaining || []).map((entry: { id: string }, i: number) =>
+      admin.from('event_exhibitor_waitlist').update({ position: i + 1 }).eq('id', entry.id)
+    ))
 
     return NextResponse.json({ success: true, remaining_count: remaining?.length })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
-    console.error('❌ Waitlist DELETE error:', {
-      event_id: params.id,
-      error: errorMsg,
-      timestamp: new Date().toISOString(),
-    })
-    return NextResponse.json(
-      { error: 'Erreur suppression waitlist', details: errorMsg },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    console.error('❌ Waitlist DELETE error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
+    return NextResponse.json({ error: 'Erreur suppression waitlist' }, { status: 500 })
   }
 }

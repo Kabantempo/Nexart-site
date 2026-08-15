@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useCallback, useContext, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertTriangle, Info, Trash2, X } from 'lucide-react'
 
@@ -41,9 +41,9 @@ const VARIANT_STYLES: Record<ConfirmVariant, {
     btnBg: '#D97706', btnHover: '#B45309', btnColor: '#FFFFFF',
   },
   default: {
-    iconBg: '#EEF2FF', iconColor: '#6366F1',
+    iconBg: '#EEF2FF', iconColor: 'var(--color-primary, #6366F1)',
     icon: <Info size={22} />,
-    btnBg: '#6366F1', btnHover: '#5B5BD6', btnColor: '#FFFFFF',
+    btnBg: 'var(--color-primary, #6366F1)', btnHover: 'var(--color-primary-dark, #5B5BD6)', btnColor: '#FFFFFF',
   },
 }
 
@@ -72,6 +72,33 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   const variant = state?.variant ?? 'default'
   const vs = VARIANT_STYLES[variant]
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  // Escape closes modal
+  useEffect(() => {
+    if (!state) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Focus trap: keep focus inside modal while open
+  useEffect(() => {
+    if (!state || !modalRef.current) return
+    const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last?.focus() } }
+      else { if (document.activeElement === last) { e.preventDefault(); first?.focus() } }
+    }
+    document.addEventListener('keydown', trap)
+    return () => document.removeEventListener('keydown', trap)
+  }, [state])
 
   return (
     <ConfirmContext.Provider value={{ confirm }}>
@@ -99,6 +126,10 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             {/* Modal */}
             <motion.div
               key="modal"
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-modal-title"
               initial={{ opacity: 0, scale: 0.92, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 16 }}
@@ -109,10 +140,10 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
                 zIndex: 10001,
-                backgroundColor: '#FFFFFF',
+                backgroundColor: 'var(--bg-primary)',
                 borderRadius: '20px',
                 padding: '32px',
-                width: '420px',
+                width: 'min(420px, 90vw)',
                 maxWidth: 'calc(100vw - 32px)',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
               }}
@@ -123,7 +154,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 style={{
                   position: 'absolute', top: '16px', right: '16px',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  color: '#6B7280', padding: '4px',
+                  color: 'var(--text-secondary)', padding: '4px',
                 }}
               >
                 <X size={18} />
@@ -140,13 +171,13 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               </div>
 
               {/* Title */}
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1A1A1A', marginBottom: '8px' }}>
+              <h3 id="confirm-modal-title" style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px' }}>
                 {state.title}
               </h3>
 
               {/* Description */}
               {state.description && (
-                <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', marginBottom: '28px' }}>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '28px' }}>
                   {state.description}
                 </p>
               )}
@@ -159,14 +190,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   style={{
                     flex: 1, padding: '12px',
                     borderRadius: '10px',
-                    border: '1px solid #E5E7EB',
-                    backgroundColor: '#FFFFFF', color: '#374151',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)',
                     fontSize: '14px', fontWeight: '600',
                     cursor: 'pointer', transition: 'background-color 200ms',
                     fontFamily: 'inherit',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-secondary)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg-primary)' }}
                 >
                   {state.cancelLabel ?? 'Annuler'}
                 </button>

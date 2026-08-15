@@ -1,72 +1,54 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
-const COSTS = {
+const COSTS: Record<string, number> = {
   boost_application: 1,
   boost_profile: 2,
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = getAdminClient()
     const auth = req.headers.get('Authorization')
-    if (!auth) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-
-    const { data: { user }, error: authError } = await admin.auth.getUser(auth.replace('Bearer ', ''))
+    if (!auth || !auth.startsWith('Bearer ')) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    const anon = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+    const { data: { user }, error: authError } = await anon.auth.getUser(auth.slice(7))
     if (authError || !user) {
       console.warn('❌ Invalid auth on credits/use')
       return NextResponse.json({ error: 'Session invalide' }, { status: 401 })
     }
 
-    const { type, ref_id } = await req.json()
-    if (!COSTS[type as keyof typeof COSTS]) {
-      return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
-    }
+    const { validate, creditUseSchema } = await import('@/lib/validate')
+    const { data: body, error: validErr } = validate(creditUseSchema, await req.json())
+    if (validErr) return validErr
+    const { type, ref_id } = body
+    const cost = COSTS[type]
+    if (!cost) return NextResponse.json({ error: 'Type invalide' }, { status: 400 })
 
-    const cost = COSTS[type as keyof typeof COSTS]
+    const admin = getAdminClient()
 
-    // Vérifier la balance
-    const { data: rows, error: balanceError } = await admin.from('credits').select('amount').eq('user_id', user.id)
-    if (balanceError) throw balanceError
-
-    const balance = (rows || []).reduce((s, r) => s + r.amount, 0)
-
-    if (balance < cost) {
-      return NextResponse.json({ error: 'Crédits insuffisants', balance }, { status: 402 })
-    }
-
-    // Débiter
-    const { error: debitError } = await admin.from('credits').insert({
-      user_id: user.id,
-      amount: -cost,
-      type,
-      ref_id: ref_id || null,
-      description: type === 'boost_application' ? 'Boost candidature 48h' : 'Boost profil 7 jours',
+    // Use atomic consume_credit() to prevent race conditions (uses FOR UPDATE internally)
+    const { data: consumed, error: consumeError } = await (admin as any).rpc('consume_credit', {
+      p_user_id: user.id,
+      p_type: type,
     })
-    if (debitError) throw debitError
+    if (consumeError) throw consumeError
+    if (!consumed) return NextResponse.json({ error: 'Crédits insuffisants' }, { status: 402 })
 
-    // Appliquer l'effet
     if (type === 'boost_application' && ref_id) {
-      const { error: appError } = await admin.from('applications').update({ boosted_at: new Date().toISOString() }).eq('id', ref_id).eq('creator_id', user.id)
-      if (appError) console.warn('⚠️  Failed to update application boost:', appError)
+      await admin.from('applications').update({ boosted_at: new Date().toISOString() } as any).eq('id', ref_id).eq('creator_id', user.id)
     }
     if (type === 'boost_profile') {
       const until = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-      const { error: profError } = await admin.from('profiles').update({ profile_boosted_until: until }).eq('id', user.id)
-      if (profError) console.warn('⚠️  Failed to update profile boost:', profError)
+      await admin.from('profiles').update({ profile_boosted_until: until } as any).eq('id', user.id)
     }
 
-    console.log('✓ Credits used:', { userId: user.id, type, cost, balance: balance - cost })
-    return NextResponse.json({ success: true, new_balance: balance - cost })
-  } catch (error: any) {
-    const errorMsg = error?.message || 'Unknown error'
-    console.error('❌ Credits use error:', {
-      error: errorMsg,
-      timestamp: new Date().toISOString(),
-    })
-    return NextResponse.json(
-      { error: 'Erreur utilisation crédits', details: errorMsg },
-      { status: 500 }
-    )
+    const { data: balRows } = await admin.from('credits').select('amount').eq('user_id', user.id)
+    const new_balance = (balRows || []).reduce((s: number, r: { amount: number }) => s + r.amount, 0)
+    return NextResponse.json({ success: true, new_balance })
+  } catch (error: unknown) {
+    console.error('❌ Credits use error:', { error: (error as Error)?.message })
+    return NextResponse.json({ error: 'Erreur utilisation crédits' }, { status: 500 })
   }
 }

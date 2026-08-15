@@ -1,0 +1,35 @@
+name: Semgrep Security Scan
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Run Semgrep
+        run: |
+          pip install semgrep
+          semgrep \
+            --config "p/owasp-top-ten" \
+            --config "p/secrets" \
+            --config "p/react" \
+            --config "p/nodejs" \
+            --exclude node_modules \
+            --exclude .next \
+            --error \
+            --json | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          results = data.get('results', [])
+          if results:
+            print(f'❌ {len(results)} faille(s) trouvée(s):')
+            for r in results:
+              print(f'  [{r[\"extra\"][\"severity\"]}] {r[\"path\"]}:{r[\"start\"][\"line\"]} — {r[\"extra\"][\"message\"][:80]}')
+            sys.exit(1)
+          else:
+            print('✅ Aucune faille détectée')
+          "
