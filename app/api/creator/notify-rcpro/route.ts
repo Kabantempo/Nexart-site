@@ -2,12 +2,6 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
 import { createClient } from '@supabase/supabase-js'
-import { validate as v, z } from '@/lib/validate'
-
-const bodySchema = z.object({
-  siret: z.string().regex(/^\d{14}$/, 'Le SIRET doit contenir exactement 14 chiffres'),
-  document_url: z.string().url().optional(),
-})
 
 async function getAuthUser(req: NextRequest) {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
@@ -26,29 +20,16 @@ export async function POST(req: NextRequest) {
     const user = await getAuthUser(req)
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const body = await req.json()
-    const parsed = v(bodySchema, body)
-    if (parsed.error) return parsed.error
+    const { insurance_doc_url } = await req.json()
+    if (!insurance_doc_url) return NextResponse.json({ error: 'URL manquante' }, { status: 400 })
 
-    const { siret, document_url } = parsed.data
     const supabase = getAdminClient()
 
-    // Insert verification request
-    const { error: insertError } = await supabase
-      .from('creator_verifications' as any)
-      .insert({
-        creator_id: user.id,
-        siret,
-        document_url: document_url ?? null,
-        status: 'pending',
-      })
-
-    if (insertError) throw insertError
-
-    // Update siret on creator_profiles (not yet verified)
+    // Save doc URL on creator_profiles
     await supabase
       .from('creator_profiles')
-      .upsert({ user_id: user.id, siret_number: siret, siret_verified: false } as any, { onConflict: 'user_id' })
+      .update({ insurance_doc_url, insurance_verified: false })
+      .eq('user_id', user.id)
 
     // Notify all admins
     const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
@@ -57,15 +38,15 @@ export async function POST(req: NextRequest) {
       await supabase.from('notifications').insert(
         admins.map((a: { id: string }) => ({
           user_id: a.id,
-          type: 'siret_pending',
-          title: 'SIRET à vérifier',
-          body: `${profile?.full_name ?? 'Créateur'} · ${siret}`,
+          type: 'rc_pro_pending',
+          title: 'RC Pro à vérifier',
+          body: `Nouveau document de ${profile?.full_name ?? 'Créateur'}`,
           link: '/profile?tab=admin&section=creators',
         }))
       )
     }
 
-    return NextResponse.json({ ok: true, message: 'Demande soumise, vérification sous 48h' })
+    return NextResponse.json({ ok: true })
   } catch (err: unknown) {
     return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 })
   }

@@ -448,19 +448,16 @@ export default function ProfilePage() {
     setSiretChecking(true)
     setSiretResult(null)
     try {
-      await supabase.from('creator_profiles').upsert({ user_id: user.id, siret_number: siretNumber, siret_verified: false } as any, { onConflict: 'user_id' })
-      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      if (admins?.length) {
-        await supabase.from('notifications').insert(
-          admins.map((a: { id: string }) => ({
-            user_id: a.id,
-            type: 'siret_pending',
-            title: 'SIRET à vérifier',
-            body: `${profile?.full_name ?? 'Créateur'} · ${siretNumber}`,
-            link: '/profile?tab=admin&section=creators',
-          }))
-        )
-      }
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/creator/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ siret: siretNumber }),
+      })
+      if (!res.ok) throw new Error('Erreur lors de l\'envoi')
       setSiretResult({ valid: true, nom: 'Demande envoyée — un admin va vérifier votre SIRET.' })
     } catch {
       setSiretResult({ valid: false, error: 'Erreur lors de l\'envoi. Veuillez réessayer.' })
@@ -476,23 +473,18 @@ export default function ProfilePage() {
     const { data: uploadData, error } = await supabase.storage.from('insurance-docs').upload(`${user.id}/rc-pro.${ext}`, file, { upsert: true })
     if (!error && uploadData) {
       const { data: { publicUrl } } = supabase.storage.from('insurance-docs').getPublicUrl(uploadData.path)
-      // Sauvegarde l'URL du doc mais NE vérifie PAS — l'admin doit valider
-      await supabase.from('creator_profiles').update({ insurance_doc_url: publicUrl, insurance_verified: false }).eq('user_id', user.id)
       setCreator(c => c ? { ...c, insurance_doc_url: publicUrl, insurance_verified: false } : c)
       setEditInsurance(false)
-      // Notif à tous les admins
-      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      if (admins?.length) {
-        await supabase.from('notifications').insert(
-          admins.map(a => ({
-            user_id: a.id,
-            type: 'rc_pro_pending',
-            title: 'RC Pro à vérifier',
-            body: `Nouveau document de ${profile?.full_name ?? 'Créateur'}`,
-            link: '/profile?tab=admin&section=creators',
-          }))
-        )
-      }
+      // Notif admins via API (admin client bypasses RLS)
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch('/api/creator/notify-rcpro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ insurance_doc_url: publicUrl }),
+      })
       setToast('Document envoyé — en attente de validation par l\'équipe')
     }
     setRcProUploading(false)
