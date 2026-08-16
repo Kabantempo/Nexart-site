@@ -59,6 +59,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     const prevStatus = event.organizer_id ? (await admin.from('events').select('status').eq('id', params.id).single()).data?.status : null
 
+    // Bloquer la publication si stripe_enabled et Connect pas actif
+    if (body.status === 'published' && body.stripe_enabled !== false) {
+      const { data: eventFull } = await (admin as any).from('events').select('stripe_enabled').eq('id', params.id).single()
+      const stripeEnabled = body.stripe_enabled ?? eventFull?.stripe_enabled
+      if (stripeEnabled) {
+        const { data: orgProfile } = await (admin as any)
+          .from('organizer_profiles')
+          .select('stripe_connect_status')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (orgProfile?.stripe_connect_status !== 'active') {
+          return NextResponse.json({
+            error: 'Connectez votre compte Stripe avant de publier un événement avec paiement de stand activé.',
+            code: 'stripe_connect_required',
+          }, { status: 403 })
+        }
+      }
+    }
+
     const { data, error } = await admin
       .from('events')
       .update(body)

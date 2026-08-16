@@ -148,10 +148,13 @@ export default function CreateEventClient() {
   const [uploadingCover, setUploadingCover] = useState(false)
   const [uploadingMedia, setUploadingMedia] = useState(false)
   const [themeInput, setThemeInput] = useState('')
+  const [connectStatus, setConnectStatus] = useState<string>('none')
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
+      fetch('/api/stripe/connect/status', { headers: { Authorization: `Bearer ${session.access_token}` } })
+        .then(r => r.json()).then(d => setConnectStatus(d.status ?? 'none')).catch(() => {})
       let profile = null
       if (!user) {
         const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
@@ -272,6 +275,10 @@ export default function CreateEventClient() {
     if (validationError) { setError(validationError); return }
     if (!user) return
     if (eventLimitReached) { setError('Votre plan gratuit est limité à 1 événement actif. Passez au plan Pro pour en créer davantage.'); return }
+    if (publish && form.stripe_enabled && connectStatus !== 'active') {
+      setError('Connectez votre compte Stripe dans le dashboard avant de publier un événement avec paiement de stand activé.')
+      return
+    }
 
     setSaving(true)
     setError(null)
@@ -685,6 +692,11 @@ export default function CreateEventClient() {
                   <span style={{ position: 'absolute', top: '3px', width: '22px', height: '22px', borderRadius: radius.pill, backgroundColor: 'var(--bg-primary)', boxShadow: shadows.sm, transition: 'left 200ms', left: form.stripe_enabled ? '23px' : '3px' }} />
                 </button>
               </div>
+              {form.stripe_enabled && connectStatus !== 'active' && (
+                <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: radius.sm, backgroundColor: colors.feedback.warning.bg, border: `1px solid ${colors.feedback.warning.border}`, fontSize: '13px', color: colors.feedback.warning.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  ⚠️ Votre compte Stripe n'est pas encore connecté. <a href="/dashboard" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'underline' }}>Connectez-le dans le dashboard</a> avant de publier.
+                </div>
+              )}
             </Section>
 
             {/* Actions */}
