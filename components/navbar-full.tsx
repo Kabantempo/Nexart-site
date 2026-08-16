@@ -773,11 +773,11 @@ export function NavbarFull() {
 
       {/* ── CSS helpers (desktop show/hide) ── */}
       <style>{`
-        @media (min-width: 1024px) {
+        @media (min-width: 1280px) {
           .lg-flex { display: flex !important; }
           .lg-hidden { display: none !important; }
         }
-        @media (max-width: 1023px) {
+        @media (max-width: 1279px) {
           .lg-flex { display: none !important; }
           .lg-hidden { display: flex !important; }
         }
