@@ -1843,7 +1843,20 @@ export default function ProfilePage() {
               maxPhotos={profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium' ? 30 : profile?.subscription_tier === 'boost' ? 30 : 10}
               onChange={async (next) => {
                 setGridItems(next)
-                await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next }, { onConflict: 'user_id' })
+                const { error } = await supabase
+                  .from('creator_profiles')
+                  .update({ portfolio_grid: next } as any)
+                  .eq('user_id', user.id)
+                if (error) {
+                  console.error('portfolio_grid save error:', error)
+                  // Si la ligne n'existe pas encore, on insère
+                  if (error.code === 'PGRST116' || error.message?.includes('0 rows')) {
+                    const { error: e2 } = await supabase
+                      .from('creator_profiles')
+                      .insert({ user_id: user.id, portfolio_grid: next } as any)
+                    if (e2) console.error('portfolio_grid insert error:', e2)
+                  }
+                }
               }}
             />
 

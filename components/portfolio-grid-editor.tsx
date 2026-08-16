@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { Plus, Trash2, Check, GripVertical } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { NexModal } from '@/components/ui/nex-modal'
@@ -27,6 +27,7 @@ export type GridItem = {
   url: string
   colSpan: 1 | 2 | 3
   rowSpan: 1 | 2 | 3
+  objectPosition?: string // e.g. "50% 30%"
 }
 
 const SIZES: { label: string; col: 1 | 2 | 3; row: 1 | 2 | 3; desc: string }[] = [
@@ -40,6 +41,86 @@ const SIZES: { label: string; col: 1 | 2 | 3; row: 1 | 2 | 3; desc: string }[] =
   { label: '2×3', col: 2, row: 3, desc: 'Grand portrait' },
   { label: '3×3', col: 3, row: 3, desc: 'Plein écran' },
 ]
+
+// ─── Focus Picker ─────────────────────────────────────────────────────────────
+
+function FocusPicker({
+  url,
+  position,
+  onChange,
+}: {
+  url: string
+  position: string
+  onChange: (pos: string) => void
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const isDragging = useRef(false)
+
+  const posToXY = (pos: string) => {
+    const [x, y] = pos.split(' ').map(v => parseFloat(v))
+    return { x: isNaN(x) ? 50 : x, y: isNaN(y) ? 50 : y }
+  }
+
+  const updateFromEvent = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    const el = containerRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    const x = Math.round(Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100)))
+    const y = Math.round(Math.min(100, Math.max(0, ((clientY - rect.top) / rect.height) * 100)))
+    onChange(`${x}% ${y}%`)
+  }, [onChange])
+
+  const { x, y } = posToXY(position)
+
+  return (
+    <div>
+      <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '8px', marginTop: '16px' }}>
+        Point de focus <span style={{ fontWeight: '400', color: 'var(--text-secondary)' }}>— cliquer ou glisser sur l'image</span>
+      </p>
+      <div
+        ref={containerRef}
+        style={{ position: 'relative', width: '100%', height: '180px', borderRadius: '10px', overflow: 'hidden', cursor: 'crosshair', userSelect: 'none' }}
+        onMouseDown={(e) => { isDragging.current = true; updateFromEvent(e) }}
+        onMouseMove={(e) => { if (isDragging.current) updateFromEvent(e) }}
+        onMouseUp={() => { isDragging.current = false }}
+        onMouseLeave={() => { isDragging.current = false }}
+        onTouchStart={(e) => { isDragging.current = true; updateFromEvent(e) }}
+        onTouchMove={(e) => { if (isDragging.current) updateFromEvent(e) }}
+        onTouchEnd={() => { isDragging.current = false }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={url}
+          alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: position, display: 'block', pointerEvents: 'none' }}
+          draggable={false}
+        />
+        {/* Crosshair overlay */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+          {/* horizontal line */}
+          <div style={{ position: 'absolute', top: `${y}%`, left: 0, right: 0, height: '1px', backgroundColor: 'rgba(255,255,255,0.6)' }} />
+          {/* vertical line */}
+          <div style={{ position: 'absolute', left: `${x}%`, top: 0, bottom: 0, width: '1px', backgroundColor: 'rgba(255,255,255,0.6)' }} />
+          {/* dot */}
+          <div style={{
+            position: 'absolute',
+            left: `${x}%`, top: `${y}%`,
+            transform: 'translate(-50%, -50%)',
+            width: '20px', height: '20px', borderRadius: '50%',
+            backgroundColor: colors.violet.primary,
+            border: '3px solid white',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+          }} />
+        </div>
+      </div>
+      <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', textAlign: 'center' }}>
+        Focus : {x}% horizontal · {y}% vertical
+      </p>
+    </div>
+  )
+}
 
 // ─── Size Picker ──────────────────────────────────────────────────────────────
 
@@ -212,12 +293,13 @@ function ResizeModal({
 }: {
   item: GridItem
   index: number
-  onSave: (i: number, col: 1|2|3, row: 1|2|3) => void
+  onSave: (i: number, col: 1|2|3, row: 1|2|3, objectPosition: string) => void
   onDelete: (i: number) => void
   onClose: () => void
 }) {
   const [col, setCol] = useState<1|2|3>(item.colSpan)
   const [row, setRow] = useState<1|2|3>(item.rowSpan)
+  const [objectPosition, setObjectPosition] = useState(item.objectPosition ?? '50% 50%')
 
   return (
     <NexModal
@@ -231,21 +313,16 @@ function ResizeModal({
             style={{ padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: colors.red.bg, color: colors.feedback.danger.solid, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Trash2 size={15} /> Supprimer
           </button>
-          <button onClick={() => { onSave(index, col, row); onClose() }}
+          <button onClick={() => { onSave(index, col, row, objectPosition); onClose() }}
             style={{ flex: 1, padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <Check size={15} /> Enregistrer
           </button>
         </div>
       }
     >
-      {/* Preview */}
-      <div style={{ width: '100%', height: '160px', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </div>
-
       <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px' }}>Taille dans la grille</p>
       <SizePicker selected={{ col, row }} onSelect={(c, r) => { setCol(c); setRow(r) }} />
+      <FocusPicker url={item.url} position={objectPosition} onChange={setObjectPosition} />
     </NexModal>
   )
 }
@@ -297,7 +374,7 @@ function SortableGridItem({
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.url} alt="" onClick={onEdit} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      <img src={item.url} alt="" onClick={onEdit} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: item.objectPosition ?? '50% 50%', display: 'block' }} />
       {/* Hover overlay */}
       <div className="hover-overlay" style={{
         position: 'absolute', inset: 0,
@@ -367,8 +444,8 @@ export function PortfolioGridEditor({
     setShowAdd(false)
   }
 
-  const handleResize = (i: number, col: 1|2|3, row: 1|2|3) => {
-    const next = items.map((it, idx) => idx === i ? { ...it, colSpan: col, rowSpan: row } : it)
+  const handleResize = (i: number, col: 1|2|3, row: 1|2|3, objectPosition: string) => {
+    const next = items.map((it, idx) => idx === i ? { ...it, colSpan: col, rowSpan: row, objectPosition } : it)
     onChange(next)
   }
 
