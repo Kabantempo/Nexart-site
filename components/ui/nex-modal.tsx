@@ -113,15 +113,14 @@ export function NexModal({
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            initial={{ opacity: 0, scale: 0.93, y: 14 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.93, y: 14 }}
+            initial={{ opacity: 0, scale: 0.93, x: '-50%', y: 'calc(-50% + 14px)' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.93, x: '-50%', y: 'calc(-50% + 14px)' }}
             transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             style={{
               position: 'fixed',
               top: '50%',
               left: '50%',
-              transform: 'translate(-50%, -50%)',
               zIndex: 10001,
               backgroundColor: 'var(--bg-primary)',
               borderRadius: '20px',
