@@ -157,7 +157,7 @@ function AddModal({
       }
     >
       {/* Upload + Taille côte à côte */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', alignItems: 'center', justifyContent: 'center' }}>
         {/* Upload zone */}
         <div
           onClick={() => fileRef.current?.click()}
