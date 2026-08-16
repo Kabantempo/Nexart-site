@@ -252,8 +252,8 @@ export function NavbarFull() {
   const Trigger = ({ id, label, active }: { id: string; label: string; active: boolean }) => (
     <button
       ref={(el) => { if (el) triggerRefs.current.set(id, el) }}
-      onPointerEnter={(e) => { if (e.pointerType === 'mouse') setDropdown(id) }}
-      onClick={(e) => { if ((e.nativeEvent as PointerEvent).pointerType !== 'mouse') setDropdown(d => d === id ? null : id) }}
+      onMouseEnter={() => setDropdown(id)}
+      onTouchEnd={(e) => { e.preventDefault(); setDropdown(d => d === id ? null : id) }}
       onKeyDown={(e) => {
         if (e.key === 'ArrowDown') {
           e.preventDefault(); setDropdown(id)
