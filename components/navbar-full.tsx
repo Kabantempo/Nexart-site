@@ -359,7 +359,8 @@ export function NavbarFull() {
               ref={navRef}
               style={{ display: 'none', alignItems: 'center', gap: 0, flex: 1 }}
               className="lg-flex"
-              onMouseLeave={(e) => {
+              onPointerLeave={(e) => {
+                if (e.pointerType !== 'mouse') return
                 if (!navRef.current?.contains(e.relatedTarget as Node)) setDropdown(null)
               }}
             >
