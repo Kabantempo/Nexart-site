@@ -148,13 +148,18 @@ export function NavbarFull() {
   }, [user])
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      const inNav     = navRef.current?.contains(e.target as Node)
-      const inProfile = profileRef.current?.contains(e.target as Node)
+    const handler = (e: MouseEvent | TouchEvent) => {
+      const target = e instanceof TouchEvent ? e.touches[0]?.target : e.target
+      const inNav     = navRef.current?.contains(target as Node)
+      const inProfile = profileRef.current?.contains(target as Node)
       if (!inNav && !inProfile) setDropdown(null)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    document.addEventListener('mousedown', handler as (e: MouseEvent) => void)
+    document.addEventListener('touchstart', handler as (e: TouchEvent) => void)
+    return () => {
+      document.removeEventListener('mousedown', handler as (e: MouseEvent) => void)
+      document.removeEventListener('touchstart', handler as (e: TouchEvent) => void)
+    }
   }, [])
 
   const go   = (ms = 500) => { closeTimer.current = setTimeout(() => setDropdown(null), ms) }
@@ -247,8 +252,8 @@ export function NavbarFull() {
   const Trigger = ({ id, label, active }: { id: string; label: string; active: boolean }) => (
     <button
       ref={(el) => { if (el) triggerRefs.current.set(id, el) }}
-      onMouseEnter={() => setDropdown(id)}
-      onClick={() => setDropdown(d => d === id ? null : id)}
+      onPointerEnter={(e) => { if (e.pointerType === 'mouse') setDropdown(id) }}
+      onClick={(e) => { if ((e.nativeEvent as PointerEvent).pointerType !== 'mouse') setDropdown(d => d === id ? null : id) }}
       onKeyDown={(e) => {
         if (e.key === 'ArrowDown') {
           e.preventDefault(); setDropdown(id)
@@ -360,7 +365,7 @@ export function NavbarFull() {
             >
 
               {/* Découvrir */}
-              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('discover')}>
+              <div style={{ position: 'relative' }}>
                 <Trigger id="discover" label="Découvrir" active={isActive('/events') || isActive('/creators') || isActive('/carte')} />
                 <Panel id="discover" width={320}>
                   <RichItem panelId="discover" idx={0} href="/events"      icon={Ticket}   label="Événements artisanaux" desc="Marchés, pop-ups, salons, festivals" />
@@ -372,7 +377,7 @@ export function NavbarFull() {
               </div>
 
               {/* Communauté */}
-              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('community')}>
+              <div style={{ position: 'relative' }}>
                 <Trigger id="community" label="Communauté" active={isActive('/favorites') || isActive('/messages')} />
                 <Panel id="community" width={240}>
                   <SimpleItem panelId="community" idx={0} href="/favorites" icon={Heart}         label="Mes favoris" />
@@ -381,7 +386,7 @@ export function NavbarFull() {
               </div>
 
               {/* Organisateurs */}
-              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('organizer')}>
+              <div style={{ position: 'relative' }}>
                 <Trigger id="organizer" label="Organisateurs" active={isActive('/events/create') || isActive('/offres') || isActive('/organizer')} />
                 <Panel id="organizer" width={280}>
                   <RichItem panelId="organizer" idx={0} href="/events/create"      icon={Plus}      label="Créer un événement"    desc="Publiez votre marché ou salon" />
@@ -391,7 +396,7 @@ export function NavbarFull() {
               </div>
 
               {/* Nexart */}
-              <div style={{ position: 'relative' }} onMouseEnter={() => setDropdown('about')}>
+              <div style={{ position: 'relative' }}>
                 <Trigger id="about" label="Nexart" active={isActive('/about') || isActive('/carnet-de-route') || isActive('/patch-notes')} />
                 <Panel id="about" width={220}>
                   <SimpleItem panelId="about" idx={0} href="/about"           icon={Users}    label="À propos" />
@@ -773,11 +778,11 @@ export function NavbarFull() {
 
       {/* ── CSS helpers (desktop show/hide) ── */}
       <style>{`
-        @media (min-width: 1280px) {
+        @media (min-width: 1024px) {
           .lg-flex { display: flex !important; }
           .lg-hidden { display: none !important; }
         }
-        @media (max-width: 1279px) {
+        @media (max-width: 1023px) {
           .lg-flex { display: none !important; }
           .lg-hidden { display: flex !important; }
         }
