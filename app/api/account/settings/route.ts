@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     const { data: creatorProfile } = await (supabase as any)
       .from('creator_profiles')
       .select('travel_radius')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     return NextResponse.json({
@@ -66,7 +66,7 @@ export async function PATCH(req: NextRequest) {
 
     if (body.travel_radius !== undefined) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('creator_profiles').update({ travel_radius: body.travel_radius }).eq('id', user.id)
+      await (supabase as any).from('creator_profiles').update({ travel_radius: body.travel_radius }).eq('user_id', user.id)
     }
 
     return NextResponse.json({ success: true })

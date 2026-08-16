@@ -360,7 +360,7 @@ export default function ProfilePage() {
         setEditRegion(creat?.region ?? '')
         setEditPostalCode((creat as Record<string, unknown>)?.postal_code as string ?? '')
         setCityQuery(creat?.city ?? '')
-        setEditRadius(creat?.travel_radius ?? '25')
+        setEditRadius(creat?.travel_radius || '25')
         setEditDisc(creat?.disciplines ?? [])
         setEditInstagram(creat?.instagram ?? '')
         setEditFacebook((creat as any)?.facebook ?? '')
@@ -420,7 +420,7 @@ export default function ProfilePage() {
       supabase.from('profiles').update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }).eq('id', user.id),
       ...(isCreator ? [supabase.from('creator_profiles').upsert({
         user_id: user.id, disciplines: editDisc,
-        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius as '5' | '10' | '25' | 'national',
+        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national',
         instagram: editInstagram, website: editWebsite, etsy: editEtsy,
         facebook: editFacebook, tiktok: editTiktok,
         phone: editPhone || null,
