@@ -1780,6 +1780,22 @@ export default function ProfilePage() {
               </>
             )}
 
+            {/* Bouton Enregistrer en bas du formulaire */}
+            {editing && (
+              <div className="px-6 pb-2 pt-4 border-t border-gray-100">
+                <div className="flex gap-2">
+                  <button onClick={handleSave} disabled={saving}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors">
+                    <Save size={15} /> {saving ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                  </button>
+                  <button onClick={() => setEditing(false)}
+                    className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-500 text-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                    <X size={15} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Déconnexion + Supprimer */}
             <div className="flex flex-col gap-2">
               <button onClick={async () => {
