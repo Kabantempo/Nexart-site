@@ -438,7 +438,10 @@ export default function ProfilePage() {
       return
     }
     setProfile(p => p ? { ...p, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName } as any : p)
-    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any } : c)
+    if (isCreator) {
+      const creatorUpdate = { disciplines: editDisc, city: editCity, region: editRegion, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any }
+      setCreator(c => c ? { ...c, ...creatorUpdate } : { user_id: user.id, ...creatorUpdate, portfolio_images: [], siret_verified: false, insurance_verified: false, open_to_collab: false } as any)
+    }
     setSaving(false)
     setEditing(false)
   }
