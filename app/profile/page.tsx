@@ -437,7 +437,7 @@ export default function ProfilePage() {
       setSaving(false)
       return
     }
-    setProfile(p => p ? { ...p, full_name: editName, bio: editBio } : p)
+    setProfile(p => p ? { ...p, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName } as any : p)
     if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any } : c)
     setSaving(false)
     setEditing(false)
@@ -747,7 +747,8 @@ export default function ProfilePage() {
     const next = [...portfolioVideos, url]
     setPortfolioVideos(next)
     setNewVideoUrl('')
-    await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
+    const { error } = await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_videos: next } as any, { onConflict: 'user_id' })
+    if (error) { console.error('portfolio_videos save error:', error); setPortfolioVideos(portfolioVideos) }
   }
 
   // ─── Admin handlers ─────────────────────────────────────────────────────────
@@ -1212,8 +1213,11 @@ export default function ProfilePage() {
                         onKeyDown={async e => {
                           if (e.key === 'Enter') {
                             e.preventDefault()
-                            await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
-                            setToast('Pseudo enregistré')
+                            const { error } = await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
+                            if (!error) {
+                              setProfile(p => p ? { ...p, username: editUsername || null } as any : p)
+                              setToast('Pseudo enregistré')
+                            }
                           }
                         }}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 text-gray-900" />
@@ -1646,8 +1650,8 @@ export default function ProfilePage() {
                       <button
                         onClick={async () => {
                           const next = !creator?.open_to_collab
-                          await supabase.from('creator_profiles').update({ open_to_collab: next }).eq('user_id', user!.id)
-                          setCreator(prev => prev ? { ...prev, open_to_collab: next } : prev)
+                          await supabase.from('creator_profiles').upsert({ user_id: user!.id, open_to_collab: next }, { onConflict: 'user_id' })
+                          setCreator(prev => prev ? { ...prev, open_to_collab: next } : { open_to_collab: next } as any)
                           showToast(next ? 'Collaborations activées' : 'Collaborations désactivées')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
@@ -1837,18 +1841,8 @@ export default function ProfilePage() {
                 setGridItems(next)
                 const { error } = await supabase
                   .from('creator_profiles')
-                  .update({ portfolio_grid: next } as any)
-                  .eq('user_id', user.id)
-                if (error) {
-                  console.error('portfolio_grid save error:', error)
-                  // Si la ligne n'existe pas encore, on insère
-                  if (error.code === 'PGRST116' || error.message?.includes('0 rows')) {
-                    const { error: e2 } = await supabase
-                      .from('creator_profiles')
-                      .insert({ user_id: user.id, portfolio_grid: next } as any)
-                    if (e2) console.error('portfolio_grid insert error:', e2)
-                  }
-                }
+                  .upsert({ user_id: user.id, portfolio_grid: next } as any, { onConflict: 'user_id' })
+                if (error) console.error('portfolio_grid save error:', error)
               }}
             />
 
@@ -1872,7 +1866,8 @@ export default function ProfilePage() {
                           onClick={async () => {
                             const next = portfolioVideos.filter((_, j) => j !== i)
                             setPortfolioVideos(next)
-                            await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
+                            const { error } = await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_videos: next } as any, { onConflict: 'user_id' })
+                            if (error) { console.error('portfolio_videos delete error:', error); setPortfolioVideos(portfolioVideos) }
                           }}
                           style={{ position: 'absolute', top: '6px', right: '6px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.7)', color: colors.bg.primary, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', lineHeight: 1 }}
                         >×</button>
