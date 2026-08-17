@@ -587,3 +587,75 @@ footer {
   animation: wordReveal 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .hero-word:last-child { margin-right: 0; }
+
+/* ── Spinner ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive utilities ── */
+@media (max-width: 767px) {
+  .resp-px { padding-left: 16px; padding-right: 16px; }
+}
+
+/* ── Safe area insets (iPhone notch / Dynamic Island) ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ── Event detail — 2-col layout collapse on mobile ── */
+@media (max-width: 767px) {
+  .event-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .event-title {
+    font-size: 24px !important;
+  }
+}
+
+/* ── Creators grid ── */
+@media (max-width: 479px) {
+  .creators-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── General page wrapper — prevent horizontal overflow ── */
+.page-root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ── Analytics 2-col grid collapse ── */
+@media (max-width: 767px) {
+  /* Inline style grids that aren't class-named — target by display:grid context */
+  /* organizer analytics: 1fr 280px — no class, but wrapped in max-width 1280 container */
+  /* We add a utility class to target inline fixed-sidebar layouts */
+  .resp-grid-sidebar {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Horizontal scroll guard on all pages ── */
+html, body {
+  overflow-x: hidden;
+}
+
+/* ── Mobile touch targets minimum 44px ── */
+@media (max-width: 767px) {
+  button, [role="button"], a {
+    min-height: 0; /* let content size naturally, don't force */
+  }
+  /* Only force tap targets on icon-only buttons in mobile nav */
+  .mobile-tap-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ── Mobile safe bottom (PWA / iOS home bar) ── */
+@media (max-width: 767px) {
+  footer {
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+}
