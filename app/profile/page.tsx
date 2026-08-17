@@ -431,9 +431,10 @@ export default function ProfilePage() {
       } as any, { onConflict: 'user_id' })] : []),
     ]
     const results = await Promise.all(promises)
-    const hasError = results.some(r => r.error)
-    if (hasError) {
-      setToast('Erreur lors de la sauvegarde. Veuillez réessayer.')
+    const errorResult = results.find(r => r.error)
+    if (errorResult) {
+      console.error('[handleSave] Supabase error:', errorResult.error)
+      setToast(`Erreur : ${errorResult.error?.message ?? 'Veuillez réessayer.'}`)
       setSaving(false)
       return
     }
@@ -442,8 +443,12 @@ export default function ProfilePage() {
       const creatorUpdate = { disciplines: editDisc, city: editCity, region: editRegion, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any }
       setCreator(c => c ? { ...c, ...creatorUpdate } : { user_id: user.id, ...creatorUpdate, portfolio_images: [], siret_verified: false, insurance_verified: false, open_to_collab: false } as any)
     }
+    // Re-fetch to confirm DB state
+    const { data: freshProfile } = await supabase.from('profiles').select('full_name,bio,avatar_url,banner_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer').eq('id', user.id).maybeSingle()
+    if (freshProfile) setProfile(freshProfile as Profile)
     setSaving(false)
     setEditing(false)
+    showToast('Profil sauvegardé ✓')
   }
 
   const handleCheckSiret = async () => {
