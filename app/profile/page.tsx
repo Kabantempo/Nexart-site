@@ -909,12 +909,12 @@ export default function ProfilePage() {
   const completionMissing: string[] = []
   const isCreatorRole = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || creator !== null
   if (isCreatorRole) {
-    if (!profile?.full_name) completionMissing.push('Nom complet')
-    if (!profile?.bio) completionMissing.push('Bio')
+    if (!editName && !profile?.full_name) completionMissing.push('Nom complet')
+    if (!editBio && !profile?.bio) completionMissing.push('Bio')
     if (!profile?.avatar_url) completionMissing.push('Photo de profil')
-    if (!creator?.disciplines?.length) completionMissing.push('Disciplines')
-    if (!creator?.city) completionMissing.push('Ville')
-    if (!creator?.travel_radius) completionMissing.push('Rayon de déplacement')
+    if (!editDisc.length && !creator?.disciplines?.length) completionMissing.push('Disciplines')
+    if (!editCity && !creator?.city) completionMissing.push('Ville')
+    if (!editRadius && !creator?.travel_radius) completionMissing.push('Rayon de déplacement')
   }
   const completionDone = 6 - completionMissing.length
   const acceptedCount = applications.filter(a => a.status === 'accepted').length
