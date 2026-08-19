@@ -731,17 +731,28 @@ export default function ProfilePage() {
     setAvatarUploading(true)
     setCropSrc(null)
     cropCanvasRef.current.toBlob(async (blob) => {
-      if (!blob) { setAvatarUploading(false); return }
+      if (!blob) { setAvatarUploading(false); showToast('Erreur : impossible de générer l\'image'); return }
       const path = `${user.id}/avatar.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (!error) {
-        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-        const url = `${data.publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
-        setProfile(p => p ? { ...p, avatar_url: url } : p)
-        const storeUser = useAuthStore.getState().user
-        if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      if (uploadError) {
+        console.error('[avatar upload] storage error:', uploadError)
+        showToast(`Erreur upload : ${uploadError.message}`)
+        setAvatarUploading(false)
+        return
       }
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const url = `${data.publicUrl}?t=${Date.now()}`
+      const { error: dbError } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
+      if (dbError) {
+        console.error('[avatar upload] db error:', dbError)
+        showToast(`Erreur sauvegarde : ${dbError.message}`)
+        setAvatarUploading(false)
+        return
+      }
+      setProfile(p => p ? { ...p, avatar_url: url } : p)
+      const storeUser = useAuthStore.getState().user
+      if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      showToast('Photo de profil mise à jour ✓')
       setAvatarUploading(false)
     }, 'image/jpeg', 0.92)
   }
