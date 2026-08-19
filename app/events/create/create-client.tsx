@@ -389,7 +389,7 @@ export default function CreateEventClient() {
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)', margin: '6px 0 0' }}>Remplissez les informations de votre événement — vous pourrez tout modifier plus tard</p>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '28px', alignItems: 'start' }}>
+        <div className="resp-grid-sidebar" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '28px', alignItems: 'start' }}>
 
           {/* Colonne principale */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
@@ -553,7 +553,7 @@ export default function CreateEventClient() {
                         </button>
                       )}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div className="resp-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                       <Field label="Prix le plus bas (€)" hint="0 = gratuit">
                         <input className="form-input" type="number" min="0" value={t.price_min} onChange={e => updateStandType(i, 'price_min')(e.target.value)} placeholder="Ex : 60" />
                       </Field>

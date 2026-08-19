@@ -475,7 +475,7 @@ const fetchMarketingPlan = async () => {
               <p style={{ fontSize: '14px', color: colors.text.secondary, marginBottom: '24px' }}>Fourchettes de prix moyens en France pour les canaux de communication événementielle.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {AD_PRICING.map((item, i) => (
-                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: '16px', alignItems: 'center', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <div key={i} className="resp-grid-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: '16px', alignItems: 'center', padding: '16px 20px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>{item.canal}</span>
                     <span style={{ fontSize: '14px', fontWeight: 700, color: colors.violet.primary }}>{item.prix}</span>
                     <span style={{ fontSize: '13px', color: colors.text.secondary }}>{item.conseil}</span>
@@ -510,7 +510,7 @@ const fetchMarketingPlan = async () => {
                   Ajouter une étape
                 </h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px', marginBottom: '16px' }}>
+                <div className="resp-grid-row" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '12px', marginBottom: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'var(--text-primary)' }}>
                       Date

@@ -728,7 +728,7 @@ function PrivacySection() {
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Contrôlez qui peut voir votre profil</div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div className="resp-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           {(['public', 'private'] as const).map(val => (
             <button
               key={val}
@@ -825,7 +825,7 @@ function LanguageSection() {
           Langue de l&apos;interface (traduction complète à venir)
         </p>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+      <div className="resp-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
         {options.map(opt => (
           <button
             key={opt.value}
