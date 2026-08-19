@@ -455,7 +455,7 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: D.bg, color: '#FFFFFF' }}>
       <style>{`
         .home-faces-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .home-faces-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -474,6 +474,14 @@ export default function HomeClient() {
         @media (min-width: 640px) { .home-hero-buttons { flex-direction: row; } }
         .home-cta-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
         @media (min-width: 640px) { .home-cta-buttons { flex-direction: row; } }
+
+        /* ── Force dark theme on home page regardless of user's light/dark preference ── */
+        [data-theme="light"] .home-page section { background-color: transparent !important; }
+        [data-theme="light"] .home-page { background-color: transparent !important; color: #FFFFFF !important; }
+        [data-theme="light"] .home-page [style*="color: rgba(255, 255, 255"] { color: unset !important; }
+        [data-theme="light"] .home-page [style*="background-color: rgb(15, 15"],
+        [data-theme="light"] .home-page [style*="background-color: rgb(6, 6"],
+        [data-theme="light"] .home-page [style*="background-color: rgb(10, 10"] { background-color: unset !important; }
 
         /* ── Responsive section paddings ── */
         .home-section-xl  { padding-top: 128px; padding-bottom: 128px; }
