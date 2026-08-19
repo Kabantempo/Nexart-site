@@ -637,16 +637,12 @@ footer {
 }
 
 /* ── Horizontal scroll guard on all pages ── */
-html, body {
+body {
   overflow-x: hidden;
 }
 
 /* ── Mobile touch targets minimum 44px ── */
 @media (max-width: 767px) {
-  button, [role="button"], a {
-    min-height: 0; /* let content size naturally, don't force */
-  }
-  /* Only force tap targets on icon-only buttons in mobile nav */
   .mobile-tap-target {
     min-height: 44px;
     min-width: 44px;
@@ -657,5 +653,46 @@ html, body {
 @media (max-width: 767px) {
   footer {
     padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Generic fixed-column grid collapse (forms, stat cards, admin/dashboard) ── */
+@media (max-width: 639px) {
+  .resp-grid-2 { grid-template-columns: 1fr !important; }
+  .resp-grid-row { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 767px) {
+  .resp-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 479px) {
+  .resp-grid-3 { grid-template-columns: 1fr !important; }
+  .resp-grid-4 { grid-template-columns: 1fr !important; }
+}
+
+/* ── Tables & wide grids that must scroll instead of overflowing the page ── */
+.resp-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Media never wider than their container ── */
+img, video, iframe, canvas, svg {
+  max-width: 100%;
+}
+
+/* ── Cookie consent bar — stack on mobile so buttons never clip off-screen ── */
+@media (max-width: 639px) {
+  .cookie-consent-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+  }
+  .cookie-consent-actions {
+    width: 100%;
+    white-space: normal !important;
+  }
+  .cookie-consent-actions button {
+    flex: 1;
   }
 }
