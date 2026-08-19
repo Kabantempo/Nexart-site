@@ -431,9 +431,10 @@ export default function ProfilePage() {
       } as any, { onConflict: 'user_id' })] : []),
     ]
     const results = await Promise.all(promises)
-    const hasError = results.some(r => r.error)
-    if (hasError) {
-      setToast('Erreur lors de la sauvegarde. Veuillez réessayer.')
+    const errorResult = results.find(r => r.error)
+    if (errorResult) {
+      console.error('[handleSave] Supabase error:', errorResult.error)
+      setToast(`Erreur : ${errorResult.error?.message ?? 'Veuillez réessayer.'}`)
       setSaving(false)
       return
     }
@@ -442,8 +443,12 @@ export default function ProfilePage() {
       const creatorUpdate = { disciplines: editDisc, city: editCity, region: editRegion, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any }
       setCreator(c => c ? { ...c, ...creatorUpdate } : { user_id: user.id, ...creatorUpdate, portfolio_images: [], siret_verified: false, insurance_verified: false, open_to_collab: false } as any)
     }
+    // Re-fetch to confirm DB state
+    const { data: freshProfile } = await supabase.from('profiles').select('full_name,bio,avatar_url,banner_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer').eq('id', user.id).maybeSingle()
+    if (freshProfile) setProfile(freshProfile as Profile)
     setSaving(false)
     setEditing(false)
+    showToast('Profil sauvegardé ✓')
   }
 
   const handleCheckSiret = async () => {
@@ -726,17 +731,28 @@ export default function ProfilePage() {
     setAvatarUploading(true)
     setCropSrc(null)
     cropCanvasRef.current.toBlob(async (blob) => {
-      if (!blob) { setAvatarUploading(false); return }
+      if (!blob) { setAvatarUploading(false); showToast('Erreur : impossible de générer l\'image'); return }
       const path = `${user.id}/avatar.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (!error) {
-        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-        const url = `${data.publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
-        setProfile(p => p ? { ...p, avatar_url: url } : p)
-        const storeUser = useAuthStore.getState().user
-        if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      if (uploadError) {
+        console.error('[avatar upload] storage error:', uploadError)
+        showToast(`Erreur upload : ${uploadError.message}`)
+        setAvatarUploading(false)
+        return
       }
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const url = `${data.publicUrl}?t=${Date.now()}`
+      const { error: dbError } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
+      if (dbError) {
+        console.error('[avatar upload] db error:', dbError)
+        showToast(`Erreur sauvegarde : ${dbError.message}`)
+        setAvatarUploading(false)
+        return
+      }
+      setProfile(p => p ? { ...p, avatar_url: url } : p)
+      const storeUser = useAuthStore.getState().user
+      if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      showToast('Photo de profil mise à jour ✓')
       setAvatarUploading(false)
     }, 'image/jpeg', 0.92)
   }
@@ -1116,7 +1132,16 @@ export default function ProfilePage() {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => setEditing(true)}
+                    <button onClick={() => {
+                      setEditName(profile?.full_name ?? '')
+                      setEditBio(profile?.bio ?? '')
+                      setEditCity(creator?.city ?? '')
+                      setEditRegion(creator?.region ?? '')
+                      setCityQuery(creator?.city ?? '')
+                      setEditRadius(creator?.travel_radius || '25')
+                      setEditDisc(creator?.disciplines ?? [])
+                      setEditing(true)
+                    }}
                       className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors whitespace-nowrap">
                       <Edit3 size={14} /> Modifier le profil
                     </button>
