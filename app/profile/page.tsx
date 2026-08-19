@@ -1121,7 +1121,16 @@ export default function ProfilePage() {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => setEditing(true)}
+                    <button onClick={() => {
+                      setEditName(profile?.full_name ?? '')
+                      setEditBio(profile?.bio ?? '')
+                      setEditCity(creator?.city ?? '')
+                      setEditRegion(creator?.region ?? '')
+                      setCityQuery(creator?.city ?? '')
+                      setEditRadius(creator?.travel_radius || '25')
+                      setEditDisc(creator?.disciplines ?? [])
+                      setEditing(true)
+                    }}
                       className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors whitespace-nowrap">
                       <Edit3 size={14} /> Modifier le profil
                     </button>
