@@ -247,7 +247,7 @@ function FormSetup({ fields, onSave, loading }: any) {
             animate={{ opacity: 1, height: 'auto' }}
             style={{ backgroundColor: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, borderRadius: '8px', padding: '20px', marginBottom: '24px' }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '12px', alignItems: 'end' }}>
+            <div className="resp-grid-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '12px', alignItems: 'end' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: colors.purple.indigoDark, marginBottom: '6px' }}>
                   Nom du champ

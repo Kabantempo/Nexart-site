@@ -102,14 +102,16 @@ function CompareContent() {
         <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '15px' }}>{cols} marché{cols > 1 ? 's' : ''} sélectionné{cols > 1 ? 's' : ''}</p>
 
         {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 0, borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-            {Array.from({ length: cols + 1 }).map((_, i) => (
-              <div key={i} style={{ height: '200px', backgroundColor: i === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)', borderLeft: i > 0 ? '1px solid var(--border-color)' : 'none' }} className="animate-shimmer" />
-            ))}
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 0, minWidth: `${160 + cols * 160}px` }}>
+              {Array.from({ length: cols + 1 }).map((_, i) => (
+                <div key={i} style={{ height: '200px', backgroundColor: i === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)', borderLeft: i > 0 ? '1px solid var(--border-color)' : 'none' }} className="animate-shimmer" />
+              ))}
+            </div>
           </div>
         ) : (
-          <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: gridCols }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: gridCols, minWidth: `${160 + cols * 160}px` }}>
               {/* Header row */}
               <div style={{ padding: '20px 16px', backgroundColor: 'var(--bg-secondary)', fontWeight: '700', fontSize: '13px', color: 'var(--text-secondary)' }}>Critère</div>
               {events.map(ev => (

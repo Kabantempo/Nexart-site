@@ -1455,7 +1455,7 @@ export default function AdminPage() {
               const commission = standPayments.reduce((s, p) => s + (p.status !== 'refunded' ? p.commission_cents : 0), 0)
               const count = standPayments.filter(p => p.status !== 'refunded').length
               return (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
+                <div className="resp-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
                   {[
                     { label: 'Encaissé total', value: `${(total / 100).toFixed(2)} €`, color: colors.green.pale },
                     { label: 'Commission Nexart (8%)', value: `${(commission / 100).toFixed(2)} €`, color: colors.violet.hover },
@@ -1700,7 +1700,7 @@ function PdfPreviewTab() {
 
       <div style={{ padding: '16px 20px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)' }}>
         <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>Données utilisées pour les exemples</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 20px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+        <div className="resp-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 20px', fontSize: '12px', color: 'var(--text-secondary)' }}>
           {[
             ['Événement', 'Marché des Créateurs — Exemple'],
             ['Lieu', 'Salle des fêtes, Lyon'],

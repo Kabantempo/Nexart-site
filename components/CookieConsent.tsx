@@ -26,7 +26,7 @@ export function CookieConsent() {
   if (!show) return null
 
   return (
-    <div style={{
+    <div className="cookie-consent-bar" style={{
       position: 'fixed',
       bottom: 0,
       left: 0,
@@ -40,6 +40,7 @@ export function CookieConsent() {
       alignItems: 'center',
       gap: '16px',
       borderTop: '1px solid var(--border-color)',
+      boxSizing: 'border-box',
     }}>
       <div style={{ flex: 1 }}>
         <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '16px' }}>
@@ -61,7 +62,7 @@ export function CookieConsent() {
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+      <div className="cookie-consent-actions" style={{ display: 'flex', gap: '12px', whiteSpace: 'nowrap', flexShrink: 0 }}>
         <button
           onClick={handleReject}
           style={{
