@@ -191,7 +191,7 @@ export default function LoginPage() {
       }}>
         {/* Mobile logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }} className="lg:hidden">
-          <Image src="/logo-mark.png" alt="Nexart" width={32} height={32} style={{ borderRadius: '8px' }} />
+          <Image src="/icon.png" alt="Nexart" width={32} height={32} />
           <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
 
