@@ -104,7 +104,7 @@ export function Footer() {
           {/* Brand + newsletter */}
           <div style={{ minWidth: '220px' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', textDecoration: 'none' }}>
-              <Image src="/logo-mark.png" alt="Nexart" width={30} height={30} style={{ borderRadius: '8px' }} />
+              <Image src="/icon.png" alt="Nexart" width={30} height={30} />
               <span style={{ fontSize: '20px', fontWeight: 700, color: colors.bg.primary }}>Nexart</span>
             </Link>
 

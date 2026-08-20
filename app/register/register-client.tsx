@@ -229,7 +229,7 @@ export default function RegisterPage() {
         <div style={{ position: 'relative', zIndex: 10 }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Image src="/logo-mark.png" alt="Nexart" width={36} height={36} style={{ borderRadius: '10px' }} />
+              <Image src="/icon.png" alt="Nexart" width={36} height={36} />
               <span style={{ fontSize: '22px', fontWeight: '800', color: colors.bg.primary, letterSpacing: '-0.5px' }}>Nexart</span>
             </div>
           </Link>
@@ -308,7 +308,7 @@ export default function RegisterPage() {
       }}>
         {/* Mobile logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px' }} className="lg:hidden">
-          <Image src="/logo-mark.png" alt="Nexart" width={32} height={32} style={{ borderRadius: '8px' }} />
+          <Image src="/icon.png" alt="Nexart" width={32} height={32} />
           <span style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Nexart</span>
         </div>
 
