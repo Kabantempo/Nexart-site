@@ -60,6 +60,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const prevStatus = event.organizer_id ? (await admin.from('events').select('status').eq('id', params.id).single()).data?.status : null
 
     // Bloquer la publication si stripe_enabled et Connect pas actif
+    if (body.status === 'published' && body.stripe_enabled !== false) {
     if (body.status === 'published') {
       const { data: eventFull } = await (admin as any).from('events').select('stripe_enabled').eq('id', params.id).single()
       const stripeEnabled = body.stripe_enabled ?? eventFull?.stripe_enabled
