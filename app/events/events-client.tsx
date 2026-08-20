@@ -240,7 +240,7 @@ function EventsContent() {
 
           <div className="overflow-hidden mb-4">
             <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.1]">
-              <WordReveal delay={0.05}>Événements artisanaux</WordReveal>
+              <WordReveal delay={0.05}>Événements</WordReveal>
             </h1>
           </div>
 
