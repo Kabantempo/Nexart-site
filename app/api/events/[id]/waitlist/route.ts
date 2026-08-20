@@ -35,13 +35,22 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         position,
         status,
         created_at,
-        profiles:creator_id (id, full_name, email, avatar_url)
+        profiles:exhibitor_id (id, full_name, avatar_url)
       `)
       .eq('event_id', params.id)
       .order('position', { ascending: true })
 
     if (error) throw error
-    return NextResponse.json({ waitlist: data || [] })
+
+    // email vit dans auth.users, pas profiles — enrichir séparément
+    const waitlist = await Promise.all((data || []).map(async (entry: any) => {
+      const exhibitorId = entry.profiles?.id
+      if (!exhibitorId) return entry
+      const { data: { user: authUser } } = await admin.auth.admin.getUserById(exhibitorId)
+      return { ...entry, profiles: { ...entry.profiles, email: authUser?.email ?? null } }
+    }))
+
+    return NextResponse.json({ waitlist })
   } catch (error: unknown) {
     console.error('❌ Waitlist GET error:', { event_id: params.id, error: (error instanceof Error ? error.message : String(error)) })
     return NextResponse.json({ error: 'Erreur chargement waitlist' }, { status: 500 })
@@ -59,7 +68,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const admin = getAdminClient()
   try {
     const body = await req.json()
-    const creator_id = authUser.id
+    const exhibitor_id = authUser.id
     const { reason = 'Sold out' } = body
 
     const { data: maxPos } = await (admin as any)
@@ -73,7 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const { data, error } = await (admin as any)
       .from('event_exhibitor_waitlist')
-      .insert([{ event_id: params.id, creator_id, position: nextPosition, reason, status: 'waiting' }])
+      .insert([{ event_id: params.id, exhibitor_id, position: nextPosition, reason, status: 'waiting' }])
       .select()
 
     if (error) throw error
@@ -99,7 +108,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // Fetch creator info before promoting — constrain to this event to prevent cross-event access
     const { data: entry } = await (admin as any)
       .from('event_exhibitor_waitlist')
-      .select('creator_id, profiles:creator_id(full_name)')
+      .select('exhibitor_id, profiles:exhibitor_id(full_name)')
       .eq('id', waitlist_id)
       .eq('event_id', params.id)
       .single()
@@ -116,18 +125,18 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (error) throw error
 
     // Notify promoted creator
-    if (entry?.creator_id) {
+    if (entry?.exhibitor_id) {
       await admin.from('notifications').insert({
-        user_id: entry.creator_id,
+        user_id: entry.exhibitor_id,
         type: 'waitlist_promoted',
         title: 'Une place est disponible !',
         body: `Une place s'est libérée pour "${eventData?.title}". Complétez votre inscription rapidement.`,
         link: `/events/${params.id}`,
       })
-      await sendPushToUsers([entry.creator_id], '🎉 Une place est disponible !', `Une place s'est libérée pour "${eventData?.title}".`, `/events/${params.id}`)
+      await sendPushToUsers([entry.exhibitor_id], '🎉 Une place est disponible !', `Une place s'est libérée pour "${eventData?.title}".`, `/events/${params.id}`)
 
       // Email via Resend / SMTP
-      const { data: { user: creatorAuth } } = await admin.auth.admin.getUserById(entry.creator_id)
+      const { data: { user: creatorAuth } } = await admin.auth.admin.getUserById(entry.exhibitor_id)
       if (creatorAuth?.email) {
         await sendMail({
           to: creatorAuth.email,
