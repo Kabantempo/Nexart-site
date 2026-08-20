@@ -406,7 +406,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
 
       {/* Controls */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {['all', 'pending', 'approved', 'rejected'].map(status => (
             <button
               key={status}
