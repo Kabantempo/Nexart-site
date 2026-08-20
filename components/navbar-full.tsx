@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell, Shield } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell, Shield, Menu } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { WhatsNew } from '@/components/ui/whats-new'
@@ -638,18 +638,12 @@ export function NavbarFull() {
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Menu"
-              style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center', alignItems: 'center', width: '44px', height: '44px', borderRadius: '10px', background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', border: 'none', cursor: 'pointer' }}
+              style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '44px', height: '44px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
               className="lg-hidden"
             >
-              <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
-                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: 'var(--text-primary)' }}
-              />
-              <motion.span animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }} transition={{ duration: 0.2 }}
-                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: 'var(--text-primary)' }}
-              />
-              <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} transition={{ duration: 0.2 }}
-                style={{ display: 'block', height: '2px', width: '18px', borderRadius: '2px', backgroundColor: 'var(--text-primary)' }}
-              />
+              <motion.div animate={mobileOpen ? { rotate: 90, opacity: 0.7 } : { rotate: 0, opacity: 1 }} transition={{ duration: 0.2 }}>
+                {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              </motion.div>
             </button>
           </div>
         </div>
