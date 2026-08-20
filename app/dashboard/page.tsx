@@ -308,6 +308,7 @@ export default function DashboardPage() {
         }
         @media (max-width: 640px) {
           .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+          .profile-banner-detail { display: none !important; }
         }
         input, textarea, select {
           color: var(--text-primary) !important;
@@ -421,15 +422,15 @@ export default function DashboardPage() {
         {hasCreator && dashTab === 'creator' && firstMissingStep && (
           <Link href={firstMissingStep.link} style={{ display: 'block', textDecoration: 'none', marginBottom: '16px' }}>
             <div style={{ padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.3)', backgroundColor: 'rgba(99,102,241,0.1)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <AlertCircle size={15} color={colors.violet.primary} />
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Profil incomplet — {profilePct}%</span>
-                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Étape suivante : {firstMissingStep.label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                  <AlertCircle size={15} color={colors.violet.primary} style={{ flexShrink: 0 }} />
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Profil incomplet — {profilePct}%</span>
+                  <span className="profile-banner-detail" style={{ fontSize: '12px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Étape suivante : {firstMissingStep.label}</span>
                 </div>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: colors.violet.primary }}>Compléter →</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: colors.violet.primary, flexShrink: 0 }}>Compléter →</span>
               </div>
-              <div style={{ height: '3px', borderRadius: '4px', backgroundColor: 'rgba(99,102,241,0.2)', overflow: 'hidden', marginTop: '10px' }}>
+              <div className="profile-banner-detail" style={{ height: '3px', borderRadius: '4px', backgroundColor: 'rgba(99,102,241,0.2)', overflow: 'hidden', marginTop: '10px' }}>
                 <div style={{ height: '100%', borderRadius: '4px', backgroundColor: colors.violet.primary, width: `${profilePct}%`, transition: 'width 0.5s ease' }} />
               </div>
             </div>
