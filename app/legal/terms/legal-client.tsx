@@ -5,7 +5,7 @@ export default function TermsPageClient() {
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '64px 16px' }}>
-        <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '32px' }}>
+        <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '32px' }}>
           Conditions d'Utilisation
         </h1>
 

@@ -102,7 +102,7 @@ export default function CreatorAnalyticsClient() {
           transition={{ duration: 0.8 }}
           style={{ marginBottom: '60px' }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
+          <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
             Mes Statistiques
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>

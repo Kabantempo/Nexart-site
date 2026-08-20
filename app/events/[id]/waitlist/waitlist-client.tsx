@@ -87,7 +87,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px 40px' }}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             Liste d&apos;attente
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>
