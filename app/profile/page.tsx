@@ -415,35 +415,61 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user) return
     setSaving(true)
-    const isCreator = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true
-    const promises = [
-      supabase.from('profiles').update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }).eq('id', user.id),
-      ...(isCreator ? [supabase.from('creator_profiles').upsert({
-        user_id: user.id, disciplines: editDisc,
-        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national',
-        instagram: editInstagram, website: editWebsite, etsy: editEtsy,
-        facebook: editFacebook, tiktok: editTiktok,
+    const isCreator = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || user.is_creator === true
+
+    // Save basic profile
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName })
+      .eq('id', user.id)
+    if (profileError) {
+      console.error('[handleSave] profiles error:', profileError)
+      setToast(`Erreur : ${profileError.message}`)
+      setSaving(false)
+      return
+    }
+
+    // Save creator profile via server-side API (bypasses RLS)
+    if (isCreator) {
+      const { data: { session } } = await supabase.auth.getSession()
+      const creatorPayload = {
+        disciplines: editDisc,
+        city: editCity,
+        region: editRegion,
+        postal_code: editPostalCode || null,
+        travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25'),
+        instagram: editInstagram,
+        website: editWebsite,
+        etsy: editEtsy,
+        facebook: editFacebook,
+        tiktok: editTiktok,
         phone: editPhone || null,
         price_min: editPriceMin ? parseInt(editPriceMin) : null,
         price_max: editPriceMax ? parseInt(editPriceMax) : null,
         legal_status: editLegalStatus || null,
         page_settings: { primary_color: editBrandColor },
-      } as any, { onConflict: 'user_id' })] : []),
-    ]
-    const results = await Promise.all(promises)
-    const errorResult = results.find(r => r.error)
-    if (errorResult) {
-      console.error('[handleSave] Supabase error:', errorResult.error)
-      setToast(`Erreur : ${errorResult.error?.message ?? 'Veuillez réessayer.'}`)
-      setSaving(false)
-      return
-    }
-    setProfile(p => p ? { ...p, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName } as any : p)
-    if (isCreator) {
-      const creatorUpdate = { disciplines: editDisc, city: editCity, region: editRegion, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any }
+      }
+      const res = await fetch('/api/profile/creator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify(creatorPayload),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        console.error('[handleSave] creator_profiles error:', err)
+        setToast(`Erreur : ${err.error ?? 'Impossible de sauvegarder'}`)
+        setSaving(false)
+        return
+      }
+      const creatorUpdate = { ...creatorPayload, travel_radius: creatorPayload.travel_radius as any }
       setCreator(c => c ? { ...c, ...creatorUpdate } : { user_id: user.id, ...creatorUpdate, portfolio_images: [], siret_verified: false, insurance_verified: false, open_to_collab: false } as any)
     }
-    // Re-fetch to confirm DB state
+
+    setProfile(p => p ? { ...p, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName } as any : p)
+    // Re-fetch profile to confirm DB state
     const { data: freshProfile } = await supabase.from('profiles').select('full_name,bio,avatar_url,banner_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer').eq('id', user.id).maybeSingle()
     if (freshProfile) setProfile(freshProfile as Profile)
     setSaving(false)
