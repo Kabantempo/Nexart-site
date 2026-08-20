@@ -66,12 +66,13 @@ export default function StripeConnectBanner({ token }: { token: string }) {
       marginBottom: '20px',
       color: colors.bg.primary,
       display: 'flex',
+      flexWrap: 'wrap',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: '12px',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ fontSize: '20px' }}>{isPending ? '⏳' : '💸'}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 220px' }}>
+        <span style={{ fontSize: '20px', flexShrink: 0 }}>{isPending ? '⏳' : '💸'}</span>
         <div style={{ fontSize: '14px' }}>
           <div style={{ fontWeight: 600, marginBottom: '2px' }}>
             {isPending ? 'Vérification en cours' : 'Activez les paiements directs'}
