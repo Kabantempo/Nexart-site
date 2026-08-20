@@ -476,12 +476,10 @@ export default function HomeClient() {
         @media (min-width: 640px) { .home-cta-buttons { flex-direction: row; } }
 
         /* ── Force dark theme on home page regardless of user's light/dark preference ── */
+        [data-theme="light"] .home-page { background-color: #08081a !important; color: #FFFFFF !important; }
         [data-theme="light"] .home-page section { background-color: transparent !important; }
-        [data-theme="light"] .home-page { background-color: transparent !important; color: #FFFFFF !important; }
         [data-theme="light"] .home-page [style*="color: rgba(255, 255, 255"] { color: unset !important; }
-        [data-theme="light"] .home-page [style*="background-color: rgb(15, 15"],
-        [data-theme="light"] .home-page [style*="background-color: rgb(6, 6"],
-        [data-theme="light"] .home-page [style*="background-color: rgb(10, 10"] { background-color: unset !important; }
+        [data-theme="light"] .home-page [style*="background-color: rgb("] { background-color: unset !important; }
 
         /* ── Responsive section paddings ── */
         .home-section-xl  { padding-top: 128px; padding-bottom: 128px; }
