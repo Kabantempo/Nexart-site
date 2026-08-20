@@ -1012,7 +1012,7 @@ export default function AdminPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {siretVerifs.map(v => (
-                    <div key={v.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div key={v.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
                       <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <User size={16} color={colors.bg.primary} />
                       </div>
@@ -1071,7 +1071,7 @@ export default function AdminPage() {
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune proposition</p>
               </div>
             ) : discProposals.map(p => (
-              <div key={p.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+              <div key={p.id} style={{ padding: '16px 20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>{p.name}</p>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '3px 0 0' }}>
