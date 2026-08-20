@@ -591,7 +591,7 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
             return (
               <div key={event.id} style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '20px' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'start', justifyContent: 'space-between', gap: '16px' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                       <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</h3>
                       <span style={{ flexShrink: 0, fontSize: '11px', padding: '2px 8px', backgroundColor: s.bg, color: s.color, borderRadius: '4px', fontWeight: 500 }}>{s.label}</span>

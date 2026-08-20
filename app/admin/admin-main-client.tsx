@@ -1016,7 +1016,7 @@ export default function AdminPage() {
                       <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.gray["700"], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <User size={16} color={colors.bg.primary} />
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
                         <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
                           {(v.profiles as { full_name?: string } | null)?.full_name ?? 'Créateur'}
                         </p>
