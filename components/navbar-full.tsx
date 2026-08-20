@@ -372,8 +372,7 @@ export function NavbarFull() {
                   <RichItem panelId="discover" idx={0} href="/events"      icon={Ticket}   label="Événements artisanaux" desc="Marchés, pop-ups, salons, festivals" />
                   <RichItem panelId="discover" idx={1} href="/creators"    icon={Palette}  label="Créateurs & Artisans"  desc="Parcourez les artisans inscrits" />
                   <RichItem panelId="discover" idx={2} href="/carte"       icon={MapPin}   label="Carte interactive"      desc="Événements près de chez vous" />
-                  <RichItem panelId="discover" idx={3} href="/calendrier"  icon={Calendar} label="Calendrier"             desc="Tous les événements à venir" />
-                  <RichItem panelId="discover" idx={4} href="/search"      icon={Search}   label="Recherche avancée"      desc="Filtrer par discipline, région…" />
+                  <RichItem panelId="discover" idx={3} href="/search"      icon={Search}   label="Recherche avancée"      desc="Filtrer par discipline, région…" />
                 </Panel>
               </div>
 
@@ -388,11 +387,12 @@ export function NavbarFull() {
 
               {/* Organisateurs */}
               <div style={{ position: 'relative' }}>
-                <Trigger id="organizer" label="Organisateurs" active={isActive('/events/create') || isActive('/offres') || isActive('/organizer')} />
+                <Trigger id="organizer" label="Organisateurs" active={isActive('/events/create') || isActive('/offres') || isActive('/organizer') || isActive('/calendrier')} />
                 <Panel id="organizer" width={280}>
                   <RichItem panelId="organizer" idx={0} href="/events/create"      icon={Plus}      label="Créer un événement"    desc="Publiez votre marché ou salon" />
-                  <RichItem panelId="organizer" idx={1} href="/offres"             icon={Zap}       label="Offres & tarifs"        desc="Plans créateurs et organisateurs" />
-                  <RichItem panelId="organizer" idx={2} href="/organizer/analytics" icon={BarChart2} label="Analytiques"            desc="Stats de vos événements" />
+                  <RichItem panelId="organizer" idx={1} href="/calendrier"         icon={Calendar}  label="Mon calendrier"         desc="Vos marchés organisés, par mois" />
+                  <RichItem panelId="organizer" idx={2} href="/offres"             icon={Zap}       label="Offres & tarifs"        desc="Plans créateurs et organisateurs" />
+                  <RichItem panelId="organizer" idx={3} href="/organizer/analytics" icon={BarChart2} label="Analytiques"            desc="Stats de vos événements" />
                 </Panel>
               </div>
 
