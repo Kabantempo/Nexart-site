@@ -200,7 +200,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                 </div>
 
                 {/* Info */}
-                <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                   <p style={{ fontWeight: 600, color: 'var(--text-primary)', margin: 0, fontSize: '15px' }}>
                     {entry.profiles?.full_name || 'Utilisateur inconnu'}
                   </p>

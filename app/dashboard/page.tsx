@@ -755,7 +755,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
         return (
           <div key={app.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : colors.border.default}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)' }}>
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
               <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {app.event?.title || 'Événement inconnu'}
               </p>
