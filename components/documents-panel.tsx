@@ -322,7 +322,7 @@ function CreatorView() {
           </div>
           <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {docs.map(doc => (
-              <div key={doc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <div key={doc.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <FileText size={16} color={colors.violet.primary} />
                   <div>

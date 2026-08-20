@@ -155,6 +155,7 @@ export default function WaitlistClient({ eventId }: { eventId: string }) {
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                 style={{
                   display: 'flex',
+                  flexWrap: 'wrap',
                   alignItems: 'center',
                   gap: '16px',
                   padding: '16px 20px',
