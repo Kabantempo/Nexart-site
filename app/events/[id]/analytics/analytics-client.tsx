@@ -75,7 +75,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
           transition={{ duration: 0.8 }}
           style={{ marginBottom: '60px' }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
+          <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
             Analytique Événement
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>

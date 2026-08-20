@@ -110,7 +110,7 @@ export default function NotificationsClient() {
           <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '20px' }}>
             <ArrowLeft size={16} /> Tableau de bord
           </Link>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <h1 style={{ fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>Notifications</h1>
               {unread > 0 && (

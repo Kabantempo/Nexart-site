@@ -73,7 +73,7 @@ export default function RemindersClient({ eventId }: { eventId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 style={{ fontSize: '48px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
+          <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
             Relances Automatiques
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--text-secondary)' }}>

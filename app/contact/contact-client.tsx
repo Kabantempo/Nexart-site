@@ -72,7 +72,7 @@ export default function ContactPageClient() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 style={{ fontSize: '48px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
+            <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
               Nous contacter
             </h1>
             <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: '1.6' }}>
