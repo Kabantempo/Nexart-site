@@ -187,6 +187,8 @@ function EventsContent() {
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
   const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || selectedDiscs.length > 0 || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe || !!dateFrom || !!dateTo
+  const advancedFilterCount = [cityFilter !== 'all', selectedDiscs.length > 0, freeOnly, priceMax !== '', nearMe, !!dateFrom, !!dateTo].filter(Boolean).length
+  const [advancedOpen, setAdvancedOpen] = useState(advancedFilterCount > 0)
   const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
   const uniqueCitiesCount = new Set(events.map(e => e.city).filter(Boolean)).size
 
@@ -310,33 +312,8 @@ function EventsContent() {
             </div>
           </div>
 
-          {/* Row 2: Ville + Date + Tri */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start pt-4 border-t border-gray-100">
-            {uniqueCities.length > 0 && (
-              <div className="w-full sm:w-auto">
-                <p className="text-[11px] font-bold text-gray-400 mb-2">Ville</p>
-                <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                  className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
-                    cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
-                  }`}>
-                  <option value="all">Toutes les villes</option>
-                  {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-            )}
-
-            <div className="w-full sm:w-auto">
-              <p className="text-[11px] font-bold text-gray-400 mb-2">À partir du</p>
-              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateFrom ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
-            </div>
-
-            <div className="w-full sm:w-auto">
-              <p className="text-[11px] font-bold text-gray-400 mb-2">Jusqu'au</p>
-              <input type="date" value={dateTo} min={dateFrom} onChange={e => setDateTo(e.target.value)}
-                className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateTo ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
-            </div>
-
+          {/* Row 2: Tri (rapide, toujours visible) + toggle filtres avancés */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start justify-between pt-4 border-t border-gray-100">
             <div className="w-full sm:w-auto">
               <p className="text-[11px] font-bold text-gray-400 mb-2">Trier</p>
               <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
@@ -350,86 +327,136 @@ function EventsContent() {
                 ))}
               </div>
             </div>
+
+            <button onClick={() => setAdvancedOpen(o => !o)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors sm:self-end ${
+                advancedFilterCount > 0 ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+              }`}>
+              <SlidersHorizontal size={14} />
+              Filtres avancés
+              {advancedFilterCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-indigo-600 text-white text-[11px] font-bold">{advancedFilterCount}</span>
+              )}
+              <span style={{ fontSize: '10px', opacity: 0.6, transform: advancedOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▾</span>
+            </button>
           </div>
 
-          {/* Row 3: Discipline + Tarif + Gratuit + NearMe */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
-            {uniqueDiscs.length > 0 && (
-              <div className="w-full sm:w-auto" ref={discDropdownRef} style={{ position: 'relative' }}>
-                <p className="text-[11px] font-bold text-gray-400 mb-2">Disciplines</p>
-                <button
-                  onClick={() => setDiscDropdownOpen(o => !o)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '8px 12px', borderRadius: '12px', border: '1px solid',
-                    borderColor: selectedDiscs.length > 0 ? colors.purple.bgPaleAlt : colors.border.default,
-                    backgroundColor: selectedDiscs.length > 0 ? colors.purple.bgEefAlt : colors.bg.primary,
-                    color: selectedDiscs.length > 0 ? colors.purple.indigoDarkAlt : colors.gray["700"],
-                    fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap'
-                  }}
-                >
-                  {selectedDiscs.length > 0 ? `Disciplines (${selectedDiscs.length})` : 'Toutes disciplines'}
-                  <span style={{ fontSize: '10px', opacity: 0.6 }}>▾</span>
-                </button>
-                {discDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    style={{
-                      position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100,
-                      backgroundColor: colors.bg.primary, border: `1px solid ${colors.border.default}`, borderRadius: '14px',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '8px',
-                      minWidth: '220px', maxHeight: '280px', overflowY: 'auto'
-                    }}
-                  >
-                    {selectedDiscs.length > 0 && (
-                      <button onClick={() => setSelectedDiscs([])}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', fontSize: '11px', color: `${colors.red.vivid}`, fontWeight: 600, marginBottom: '4px', cursor: 'pointer', background: 'none', border: 'none' }}>
-                        Tout effacer
-                      </button>
-                    )}
-                    {uniqueDiscs.map(d => {
-                      const checked = selectedDiscs.includes(d)
-                      return (
-                        <label key={d}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: '8px',
-                            padding: '7px 10px', borderRadius: '8px', cursor: 'pointer',
-                            backgroundColor: checked ? colors.purple.bgEefAlt : 'transparent',
-                            transition: 'background 0.1s'
-                          }}
-                        >
-                          <input type="checkbox" checked={checked} onChange={() => toggleDisc(d)}
-                            style={{ accentColor: colors.violet.primary, width: '14px', height: '14px', cursor: 'pointer' }} />
-                          <span style={{ fontSize: '13px', color: checked ? colors.purple.indigoDarkAlt : colors.gray["700"], fontWeight: checked ? 600 : 400 }}>{d}</span>
-                        </label>
-                      )
-                    })}
-                  </motion.div>
+          {advancedOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ overflow: 'hidden' }}
+            >
+              {/* Ville + Dates */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
+                {uniqueCities.length > 0 && (
+                  <div className="w-full sm:w-auto">
+                    <p className="text-[11px] font-bold text-gray-400 mb-2">Ville</p>
+                    <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
+                      className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
+                        cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
+                      }`}>
+                      <option value="all">Toutes les villes</option>
+                      {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
                 )}
+
+                <div className="w-full sm:w-auto">
+                  <p className="text-[11px] font-bold text-gray-400 mb-2">À partir du</p>
+                  <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                    className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateFrom ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
+                </div>
+
+                <div className="w-full sm:w-auto">
+                  <p className="text-[11px] font-bold text-gray-400 mb-2">Jusqu'au</p>
+                  <input type="date" value={dateTo} min={dateFrom} onChange={e => setDateTo(e.target.value)}
+                    className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateTo ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
+                </div>
               </div>
-            )}
-            <div className="w-full sm:w-auto">
-              <p className="text-[11px] font-bold text-gray-400 mb-2">Prix stand max (€)</p>
-              <input type="number" min={0} placeholder="ex: 50" value={priceMax}
-                onChange={e => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
-                className="w-full sm:w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-300" />
-            </div>
-            <div className="flex items-end pb-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" checked={freeOnly} onChange={e => setFreeOnly(e.target.checked)} className="w-4 h-4 rounded accent-indigo-600" />
-                <span className="text-sm font-medium text-gray-700">Gratuit uniquement</span>
-              </label>
-            </div>
-            <div className="flex items-end pb-1">
-              <button onClick={handleNearMe}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors ${nearMe ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}>
-                <MapPin size={14} /> Autour de moi ({geoRadius} km)
-              </button>
-            </div>
-          </div>
+
+              {/* Discipline + Tarif + Gratuit + NearMe */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
+                {uniqueDiscs.length > 0 && (
+                  <div className="w-full sm:w-auto" ref={discDropdownRef} style={{ position: 'relative' }}>
+                    <p className="text-[11px] font-bold text-gray-400 mb-2">Disciplines</p>
+                    <button
+                      onClick={() => setDiscDropdownOpen(o => !o)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '6px',
+                        padding: '8px 12px', borderRadius: '12px', border: '1px solid',
+                        borderColor: selectedDiscs.length > 0 ? colors.purple.bgPaleAlt : colors.border.default,
+                        backgroundColor: selectedDiscs.length > 0 ? colors.purple.bgEefAlt : colors.bg.primary,
+                        color: selectedDiscs.length > 0 ? colors.purple.indigoDarkAlt : colors.gray["700"],
+                        fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {selectedDiscs.length > 0 ? `Disciplines (${selectedDiscs.length})` : 'Toutes disciplines'}
+                      <span style={{ fontSize: '10px', opacity: 0.6 }}>▾</span>
+                    </button>
+                    {discDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        style={{
+                          position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100,
+                          backgroundColor: colors.bg.primary, border: `1px solid ${colors.border.default}`, borderRadius: '14px',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '8px',
+                          minWidth: '220px', maxHeight: '280px', overflowY: 'auto'
+                        }}
+                      >
+                        {selectedDiscs.length > 0 && (
+                          <button onClick={() => setSelectedDiscs([])}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', fontSize: '11px', color: `${colors.red.vivid}`, fontWeight: 600, marginBottom: '4px', cursor: 'pointer', background: 'none', border: 'none' }}>
+                            Tout effacer
+                          </button>
+                        )}
+                        {uniqueDiscs.map(d => {
+                          const checked = selectedDiscs.includes(d)
+                          return (
+                            <label key={d}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: '8px',
+                                padding: '7px 10px', borderRadius: '8px', cursor: 'pointer',
+                                backgroundColor: checked ? colors.purple.bgEefAlt : 'transparent',
+                                transition: 'background 0.1s'
+                              }}
+                            >
+                              <input type="checkbox" checked={checked} onChange={() => toggleDisc(d)}
+                                style={{ accentColor: colors.violet.primary, width: '14px', height: '14px', cursor: 'pointer' }} />
+                              <span style={{ fontSize: '13px', color: checked ? colors.purple.indigoDarkAlt : colors.gray["700"], fontWeight: checked ? 600 : 400 }}>{d}</span>
+                            </label>
+                          )
+                        })}
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+                <div className="w-full sm:w-auto">
+                  <p className="text-[11px] font-bold text-gray-400 mb-2">Prix stand max (€)</p>
+                  <input type="number" min={0} placeholder="ex: 50" value={priceMax}
+                    onChange={e => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
+                    className="w-full sm:w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-300" />
+                </div>
+                <div className="flex items-end pb-1">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" checked={freeOnly} onChange={e => setFreeOnly(e.target.checked)} className="w-4 h-4 rounded accent-indigo-600" />
+                    <span className="text-sm font-medium text-gray-700">Gratuit uniquement</span>
+                  </label>
+                </div>
+                <div className="flex items-end pb-1">
+                  <button onClick={handleNearMe}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors ${nearMe ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}>
+                    <MapPin size={14} /> Autour de moi ({geoRadius} km)
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {hasActiveFilters && (
             <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap items-center">
