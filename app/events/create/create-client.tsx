@@ -712,7 +712,6 @@ export default function CreateEventClient() {
               {form.stripe_enabled && connectStatus !== 'active' && (
                 <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: radius.sm, backgroundColor: colors.feedback.warning.bg, border: `1px solid ${colors.feedback.warning.border}`, fontSize: '13px', color: colors.feedback.warning.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   ⚠️ Votre compte Stripe n'est pas encore connecté. <a href="/dashboard" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'underline' }}>Connectez-le dans le dashboard</a> avant de publier.
-                  ⚠️ Votre compte Stripe n'est pas connecté. <a href="/dashboard" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'underline' }}>Connectez-le dans le dashboard</a> avant de publier.
                 </div>
               )}
             </Section>
