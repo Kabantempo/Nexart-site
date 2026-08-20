@@ -448,15 +448,11 @@ function EmailCaptureSection() {
 }
 
 // ── Page ───────────────────────────────────────────────────────────────
-export default function HomeClient() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
-
-  return (
-    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: D.bg, color: '#FFFFFF' }}>
-      <style>{`
+// Injectée via dangerouslySetInnerHTML (pas en enfant JSX) : <style> est un
+// élément "raw text" en HTML — un enfant texte normal serait échappé
+// différemment par le SSR (entités &quot;/&#x27;) et par le client au montage,
+// ce qui casse l'hydratation dès que le CSS contient des guillemets/apostrophes.
+const HOME_STYLE_CSS = `
         .home-faces-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .home-faces-grid { grid-template-columns: repeat(3, 1fr); } }
         .home-steps-grid { display: grid; grid-template-columns: 1fr; gap: 32px; position: relative; }
@@ -475,11 +471,11 @@ export default function HomeClient() {
         .home-cta-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
         @media (min-width: 640px) { .home-cta-buttons { flex-direction: row; } }
 
-        /* ── Force dark theme on home page regardless of user's light/dark preference ── */
-        [data-theme="light"] .home-page { background-color: #08081a !important; color: #FFFFFF !important; }
-        [data-theme="light"] .home-page section { background-color: transparent !important; }
-        [data-theme="light"] .home-page [style*="color: rgba(255, 255, 255"] { color: unset !important; }
-        [data-theme="light"] .home-page [style*="background-color: rgb("] { background-color: unset !important; }
+        /* Force le thème sombre sur la home, quel que soit le thème choisi */
+        [data-theme=light] .home-page { background-color: #08081a !important; color: #FFFFFF !important; }
+        [data-theme=light] .home-page section { background-color: transparent !important; }
+        [data-theme=light] .home-page [style*="color: rgba(255, 255, 255"] { color: unset !important; }
+        [data-theme=light] .home-page [style*="background-color: rgb("] { background-color: unset !important; }
 
         /* ── Responsive section paddings ── */
         .home-section-xl  { padding-top: 128px; padding-bottom: 128px; }
@@ -499,7 +495,17 @@ export default function HomeClient() {
           .home-section-xl  { padding-top: 40px;  padding-bottom: 40px;  }
           .home-phone-wrap  { transform: scale(0.75); transform-origin: top center; }
         }
-      `}</style>
+      `
+
+export default function HomeClient() {
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+
+  return (
+    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: D.bg, color: '#FFFFFF' }}>
+      <style dangerouslySetInnerHTML={{ __html: HOME_STYLE_CSS }} />
 
       <Grain />
 
