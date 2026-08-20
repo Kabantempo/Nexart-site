@@ -113,6 +113,7 @@ function PhoneMockup() {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="home-phone-wrap"
       style={{ position: 'relative' }}
     >
       {/* Glow */}
@@ -241,7 +242,7 @@ function TestimonialCard({ name, role, text }: { name: string; role: string; tex
 
 function TestimonialsMarquee() {
   return (
-    <section aria-label="Témoignages illustratifs" style={{ padding: '80px 0', overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
+    <section aria-label="Témoignages illustratifs" className="home-section-md" style={{ overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
       <div aria-hidden="true" style={{ display: 'flex', marginBottom: '16px', animation: 'ticker 45s linear infinite', width: 'max-content' }}>
         {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((t, i) => (
           <TestimonialCard key={i} {...t} />
@@ -325,7 +326,7 @@ const FACES = [
 
 function FacesSection() {
   return (
-    <section style={{ maxWidth: '1152px', margin: '0 auto', padding: '128px 16px' }}>
+    <section className="home-faces-pad" style={{ maxWidth: '1152px', margin: '0 auto' }}>
       <FadeUp style={{ marginBottom: '64px' }}>
         <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Créateurs · Organisateurs · Visiteurs</p>
         <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: colors.bg.primary, maxWidth: '600px' }}>
@@ -454,7 +455,7 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: D.bg, color: '#FFFFFF' }}>
       <style>{`
         .home-faces-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { .home-faces-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -473,6 +474,33 @@ export default function HomeClient() {
         @media (min-width: 640px) { .home-hero-buttons { flex-direction: row; } }
         .home-cta-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
         @media (min-width: 640px) { .home-cta-buttons { flex-direction: row; } }
+
+        /* ── Force dark theme on home page regardless of user's light/dark preference ── */
+        [data-theme="light"] .home-page section { background-color: transparent !important; }
+        [data-theme="light"] .home-page { background-color: transparent !important; color: #FFFFFF !important; }
+        [data-theme="light"] .home-page [style*="color: rgba(255, 255, 255"] { color: unset !important; }
+        [data-theme="light"] .home-page [style*="background-color: rgb(15, 15"],
+        [data-theme="light"] .home-page [style*="background-color: rgb(6, 6"],
+        [data-theme="light"] .home-page [style*="background-color: rgb(10, 10"] { background-color: unset !important; }
+
+        /* ── Responsive section paddings ── */
+        .home-section-xl  { padding-top: 128px; padding-bottom: 128px; }
+        .home-section-lg  { padding-top: 112px; padding-bottom: 112px; }
+        .home-section-md  { padding-top: 80px;  padding-bottom: 80px;  }
+        .home-faces-pad   { padding: 128px 16px; }
+        .home-hero-content-pad { padding: 80px 16px; }
+        @media (max-width: 767px) {
+          .home-section-xl  { padding-top: 56px;  padding-bottom: 56px;  }
+          .home-section-lg  { padding-top: 48px;  padding-bottom: 48px;  }
+          .home-section-md  { padding-top: 40px;  padding-bottom: 40px;  }
+          .home-faces-pad   { padding: 56px 16px; }
+          .home-hero-content-pad { padding: 48px 16px; }
+          .home-phone-wrap  { transform: scale(0.88); transform-origin: top center; }
+        }
+        @media (max-width: 374px) {
+          .home-section-xl  { padding-top: 40px;  padding-bottom: 40px;  }
+          .home-phone-wrap  { transform: scale(0.75); transform-origin: top center; }
+        }
       `}</style>
 
       <Grain />
@@ -492,7 +520,7 @@ export default function HomeClient() {
           style={{ position: 'absolute', top: '33%', right: '-128px', width: '500px', height: '500px', borderRadius: '50%', backgroundColor: 'rgba(139,92,246,0.15)', filter: 'blur(100px)', pointerEvents: 'none' }} />
 
         {/* Hero content */}
-        <motion.div style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', padding: '80px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <motion.div className="home-hero-content-pad" style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '100%', textAlign: 'center' }}>
             <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.i30}`, backgroundColor: D.i10, color: colors.purple.bgLight, fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
@@ -573,7 +601,7 @@ export default function HomeClient() {
       <TestimonialsMarquee />
 
       {/* ══ STEPS ══════════════════════════════════════════════════════ */}
-      <section style={{ borderTop: `1px solid ${D.w6}`, padding: '128px 0' }}>
+      <section className="home-section-xl" style={{ borderTop: `1px solid ${D.w6}` }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
           <FadeUp style={{ marginBottom: '80px', textAlign: 'center' }}>
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>En 3 étapes</p>
@@ -606,7 +634,7 @@ export default function HomeClient() {
       </section>
 
       {/* ══ APP DOWNLOAD ═══════════════════════════════════════════════ */}
-      <section style={{ borderTop: `1px solid ${D.w6}`, padding: '112px 0', overflow: 'hidden' }}>
+      <section className="home-section-lg" style={{ borderTop: `1px solid ${D.w6}`, overflow: 'hidden' }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
           <div className="home-app-layout">
 
@@ -663,7 +691,7 @@ export default function HomeClient() {
       </section>
 
       {/* ══ FINAL CTA ══════════════════════════════════════════════════ */}
-      <section style={{ borderTop: `1px solid ${D.w6}`, padding: '128px 0' }}>
+      <section className="home-section-xl" style={{ borderTop: `1px solid ${D.w6}` }}>
         <div style={{ maxWidth: '768px', margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
           <FadeUp>
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '28px' }}>Rejoignez la communauté</p>

@@ -463,8 +463,8 @@ function UsersTab({ users, onRefresh }: { users: User[]; onRefresh: () => void }
           {search ? 'Aucun résultat' : 'Aucun utilisateur'}
         </div>
       ) : (
-        <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '640px' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                 {['Nom', 'Email', 'Rôle', 'Inscrit le', 'Statut', 'Action'].map(h => (

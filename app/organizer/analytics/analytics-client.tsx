@@ -221,7 +221,7 @@ export default function AnalyticsClient() {
         </div>
 
         {/* Charts row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, marginBottom: 40, alignItems: 'start' }}>
+        <div className="resp-grid-sidebar" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, marginBottom: 40, alignItems: 'start' }}>
 
           {/* Bar chart — candidatures par événement */}
           <motion.div
@@ -426,7 +426,7 @@ function LoadingSkeleton() {
             </div>
           ))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, marginBottom: 40 }}>
+        <div className="resp-grid-sidebar" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, marginBottom: 40 }}>
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 16, padding: 24 }}>
             <Skeleton width={200} height={20} />
             <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>

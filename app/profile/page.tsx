@@ -360,7 +360,7 @@ export default function ProfilePage() {
         setEditRegion(creat?.region ?? '')
         setEditPostalCode((creat as Record<string, unknown>)?.postal_code as string ?? '')
         setCityQuery(creat?.city ?? '')
-        setEditRadius(creat?.travel_radius ?? '25')
+        setEditRadius(creat?.travel_radius || '25')
         setEditDisc(creat?.disciplines ?? [])
         setEditInstagram(creat?.instagram ?? '')
         setEditFacebook((creat as any)?.facebook ?? '')
@@ -420,7 +420,7 @@ export default function ProfilePage() {
       supabase.from('profiles').update({ full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName }).eq('id', user.id),
       ...(isCreator ? [supabase.from('creator_profiles').upsert({
         user_id: user.id, disciplines: editDisc,
-        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: editRadius as '5' | '10' | '25' | 'national',
+        city: editCity, region: editRegion, postal_code: editPostalCode || null, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national',
         instagram: editInstagram, website: editWebsite, etsy: editEtsy,
         facebook: editFacebook, tiktok: editTiktok,
         phone: editPhone || null,
@@ -431,16 +431,24 @@ export default function ProfilePage() {
       } as any, { onConflict: 'user_id' })] : []),
     ]
     const results = await Promise.all(promises)
-    const hasError = results.some(r => r.error)
-    if (hasError) {
-      setToast('Erreur lors de la sauvegarde. Veuillez réessayer.')
+    const errorResult = results.find(r => r.error)
+    if (errorResult) {
+      console.error('[handleSave] Supabase error:', errorResult.error)
+      setToast(`Erreur : ${errorResult.error?.message ?? 'Veuillez réessayer.'}`)
       setSaving(false)
       return
     }
-    setProfile(p => p ? { ...p, full_name: editName, bio: editBio } : p)
-    if (isCreator) setCreator(c => c ? { ...c, disciplines: editDisc, city: editCity, region: editRegion, travel_radius: editRadius as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any } : c)
+    setProfile(p => p ? { ...p, full_name: editName, bio: editBio, username: editUsername || null, show_real_name: editShowRealName } as any : p)
+    if (isCreator) {
+      const creatorUpdate = { disciplines: editDisc, city: editCity, region: editRegion, travel_radius: (['5', '10', '25', 'national'].includes(editRadius) ? editRadius : '25') as '5' | '10' | '25' | 'national', instagram: editInstagram, website: editWebsite, etsy: editEtsy, facebook: editFacebook as any, tiktok: editTiktok as any, phone: (editPhone || null) as any, price_min: (editPriceMin ? parseInt(editPriceMin) : null) as any, price_max: (editPriceMax ? parseInt(editPriceMax) : null) as any, legal_status: (editLegalStatus || null) as any }
+      setCreator(c => c ? { ...c, ...creatorUpdate } : { user_id: user.id, ...creatorUpdate, portfolio_images: [], siret_verified: false, insurance_verified: false, open_to_collab: false } as any)
+    }
+    // Re-fetch to confirm DB state
+    const { data: freshProfile } = await supabase.from('profiles').select('full_name,bio,avatar_url,banner_url,role,is_admin,username,show_real_name,subscription_tier,is_creator,is_organizer').eq('id', user.id).maybeSingle()
+    if (freshProfile) setProfile(freshProfile as Profile)
     setSaving(false)
     setEditing(false)
+    showToast('Profil sauvegardé ✓')
   }
 
   const handleCheckSiret = async () => {
@@ -448,19 +456,16 @@ export default function ProfilePage() {
     setSiretChecking(true)
     setSiretResult(null)
     try {
-      await supabase.from('creator_profiles').upsert({ user_id: user.id, siret_number: siretNumber, siret_verified: false } as any, { onConflict: 'user_id' })
-      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      if (admins?.length) {
-        await supabase.from('notifications').insert(
-          admins.map((a: { id: string }) => ({
-            user_id: a.id,
-            type: 'siret_pending',
-            title: 'SIRET à vérifier',
-            body: `${profile?.full_name ?? 'Créateur'} · ${siretNumber}`,
-            link: '/profile?tab=admin&section=creators',
-          }))
-        )
-      }
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/creator/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ siret: siretNumber }),
+      })
+      if (!res.ok) throw new Error('Erreur lors de l\'envoi')
       setSiretResult({ valid: true, nom: 'Demande envoyée — un admin va vérifier votre SIRET.' })
     } catch {
       setSiretResult({ valid: false, error: 'Erreur lors de l\'envoi. Veuillez réessayer.' })
@@ -476,23 +481,18 @@ export default function ProfilePage() {
     const { data: uploadData, error } = await supabase.storage.from('insurance-docs').upload(`${user.id}/rc-pro.${ext}`, file, { upsert: true })
     if (!error && uploadData) {
       const { data: { publicUrl } } = supabase.storage.from('insurance-docs').getPublicUrl(uploadData.path)
-      // Sauvegarde l'URL du doc mais NE vérifie PAS — l'admin doit valider
-      await supabase.from('creator_profiles').update({ insurance_doc_url: publicUrl, insurance_verified: false }).eq('user_id', user.id)
       setCreator(c => c ? { ...c, insurance_doc_url: publicUrl, insurance_verified: false } : c)
       setEditInsurance(false)
-      // Notif à tous les admins
-      const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      if (admins?.length) {
-        await supabase.from('notifications').insert(
-          admins.map(a => ({
-            user_id: a.id,
-            type: 'rc_pro_pending',
-            title: 'RC Pro à vérifier',
-            body: `Nouveau document de ${profile?.full_name ?? 'Créateur'}`,
-            link: '/profile?tab=admin&section=creators',
-          }))
-        )
-      }
+      // Notif admins via API (admin client bypasses RLS)
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch('/api/creator/notify-rcpro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ insurance_doc_url: publicUrl }),
+      })
       setToast('Document envoyé — en attente de validation par l\'équipe')
     }
     setRcProUploading(false)
@@ -731,17 +731,28 @@ export default function ProfilePage() {
     setAvatarUploading(true)
     setCropSrc(null)
     cropCanvasRef.current.toBlob(async (blob) => {
-      if (!blob) { setAvatarUploading(false); return }
+      if (!blob) { setAvatarUploading(false); showToast('Erreur : impossible de générer l\'image'); return }
       const path = `${user.id}/avatar.jpg`
-      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (!error) {
-        const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-        const url = `${data.publicUrl}?t=${Date.now()}`
-        await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
-        setProfile(p => p ? { ...p, avatar_url: url } : p)
-        const storeUser = useAuthStore.getState().user
-        if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+      if (uploadError) {
+        console.error('[avatar upload] storage error:', uploadError)
+        showToast(`Erreur upload : ${uploadError.message}`)
+        setAvatarUploading(false)
+        return
       }
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      const url = `${data.publicUrl}?t=${Date.now()}`
+      const { error: dbError } = await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id)
+      if (dbError) {
+        console.error('[avatar upload] db error:', dbError)
+        showToast(`Erreur sauvegarde : ${dbError.message}`)
+        setAvatarUploading(false)
+        return
+      }
+      setProfile(p => p ? { ...p, avatar_url: url } : p)
+      const storeUser = useAuthStore.getState().user
+      if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
+      showToast('Photo de profil mise à jour ✓')
       setAvatarUploading(false)
     }, 'image/jpeg', 0.92)
   }
@@ -755,7 +766,8 @@ export default function ProfilePage() {
     const next = [...portfolioVideos, url]
     setPortfolioVideos(next)
     setNewVideoUrl('')
-    await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
+    const { error } = await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_videos: next } as any, { onConflict: 'user_id' })
+    if (error) { console.error('portfolio_videos save error:', error); setPortfolioVideos(portfolioVideos) }
   }
 
   // ─── Admin handlers ─────────────────────────────────────────────────────────
@@ -913,12 +925,12 @@ export default function ProfilePage() {
   const completionMissing: string[] = []
   const isCreatorRole = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || creator !== null
   if (isCreatorRole) {
-    if (!profile?.full_name) completionMissing.push('Nom complet')
-    if (!profile?.bio) completionMissing.push('Bio')
+    if (!editName && !profile?.full_name) completionMissing.push('Nom complet')
+    if (!editBio && !profile?.bio) completionMissing.push('Bio')
     if (!profile?.avatar_url) completionMissing.push('Photo de profil')
-    if (!creator?.disciplines?.length) completionMissing.push('Disciplines')
-    if (!creator?.city) completionMissing.push('Ville')
-    if (!creator?.travel_radius) completionMissing.push('Rayon de déplacement')
+    if (!editDisc.length && !creator?.disciplines?.length) completionMissing.push('Disciplines')
+    if (!editCity && !creator?.city) completionMissing.push('Ville')
+    if (!editRadius && !creator?.travel_radius) completionMissing.push('Rayon de déplacement')
   }
   const completionDone = 6 - completionMissing.length
   const acceptedCount = applications.filter(a => a.status === 'accepted').length
@@ -1120,7 +1132,16 @@ export default function ProfilePage() {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => setEditing(true)}
+                    <button onClick={() => {
+                      setEditName(profile?.full_name ?? '')
+                      setEditBio(profile?.bio ?? '')
+                      setEditCity(creator?.city ?? '')
+                      setEditRegion(creator?.region ?? '')
+                      setCityQuery(creator?.city ?? '')
+                      setEditRadius(creator?.travel_radius || '25')
+                      setEditDisc(creator?.disciplines ?? [])
+                      setEditing(true)
+                    }}
                       className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors whitespace-nowrap">
                       <Edit3 size={14} /> Modifier le profil
                     </button>
@@ -1220,8 +1241,11 @@ export default function ProfilePage() {
                         onKeyDown={async e => {
                           if (e.key === 'Enter') {
                             e.preventDefault()
-                            await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
-                            setToast('Pseudo enregistré')
+                            const { error } = await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
+                            if (!error) {
+                              setProfile(p => p ? { ...p, username: editUsername || null } as any : p)
+                              setToast('Pseudo enregistré')
+                            }
                           }
                         }}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 text-gray-900" />
@@ -1654,8 +1678,8 @@ export default function ProfilePage() {
                       <button
                         onClick={async () => {
                           const next = !creator?.open_to_collab
-                          await supabase.from('creator_profiles').update({ open_to_collab: next }).eq('user_id', user!.id)
-                          setCreator(prev => prev ? { ...prev, open_to_collab: next } : prev)
+                          await supabase.from('creator_profiles').upsert({ user_id: user!.id, open_to_collab: next }, { onConflict: 'user_id' })
+                          setCreator(prev => prev ? { ...prev, open_to_collab: next } : { open_to_collab: next } as any)
                           showToast(next ? 'Collaborations activées' : 'Collaborations désactivées')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
@@ -1780,6 +1804,22 @@ export default function ProfilePage() {
               </>
             )}
 
+            {/* Bouton Enregistrer en bas du formulaire */}
+            {editing && (
+              <div className="px-6 pb-2 pt-4 border-t border-gray-100">
+                <div className="flex gap-2">
+                  <button onClick={handleSave} disabled={saving}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors">
+                    <Save size={15} /> {saving ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                  </button>
+                  <button onClick={() => setEditing(false)}
+                    className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-500 text-sm cursor-pointer hover:bg-gray-50 transition-colors">
+                    <X size={15} />
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Déconnexion + Supprimer */}
             <div className="flex flex-col gap-2">
               <button onClick={async () => {
@@ -1827,7 +1867,10 @@ export default function ProfilePage() {
               maxPhotos={profile?.subscription_tier === 'pro' || profile?.subscription_tier === 'premium' ? 30 : profile?.subscription_tier === 'boost' ? 30 : 10}
               onChange={async (next) => {
                 setGridItems(next)
-                await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_grid: next }, { onConflict: 'user_id' })
+                const { error } = await supabase
+                  .from('creator_profiles')
+                  .upsert({ user_id: user.id, portfolio_grid: next } as any, { onConflict: 'user_id' })
+                if (error) console.error('portfolio_grid save error:', error)
               }}
             />
 
@@ -1851,7 +1894,8 @@ export default function ProfilePage() {
                           onClick={async () => {
                             const next = portfolioVideos.filter((_, j) => j !== i)
                             setPortfolioVideos(next)
-                            await supabase.from('creator_profiles').update({ portfolio_videos: next } as any).eq('user_id', user.id)
+                            const { error } = await supabase.from('creator_profiles').upsert({ user_id: user.id, portfolio_videos: next } as any, { onConflict: 'user_id' })
+                            if (error) { console.error('portfolio_videos delete error:', error); setPortfolioVideos(portfolioVideos) }
                           }}
                           style={{ position: 'absolute', top: '6px', right: '6px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.7)', color: colors.bg.primary, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', lineHeight: 1 }}
                         >×</button>

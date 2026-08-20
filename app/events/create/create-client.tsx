@@ -38,6 +38,8 @@ const DISCIPLINE_TAGS = [
 interface StandType {
   count: string
   dimensions: string
+  price_min: string
+  price_max: string
 }
 
 interface FormData {
@@ -52,8 +54,6 @@ interface FormData {
   start_time: string
   end_time: string
   stand_types: StandType[]
-  stand_price_min: string
-  stand_price_max: string
   discipline_tags: string[]
   rules: string
   stripe_enabled: boolean
@@ -68,7 +68,7 @@ interface FormData {
   application_deadline: string
 }
 
-const EMPTY_STAND_TYPE: StandType = { count: '', dimensions: '' }
+const EMPTY_STAND_TYPE: StandType = { count: '', dimensions: '', price_min: '', price_max: '' }
 
 const EMPTY_FORM: FormData = {
   title: '',
@@ -82,8 +82,6 @@ const EMPTY_FORM: FormData = {
   start_time: '',
   end_time: '',
   stand_types: [{ ...EMPTY_STAND_TYPE }],
-  stand_price_min: '',
-  stand_price_max: '',
   discipline_tags: [],
   rules: '',
   stripe_enabled: false,
@@ -111,7 +109,10 @@ function validate(form: FormData): string | null {
   if (form.stand_types.some(t => !t.count || isNaN(Number(t.count)) || Number(t.count) <= 0)) return 'Nombre de stands invalide'
   if (totalStandCount(form) <= 0) return 'Ajoutez au moins un type de stand'
   if (form.discipline_tags.length === 0) return 'Sélectionnez au moins une discipline'
-  if (form.stand_price_min && form.stand_price_max && Number(form.stand_price_min) > Number(form.stand_price_max)) return 'Le prix le plus bas doit être inférieur au prix le plus haut'
+  for (const t of form.stand_types) {
+    if (t.price_min && t.price_max && Number(t.price_min) > Number(t.price_max))
+      return 'Le prix le plus bas doit être inférieur au prix le plus haut'
+  }
   if (form.application_deadline && form.application_deadline > form.start_date) return 'La date limite de candidature doit être avant le début du marché'
   return null
 }
@@ -301,10 +302,24 @@ export default function CreateEventClient() {
       start_time: form.start_time || null,
       end_time: form.end_time || null,
       stand_count: totalStandCount(form),
-      stand_price: form.stand_price_min !== '' ? Number(form.stand_price_min) : null,
-      pricing_model: form.stand_price_max !== '' && form.stand_price_max !== form.stand_price_min ? 'variable' : 'flat',
-      pricing_variable_min: form.stand_price_min !== '' ? Number(form.stand_price_min) : null,
-      pricing_variable_max: form.stand_price_max !== '' ? Number(form.stand_price_max) : null,
+      stand_price: (() => {
+        const mins = form.stand_types.map(t => t.price_min !== '' ? Number(t.price_min) : null).filter(v => v !== null) as number[]
+        return mins.length ? Math.min(...mins) : null
+      })(),
+      pricing_model: (() => {
+        const prices = form.stand_types.flatMap(t => [t.price_min, t.price_max]).filter(v => v !== '')
+        if (!prices.length) return 'flat'
+        const allSame = form.stand_types.every(t => t.price_min === t.price_max || t.price_max === '')
+        return allSame ? 'flat' : 'variable'
+      })(),
+      pricing_variable_min: (() => {
+        const mins = form.stand_types.map(t => t.price_min !== '' ? Number(t.price_min) : null).filter(v => v !== null) as number[]
+        return mins.length ? Math.min(...mins) : null
+      })(),
+      pricing_variable_max: (() => {
+        const maxs = form.stand_types.map(t => t.price_max !== '' ? Number(t.price_max) : (t.price_min !== '' ? Number(t.price_min) : null)).filter(v => v !== null) as number[]
+        return maxs.length ? Math.max(...maxs) : null
+      })(),
       pricing_percent: null,
       stand_dimensions: standDimensions || null,
       discipline_tags: form.discipline_tags,
@@ -374,7 +389,7 @@ export default function CreateEventClient() {
           <p style={{ fontSize: '15px', color: 'var(--text-secondary)', margin: '6px 0 0' }}>Remplissez les informations de votre événement — vous pourrez tout modifier plus tard</p>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '28px', alignItems: 'start' }}>
+        <div className="resp-grid-sidebar" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '28px', alignItems: 'start' }}>
 
           {/* Colonne principale */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
@@ -519,23 +534,33 @@ export default function CreateEventClient() {
             <Section id="pricing" title="Stands & tarification" icon={Store}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {form.stand_types.map((t, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-                    <div style={{ flex: 1 }}>
-                      <Field label="Nombre de stands">
-                        <input className="form-input" type="number" min="1" value={t.count} onChange={e => updateStandType(i, 'count')(e.target.value)} placeholder="Ex : 40" />
+                  <div key={i} style={{ padding: '12px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                      <div style={{ flex: 1 }}>
+                        <Field label="Nombre de stands">
+                          <input className="form-input" type="number" min="1" value={t.count} onChange={e => updateStandType(i, 'count')(e.target.value)} placeholder="Ex : 40" />
+                        </Field>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <Field label="Dimensions du stand">
+                          <input className="form-input" value={t.dimensions} onChange={e => updateStandType(i, 'dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
+                        </Field>
+                      </div>
+                      {form.stand_types.length > 1 && (
+                        <button onClick={() => removeStandType(i)}
+                          style={{ marginBottom: '1px', width: '42px', height: '42px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.solid, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <X size={15} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="resp-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <Field label="Prix le plus bas (€)" hint="0 = gratuit">
+                        <input className="form-input" type="number" min="0" value={t.price_min} onChange={e => updateStandType(i, 'price_min')(e.target.value)} placeholder="Ex : 60" />
+                      </Field>
+                      <Field label="Prix le plus haut (€)">
+                        <input className="form-input" type="number" min="0" value={t.price_max} onChange={e => updateStandType(i, 'price_max')(e.target.value)} placeholder="Ex : 120" />
                       </Field>
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <Field label="Dimensions du stand">
-                        <input className="form-input" value={t.dimensions} onChange={e => updateStandType(i, 'dimensions')(e.target.value)} placeholder="Ex : 3m × 2m" />
-                      </Field>
-                    </div>
-                    {form.stand_types.length > 1 && (
-                      <button onClick={() => removeStandType(i)}
-                        style={{ marginBottom: '1px', width: '42px', height: '42px', borderRadius: radius.sm, border: `1px solid var(--border-color)`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.solid, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <X size={15} />
-                      </button>
-                    )}
                   </div>
                 ))}
                 <button onClick={addStandType}
@@ -544,14 +569,6 @@ export default function CreateEventClient() {
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: '16px' }}>
-                <Field label="Prix le plus bas (€)" hint="0 = gratuit">
-                  <input className="form-input" type="number" min="0" value={form.stand_price_min} onChange={e => set('stand_price_min')(e.target.value)} placeholder="Ex : 60" />
-                </Field>
-                <Field label="Prix le plus haut (€)">
-                  <input className="form-input" type="number" min="0" value={form.stand_price_max} onChange={e => set('stand_price_max')(e.target.value)} placeholder="Ex : 120" />
-                </Field>
-              </div>
             </Section>
 
             {/* Disciplines */}
@@ -695,6 +712,7 @@ export default function CreateEventClient() {
               {form.stripe_enabled && connectStatus !== 'active' && (
                 <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: radius.sm, backgroundColor: colors.feedback.warning.bg, border: `1px solid ${colors.feedback.warning.border}`, fontSize: '13px', color: colors.feedback.warning.text, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   ⚠️ Votre compte Stripe n'est pas encore connecté. <a href="/dashboard" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'underline' }}>Connectez-le dans le dashboard</a> avant de publier.
+                  ⚠️ Votre compte Stripe n'est pas connecté. <a href="/dashboard" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'underline' }}>Connectez-le dans le dashboard</a> avant de publier.
                 </div>
               )}
             </Section>

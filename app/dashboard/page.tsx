@@ -58,7 +58,7 @@ const PROFILE_STEPS = [
 
 function KpiRowSkeleton() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
+    <div className="kpi-grid" style={{ marginBottom: '20px' }}>
       {[...Array(4)].map((_, i) => (
         <div key={i} style={{ height: '80px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', animation: 'pulse 1.5s ease-in-out infinite' }} />
       ))}
@@ -240,7 +240,7 @@ export default function DashboardPage() {
       <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', padding: '24px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <KpiRowSkeleton />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '20px' }}>
+          <div className="dash-grid">
             <FeedSkeleton />
             <SidebarSkeleton />
           </div>
@@ -1154,7 +1154,7 @@ function OrganizerMainContent({
               </select>
             )}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+          <div className="resp-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
             {[
               { href: `/events/${selectedEventId}/exhibitors`, icon: <Users size={16} />, label: 'Exposants', sub: `${selectedEventPending.length} en attente` },
               { href: `/events/${selectedEventId}/waitlist`,   icon: <Clock size={16} />,     label: 'Liste d\'attente', sub: '' },

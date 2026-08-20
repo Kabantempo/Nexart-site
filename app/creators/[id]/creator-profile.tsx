@@ -597,7 +597,7 @@ export function CreatorProfileClient({ id }: Props) {
                             src={item.url}
                             alt={`Portfolio ${idx + 1}`}
                             fill
-                            style={{ objectFit: 'cover' }}
+                            style={{ objectFit: 'cover', objectPosition: (item as any).objectPosition ?? '50% 50%' }}
                             className="group-hover:scale-105 transition-transform duration-500"
                             onError={() => setPortfolioImgErrors(prev => new Set([...prev, idx]))}
                           />
