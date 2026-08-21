@@ -37,6 +37,20 @@ body {
   --mobile-action-bg-hover: rgba(255, 255, 255, 0.1);
   --mobile-action-icon: rgba(255, 255, 255, 0.65);
   --mobile-action-label: rgba(255, 255, 255, 0.45);
+  /* carte page theme tokens */
+  --carte-bg: #0F0C29;
+  --carte-border: rgba(99,102,241,0.2);
+  --carte-border-sm: rgba(99,102,241,0.12);
+  --carte-muted: rgba(255,255,255,0.35);
+  --carte-icon: rgba(255,255,255,0.3);
+  --carte-btn-border: rgba(255,255,255,0.15);
+  --carte-btn-bg: rgba(255,255,255,0.06);
+  --carte-btn-text: rgba(255,255,255,0.55);
+  --carte-overlay: rgba(15,12,41,0.85);
+  --carte-popup-bg: #1a1640;
+  --carte-map-bg: #0F0C29;
+  --carte-attr-bg: rgba(15,12,41,0.8);
+  --carte-btn-hover: rgba(99,102,241,0.2);
   /* home page theme tokens */
   --home-t1: rgba(255,255,255,0.80);
   --home-t2: rgba(255,255,255,0.55);
@@ -77,6 +91,20 @@ body {
   --mobile-action-bg-hover: rgba(0, 0, 0, 0.09);
   --mobile-action-icon: rgba(26, 26, 26, 0.6);
   --mobile-action-label: rgba(26, 26, 26, 0.5);
+  /* carte page theme tokens */
+  --carte-bg: #f5f5fa;
+  --carte-border: rgba(99,102,241,0.2);
+  --carte-border-sm: rgba(99,102,241,0.12);
+  --carte-muted: rgba(26,26,26,0.5);
+  --carte-icon: rgba(26,26,26,0.45);
+  --carte-btn-border: rgba(26,26,26,0.15);
+  --carte-btn-bg: rgba(26,26,26,0.06);
+  --carte-btn-text: rgba(26,26,26,0.6);
+  --carte-overlay: rgba(240,240,250,0.85);
+  --carte-popup-bg: #ffffff;
+  --carte-map-bg: #e8e8f0;
+  --carte-attr-bg: rgba(240,240,250,0.9);
+  --carte-btn-hover: rgba(99,102,241,0.12);
   /* home page theme tokens */
   --home-t1: rgba(26,26,26,0.82);
   --home-t2: rgba(26,26,26,0.62);

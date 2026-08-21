@@ -171,20 +171,20 @@ export default function CarteClient() {
   }, [mapReady, events, typeFilter])
 
   return (
-    <div style={{ position: 'fixed', top: `${NAVBAR_H}px`, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', backgroundColor: colors.bg.darkAlt, zIndex: 10 }}>
+    <div style={{ position: 'fixed', top: `${NAVBAR_H}px`, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--carte-bg)', zIndex: 10 }}>
 
       {/* Header */}
-      <div style={{ padding: '12px 20px', backgroundColor: colors.bg.darkAlt, borderBottom: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
+      <div style={{ padding: '12px 20px', backgroundColor: 'var(--carte-bg)', borderBottom: '1px solid var(--carte-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <MapPin size={16} color={colors.purple.bgPale} />
           <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>Carte des événements</span>
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>{events.length} événements</span>
+          <span style={{ fontSize: '11px', color: 'var(--carte-muted)' }}>{events.length} événements</span>
         </div>
         <div style={{ display: 'flex', gap: '5px', overflowX: 'auto', paddingBottom: '2px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <SlidersHorizontal size={13} color="rgba(255,255,255,0.3)" style={{ flexShrink: 0, marginTop: '3px' }} />
+          <SlidersHorizontal size={13} color="var(--carte-icon)" style={{ flexShrink: 0, marginTop: '3px' }} />
           {EVENT_TYPES.map(t => (
             <button key={t.key} onClick={() => setTypeFilter(t.key)}
-              style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', border: typeFilter === t.key ? '1px solid rgba(165,180,252,0.5)' : '1px solid rgba(255,255,255,0.08)', backgroundColor: typeFilter === t.key ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.05)', color: typeFilter === t.key ? colors.purple.bgPale : 'rgba(255,255,255,0.5)', transition: 'all .15s' }}>
+              style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', border: typeFilter === t.key ? '1px solid rgba(165,180,252,0.5)' : '1px solid var(--carte-btn-border)', backgroundColor: typeFilter === t.key ? 'rgba(99,102,241,0.3)' : 'var(--carte-btn-bg)', color: typeFilter === t.key ? colors.purple.bgPale : 'var(--carte-btn-text)', transition: 'all .15s' }}>
               {t.label}
             </button>
           ))}
@@ -192,11 +192,11 @@ export default function CarteClient() {
       </div>
 
       {/* Légende */}
-      <div style={{ padding: '6px 16px', backgroundColor: colors.bg.darkAlt, borderBottom: '1px solid rgba(99,102,241,0.12)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
+      <div style={{ padding: '6px 16px', backgroundColor: 'var(--carte-bg)', borderBottom: '1px solid var(--carte-border-sm)', display: 'flex', gap: '16px', fontSize: '11px', flexShrink: 0 }}>
         {[{ color: colors.violet.primary, label: 'Places disponibles' }, { color: colors.status.pending.dot, label: '≤ 3 places restantes' }, { color: 'var(--text-secondary)', label: 'Complet' }].map(({ color, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: color, boxShadow: `0 0 6px ${color}` }} />
-            <span style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
+            <span style={{ color: 'var(--carte-muted)' }}>{label}</span>
           </div>
         ))}
       </div>
@@ -206,37 +206,37 @@ export default function CarteClient() {
         <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
 
         {(loading || !mapReady) && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(15,12,41,0.85)', zIndex: 1000 }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--carte-overlay)', zIndex: 1000 }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ width: 32, height: 32, border: '3px solid rgba(99,102,241,0.3)', borderTopColor: colors.violet.primary, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>Chargement de la carte…</p>
+              <p style={{ fontSize: '13px', color: 'var(--carte-muted)' }}>Chargement de la carte…</p>
             </div>
           </div>
         )}
 
         {/* Popup événement */}
         {selected && (
-          <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', width: 'min(360px, 90vw)', backgroundColor: colors.purple.deepDark, border: '1px solid rgba(99,102,241,0.3)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.5)', overflow: 'hidden', zIndex: 1000 }}>
+          <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', width: 'min(360px, 90vw)', backgroundColor: 'var(--carte-popup-bg)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.3)', overflow: 'hidden', zIndex: 1000 }}>
             <button onClick={() => setSelected(null)}
-              style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.4)', border: 'none', cursor: 'pointer', padding: '5px', borderRadius: '50%', display: 'flex', zIndex: 1 }}>
-              <X size={14} color="rgba(255,255,255,0.7)" />
+              style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.25)', border: 'none', cursor: 'pointer', padding: '5px', borderRadius: '50%', display: 'flex', zIndex: 1 }}>
+              <X size={14} color="var(--text-primary)" />
             </button>
 
             {selected.cover_image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <Image src={selected.cover_image} alt={selected.title} width={560} height={120} style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }} />
             ) : (
-              <div style={{ width: '100%', height: '80px', background: `linear-gradient(135deg,${colors.purple.deepDark},${colors.purple.bgDeep})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <MapPin size={28} color="rgba(165,180,252,0.3)" />
+              <div style={{ width: '100%', height: '80px', background: `linear-gradient(135deg,${colors.violet.primary},${colors.purple.indigo})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MapPin size={28} color="rgba(255,255,255,0.4)" />
               </div>
             )}
 
             <div style={{ padding: '14px 16px 16px' }}>
-              <p style={{ fontSize: '15px', fontWeight: '700', color: colors.bg.primary, margin: '0 0 8px', lineHeight: 1.3 }}>{selected.title}</p>
+              <p style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 8px', lineHeight: 1.3 }}>{selected.title}</p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', fontSize: '12px', marginBottom: '14px' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.5)' }}><MapPin size={11} /> {selected.city}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.5)' }}><Calendar size={11} /> {new Date(selected.start_date).toLocaleDateString('fr-FR')}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--carte-muted)' }}><MapPin size={11} /> {selected.city}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--carte-muted)' }}><Calendar size={11} /> {new Date(selected.start_date).toLocaleDateString('fr-FR')}</span>
                 {(selected.stand_count || 0) > 0 && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600',
                     color: (selected.remaining_spots ?? 0) === 0 ? 'var(--text-secondary)' : (selected.remaining_spots ?? 0) <= 3 ? colors.status.pending.dot : colors.violet.hover }}>
@@ -247,7 +247,7 @@ export default function CarteClient() {
                   </span>
                 )}
                 {(selected.stand_price || 0) > 0 && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'rgba(255,255,255,0.5)' }}><Euro size={11} /> {selected.stand_price}€</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--carte-muted)' }}><Euro size={11} /> {selected.stand_price}€</span>
                 )}
               </div>
 
@@ -262,11 +262,11 @@ export default function CarteClient() {
 
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
-        .leaflet-container{background:${colors.dark.alt}}
-        .leaflet-control-attribution{background:rgba(15,12,41,0.8)!important;color:rgba(255,255,255,0.3)!important}
+        .leaflet-container{background:var(--carte-map-bg)}
+        .leaflet-control-attribution{background:var(--carte-attr-bg)!important;color:var(--carte-muted)!important}
         .leaflet-control-attribution a{color:rgba(165,180,252,0.5)!important}
-        .leaflet-control-zoom a{background:${colors.purple.deepDark}!important;color:${colors.purple.bgPale}!important;border-color:rgba(99,102,241,0.3)!important}
-        .leaflet-control-zoom a:hover{background:${colors.purple.bgDeep}!important}
+        .leaflet-control-zoom a{background:var(--carte-popup-bg)!important;color:var(--text-primary)!important;border-color:rgba(99,102,241,0.3)!important}
+        .leaflet-control-zoom a:hover{background:var(--carte-btn-hover)!important}
       `}</style>
     </div>
   )
