@@ -166,7 +166,7 @@ function Section({
     >
       <h2 style={{
         margin: '0 0 12px 16px', fontSize: 16, fontWeight: 800,
-        color: '#111827', letterSpacing: -0.3,
+        color: 'var(--ev-sort-active)', letterSpacing: -0.3,
       }}>
         {title}
       </h2>
@@ -415,14 +415,14 @@ export default function EventsClient() {
       <>
       <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
-        <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', marginBottom: 4, letterSpacing: -0.5 }}>
+        <h1 style={{ fontSize: 32, fontWeight: 800, color: 'var(--ev-sort-active)', marginBottom: 4, letterSpacing: -0.5 }}>
           Événements
         </h1>
         <p style={{ color: '#6B7280', marginBottom: 24 }}>Marchés, pop-ups et salons près de chez vous</p>
 
         {/* search + filters */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 32, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#F3F4F6', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 260 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 260 }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
@@ -432,7 +432,7 @@ export default function EventsClient() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               autoComplete="off"
-              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: '#111827', colorScheme: 'light' }}
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', colorScheme: 'dark light' }}
             />
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -440,8 +440,8 @@ export default function EventsClient() {
               <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
                 padding: '8px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
                 fontSize: 13, fontWeight: 600,
-                backgroundColor: activeFilter === f.key ? '#6366F1' : '#F3F4F6',
-                color: activeFilter === f.key ? '#fff' : '#374151',
+                backgroundColor: activeFilter === f.key ? '#6366F1' : 'var(--ev-chip-bg)',
+                color: activeFilter === f.key ? '#fff' : 'var(--ev-chip-text)',
               }}>
                 {f.label}
               </button>
@@ -453,8 +453,8 @@ export default function EventsClient() {
         {loading ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} style={{ borderRadius: 16, backgroundColor: '#F3F4F6', height: 280,
-                background: 'linear-gradient(90deg,#E5E7EB 25%,#F3F4F6 50%,#E5E7EB 75%)',
+              <div key={i} style={{ borderRadius: 16, backgroundColor: 'var(--ev-chip-bg)', height: 280,
+                background: 'linear-gradient(90deg,var(--ev-skeleton-1) 25%,var(--ev-chip-bg) 50%,var(--ev-skeleton-1) 75%)',
                 backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
             ))}
           </div>
@@ -518,8 +518,8 @@ export default function EventsClient() {
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
         input:-webkit-autofill:focus {
-          -webkit-box-shadow: 0 0 0 30px #F3F4F6 inset !important;
-          -webkit-text-fill-color: #111827 !important;
+          -webkit-box-shadow: 0 0 0 30px var(--ev-chip-bg) inset !important;
+          -webkit-text-fill-color: var(--text-primary) !important;
         }
       `}</style>
 
@@ -528,12 +528,12 @@ export default function EventsClient() {
         <div style={{
           position: 'fixed', top: headerVisible ? 58 : -200, left: 0, right: 0, zIndex: 10,
           backgroundColor: '#fff',
-          borderBottom: '1px solid #F3F4F6',
+          borderBottom: '1px solid var(--ev-border)',
           transition: 'top 0.25s ease',
         }}>
           {/* title row */}
           <div style={{ padding: '12px 16px 8px' }}>
-            <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: '#111827', letterSpacing: -0.5 }}>
+            <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>
               Événements
             </h1>
             <p style={{ margin: 0, fontSize: 12, color: '#9CA3AF' }}>Marchés, pop-ups et salons près de chez vous</p>
@@ -542,7 +542,7 @@ export default function EventsClient() {
           <div style={{ padding: '0 16px 8px' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
-              backgroundColor: '#F3F4F6', borderRadius: 12, padding: '9px 14px', colorScheme: 'light',
+              backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '9px 14px', colorScheme: 'dark light',
             }}>
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -552,7 +552,7 @@ export default function EventsClient() {
                 placeholder="Ville, nom d'événement…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: '#111827', colorScheme: 'light' }}
+                style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', colorScheme: 'dark light' }}
               />
               {search && (
                 <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -570,8 +570,8 @@ export default function EventsClient() {
                 <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
                   flexShrink: 0, padding: '5px 13px', borderRadius: 20, border: 'none', cursor: 'pointer',
                   fontSize: 13, fontWeight: 600,
-                  backgroundColor: activeFilter === f.key ? '#6366F1' : '#F3F4F6',
-                  color: activeFilter === f.key ? '#fff' : '#374151',
+                  backgroundColor: activeFilter === f.key ? '#6366F1' : 'var(--ev-chip-bg)',
+                  color: activeFilter === f.key ? '#fff' : 'var(--ev-chip-text)',
                   transition: 'background 0.15s, color 0.15s',
                 }}>
                   {f.label}
@@ -583,22 +583,22 @@ export default function EventsClient() {
           <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px 10px', gap: 6 }}>
             <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
               padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-              backgroundColor: sortBy.startsWith('date') ? '#111827' : '#F3F4F6',
+              backgroundColor: sortBy.startsWith('date') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
               color: sortBy.startsWith('date') ? '#fff' : '#6B7280',
             }}>
               Date {sortBy === 'date-desc' ? '↓' : '↑'}
             </button>
             <button onClick={() => setSortBy(sortBy === 'price-asc' ? 'price-desc' : 'price-asc')} style={{
               padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-              backgroundColor: sortBy.startsWith('price') ? '#111827' : '#F3F4F6',
+              backgroundColor: sortBy.startsWith('price') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
               color: sortBy.startsWith('price') ? '#fff' : '#6B7280',
             }}>
               Prix {sortBy === 'price-desc' ? '↓' : '↑'}
             </button>
             <div style={{ flex: 1 }} />
             <button onClick={() => setShowAdvanced(v => !v)} style={{
-              padding: '5px 12px', borderRadius: 8, border: '1px solid #E5E7EB', cursor: 'pointer',
-              fontSize: 12, fontWeight: 600, background: showAdvanced ? '#F3F4F6' : '#fff', color: '#374151',
+              padding: '5px 12px', borderRadius: 8, border: '1px solid var(--ev-border)', cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, background: showAdvanced ? 'var(--ev-chip-bg)' : '#fff', color: 'var(--ev-chip-text)',
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -608,7 +608,7 @@ export default function EventsClient() {
             </button>
           </div>
           {showAdvanced && (
-            <div style={{ margin: '0 16px 10px', padding: '4px 0', borderTop: '1px solid #F3F4F6' }}>
+            <div style={{ margin: '0 16px 10px', padding: '4px 0', borderTop: '1px solid var(--ev-border)' }}>
               {[
                 { key: 'date-asc',   label: 'Date (plus proche)' },
                 { key: 'date-desc',  label: 'Date (plus lointaine)' },
@@ -620,7 +620,7 @@ export default function EventsClient() {
                 <button key={s.key} onClick={() => { setSortBy(s.key); setShowAdvanced(false) }} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
                   padding: '9px 4px', border: 'none', cursor: 'pointer', background: 'none',
-                  color: sortBy === s.key ? '#6366F1' : '#374151',
+                  color: sortBy === s.key ? '#6366F1' : 'var(--ev-chip-text)',
                   fontSize: 13, fontWeight: sortBy === s.key ? 600 : 400,
                 }}>
                   {s.label}
@@ -679,7 +679,7 @@ export default function EventsClient() {
         {!loading && filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 32px' }}>
             <p style={{ fontSize: 40, margin: '0 0 12px' }}>🔍</p>
-            <p style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>
+            <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ev-sort-active)', margin: '0 0 6px' }}>
               Aucun événement trouvé
             </p>
             <p style={{ fontSize: 13, color: '#9CA3AF' }}>

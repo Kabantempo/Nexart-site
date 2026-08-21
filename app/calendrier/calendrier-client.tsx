@@ -125,7 +125,7 @@ export default function CalendrierPage() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
       {/* Hero */}
-      <div className="bg-[${colors.dark.base}] relative overflow-hidden">
+      <div className="cal-hero relative overflow-hidden">
         <div className="absolute inset-0 opacity-[0.08]"
           style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-orange-600/15 blur-[90px] pointer-events-none" />
@@ -157,7 +157,7 @@ export default function CalendrierPage() {
         <div className="grid lg:grid-cols-[1fr_260px] gap-6 items-start">
 
           {/* Calendar */}
-          <div className="rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+          <div className="cal-grid rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
             {/* Month nav */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
               <button onClick={prevMonth}
