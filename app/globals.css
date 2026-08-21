@@ -662,9 +662,16 @@ footer {
 }
 [data-theme="light"] .mobile-search-input {
   color: #1A1A1A !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-box-shadow: 0 0 0 99px transparent inset !important;
 }
 [data-theme="light"] .mobile-search-input::placeholder {
   color: rgba(26, 26, 26, 0.4) !important;
+}
+[data-theme="light"] .mobile-search-form {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.14) !important;
 }
 [data-theme="light"] .mobile-nav-panel p {
   color: #1A1A1A !important;
