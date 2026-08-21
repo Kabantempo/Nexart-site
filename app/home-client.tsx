@@ -120,7 +120,7 @@ function PhoneMockup() {
       <div style={{ position: 'absolute', left: '16px', right: '16px', bottom: '-40px', height: '128px', background: 'rgba(79,70,229,0.25)', filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
       {/* Phone frame */}
-      <div style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: `1.5px solid ${D.w12}`, backgroundColor: D.phoneBg, boxShadow: '0 25px 50px rgba(0,0,0,0.70)', overflow: 'hidden', height: '580px' }}>
+      <div className="phone-frame" style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: `1.5px solid ${D.w12}`, backgroundColor: D.phoneBg, boxShadow: '0 25px 50px rgba(0,0,0,0.70)', overflow: 'hidden', height: '580px' }}>
 
         {/* Status bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 4px' }}>
@@ -307,6 +307,7 @@ function FacesSection() {
 
             <Link
               href={face.href}
+              className="faces-cta-btn"
               style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, color: colors.bg.primary, border: `1px solid ${face.borderColor}`, textDecoration: 'none', transition: 'opacity 0.2s ease' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.8' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
