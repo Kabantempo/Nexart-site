@@ -37,7 +37,8 @@ function SearchContent() {
     if (query.trim()) params.set('q', query.trim())
     const qs = params.toString()
     router.replace(qs ? `/search?${qs}` : '/search', { scroll: false })
-  }, [query, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
 
   const q = query.toLowerCase()
 
