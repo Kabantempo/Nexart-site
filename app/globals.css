@@ -641,6 +641,24 @@ footer {
   border-color: rgba(67, 56, 202, 0.35) !important;
   background-color: rgba(67, 56, 202, 0.08) !important;
 }
+[data-theme="light"] .cookie-consent-bar {
+  background-color: #ffffff !important;
+  color: #1A1A1A !important;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .cookie-consent-bar p {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .cookie-consent-bar p:last-child {
+  color: #555555 !important;
+}
+[data-theme="light"] .cookie-consent-actions button:first-child {
+  color: #374151 !important;
+  border-color: #D1D5DB !important;
+}
+[data-theme="light"] .cookie-consent-actions button:first-child:hover {
+  background-color: #F3F4F6 !important;
+}
 [data-theme="light"] .faces-cta-btn {
   color: #3730A3 !important;
   background-color: rgba(67, 56, 202, 0.08) !important;
