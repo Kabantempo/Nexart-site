@@ -948,3 +948,73 @@ img, video, iframe, canvas, svg {
 [data-theme="light"] .offres-hero .text-indigo-400 {
   color: #4338CA !important;
 }
+
+/* ── /events page — filter chips ───────────────────────────── */
+:root {
+  --ev-chip-bg: rgba(255,255,255,0.07);
+  --ev-chip-text: rgba(255,255,255,0.7);
+  --ev-border: rgba(255,255,255,0.1);
+  --ev-sort-active: #ffffff;
+  --ev-skeleton-1: rgba(255,255,255,0.05);
+}
+[data-theme="light"] {
+  --ev-chip-bg: #F3F4F6;
+  --ev-chip-text: #374151;
+  --ev-border: #E5E7EB;
+  --ev-sort-active: #111827;
+  --ev-skeleton-1: #E5E7EB;
+}
+
+/* ── /calendrier page ───────────────────────────────────────── */
+.cal-hero {
+  background-color: #0F0F0F;
+}
+[data-theme="light"] .cal-hero {
+  background-color: #eef0ff !important;
+}
+[data-theme="light"] .cal-hero .text-white {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .cal-hero .text-white\/40 {
+  color: rgba(26,26,26,0.5) !important;
+}
+[data-theme="light"] .cal-hero .text-white\/70 {
+  color: rgba(26,26,26,0.6) !important;
+}
+[data-theme="light"] .cal-hero .bg-white\/6 {
+  background-color: rgba(0,0,0,0.06) !important;
+}
+:root .cal-grid {
+  background-color: #1A1A1A;
+  border-color: rgba(255,255,255,0.08);
+}
+:root .cal-grid .border-gray-100,
+:root .cal-grid .border-gray-50,
+:root .cal-grid .border-gray-200 {
+  border-color: rgba(255,255,255,0.07) !important;
+}
+:root .cal-grid .bg-white {
+  background-color: #1A1A1A !important;
+}
+:root .cal-grid .bg-gray-50\/50 {
+  background-color: rgba(255,255,255,0.03) !important;
+}
+:root .cal-grid .text-gray-900,
+:root .cal-grid .text-gray-700 {
+  color: rgba(255,255,255,0.85) !important;
+}
+:root .cal-grid .text-gray-500,
+:root .cal-grid .text-gray-400,
+:root .cal-grid .text-gray-300 {
+  color: rgba(255,255,255,0.4) !important;
+}
+:root .cal-grid .text-gray-200 {
+  color: rgba(255,255,255,0.15) !important;
+}
+:root .cal-grid .border-dashed {
+  border-color: rgba(255,255,255,0.1) !important;
+}
+[data-theme="light"] .cal-grid {
+  background-color: #ffffff !important;
+  border-color: #E5E7EB !important;
+}
