@@ -665,14 +665,12 @@ export function NavbarFull() {
               {/* Search */}
               <motion.form initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}
                 onSubmit={submitSearch}
-                className="mobile-search-form"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '44px', padding: '0 16px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '16px' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '44px', padding: '0 16px', borderRadius: '14px', backgroundColor: 'var(--mobile-search-bg)', border: '1px solid var(--mobile-search-border)', marginBottom: '16px' }}
               >
-                <Search size={14} color="rgba(255,255,255,0.4)" className="mobile-search-icon" style={{ flexShrink: 0 }} />
+                <Search size={14} color="var(--mobile-search-icon)" style={{ flexShrink: 0 }} />
                 <input value={searchValue} onChange={e => handleSearchChange(e.target.value)}
                   placeholder="Rechercher événements, créateurs…"
-                  className="mobile-search-input"
-                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: colors.bg.primary }}
+                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--mobile-search-text)' }}
                 />
                 {searchValue && (
                   <button type="button" aria-label="Effacer" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}
@@ -726,25 +724,25 @@ export function NavbarFull() {
                         { href: '/notifications',icon: Bell,          label: 'Notifs' },
                       ].map(({ href, icon: Icon, label }) => (
                         <Link key={href} href={href} onClick={() => setMobileOpen(false)}
-                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 8px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.06)', textDecoration: 'none', transition: 'background 0.15s' }}
-                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.1)'}
-                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.06)'}
+                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 8px', borderRadius: '14px', backgroundColor: 'var(--mobile-action-bg)', textDecoration: 'none', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--mobile-action-bg-hover)'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--mobile-action-bg)'}
                         >
-                          <Icon size={18} color="rgba(255,255,255,0.65)" />
-                          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{label}</span>
+                          <Icon size={18} color="var(--mobile-action-icon)" />
+                          <span style={{ fontSize: '11px', color: 'var(--mobile-action-label)', fontWeight: 500 }}>{label}</span>
                         </Link>
                       ))}
                     </div>
 
                     <Link href="/dashboard" onClick={() => setMobileOpen(false)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.1)', color: colors.bg.primary, fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px', borderRadius: '14px', backgroundColor: 'var(--mobile-action-bg)', color: 'var(--text-primary)', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
                     >
                       Mon dashboard
                     </Link>
                     <button onClick={() => { setMobileOpen(false); handleLogout() }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '14px', color: 'rgba(255,255,255,0.3)', padding: '8px 0', transition: 'color 0.15s' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontSize: '14px', color: 'var(--mobile-action-label)', padding: '8px 0', transition: 'color 0.15s' }}
                       onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = colors.red.soft}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.3)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'var(--mobile-action-label)'}
                     >
                       Se déconnecter
                     </button>
