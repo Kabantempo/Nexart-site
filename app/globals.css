@@ -51,6 +51,9 @@ body {
   --carte-map-bg: #0F0C29;
   --carte-attr-bg: rgba(15,12,41,0.8);
   --carte-btn-hover: rgba(99,102,241,0.2);
+  --carte-active-border: rgba(165,180,252,0.5);
+  --carte-active-bg: rgba(99,102,241,0.3);
+  --carte-active-text: rgba(165,180,252,1);
   /* home page theme tokens */
   --home-t1: rgba(255,255,255,0.80);
   --home-t2: rgba(255,255,255,0.55);
@@ -105,6 +108,9 @@ body {
   --carte-map-bg: #e8e8f0;
   --carte-attr-bg: rgba(240,240,250,0.9);
   --carte-btn-hover: rgba(99,102,241,0.12);
+  --carte-active-border: rgba(99,102,241,0.6);
+  --carte-active-bg: rgba(99,102,241,0.15);
+  --carte-active-text: #4338CA;
   /* home page theme tokens */
   --home-t1: rgba(26,26,26,0.82);
   --home-t2: rgba(26,26,26,0.62);
@@ -907,4 +913,38 @@ img, video, iframe, canvas, svg {
   .cookie-consent-actions button {
     flex: 1;
   }
+}
+
+/* ── /offres page light mode ───────────────────────────────── */
+.offres-dark-card {
+  background-color: #1a1640;
+}
+[data-theme="light"] .offres-dark-card {
+  background-color: #eef0ff !important;
+  border-color: rgba(99,102,241,0.5) !important;
+  box-shadow: 0 8px 40px rgba(99,102,241,0.15), 0 0 0 2px rgba(99,102,241,0.5) !important;
+}
+[data-theme="light"] .offres-dark-card .text-white {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .offres-dark-card .text-white\/40 {
+  color: rgba(26,26,26,0.5) !important;
+}
+[data-theme="light"] .offres-dark-card .text-white\/75 {
+  color: rgba(26,26,26,0.75) !important;
+}
+[data-theme="light"] .offres-dark-card .text-indigo-400 {
+  color: #4338CA !important;
+}
+[data-theme="light"] .offres-hero {
+  background-color: #eef0ff !important;
+}
+[data-theme="light"] .offres-hero .text-white {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .offres-hero .text-white\/40 {
+  color: rgba(26,26,26,0.5) !important;
+}
+[data-theme="light"] .offres-hero .text-indigo-400 {
+  color: #4338CA !important;
 }

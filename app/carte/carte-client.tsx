@@ -184,7 +184,7 @@ export default function CarteClient() {
           <SlidersHorizontal size={13} color="var(--carte-icon)" style={{ flexShrink: 0, marginTop: '3px' }} />
           {EVENT_TYPES.map(t => (
             <button key={t.key} onClick={() => setTypeFilter(t.key)}
-              style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', border: typeFilter === t.key ? '1px solid rgba(165,180,252,0.5)' : '1px solid var(--carte-btn-border)', backgroundColor: typeFilter === t.key ? 'rgba(99,102,241,0.3)' : 'var(--carte-btn-bg)', color: typeFilter === t.key ? colors.purple.bgPale : 'var(--carte-btn-text)', transition: 'all .15s' }}>
+              style={{ padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', whiteSpace: 'nowrap', cursor: 'pointer', border: typeFilter === t.key ? '1px solid var(--carte-active-border)' : '1px solid var(--carte-btn-border)', backgroundColor: typeFilter === t.key ? 'var(--carte-active-bg)' : 'var(--carte-btn-bg)', color: typeFilter === t.key ? 'var(--carte-active-text)' : 'var(--carte-btn-text)', transition: 'all .15s' }}>
               {t.label}
             </button>
           ))}

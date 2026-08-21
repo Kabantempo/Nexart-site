@@ -200,7 +200,7 @@ function PlanCard({ plan, delay = 0, onSubscribe, loading, currentTier, isOrgani
       } : undefined}
       className={`relative flex flex-col gap-6 rounded-2xl p-7 ${
         dark
-          ? 'bg-[${colors.dark.alt}] border-2 border-indigo-500'
+          ? 'offres-dark-card border-2 border-indigo-500'
           : 'bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md'
       } transition-all duration-200`}
     >
@@ -313,7 +313,7 @@ export default function OffresPageClient() {
     <div style={{ backgroundColor: 'var(--bg-primary)' }} className="min-h-screen">
 
       {/* Hero */}
-      <div style={{ backgroundColor: colors.dark.base, position: 'relative', overflow: 'hidden' }}>
+      <div className="offres-hero" style={{ backgroundColor: colors.dark.base, position: 'relative', overflow: 'hidden' }}>
         <div className="absolute inset-0 opacity-[0.08]"
           style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-indigo-600/15 blur-[100px] pointer-events-none" />
