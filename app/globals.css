@@ -29,6 +29,14 @@ body {
   --navbar-bg-scrolled: rgba(15, 15, 15, 0.92);
   --navbar-border: rgba(255, 255, 255, 0.06);
   --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --mobile-search-bg: rgba(255, 255, 255, 0.08);
+  --mobile-search-border: rgba(255, 255, 255, 0.1);
+  --mobile-search-icon: rgba(255, 255, 255, 0.4);
+  --mobile-search-text: #ffffff;
+  --mobile-action-bg: rgba(255, 255, 255, 0.06);
+  --mobile-action-bg-hover: rgba(255, 255, 255, 0.1);
+  --mobile-action-icon: rgba(255, 255, 255, 0.65);
+  --mobile-action-label: rgba(255, 255, 255, 0.45);
   /* home page theme tokens */
   --home-t1: rgba(255,255,255,0.80);
   --home-t2: rgba(255,255,255,0.55);
@@ -61,6 +69,14 @@ body {
   --navbar-bg-scrolled: rgba(255, 255, 255, 0.92);
   --navbar-border: rgba(0, 0, 0, 0.06);
   --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+  --mobile-search-bg: rgba(0, 0, 0, 0.06);
+  --mobile-search-border: rgba(0, 0, 0, 0.12);
+  --mobile-search-icon: rgba(26, 26, 26, 0.4);
+  --mobile-search-text: #1A1A1A;
+  --mobile-action-bg: rgba(0, 0, 0, 0.05);
+  --mobile-action-bg-hover: rgba(0, 0, 0, 0.09);
+  --mobile-action-icon: rgba(26, 26, 26, 0.6);
+  --mobile-action-label: rgba(26, 26, 26, 0.5);
   /* home page theme tokens */
   --home-t1: rgba(26,26,26,0.82);
   --home-t2: rgba(26,26,26,0.62);
