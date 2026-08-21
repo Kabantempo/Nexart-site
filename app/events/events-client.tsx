@@ -1,722 +1,693 @@
 'use client'
 
-import { useEvents } from '@/lib/hooks'
-import type { Event as NexartEvent } from '@/lib/types'
-import { motion, useInView } from 'framer-motion'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { MapPin, Calendar, ArrowRight, Search, X, Users, SlidersHorizontal, Euro, Sparkles } from 'lucide-react'
-import { ComparePanel, PinButton } from '@/components/ui/compare-panel'
-import { SaveSearchButton } from '@/components/ui/save-search-button'
-import { useToast } from '@/components/ui/toast-provider'
-import { useState, useEffect, Suspense, useRef } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { colors } from '@/lib/design-tokens'
+import { motion } from 'framer-motion'
+import type { Event as NexartEvent } from '@/lib/types'
 
-const ITEMS_PER_PAGE = 12
+// ─── helpers ────────────────────────────────────────────────────────────────
 
-const EVENT_TYPES = [
-  { key: 'all',       label: 'Tous' },
-  { key: 'popup',     label: 'Pop-up' },
-  { key: 'salon',     label: 'Salon' },
-  { key: 'fair',      label: 'Foire' },
-  { key: 'seasonal',  label: 'Saisonnier' },
-  { key: 'permanent', label: 'Permanent' },
-] as const
-
-const EVENT_TYPE_LABELS: Record<string, string> = {
-  permanent: 'Permanent', seasonal: 'Saisonnier',
-  popup: 'Pop-up', salon: 'Salon', fair: 'Foire',
+function formatPrice(price?: number | null) {
+  if (!price || price === 0) return 'Gratuit'
+  return `${price} €`
 }
 
-const TYPE_BADGE: Record<string, { bg: string; text: string }> = {
-  popup:     { bg: colors.purple.violet, text: colors.bg.primary },
-  salon:     { bg: colors.green.primary, text: colors.bg.primary },
-  fair:      { bg: colors.red.vivid, text: colors.bg.primary },
-  seasonal:  { bg: colors.status.pending.dot, text: colors.bg.primary },
-  permanent: { bg: colors.blue.medium, text: colors.bg.primary },
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
+function statusLabel(status: NexartEvent['status']) {
+  if (status === 'published') return { label: 'Ouvert', color: '#22C55E' }
+  if (status === 'closed') return { label: 'Complet', color: '#EF4444' }
+  return { label: 'Bientôt', color: '#F59E0B' }
+}
 
-function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
+function getTagsFromEvent(event: NexartEvent): string[] {
+  const tags: string[] = []
+  // event_type label
+  const typeMap: Record<string, string> = {
+    popup: 'Pop-up', salon: 'Salon', fair: 'Foire',
+    seasonal: 'Saisonnier', permanent: 'Permanent',
+  }
+  if (event.event_type && typeMap[event.event_type]) tags.push(typeMap[event.event_type])
+  // theme/discipline tags
+  if (event.theme?.length) tags.push(...event.theme.slice(0, 2))
+  else if (event.discipline_tags?.length) tags.push(...event.discipline_tags.slice(0, 2))
+  return tags.slice(0, 3)
+}
+
+// card dimensions — 1.5 cards visible on 375px mobile
+// 375px viewport: 16px padding + 220px card1 + 12px gap + ~127px card2 visible = 375 ✓
+const CARD_W = 220
+const IMG_H = 160  // ~half the card height
+
+// ─── skeleton card ───────────────────────────────────────────────────────────
+
+function SkeletonCard() {
   return (
-    <motion.div ref={ref} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
-      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }} className={className}>
-      {children}
+    <div style={{
+      flexShrink: 0, width: CARD_W, borderRadius: 12,
+      backgroundColor: '#1A1A2E', overflow: 'hidden', scrollSnapAlign: 'start',
+    }}>
+      <div style={{ width: '100%', height: IMG_H, background: 'linear-gradient(90deg,#2A2A3E 25%,#3A3A4E 50%,#2A2A3E 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+      <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ height: 13, borderRadius: 4, backgroundColor: '#2A2A3E', width: '90%', animation: 'shimmer 1.4s infinite' }} />
+        <div style={{ height: 13, borderRadius: 4, backgroundColor: '#2A2A3E', width: '70%', animation: 'shimmer 1.4s infinite' }} />
+        <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+          <div style={{ height: 20, borderRadius: 20, backgroundColor: '#2A2A3E', width: 60 }} />
+          <div style={{ height: 20, borderRadius: 20, backgroundColor: '#2A2A3E', width: 50 }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── event card ──────────────────────────────────────────────────────────────
+
+function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick: () => void; index?: number }) {
+  const st = statusLabel(event.status)
+  const tags = getTagsFromEvent(event)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.07 }}
+      onClick={onClick}
+      style={{
+        flexShrink: 0, width: CARD_W, borderRadius: 12,
+        backgroundColor: '#1A1A2E', overflow: 'hidden',
+        scrollSnapAlign: 'start', cursor: 'pointer',
+        display: 'flex', flexDirection: 'column',
+      }}
+    >
+      {/* image */}
+      <div style={{ position: 'relative', width: '100%', height: IMG_H, flexShrink: 0 }}>
+        {event.cover_image ? (
+          <Image
+            src={event.cover_image}
+            alt={event.title}
+            fill
+            sizes={`${CARD_W}px`}
+            style={{ objectFit: 'cover' }}
+          />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#2D2B55,#1A1A3E)' }} />
+        )}
+        {/* status badge */}
+        <span style={{
+          position: 'absolute', top: 8, left: 8,
+          backgroundColor: st.color, color: '#fff',
+          fontSize: 10, fontWeight: 700, borderRadius: 20,
+          padding: '3px 9px', letterSpacing: 0.3,
+        }}>
+          {st.label}
+        </span>
+      </div>
+
+      {/* content */}
+      <div style={{ padding: '10px 12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {/* title */}
+        <p style={{
+          margin: 0, fontSize: 14, fontWeight: 700, lineHeight: 1.35,
+          color: '#FFFFFF', display: '-webkit-box', WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical', overflow: 'hidden',
+        }}>
+          {event.title}
+        </p>
+
+        {/* tags — wrap freely */}
+        {tags.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            {tags.map(tag => (
+              <span key={tag} style={{
+                backgroundColor: '#2A2A3E', color: '#C4C4D4',
+                fontSize: 10, fontWeight: 600, borderRadius: 20,
+                padding: '3px 8px',
+              }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* price */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
+          <span style={{ fontSize: 11, color: '#6B6B8A' }}>
+            {formatDate(event.start_date)}{event.city ? ` · ${event.city}` : ''}
+          </span>
+          <span style={{ fontSize: 18, fontWeight: 900, color: '#FFFFFF' }}>
+            {formatPrice(event.stand_price)}
+          </span>
+        </div>
+      </div>
     </motion.div>
   )
 }
 
-function WordReveal({ children, delay = 0, className = '' }: { children: string; delay?: number; className?: string }) {
+// ─── horizontal section ───────────────────────────────────────────────────────
+
+function Section({
+  title, events, loading, onCardClick,
+}: {
+  title: string
+  events: NexartEvent[]
+  loading: boolean
+  onCardClick: (id: string) => void
+}) {
+  if (!loading && events.length === 0) return null
+
   return (
-    <span className={className}>
-      {children.split(' ').map((w, i) => (
-        <motion.span key={i} className="inline-block mr-[0.22em] last:mr-0"
-          initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.58, delay: delay + i * 0.075, ease: [0.22, 1, 0.36, 1] }}>
-          {w}
-        </motion.span>
-      ))}
-    </span>
+    <motion.section
+      variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
+      style={{ marginBottom: 32 }}
+    >
+      <h2 style={{
+        margin: '0 0 12px 16px', fontSize: 16, fontWeight: 800,
+        color: '#111827', letterSpacing: -0.3,
+      }}>
+        {title}
+      </h2>
+
+      {/* outer div handles overflow-x only */}
+      <div style={{ overflowX: 'auto', scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }} className="hide-scrollbar">
+        {/* inner div is the flex row — padding-left/right work here because it's not the overflow container */}
+        <div style={{
+          display: 'flex', flexDirection: 'row', gap: 12,
+          paddingLeft: 16, paddingRight: 16, paddingBottom: 8,
+        }}>
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+            : events.map((ev, i) => (
+                <EventCard key={ev.id} event={ev} index={i} onClick={() => onCardClick(ev.id)} />
+              ))
+          }
+        </div>
+      </div>
+    </motion.section>
   )
 }
 
-function Skeleton() {
+// ─── main component ───────────────────────────────────────────────────────────
+
+// ─── featured carousel ───────────────────────────────────────────────────────
+
+function FeaturedCarousel({ events, loading, onCardClick }: {
+  events: NexartEvent[]
+  loading: boolean
+  onCardClick: (id: string) => void
+}) {
+  const [active, setActive] = useState(0)
+  const items = loading ? null : events.slice(0, 5)
+
+  useEffect(() => {
+    if (!items?.length) return
+    const t = setInterval(() => setActive(i => (i + 1) % items.length), 4000)
+    return () => clearInterval(t)
+  }, [items?.length])
+
+  if (loading) {
+    return (
+      <div style={{
+        margin: '0 16px 28px', borderRadius: 0, overflow: 'hidden',
+        height: 200, backgroundColor: '#1A1A2E',
+        background: 'linear-gradient(90deg,#1A1A2E 25%,#2A2A3E 50%,#1A1A2E 75%)',
+        backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite',
+      }} />
+    )
+  }
+
+  if (!items?.length) return null
+
+  const ev = items[active]
+  const tags = getTagsFromEvent(ev)
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-48 animate-pulse" style={{ backgroundColor: colors.dark.base }} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-20">
-        <div className="h-12 animate-shimmer rounded-2xl mb-4" />
-        <div className="h-20 animate-shimmer rounded-2xl mb-8" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden" style={{ animationDelay: `${i * 80}ms` }}>
-              <div className="h-52 animate-shimmer" />
-              <div className="p-5 space-y-3">
-                <div className="h-5 animate-shimmer rounded-lg" />
-                <div className="h-4 w-3/4 animate-shimmer rounded-lg" />
-                <div className="h-4 w-1/2 animate-shimmer rounded-lg" />
-              </div>
+    <div style={{ margin: '0 0 28px', position: 'relative' }}>
+      <motion.div
+        key={ev.id}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        onClick={() => onCardClick(ev.id)}
+        style={{
+          borderRadius: 0, overflow: 'hidden', cursor: 'pointer',
+          height: 200, position: 'relative', backgroundColor: '#1A1A2E',
+        }}
+      >
+        {/* background image */}
+        {ev.cover_image ? (
+          <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
+        ) : (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg,#2D2B55,#1A1A3E)' }} />
+        )}
+        {/* dark overlay gradient */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to top, rgba(10,10,20,0.92) 0%, rgba(10,10,20,0.3) 60%, transparent 100%)',
+        }} />
+
+        {/* content */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 16px 14px' }}>
+          <p style={{
+            margin: '0 0 6px', fontSize: 17, fontWeight: 800,
+            color: '#fff', lineHeight: 1.2,
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          }}>
+            {ev.title}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+              {tags.slice(0, 2).map(t => (
+                <span key={t} style={{
+                  backgroundColor: 'rgba(99,102,241,0.25)', color: '#A5B4FC',
+                  fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px',
+                }}>{t}</span>
+              ))}
             </div>
-          ))}
+            <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+              {formatPrice(ev.stand_price)}
+            </span>
+          </div>
         </div>
+      </motion.div>
+
+      {/* dots */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            style={{
+              width: i === active ? 18 : 6, height: 6,
+              borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0,
+              backgroundColor: i === active ? '#6366F1' : '#D1D5DB',
+              transition: 'width 0.3s, background-color 0.3s',
+            }}
+          />
+        ))}
       </div>
     </div>
   )
 }
 
-function EventsContent() {
-  const { events, loading, error } = useEvents()
-  const searchParams = useSearchParams()
-  const toast = useToast()
-  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
+// ─── main component ───────────────────────────────────────────────────────────
 
-  const getStoredFilters = () => {
-    try {
-      if (typeof window === 'undefined') return null
-      const raw = localStorage.getItem('nexart_event_filters')
-      return raw ? JSON.parse(raw) : null
-    } catch { return null }
-  }
-
-  const stored = getStoredFilters()
-
-  const [searchTerm,   setSearchTerm]   = useState(searchParams?.get('q') || stored?.searchTerm || '')
-  const [cityFilter,   setCityFilter]   = useState(stored?.cityFilter || 'all')
-  const [typeFilter,   setTypeFilter]   = useState(stored?.typeFilter || 'all')
-  const [selectedDiscs, setSelectedDiscs] = useState<string[]>(stored?.selectedDiscs || [])
-  const [priceMax,     setPriceMax]     = useState<number | ''>(stored?.priceMax ?? '')
-  const [freeOnly,     setFreeOnly]     = useState(stored?.freeOnly || false)
-  const [sortOrder,    setSortOrder]    = useState<'asc' | 'desc'>(stored?.sortOrder || 'asc')
-  const [dateFrom,     setDateFrom]     = useState(stored?.dateFrom || '')
-  const [dateTo,       setDateTo]       = useState(stored?.dateTo || '')
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE)
-  const [nearMe, setNearMe] = useState(stored?.nearMe || false)
-  const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
-  const [geoRadius] = useState(stored?.geoRadius || 50) // km
-  const [discDropdownOpen, setDiscDropdownOpen] = useState(false)
-  const discDropdownRef = useRef<HTMLDivElement>(null)
+export default function EventsClient() {
   const router = useRouter()
+  const [events, setEvents] = useState<NexartEvent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [activeFilter, setActiveFilter] = useState<string>('tous')
+  const [sortBy, setSortBy] = useState<string>('date-asc')
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
+  const [headerVisible, setHeaderVisible] = useState(true)
 
-  // Sync URL → state on mount
   useEffect(() => {
-    const q = searchParams?.get('q'); if (q) setSearchTerm(q)
-    const disc = searchParams?.get('disc'); if (disc) setSelectedDiscs(disc.split(',').filter(Boolean))
-    const city = searchParams?.get('city'); if (city) setCityFilter(city)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Close disc dropdown on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (discDropdownRef.current && !discDropdownRef.current.contains(e.target as Node))
-        setDiscDropdownOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    const check = () => setIsDesktop(window.innerWidth >= 1024)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   useEffect(() => {
-    try {
-      localStorage.setItem('nexart_event_filters', JSON.stringify({
-        searchTerm, cityFilter, typeFilter, selectedDiscs, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius
-      }))
-    } catch { /* SSR or storage unavailable */ }
-  }, [searchTerm, cityFilter, typeFilter, selectedDiscs, priceMax, freeOnly, sortOrder, dateFrom, dateTo, nearMe, geoRadius])
-  useEffect(() => { setVisibleCount(ITEMS_PER_PAGE) }, [searchTerm, cityFilter, typeFilter, selectedDiscs, priceMax, freeOnly, sortOrder, dateFrom, dateTo])
+    let lastY = window.scrollY
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < 80) { setHeaderVisible(true); lastY = y; return }
+      setHeaderVisible(y < lastY)
+      lastY = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
-  const haversine = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-    const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  useEffect(() => {
+    fetch('/api/events?limit=100')
+      .then(r => r.json())
+      .then(d => {
+        setEvents(d.events ?? [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const FILTERS = [
+    { key: 'tous', label: 'Tous' },
+    { key: 'salon', label: 'Salons' },
+    { key: 'popup', label: 'Pop-ups' },
+    { key: 'fair', label: 'Foires' },
+    { key: 'permanent', label: 'Permanent' },
+    { key: 'gratuit', label: 'Gratuit' },
+    { key: 'bientot', label: 'Bientôt' },
+  ]
+
+  const bySearch = search
+    ? events.filter(e =>
+        e.title.toLowerCase().includes(search.toLowerCase()) ||
+        e.city?.toLowerCase().includes(search.toLowerCase())
+      )
+    : events
+
+  const filtered = activeFilter === 'tous'
+    ? bySearch
+    : activeFilter === 'gratuit'
+    ? bySearch.filter(e => !e.stand_price || e.stand_price === 0)
+    : activeFilter === 'bientot'
+    ? bySearch.filter(e => {
+        const d = new Date(e.start_date)
+        const now2 = new Date()
+        const diff = (d.getTime() - now2.getTime()) / (1000 * 60 * 60 * 24)
+        return diff >= 0 && diff <= 30
+      })
+    : ['bijoux','ceramique','mode','illustration','alimentaire','textile','photo'].includes(activeFilter)
+    ? bySearch.filter(e => {
+        const hay = [...(e.theme ?? []), ...(e.discipline_tags ?? [])].join(' ').toLowerCase()
+        const map: Record<string,string[]> = {
+          bijoux: ['bijou','joaillerie','bijoux'],
+          ceramique: ['céramique','ceramique','poterie'],
+          mode: ['mode','vêtement','textile','couture'],
+          illustration: ['illustration','dessin','peinture','art'],
+          alimentaire: ['aliment','nourriture','gastronomie','épicerie','food'],
+          textile: ['textile','tissu','broderie','tricot'],
+          photo: ['photo','photographie'],
+        }
+        return (map[activeFilter] ?? [activeFilter]).some(k => hay.includes(k))
+      })
+    : bySearch.filter(e => e.event_type === activeFilter)
+
+  const now = new Date()
+
+  const applySort = (arr: typeof filtered) => {
+    const a = [...arr]
+    switch (sortBy) {
+      case 'date-asc':  return a.sort((x, y) => new Date(x.start_date).getTime() - new Date(y.start_date).getTime())
+      case 'date-desc': return a.sort((x, y) => new Date(y.start_date).getTime() - new Date(x.start_date).getTime())
+      case 'price-asc': return a.sort((x, y) => (x.stand_price ?? 0) - (y.stand_price ?? 0))
+      case 'price-desc':return a.sort((x, y) => (y.stand_price ?? 0) - (x.stand_price ?? 0))
+      case 'recent':    return a.sort((x, y) => new Date(y.created_at).getTime() - new Date(x.created_at).getTime())
+      case 'alpha':     return a.sort((x, y) => x.title.localeCompare(y.title))
+      default:          return a
+    }
   }
 
-  const handleNearMe = () => {
-    if (nearMe) { setNearMe(false); return }
-    navigator.geolocation.getCurrentPosition(pos => {
-      setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-      setNearMe(true)
-    }, () => toast.error('Géolocalisation non disponible'))
-  }
+  const upcoming = applySort(filtered.filter(e => new Date(e.start_date) >= now))
+  const nearby = applySort(filtered).slice(0, 10)
 
-  const uniqueCities = [...new Set(events.map((e) => e.city).filter(Boolean))].sort() as string[]
-  const uniqueDiscs = [...new Set(events.flatMap((e) => (e as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []).filter(Boolean))].sort()
+  const artKeywords = ['peinture', 'dessin', 'sculpture', 'bijoux', 'céramique', 'art', 'expo', 'galerie']
+  const expositions = applySort(filtered.filter(e => {
+    const haystack = [...(e.theme ?? []), ...(e.discipline_tags ?? []), e.event_type].join(' ').toLowerCase()
+    return artKeywords.some(k => haystack.includes(k))
+  }))
 
-  const filtered = events
-    .filter((e) =>
-      !searchTerm ||
-      e.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.city?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .filter((e) => cityFilter === 'all' || e.city === cityFilter)
-    .filter((e) => typeFilter === 'all' || e.event_type === typeFilter)
-    .filter((e) => selectedDiscs.length === 0 || (e as NexartEvent & { discipline_tags?: string[] }).discipline_tags?.some(d => selectedDiscs.includes(d)))
-    .filter((e) => !freeOnly || e.stand_price === 0)
-    .filter((e) => priceMax === '' || (e.stand_price != null && e.stand_price <= priceMax))
-    .filter((e) => !dateFrom || !e.start_date || new Date(e.start_date) >= new Date(dateFrom))
-    .filter((e) => !dateTo || !e.start_date || new Date(e.start_date) <= new Date(dateTo))
-    .filter((e) => !nearMe || !userPos || (e.lat && e.lng && haversine(userPos.lat, userPos.lng, e.lat, e.lng) <= geoRadius))
-    .sort((a, b) => {
-      const da = a.start_date ? new Date(a.start_date).getTime() : 0
-      const db = b.start_date ? new Date(b.start_date).getTime() : 0
-      return sortOrder === 'asc' ? da - db : db - da
-    })
+  const marches = applySort(filtered.filter(e => ['popup', 'fair', 'salon'].includes(e.event_type)))
 
-  const visible = filtered.slice(0, visibleCount)
-  const hasMore = visibleCount < filtered.length
-  const hasActiveFilters = cityFilter !== 'all' || typeFilter !== 'all' || selectedDiscs.length > 0 || sortOrder !== 'asc' || !!searchTerm || freeOnly || priceMax !== '' || nearMe || !!dateFrom || !!dateTo
-  const advancedFilterCount = [cityFilter !== 'all', selectedDiscs.length > 0, freeOnly, priceMax !== '', nearMe, !!dateFrom, !!dateTo].filter(Boolean).length
-  const [advancedOpen, setAdvancedOpen] = useState(advancedFilterCount > 0)
-  const progressPct = filtered.length > 0 ? (Math.min(visibleCount, filtered.length) / filtered.length) * 100 : 100
-  const uniqueCitiesCount = new Set(events.map(e => e.city).filter(Boolean)).size
+  const handleCardClick = (id: string) => router.push(`/events/${id}`)
 
-  const resetFilters = () => { setCityFilter('all'); setTypeFilter('all'); setSelectedDiscs([]); setSortOrder('asc'); setSearchTerm(''); setPriceMax(''); setFreeOnly(false); setNearMe(false); setDateFrom(''); setDateTo('') }
+  const containerVariants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } }
 
-  const toggleDisc = (disc: string) => setSelectedDiscs(prev => prev.includes(disc) ? prev.filter(d => d !== disc) : [...prev, disc])
+  // ── Desktop layout (≥ 1024px) ───────────────────────────────────────────────
+  if (isDesktop) {
+    return (
+      <>
+      <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
+        <h1 style={{ fontSize: 32, fontWeight: 800, color: '#111827', marginBottom: 4, letterSpacing: -0.5 }}>
+          Événements
+        </h1>
+        <p style={{ color: '#6B7280', marginBottom: 24 }}>Marchés, pop-ups et salons près de chez vous</p>
 
-  const shareFilters = () => {
-    const params = new URLSearchParams()
-    if (searchTerm) params.set('q', searchTerm)
-    if (cityFilter !== 'all') params.set('city', cityFilter)
-    if (selectedDiscs.length > 0) params.set('disc', selectedDiscs.join(','))
-    if (typeFilter !== 'all') params.set('type', typeFilter)
-    if (dateFrom) params.set('from', dateFrom)
-    if (dateTo) params.set('to', dateTo)
-    const url = `${window.location.pathname}?${params.toString()}`
-    router.push(url, { scroll: false })
-    navigator.clipboard.writeText(window.location.origin + url).catch(() => {})
-    toast.success('Lien copié dans le presse-papier !')
-  }
-
-  if (loading) return <Skeleton />
-
-  if (error) return (
-    <div className="max-w-lg mx-auto px-4 py-32 text-center">
-      <p className="text-4xl mb-4">⚠️</p>
-      <p className="text-red-500">Une erreur est survenue. Réessayez dans quelques instants.</p>
-    </div>
-  )
-
-  return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-
-      {/* Hero */}
-      <div style={{ backgroundColor: colors.dark.base, position: 'relative', overflow: 'hidden' }}>
-        {/* Dot grid */}
-        <div className="absolute inset-0 opacity-[0.10]" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-        {/* Glows */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/20 blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-20 right-0 w-80 h-80 rounded-full bg-violet-600/15 blur-[80px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-16 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <div className="flex items-center gap-2 mb-5">
-              <Sparkles size={13} className="text-indigo-400" />
-              <span className="text-indigo-400 text-xs font-semibold">Découvrir</span>
-            </div>
-          </motion.div>
-
-          <div className="overflow-hidden mb-4">
-            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.1]">
-              <WordReveal delay={0.05}>Événements</WordReveal>
-            </h1>
+        {/* search + filters */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 32, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#F3F4F6', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 260 }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Ville, nom d'événement…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              autoComplete="off"
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: '#111827', colorScheme: 'light' }}
+            />
           </div>
-
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.5 }}
-            className="text-white/40 text-base mb-10"
-          >
-            Marchés, pop-ups, salons et festivals — candidatez en quelques clics
-          </motion.p>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.5 }}
-            className="flex flex-wrap gap-3"
-          >
-            {[
-              { value: events.length, label: 'événements' },
-              { value: uniqueCitiesCount, label: 'villes' },
-              { value: events.filter(e => e.stand_price === 0).length, label: 'gratuits' },
-            ].map(({ value, label }) => (
-              <div key={label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-                <span className="text-white font-bold text-sm">{value}</span>
-                <span className="text-white/40 text-xs">{label}</span>
-              </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {FILTERS.map(f => (
+              <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
+                padding: '8px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 600,
+                backgroundColor: activeFilter === f.key ? '#6366F1' : '#F3F4F6',
+                color: activeFilter === f.key ? '#fff' : '#374151',
+              }}>
+                {f.label}
+              </button>
             ))}
-          </motion.div>
-        </div>
-
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
-
-        {/* Search */}
-        <div className="relative mb-4">
-          <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Rechercher un événement, une ville…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition shadow-sm"
-          />
-          {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        {/* Filters */}
-        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
-          {/* Row 1: Type */}
-          <div className="mb-5">
-            <p className="text-[11px] font-bold text-gray-400 mb-3">Type d'événement</p>
-            <div className="flex flex-wrap gap-2">
-              {EVENT_TYPES.map(({ key, label }) => {
-                const active = typeFilter === key
-                return (
-                  <button key={key} onClick={() => setTypeFilter(key)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-                      active ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm shadow-indigo-200' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}>
-                    {label}
-                  </button>
-                )
-              })}
-            </div>
           </div>
+        </div>
 
-          {/* Row 2: Tri (rapide, toujours visible) + toggle filtres avancés */}
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start justify-between pt-4 border-t border-gray-100">
-            <div className="w-full sm:w-auto">
-              <p className="text-[11px] font-bold text-gray-400 mb-2">Trier</p>
-              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
-                {(['asc', 'desc'] as const).map((o, i) => (
-                  <button key={o} onClick={() => setSortOrder(o)}
-                    className={`flex-1 sm:flex-none px-4 py-2 text-sm font-medium transition-colors ${i === 1 ? 'border-l border-gray-200' : ''} ${
-                      sortOrder === o ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'
-                    }`}>
-                    {o === 'asc' ? '↑ Prochains' : '↓ Plus loin'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button onClick={() => setAdvancedOpen(o => !o)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors sm:self-end ${
-                advancedFilterCount > 0 ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-              }`}>
-              <SlidersHorizontal size={14} />
-              Filtres avancés
-              {advancedFilterCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-indigo-600 text-white text-[11px] font-bold">{advancedFilterCount}</span>
-              )}
-              <span style={{ fontSize: '10px', opacity: 0.6, transform: advancedOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▾</span>
-            </button>
+        {/* grid */}
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} style={{ borderRadius: 16, backgroundColor: '#F3F4F6', height: 280,
+                background: 'linear-gradient(90deg,#E5E7EB 25%,#F3F4F6 50%,#E5E7EB 75%)',
+                backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+            ))}
           </div>
-
-          {advancedOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              style={{ overflow: 'hidden' }}
-            >
-              {/* Ville + Dates */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
-                {uniqueCities.length > 0 && (
-                  <div className="w-full sm:w-auto">
-                    <p className="text-[11px] font-bold text-gray-400 mb-2">Ville</p>
-                    <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
-                      className={`w-full sm:w-auto px-3 py-2 rounded-xl border text-sm font-medium cursor-pointer focus:outline-none transition ${
-                        cityFilter !== 'all' ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'
-                      }`}>
-                      <option value="all">Toutes les villes</option>
-                      {uniqueCities.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                )}
-
-                <div className="w-full sm:w-auto">
-                  <p className="text-[11px] font-bold text-gray-400 mb-2">À partir du</p>
-                  <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                    className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateFrom ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
-                </div>
-
-                <div className="w-full sm:w-auto">
-                  <p className="text-[11px] font-bold text-gray-400 mb-2">Jusqu'au</p>
-                  <input type="date" value={dateTo} min={dateFrom} onChange={e => setDateTo(e.target.value)}
-                    className={`px-3 py-2 rounded-xl border text-sm font-medium focus:outline-none focus:border-indigo-300 transition cursor-pointer ${dateTo ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700'}`} />
-                </div>
-              </div>
-
-              {/* Discipline + Tarif + Gratuit + NearMe */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-start mt-4 pt-4 border-t border-gray-100">
-                {uniqueDiscs.length > 0 && (
-                  <div className="w-full sm:w-auto" ref={discDropdownRef} style={{ position: 'relative' }}>
-                    <p className="text-[11px] font-bold text-gray-400 mb-2">Disciplines</p>
-                    <button
-                      onClick={() => setDiscDropdownOpen(o => !o)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        padding: '8px 12px', borderRadius: '12px', border: '1px solid',
-                        borderColor: selectedDiscs.length > 0 ? colors.purple.bgPaleAlt : colors.border.default,
-                        backgroundColor: selectedDiscs.length > 0 ? colors.purple.bgEefAlt : colors.bg.primary,
-                        color: selectedDiscs.length > 0 ? colors.purple.indigoDarkAlt : colors.gray["700"],
-                        fontSize: '14px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {selectedDiscs.length > 0 ? `Disciplines (${selectedDiscs.length})` : 'Toutes disciplines'}
-                      <span style={{ fontSize: '10px', opacity: 0.6 }}>▾</span>
-                    </button>
-                    {discDropdownOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        style={{
-                          position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 100,
-                          backgroundColor: colors.bg.primary, border: `1px solid ${colors.border.default}`, borderRadius: '14px',
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.1)', padding: '8px',
-                          minWidth: '220px', maxHeight: '280px', overflowY: 'auto'
-                        }}
-                      >
-                        {selectedDiscs.length > 0 && (
-                          <button onClick={() => setSelectedDiscs([])}
-                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 10px', fontSize: '11px', color: `${colors.red.vivid}`, fontWeight: 600, marginBottom: '4px', cursor: 'pointer', background: 'none', border: 'none' }}>
-                            Tout effacer
-                          </button>
-                        )}
-                        {uniqueDiscs.map(d => {
-                          const checked = selectedDiscs.includes(d)
-                          return (
-                            <label key={d}
-                              style={{
-                                display: 'flex', alignItems: 'center', gap: '8px',
-                                padding: '7px 10px', borderRadius: '8px', cursor: 'pointer',
-                                backgroundColor: checked ? colors.purple.bgEefAlt : 'transparent',
-                                transition: 'background 0.1s'
-                              }}
-                            >
-                              <input type="checkbox" checked={checked} onChange={() => toggleDisc(d)}
-                                style={{ accentColor: colors.violet.primary, width: '14px', height: '14px', cursor: 'pointer' }} />
-                              <span style={{ fontSize: '13px', color: checked ? colors.purple.indigoDarkAlt : colors.gray["700"], fontWeight: checked ? 600 : 400 }}>{d}</span>
-                            </label>
-                          )
-                        })}
-                      </motion.div>
-                    )}
-                  </div>
-                )}
-                <div className="w-full sm:w-auto">
-                  <p className="text-[11px] font-bold text-gray-400 mb-2">Prix stand max (€)</p>
-                  <input type="number" min={0} placeholder="ex: 50" value={priceMax}
-                    onChange={e => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="w-full sm:w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-300" />
-                </div>
-                <div className="flex items-end pb-1">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox" checked={freeOnly} onChange={e => setFreeOnly(e.target.checked)} className="w-4 h-4 rounded accent-indigo-600" />
-                    <span className="text-sm font-medium text-gray-700">Gratuit uniquement</span>
-                  </label>
-                </div>
-                <div className="flex items-end pb-1">
-                  <button onClick={handleNearMe}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-colors ${nearMe ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'}`}>
-                    <MapPin size={14} /> Autour de moi ({geoRadius} km)
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {hasActiveFilters && (
-            <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200 flex-wrap items-center">
-              <span className="text-xs text-gray-400 font-medium">Actifs :</span>
-              {searchTerm && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">"{searchTerm}" <button onClick={() => setSearchTerm('')}><X size={11} /></button></span>}
-              {cityFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{cityFilter} <button onClick={() => setCityFilter('all')}><X size={11} /></button></span>}
-              {typeFilter !== 'all' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{EVENT_TYPE_LABELS[typeFilter]} <button onClick={() => setTypeFilter('all')}><X size={11} /></button></span>}
-              {selectedDiscs.map(d => (
-                <span key={d} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">{d} <button onClick={() => toggleDisc(d)}><X size={11} /></button></span>
-              ))}
-              {dateFrom && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">À partir du {new Date(dateFrom).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} <button onClick={() => setDateFrom('')}><X size={11} /></button></span>}
-              {dateTo && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">Jusqu'au {new Date(dateTo).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} <button onClick={() => setDateTo('')}><X size={11} /></button></span>}
-              {freeOnly && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">Gratuit <button onClick={() => setFreeOnly(false)}><X size={11} /></button></span>}
-              {priceMax !== '' && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold">≤ {priceMax}€ <button onClick={() => setPriceMax('')}><X size={11} /></button></span>}
-              {nearMe && <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold"><MapPin size={10} /> Autour de moi <button onClick={() => setNearMe(false)}><X size={11} /></button></span>}
-              <button onClick={resetFilters} className="text-xs text-red-400 hover:text-red-600 font-semibold ml-1">Tout effacer</button>
-              <div className="ml-auto flex items-center gap-2">
-                <button onClick={shareFilters}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '5px',
-                    padding: '5px 11px', borderRadius: '20px', border: `1px solid ${colors.border.default}`,
-                    backgroundColor: colors.bg.primary, color: colors.gray["500"], fontSize: '11px', fontWeight: 600,
-                    cursor: 'pointer', transition: 'all 0.15s'
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = colors.purple.bgPaleAlt; (e.currentTarget as HTMLButtonElement).style.color = colors.purple.indigoDarkAlt }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = colors.border.default; (e.currentTarget as HTMLButtonElement).style.color = colors.gray["500"] }}
-                >
-                  🔗 Partager ces filtres
-                </button>
-                <SaveSearchButton
-                  disciplines={selectedDiscs}
-                  city={cityFilter !== 'all' ? cityFilter : undefined}
-                  query={searchTerm || undefined}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Results count */}
-        <div className="flex items-center gap-2 mb-6">
-          <SlidersHorizontal size={15} className="text-gray-400" />
-          <span className="text-sm text-gray-500">
-            <span className="font-bold text-gray-900 text-base">{filtered.length}</span> résultat{filtered.length !== 1 ? 's' : ''}
-            {hasActiveFilters && <span className="text-gray-400"> · filtré{filtered.length !== 1 ? 's' : ''}</span>}
-          </span>
-        </div>
-
-        {/* Lien carte */}
-        <Link href="/carte" className="flex items-center gap-2 px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 hover:border-indigo-200 transition-all duration-150 group w-fit mb-2">
-          <MapPin size={15} className="text-indigo-500 shrink-0" />
-          <span className="text-sm font-600 text-indigo-700">Voir les événements sur la carte</span>
-          <ArrowRight size={14} className="text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-
-        {/* Grid */}
-        {visible.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-              {visible.map((event, idx) => {
-                // Magazine pattern: positions 0 and 4 in each group of 7 are featured (span-2)
-                const posInGroup = idx % 7
-                const isFeatured = posInGroup === 0 || posInGroup === 4
-                // Alternate: 1st featured aligns left (default), 5th featured aligns right
-                const featuredRight = posInGroup === 4
-                const rem = (event as NexartEvent & { remaining_spots?: number }).remaining_spots
-                const tags = (event as NexartEvent & { discipline_tags?: string[] }).discipline_tags || []
-
-                return (
-                <FadeUp key={event.id} delay={Math.min(idx * 0.04, 0.3)}
-                  className={isFeatured ? 'sm:col-span-2 lg:col-span-2' : ''}>
-                  <Link href={`/events/${event.id}`}
-                    className={`group flex overflow-hidden bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full ${
-                      isFeatured ? 'rounded-3xl flex-row sm:flex-col' : 'flex-col rounded-2xl'
-                    }`}
-                  >
-                    {/* Cover */}
-                    <div className={`relative bg-gray-100 shrink-0 overflow-hidden ${
-                      isFeatured
-                        ? 'w-40 sm:w-full h-full sm:h-72 rounded-2xl sm:rounded-none'
-                        : 'h-52'
-                    }`}>
-                      {event.cover_image && !failedImages.has(event.id) ? (
-                        <Image
-                          src={event.cover_image}
-                          alt={event.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-700"
-                          onError={() => setFailedImages(prev => new Set([...prev, event.id]))}
-                        />
-                      ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.dark.navy }}>
-                          <Calendar size={isFeatured ? 56 : 40} className="text-white/20" />
-                        </div>
-                      )}
-
-                      {/* Gradient */}
-                      <div className={`absolute inset-0 ${isFeatured ? 'bg-gradient-to-t from-black/70 via-black/20 to-transparent' : 'bg-gradient-to-t from-black/50 via-black/5 to-transparent'}`} />
-
-                      {/* Top badges */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start gap-2">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {isFeatured && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-600 text-white uppercase tracking-wide">À la une</span>
-                          )}
-                          {event.event_type && (() => {
-                            const badge = TYPE_BADGE[event.event_type]
-                            return (
-                              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md"
-                                style={{ backgroundColor: badge?.bg ?? 'rgba(0,0,0,0.5)', color: badge?.text ?? colors.bg.primary }}>
-                                {EVENT_TYPE_LABELS[event.event_type] ?? event.event_type}
-                              </span>
-                            )
-                          })()}
-                        </div>
-                        {(event.stand_count ?? 0) > 0 && (
-                          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1 shrink-0 ${
-                            rem === 0 ? 'bg-gray-500/70 text-white'
-                            : rem !== undefined && rem <= 3 ? 'bg-amber-500/80 text-white'
-                            : 'bg-black/50 text-white'
-                          }`}>
-                            <Users size={10} />
-                            {rem === 0 ? 'Complet' : rem !== undefined ? `${rem} place${rem > 1 ? 's' : ''}` : `${event.stand_count} stands`}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Featured: title + meta overlaid on image bottom */}
-                      {isFeatured && (
-                        <div className="absolute bottom-0 left-0 right-0 p-5 hidden sm:block">
-                          <h3 className="font-bold text-white text-xl leading-tight mb-2 group-hover:text-indigo-200 transition-colors line-clamp-2">
-                            {event.title}
-                          </h3>
-                          <div className="flex items-center gap-3 flex-wrap">
-                            {event.start_date && (
-                              <span className="flex items-center gap-1.5 text-white/70 text-xs">
-                                <Calendar size={11} className="text-indigo-300" />
-                                {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                              </span>
-                            )}
-                            {event.location && (
-                              <span className="flex items-center gap-1.5 text-white/70 text-xs">
-                                <MapPin size={11} className="text-indigo-300" />
-                                {event.location}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Price badge */}
-                      {event.stand_price != null && (
-                        <div className={`absolute ${isFeatured ? 'top-3 right-3 hidden sm:block' : 'bottom-3 right-3'}`}>
-                          {event.stand_price === 0
-                            ? <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white/90 text-gray-800 backdrop-blur-sm border border-gray-200">Gratuit</span>
-                            : <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-black/60 text-white backdrop-blur-sm flex items-center gap-0.5"><Euro size={10} />{event.stand_price}</span>
-                          }
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Body — hidden on sm for featured (title is on image), always shown on mobile */}
-                    <div className={`flex flex-col flex-1 p-5 ${isFeatured ? 'sm:hidden' : ''}`}>
-                      <h3 className={`font-bold text-gray-900 leading-snug mb-3 group-hover:text-indigo-700 transition-colors ${isFeatured ? 'text-lg' : 'text-base'}`}>{event.title}</h3>
-                      <div className="space-y-1.5 mb-3">
-                        {event.start_date && (
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <Calendar size={13} className="text-indigo-400 shrink-0" />
-                            {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </div>
-                        )}
-                        {event.location && (
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <MapPin size={13} className="text-indigo-400 shrink-0" />
-                            {event.location}
-                          </div>
-                        )}
-                      </div>
-                      {event.description && (
-                        <p className="text-sm text-gray-400 leading-relaxed mb-3 flex-1 line-clamp-2">{event.description}</p>
-                      )}
-                      {tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {tags.slice(0, 2).map(t => (
-                            <span key={t} className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-semibold">{t}</span>
-                          ))}
-                          {tags.length > 2 && <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold">+{tags.length - 2}</span>}
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
-                        <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-3 transition-all duration-200">
-                          Voir l'événement <ArrowRight size={14} />
-                        </span>
-                        <PinButton event={{ id: event.id, title: event.title, start_date: event.start_date, city: event.city ?? undefined, stand_price: event.stand_price, stand_count: event.stand_count, discipline_tags: tags, cover_image: event.cover_image ?? undefined }} />
-                      </div>
-                    </div>
-
-                    {/* Featured sm+ footer: tags + CTA below image */}
-                    {isFeatured && (
-                      <div className="hidden sm:flex items-center justify-between px-5 py-3 border-t border-gray-50">
-                        <div className="flex flex-wrap gap-1.5">
-                          {tags.slice(0, 3).map(t => (
-                            <span key={t} className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-semibold">{t}</span>
-                          ))}
-                          {tags.length > 3 && <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold">+{tags.length - 3}</span>}
-                        </div>
-                        <span className="flex items-center gap-1.5 text-indigo-600 text-sm font-semibold opacity-0 group-hover:opacity-100 group-hover:gap-2 transition-all duration-200 shrink-0 ml-3">
-                          Voir <ArrowRight size={13} />
-                        </span>
-                      </div>
-                    )}
-                  </Link>
-                </FadeUp>
-              )})}
-            </div>
-
-            {hasMore && (
-              <div className="text-center mt-16">
-                <div className="max-w-[200px] mx-auto mb-4">
-                  <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-2">
-                    <motion.div className="h-full bg-indigo-500 rounded-full"
-                      initial={{ width: 0 }} animate={{ width: `${progressPct}%` }} transition={{ duration: 0.4, ease: 'easeOut' }} />
-                  </div>
-                  <p className="text-xs text-gray-400">{Math.min(visibleCount, filtered.length)} / {filtered.length} événements</p>
-                </div>
-                <button onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
-                  className="px-8 py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-semibold text-sm hover:bg-indigo-600 hover:text-white transition-all duration-200">
-                  Voir {Math.min(ITEMS_PER_PAGE, filtered.length - visibleCount)} de plus
-                </button>
-              </div>
-            )}
-            {!hasMore && filtered.length > ITEMS_PER_PAGE && (
-              <p className="text-center text-sm text-gray-400 mt-12">Tous les {filtered.length} résultats sont affichés</p>
-            )}
-          </>
+        ) : filtered.length === 0 ? (
+          <p style={{ color: '#9CA3AF', textAlign: 'center', marginTop: 80 }}>Aucun événement trouvé.</p>
         ) : (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
-            <p className="text-5xl mb-5">{hasActiveFilters ? '🔍' : '📅'}</p>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">{hasActiveFilters ? 'Aucun résultat' : 'Aucun événement pour le moment'}</h3>
-            <p className="text-gray-400 max-w-sm mx-auto mb-8 leading-relaxed">
-              {hasActiveFilters ? "Aucun événement ne correspond à vos critères." : 'Les premiers événements arrivent bientôt.'}
-            </p>
-            {hasActiveFilters
-              ? <button onClick={resetFilters} className="px-6 py-2.5 rounded-xl border border-indigo-300 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors">Réinitialiser</button>
-              : <Link href="/register" className="px-7 py-3 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-500 transition-colors">Créer un compte</Link>
-            }
-          </motion.div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+            {filtered.map((ev, i) => (
+              <motion.div
+                key={ev.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.04 }}
+                onClick={() => handleCardClick(ev.id)}
+                style={{ borderRadius: 16, backgroundColor: '#1A1A2E', overflow: 'hidden', cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column' }}
+              >
+                <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: '#252540' }}>
+                  {ev.cover_image && (
+                    <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />
+                  )}
+                  {(() => { const st = statusLabel(ev.status); return (
+                    <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color,
+                      color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>{st.label}</span>
+                  )})()}
+                </div>
+                <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <p style={{ margin: 0, color: '#fff', fontSize: 15, fontWeight: 700,
+                    display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2,
+                    overflow: 'hidden' }}>{ev.title}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                    {getTagsFromEvent(ev).slice(0, 3).map(tag => (
+                      <span key={tag} style={{ backgroundColor: '#2A2A3E', color: '#C4C4D4',
+                        fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20 }}>{tag}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                    <span style={{ fontSize: 12, color: '#6B6B8A' }}>
+                      {ev.start_date ? formatDate(ev.start_date) : ''}{ev.city ? ` · ${ev.city}` : ''}
+                    </span>
+                    <span style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{formatPrice(ev.stand_price)}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
       </div>
-    </div>
-  )
-}
+      </>
+    )
+  }
 
-export default function EventsClient() {
   return (
     <>
-      <Suspense fallback={<Skeleton />}>
-        <EventsContent />
-      </Suspense>
-      <ComparePanel />
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+          -webkit-box-shadow: 0 0 0 30px #F3F4F6 inset !important;
+          -webkit-text-fill-color: #111827 !important;
+        }
+      `}</style>
+
+      <div style={{ backgroundColor: '#fff', minHeight: '100vh', paddingBottom: 80 }}>
+        {/* fixed header: title + search + filters — hides on scroll down */}
+        <div style={{
+          position: 'fixed', top: headerVisible ? 58 : -200, left: 0, right: 0, zIndex: 10,
+          backgroundColor: '#fff',
+          borderBottom: '1px solid #F3F4F6',
+          transition: 'top 0.25s ease',
+        }}>
+          {/* title row */}
+          <div style={{ padding: '12px 16px 8px' }}>
+            <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: '#111827', letterSpacing: -0.5 }}>
+              Événements
+            </h1>
+            <p style={{ margin: 0, fontSize: 12, color: '#9CA3AF' }}>Marchés, pop-ups et salons près de chez vous</p>
+          </div>
+          {/* search */}
+          <div style={{ padding: '0 16px 8px' }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              backgroundColor: '#F3F4F6', borderRadius: 12, padding: '9px 14px', colorScheme: 'light',
+            }}>
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Ville, nom d'événement…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: '#111827', colorScheme: 'light' }}
+              />
+              {search && (
+                <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+          {/* type filters row */}
+          <div style={{ overflowX: 'auto', scrollPaddingLeft: 16 }} className="hide-scrollbar">
+            <div style={{ display: 'flex', gap: 8, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
+              {FILTERS.map(f => (
+                <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
+                  flexShrink: 0, padding: '5px 13px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600,
+                  backgroundColor: activeFilter === f.key ? '#6366F1' : '#F3F4F6',
+                  color: activeFilter === f.key ? '#fff' : '#374151',
+                  transition: 'background 0.15s, color 0.15s',
+                }}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* sort row — direct */}
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px 10px', gap: 6 }}>
+            <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
+              padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+              backgroundColor: sortBy.startsWith('date') ? '#111827' : '#F3F4F6',
+              color: sortBy.startsWith('date') ? '#fff' : '#6B7280',
+            }}>
+              Date {sortBy === 'date-desc' ? '↓' : '↑'}
+            </button>
+            <button onClick={() => setSortBy(sortBy === 'price-asc' ? 'price-desc' : 'price-asc')} style={{
+              padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+              backgroundColor: sortBy.startsWith('price') ? '#111827' : '#F3F4F6',
+              color: sortBy.startsWith('price') ? '#fff' : '#6B7280',
+            }}>
+              Prix {sortBy === 'price-desc' ? '↓' : '↑'}
+            </button>
+            <div style={{ flex: 1 }} />
+            <button onClick={() => setShowAdvanced(v => !v)} style={{
+              padding: '5px 12px', borderRadius: 8, border: '1px solid #E5E7EB', cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, background: showAdvanced ? '#F3F4F6' : '#fff', color: '#374151',
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path d="M3 6h18M7 12h10M11 18h2" />
+              </svg>
+              Avancé
+            </button>
+          </div>
+          {showAdvanced && (
+            <div style={{ margin: '0 16px 10px', padding: '4px 0', borderTop: '1px solid #F3F4F6' }}>
+              {[
+                { key: 'date-asc',   label: 'Date (plus proche)' },
+                { key: 'date-desc',  label: 'Date (plus lointaine)' },
+                { key: 'price-asc',  label: 'Prix croissant' },
+                { key: 'price-desc', label: 'Prix décroissant' },
+                { key: 'recent',     label: 'Ajouté récemment' },
+                { key: 'alpha',      label: 'Alphabétique (A → Z)' },
+              ].map(s => (
+                <button key={s.key} onClick={() => { setSortBy(s.key); setShowAdvanced(false) }} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
+                  padding: '9px 4px', border: 'none', cursor: 'pointer', background: 'none',
+                  color: sortBy === s.key ? '#6366F1' : '#374151',
+                  fontSize: 13, fontWeight: sortBy === s.key ? 600 : 400,
+                }}>
+                  {s.label}
+                  {sortBy === s.key && (
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#6366F1" strokeWidth={2.5}>
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* spacer matching fixed header height */}
+        <div style={{ height: 175 }} />
+
+        {/* hero carousel */}
+        <div style={{ paddingTop: 20, backgroundColor: '#fff' }}>
+          <FeaturedCarousel events={upcoming} loading={loading} onCardClick={handleCardClick} />
+        </div>
+
+        {/* sections */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          <Section
+            title="À ne pas manquer"
+            events={upcoming.slice(0, 12)}
+            loading={loading}
+            onCardClick={handleCardClick}
+          />
+          <Section
+            title="Près de chez vous"
+            events={nearby}
+            loading={loading}
+            onCardClick={handleCardClick}
+          />
+          <Section
+            title="Expositions"
+            events={expositions.slice(0, 10)}
+            loading={loading}
+            onCardClick={handleCardClick}
+          />
+          <Section
+            title="Marchés créateurs"
+            events={marches.slice(0, 10)}
+            loading={loading}
+            onCardClick={handleCardClick}
+          />
+        </motion.div>
+
+        {/* empty state */}
+        {!loading && filtered.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '60px 32px' }}>
+            <p style={{ fontSize: 40, margin: '0 0 12px' }}>🔍</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: '0 0 6px' }}>
+              Aucun événement trouvé
+            </p>
+            <p style={{ fontSize: 13, color: '#9CA3AF' }}>
+              Essayez un autre mot-clé ou une autre ville
+            </p>
+          </div>
+        )}
+      </div>
     </>
   )
 }
