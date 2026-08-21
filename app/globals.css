@@ -641,6 +641,17 @@ footer {
   border-color: rgba(67, 56, 202, 0.35) !important;
   background-color: rgba(67, 56, 202, 0.08) !important;
 }
+[data-theme="light"] .faces-cta-btn {
+  color: #3730A3 !important;
+  background-color: rgba(67, 56, 202, 0.08) !important;
+}
+[data-theme="light"] .phone-frame {
+  border-color: rgba(0, 0, 0, 0.18) !important;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.22), 0 8px 24px rgba(79, 70, 229, 0.12) !important;
+}
+[data-theme="light"] .home-phone-wrap > div:first-child {
+  background: rgba(79, 70, 229, 0.15) !important;
+}
 [data-theme="light"] .grain-overlay {
   opacity: 0.015;
 }
