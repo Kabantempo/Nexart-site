@@ -641,6 +641,48 @@ footer {
   border-color: rgba(67, 56, 202, 0.35) !important;
   background-color: rgba(67, 56, 202, 0.08) !important;
 }
+/* Mobile nav light mode */
+[data-theme="light"] .mobile-nav-overlay {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+}
+[data-theme="light"] .mobile-nav-panel {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+}
+[data-theme="light"] .mobile-nav-panel a {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .mobile-nav-panel a:hover {
+  color: #4338CA !important;
+}
+[data-theme="light"] .mobile-search-form {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+[data-theme="light"] .mobile-search-input {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .mobile-search-input::placeholder {
+  color: rgba(26, 26, 26, 0.4) !important;
+}
+[data-theme="light"] .mobile-nav-panel p {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .mobile-nav-panel span {
+  color: rgba(26, 26, 26, 0.5) !important;
+}
+[data-theme="light"] .mobile-nav-panel button {
+  color: rgba(26, 26, 26, 0.4) !important;
+}
+[data-theme="light"] .mobile-nav-panel [style*="rgba(255,255,255,0.06)"],
+[data-theme="light"] .mobile-nav-panel [style*="rgba(255,255,255,0.1)"] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+[data-theme="light"] .mobile-nav-panel [style*="borderTop"] {
+  border-top-color: rgba(0, 0, 0, 0.08) !important;
+}
+
 [data-theme="light"] .cookie-consent-bar {
   background-color: #ffffff !important;
   color: #1A1A1A !important;

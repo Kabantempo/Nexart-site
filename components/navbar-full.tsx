@@ -654,22 +654,24 @@ export function NavbarFull() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               style={{ position: 'fixed', inset: 0, zIndex: 40, backgroundColor: 'rgba(6,6,15,0.96)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
               onClick={() => setMobileOpen(false)}
-              className="lg-hidden"
+              className="lg-hidden mobile-nav-overlay"
             />
             <motion.nav
               initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               style={{ position: 'fixed', left: 0, right: 0, top: '58px', zIndex: 40, display: 'flex', flexDirection: 'column', padding: '24px 20px 40px', gap: '4px', overflowY: 'auto', maxHeight: 'calc(100vh - 58px)' }}
-              className="lg-hidden"
+              className="lg-hidden mobile-nav-panel"
             >
               {/* Search */}
               <motion.form initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}
                 onSubmit={submitSearch}
+                className="mobile-search-form"
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '44px', padding: '0 16px', borderRadius: '14px', backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '16px' }}
               >
-                <Search size={14} color="rgba(255,255,255,0.4)" style={{ flexShrink: 0 }} />
+                <Search size={14} color="rgba(255,255,255,0.4)" className="mobile-search-icon" style={{ flexShrink: 0 }} />
                 <input value={searchValue} onChange={e => handleSearchChange(e.target.value)}
                   placeholder="Rechercher événements, créateurs…"
+                  className="mobile-search-input"
                   style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: colors.bg.primary }}
                 />
                 {searchValue && (
