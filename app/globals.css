@@ -657,6 +657,33 @@ footer {
   border-color: rgba(67, 56, 202, 0.35) !important;
   background-color: rgba(67, 56, 202, 0.08) !important;
 }
+/* Creators page hero light mode */
+[data-theme="light"] .creators-hero {
+  background-color: #f0f0fa !important;
+}
+[data-theme="light"] .creators-hero .text-white {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .creators-hero h1.text-white,
+[data-theme="light"] .creators-hero h1 {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .creators-hero .text-white\/40 {
+  color: rgba(26,26,26,0.55) !important;
+}
+[data-theme="light"] .creators-hero .bg-white\/5 {
+  background-color: rgba(0,0,0,0.06) !important;
+}
+[data-theme="light"] .creators-hero .border-white\/10 {
+  border-color: rgba(0,0,0,0.1) !important;
+}
+[data-theme="light"] .creators-hero span.text-white {
+  color: #1A1A1A !important;
+}
+[data-theme="light"] .creators-hero span.text-white\/40 {
+  color: rgba(26,26,26,0.5) !important;
+}
+
 /* Mobile nav light mode */
 [data-theme="light"] .mobile-nav-overlay {
   background-color: rgba(255, 255, 255, 0.92) !important;
