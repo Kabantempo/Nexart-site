@@ -630,6 +630,12 @@ footer {
 [data-theme="light"] .home-aurora {
   opacity: 0.55;
 }
+[data-theme="light"] .hero-gradient-text {
+  background: linear-gradient(90deg, #4338CA, #5B21B6, #4338CA) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  background-size: 200% 100% !important;
+}
 [data-theme="light"] .grain-overlay {
   opacity: 0.015;
 }
