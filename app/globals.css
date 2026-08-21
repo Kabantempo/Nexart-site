@@ -636,6 +636,11 @@ footer {
   -webkit-background-clip: text !important;
   background-size: 200% 100% !important;
 }
+[data-theme="light"] .hero-badge {
+  color: #3730A3 !important;
+  border-color: rgba(67, 56, 202, 0.35) !important;
+  background-color: rgba(67, 56, 202, 0.08) !important;
+}
 [data-theme="light"] .grain-overlay {
   opacity: 0.015;
 }

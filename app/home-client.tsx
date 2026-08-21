@@ -493,7 +493,7 @@ export default function HomeClient() {
         <motion.div className="home-hero-content-pad" style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '100%', textAlign: 'center' }}>
             <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.i30}`, backgroundColor: D.i10, color: colors.purple.bgLight, fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
+              className="hero-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.i30}`, backgroundColor: D.i10, color: colors.purple.bgLight, fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '32px' }}
             >
               <Sparkles size={11} /> La plateforme des artisans
             </motion.div>
