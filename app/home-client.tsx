@@ -124,14 +124,14 @@ function PhoneMockup() {
 
         {/* Status bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 4px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: D.w60 }}>9:41</span>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--home-t7)' }}>9:41</span>
           <div style={{ width: '80px', height: '20px', borderRadius: '9999px', backgroundColor: `${colors.text.black}`, position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: '12px' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <div style={{ display: 'flex', gap: '2.5px', alignItems: 'flex-end', height: '12px' }}>
-              {[3,5,7,9].map((h,i) => <div key={i} style={{ width: '2.5px', borderRadius: '2px', backgroundColor: D.w50, height: `${h}px` }} />)}
+              {[3,5,7,9].map((h,i) => <div key={i} style={{ width: '2.5px', borderRadius: '2px', backgroundColor: 'var(--home-t5)', height: `${h}px` }} />)}
             </div>
             <div style={{ width: '16px', height: '10px', borderRadius: '2px', border: `1px solid ${D.w40}`, position: 'relative', marginLeft: '2px' }}>
-              <div style={{ position: 'absolute', inset: '2px', right: '3px', backgroundColor: D.w50, borderRadius: '1px' }} />
+              <div style={{ position: 'absolute', inset: '2px', right: '3px', backgroundColor: 'var(--home-t5)', borderRadius: '1px' }} />
               <div style={{ position: 'absolute', right: '-2px', top: '50%', transform: 'translateY(-50%)', width: '2px', height: '6px', backgroundColor: D.w30, borderRadius: '2px' }} />
             </div>
           </div>
@@ -139,21 +139,21 @@ function PhoneMockup() {
 
         {/* App header */}
         <div style={{ padding: '12px 20px 16px' }}>
-          <p style={{ fontSize: '11px', color: D.w35, fontWeight: 500, marginBottom: '2px' }}>Bonjour, Marie</p>
-          <h3 style={{ fontSize: '18px', fontWeight: 700, color: colors.bg.primary, lineHeight: 1.2 }}>Événements près de toi</h3>
+          <p style={{ fontSize: '11px', color: 'var(--home-t3)', fontWeight: 500, marginBottom: '2px' }}>Bonjour, Marie</p>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>Événements près de toi</h3>
         </div>
 
         {/* Search bar */}
         <div style={{ padding: '0 20px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '16px', backgroundColor: D.w8, border: `1px solid ${D.w8}` }}>
-            <Search size={14} style={{ color: D.w30, flexShrink: 0 }} />
-            <span style={{ fontSize: '12px', color: D.w25 }}>Rechercher…</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '16px', backgroundColor: D.w8, border: '1px solid var(--home-bd)' }}>
+            <Search size={14} style={{ color: 'var(--home-t6)', flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', color: 'var(--home-t6)' }}>Rechercher…</span>
           </div>
         </div>
 
         {/* Section label */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px 12px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: D.w40, textTransform: 'uppercase', letterSpacing: '0.1em' }}>À proximité</span>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--home-t5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>À proximité</span>
           <span style={{ fontSize: '11px', color: D.indigo400, fontWeight: 600 }}>Voir tout</span>
         </div>
 
@@ -165,20 +165,20 @@ function PhoneMockup() {
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.45, delay: 0.7 + i * 0.12, ease: 'easeOut' }}
-              style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px', borderRadius: '16px', backgroundColor: D.w5, border: `1px solid ${D.w7}` }}
+              style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px', borderRadius: '16px', backgroundColor: 'var(--home-bg1)', border: `1px solid ${D.w7}` }}
             >
               <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: D.i15, border: `1px solid ${D.i20}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Calendar size={15} style={{ color: ev.color }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: '12px', fontWeight: 600, color: colors.bg.primary, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
+                <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                   <span style={{ fontSize: '10px', fontWeight: 700, color: ev.color }}>{ev.type}</span>
                   <span style={{ color: D.w20, fontSize: '10px' }}>·</span>
-                  <span style={{ fontSize: '10px', color: D.w40 }}>{ev.date}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--home-t5)' }}>{ev.date}</span>
                 </div>
               </div>
-              <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: '12px', backgroundColor: D.i80, fontSize: '10px', fontWeight: 700, color: colors.bg.primary }}>
+              <div style={{ flexShrink: 0, padding: '6px 10px', borderRadius: '12px', backgroundColor: D.i80, fontSize: '10px', fontWeight: 700, color: 'var(--text-primary)' }}>
                 Voir
               </div>
             </motion.div>
@@ -186,7 +186,7 @@ function PhoneMockup() {
         </div>
 
         {/* Bottom tab bar */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '14px 24px 24px', borderTop: `1px solid ${D.w6}`, backgroundColor: D.phoneBg }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '14px 24px 24px', borderTop: '1px solid var(--home-bd3)', backgroundColor: D.phoneBg }}>
           {[
             { icon: <Search size={18} />, active: false },
             { icon: <MapPin size={18} />, active: true },
@@ -273,7 +273,7 @@ function FacesSection() {
         <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Créateurs · Organisateurs · Visiteurs</p>
         <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: colors.bg.primary, maxWidth: '600px' }}>
           Pour qui est{' '}
-          <span style={{ color: D.w30 }}>Nexart ?</span>
+          <span style={{ color: 'var(--home-t6)' }}>Nexart ?</span>
         </h2>
       </FadeUp>
 
@@ -288,8 +288,8 @@ function FacesSection() {
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1)' }}
           >
             <p style={{ fontSize: '11px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', color: face.accentColor }}>{face.label}</p>
-            <h3 style={{ fontSize: '24px', fontWeight: 900, color: colors.bg.primary, lineHeight: 1.2, marginBottom: '12px' }}>{face.tagline}</h3>
-            <p style={{ color: D.w40, fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>{face.desc}</p>
+            <h3 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.2, marginBottom: '12px' }}>{face.tagline}</h3>
+            <p style={{ color: 'var(--home-t5)', fontSize: '14px', lineHeight: 1.6, marginBottom: '32px' }}>{face.desc}</p>
 
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, listStyle: 'none', padding: 0, margin: 0 }}>
               {face.features.map(({ Icon, label: fl, desc: fd }) => (
@@ -298,8 +298,8 @@ function FacesSection() {
                     <Icon size={13} style={{ color: face.accentColor }} />
                   </div>
                   <div>
-                    <p style={{ fontSize: '12px', fontWeight: 600, color: colors.bg.primary, lineHeight: 1.2 }}>{fl}</p>
-                    <p style={{ fontSize: '11px', color: D.w30, lineHeight: 1.5 }}>{fd}</p>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>{fl}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--home-t6)', lineHeight: 1.5 }}>{fd}</p>
                   </div>
                 </li>
               ))}
@@ -350,10 +350,10 @@ function EmailCaptureSection() {
   return (
     <FadeUp>
       <div style={{ background: D.i10, borderRadius: '12px', padding: '24px', border: `1px solid ${D.i15}`, maxWidth: '480px' }}>
-        <p style={{ fontSize: '13px', fontWeight: 600, color: D.w60, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--home-t7)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Application mobile
         </p>
-        <p style={{ fontSize: '15px', color: colors.bg.primary, marginBottom: '16px', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '15px', color: 'var(--text-primary)', marginBottom: '16px', lineHeight: 1.5 }}>
           Soyez prévenu dès que l&apos;app est disponible sur iOS et Android.
         </p>
         {success ? (
@@ -368,7 +368,7 @@ function EmailCaptureSection() {
               placeholder="votre@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ flex: 1, minWidth: '200px', padding: '10px 14px', borderRadius: '8px', border: `1px solid ${D.w12}`, background: D.w6, color: colors.bg.primary, fontSize: '14px', outline: 'none' }}
+              style={{ flex: 1, minWidth: '200px', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--home-bd2)', background: 'var(--home-bg2)', color: colors.bg.primary, fontSize: '14px', outline: 'none' }}
             />
             <button
               type="submit"
@@ -438,11 +438,7 @@ const HOME_STYLE_CSS = `
           filter: blur(80px);
         }
 
-        /* Force le thème sombre sur la home, quel que soit le thème choisi */
-        [data-theme=light] .home-page { background-color: #08081a !important; color: #FFFFFF !important; }
-        [data-theme=light] .home-page section { background-color: transparent !important; }
-        [data-theme=light] .home-page [style*="color: rgba(255, 255, 255"] { color: unset !important; }
-        [data-theme=light] .home-page [style*="background-color: rgb("] { background-color: unset !important; }
+        /* home page supports both light and dark via CSS variables */
 
         /* ── Responsive section paddings ── */
         .home-section-xl  { padding-top: 128px; padding-bottom: 128px; }
@@ -471,13 +467,13 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
   return (
-    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: D.bg, color: '#FFFFFF' }}>
+    <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <style dangerouslySetInnerHTML={{ __html: HOME_STYLE_CSS }} />
 
       <Grain />
 
       {/* ══ HERO ══════════════════════════════════════════════════════ */}
-      <section ref={heroRef} style={{ position: 'relative', minHeight: '100svh', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: D.bg }}>
+      <section ref={heroRef} style={{ position: 'relative', minHeight: '100svh', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: 'var(--bg-primary)' }}>
 
         <div style={{ height: '58px', flexShrink: 0 }} />
 
@@ -513,17 +509,17 @@ export default function HomeClient() {
                   créations
                 </motion.span>
               </span>
-              <span style={{ display: 'block', color: D.w35, fontSize: '0.55em', fontWeight: 700, letterSpacing: '-0.01em', overflow: 'hidden', paddingBottom: '4px' }}>
+              <span style={{ display: 'block', color: 'var(--home-t3)', fontSize: '0.55em', fontWeight: 700, letterSpacing: '-0.01em', overflow: 'hidden', paddingBottom: '4px' }}>
                 <WordReveal delay={0.3}>dans les meilleurs événements</WordReveal>
               </span>
             </h1>
 
             <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              style={{ color: D.w80, fontSize: '16px', lineHeight: 1.6, marginBottom: '36px' }}
+              style={{ color: 'var(--home-t1)', fontSize: '16px', lineHeight: 1.6, marginBottom: '36px' }}
             >
               Nexart connecte créateurs et organisateurs d&apos;événements artisanaux —{' '}
-              <span style={{ color: colors.bg.primary }}>marchés, pop-ups, salons, festivals</span>.
+              <span style={{ color: 'var(--text-primary)' }}>marchés, pop-ups, salons, festivals</span>.
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.62 }}>
@@ -536,7 +532,7 @@ export default function HomeClient() {
                   S&apos;inscrire gratuitement <ArrowRight size={15} />
                 </Link>
                 <Link href="/events"
-                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px 28px', borderRadius: '16px', border: `1px solid ${D.w8}`, color: D.w55, fontWeight: 600, fontSize: '14px', textDecoration: 'none', transition: 'all 0.2s ease' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px 28px', borderRadius: '16px', border: '1px solid var(--home-bd)', color: 'var(--home-t2)', fontWeight: 600, fontSize: '14px', textDecoration: 'none', transition: 'all 0.2s ease' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = colors.bg.primary; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w55; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
                 >
@@ -546,7 +542,7 @@ export default function HomeClient() {
             </motion.div>
 
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
-              style={{ fontSize: '12px', color: D.w22, fontWeight: 500 }}
+              style={{ fontSize: '12px', color: 'var(--home-t4)', fontWeight: 500 }}
             >
               Gratuit pour les créateurs · Pas de carte bancaire requise
             </motion.p>
@@ -559,7 +555,7 @@ export default function HomeClient() {
         >
           <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '12px', animation: 'ticker 40s linear infinite', width: 'max-content' }}>
             {[...DISCIPLINES, ...DISCIPLINES, ...DISCIPLINES].map((d, i) => (
-              <span key={i} style={{ display: 'inline-flex', flexShrink: 0, alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '9999px', border: `1px solid ${D.w8}`, backgroundColor: D.w4, color: D.w30, fontSize: '12px', fontWeight: 500 }}>
+              <span key={i} style={{ display: 'inline-flex', flexShrink: 0, alignItems: 'center', gap: '6px', padding: '6px 16px', borderRadius: '9999px', border: '1px solid var(--home-bd)', backgroundColor: 'var(--home-bg1)', color: 'var(--home-t6)', fontSize: '12px', fontWeight: 500 }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: D.i50, flexShrink: 0 }} />
                 {d}
               </span>
@@ -572,11 +568,11 @@ export default function HomeClient() {
       <FacesSection />
 
       {/* ══ STEPS ══════════════════════════════════════════════════════ */}
-      <section className="home-section-xl" style={{ borderTop: `1px solid ${D.w6}` }}>
+      <section className="home-section-xl" style={{ borderTop: '1px solid var(--home-bd3)' }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
           <FadeUp style={{ marginBottom: '80px', textAlign: 'center' }}>
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>En 3 étapes</p>
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: colors.bg.primary }}>Simple comme bonjour</h2>
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>Simple comme bonjour</h2>
           </FadeUp>
           <div className="home-steps-grid">
             <div className="home-steps-connector" style={{ position: 'absolute', top: '38px', left: 'calc(16.67% + 28px)', right: 'calc(16.67% + 28px)', height: '1px', background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.25), transparent)' }} />
@@ -596,8 +592,8 @@ export default function HomeClient() {
                 >
                   <span style={{ fontSize: '24px', fontWeight: 900, color: D.indigo400, fontFamily: 'monospace' }}>{n}</span>
                 </motion.div>
-                <h3 style={{ fontSize: '18px', fontWeight: 700, color: colors.bg.primary, marginBottom: '12px' }}>{title}</h3>
-                <p style={{ color: D.w35, fontSize: '14px', lineHeight: 1.6, maxWidth: '210px', margin: '0 auto' }}>{desc}</p>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>{title}</h3>
+                <p style={{ color: 'var(--home-t3)', fontSize: '14px', lineHeight: 1.6, maxWidth: '210px', margin: '0 auto' }}>{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -605,7 +601,7 @@ export default function HomeClient() {
       </section>
 
       {/* ══ APP DOWNLOAD ═══════════════════════════════════════════════ */}
-      <section className="home-section-lg" style={{ borderTop: `1px solid ${D.w6}`, overflow: 'hidden' }}>
+      <section className="home-section-lg" style={{ borderTop: '1px solid var(--home-bd3)', overflow: 'hidden' }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '0 16px' }}>
           <div className="home-app-layout">
 
@@ -618,10 +614,10 @@ export default function HomeClient() {
             <FadeUp style={{ position: 'relative', zIndex: 10, flex: 1 }}>
               <div className="home-app-text">
                 <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Bientôt disponible</p>
-                <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: colors.bg.primary, lineHeight: 1.05, marginBottom: '20px' }}>
+                <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--text-primary)', lineHeight: 1.05, marginBottom: '20px' }}>
                   Nexart dans<br />votre poche
                 </h2>
-                <p style={{ color: D.w35, fontSize: '16px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '400px' }}>
+                <p style={{ color: 'var(--home-t3)', fontSize: '16px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '400px' }}>
                   Candidatez, suivez vos marchés et échangez avec les organisateurs — où que vous soyez.
                 </p>
 
@@ -630,22 +626,22 @@ export default function HomeClient() {
                 </div>
 
                 <div className="home-store-buttons">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: `1px solid ${D.w12}`, backgroundColor: D.w4, textAlign: 'left', userSelect: 'none' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: '1px solid var(--home-bd2)', backgroundColor: 'var(--home-bg1)', textAlign: 'left', userSelect: 'none' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
                       <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                     </svg>
                     <div>
-                      <p style={{ fontSize: '10px', color: D.w30, fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
-                      <p style={{ fontSize: '15px', fontWeight: 700, color: D.w50, lineHeight: 1 }}>App Store</p>
+                      <p style={{ fontSize: '10px', color: 'var(--home-t6)', fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
+                      <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--home-t2)', lineHeight: 1 }}>App Store</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: `1px solid ${D.w12}`, backgroundColor: D.w4, textAlign: 'left', userSelect: 'none' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 24px', borderRadius: '16px', border: '1px solid var(--home-bd2)', backgroundColor: 'var(--home-bg1)', textAlign: 'left', userSelect: 'none' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" opacity="0.5" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.18 23.76c.3.17.65.19.97.08l12.49-7.17-2.64-2.64-10.82 9.73zm-1.14-20.3C1.73 3.83 1.5 4.28 1.5 4.85v14.3c0 .57.23 1.02.54 1.39l.07.07 8.01-8.01v-.19L2.11 3.39l-.07.07zM20.37 10.5l-2.61-1.5-2.94 2.94 2.94 2.94 2.64-1.52c.75-.43.75-1.43-.03-1.86zM4.14.24L16.63 7.41l-2.64 2.64L3.17.32C3.49.21 3.84.23 4.14.24z"/>
                     </svg>
                     <div>
-                      <p style={{ fontSize: '10px', color: D.w30, fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
-                      <p style={{ fontSize: '15px', fontWeight: 700, color: D.w50, lineHeight: 1 }}>Google Play</p>
+                      <p style={{ fontSize: '10px', color: 'var(--home-t6)', fontWeight: 500, lineHeight: 1, marginBottom: '2px' }}>Bientôt sur</p>
+                      <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--home-t2)', lineHeight: 1 }}>Google Play</p>
                     </div>
                   </div>
                 </div>
@@ -662,11 +658,11 @@ export default function HomeClient() {
       </section>
 
       {/* ══ FINAL CTA ══════════════════════════════════════════════════ */}
-      <section className="home-section-xl" style={{ borderTop: `1px solid ${D.w6}` }}>
+      <section className="home-section-xl" style={{ borderTop: '1px solid var(--home-bd3)' }}>
         <div style={{ maxWidth: '768px', margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
           <FadeUp>
             <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '28px' }}>Rejoignez la communauté</p>
-            <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: colors.bg.primary, lineHeight: 0.9, marginBottom: '28px' }}>
+            <h2 style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 900, letterSpacing: '-0.04em', color: 'var(--text-primary)', lineHeight: 0.9, marginBottom: '28px' }}>
               Prêt à exposer{' '}
               <span style={{ background: `linear-gradient(90deg, ${colors.violet.hover}, ${colors.purple.pale}, ${colors.violet.hover})`, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                 vos créations ?
@@ -681,7 +677,7 @@ export default function HomeClient() {
                 S&apos;inscrire gratuitement <ArrowRight size={16} />
               </Link>
               <Link href="/events"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 36px', borderRadius: '16px', border: `1px solid ${D.w8}`, color: D.w50, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s ease' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 36px', borderRadius: '16px', border: '1px solid var(--home-bd)', color: 'var(--home-t2)', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s ease' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = colors.bg.primary; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w50; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
               >
