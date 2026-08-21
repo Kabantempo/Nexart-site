@@ -64,10 +64,10 @@ body {
   /* home page theme tokens */
   --home-t1: rgba(26,26,26,0.82);
   --home-t2: rgba(26,26,26,0.62);
-  --home-t3: rgba(26,26,26,0.48);
+  --home-t3: rgba(26,26,26,0.58);
   --home-t4: rgba(26,26,26,0.38);
   --home-t5: rgba(26,26,26,0.52);
-  --home-t6: rgba(26,26,26,0.42);
+  --home-t6: rgba(26,26,26,0.60);
   --home-t7: rgba(26,26,26,0.72);
   --home-bd:  rgba(0,0,0,0.10);
   --home-bd2: rgba(0,0,0,0.12);
