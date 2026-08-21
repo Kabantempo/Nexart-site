@@ -670,7 +670,7 @@ export function NavbarFull() {
                 <Search size={14} color="var(--mobile-search-icon)" style={{ flexShrink: 0 }} />
                 <input value={searchValue} onChange={e => handleSearchChange(e.target.value)}
                   placeholder="Rechercher événements, créateurs…"
-                  style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--mobile-search-text)' }}
+                  style={{ flex: 1, background: 'var(--mobile-search-bg)', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--mobile-search-text)' }}
                 />
                 {searchValue && (
                   <button type="button" aria-label="Effacer" onClick={() => { setSearchValue(''); setSearchResults({ events: [], creators: [] }) }}
