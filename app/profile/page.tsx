@@ -903,7 +903,7 @@ export default function ProfilePage() {
 
   if (loading) return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="h-52 bg-[${colors.dark.base}] animate-pulse" />
+      <div className="h-52 animate-pulse" style={{ backgroundColor: colors.dark.base }} />
       <div className="max-w-[900px] mx-auto px-4 pt-8 pb-20">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-2xl bg-gray-100 animate-pulse" />)}
@@ -990,12 +990,12 @@ export default function ProfilePage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
-        <div className="relative bg-[${colors.dark.base}] overflow-hidden pt-24 pb-12">
+        <div className="relative overflow-hidden pt-24 pb-12" style={{ backgroundColor: colors.dark.base }}>
           {/* Banner image */}
           {profile?.banner_url && (
             <div className="absolute inset-0 z-0">
               <Image src={profile.banner_url} alt="" fill style={{ objectFit: 'cover', opacity: 0.25 }} />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[${colors.dark.base}]/70 to-[${colors.dark.base}]" />
+              <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent, ${colors.dark.base}b3, ${colors.dark.base})` }} />
             </div>
           )}
           {!profile?.banner_url && (
