@@ -76,8 +76,10 @@ export default function RootLayout({
     <html
       lang="fr"
       className="h-full antialiased"
+      data-theme="dark"
     >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('nexart-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='system'){document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');}else{document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();` }} />
       </head>
       <body className={`flex min-h-screen flex-col text-gray-900 ${syne.variable} ${inter.variable} ${jetbrainsMono.variable}`} style={{ backgroundColor: `var(--bg-primary, ${colors.bg.primary})` }}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg focus:font-semibold">
