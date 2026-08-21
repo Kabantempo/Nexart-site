@@ -349,7 +349,7 @@ function EmailCaptureSection() {
 
   return (
     <FadeUp>
-      <div style={{ background: D.i10, borderRadius: '12px', padding: '24px', border: `1px solid ${D.i15}`, maxWidth: '480px', margin: '0 auto' }}>
+      <div style={{ background: D.i10, borderRadius: '12px', padding: '24px', border: `1px solid ${D.i15}`, maxWidth: '480px' }}>
         <p style={{ fontSize: '13px', fontWeight: 600, color: D.w60, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Application mobile
         </p>
