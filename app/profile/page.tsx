@@ -9,11 +9,11 @@ import { useAuthStore } from '@/lib/store'
 import { motion } from 'framer-motion'
 import {
   User, Mail, MapPin, AtSign, Globe, Edit3, Save, X,
-  Star, CheckCircle, Calendar, LogOut, Upload, ExternalLink,
+  CheckCircle, Calendar, LogOut, Upload, ExternalLink,
   Shield, FileText, XCircle, Trash2, Eye, EyeOff,
   TrendingUp, Users, BarChart2, MessageSquare, Package, CreditCard, ArrowUpRight,
   Send, Search, CheckCheck, Clock, Settings, AlertCircle, BadgeCheck,
-  LayoutGrid, Award, ChevronRight, Rss, Heart, ImagePlus,
+  LayoutGrid, ChevronRight, Rss, Heart, ImagePlus,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-editor'
@@ -42,10 +42,6 @@ type CreatorProfile = {
 type Application = {
   id: string; status: string; created_at: string; message: string | null
   events: { title: string; city: string | null; start_date: string; cover_image: string | null } | null
-}
-type Review = {
-  id: string; rating: number; comment: string | null; tags: string[] | null; created_at: string
-  profiles: { full_name: string } | null
 }
 type AdminCreator = {
   user_id: string; siret_number: string | null
@@ -143,15 +139,6 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function Stars({ n }: { n: number }) {
-  return (
-    <span style={{ display: 'flex', gap: '2px' }}>
-      {[1,2,3,4,5].map(i => (
-        <Star key={i} size={14} fill={i <= n ? colors.status.pending.dot : 'none'} color={i <= n ? colors.status.pending.dot : colors.gray["300"]} />
-      ))}
-    </span>
-  )
-}
 
 function Badge({ ok, label }: { ok: boolean; label: string }) {
   return (
@@ -181,11 +168,10 @@ export default function ProfilePage() {
   // Creator state
   const [creator, setCreator] = useState<CreatorProfile | null>(null)
   const [applications, setApplications] = useState<Application[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
   const [gridItems, setGridItems] = useState<GridItem[]>([])
   const [portfolioVideos, setPortfolioVideos] = useState<string[]>([])
   const [newVideoUrl, setNewVideoUrl] = useState('')
-  const [tab, setTab] = useState<'profil' | 'portfolio' | 'candidatures' | 'avis' | 'posts'>('profil')
+  const [tab, setTab] = useState<'profil' | 'portfolio' | 'candidatures' | 'posts'>('profil')
   const [myPosts, setMyPosts] = useState<{ id: string; content: string; image_url: string | null; created_at: string }[]>([])
   const [postContent, setPostContent] = useState('')
   const [postImageFile, setPostImageFile] = useState<File | null>(null)
@@ -336,17 +322,15 @@ export default function ProfilePage() {
           .limit(50)
         setAdminMessages((msgs as unknown as AdminMessage[]) ?? [])
       } else {
-        const [{ data: creat }, { data: apps }, { data: revs }] = await Promise.all([
+        const [{ data: creat }, { data: apps }] = await Promise.all([
           supabase.from('creator_profiles').select('*').eq('user_id', u.id).maybeSingle(),
           supabase.from('applications').select('id,status,created_at,message,events(title,city,start_date,cover_image)').eq('creator_id', u.id).order('created_at', { ascending: false }).limit(20),
-          supabase.from('reviews').select('id,rating,comment,tags,created_at,profiles!reviewer_id(full_name,avatar_url)').eq('reviewed_id', u.id).order('created_at', { ascending: false }).limit(20),
         ])
         setCreator(creat as unknown as CreatorProfile)
         if (creat?.portfolio_grid) setGridItems(creat.portfolio_grid as GridItem[])
         else if (creat?.portfolio_images?.length) setGridItems(creat.portfolio_images.map((url: string) => ({ url, colSpan: 1 as const, rowSpan: 1 as const })))
         if ((creat as any)?.portfolio_videos?.length) setPortfolioVideos((creat as any).portfolio_videos)
         setApplications((apps as unknown as Application[]) ?? [])
-        setReviews((revs as unknown as Review[]) ?? [])
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
         const { count: viewCount } = await supabase.from('profile_views').select('*', { count: 'exact', head: true }).eq('profile_id', u.id).gte('viewed_at', thirtyDaysAgo)
         setProfileViews(viewCount ?? 0)
@@ -935,10 +919,6 @@ export default function ProfilePage() {
   const name = profile?.full_name ?? user?.email?.split('@')[0] ?? 'Utilisateur'
   const firstName = name.split(' ')[0]
   const isAdmin = profile?.is_admin === true
-  const avgRating = reviews.length
-    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
-    : null
-
   // ──────────────────────────────────────────────────────────────────────────────
   // ADMIN DASHBOARD
   // ──────────────────────────────────────────────────────────────────────────────
@@ -1099,11 +1079,6 @@ export default function ProfilePage() {
                       <BadgeCheck size={12} /> RC Pro
                     </span>
                   )}
-                  {avgRating && (
-                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 text-xs font-bold border border-indigo-500/20">
-                      <Star size={11} fill="currentColor" /> {avgRating}
-                    </span>
-                  )}
                   {(() => {
                     const tier = profile?.subscription_tier ?? 'free'
                     const tierLabel: Record<string, string> = {
@@ -1192,8 +1167,6 @@ export default function ProfilePage() {
             {[
               { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} className="text-indigo-600" /> },
               { label: 'Acceptées',    value: acceptedCount,       icon: <CheckCircle size={18} className="text-indigo-600" /> },
-              { label: 'Avis reçus',  value: reviews.length,      icon: <Star size={18} className="text-indigo-600" /> },
-              { label: 'Note moy.',   value: avgRating ?? '—',    icon: <Award size={18} className="text-indigo-600" /> },
               { label: 'Vues ce mois', value: profileViews,       icon: <Eye size={18} className="text-indigo-600" /> },
             ].map(s => (
               <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm">
@@ -1233,7 +1206,6 @@ export default function ProfilePage() {
               { key: 'profil',       label: 'Profil',        icon: <User size={14} /> },
               { key: 'portfolio',    label: 'Portfolio',     icon: <LayoutGrid size={14} /> },
               { key: 'candidatures', label: `Candidatures${applications.length ? ` (${applications.length})` : ''}`, icon: <Calendar size={14} /> },
-              { key: 'avis',         label: `Avis${reviews.length ? ` (${reviews.length})` : ''}`, icon: <Award size={14} /> },
               { key: 'posts',        label: `Posts${myPosts.length ? ` (${myPosts.length})` : ''}`,   icon: <Rss size={14} /> },
             ] as const).map(t => (
               <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
@@ -2053,49 +2025,6 @@ export default function ProfilePage() {
                 </div>
               )
             })}
-          </div>
-        )}
-
-        {/* ── Tab: Avis ── */}
-        {tab === 'avis' && (
-          <div className="flex flex-col gap-3">
-            {reviews.length > 0 && (
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 flex items-center gap-5 shadow-sm mb-1">
-                <div className="text-center">
-                  <p className="text-4xl font-black text-indigo-600 leading-none">{avgRating}</p>
-                  <Stars n={Math.round(Number(avgRating))} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 mb-0.5">Note moyenne</p>
-                  <p className="text-xs text-gray-400">Basée sur {reviews.length} avis d&apos;organisateurs</p>
-                </div>
-              </div>
-            )}
-            {reviews.length === 0 ? (
-              <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-gray-200">
-                <Star size={40} className="text-gray-200 mx-auto mb-4" />
-                <p className="text-base font-semibold text-gray-700 mb-1">Aucun avis reçu</p>
-                <p className="text-sm text-gray-400">Les avis des organisateurs apparaîtront ici après chaque marché.</p>
-              </div>
-            ) : reviews.map(rev => (
-              <div key={rev.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="text-sm font-bold text-gray-900 mb-1">{rev.profiles?.full_name ?? 'Organisateur'}</p>
-                    <Stars n={rev.rating} />
-                  </div>
-                  <span className="text-xs text-gray-400">{new Date(rev.created_at).toLocaleDateString('fr-FR')}</span>
-                </div>
-                {rev.comment && <p className="text-sm text-gray-600 mt-2 leading-relaxed">"{rev.comment}"</p>}
-                {(rev.tags ?? []).length > 0 && (
-                  <div className="flex gap-1.5 flex-wrap mt-3">
-                    {rev.tags!.map(t => (
-                      <span key={t} className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">{t}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
         )}
 

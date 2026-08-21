@@ -923,12 +923,6 @@ function OrganizerMainContent({
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [refuseModal, setRefuseModal] = useState<{ appId: string; eventTitle?: string; creatorId?: string } | null>(null)
   const [refuseReasons, setRefuseReasons] = useState<string[]>([])
-  const [reviewModal, setReviewModal] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string } | null>(null)
-  const [reviewRating, setReviewRating] = useState(0)
-  const [reviewComment, setReviewComment] = useState('')
-  const [reviewSubmitting, setReviewSubmitting] = useState(false)
-  const [pendingReviews, setPendingReviews] = useState<{ eventId: string; eventTitle: string; creatorId: string; creatorName: string; creatorAvatar: string | null }[]>([])
-
   // Marquer candidatures comme vues
   useEffect(() => {
     const unviewed = pendingApps.filter(a => !(a as any).viewed_at).map(a => a.id)
@@ -942,29 +936,6 @@ function OrganizerMainContent({
     const next = events.filter(e => e.start_date && new Date(e.start_date) > new Date()).sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())[0]
     setSelectedEventId(next?.id ?? events[0].id)
   }, [events, selectedEventId, setSelectedEventId])
-
-  // Pending reviews
-  useEffect(() => {
-    const loadPendingReviews = async () => {
-      const pastEvents = events.filter(e => e.end_date && new Date(e.end_date) < new Date())
-      if (!pastEvents.length) return
-      const { data: apps } = await supabase.from('applications').select('id, creator_id, event_id, profiles(full_name, avatar_url)').in('event_id', pastEvents.map(e => e.id)).eq('status', 'accepted')
-      if (!apps?.length) return
-      const { data: existingReviews } = await supabase.from('reviews').select('reviewed_id, event_id').eq('reviewer_id', userId)
-      const reviewed = new Set((existingReviews ?? []).map(r => `${r.event_id}:${r.reviewed_id}`))
-      const pending = (apps as unknown as { id: string; creator_id: string; event_id: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[])
-        .filter(a => !reviewed.has(`${a.event_id}:${a.creator_id}`))
-        .map(a => ({
-          eventId: a.event_id,
-          eventTitle: pastEvents.find(e => e.id === a.event_id)?.title ?? 'Événement',
-          creatorId: a.creator_id,
-          creatorName: a.profiles?.full_name ?? 'Créateur',
-          creatorAvatar: a.profiles?.avatar_url ?? null,
-        }))
-      setPendingReviews(pending)
-    }
-    if (events.length) loadPendingReviews()
-  }, [events, userId])
 
   const REFUSE_OPTIONS = [
     { key: 'full',       label: 'Événement complet' },
@@ -1017,18 +988,6 @@ function OrganizerMainContent({
     setRefuseReasons([])
   }
 
-  const submitReview = async () => {
-    if (!reviewModal || reviewRating === 0) return
-    setReviewSubmitting(true)
-    await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_id: reviewModal.eventId, reviewer_id: userId, reviewed_id: reviewModal.creatorId, reviewer_role: 'organizer', rating: reviewRating, comment: reviewComment.trim() || null }),
-    })
-    setPendingReviews(prev => prev.filter(r => !(r.eventId === reviewModal.eventId && r.creatorId === reviewModal.creatorId)))
-    setReviewModal(null); setReviewRating(0); setReviewComment(''); setReviewSubmitting(false)
-  }
-
   const selectedEvent = events.find(e => e.id === selectedEventId)
   const selectedEventPending = pendingApps.filter(a => a.event_id === selectedEventId)
 
@@ -1042,30 +1001,6 @@ function OrganizerMainContent({
 
   return (
     <div>
-      {/* Avis à laisser */}
-      {pendingReviews.length > 0 && (
-        <div style={{ marginBottom: '20px', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.3)', backgroundColor: 'rgba(217,119,6,0.1)' }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 10px' }}>Avis à laisser ({pendingReviews.length})</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {pendingReviews.slice(0, 3).map(r => (
-              <div key={`${r.eventId}:${r.creatorId}`} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
-                  {r.creatorAvatar ? <Image src={r.creatorAvatar} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : r.creatorName[0]}
-                </div>
-                <div style={{ flex: '1 1 120px', minWidth: '120px' }}>
-                  <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{r.creatorName}</p>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.eventTitle}</p>
-                </div>
-                <button onClick={() => { setReviewModal(r); setReviewRating(0); setReviewComment('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', flexShrink: 0 }}>
-                  <Star size={11} /> Noter
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Candidatures tabs */}
       <div style={{ marginBottom: '16px' }}>
         <NexTabs
@@ -1248,32 +1183,6 @@ function OrganizerMainContent({
         </div>
       </NexModal>
 
-      <NexModal
-        isOpen={!!reviewModal}
-        onClose={() => { setReviewModal(null); setReviewRating(0); setReviewComment('') }}
-        title="Laisser un avis"
-        subtitle={reviewModal ? `Pour ${reviewModal.creatorName} — ${reviewModal.eventTitle}` : ''}
-        size="sm"
-        footer={
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={() => { setReviewModal(null); setReviewRating(0); setReviewComment('') }} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
-            <button onClick={submitReview} disabled={reviewRating === 0 || reviewSubmitting}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: reviewRating === 0 || reviewSubmitting ? 0.5 : 1 }}>
-              {reviewSubmitting ? 'Envoi…' : 'Publier'}
-            </button>
-          </div>
-        }
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
-          {[1,2,3,4,5].map(n => (
-            <button key={n} onClick={() => setReviewRating(n)} aria-label={`${n} étoile${n > 1 ? 's' : ''}`} aria-pressed={n <= reviewRating} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-              <Star size={26} fill={n <= reviewRating ? colors.status.pending.dot : 'none'} color={n <= reviewRating ? colors.status.pending.dot : 'var(--border-color)'} aria-hidden="true" />
-            </button>
-          ))}
-        </div>
-        <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} placeholder="Commentaire optionnel…" rows={3}
-          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', fontSize: '13px', resize: 'none', outline: 'none', boxSizing: 'border-box', color: 'var(--text-primary)' }} />
-      </NexModal>
     </div>
   )
 }
