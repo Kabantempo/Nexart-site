@@ -238,7 +238,7 @@ function PlanCard({ plan, delay = 0, onSubscribe, loading, currentTier, isOrgani
         <button
           onClick={() => onSubscribe(plan.priceId!, 'subscription')}
           disabled={!!loading}
-          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
             dark
               ? 'bg-indigo-600 text-white hover:bg-indigo-500'
               : 'bg-gray-900 text-white hover:bg-gray-800'
@@ -249,7 +249,7 @@ function PlanCard({ plan, delay = 0, onSubscribe, loading, currentTier, isOrgani
         )
       ) : (
         <Link href={plan.ctaHref!}
-          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
             dark
               ? 'bg-indigo-600 text-white hover:bg-indigo-500'
               : 'bg-gray-900 text-white hover:bg-gray-800'
