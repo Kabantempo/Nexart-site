@@ -31,8 +31,10 @@ function SearchContent() {
   const [query, setQuery] = useState(searchParams?.get('q') ?? '')
   const [tab, setTab] = useState<Tab>('all')
 
-  // Keep URL in sync with query
+  // Keep URL in sync with query — only navigate if URL actually needs to change
   useEffect(() => {
+    const currentQ = searchParams?.get('q') ?? ''
+    if (query.trim() === currentQ) return
     const params = new URLSearchParams()
     if (query.trim()) params.set('q', query.trim())
     const qs = params.toString()
