@@ -102,22 +102,24 @@ export function useCreators() {
 
         if (creatorErr) throw creatorErr
 
-        const enriched = (creatorData?.map((creator) => {
-          const profile = profiles?.find((p) => p.id === creator.user_id)
+        const cpMap = new Map((creatorData || []).map(cp => [cp.user_id, cp]))
+
+        const enriched = ((profiles || []).map((profile) => {
+          const creator = cpMap.get(profile.id) || {}
           return {
             ...creator,
-            id: profile?.id || creator.id,
-            full_name: profile?.full_name || '',
-            avatar_url: profile?.avatar_url,
-            bio: profile?.bio,
+            id: profile.id,
+            full_name: profile.full_name || '',
+            avatar_url: profile.avatar_url,
+            bio: profile.bio,
             role: 'creator' as const,
-            created_at: profile?.created_at || '',
+            created_at: profile.created_at || '',
             is_active: (creator as Record<string, unknown>).is_active_creator as boolean || false,
-            disciplines: creator.disciplines ?? [],
-            portfolio_images: creator.portfolio_images ?? [],
+            disciplines: (creator as any).disciplines ?? [],
+            portfolio_images: (creator as any).portfolio_images ?? [],
             profile_boosted_until: (profile as any)?.profile_boosted_until ?? null,
           }
-        }) || []).sort((a, b) => {
+        })).sort((a, b) => {
           const now = Date.now()
           const aBoosted = a.profile_boosted_until && new Date(a.profile_boosted_until).getTime() > now ? 1 : 0
           const bBoosted = b.profile_boosted_until && new Date(b.profile_boosted_until).getTime() > now ? 1 : 0
