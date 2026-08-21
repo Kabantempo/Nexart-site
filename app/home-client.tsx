@@ -505,6 +505,7 @@ export default function HomeClient() {
               <span style={{ display: 'block', overflow: 'hidden', paddingBottom: '4px' }}>
                 <motion.span initial={{ opacity: 0, y: '110%' }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="hero-gradient-text"
                   style={{ display: 'inline-block', background: `linear-gradient(90deg, ${colors.violet.hover}, ${colors.purple.pale}, ${colors.violet.hover})`, backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', backgroundSize: '200% 100%', animation: 'gradientShift 4s linear infinite' }}>
                   créations
                 </motion.span>
