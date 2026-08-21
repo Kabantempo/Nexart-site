@@ -25,6 +25,10 @@ body {
   --accent-red: #FF8585;
   --card-bg: #1A1A1A;
   --navbar-bg: rgba(15, 15, 15, 0.95);
+  --navbar-bg-top: rgba(15, 15, 15, 0.85);
+  --navbar-bg-scrolled: rgba(15, 15, 15, 0.92);
+  --navbar-border: rgba(255, 255, 255, 0.06);
+  --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --input-bg: #1A1A1A;
 }
 
@@ -40,6 +44,10 @@ body {
   --accent-red: #FF6B6B;
   --card-bg: #FFFFFF;
   --navbar-bg: rgba(255, 255, 255, 0.95);
+  --navbar-bg-top: rgba(255, 255, 255, 0.85);
+  --navbar-bg-scrolled: rgba(255, 255, 255, 0.92);
+  --navbar-border: rgba(0, 0, 0, 0.06);
+  --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
   --input-bg: #FFFFFF;
   --hero-bg: #F8F8FF;
 }
@@ -95,6 +103,10 @@ body {
   --accent-red: #FF8585;
   --card-bg: #1A1A1A;
   --navbar-bg: rgba(15, 15, 15, 0.95);
+  --navbar-bg-top: rgba(15, 15, 15, 0.85);
+  --navbar-bg-scrolled: rgba(15, 15, 15, 0.92);
+  --navbar-border: rgba(255, 255, 255, 0.06);
+  --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --input-bg: #1A1A1A;
 }
 

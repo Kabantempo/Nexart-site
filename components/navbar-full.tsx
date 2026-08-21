@@ -332,17 +332,15 @@ export function NavbarFull() {
             maxWidth: '1280px', margin: '0 auto', padding: '0 20px',
             height: '58px', display: 'flex', alignItems: 'center', gap: '32px',
             transition: 'all 0.5s',
-            backgroundColor: scrolled
-              ? (isDark ? 'rgba(15,15,15,0.92)' : 'rgba(255,255,255,0.92)')
-              : (isDark ? 'rgba(15,15,15,0.85)' : 'rgba(255,255,255,0.85)'),
+            backgroundColor: scrolled ? 'var(--navbar-bg-scrolled)' : 'var(--navbar-bg-top)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             ...(scrolled ? {
               borderRadius: '18px',
-              boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 4px 24px rgba(0,0,0,0.07)',
-              border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+              boxShadow: 'var(--navbar-shadow)',
+              border: '1px solid var(--navbar-border)',
             } : {
-              borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)',
+              borderBottom: '1px solid var(--navbar-border)',
             }),
           }}>
 
