@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Eye, CheckCircle, Star, Download } from 'lucide-react'
+import { Eye, CheckCircle, Download } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
 
@@ -11,8 +11,6 @@ interface CreatorStats {
   applicationsReceived: number
   acceptedCount: number
   rejectedCount: number
-  averageRating: number
-  reviewCount: number
   acceptanceRate: number
 }
 
@@ -160,27 +158,6 @@ export default function CreatorAnalyticsClient() {
             </div>
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
               {stats.acceptanceRate}% acceptées
-            </p>
-          </div>
-
-          {/* Rating */}
-          <div
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Note</h3>
-              <Star size={20} color={colors.status.pending.dot} />
-            </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.status.pending.dot, marginBottom: '8px' }}>
-              {(stats.averageRating ?? 0).toFixed(1)}
-            </div>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              {stats.reviewCount} avis
             </p>
           </div>
 

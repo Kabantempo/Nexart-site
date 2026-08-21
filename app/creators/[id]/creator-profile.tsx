@@ -9,11 +9,10 @@ import Link from 'next/link'
 import { ReportButton } from '@/components/ui/report-button'
 import {
   ArrowLeft, MapPin, Tag, CheckCircle, Globe, Link2, QrCode,
-  Heart, MessageCircle, X, Send, BadgeCheck, Star, Handshake,
+  Heart, MessageCircle, X, Send, BadgeCheck, Handshake,
 } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useFavorites } from '@/lib/hooks'
-import { ReviewForm } from '@/components/review-form'
 import { useToast } from '@/components/ui/toast-provider'
 import { colors } from '@/lib/design-tokens'
 
@@ -79,21 +78,11 @@ const RADIUS_LABELS: Record<string, string> = {
   '5': '5 km', '10': '10 km', '25': '25 km', national: 'National',
 }
 
-type Review = {
-  id: string
-  rating: number
-  comment?: string | null
-  tags?: string[] | null
-  created_at: string
-  profiles?: { full_name: string; avatar_url?: string | null } | null
-}
-
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export function CreatorProfileClient({ id }: Props) {
   const [resolvedId, setResolvedId] = useState<string>(id)
   const [creator, setCreator] = useState<CreatorData | null>(null)
-  const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [portfolioImgErrors, setPortfolioImgErrors] = useState<Set<number>>(new Set())
@@ -103,7 +92,6 @@ export function CreatorProfileClient({ id }: Props) {
   const [sent, setSent] = useState(false)
   const [showQR, setShowQR] = useState(false)
   const [sharedEventId, setSharedEventId] = useState<string | null>(null)
-  const [alreadyReviewed, setAlreadyReviewed] = useState(false)
   const [marchesCount, setMarchesCount] = useState<number | null>(null)
   const [boutiqueCount, setBoutiqueCount] = useState<number | null>(null)
   const [followersCount, setFollowersCount] = useState<number>(0)
@@ -230,50 +218,9 @@ export function CreatorProfileClient({ id }: Props) {
         .limit(3)
       setItinerary((itin || []) as any)
 
-      // Charger les avis séparément
-      const { data: rv, error: rvErr } = await supabase
-        .from('reviews')
-        .select('id, rating, comment, tags, created_at, reviewer:profiles!reviewer_id(full_name, avatar_url)')
-        .eq('reviewed_id', uid)
-        .order('created_at', { ascending: false })
-
-      if (!rvErr && rv?.length) {
-        const mapped = rv.map((r: Record<string, unknown>) => ({
-          ...r,
-          profiles: r.reviewer as Review['profiles'],
-        }))
-        setReviews(mapped as Review[])
-      }
     }
     load()
   }, [id])
-
-  // Vérifier si l'organisateur connecté peut laisser un avis
-  useEffect(() => {
-    if (!user || user.role !== 'organizer') return
-    const checkSharedEvent = async () => {
-      const { data: apps } = await supabase
-        .from('applications')
-        .select('event_id, events!inner(organizer_id)')
-        .eq('creator_id', resolvedId)
-        .eq('status', 'accepted')
-        .eq('events.organizer_id', user.id)
-        .limit(1)
-        .maybeSingle()
-      if (!apps) return
-      const eventId = apps.event_id as string
-      setSharedEventId(eventId)
-      const { data: existing } = await supabase
-        .from('reviews')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('reviewer_id', user.id)
-        .eq('reviewed_id', resolvedId)
-        .maybeSingle()
-      setAlreadyReviewed(!!existing)
-    }
-    checkSharedEvent()
-  }, [resolvedId, user])
 
   const toggleFollow = async () => {
     if (!user) return
@@ -673,75 +620,6 @@ export function CreatorProfileClient({ id }: Props) {
               </section>
             )}
 
-            {/* Avis */}
-            {reviews.length > 0 && (() => {
-              const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
-              return (
-                <section className="mb-8">
-                  <div className="flex items-center gap-3 mb-5">
-                    <h2 className="text-lg font-bold text-gray-900">Avis</h2>
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
-                      <Star size={14} className="text-amber-500" fill={colors.status.pending.dot} />
-                      <span className="text-sm font-bold text-amber-700">{avg.toFixed(1)}</span>
-                      <span className="text-xs text-amber-500">({reviews.length} avis)</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    {reviews.map(r => (
-                      <div key={r.id} className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50">
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-sm font-bold text-gray-600">
-                              {(r.profiles?.full_name ?? '?')[0].toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900">{r.profiles?.full_name ?? 'Organisateur'}</p>
-                              <p className="text-xs text-gray-400">{new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                            </div>
-                          </div>
-                          {/* Étoiles */}
-                          <div className="flex items-center gap-0.5 shrink-0">
-                            {[1,2,3,4,5].map(n => (
-                              <Star key={n} size={15} fill={n <= r.rating ? colors.status.pending.dot : 'none'} color={n <= r.rating ? colors.status.pending.dot : 'var(--border-color)'} />
-                            ))}
-                          </div>
-                        </div>
-                        {r.comment && <p className="text-sm text-gray-600 leading-relaxed mb-3">{r.comment}</p>}
-                        {r.tags && r.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {r.tags.map(tag => (
-                              <span key={tag} className="text-xs px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-600 font-medium">{tag}</span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )
-            })()}
-
-            {/* Laisser un avis — organisateurs ayant eu une candidature acceptée */}
-            {sharedEventId && !isOwn && (
-              <section className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Laisser un avis</h2>
-                {alreadyReviewed ? (
-                  <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Vous avez déjà laissé un avis pour ce créateur.</p>
-                  </div>
-                ) : (
-                  <div style={{ padding: '20px 24px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
-                    <ReviewForm
-                      eventId={sharedEventId}
-                      reviewerId={user!.id}
-                      reviewedId={id}
-                      reviewerRole="organizer"
-                      onSubmitted={() => { setAlreadyReviewed(true) }}
-                    />
-                  </div>
-                )}
-              </section>
-            )}
           </motion.div>
 
           {/* Sidebar */}

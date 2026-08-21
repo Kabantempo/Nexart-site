@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, Star, FileText, Send, Download } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, FileText, Send, Download } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
@@ -18,212 +18,6 @@ import { colors } from '@/lib/design-tokens'
 
 interface Props {
   id: string
-}
-
-// ── Section avis / reviews ────────────────────────────────────────────────────
-interface ReviewData {
-  id: string
-  reviewer_id: string
-  reviewed_id: string
-  reviewer_role: string
-  rating: number
-  comment?: string
-  tags: string[]
-  created_at: string
-  reviewer?: { full_name: string; avatar_url?: string }
-  reviewed?: { full_name: string; avatar_url?: string }
-}
-
-const CREATOR_TAGS = ['Ponctuel', 'Professionnel', 'Créations originales', 'Bon stand', 'Recommandé']
-const ORGANIZER_TAGS = ['Bien organisé', 'Affluence réelle', 'Bonne communication', 'Stand conforme', 'Recommandé']
-
-function EventReviews({ eventId, userId, userRole }: { eventId: string; userId?: string; userRole?: string | null }) {
-  const [reviews, setReviews] = useState<ReviewData[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [rating, setRating] = useState(0)
-  const [comment, setComment] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [reviewedId, setReviewedId] = useState('')
-  const [reviewedName, setReviewedName] = useState('')
-  const [candidates, setCandidates] = useState<{ id: string; full_name: string }[]>([])
-  const [loading, setLoading] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [alreadyReviewed, setAlreadyReviewed] = useState(false)
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true)
-      const res = await fetch(`/api/reviews?event_id=${eventId}`)
-      const data = await res.json()
-      setReviews(data.reviews || [])
-
-      if (userId) {
-        setAlreadyReviewed(data.reviews?.some((r: ReviewData) => r.reviewer_id === userId) || false)
-      }
-
-      // Si organisateur, charger les créateurs acceptés
-      if (userRole === 'organizer' && userId) {
-        const { data: apps } = await supabase.from('applications')
-          .select('creator_id, profiles!creator_id(full_name)')
-          .eq('event_id', eventId)
-          .eq('status', 'accepted')
-        const list = (apps || []).map((a: Record<string, unknown>) => ({
-          id: a.creator_id as string,
-          full_name: (a.profiles as { full_name?: string } | null)?.full_name || 'Créateur',
-        }))
-        setCandidates(list)
-      }
-      setLoading(false)
-    }
-    load()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId, userId])
-
-  const avgRating = reviews.length ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : null
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
-  }
-
-  const handleSubmit = async () => {
-    if (!userId || rating === 0) return
-    setSubmitting(true)
-    const res = await fetch('/api/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_id: eventId,
-        reviewer_id: userId,
-        reviewed_id: reviewedId || (reviews.find(r => r.reviewer_role !== userRole)?.reviewer_id),
-        reviewer_role: userRole,
-        rating, comment, tags: selectedTags,
-      }),
-    })
-    if (res.ok) {
-      const { review } = await res.json()
-      setReviews(prev => [{ ...review }, ...prev])
-      setShowForm(false)
-      setAlreadyReviewed(true)
-    }
-    setSubmitting(false)
-  }
-
-  const tagOptions = userRole === 'organizer' ? CREATOR_TAGS : ORGANIZER_TAGS
-
-  return (
-    <div style={{ marginBottom: '32px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
-            Avis ({reviews.length})
-          </h2>
-          {avgRating && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.bgE8}`, borderRadius: '8px', padding: '3px 8px' }}>
-              <Star size={13} color={colors.status.pending.dot} fill={colors.status.pending.dot} />
-              <span style={{ fontSize: '13px', fontWeight: '700', color: colors.red.amber }}>{avgRating}</span>
-            </div>
-          )}
-        </div>
-        {userId && (userRole === 'creator' || userRole === 'organizer') && !alreadyReviewed && !showForm && (
-          <button onClick={() => setShowForm(true)}
-            style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '12px', fontWeight: '700', color: 'var(--text-primary)', cursor: 'pointer' }}>
-            + Laisser un avis
-          </button>
-        )}
-      </div>
-
-      {showForm && (
-        <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', marginBottom: '20px' }}>
-          <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '12px' }}>
-            {userRole === 'organizer' ? 'Notez un créateur' : 'Notez l\'organisateur'}
-          </p>
-
-          {userRole === 'organizer' && candidates.length > 0 && (
-            <select value={reviewedId} onChange={e => {
-              setReviewedId(e.target.value)
-              setReviewedName(candidates.find(c => c.id === e.target.value)?.full_name || '')
-            }} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', marginBottom: '12px', backgroundColor: 'var(--bg-primary)' }}>
-              <option value="">Sélectionner un créateur...</option>
-              {candidates.map(c => <option key={c.id} value={c.id}>{c.full_name}</option>)}
-            </select>
-          )}
-
-          {/* Stars */}
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
-            {[1, 2, 3, 4, 5].map(s => (
-              <button key={s} onClick={() => setRating(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
-                <Star size={24} color={colors.status.pending.dot} fill={s <= rating ? colors.status.pending.dot : 'none'} />
-              </button>
-            ))}
-            {rating > 0 && <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginLeft: '4px', marginTop: '4px' }}>{rating}/5</span>}
-          </div>
-
-          {/* Tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
-            {tagOptions.map(tag => (
-              <button key={tag} onClick={() => toggleTag(tag)}
-                style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', border: '1px solid', borderColor: selectedTags.includes(tag) ? 'var(--text-primary)' : 'var(--border-color)', backgroundColor: selectedTags.includes(tag) ? 'var(--text-primary)' : 'var(--bg-primary)', color: selectedTags.includes(tag) ? 'var(--bg-primary)' : 'var(--text-secondary)' }}>
-                {tag}
-              </button>
-            ))}
-          </div>
-
-          <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Commentaire (optionnel)..."
-            rows={3} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', marginBottom: '12px' }} />
-
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={handleSubmit} disabled={submitting || rating === 0 || (userRole === 'organizer' && !reviewedId)}
-              style={{ padding: '10px 18px', borderRadius: '8px', backgroundColor: (submitting || rating === 0) ? 'var(--border-color)' : 'var(--text-primary)', color: 'var(--bg-primary)', fontSize: '13px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>
-              {submitting ? 'Envoi...' : 'Publier l\'avis'}
-            </button>
-            <button onClick={() => setShowForm(false)}
-              style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-              Annuler
-            </button>
-          </div>
-        </div>
-      )}
-
-      {loading ? (
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Chargement des avis...</p>
-      ) : reviews.length === 0 ? (
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>Aucun avis pour le moment. Soyez le premier !</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {reviews.map(r => (
-            <div key={r.id} style={{ padding: '16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <div>
-                  <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 2px' }}>
-                    {r.reviewer?.full_name || 'Anonyme'}
-                    <span style={{ fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', marginLeft: '6px' }}>
-                      {r.reviewer_role === 'creator' ? 'Créateur' : 'Organisateur'}
-                    </span>
-                  </p>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
-                    Note à {r.reviewed?.full_name || 'la contrepartie'} · {new Date(r.created_at).toLocaleDateString('fr-FR')}
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: '2px' }}>
-                  {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} size={12} color={colors.status.pending.dot} fill={s <= r.rating ? colors.status.pending.dot : 'none'} />
-                  ))}
-                </div>
-              </div>
-              {r.tags?.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
-                  {r.tags.map(tag => (
-                    <span key={tag} style={{ fontSize: '10px', fontWeight: '600', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)', padding: '2px 7px', borderRadius: '99px' }}>{tag}</span>
-                  ))}
-                </div>
-              )}
-              {r.comment && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>{r.comment}</p>}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
 }
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -738,7 +532,7 @@ export function EventDetailClient({ id }: Props) {
           .event-grid { grid-template-columns: 1fr !important; }
           .event-cover { height: 240px !important; }
           .event-title { font-size: 24px !important; }
-          .event-sidebar { order: -1; }
+          .event-sidebar { order: 2; }
         }
       `}</style>
       {/* Cover Image */}
@@ -960,8 +754,6 @@ export function EventDetailClient({ id }: Props) {
                 <FaqSection items={(event as unknown as { faq: { q: string; a: string }[] }).faq} />
               ) : null}
 
-              {/* Reviews section */}
-              <EventReviews eventId={id} userId={user?.id} userRole={user?.role} />
             </motion.div>
           </div>
 

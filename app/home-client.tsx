@@ -204,64 +204,6 @@ function PhoneMockup() {
   )
 }
 
-// ── Testimonials marquee ───────────────────────────────────────────────
-const TESTIMONIALS_ROW1 = [
-  { name: 'Marie L.',    role: 'Céramiste',    text: "Nexart m'a permis de remplir mon calendrier pour 6 mois. Incroyable." },
-  { name: 'Théo R.',    role: 'Illustrateur',  text: "J'ai candidaté à 12 événements en une soirée. L'interface est parfaite." },
-  { name: 'Claire M.',  role: 'Bijoutière',    text: "Enfin un outil pensé par des artisans, pour des artisans." },
-  { name: 'Antoine B.', role: 'Photographe',   text: "J'ai trouvé des événements que je n'aurais jamais découverts autrement." },
-  { name: 'Sophie D.',  role: 'Maroquinière',  text: "Les organisateurs via Nexart sont sérieux. Zéro mauvaise surprise." },
-  { name: 'Lucas P.',   role: 'Sculpteur',     text: "Candidature envoyée, réponse en 24h. Exactement ce qu'il me fallait." },
-]
-const TESTIMONIALS_ROW2 = [
-  { name: 'Emma V.',    role: 'Potière',    text: "Mon stand était complet pour la première fois. Merci Nexart." },
-  { name: 'Jules H.',   role: 'Peintre',    text: "Interface impeccable, candidature en 2 minutes chrono." },
-  { name: 'Camille T.', role: 'Textilière', text: "Nexart a changé ma façon de développer mon activité artisanale." },
-  { name: 'Hugo M.',    role: 'Graveur',    text: "La transparence sur les stands disponibles est vraiment appréciable." },
-  { name: 'Alice R.',   role: 'Broderie',   text: "Je recommande à tous les artisans qui cherchent à se développer." },
-  { name: 'Marc D.',    role: 'Luthier',    text: "Le suivi des candidatures est clair et bien fait. Top." },
-]
-
-function TestimonialCard({ name, role, text }: { name: string; role: string; text: string }) {
-  const initials = name.split(' ').map(n => n[0]).join('')
-  return (
-    <div style={{ flexShrink: 0, width: '280px', padding: '20px', borderRadius: '16px', border: `1px solid ${D.w6}`, backgroundColor: D.w035, margin: '0 8px' }}>
-      <p style={{ fontSize: '14px', color: D.w55, lineHeight: 1.6, marginBottom: '16px' }}>&ldquo;{text}&rdquo;</p>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.primary})', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.bg.primary, fontSize: '12px', fontWeight: 700, flexShrink: 0 }}>
-          {initials}
-        </div>
-        <div>
-          <p style={{ fontSize: '14px', fontWeight: 600, color: colors.bg.primary, lineHeight: 1.2 }}>{name}</p>
-          <p style={{ fontSize: '12px', color: D.w35 }}>{role}</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function TestimonialsMarquee() {
-  return (
-    <section aria-label="Témoignages illustratifs" className="home-section-md" style={{ overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)' }}>
-      <div aria-hidden="true" style={{ display: 'flex', marginBottom: '16px', animation: 'ticker 45s linear infinite', width: 'max-content' }}>
-        {[...TESTIMONIALS_ROW1, ...TESTIMONIALS_ROW1].map((t, i) => (
-          <TestimonialCard key={i} {...t} />
-        ))}
-      </div>
-      <div aria-hidden="true" style={{ display: 'flex', animation: 'tickerReverse 40s linear infinite', width: 'max-content' }}>
-        {[...TESTIMONIALS_ROW2, ...TESTIMONIALS_ROW2].map((t, i) => (
-          <TestimonialCard key={i} {...t} />
-        ))}
-      </div>
-      <ul className="sr-only">
-        {TESTIMONIALS_ROW1.map(t => (
-          <li key={t.name}><q>{t.text}</q> — {t.name}, {t.role}</li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
 // ── Data ───────────────────────────────────────────────────────────────
 const DISCIPLINES = [
   'Céramique', 'Illustration', 'Bijouterie', 'Maroquinerie', 'Textile',
@@ -600,9 +542,6 @@ export default function HomeClient() {
 
       {/* ══ 3 FACES ════════════════════════════════════════════════════ */}
       <FacesSection />
-
-      {/* ══ TESTIMONIALS ═══════════════════════════════════════════════ */}
-      <TestimonialsMarquee />
 
       {/* ══ STEPS ══════════════════════════════════════════════════════ */}
       <section className="home-section-xl" style={{ borderTop: `1px solid ${D.w6}` }}>

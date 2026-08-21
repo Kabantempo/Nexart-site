@@ -6,11 +6,11 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Calendar, MapPin, Euro, Users, Tag, Star, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Euro, Users, Tag, CheckCircle } from 'lucide-react'
 import type { Event } from '@/lib/types'
 import { colors } from '@/lib/design-tokens'
 
-type EventWithRating = Event & { avg_rating?: number; review_count?: number; discipline_tags?: string[] }
+type EventWithRating = Event & { discipline_tags?: string[] }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -41,18 +41,7 @@ function CompareContent() {
     if (!ids.length) { setLoading(false); return }
     supabase.from('events').select('*').in('id', ids).then(async ({ data }) => {
       if (!data) { setLoading(false); return }
-      const { data: allReviews } = await supabase.from('reviews').select('event_id, rating').in('event_id', ids)
-      const reviewsByEvent = (allReviews || []).reduce<Record<string, number[]>>((acc, r) => {
-        if (!acc[r.event_id]) acc[r.event_id] = []
-        acc[r.event_id].push(r.rating)
-        return acc
-      }, {})
-      const withRatings = data.map((ev) => {
-        const ratings = reviewsByEvent[ev.id] || []
-        const avg = ratings.length ? ratings.reduce((s, r) => s + r, 0) / ratings.length : undefined
-        return { ...ev, avg_rating: avg, review_count: ratings.length }
-      })
-      setEvents(withRatings as EventWithRating[])
+      setEvents(data as EventWithRating[])
       setLoading(false)
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,19 +170,6 @@ function CompareContent() {
                 })}
               </Row>
 
-              <Row label="Note">
-                {events.map(ev => (
-                  <Cell key={ev.id}>
-                    {ev.avg_rating != null ? (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Star size={13} color={colors.status.pending.dot} fill={colors.status.pending.dot} />
-                        <strong>{ev.avg_rating.toFixed(1)}</strong>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>({ev.review_count} avis)</span>
-                      </span>
-                    ) : <span style={{ color: 'var(--text-secondary)' }}>Aucun avis</span>}
-                  </Cell>
-                ))}
-              </Row>
 
               <Row label="Accès au profil">
                 {events.map(ev => (
