@@ -1055,27 +1055,27 @@ export default function ProfilePage() {
 
                 <div className="flex items-center gap-2 flex-wrap mb-3">
                   {(profile?.role === 'creator' || profile?.role === 'artisan' || (profile?.is_creator && profile?.role !== 'organizer')) && (
-                    <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+                    <span className="px-3 py-0.5 rounded-full bg-indigo-500/40 text-indigo-200 text-xs font-bold border border-indigo-500/50">
                       Créateur
                     </span>
                   )}
                   {(profile?.role === 'organizer' || profile?.is_organizer) && (
-                    <span className="px-3 py-0.5 rounded-full bg-violet-500/25 text-violet-300 text-xs font-bold border border-violet-500/30">
+                    <span className="px-3 py-0.5 rounded-full bg-violet-500/40 text-violet-200 text-xs font-bold border border-violet-500/50">
                       Organisateur
                     </span>
                   )}
                   {(profile?.role === 'organizer' && profile?.is_creator) && (
-                    <span className="px-3 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+                    <span className="px-3 py-0.5 rounded-full bg-indigo-500/40 text-indigo-200 text-xs font-bold border border-indigo-500/50">
                       Créateur
                     </span>
                   )}
                   {creator?.siret_verified && (
-                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/20">
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 text-xs font-bold border border-emerald-500/40">
                       <BadgeCheck size={12} /> SIRET
                     </span>
                   )}
                   {creator?.insurance_verified && (
-                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold border border-emerald-500/20">
+                    <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-200 text-xs font-bold border border-emerald-500/40">
                       <BadgeCheck size={12} /> RC Pro
                     </span>
                   )}
@@ -1085,14 +1085,14 @@ export default function ProfilePage() {
                       free: 'Gratuit', boost: 'Boost', pro: 'Pro', premium: 'Premium', org_pro: 'Org Pro', org_studio: 'Org Studio',
                     }
                     return (
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/50 text-xs font-semibold border border-white/15">
+                      <span className="px-2.5 py-0.5 rounded-full bg-white/15 text-white/75 text-xs font-semibold border border-white/25">
                         {tierLabel[tier] ?? 'Gratuit'}
                       </span>
                     )
                   })()}
                 </div>
 
-                <div className="flex gap-3 flex-wrap mb-3.5 text-[13px] text-white/50">
+                <div className="flex gap-3 flex-wrap mb-3.5 text-[13px] text-white/75">
                   {creator?.city && (
                     <span className="flex items-center gap-1">
                       <MapPin size={12} /> {creator.city}{creator.region ? `, ${creator.region}` : ''}
@@ -1101,7 +1101,7 @@ export default function ProfilePage() {
                   {creator?.travel_radius && (
                     <span>· {RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}</span>
                   )}
-                  <span className="flex items-center gap-1 text-white/35">
+                  <span className="flex items-center gap-1 text-white/55">
                     <Mail size={12} /> {user?.email}
                   </span>
                 </div>
@@ -1109,10 +1109,10 @@ export default function ProfilePage() {
                 {(creator?.disciplines ?? []).length > 0 && (
                   <div className="flex gap-1.5 flex-wrap">
                     {creator!.disciplines.slice(0, 4).map(d => (
-                      <span key={d} className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/7 text-white/60 border border-white/10">{d}</span>
+                      <span key={d} className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/15 text-white/80 border border-white/20">{d}</span>
                     ))}
                     {creator!.disciplines.length > 4 && (
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/5 text-white/35 border border-white/8">+{creator!.disciplines.length - 4}</span>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/5 text-white/55 border border-white/8">+{creator!.disciplines.length - 4}</span>
                     )}
                   </div>
                 )}
