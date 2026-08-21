@@ -413,18 +413,29 @@ const HOME_STYLE_CSS = `
         .home-cta-buttons { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
         @media (min-width: 640px) { .home-cta-buttons { flex-direction: row; } }
 
-        /* ── Hero floating particles ── */
-        @keyframes hero-float {
-          0%   { transform: translateY(0)   scale(1);   opacity: 0; }
-          10%  { opacity: 1; }
-          85%  { opacity: 0.7; }
-          100% { transform: translateY(-120px) scale(0.6); opacity: 0; }
+        /* ── Hero aurora blobs ── */
+        @keyframes aurora-drift-1 {
+          0%   { transform: translate(0, 0) scale(1); }
+          33%  { transform: translate(80px, -60px) scale(1.15); }
+          66%  { transform: translate(-40px, 40px) scale(0.9); }
+          100% { transform: translate(0, 0) scale(1); }
         }
-        .hero-particle {
+        @keyframes aurora-drift-2 {
+          0%   { transform: translate(0, 0) scale(1); }
+          33%  { transform: translate(-70px, 50px) scale(1.1); }
+          66%  { transform: translate(60px, -30px) scale(0.95); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes aurora-drift-3 {
+          0%   { transform: translate(0, 0) scale(1); }
+          50%  { transform: translate(50px, 60px) scale(1.2); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        .hero-aurora {
           position: absolute;
           border-radius: 50%;
           pointer-events: none;
-          animation: hero-float linear infinite;
+          filter: blur(80px);
         }
 
         /* Force le thème sombre sur la home, quel que soit le thème choisi */
@@ -474,30 +485,13 @@ export default function HomeClient() {
         <div style={{ position: 'absolute', inset: 0, opacity: 0.14, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
         {/* Glows */}
-        <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.18, 0.3, 0.18] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ position: 'absolute', top: '-160px', left: '-192px', width: '800px', height: '800px', borderRadius: '50%', backgroundColor: 'rgba(79,70,229,0.20)', filter: 'blur(130px)', pointerEvents: 'none' }} />
-        <motion.div animate={{ scale: [1, 1.12, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          style={{ position: 'absolute', top: '33%', right: '-128px', width: '500px', height: '500px', borderRadius: '50%', backgroundColor: 'rgba(139,92,246,0.15)', filter: 'blur(100px)', pointerEvents: 'none' }} />
+        {/* keep legacy glows hidden — replaced by aurora blobs */}
 
-        {/* Floating particles */}
-        {[
-          { left: '12%',  bottom: '18%', size: 3,   delay: '0s',    dur: '9s',  color: 'rgba(99,102,241,0.45)' },
-          { left: '27%',  bottom: '8%',  size: 2,   delay: '2.5s',  dur: '12s', color: 'rgba(139,92,246,0.35)' },
-          { left: '45%',  bottom: '22%', size: 2.5, delay: '1.2s',  dur: '10s', color: 'rgba(99,102,241,0.30)' },
-          { left: '62%',  bottom: '5%',  size: 3.5, delay: '4s',    dur: '11s', color: 'rgba(139,92,246,0.40)' },
-          { left: '78%',  bottom: '15%', size: 2,   delay: '0.8s',  dur: '8s',  color: 'rgba(99,102,241,0.35)' },
-          { left: '88%',  bottom: '30%', size: 3,   delay: '3.3s',  dur: '13s', color: 'rgba(167,139,250,0.30)' },
-          { left: '35%',  bottom: '35%', size: 1.5, delay: '6s',    dur: '10s', color: 'rgba(139,92,246,0.25)' },
-          { left: '55%',  bottom: '42%', size: 2,   delay: '5s',    dur: '14s', color: 'rgba(99,102,241,0.20)' },
-        ].map((p, i) => (
-          <div key={i} className="hero-particle" style={{
-            left: p.left, bottom: p.bottom,
-            width: `${p.size}px`, height: `${p.size}px`,
-            backgroundColor: p.color,
-            animationDelay: p.delay, animationDuration: p.dur,
-            boxShadow: `0 0 ${p.size * 3}px ${p.color}`,
-          }} />
-        ))}
+        {/* Aurora blobs */}
+        <div className="hero-aurora" style={{ width: '600px', height: '500px', top: '5%', left: '-10%', backgroundColor: 'rgba(79,70,229,0.28)', animation: 'aurora-drift-1 18s ease-in-out infinite' }} />
+        <div className="hero-aurora" style={{ width: '500px', height: '450px', top: '20%', right: '-8%', backgroundColor: 'rgba(139,92,246,0.22)', animation: 'aurora-drift-2 22s ease-in-out infinite' }} />
+        <div className="hero-aurora" style={{ width: '400px', height: '400px', bottom: '0%', left: '30%', backgroundColor: 'rgba(99,102,241,0.20)', animation: 'aurora-drift-3 16s ease-in-out infinite' }} />
+        <div className="hero-aurora" style={{ width: '350px', height: '350px', top: '40%', left: '55%', backgroundColor: 'rgba(167,139,250,0.15)', animation: 'aurora-drift-1 25s ease-in-out infinite reverse' }} />
 
         {/* Hero content */}
         <motion.div className="home-hero-content-pad" style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
