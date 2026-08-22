@@ -949,13 +949,20 @@ img, video, iframe, canvas, svg {
   color: #4338CA !important;
 }
 
-/* ── /events page — filter chips ───────────────────────────── */
+/* ── /events page — filter chips + cards ───────────────────── */
 :root {
   --ev-chip-bg: rgba(255,255,255,0.07);
   --ev-chip-text: rgba(255,255,255,0.7);
   --ev-border: rgba(255,255,255,0.1);
   --ev-sort-active: #ffffff;
   --ev-skeleton-1: rgba(255,255,255,0.05);
+  --ev-card-bg: #1A1A2E;
+  --ev-card-bg2: #252540;
+  --ev-card-tag-bg: #2A2A3E;
+  --ev-card-tag-text: #C4C4D4;
+  --ev-card-date: #6B6B8A;
+  --ev-card-title: #ffffff;
+  --ev-page-header-bg: #0F0F0F;
 }
 [data-theme="light"] {
   --ev-chip-bg: #F3F4F6;
@@ -963,7 +970,38 @@ img, video, iframe, canvas, svg {
   --ev-border: #E5E7EB;
   --ev-sort-active: #111827;
   --ev-skeleton-1: #E5E7EB;
+  --ev-card-bg: #FFFFFF;
+  --ev-card-bg2: #F9F9FF;
+  --ev-card-tag-bg: #EEF0FF;
+  --ev-card-tag-text: #4338CA;
+  --ev-card-date: #9CA3AF;
+  --ev-card-title: #1A1A1A;
+  --ev-page-header-bg: #ffffff;
 }
+
+/* ── /creators page — cards dark mode ──────────────────────── */
+:root .creators-card {
+  background-color: #1A1A2E !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+:root .creators-card .creators-card-name { color: rgba(255,255,255,0.9) !important; }
+:root .creators-card .creators-card-meta { color: rgba(255,255,255,0.45) !important; }
+:root .creators-card .creators-card-badge { background-color: rgba(255,255,255,0.07) !important; color: rgba(255,255,255,0.6) !important; }
+:root .creators-filter-panel { background-color: #1A1A2E !important; border-color: rgba(255,255,255,0.08) !important; }
+:root .creators-filter-label { color: rgba(255,255,255,0.5) !important; }
+:root .creators-results-count { color: rgba(255,255,255,0.45) !important; }
+:root .creators-results-count strong { color: rgba(255,255,255,0.9) !important; }
+[data-theme="light"] .creators-card {
+  background-color: #FFFFFF !important;
+  border-color: #E5E7EB !important;
+}
+[data-theme="light"] .creators-card .creators-card-name { color: #1A1A1A !important; }
+[data-theme="light"] .creators-card .creators-card-meta { color: #888888 !important; }
+[data-theme="light"] .creators-card .creators-card-badge { background-color: #F3F4F6 !important; color: #374151 !important; }
+[data-theme="light"] .creators-filter-panel { background-color: #FFFFFF !important; border-color: #E5E7EB !important; }
+[data-theme="light"] .creators-filter-label { color: #9CA3AF !important; }
+[data-theme="light"] .creators-results-count { color: #888888 !important; }
+[data-theme="light"] .creators-results-count strong { color: #1A1A1A !important; }
 
 /* ── /calendrier page ───────────────────────────────────────── */
 .cal-hero {
