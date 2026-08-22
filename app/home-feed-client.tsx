@@ -154,6 +154,39 @@ function CreatorCard({ item, onClick }: { item: Cr; onClick: () => void }) {
   )
 }
 
+function CreatorPhotoGrid({ items, onNav }: { items: Cr[]; onNav: (p: string) => void }) {
+  if (!items.length) return null
+  return (
+    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+      {items.slice(0,8).map((c, i) => {
+        const img = c.portfolio_images?.[0] || c.avatar_url
+        return (
+          <motion.div key={c.id}
+            initial={{ opacity:0, scale:.92 }} animate={{ opacity:1, scale:1 }} transition={{ duration:.25, delay:i*.04 }}
+            onClick={() => onNav(`/creators/${c.id}`)}
+            style={{ position:'relative', aspectRatio:'1/1', borderRadius:16, overflow:'hidden', cursor:'pointer', backgroundColor:'var(--ev-card-bg2)' }}
+          >
+            {img
+              ? <Image src={img} alt={c.full_name||''} fill sizes="260px" style={{ objectFit:'cover' }} />
+              : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <span style={{ fontSize:28, fontWeight:800, color:'#6366F1', opacity:.5 }}>{c.full_name?.slice(0,1)||'?'}</span>
+                </div>
+            }
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(5,5,20,.82) 0%, transparent 55%)' }} />
+            {c.siret_verified && (
+              <span style={{ position:'absolute', top:7, right:7, backgroundColor:'rgba(99,102,241,.9)', color:'#fff', fontSize:8, fontWeight:700, borderRadius:20, padding:'2px 6px' }}>✓</span>
+            )}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'8px 10px' }}>
+              <p style={{ margin:'0 0 2px', fontSize:11, fontWeight:700, color:'#fff', lineHeight:1.2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.full_name?.split(' ')[0]}</p>
+              {(c.disciplines||[])[0] && <p style={{ margin:0, fontSize:9, color:'rgba(255,255,255,.6)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{(c.disciplines||[])[0]}</p>}
+            </div>
+          </motion.div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Bento layout ─────────────────────────────────────────────────────────────
 function BentoLayout({ events, creators, onNav }: { events: Ev[]; creators: Cr[]; onNav: (p: string) => void }) {
   const [isDesktop, setIsDesktop] = useState(true)
@@ -176,8 +209,27 @@ function BentoLayout({ events, creators, onNav }: { events: Ev[]; creators: Cr[]
             </div>
           </div>
         )}
-        {events.slice(1).map(e => <EventCard key={e.id} item={e} onClick={() => onNav(`/events/${e.id}`)} />)}
-        {creators.slice(0).map(c => <CreatorCard key={c.id} item={c} onClick={() => onNav(`/creators/${c.id}`)} />)}
+        {events.slice(1, 3).map(e => <EventCard key={e.id} item={e} onClick={() => onNav(`/events/${e.id}`)} />)}
+        {creators.length > 0 && (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:8 }}>
+            {creators.slice(0,4).map((c,i) => {
+              const img = c.portfolio_images?.[0] || c.avatar_url
+              return (
+                <motion.div key={c.id} initial={{opacity:0,scale:.92}} animate={{opacity:1,scale:1}} transition={{duration:.25,delay:i*.04}}
+                  onClick={() => onNav(`/creators/${c.id}`)}
+                  style={{ position:'relative', aspectRatio:'1/1', borderRadius:14, overflow:'hidden', cursor:'pointer', backgroundColor:'var(--ev-card-bg2)' }}>
+                  {img ? <Image src={img} alt={c.full_name||''} fill sizes="200px" style={{objectFit:'cover'}}/> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:24,fontWeight:800,color:'#6366F1',opacity:.5}}>{c.full_name?.slice(0,1)||'?'}</span></div>}
+                  <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(5,5,20,.82) 0%,transparent 55%)'}}/>
+                  <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'8px 10px'}}>
+                    <p style={{margin:0,fontSize:11,fontWeight:700,color:'#fff'}}>{c.full_name?.split(' ')[0]}</p>
+                    {(c.disciplines||[])[0] && <p style={{margin:0,fontSize:9,color:'rgba(255,255,255,.6)'}}>{(c.disciplines||[])[0]}</p>}
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
+        {events.slice(3).map(e => <EventCard key={e.id} item={e} onClick={() => onNav(`/events/${e.id}`)} />)}
       </div>
     )
   }
@@ -216,6 +268,9 @@ function BentoLayout({ events, creators, onNav }: { events: Ev[]; creators: Cr[]
           {ev.slice(2,5).map(e => <EventCard key={e.id} item={e} onClick={() => onNav(`/events/${e.id}`)} />)}
         </div>
       )}
+
+      {/* Row 3.5 : photo grid créateurs */}
+      {cr.length > 0 && <CreatorPhotoGrid items={cr.slice(0, 8)} onNav={onNav} />}
 
       {/* Row 4 : event wide + cercles créateurs */}
       {ev[5] && (
