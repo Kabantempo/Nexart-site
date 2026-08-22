@@ -22,7 +22,7 @@ echo "▶ Envoi .env.local..."
 scp -i $SSH_KEY -P 65002 .env.local $REMOTE:~/domains/nexart.fr/nodejs/.env.local
 
 echo "▶ Restart Passenger..."
-$SSH $REMOTE "touch ~/domains/nexart.fr/nodejs/tmp/restart.txt"
+$SSH $REMOTE "mkdir -p ~/domains/nexart.fr/nodejs/tmp && touch ~/domains/nexart.fr/nodejs/tmp/restart.txt"
 
 echo "▶ Health check..."
 sleep 3
