@@ -49,15 +49,15 @@ function SkeletonCard() {
   return (
     <div style={{
       flexShrink: 0, width: CARD_W, borderRadius: 12,
-      backgroundColor: '#1A1A2E', overflow: 'hidden', scrollSnapAlign: 'start',
+      backgroundColor: 'var(--ev-card-bg)', overflow: 'hidden', scrollSnapAlign: 'start',
     }}>
-      <div style={{ width: '100%', height: IMG_H, background: 'linear-gradient(90deg,#2A2A3E 25%,#3A3A4E 50%,#2A2A3E 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+      <div style={{ width: '100%', height: IMG_H, background: 'linear-gradient(90deg,var(--ev-card-tag-bg) 25%,var(--ev-skeleton-1) 50%,var(--ev-card-tag-bg) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
       <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ height: 13, borderRadius: 4, backgroundColor: '#2A2A3E', width: '90%', animation: 'shimmer 1.4s infinite' }} />
-        <div style={{ height: 13, borderRadius: 4, backgroundColor: '#2A2A3E', width: '70%', animation: 'shimmer 1.4s infinite' }} />
+        <div style={{ height: 13, borderRadius: 4, backgroundColor: 'var(--ev-card-tag-bg)', width: '90%', animation: 'shimmer 1.4s infinite' }} />
+        <div style={{ height: 13, borderRadius: 4, backgroundColor: 'var(--ev-card-tag-bg)', width: '70%', animation: 'shimmer 1.4s infinite' }} />
         <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-          <div style={{ height: 20, borderRadius: 20, backgroundColor: '#2A2A3E', width: 60 }} />
-          <div style={{ height: 20, borderRadius: 20, backgroundColor: '#2A2A3E', width: 50 }} />
+          <div style={{ height: 20, borderRadius: 20, backgroundColor: 'var(--ev-card-tag-bg)', width: 60 }} />
+          <div style={{ height: 20, borderRadius: 20, backgroundColor: 'var(--ev-card-tag-bg)', width: 50 }} />
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
       onClick={onClick}
       style={{
         flexShrink: 0, width: CARD_W, borderRadius: 12,
-        backgroundColor: '#1A1A2E', overflow: 'hidden',
+        backgroundColor: 'var(--ev-card-bg)', overflow: 'hidden',
         scrollSnapAlign: 'start', cursor: 'pointer',
         display: 'flex', flexDirection: 'column',
       }}
@@ -94,7 +94,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
             style={{ objectFit: 'cover' }}
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg,#2D2B55,#1A1A3E)' }} />
+          <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--ev-card-bg2)' }} />
         )}
         {/* status badge */}
         <span style={{
@@ -112,7 +112,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
         {/* title */}
         <p style={{
           margin: 0, fontSize: 14, fontWeight: 700, lineHeight: 1.35,
-          color: '#FFFFFF', display: '-webkit-box', WebkitLineClamp: 2,
+          color: 'var(--ev-card-title)', display: '-webkit-box', WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical', overflow: 'hidden',
         }}>
           {event.title}
@@ -123,7 +123,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
             {tags.map(tag => (
               <span key={tag} style={{
-                backgroundColor: '#2A2A3E', color: '#C4C4D4',
+                backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)',
                 fontSize: 10, fontWeight: 600, borderRadius: 20,
                 padding: '3px 8px',
               }}>
@@ -135,10 +135,10 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
 
         {/* price */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
-          <span style={{ fontSize: 11, color: '#6B6B8A' }}>
+          <span style={{ fontSize: 11, color: 'var(--ev-card-date)' }}>
             {formatDate(event.start_date)}{event.city ? ` · ${event.city}` : ''}
           </span>
-          <span style={{ fontSize: 18, fontWeight: 900, color: '#FFFFFF' }}>
+          <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--ev-card-title)' }}>
             {formatPrice(event.stand_price)}
           </span>
         </div>
@@ -213,7 +213,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
       <div style={{
         margin: '0 16px 28px', borderRadius: 0, overflow: 'hidden',
         height: 200, backgroundColor: '#1A1A2E',
-        background: 'linear-gradient(90deg,#1A1A2E 25%,#2A2A3E 50%,#1A1A2E 75%)',
+        background: 'linear-gradient(90deg,var(--ev-card-bg) 25%,var(--ev-card-tag-bg) 50%,var(--ev-card-bg) 75%)',
         backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite',
       }} />
     )
@@ -241,7 +241,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
         {ev.cover_image ? (
           <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
         ) : (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg,#2D2B55,#1A1A3E)' }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'var(--ev-card-bg2)' }} />
         )}
         {/* dark overlay gradient */}
         <div style={{
@@ -469,10 +469,10 @@ export default function EventsClient() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.04 }}
                 onClick={() => handleCardClick(ev.id)}
-                style={{ borderRadius: 16, backgroundColor: '#1A1A2E', overflow: 'hidden', cursor: 'pointer',
+                style={{ borderRadius: 16, backgroundColor: 'var(--ev-card-bg)', overflow: 'hidden', cursor: 'pointer',
                   display: 'flex', flexDirection: 'column' }}
               >
-                <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: '#252540' }}>
+                <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
                   {ev.cover_image && (
                     <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />
                   )}
@@ -482,20 +482,20 @@ export default function EventsClient() {
                   )})()}
                 </div>
                 <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <p style={{ margin: 0, color: '#fff', fontSize: 15, fontWeight: 700,
+                  <p style={{ margin: 0, color: 'var(--ev-card-title)', fontSize: 15, fontWeight: 700,
                     display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2,
                     overflow: 'hidden' }}>{ev.title}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                     {getTagsFromEvent(ev).slice(0, 3).map(tag => (
-                      <span key={tag} style={{ backgroundColor: '#2A2A3E', color: '#C4C4D4',
+                      <span key={tag} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)',
                         fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20 }}>{tag}</span>
                     ))}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                    <span style={{ fontSize: 12, color: '#6B6B8A' }}>
+                    <span style={{ fontSize: 12, color: 'var(--ev-card-date)' }}>
                       {ev.start_date ? formatDate(ev.start_date) : ''}{ev.city ? ` · ${ev.city}` : ''}
                     </span>
-                    <span style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{formatPrice(ev.stand_price)}</span>
+                    <span style={{ fontSize: 17, fontWeight: 900, color: 'var(--ev-card-title)' }}>{formatPrice(ev.stand_price)}</span>
                   </div>
                 </div>
               </motion.div>
@@ -523,11 +523,11 @@ export default function EventsClient() {
         }
       `}</style>
 
-      <div style={{ backgroundColor: '#fff', minHeight: '100vh', paddingBottom: 80 }}>
+      <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: 80 }}>
         {/* fixed header: title + search + filters — hides on scroll down */}
         <div style={{
           position: 'fixed', top: headerVisible ? 58 : -200, left: 0, right: 0, zIndex: 10,
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--bg-primary)',
           borderBottom: '1px solid var(--ev-border)',
           transition: 'top 0.25s ease',
         }}>
@@ -584,21 +584,21 @@ export default function EventsClient() {
             <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
               padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
               backgroundColor: sortBy.startsWith('date') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
-              color: sortBy.startsWith('date') ? '#fff' : '#6B7280',
+              color: sortBy.startsWith('date') ? '#fff' : 'var(--ev-chip-text)',
             }}>
               Date {sortBy === 'date-desc' ? '↓' : '↑'}
             </button>
             <button onClick={() => setSortBy(sortBy === 'price-asc' ? 'price-desc' : 'price-asc')} style={{
               padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
               backgroundColor: sortBy.startsWith('price') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
-              color: sortBy.startsWith('price') ? '#fff' : '#6B7280',
+              color: sortBy.startsWith('price') ? '#fff' : 'var(--ev-chip-text)',
             }}>
               Prix {sortBy === 'price-desc' ? '↓' : '↑'}
             </button>
             <div style={{ flex: 1 }} />
             <button onClick={() => setShowAdvanced(v => !v)} style={{
               padding: '5px 12px', borderRadius: 8, border: '1px solid var(--ev-border)', cursor: 'pointer',
-              fontSize: 12, fontWeight: 600, background: showAdvanced ? 'var(--ev-chip-bg)' : '#fff', color: 'var(--ev-chip-text)',
+              fontSize: 12, fontWeight: 600, background: showAdvanced ? 'var(--ev-chip-bg)' : 'var(--bg-primary)', color: 'var(--ev-chip-text)',
               display: 'flex', alignItems: 'center', gap: 4,
             }}>
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -639,7 +639,7 @@ export default function EventsClient() {
         <div style={{ height: 175 }} />
 
         {/* hero carousel */}
-        <div style={{ paddingTop: 20, backgroundColor: '#fff' }}>
+        <div style={{ paddingTop: 20, backgroundColor: 'var(--bg-primary)' }}>
           <FeaturedCarousel events={upcoming} loading={loading} onCardClick={handleCardClick} />
         </div>
 

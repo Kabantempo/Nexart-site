@@ -470,8 +470,8 @@ function CreatorsContent() {
         {/* Results count */}
         <div className="flex items-center gap-2 mb-6">
           <Palette size={15} className="text-gray-400" />
-          <span className="text-sm text-gray-500">
-            <span className="font-bold text-gray-900 text-base">{filtered.length}</span> créateur{filtered.length !== 1 ? 's' : ''}
+          <span className="creators-results-count text-sm text-gray-500">
+            <strong className="font-bold text-gray-900 text-base">{filtered.length}</strong> créateur{filtered.length !== 1 ? 's' : ''}
             {hasActiveFilters && <span className="text-gray-400"> · filtré{filtered.length !== 1 ? 's' : ''}</span>}
           </span>
         </div>
@@ -483,7 +483,7 @@ function CreatorsContent() {
               {visible.map((creator, idx) => (
                 <FadeUp key={creator.id} delay={Math.min(idx * 0.04, 0.3)}>
                   <Link href={`/creators/${creator.id}`}
-                    className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
+                    className="creators-card group flex flex-col rounded-2xl overflow-hidden bg-white border border-gray-100 hover:border-gray-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 h-full"
                   >
                     {/* Media header — portfolio if available, avatar fallback */}
                     <div className="relative shrink-0 overflow-hidden bg-gray-100">
@@ -582,21 +582,21 @@ function CreatorsContent() {
 
                     {/* Body */}
                     <div className="flex flex-col flex-1 p-4">
-                      <h3 className="font-semibold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-indigo-600 transition-colors">{creator.full_name}</h3>
+                      <h3 className="creators-card-name font-semibold text-gray-900 text-sm leading-snug mb-1.5 group-hover:text-indigo-600 transition-colors">{creator.full_name}</h3>
 
                       {creator.disciplines?.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {creator.disciplines.slice(0, 2).map((d: string) => (
-                            <span key={d} className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">{d}</span>
+                            <span key={d} className="creators-card-badge text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">{d}</span>
                           ))}
                           {creator.disciplines.length > 2 && (
-                            <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-400">+{creator.disciplines.length - 2}</span>
+                            <span className="creators-card-badge text-[11px] font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-400">+{creator.disciplines.length - 2}</span>
                           )}
                         </div>
                       )}
 
                       {creator.bio && (
-                        <p className="text-xs text-gray-400 leading-relaxed mb-3 flex-1 line-clamp-2">{creator.bio}</p>
+                        <p className="creators-card-meta text-xs text-gray-400 leading-relaxed mb-3 flex-1 line-clamp-2">{creator.bio}</p>
                       )}
 
                       <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
