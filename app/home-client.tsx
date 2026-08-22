@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { ArrowRight, Sparkles, Users, Calendar, CheckCircle, ChevronRight, Zap, Target, Bell, Shield, BadgeCheck, MapPin, Search } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { colors } from '@/lib/design-tokens'
+import { useAuthStore } from '@/lib/store'
+import HomeFeedClient from './home-feed-client'
 
 // ── Dark theme constants (home page seule — pas de dark mode tokens dans le design system) ──
 const D = {
@@ -462,10 +464,25 @@ const HOME_STYLE_CSS = `
       `
 
 export default function HomeClient() {
+  const user = useAuthStore(s => s.user)
+  const [authChecked, setAuthChecked] = useState(false)
+
+  useEffect(() => {
+    // Petit délai pour laisser le store Zustand se réhydrater depuis le storage
+    const t = setTimeout(() => setAuthChecked(true), 80)
+    return () => clearTimeout(t)
+  }, [])
+
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+
+  // Tant que l'auth n'est pas vérifiée, on attend (évite le flash)
+  if (!authChecked) return null
+
+  // Utilisateur connecté → feed
+  if (user) return <HomeFeedClient />
 
   return (
     <div className="home-page" style={{ overflowX: 'hidden', marginTop: 'calc(-1 * var(--nav-height))', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
