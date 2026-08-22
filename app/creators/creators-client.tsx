@@ -402,6 +402,39 @@ function CreatorsContent() {
             </div>
           )}
 
+          {/* Stories — cercles PP + nom */}
+          {mobileFiltered.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ overflowX: 'auto' }} className="hide-scrollbar">
+                <div style={{ display: 'flex', gap: 14, paddingLeft: 16, paddingRight: 16, paddingBottom: 4 }}>
+                  {mobileFiltered.slice(0, 15).map((c, i) => (
+                    <motion.div
+                      key={c.id}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.22, delay: i * 0.04 }}
+                      onClick={() => router.push(`/creators/${c.id}`)}
+                      style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: 'pointer', width: 58 }}
+                    >
+                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', overflow: 'hidden', border: c.siret_verified ? '2.5px solid #6366F1' : '2px solid var(--ev-border)', flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
+                        {(c.avatar_url || c.portfolio_images?.[0]) ? (
+                          <Image src={c.avatar_url || c.portfolio_images![0]} alt={c.full_name || ''} fill sizes="54px" style={{ objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: 18, fontWeight: 800, color: '#6366F1' }}>{c.full_name?.slice(0, 1).toUpperCase() || '?'}</span>
+                          </div>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--ev-card-title)', textAlign: 'center', lineHeight: 1.2, maxWidth: 58, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                        {c.full_name?.split(' ')[0] || '—'}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Sections */}
           {verifiedSection.length > 0 && <MSection title="Créateurs vérifiés ✓" items={verifiedSection} />}
           {newestSection.length > 0 && <MSection title="Nouveaux arrivants" items={newestSection} />}
