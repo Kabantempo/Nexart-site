@@ -99,6 +99,7 @@ export function CreatorProfileClient({ id }: Props) {
   const [isActive, setIsActive] = useState(false)
   const [respondsQuickly, setRespondsQuickly] = useState(false)
   const [itinerary, setItinerary] = useState<{ id: string; label: string; city?: string; start_date: string; end_date: string }[]>([])
+  const [reviews, setReviews] = useState<{ id: string }[]>([])
   const [localPortfolioGrid, setLocalPortfolioGrid] = useState<NonNullable<CreatorData['portfolio_grid']>>([])
   const [portfolioSaving, setPortfolioSaving] = useState(false)
   const user = useAuthStore((s) => s.user)
@@ -217,6 +218,13 @@ export function CreatorProfileClient({ id }: Props) {
         .order('start_date', { ascending: true })
         .limit(3)
       setItinerary((itin || []) as any)
+
+      // Reviews count
+      const { data: revs } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('reviewed_id', uid)
+      setReviews(revs || [])
 
     } catch { setError(true); setLoading(false) } }
     load()
