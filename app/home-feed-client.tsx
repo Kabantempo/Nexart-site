@@ -28,11 +28,20 @@ function useFeed(filter: 'all' | 'events' | 'creators', page: number) {
         ? supabase.from('events').select('id,title,city,start_date,cover_image,discipline_tags,event_type').eq('status','published').order('start_date',{ascending:true}).range(from, from+(f==='events'?PAGE-1:half-1))
         : Promise.resolve({ data: [] }),
       f !== 'events'
-        ? supabase.from('creator_profiles').select('id,full_name,city,disciplines,avatar_url,portfolio_images,siret_verified').order('created_at',{ascending:false}).range(from, from+(f==='creators'?PAGE-1:half-1))
+        ? supabase.from('creator_profiles').select('id,city,disciplines,portfolio_images,siret_verified,profiles(full_name,avatar_url)').order('id',{ascending:false}).range(from, from+(f==='creators'?PAGE-1:half-1))
         : Promise.resolve({ data: [] }),
     ])
     const evs: Ev[] = ((evRes as any).data||[]).map((e: any) => ({ kind:'event' as const, ...e }))
-    const crs: Cr[] = ((crRes as any).data||[]).map((c: any) => ({ kind:'creator' as const, ...c }))
+    const crs: Cr[] = ((crRes as any).data||[]).map((c: any) => ({
+      kind: 'creator' as const,
+      id: c.id,
+      city: c.city,
+      disciplines: c.disciplines,
+      portfolio_images: c.portfolio_images,
+      siret_verified: c.siret_verified,
+      full_name: c.profiles?.full_name,
+      avatar_url: c.profiles?.avatar_url,
+    }))
     if (p===0) { setEvents(evs); setCreators(crs) }
     else       { setEvents(prev=>[...prev,...evs]); setCreators(prev=>[...prev,...crs]) }
     setHasMore(evs.length+crs.length >= 6)
