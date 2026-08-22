@@ -987,8 +987,12 @@ img, video, iframe, canvas, svg {
 :root .creators-card .creators-card-name { color: rgba(255,255,255,0.9) !important; }
 :root .creators-card .creators-card-meta { color: rgba(255,255,255,0.45) !important; }
 :root .creators-card .creators-card-badge { background-color: rgba(255,255,255,0.07) !important; color: rgba(255,255,255,0.6) !important; }
-:root .creators-filter-panel { background-color: #1A1A2E !important; border-color: rgba(255,255,255,0.08) !important; }
+:root .creators-filter-panel { background-color: #16162a !important; border-color: rgba(255,255,255,0.08) !important; }
 :root .creators-filter-label { color: rgba(255,255,255,0.5) !important; }
+:root .creators-filter-panel select,
+:root .creators-filter-panel input[type="text"] { background-color: #1A1A2E !important; color: rgba(255,255,255,0.85) !important; border-color: rgba(255,255,255,0.12) !important; }
+:root .creators-filter-panel .flex.rounded-xl { background-color: #1A1A2E !important; border-color: rgba(255,255,255,0.12) !important; }
+:root .creators-filter-panel button:not(.active-sort) { color: rgba(255,255,255,0.5) !important; }
 :root .creators-results-count { color: rgba(255,255,255,0.45) !important; }
 :root .creators-results-count strong { color: rgba(255,255,255,0.9) !important; }
 [data-theme="light"] .creators-card {

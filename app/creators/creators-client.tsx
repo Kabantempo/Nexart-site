@@ -337,7 +337,7 @@ function CreatorsContent() {
         </div>
 
         {/* Filters */}
-        <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
+        <div className="creators-filter-panel bg-gray-50 border border-gray-100 rounded-2xl p-5 mb-7">
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-5 items-start sm:items-end">
             {uniqueCities.length > 0 && (
               <div className="w-full sm:w-auto">
