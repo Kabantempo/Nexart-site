@@ -416,7 +416,8 @@ function CreatorsContent() {
                       onClick={() => router.push(`/creators/${c.id}`)}
                       style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: 'pointer', width: 58 }}
                     >
-                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', overflow: 'hidden', border: c.siret_verified ? '2.5px solid #6366F1' : '2px solid var(--ev-border)', flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
+                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', flexShrink: 0, padding: 2.5, background: c.siret_verified ? 'linear-gradient(135deg, #6366F1, #A855F7, #EC4899)' : 'linear-gradient(135deg, #D1D5DB, #9CA3AF)' }}>
+                      <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--ev-card-bg2)', border: '2px solid var(--bg-primary)' }}>
                         {(c.avatar_url || c.portfolio_images?.[0]) ? (
                           <Image src={c.avatar_url || c.portfolio_images![0]} alt={c.full_name || ''} fill sizes="54px" style={{ objectFit: 'cover' }} />
                         ) : (
@@ -424,6 +425,7 @@ function CreatorsContent() {
                             <span style={{ fontSize: 18, fontWeight: 800, color: '#6366F1' }}>{c.full_name?.slice(0, 1).toUpperCase() || '?'}</span>
                           </div>
                         )}
+                      </div>
                       </div>
                       <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--ev-card-title)', textAlign: 'center', lineHeight: 1.2, maxWidth: 58, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {c.full_name?.split(' ')[0] || '—'}
