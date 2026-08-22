@@ -59,7 +59,7 @@ function EventHero({ item, onClick }: { item: Ev; onClick: () => void }) {
   const date = item.start_date ? new Date(item.start_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) : null
   return (
     <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:.35}}
-      onClick={onClick} style={{ borderRadius:22, overflow:'hidden', position:'relative', height:300, cursor:'pointer', backgroundColor:'var(--ev-card-bg2)' }}>
+      onClick={onClick} style={{ borderRadius:24, overflow:'hidden', position:'relative', height:460, cursor:'pointer', backgroundColor:'var(--ev-card-bg2)' }}>
       {item.cover_image && <Image src={item.cover_image} alt={item.title} fill sizes="1100px" style={{objectFit:'cover'}} />}
       <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(5,5,20,.92) 0%,rgba(5,5,20,.25) 55%,transparent 100%)'}}/>
       <span style={{position:'absolute',top:14,left:14,backgroundColor:'#6366F1',color:'#fff',fontSize:10,fontWeight:700,borderRadius:20,padding:'3px 11px'}}>
@@ -87,7 +87,7 @@ function EventCard({ item, onClick, tall=false }: { item: Ev; onClick: () => voi
   const date = item.start_date ? new Date(item.start_date).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}) : null
   return (
     <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.28}}
-      onClick={onClick} style={{ borderRadius:18, overflow:'hidden', position:'relative', height:tall?260:200, cursor:'pointer', backgroundColor:'var(--ev-card-bg2)', flexShrink:0 }}>
+      onClick={onClick} style={{ borderRadius:20, overflow:'hidden', position:'relative', height:tall?360:260, cursor:'pointer', backgroundColor:'var(--ev-card-bg2)', flexShrink:0 }}>
       {item.cover_image && <Image src={item.cover_image} alt={item.title} fill sizes="400px" style={{objectFit:'cover'}} />}
       <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(5,5,20,.88) 0%,rgba(5,5,20,.1) 60%,transparent 100%)'}}/>
       <span style={{position:'absolute',top:10,left:10,backgroundColor:'rgba(99,102,241,.9)',color:'#fff',fontSize:9,fontWeight:700,borderRadius:20,padding:'2px 8px'}}>
@@ -108,8 +108,8 @@ function CreatorCircle({ item, onClick, delay=0 }: { item: Cr; onClick: () => vo
   const img = item.avatar_url || item.portfolio_images?.[0]
   return (
     <motion.div initial={{opacity:0,scale:.88}} animate={{opacity:1,scale:1}} transition={{duration:.28,delay}}
-      onClick={onClick} style={{ display:'flex',flexDirection:'column',alignItems:'center',gap:8,cursor:'pointer',flexShrink:0,width:80 }}>
-      <div style={{position:'relative',width:72,height:72,borderRadius:'50%',padding:2.5,background:item.siret_verified?'linear-gradient(135deg,#6366F1,#A855F7,#EC4899)':'linear-gradient(135deg,#D1D5DB,#9CA3AF)'}}>
+      onClick={onClick} style={{ display:'flex',flexDirection:'column',alignItems:'center',gap:9,cursor:'pointer',flexShrink:0,width:92 }}>
+      <div style={{position:'relative',width:84,height:84,borderRadius:'50%',padding:3,background:item.siret_verified?'linear-gradient(135deg,#6366F1,#A855F7,#EC4899)':'linear-gradient(135deg,#D1D5DB,#9CA3AF)'}}>
         <div style={{width:'100%',height:'100%',borderRadius:'50%',overflow:'hidden',backgroundColor:'var(--ev-card-bg2)',border:'2.5px solid var(--bg-primary)'}}>
           {img
             ? <Image src={img} alt={item.full_name||''} fill sizes="72px" style={{objectFit:'cover'}}/>
@@ -129,8 +129,8 @@ function CreatorCard({ item, onClick }: { item: Cr; onClick: () => void }) {
   const img = item.portfolio_images?.[0] || item.avatar_url
   return (
     <motion.div initial={{opacity:0,x:10}} animate={{opacity:1,x:0}} transition={{duration:.28}}
-      onClick={onClick} style={{ borderRadius:18,overflow:'hidden',display:'flex',backgroundColor:'var(--ev-card-bg)',border:'1px solid var(--ev-border)',cursor:'pointer',minHeight:90,flexShrink:0 }}>
-      <div style={{position:'relative',width:90,flexShrink:0,backgroundColor:'var(--ev-card-bg2)'}}>
+      onClick={onClick} style={{ borderRadius:20,overflow:'hidden',display:'flex',backgroundColor:'var(--ev-card-bg)',border:'1px solid var(--ev-border)',cursor:'pointer',minHeight:110,flexShrink:0 }}>
+      <div style={{position:'relative',width:110,flexShrink:0,backgroundColor:'var(--ev-card-bg2)'}}>
         {img
           ? <Image src={img} alt={item.full_name||''} fill sizes="90px" style={{objectFit:'cover'}}/>
           : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:22,fontWeight:800,color:'#6366F1',opacity:.6}}>{item.full_name?.slice(0,1)||'?'}</span></div>
@@ -187,7 +187,7 @@ function BentoLayout({ events, creators, onNav }: { events: Ev[]; creators: Cr[]
   const cr = creators
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
 
       {/* Row 1 : hero + 2 créateurs cercles empilés + event tall */}
       {ev[0] && (
@@ -205,21 +205,21 @@ function BentoLayout({ events, creators, onNav }: { events: Ev[]; creators: Cr[]
 
       {/* Row 2 : 3 créateurs cartes horizontales */}
       {cr.length > 2 && (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
           {cr.slice(2,5).map(c => <CreatorCard key={c.id} item={c} onClick={() => onNav(`/creators/${c.id}`)} />)}
         </div>
       )}
 
       {/* Row 3 : 3 events medium */}
       {ev.length > 2 && (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
           {ev.slice(2,5).map(e => <EventCard key={e.id} item={e} onClick={() => onNav(`/events/${e.id}`)} />)}
         </div>
       )}
 
       {/* Row 4 : event wide + cercles créateurs */}
       {ev[5] && (
-        <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:14 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:20 }}>
           <EventHero item={ev[5]} onClick={() => onNav(`/events/${ev[5].id}`)} />
           <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
             {cr.slice(5,7).map(c => <CreatorCard key={c.id} item={c} onClick={() => onNav(`/creators/${c.id}`)} />)}
@@ -229,7 +229,7 @@ function BentoLayout({ events, creators, onNav }: { events: Ev[]; creators: Cr[]
 
       {/* Row 5 : events restants 2 colonnes */}
       {ev.length > 6 && (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:14 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:20 }}>
           {ev.slice(6,10).map(e => <EventCard key={e.id} item={e} onClick={() => onNav(`/events/${e.id}`)} />)}
         </div>
       )}
@@ -270,12 +270,12 @@ export default function HomeFeedClient() {
       {/* Content */}
       <div style={{ maxWidth:1100, margin:'0 auto', padding:'20px 20px 80px' }}>
         {loading && events.length===0 && creators.length===0 ? (
-          <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
             <div style={{ height:300, borderRadius:22, backgroundColor:'var(--ev-card-bg)', backgroundImage:'linear-gradient(90deg,var(--ev-card-bg) 25%,var(--ev-card-bg2) 50%,var(--ev-card-bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.5s infinite linear' }} />
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
               {Array.from({length:3}).map((_,i) => <div key={i} style={{ height:90, borderRadius:18, backgroundColor:'var(--ev-card-bg)', backgroundImage:'linear-gradient(90deg,var(--ev-card-bg) 25%,var(--ev-card-bg2) 50%,var(--ev-card-bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.5s infinite linear' }} />)}
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
               {Array.from({length:3}).map((_,i) => <div key={i} style={{ height:200, borderRadius:18, backgroundColor:'var(--ev-card-bg)', backgroundImage:'linear-gradient(90deg,var(--ev-card-bg) 25%,var(--ev-card-bg2) 50%,var(--ev-card-bg) 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.5s infinite linear' }} />)}
             </div>
           </div>
