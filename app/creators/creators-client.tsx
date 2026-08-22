@@ -80,6 +80,10 @@ function CreatorsContent() {
   const [activeSuggestion, setActiveSuggestion] = useState(-1)
   const [availableOnly,    setAvailableOnly]    = useState(false)
   const [openToCollab,     setOpenToCollab]     = useState(false)
+  const [isDesktop,        setIsDesktop]        = useState(true)
+  const [headerVisible,    setHeaderVisible]    = useState(true)
+  const [mobileDisc,       setMobileDisc]       = useState('tous')
+  const [featActive,       setFeatActive]       = useState(0)
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -106,6 +110,32 @@ function CreatorsContent() {
     document.addEventListener('keydown', handleEscape)
     return () => { document.removeEventListener('mousedown', handleClickOutside); document.removeEventListener('keydown', handleEscape) }
   }, [])
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024)
+    check(); window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  useEffect(() => {
+    if (isDesktop) return
+    let lastY = window.scrollY
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < 60) { setHeaderVisible(true); lastY = y; return }
+      setHeaderVisible(y < lastY); lastY = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isDesktop])
+
+  useEffect(() => {
+    if (isDesktop) return
+    const items = creators.filter(c => c.portfolio_images?.[0] || c.avatar_url).slice(0, 5)
+    if (!items.length) return
+    const t = setInterval(() => setFeatActive(i => (i + 1) % items.length), 4000)
+    return () => clearInterval(t)
+  }, [isDesktop, creators])
 
   useEffect(() => {
     const loadStats = async () => {
@@ -218,6 +248,184 @@ function CreatorsContent() {
     </div>
   )
 
+  // ── Mobile layout ────────────────────────────────────────────────────────────
+  if (!isDesktop) {
+    const CARD_W = 180
+    const IMG_H  = 148
+
+    const discFilters = [{ key: 'tous', label: 'Tous' }, ...uniqueDisciplines.slice(0, 9).map(d => ({ key: d, label: d }))]
+    const mobileFiltered = mobileDisc === 'tous' ? filtered : filtered.filter(c => (c.disciplines || []).includes(mobileDisc))
+    const featCreators   = creators.filter(c => c.portfolio_images?.[0] || c.avatar_url).slice(0, 5)
+    const verifiedSection  = mobileFiltered.filter(c => c.siret_verified).slice(0, 10)
+    const newestSection    = [...mobileFiltered].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 10)
+    const availableSection = mobileFiltered.filter(c => (c as any).availability === 'available').slice(0, 10)
+    const collabSection    = mobileFiltered.filter(c => (c as any).open_to_collab).slice(0, 10)
+    const discSections = uniqueDisciplines.slice(0, 5).map(disc => ({
+      title: disc,
+      items: mobileFiltered.filter(c => (c.disciplines || []).includes(disc)).slice(0, 10),
+    })).filter(s => s.items.length >= 2)
+
+    const MCard = ({ c, i = 0 }: { c: typeof creators[0]; i?: number }) => (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, delay: i * 0.06 }}
+        onClick={() => router.push(`/creators/${c.id}`)}
+        style={{ flexShrink: 0, width: CARD_W, borderRadius: 14, backgroundColor: 'var(--ev-card-bg)', overflow: 'hidden', scrollSnapAlign: 'start', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+      >
+        <div style={{ position: 'relative', width: '100%', height: IMG_H, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
+          {(c.portfolio_images?.[0] || c.avatar_url) ? (
+            <Image src={c.portfolio_images?.[0] || c.avatar_url!} alt={c.full_name || ''} fill sizes={`${CARD_W}px`} style={{ objectFit: 'cover' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 34, fontWeight: 800, color: '#6366F1', opacity: 0.7 }}>{c.full_name?.slice(0, 2).toUpperCase() || '?'}</span>
+            </div>
+          )}
+          {c.siret_verified && (
+            <span style={{ position: 'absolute', top: 7, left: 7, backgroundColor: 'rgba(99,102,241,0.9)', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>✓ Vérifié</span>
+          )}
+          {(c as any).profile_boosted_until && new Date((c as any).profile_boosted_until) > new Date() && (
+            <span style={{ position: 'absolute', top: 7, right: 7, backgroundColor: 'rgba(245,158,11,0.9)', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>⚡ Boosté</span>
+          )}
+        </div>
+        <div style={{ padding: '9px 11px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--ev-card-title)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {c.full_name}
+          </p>
+          {(c.disciplines || []).length > 0 && (
+            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              {(c.disciplines || []).slice(0, 2).map((d: string) => (
+                <span key={d} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)', fontSize: 9, fontWeight: 600, borderRadius: 20, padding: '2px 7px' }}>{d}</span>
+              ))}
+            </div>
+          )}
+          {c.city && <span style={{ fontSize: 10, color: 'var(--ev-card-date)' }}>📍 {c.city}</span>}
+        </div>
+      </motion.div>
+    )
+
+    const MSection = ({ title, items }: { title: string; items: typeof creators }) => {
+      if (!items.length) return null
+      return (
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={{ margin: '0 0 10px 16px', fontSize: 16, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.3 }}>{title}</h2>
+          <div style={{ overflowX: 'auto', scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }} className="hide-scrollbar">
+            <div style={{ display: 'flex', gap: 10, paddingLeft: 16, paddingRight: 16, paddingBottom: 6 }}>
+              {items.map((c, i) => <MCard key={c.id} c={c} i={i} />)}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    const featEv = featCreators[featActive] ?? null
+
+    return (
+      <>
+        <style>{`
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        `}</style>
+
+        <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: 80 }}>
+
+          {/* Fixed header */}
+          <div style={{ position: 'fixed', top: headerVisible ? 58 : -300, left: 0, right: 0, zIndex: 10, backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--ev-border)', transition: 'top 0.25s ease' }}>
+            <div style={{ padding: '10px 16px 6px' }}>
+              <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>Créateurs</h1>
+              <p style={{ margin: 0, fontSize: 11, color: 'var(--ev-card-date)' }}>Des talents partout en France</p>
+            </div>
+            {/* search */}
+            <div style={{ padding: '0 16px 8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '8px 14px' }}>
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                <input type="text" placeholder="Nom, discipline, ville…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', colorScheme: 'dark light' }} />
+                {searchTerm && (
+                  <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}><path d="M18 6 6 18M6 6l12 12" /></svg>
+                  </button>
+                )}
+              </div>
+            </div>
+            {/* discipline chips */}
+            <div style={{ overflowX: 'auto' }} className="hide-scrollbar">
+              <div style={{ display: 'flex', gap: 7, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
+                {discFilters.map(f => (
+                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', backgroundColor: mobileDisc === f.key ? '#6366F1' : 'var(--ev-chip-bg)', color: mobileDisc === f.key ? '#fff' : 'var(--ev-chip-text)' }}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* sort */}
+            <div style={{ display: 'flex', gap: 6, padding: '0 16px 10px' }}>
+              {([['alpha', 'A → Z'], ['newest', 'Récents'], ['rating', '⭐ Note'], ['popular', '🔥 Pop.']] as const).map(([key, label]) => (
+                <button key={key} onClick={() => setSortOrder(key)} style={{ padding: '4px 11px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, backgroundColor: sortOrder === key ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)', color: sortOrder === key ? 'var(--bg-primary)' : 'var(--ev-chip-text)' }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Spacer */}
+          <div style={{ height: 192 }} />
+
+          {/* Featured carousel */}
+          {featCreators.length > 0 && featEv && (
+            <div style={{ margin: '0 0 24px', position: 'relative' }}>
+              <motion.div key={featEv.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
+                onClick={() => router.push(`/creators/${featEv.id}`)}
+                style={{ height: 210, position: 'relative', backgroundColor: 'var(--ev-card-bg)', cursor: 'pointer', overflow: 'hidden' }}>
+                {(featEv.portfolio_images?.[0] || featEv.avatar_url) && (
+                  <Image src={featEv.portfolio_images?.[0] || featEv.avatar_url!} alt={featEv.full_name || ''} fill style={{ objectFit: 'cover' }} />
+                )}
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,20,0.92) 0%, rgba(10,10,20,0.25) 60%, transparent 100%)' }} />
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px 12px' }}>
+                  <p style={{ margin: '0 0 5px', fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{featEv.full_name}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', gap: 5 }}>
+                      {(featEv.disciplines || []).slice(0, 2).map((d: string) => (
+                        <span key={d} style={{ backgroundColor: 'rgba(99,102,241,0.3)', color: '#A5B4FC', fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>{d}</span>
+                      ))}
+                    </div>
+                    {featEv.city && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>📍 {featEv.city}</span>}
+                  </div>
+                </div>
+              </motion.div>
+              {/* dots */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 8 }}>
+                {featCreators.map((_, i) => (
+                  <button key={i} onClick={() => setFeatActive(i)} style={{ width: i === featActive ? 18 : 6, height: 6, borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0, backgroundColor: i === featActive ? '#6366F1' : 'var(--ev-chip-bg)', transition: 'width 0.3s, background-color 0.3s' }} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sections */}
+          {verifiedSection.length > 0 && <MSection title="Créateurs vérifiés ✓" items={verifiedSection} />}
+          {newestSection.length > 0 && <MSection title="Nouveaux arrivants" items={newestSection} />}
+          {availableSection.length > 0 && <MSection title="Disponibles maintenant" items={availableSection} />}
+          {collabSection.length > 0 && <MSection title="Ouverts aux collabs" items={collabSection} />}
+          {discSections.map(s => <MSection key={s.title} title={s.title} items={s.items} />)}
+
+          {/* Empty state */}
+          {mobileFiltered.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '60px 24px' }}>
+              <p style={{ fontSize: 40, margin: '0 0 12px' }}>🔍</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ev-sort-active)', margin: '0 0 6px' }}>Aucun créateur trouvé</p>
+              <p style={{ fontSize: 13, color: 'var(--ev-card-date)' }}>Essayez un autre mot-clé ou discipline</p>
+              <button onClick={resetFilters} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 20, border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                Réinitialiser
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    )
+  }
+
+  // ── Desktop layout ───────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
 
