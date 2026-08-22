@@ -106,7 +106,7 @@ export function CreatorProfileClient({ id }: Props) {
   const { success } = useToast()
 
   useEffect(() => {
-    const load = async () => {
+    const load = async () => { try {
       // Résolution username → UUID si nécessaire
       let uid = id
       if (!UUID_RE.test(id)) {
@@ -218,7 +218,7 @@ export function CreatorProfileClient({ id }: Props) {
         .limit(3)
       setItinerary((itin || []) as any)
 
-    }
+    } catch { setError(true); setLoading(false) } }
     load()
   }, [id])
 
