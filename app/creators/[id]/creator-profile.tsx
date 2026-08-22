@@ -544,7 +544,7 @@ export function CreatorProfileClient({ id }: Props) {
               return (
                 <section className="mb-8" style={{ backgroundColor: brandBg, borderRadius: '16px', padding: '16px' }}>
                   <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ color: brandColor }}>Portfolio</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(120px, 100%), 1fr))', gridAutoRows: 'clamp(90px, 18vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(70px, 25vw, 180px)', gridAutoFlow: 'dense', gap: '6px' }}>
                     {grid.map((item, idx) => (
                       <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative' }} className="group">
                         {!portfolioImgErrors.has(idx) ? (
