@@ -331,7 +331,7 @@ export default function CreateEventClient() {
       media: form.media.length > 0 ? form.media : null,
       lat: form.lat,
       lng: form.lng,
-      theme: form.theme.length > 0 ? form.theme : null,
+      theme: form.theme.length > 0 ? form.theme : [],
       application_deadline: form.application_deadline || null,
       recurrence_type: form.recurrence_type,
       ...(form.recurrence_type !== 'none' && form.start_date && form.recurrence_end_date ? {

@@ -12,7 +12,7 @@ import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
   MapPin, ShoppingBag, BarChart2, Zap, Star, ExternalLink, Eye,
-  Bell, Plus, CreditCard, LogOut,
+  Bell, Plus, CreditCard, LogOut, ChevronDown,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DocumentsPanel from '@/components/documents-panel'
@@ -37,7 +37,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 }
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  free:       { label: 'Essentiel',  color: 'var(--text-secondary)',  bg: colors.border.default },
+  free:       { label: 'Essentiel',  color: 'var(--text-secondary)',  bg: 'var(--border-color)' },
   boost:      { label: 'Boost',      color: colors.violet.primary, bg: 'rgba(99,102,241,0.12)'   },
   pro:        { label: 'Pro',        color: colors.purple.dark, bg: 'rgba(124,58,237,0.12)'   },
   premium:    { label: 'Premium',    color: colors.feedback.warning.solid, bg: 'rgba(217,119,6,0.12)'    },
@@ -366,7 +366,7 @@ export default function DashboardPage() {
       )}
 
       {/* Header */}
-      <div style={{ borderBottom: `1px solid ${colors.border.default}`, padding: '20px 0' }}>
+      <div style={{ borderBottom: '1px solid var(--border-color)', padding: '20px 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
@@ -381,7 +381,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+            <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', textDecoration: 'none' }}>
               <Bell size={16} />
             </Link>
             {hasCreator && (
@@ -394,7 +394,7 @@ export default function DashboardPage() {
                 <Plus size={13} /> Créer un événement
               </Link>
             )}
-            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
+            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
               <LogOut size={13} /> Déconnexion
             </button>
           </div>
@@ -438,7 +438,7 @@ export default function DashboardPage() {
         )}
 
         {/* Billing card */}
-        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : colors.border.default}`, backgroundColor: isPaid ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : 'var(--border-color)'}`, backgroundColor: isPaid ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isPaid ? 'rgba(99,102,241,0.25)' : 'var(--bg-secondary)', flexShrink: 0 }}>
             <CreditCard size={16} color={isPaid ? colors.violet.primary : colors.text.muted} />
           </div>
@@ -668,7 +668,7 @@ function CreatorMainContent({
               <p>Aucun paiement de stand pour le moment</p>
             </div>
           ) : paidApps.map(a => (
-            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '14px 16px', borderRadius: '12px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {a.event?.title ?? 'Événement'}
@@ -710,7 +710,7 @@ function CreatorMainContent({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recommended.map(ev => (
-              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
@@ -733,7 +733,52 @@ function CreatorMainContent({
 
 // ─── Applications feed ────────────────────────────────────────────────────────
 
+function AppCard({ app }: { app: Application & { event?: Event } }) {
+  const status = app.status as 'pending' | 'accepted' | 'refused'
+  const sc = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
+  const isBoosted = (app as any).boosted_at && new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000) > new Date()
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : 'var(--border-color)'}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)' }}>
+      <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
+      <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {app.event?.title || 'Événement inconnu'}
+        </p>
+        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+          {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+          {app.event?.city ? ` · ${app.event.city}` : ''}
+        </p>
+        {isBoosted && (
+          <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, marginTop: '4px', cursor: 'help' }}>
+            <Zap size={9} fill="white" /> Boosté
+          </span>
+        )}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
+        {status === 'pending' && (
+          <BoostButton
+            type="boost_application"
+            refId={app.id}
+            boostedUntil={(app as any).boosted_at ? new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
+          />
+        )}
+        {app.event && (
+          <Link href={`/events/${app.event_id}`} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+            Voir <ArrowRight size={11} />
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ApplicationsFeed({ applications }: { applications: (Application & { event?: Event })[] }) {
+  const [showMissed, setShowMissed] = useState(false)
+  const now = new Date()
+  const upcoming = applications.filter(a => !a.event?.start_date || new Date(a.event.start_date) >= now)
+  const past = applications.filter(a => a.event?.start_date && new Date(a.event.start_date) < now)
+
   if (applications.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
@@ -749,45 +794,32 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {applications.map(app => {
-        const status = app.status as 'pending' | 'accepted' | 'refused'
-        const sc = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
-        const isBoosted = (app as any).boosted_at && new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000) > new Date()
-        return (
-          <div key={app.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : colors.border.default}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)' }}>
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
-            <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
-              <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {app.event?.title || 'Événement inconnu'}
-              </p>
-              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
-                {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-                {app.event?.city ? ` · ${app.event.city}` : ''}
-              </p>
-              {isBoosted && (
-                <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, marginTop: '4px', cursor: 'help' }}>
-                  <Zap size={9} fill="white" /> Boosté
-                </span>
-              )}
+      {upcoming.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)', fontSize: '13px', borderRadius: '10px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+          Aucun événement à venir — <Link href="/events" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'none' }}>explorer les marchés</Link>
+        </div>
+      )}
+      {upcoming.map(app => <AppCard key={app.id} app={app} />)}
+
+      {past.length > 0 && (
+        <div style={{ marginTop: '8px' }}>
+          <button
+            onClick={() => setShowMissed(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', textAlign: 'left' }}
+          >
+            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>
+              Ce que vous avez manqué
+            </span>
+            <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: 'rgba(99,102,241,0.12)', color: colors.violet.primary }}>{past.length}</span>
+            <ChevronDown size={14} color="var(--text-secondary)" style={{ transform: showMissed ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          </button>
+          {showMissed && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+              {past.map(app => <AppCard key={app.id} app={app} />)}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
-              {status === 'pending' && (
-                <BoostButton
-                  type="boost_application"
-                  refId={app.id}
-                  boostedUntil={(app as any).boosted_at ? new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
-                />
-              )}
-              {app.event && (
-                <Link href={`/events/${app.event_id}`} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  Voir <ArrowRight size={11} />
-                </Link>
-              )}
-            </div>
-          </div>
-        )
-      })}
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -824,7 +856,7 @@ function CalendarView({ applications }: { applications: (Application & { event?:
               const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const d = new Date(app.event!.start_date)
               return (
-                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                   <div style={{ width: '40px', flexShrink: 0, textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.15)', borderRadius: '8px', padding: '6px' }}>
                     <div style={{ fontSize: '16px', fontWeight: 800, color: colors.violet.primary, lineHeight: 1 }}>{d.getDate()}</div>
                     <div style={{ fontSize: '9px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'capitalize' }}>{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
@@ -865,7 +897,7 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
         <SidebarCard title="Actions rapides">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
             {QUICK_ACTIONS.map(a => (
-              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
                 <span style={{ color: colors.violet.primary }}>{a.icon}</span>
                 {a.label}
               </Link>
@@ -1032,7 +1064,7 @@ function OrganizerMainContent({
             const daysPending = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (24 * 60 * 60 * 1000))
             return (
               <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : colors.border.default}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)' }}>
+                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : 'var(--border-color)'}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                   {app.profiles?.avatar_url
                     ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
@@ -1063,7 +1095,7 @@ function OrganizerMainContent({
                     Accepter
                   </button>
                   <button onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: colors.feedback.danger.solid, fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                    style={{ padding: '5px 10px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: colors.feedback.danger.solid, fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
                     Refuser
                   </button>
                 </div>
@@ -1071,7 +1103,7 @@ function OrganizerMainContent({
             )
           })}
           {pendingApps.length > 10 && tab !== 'retard' && (
-            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
               Tout voir ({pendingApps.length}) →
             </Link>
           )}
@@ -1085,7 +1117,7 @@ function OrganizerMainContent({
             <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Outils événement</h2>
             {events.length > 1 && (
               <select value={selectedEventId} onChange={e => setSelectedEventId(e.target.value)}
-                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>
                 {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
               </select>
             )}
@@ -1101,7 +1133,7 @@ function OrganizerMainContent({
               { href: `/events/${selectedEventId}/analytics`,  icon: <BarChart2 size={16} />,    label: 'Analytics', sub: '' },
               { href: `/api/events/${selectedEventId}/exhibitors/export`, icon: <ArrowRight size={16} />, label: 'Export CSV', sub: '', target: '_blank' },
             ].map(tool => (
-              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <span style={{ color: colors.violet.primary }}>{tool.icon}</span>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>{tool.label}</span>
                 {tool.sub && <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{tool.sub}</span>}
@@ -1129,7 +1161,7 @@ function OrganizerMainContent({
                   }[event.status] ?? { label: event.status, color: 'var(--text-secondary)', bg: colors.bg.secondary, dot: colors.text.muted }
                   const ep = pendingApps.filter(a => a.event_id === event.id).length
                   return (
-                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ flex: '1 1 140px', minWidth: '140px' }}>
                         <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
                         {event.start_date && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
@@ -1247,7 +1279,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
         <SidebarCard title="Actions rapides">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
             {QUICK_ACTIONS.map(a => (
-              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
+              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
                 <span style={{ color: colors.violet.primary }}>{a.icon}</span>
                 {a.label}
               </Link>
@@ -1348,8 +1380,8 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
 function SidebarCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: '10px', border: `1px solid ${colors.border.default}`, overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+    <div style={{ borderRadius: '10px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
         <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</p>
       </div>
       <div style={{ padding: '12px 14px', backgroundColor: 'var(--bg-secondary)' }}>
@@ -1389,7 +1421,7 @@ function VisitorContent() {
           { href: '/favorites',icon: <Heart size={16} />,    title: 'Favoris',       desc: 'Mes coups de cœur' },
           { href: '/messages', icon: <MessageSquare size={16} />, title: 'Messages', desc: 'Mes conversations' },
         ].map(card => (
-          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
             <span style={{ color: colors.violet.primary }}>{card.icon}</span>
             <div>
               <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{card.title}</p>
