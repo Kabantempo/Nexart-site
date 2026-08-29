@@ -28,13 +28,13 @@ function useFeed(filter: 'all' | 'events' | 'creators', page: number) {
         ? supabase.from('events').select('id,title,city,start_date,cover_image,discipline_tags,event_type').eq('status','published').order('start_date',{ascending:true}).range(from, from+(f==='events'?PAGE-1:half-1))
         : Promise.resolve({ data: [] }),
       f !== 'events'
-        ? supabase.from('creator_profiles').select('id,city,disciplines,portfolio_images,siret_verified,profiles(full_name,avatar_url)').order('id',{ascending:false}).range(from, from+(f==='creators'?PAGE-1:half-1))
+        ? supabase.from('creator_profiles').select('user_id,city,disciplines,portfolio_images,siret_verified,profiles(full_name,avatar_url)').order('user_id',{ascending:false}).range(from, from+(f==='creators'?PAGE-1:half-1))
         : Promise.resolve({ data: [] }),
     ])
     const evs: Ev[] = ((evRes as any).data||[]).map((e: any) => ({ kind:'event' as const, ...e }))
     const crs: Cr[] = ((crRes as any).data||[]).map((c: any) => ({
       kind: 'creator' as const,
-      id: c.id,
+      id: c.user_id,
       city: c.city,
       disciplines: c.disciplines,
       portfolio_images: c.portfolio_images,
