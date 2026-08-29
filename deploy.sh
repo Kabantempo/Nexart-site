@@ -15,13 +15,46 @@ ARCHIVE="/tmp/nexart-deploy-$(date +%s).tar.gz"
 echo "🔨 Building locally..."
 npm run build:local
 
-# ── 2. Archive standalone seulement (~10MB vs ~500MB avec node_modules) ───────
+# ── 2. Fix Windows backslash paths in module requires (build on Windows → Linux) ──
+echo "🔧 Fixing Windows path separators in server build..."
+node - <<'FIXEOF'
+const fs = require('fs');
+const path = require('path');
+let count = 0;
+
+function fixModulePaths(content) {
+  // Replace next/dist\\\\segment\\\\... -> next/dist/segment/...
+  return content.replace(/next\/dist((?:\\\\[a-zA-Z0-9._\-]+)+)/g, (match, rest) => {
+    return 'next/dist/' + rest.slice(2).replace(/\\\\/g, '/');
+  });
+}
+
+function walk(dir) {
+  if (!fs.existsSync(dir)) return;
+  fs.readdirSync(dir).forEach(f => {
+    const p = path.join(dir, f);
+    if (fs.statSync(p).isDirectory()) walk(p);
+    else if (f.endsWith('.js')) {
+      const c = fs.readFileSync(p, 'utf8');
+      const fixed = fixModulePaths(c);
+      if (fixed !== c) { fs.writeFileSync(p, fixed); count++; }
+    }
+  });
+}
+
+walk('.next/standalone/.next/server');
+walk('.next/server');
+if (count > 0) console.log(`  Fixed ${count} files`);
+else console.log('  No Windows paths found (build on Unix or already fixed)');
+FIXEOF
+
+# ── 3. Archive standalone seulement (~10MB vs ~500MB avec node_modules) ───────
 echo "📦 Creating archive (standalone only)..."
 tar -czf "$ARCHIVE" .next/standalone .next/static public
 ARCHIVE_SIZE=$(du -sh "$ARCHIVE" | cut -f1)
 echo "   Archive size: $ARCHIVE_SIZE"
 
-# ── 3. Upload ─────────────────────────────────────────────────────────────────
+# ── 4. Upload ─────────────────────────────────────────────────────────────────
 echo "⬆️  Uploading to Hostinger..."
 scp -P "$SSH_PORT" -i "$SSH_KEY" -o ServerAliveInterval=5 -o ServerAliveCountMax=20 "$ARCHIVE" "$SSH_HOST:/tmp/"
 REMOTE_ARCHIVE="/tmp/$(basename $ARCHIVE)"

@@ -72,6 +72,7 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   experimental: {
+    serverComponentsExternalPackages: ['web-push', 'pdf-lib', 'pako', 'jws'],
     ...(process.env.NODE_ENV === 'production' && { cpus: 1 }),
     workerThreads: false,
   },
