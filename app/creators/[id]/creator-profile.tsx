@@ -289,12 +289,21 @@ export function CreatorProfileClient({ id }: Props) {
     </div>
   )
 
-  if (error || !creator) return (
-    <div className="max-w-lg mx-auto px-4 py-24 text-center">
-      <p className="text-red-500 text-base mb-4">Créateur introuvable</p>
-      <Link href="/creators" className="text-indigo-600 font-semibold text-sm hover:underline">← Retour aux créateurs</Link>
-    </div>
-  )
+  if (error || !creator) {
+    const isOwnMissingProfile = user?.id === resolvedId
+    return (
+      <div className="max-w-lg mx-auto px-4 py-24 text-center">
+        <p className="text-red-500 text-base mb-4">
+          {isOwnMissingProfile ? 'Ton profil créateur n\'est pas encore configuré.' : 'Créateur introuvable'}
+        </p>
+        {isOwnMissingProfile ? (
+          <Link href="/onboarding" className="text-indigo-600 font-semibold text-sm hover:underline">→ Configurer mon profil</Link>
+        ) : (
+          <Link href="/creators" className="text-indigo-600 font-semibold text-sm hover:underline">← Retour aux créateurs</Link>
+        )}
+      </div>
+    )
+  }
 
   const creatorSlug = creator.username || resolvedId
   const profileUrl = typeof window !== 'undefined' ? `${window.location.origin}/creators/${creatorSlug}` : `https://nexart.fr/creators/${creatorSlug}`
