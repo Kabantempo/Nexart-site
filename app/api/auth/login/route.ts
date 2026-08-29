@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { rateLimit } from '@/lib/rate-limit'
 import { getDeviceFingerprint, isKnownDevice, createVerificationCode } from '@/lib/device-auth'
+import { logAudit } from '@/lib/audit'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Champs manquants.' }, { status: 400 })
   }
 
+  const ua = req.headers.get('user-agent') ?? 'unknown'
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
@@ -35,10 +37,12 @@ export async function POST(req: NextRequest) {
   const known = await isKnownDevice(userId, ipHash, uaHash)
 
   if (known) {
+    logAudit({ userId, action: 'LOGIN_SUCCESS', resourceType: 'auth', ip, userAgent: ua })
     return NextResponse.json({ session: data.session })
   }
 
   // Appareil inconnu — envoyer un code de vérification
+  logAudit({ userId, action: 'LOGIN_2FA_REQUIRED', resourceType: 'auth', description: 'New device detected', ip, userAgent: ua })
   const code = await createVerificationCode(userId, ipHash, uaHash)
 
   // Envoyer via Resend
