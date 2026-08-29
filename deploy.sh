@@ -23,10 +23,9 @@ const path = require('path');
 let count = 0;
 
 function fixModulePaths(content) {
-  // Replace next/dist\\segment\\... -> next/dist/segment/...
-  const BS = '\\\\';
+  // File contains next/dist\\segment\\... (two raw backslashes per segment)
   return content.replace(/next\/dist((?:\\\\[a-zA-Z0-9._-]+)+)/g, (match, rest) => {
-    return 'next/dist/' + rest.slice(2).split(BS).join('/');
+    return 'next/dist/' + rest.replace(/\\\\/g, '/').slice(1);
   });
 }
 
