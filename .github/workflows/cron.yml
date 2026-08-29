@@ -1,0 +1,32 @@
+name: Cron Jobs
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # hard-delete users — 02h00 UTC
+    - cron: '0 9 * * *'   # saved-searches notify — 09h00 UTC
+  workflow_dispatch:       # déclenchement manuel si besoin
+
+jobs:
+  hard-delete-users:
+    if: github.event.schedule == '0 2 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hard-delete soft-deleted users (30j+)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}" \
+            https://nexart.fr/api/cron/hard-delete-users)
+          echo "HTTP status: $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
+
+  saved-searches-notify:
+    if: github.event.schedule == '0 9 * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notifier les recherches sauvegardées
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}" \
+            https://nexart.fr/api/cron/saved-searches-notify)
+          echo "HTTP status: $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
