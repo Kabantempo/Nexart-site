@@ -119,7 +119,7 @@ export function CreatorProfileClient({ id }: Props) {
 
       const [{ data: p }, { data: cp }] = await Promise.all([
         supabase.from('profiles').select('id, full_name, bio, avatar_url, banner_url, role, created_at, username, show_real_name').eq('id', uid).maybeSingle(),
-        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab, page_settings').eq('user_id', uid).maybeSingle(),
+        supabase.from('creator_profiles').select('disciplines, city, region, department, travel_radius, portfolio_images, portfolio_grid, portfolio_videos, website, instagram, etsy, siret_verified, insurance_verified, open_to_collab').eq('user_id', uid).maybeSingle(),
       ])
       if (!p) { setError(true); setLoading(false); return }
       setCreator({ ...(p as Record<string, unknown>), ...(cp as Record<string, unknown> | null ?? {}) } as any)

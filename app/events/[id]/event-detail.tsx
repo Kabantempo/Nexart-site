@@ -187,7 +187,7 @@ export function EventDetailClient({ id }: Props) {
 
   // Charger le contrat existant si le créateur est accepté
   useEffect(() => {
-    if (!user || user.role !== 'creator' || !application || application.status !== 'accepted') return
+    if (!user || !(user.role === 'creator' || user.is_creator) || !application || application.status !== 'accepted') return
     supabase.from('contracts')
       .select('id, status, pdf_url, signed_at')
       .eq('event_id', id)
@@ -205,7 +205,7 @@ export function EventDetailClient({ id }: Props) {
   }, [applyError]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!user || user.role !== 'organizer' || !event || event.organizer_id !== user.id) return
+    if (!user || !(user.role === 'organizer' || user.is_organizer) || !event || event.organizer_id !== user.id) return
     const fetchApps = async () => {
       setAppsLoading(true)
       const { data } = await supabase
@@ -438,7 +438,7 @@ export function EventDetailClient({ id }: Props) {
   }
 
   useEffect(() => {
-    if (!user || user.role !== 'creator') {
+    if (!user || !(user.role === 'creator' || user.is_creator)) {
       setProfileChecked(true)
       return
     }
@@ -978,7 +978,7 @@ export function EventDetailClient({ id }: Props) {
                     Créer un compte
                   </Link>
                 </div>
-              ) : user.role === 'organizer' && event?.organizer_id === user.id ? (
+              ) : (user.role === 'organizer' || user.is_organizer) && event?.organizer_id === user.id ? (
                 <div>
                   {/* Outils organisateur */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '8px', marginBottom: '20px' }}>
@@ -1210,11 +1210,11 @@ export function EventDetailClient({ id }: Props) {
                   {/* Gestion des stands */}
                   <StandsManager eventId={id} />
                 </div>
-              ) : (user.role === 'organizer' || user.role === 'visitor') ? (
+              ) : (user.role === 'organizer' && !user.is_creator) || user.role === 'visitor' ? (
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', textAlign: 'center' }}>
                   {user.role === 'visitor' ? 'Créez un compte créateur pour postuler aux événements' : 'Seuls les créateurs peuvent postuler aux événements'}
                 </p>
-              ) : (user.role === 'creator') && profileChecked && missingFields.length > 0 ? (
+              ) : (user.role === 'creator' || user.is_creator) && profileChecked && missingFields.length > 0 ? (
                 <div>
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
