@@ -36,6 +36,12 @@ export default function LoginPage() {
   const [focused, setFocused] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
 
+  // 2FA contextuel
+  const [verifyStep, setVerifyStep] = useState(false)
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null)
+  const [verifyCode, setVerifyCode] = useState('')
+  const [verifyLoading, setVerifyLoading] = useState(false)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.push('/dashboard')
@@ -55,8 +61,31 @@ export default function LoginPage() {
     if (!res.ok) {
       setError(json.error ?? 'Une erreur est survenue. Veuillez réessayer.')
       setLoading(false)
+    } else if (json.requires_verification) {
+      setPendingUserId(json.user_id)
+      setVerifyStep(true)
+      setLoading(false)
     } else {
-      // Sync session in Supabase client from the returned token
+      await supabase.auth.setSession(json.session)
+      const next = searchParams?.get('next')
+      router.push(next && next.startsWith('/') ? next : '/dashboard')
+    }
+  }
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setVerifyLoading(true)
+    setError(null)
+    const res = await fetch('/api/auth/verify-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: pendingUserId, email, password, code: verifyCode }),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      setError(json.error ?? 'Code invalide.')
+      setVerifyLoading(false)
+    } else {
       await supabase.auth.setSession(json.session)
       const next = searchParams?.get('next')
       router.push(next && next.startsWith('/') ? next : '/dashboard')
@@ -70,6 +99,68 @@ export default function LoginPage() {
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (err) setError(err.message)
+  }
+
+  if (verifyStep) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg.secondary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ width: '100%', maxWidth: '420px', backgroundColor: colors.bg.primary, borderRadius: '16px', border: `1px solid ${colors.border.default}`, padding: '40px', boxShadow: '0 8px 40px rgba(0,0,0,0.08)' }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>🔐</div>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: colors.text.primary, marginBottom: '8px' }}>Vérification requise</h2>
+            <p style={{ fontSize: '15px', color: colors.text.secondary, lineHeight: '1.5' }}>
+              Nous avons détecté une connexion depuis un nouvel appareil.<br/>
+              Un code à 6 chiffres a été envoyé à <strong>{email}</strong>.
+            </p>
+          </div>
+
+          {error && (
+            <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: colors.feedback.danger.solid, fontSize: '14px', marginBottom: '20px' }}>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleVerify} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: colors.text.primary, marginBottom: '8px' }}>
+                Code de vérification
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="000000"
+                value={verifyCode}
+                onChange={e => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+                style={{ width: '100%', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, fontSize: '28px', fontWeight: '700', letterSpacing: '12px', textAlign: 'center', color: colors.text.primary, backgroundColor: colors.bg.primary, fontFamily: 'monospace', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={verifyLoading || verifyCode.length !== 6}
+              style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: verifyLoading || verifyCode.length !== 6 ? colors.purple.ringAlt : colors.violet.primary, color: '#fff', fontSize: '16px', fontWeight: '600', border: 'none', cursor: verifyLoading || verifyCode.length !== 6 ? 'not-allowed' : 'pointer' }}
+            >
+              {verifyLoading ? 'Vérification...' : 'Confirmer'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setVerifyStep(false); setError(null); setVerifyCode('') }}
+              style={{ background: 'none', border: 'none', color: colors.text.secondary, fontSize: '14px', cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              ← Retour à la connexion
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
