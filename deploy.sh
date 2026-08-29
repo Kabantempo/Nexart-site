@@ -23,9 +23,10 @@ const path = require('path');
 let count = 0;
 
 function fixModulePaths(content) {
-  // Replace next/dist\\\\segment\\\\... -> next/dist/segment/...
-  return content.replace(/next\/dist((?:\\\\[a-zA-Z0-9._\-]+)+)/g, (match, rest) => {
-    return 'next/dist/' + rest.slice(2).replace(/\\\\/g, '/');
+  // Replace next/dist\\segment\\... -> next/dist/segment/...
+  const BS = '\\\\';
+  return content.replace(/next\/dist((?:\\\\[a-zA-Z0-9._-]+)+)/g, (match, rest) => {
+    return 'next/dist/' + rest.slice(2).split(BS).join('/');
   });
 }
 
