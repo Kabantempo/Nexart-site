@@ -46,20 +46,18 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password })
-    if (err) {
-      const supabaseErrors: Record<string, string> = {
-        'Invalid login credentials': 'Email ou mot de passe incorrect.',
-        'Email not confirmed': 'Votre email n\'est pas encore confirmé. Vérifiez votre boîte mail.',
-        'Too many requests': 'Trop de tentatives. Veuillez patienter quelques minutes.',
-        'User not found': 'Aucun compte associé à cet email.',
-        'Invalid email': 'Adresse email invalide.',
-        'signup_disabled': 'Les inscriptions sont temporairement désactivées.',
-        'email_address_not_authorized': 'Cette adresse email n\'est pas autorisée.',
-      }
-      setError(supabaseErrors[err.message] ?? 'Une erreur est survenue. Veuillez réessayer.')
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const json = await res.json()
+    if (!res.ok) {
+      setError(json.error ?? 'Une erreur est survenue. Veuillez réessayer.')
       setLoading(false)
     } else {
+      // Sync session in Supabase client from the returned token
+      await supabase.auth.setSession(json.session)
       const next = searchParams?.get('next')
       router.push(next && next.startsWith('/') ? next : '/dashboard')
     }

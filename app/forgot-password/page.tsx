@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail } from 'lucide-react'
 import { SmokeBackground } from '@/components/smoke-background'
-import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
 
 export default function ForgotPasswordPage() {
@@ -19,12 +18,15 @@ export default function ForgotPasswordPage() {
     setError('')
     setLoading(true)
 
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
     })
+    const json = await res.json()
 
-    if (err) {
-      setError(err.message)
+    if (!res.ok) {
+      setError(json.error ?? 'Une erreur est survenue.')
     } else {
       setSent(true)
     }

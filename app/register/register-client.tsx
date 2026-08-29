@@ -70,28 +70,19 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
-    const { data, error: err } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name, role },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, role, full_name: name }),
     })
+    const json = await res.json()
 
-    if (err) {
-      const supabaseErrors: Record<string, string> = {
-        'User already registered': 'Un compte existe déjà avec cet email. <a href="/login">Se connecter</a>',
-        'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
-        'Unable to validate email address: invalid format': 'Adresse email invalide.',
-        'signup_disabled': 'Les inscriptions sont temporairement désactivées.',
-        'email_address_not_authorized': 'Cette adresse email n\'est pas autorisée.',
-        'Too many requests': 'Trop de tentatives. Veuillez patienter quelques minutes.',
-      }
-      setError(supabaseErrors[err.message] ?? 'Une erreur est survenue. Veuillez réessayer.')
+    if (!res.ok) {
+      setError(json.error ?? 'Une erreur est survenue. Veuillez réessayer.')
       setLoading(false)
       return
     }
+    const data = json
 
     if (data.user) {
       await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, role: role as any })
