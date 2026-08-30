@@ -78,9 +78,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const { generateUniqueEventSlug } = await import('@/lib/slugify')
+    const slug = await generateUniqueEventSlug(admin, title)
+
     const { data, error } = await admin.from('events').insert({
       organizer_id,
       title,
+      slug,
       description,
       event_type,
       start_date: (start_date ?? null) as any,
