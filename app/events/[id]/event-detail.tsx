@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, FileText, Send, Download } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
@@ -145,6 +146,7 @@ export function EventDetailClient({ id }: Props) {
   const [message, setMessage] = useState('')
   const [showForm, setShowForm] = useState(false)
   const { success: toastSuccess, error: toastError } = useToast()
+  const searchParams = useSearchParams()
   const [missingFields, setMissingFields] = useState<string[]>([])
   const [profileChecked, setProfileChecked] = useState(false)
   const [applications, setApplications] = useState<{ id: string; creator_id: string; status: string; message: string | null; created_at: string; profiles: { full_name: string | null; avatar_url: string | null } | null }[]>([])
@@ -173,6 +175,18 @@ export function EventDetailClient({ id }: Props) {
   const [weeklyApplicants, setWeeklyApplicants] = useState<number | null>(null)
 
   const REQUIRED_FIELDS_TOTAL = 6
+
+  // Toast post-paiement stand (retour depuis Stripe Checkout)
+  useEffect(() => {
+    const payment = searchParams.get('payment')
+    if (payment === 'success') {
+      toastSuccess('✅ Paiement confirmé — votre stand est réservé !')
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (payment === 'cancelled') {
+      toastError('Paiement annulé — vous pouvez réessayer à tout moment.')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Weekly applicants for social proof
   useEffect(() => {
