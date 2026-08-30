@@ -252,6 +252,7 @@ export function EventDetailClient({ id }: Props) {
             creatorId: app.creator_id,
             creatorName: app.profiles?.full_name || creatorAuth?.full_name || 'Créateur',
             eventTitle: event.title,
+            eventId: id,
             status,
           }),
         }).catch(() => {})
