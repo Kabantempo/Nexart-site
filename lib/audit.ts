@@ -1,4 +1,12 @@
+import { NextRequest } from 'next/server'
 import { getAdminClient } from '@/lib/supabase-admin'
+
+export function getRequestMeta(req: NextRequest) {
+  return {
+    ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown',
+    userAgent: req.headers.get('user-agent') ?? 'unknown',
+  }
+}
 
 interface AuditParams {
   userId: string
