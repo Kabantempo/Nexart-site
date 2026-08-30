@@ -12,7 +12,7 @@ import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
   MapPin, ShoppingBag, BarChart2, Zap, Star, ExternalLink, Eye,
-  Bell, Plus, CreditCard, LogOut, ChevronDown,
+  Bell, Plus, CreditCard, LogOut, ChevronDown, Euro,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DocumentsPanel from '@/components/documents-panel'
@@ -555,6 +555,7 @@ export default function DashboardPage() {
             <>
               <a href="/events/create"><Plus size={18} /><span>Créer</span></a>
               <a href="/organizer/analytics"><BarChart2 size={18} /><span>Analytics</span></a>
+              <a href="/organizer/revenue"><Euro size={18} /><span>Revenus</span></a>
               <a href="/messages"><MessageSquare size={18} /><span>Messages</span></a>
               <a href="/calendrier"><CalendarDays size={18} /><span>Calendrier</span></a>
             </>
@@ -1269,6 +1270,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
   const QUICK_ACTIONS = [
     { href: '/events/create',      icon: <Plus size={15} />,       label: 'Créer événement' },
     { href: '/organizer/analytics', icon: <BarChart2 size={15} />, label: 'Analytics' },
+    { href: '/organizer/revenue',   icon: <Euro size={15} />,      label: 'Revenus' },
     { href: '/messages',            icon: <MessageSquare size={15} />, label: 'Messages' },
     { href: '/calendrier',          icon: <CalendarDays size={15} />, label: 'Calendrier' },
   ]
