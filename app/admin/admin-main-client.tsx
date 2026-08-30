@@ -396,7 +396,8 @@ export default function AdminPage() {
     if (msgSearchTimeout) clearTimeout(msgSearchTimeout)
     if (q.length < 2) { setMsgSuggestions([]); return }
     const t = setTimeout(async () => {
-      const res = await fetch(`/api/admin/search-users?q=${encodeURIComponent(q)}`)
+      const { data: { session: s } } = await supabase.auth.getSession()
+      const res = await fetch(`/api/admin/search-users?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${s?.access_token}` } })
       const json = await res.json()
       setMsgSuggestions(json.users || [])
     }, 300)
@@ -1298,7 +1299,8 @@ export default function AdminPage() {
                   if (q.length < 2) { setSubResults([]); return }
                   setSubSearching(true)
                   try {
-                    const res = await fetch(`/api/admin/search-users?q=${encodeURIComponent(q)}`)
+                    const { data: { session: s } } = await supabase.auth.getSession()
+                    const res = await fetch(`/api/admin/search-users?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${s?.access_token}` } })
                     const json = await res.json()
                     setSubResults(json.users || [])
                   } catch { setSubResults([]) }
@@ -1354,7 +1356,8 @@ export default function AdminPage() {
                         <select value={currentTier} onChange={async e => {
                           const newTier = e.target.value
                           setSubSaving(u.id)
-                          const res = await fetch('/api/admin/set-tier', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: u.id, tier: newTier }) })
+                          const { data: { session: s } } = await supabase.auth.getSession()
+                          const res = await fetch('/api/admin/set-tier', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${s?.access_token}` }, body: JSON.stringify({ user_id: u.id, tier: newTier }) })
                           if (res.ok) {
                             setSubResults(prev => prev.map(x => x.id === u.id ? { ...x, subscription_tier: newTier } : x))
                             setSubToast(`✓ Abonnement de ${u.full_name} changé en "${newTier}"`)
