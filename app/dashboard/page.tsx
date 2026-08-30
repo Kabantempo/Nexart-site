@@ -322,10 +322,13 @@ export default function DashboardPage() {
         }
         @media (max-width: 768px) {
           .sidebar-quick-actions { display: none; }
+          .dash-content { padding-bottom: 72px; }
           .mobile-quick-bar {
             display: flex;
-            position: sticky;
+            position: fixed;
             bottom: 0;
+            left: 0;
+            right: 0;
             z-index: 40;
             background: var(--bg-primary);
             border-top: 1px solid var(--border-color);
@@ -401,7 +404,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
+      <div className="dash-content" style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
 
         {/* Tab switcher */}
         {hasCreator && hasOrganizer && (
@@ -955,6 +958,32 @@ function OrganizerMainContent({
 }) {
   const [tab, setTab] = useState<'candidatures' | 'retard' | 'messages'>('candidatures')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [recentConvs, setRecentConvs] = useState<{ id: string; creatorName: string | null; avatarUrl: string | null }[]>([])
+  const [convsLoading, setConvsLoading] = useState(false)
+
+  useEffect(() => {
+    if (tab !== 'messages') return
+    setConvsLoading(true)
+    ;(async () => {
+      const { data: convData } = await supabase
+        .from('conversations')
+        .select('id, creator_id')
+        .eq('organizer_id', userId)
+        .limit(6)
+      if (!convData?.length) { setConvsLoading(false); return }
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', convData.map(c => c.creator_id))
+      const profileMap = Object.fromEntries((profilesData ?? []).map(p => [p.id, p]))
+      setRecentConvs(convData.map(c => ({
+        id: c.id,
+        creatorName: profileMap[c.creator_id]?.full_name ?? null,
+        avatarUrl: profileMap[c.creator_id]?.avatar_url ?? null,
+      })))
+      setConvsLoading(false)
+    })()
+  }, [tab, userId])
   const [refuseModal, setRefuseModal] = useState<{ appId: string; eventTitle?: string; creatorId?: string } | null>(null)
   const [refuseReasons, setRefuseReasons] = useState<string[]>([])
   // Marquer candidatures comme vues
@@ -1047,12 +1076,39 @@ function OrganizerMainContent({
       </div>
 
       {tab === 'messages' ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
-          <MessageSquare size={32} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
-          <p>Ouvrez la messagerie pour communiquer avec vos exposants</p>
-          <Link href="/messages" style={{ display: 'inline-block', marginTop: '12px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-            Messagerie
-          </Link>
+        <div>
+          {convsLoading ? (
+            <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '13px' }}>Chargement…</div>
+          ) : recentConvs.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
+              <MessageSquare size={32} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.25 }} />
+              <p style={{ margin: '0 0 12px' }}>Aucune conversation pour l&apos;instant</p>
+              <Link href="/messages" style={{ display: 'inline-block', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                Ouvrir la messagerie
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {recentConvs.map(c => (
+                <Link key={c.id} href="/messages" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', textDecoration: 'none' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
+                    {c.avatarUrl
+                      ? <Image src={c.avatarUrl} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                      : (c.creatorName?.[0] ?? '?')}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {c.creatorName ?? 'Créateur'}
+                    </p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Voir la conversation →</p>
+                  </div>
+                </Link>
+              ))}
+              <Link href="/messages" style={{ display: 'block', textAlign: 'center', padding: '10px', fontSize: '12px', fontWeight: 600, color: colors.violet.primary, textDecoration: 'none' }}>
+                Toutes les conversations →
+              </Link>
+            </div>
+          )}
         </div>
       ) : displayApps.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '13px' }}>
