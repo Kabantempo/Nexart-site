@@ -1,27 +1,26 @@
 import Stripe from 'stripe'
 
-// ─── Plans & prix ─────────────────────────────────────────────────────────────
-// À remplir avec les vrais Price IDs depuis le dashboard Stripe
+// ─── Plans & prix (live) ──────────────────────────────────────────────────────
 export const STRIPE_PRICES = {
   creator: {
-    boost:   { monthly: 'price_1TtlFLHLZyIRTAP8Sq35vVZ6', amount: 599,  label: 'Boost',   tier: 'boost' },
-    pro:     { monthly: 'price_1TtlFMHLZyIRTAP8DQ90Nrmy', amount: 1499, label: 'Pro',     tier: 'pro' },
-    premium: { monthly: 'price_1TtlFMHLZyIRTAP8fFwDonMR', amount: 2999, label: 'Premium', tier: 'premium' },
+    boost:   { monthly: 'price_1UAF4uQWOlbwoVLWTWRUP0a3', amount: 599,  label: 'Boost',   tier: 'boost' },
+    pro:     { monthly: 'price_1UAF4uQWOlbwoVLWh2X7xzuk', amount: 1499, label: 'Pro',     tier: 'pro' },
+    premium: { monthly: 'price_1UAF4uQWOlbwoVLWafjohwYh', amount: 2999, label: 'Premium', tier: 'premium' },
   },
   organizer: {
-    pro:    { monthly: 'price_1TtlFNHLZyIRTAP8gm7g1naD', amount: 2900, label: 'Pro',    tier: 'org_pro' },
-    studio: { monthly: 'price_1TtlFOHLZyIRTAP8hDfZKt3s', amount: 7900, label: 'Studio', tier: 'org_studio' },
+    pro:    { monthly: 'price_1UAF4vQWOlbwoVLWBSeHsl9M', amount: 2900, label: 'Pro',    tier: 'org_pro' },
+    studio: { monthly: 'price_1UAF4vQWOlbwoVLWwPM47sLa', amount: 7900, label: 'Studio', tier: 'org_studio' },
   },
 } as const
 
-// ─── Crédits pay-as-you-go ────────────────────────────────────────────────────
+// ─── Crédits pay-as-you-go (live) ─────────────────────────────────────────────
 export const STRIPE_CREDIT_PRICES = {
-  boost_x1:  { id: 'price_1TtlFOHLZyIRTAP84ww9Wu1V', amount: 299,  credits: 1,  label: '1 boost candidature' },
-  boost_x5:  { id: 'price_1TtlFPHLZyIRTAP8HNbPdvT5', amount: 1299, credits: 5,  label: '5 boosts candidature' },
-  boost_x10: { id: 'price_1TtlFPHLZyIRTAP8wA5jYhCD', amount: 2499, credits: 10, label: '10 boosts candidature' },
-  boost_x20: { id: 'price_1TtlFQHLZyIRTAP8muPffjDH', amount: 4499, credits: 20, label: '20 boosts candidature' },
-  event_x1:  { id: 'price_1TtlFQHLZyIRTAP8rgzFeBq0', amount: 999,  credits: 1,  label: '1 événement à la carte' },
-  event_x3:  { id: 'price_1TtlFRHLZyIRTAP8KADheGIL', amount: 2499, credits: 3,  label: '3 événements à la carte' },
+  boost_x1:  { id: 'price_1UAF4wQWOlbwoVLWIBS4ZvCD', amount: 299,  credits: 1,  label: '1 boost candidature' },
+  boost_x5:  { id: 'price_1UAF4wQWOlbwoVLWGQ7V3JXJ', amount: 1299, credits: 5,  label: '5 boosts candidature' },
+  boost_x10: { id: 'price_1UAF4wQWOlbwoVLWr96uNDeT', amount: 2499, credits: 10, label: '10 boosts candidature' },
+  boost_x20: { id: 'price_1UAF4wQWOlbwoVLWg7VCBiG4', amount: 4499, credits: 20, label: '20 boosts candidature' },
+  event_x1:  { id: 'price_1UAF4xQWOlbwoVLWw91GnEWp', amount: 999,  credits: 1,  label: '1 événement à la carte' },
+  event_x3:  { id: 'price_1UAF4xQWOlbwoVLW17oBbML4', amount: 2499, credits: 3,  label: '3 événements à la carte' },
 } as const
 
 export type SubscriptionTier = 'free' | 'boost' | 'pro' | 'premium' | 'org_pro' | 'org_studio'
