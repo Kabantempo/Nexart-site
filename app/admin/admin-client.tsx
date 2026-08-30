@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Users, FileText, BarChart3, Menu, X, Search, CheckCircle, XCircle, Shield, TrendingUp, Calendar, MessageSquare, Eye } from 'lucide-react'
+import { AlertCircle, Users, FileText, BarChart3, Menu, X, Search, CheckCircle, XCircle, Shield, TrendingUp, Calendar, MessageSquare, Eye, CreditCard, Euro, RotateCcw, ExternalLink } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
 
@@ -52,6 +52,26 @@ interface Stats {
   published_events?: number
 }
 
+interface RevenueKpi {
+  total_revenue_cents: number
+  total_commission_cents: number
+  total_refunded_cents: number
+  paid_count: number
+  refunded_count: number
+}
+
+interface RevenueTransaction {
+  id: string
+  amount_cents: number
+  commission_cents: number
+  status: string
+  created_at: string
+  stripe_payment_id: string
+  event_title: string
+  creator_name: string
+  event_id: string
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function getToken() {
@@ -72,11 +92,13 @@ async function authedFetch(url: string, opts: RequestInit = {}) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function AdminClient() {
-  const [activeTab, setActiveTab] = useState<'reports' | 'users' | 'events' | 'stats'>('stats')
+  const [activeTab, setActiveTab] = useState<'reports' | 'users' | 'events' | 'stats' | 'revenue'>('stats')
   const [reports, setReports] = useState<Report[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
+  const [revenueKpi, setRevenueKpi] = useState<RevenueKpi | null>(null)
+  const [revenueTransactions, setRevenueTransactions] = useState<RevenueTransaction[]>([])
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true)
 
@@ -99,6 +121,11 @@ export default function AdminClient() {
         const res = await authedFetch('/api/admin/stats')
         const data = await res.json()
         setStats(data.stats || data)
+      } else if (activeTab === 'revenue') {
+        const res = await authedFetch('/api/admin/revenue')
+        const data = await res.json()
+        setRevenueKpi(data.kpi ?? null)
+        setRevenueTransactions(data.transactions ?? [])
       }
     } catch (error) {
       console.error('Error fetching admin data:', error)
@@ -114,6 +141,7 @@ export default function AdminClient() {
     { id: 'reports' as const, label: 'Signalements', icon: AlertCircle },
     { id: 'users' as const, label: 'Utilisateurs', icon: Users },
     { id: 'events' as const, label: 'Événements', icon: FileText },
+    { id: 'revenue' as const, label: 'Revenue', icon: CreditCard },
   ]
 
   return (
@@ -197,8 +225,10 @@ export default function AdminClient() {
             <ReportsTab reports={reports} onRefresh={fetchData} />
           ) : activeTab === 'users' ? (
             <UsersTab users={users} onRefresh={fetchData} />
-          ) : (
+          ) : activeTab === 'events' ? (
             <EventsTab events={events} onRefresh={fetchData} />
+          ) : (
+            <RevenueTab kpi={revenueKpi} transactions={revenueTransactions} />
           )}
         </div>
       </div>
@@ -638,6 +668,101 @@ function EventsTab({ events, onRefresh }: { events: Event[]; onRefresh: () => vo
           })}
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── Revenue Tab ──────────────────────────────────────────────────────────────
+
+function RevenueTab({ kpi, transactions }: { kpi: RevenueKpi | null; transactions: RevenueTransaction[] }) {
+  const fmt = (cents: number) => `${(cents / 100).toFixed(2)} €`
+  const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+
+  const kpiCards = [
+    { label: 'Volume total', value: fmt(kpi?.total_revenue_cents ?? 0), icon: Euro, color: colors.violet.primary },
+    { label: 'Commission Nexart', value: fmt(kpi?.total_commission_cents ?? 0), icon: TrendingUp, color: colors.green.textMid },
+    { label: 'Remboursé', value: fmt(kpi?.total_refunded_cents ?? 0), icon: RotateCcw, color: colors.feedback.danger.solid },
+    { label: 'Paiements réussis', value: String(kpi?.paid_count ?? 0), icon: CheckCircle, color: colors.violet.primary },
+  ]
+
+  return (
+    <div>
+      <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>Revenue</h2>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        {kpiCards.map(({ label, value, icon: Icon, color }) => (
+          <div key={label} style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px', borderLeft: `4px solid ${color}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <Icon size={16} color={color} />
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</span>
+            </div>
+            <p style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <CreditCard size={16} color={colors.violet.primary} />
+          <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>Transactions ({transactions.length})</span>
+        </div>
+
+        {transactions.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            Aucune transaction pour l&apos;instant.
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <thead>
+                <tr style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                  {['Date', 'Événement', 'Créateur', 'Montant', 'Commission', 'Statut', 'Stripe'].map(h => (
+                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((tx, i) => (
+                  <tr key={tx.id} style={{ borderTop: i > 0 ? '1px solid var(--border-color)' : 'none' }}>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{fmtDate(tx.created_at)}</td>
+                    <td style={{ padding: '12px 16px', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <a href={`/events/${tx.event_id}`} target="_blank" rel="noreferrer" style={{ color: colors.violet.primary, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {tx.event_title} <ExternalLink size={10} />
+                      </a>
+                    </td>
+                    <td style={{ padding: '12px 16px', color: 'var(--text-primary)' }}>{tx.creator_name}</td>
+                    <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(tx.amount_cents)}</td>
+                    <td style={{ padding: '12px 16px', color: colors.green.textMid, fontWeight: 500 }}>{fmt(tx.commission_cents)}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        padding: '2px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 600,
+                        backgroundColor: tx.status === 'refunded' ? colors.red.bgSoft : colors.green.bgLight,
+                        color: tx.status === 'refunded' ? colors.feedback.danger.solid : colors.green.textMid,
+                      }}>
+                        {tx.status === 'refunded' ? <RotateCcw size={10} /> : <CheckCircle size={10} />}
+                        {tx.status === 'refunded' ? 'Remboursé' : 'Payé'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      {tx.stripe_payment_id && (
+                        <a
+                          href={`https://dashboard.stripe.com/payments/${tx.stripe_payment_id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: colors.violet.primary, fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          Voir <ExternalLink size={10} />
+                        </a>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
