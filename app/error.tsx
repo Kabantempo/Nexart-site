@@ -1,6 +1,6 @@
 'use client'
 
-import { colors } from '@/lib/design-tokens'
+import { colors, alpha } from '@/lib/design-tokens'
 import Link from 'next/link'
 import { useEffect } from 'react'
 
@@ -8,35 +8,34 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   useEffect(() => { console.error(error) }, [error])
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-red-600/10 blur-[140px]" />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px', backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-128px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', borderRadius: '50%', background: alpha(colors.feedback.danger.solid, 0.05), filter: 'blur(140px)' }} />
       </div>
 
-      <div className="relative z-10 text-center max-w-lg">
-        <div className="text-[120px] font-black leading-none mb-4"
-          style={{ background: `linear-gradient(135deg, ${colors.red.vivid}, ${colors.red.softAlt})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <div style={{ position: 'relative', zIndex: 10, textAlign: 'center', maxWidth: '480px' }}>
+        <div style={{ fontSize: '120px', fontWeight: 900, lineHeight: 1, marginBottom: '16px', background: `linear-gradient(135deg, ${colors.feedback.danger.solid}, ${colors.red.softAlt})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           500
         </div>
-        <h1 className="text-3xl font-bold text-white mb-3">Une erreur est survenue</h1>
-        <p className="text-white/40 text-base mb-10 leading-relaxed">
+        <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
+          Une erreur est survenue
+        </h1>
+        <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6 }}>
           Quelque chose s&apos;est mal passé de notre côté. Veuillez réessayer ou nous contacter si le problème persiste.
         </p>
 
-        <div className="flex items-center justify-center gap-3 flex-wrap mb-10">
-          <button onClick={reset}
-            className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '40px' }}>
+          <button onClick={reset} style={{ padding: '12px 24px', borderRadius: '12px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '14px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
             ↺ Réessayer
           </button>
-          <Link href="/"
-            className="px-6 py-3 rounded-xl border border-white/15 text-white/60 text-sm font-semibold hover:border-white/30 hover:text-white/80 transition-all">
+          <Link href="/" style={{ padding: '12px 24px', borderRadius: '12px', border: `1px solid var(--border-color)`, color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
             ← Retour à l&apos;accueil
           </Link>
         </div>
 
-        <p className="text-white/20 text-xs">
+        <p style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
           Besoin d&apos;aide ?{' '}
-          <Link href="/contact" className="text-indigo-400 hover:text-indigo-300 transition-colors">Contactez-nous</Link>
+          <Link href="/contact" style={{ color: colors.violet.primary, textDecoration: 'none' }}>Contactez-nous</Link>
         </p>
       </div>
     </div>
