@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import { Heart, MapPin, Rss, CalendarDays, Palette, UserPlus } from 'lucide-react'
+import { Heart, MapPin, CalendarDays, Palette, UserPlus, Sparkles } from 'lucide-react'
 import { ReportButton } from '@/components/ui/report-button'
 import { GhostCard } from '@/components/ui/ghost-card'
 import { colors } from '@/lib/design-tokens'
@@ -62,38 +62,52 @@ function relativeTime(dateStr: string): string {
 }
 
 function formatEventDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Cards ─────────────────────────────────────────────────────────────────────
+
+const cardBase: React.CSSProperties = {
+  borderRadius: '16px',
+  border: '1px solid var(--border-color)',
+  backgroundColor: 'var(--bg-primary)',
+  boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+  overflow: 'hidden',
+  breakInside: 'avoid',
+  marginBottom: '16px',
+  transition: 'box-shadow 0.2s, transform 0.2s',
+}
 
 function PostCard({ post, userId, onLike }: { post: FeedPost; userId: string | null; onLike: (id: string, liked: boolean) => void }) {
   return (
-    <div style={{ padding: '20px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-      <Link href={`/creators/${post.creator_id}`} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px', textDecoration: 'none' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.primary, fontWeight: 700, fontSize: '14px', overflow: 'hidden', flexShrink: 0 }}>
-          {post.profiles?.avatar_url
-            ? <Image src={post.profiles.avatar_url} alt="" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-            : (post.profiles?.full_name?.[0] || '?')}
-        </div>
-        <div>
-          <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{post.profiles?.full_name || 'Créateur'}</p>
-          <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: 0 }}>{relativeTime(post.created_at)}</p>
-        </div>
-      </Link>
-
-      <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.6', marginBottom: post.image_url ? '14px' : '16px', whiteSpace: 'pre-line' }}>{post.content}</p>
+    <div style={cardBase}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 24px rgba(99,102,241,0.10)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'none' }}>
+      <div style={{ padding: '18px 18px 0' }}>
+        <Link href={`/creators/${post.creator_id}`} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', textDecoration: 'none' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.primary, fontWeight: 700, fontSize: '13px', overflow: 'hidden', flexShrink: 0 }}>
+            {post.profiles?.avatar_url
+              ? <Image src={post.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              : (post.profiles?.full_name?.[0] || '?')}
+          </div>
+          <div>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{post.profiles?.full_name || 'Créateur'}</p>
+            <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: 0 }}>{relativeTime(post.created_at)}</p>
+          </div>
+        </Link>
+        <p style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: '1.65', marginBottom: post.image_url ? '14px' : '0', whiteSpace: 'pre-line' }}>{post.content}</p>
+      </div>
 
       {post.image_url && (
-        <div style={{ marginBottom: '14px', borderRadius: '12px', overflow: 'hidden' }}>
-          <Image src={post.image_url} alt="" width={800} height={320} style={{ width: '100%', maxHeight: '280px', objectFit: 'cover', display: 'block' }} />
+        <div style={{ marginTop: post.image_url ? '0' : undefined }}>
+          <Image src={post.image_url} alt="" width={600} height={320} style={{ width: '100%', maxHeight: '260px', objectFit: 'cover', display: 'block' }} />
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 18px', borderTop: '1px solid var(--border-color)', marginTop: post.image_url ? '0' : undefined }}>
         <button onClick={() => onLike(post.id, post.liked)}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: post.liked ? colors.feedback.danger.solid : 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <Heart size={15} fill={post.liked ? colors.feedback.danger.solid : 'none'} />
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 600, color: post.liked ? colors.feedback.danger.solid : 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <Heart size={14} fill={post.liked ? colors.feedback.danger.solid : 'none'} />
           {post.likes_count}
         </button>
         <div style={{ marginLeft: 'auto' }}>
@@ -110,41 +124,47 @@ function CreatorCard({ creator }: { creator: FeedCreator }) {
   const preview = creator.creator_profiles?.portfolio_images?.[0]
 
   return (
-    <Link href={`/creators/${creator.id}`} style={{ textDecoration: 'none' }}>
-      <div style={{ borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'box-shadow 0.2s', cursor: 'pointer' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.10)'}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'}>
+    <Link href={`/creators/${creator.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <div style={cardBase}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 24px rgba(99,102,241,0.10)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'none' }}>
+
+        {/* Label */}
+        <div style={{ padding: '10px 14px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Sparkles size={11} color={colors.violet.primary} />
+          <span style={{ fontSize: '10px', fontWeight: 700, color: colors.violet.primary, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Créateur à découvrir</span>
+        </div>
+
         {preview && (
-          <div style={{ height: '120px', overflow: 'hidden' }}>
-            <Image src={preview} alt="" width={600} height={120} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <div style={{ height: '110px', overflow: 'hidden', margin: '10px 14px 0', borderRadius: '10px' }}>
+            <Image src={preview} alt="" width={500} height={110} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
         )}
-        <div style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.primary, fontWeight: 700, fontSize: '16px', overflow: 'hidden', flexShrink: 0 }}>
+
+        <div style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.violet.primary, fontWeight: 700, fontSize: '14px', overflow: 'hidden', flexShrink: 0, border: `2px solid ${colors.violet.bg}` }}>
             {creator.avatar_url
-              ? <Image src={creator.avatar_url} alt="" width={44} height={44} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              ? <Image src={creator.avatar_url} alt="" width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
               : (creator.full_name?.[0] || '?')}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{creator.full_name || 'Créateur'}</p>
-            {city && <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={11} />{city}</p>}
+            {city && <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', margin: 0, display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={10} />{city}</p>}
           </div>
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '6px 10px', borderRadius: '20px' }}>
-            <UserPlus size={12} /> Voir
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 600, color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '5px 10px', borderRadius: '20px' }}>
+            <UserPlus size={11} /> Voir
           </div>
         </div>
+
         {disciplines.length > 0 && (
-          <div style={{ padding: '0 16px 14px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <div style={{ padding: '0 14px 14px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {disciplines.slice(0, 3).map(d => (
-              <span key={d} style={{ fontSize: '11px', color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '3px 8px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Palette size={10} />{d}
+              <span key={d} style={{ fontSize: '10px', color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '3px 8px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <Palette size={9} />{d}
               </span>
             ))}
           </div>
         )}
-        <div style={{ padding: '8px 16px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>Nouveau créateur sur Nexart</span>
-        </div>
       </div>
     </Link>
   )
@@ -152,44 +172,52 @@ function CreatorCard({ creator }: { creator: FeedCreator }) {
 
 function EventCard({ event }: { event: FeedEvent }) {
   return (
-    <Link href={`/events/${event.id}`} style={{ textDecoration: 'none' }}>
-      <div style={{ borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'box-shadow 0.2s', cursor: 'pointer' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.10)'}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'}>
+    <Link href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <div style={cardBase}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 24px rgba(99,102,241,0.10)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; (e.currentTarget as HTMLElement).style.transform = 'none' }}>
+
         {event.cover_image ? (
-          <div style={{ height: '140px', overflow: 'hidden' }}>
-            <Image src={event.cover_image} alt="" width={600} height={140} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <div style={{ height: '150px', overflow: 'hidden' }}>
+            <Image src={event.cover_image} alt="" width={600} height={150} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
         ) : (
-          <div style={{ height: '80px', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CalendarDays size={32} color="rgba(255,255,255,0.7)" />
+          <div style={{ height: '80px', background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <CalendarDays size={28} color="rgba(255,255,255,0.8)" />
           </div>
         )}
-        <div style={{ padding: '16px' }}>
-          <p style={{ fontSize: '10px', fontWeight: 700, color: colors.violet.primary, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
+
+        <div style={{ padding: '14px' }}>
+          <p style={{ fontSize: '10px', fontWeight: 700, color: colors.violet.primary, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 5px' }}>
             {event.event_type || 'Événement'}
           </p>
-          <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px', lineHeight: '1.3' }}>{event.title}</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 10px', lineHeight: '1.35' }}>{event.title}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             {event.city && (
-              <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <MapPin size={11} />{event.city}
+              <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <MapPin size={10} />{event.city}
               </span>
             )}
-            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CalendarDays size={11} />{formatEventDate(event.start_date)}
+            <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <CalendarDays size={10} />{formatEventDate(event.start_date)}
             </span>
           </div>
           {event.theme && event.theme.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', marginTop: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '5px', marginTop: '10px', flexWrap: 'wrap' }}>
               {event.theme.slice(0, 3).map(t => (
-                <span key={t} style={{ fontSize: '11px', color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '3px 8px', borderRadius: '20px' }}>{t}</span>
+                <span key={t} style={{ fontSize: '10px', color: colors.violet.primary, backgroundColor: colors.violet.bg, padding: '3px 8px', borderRadius: '20px' }}>{t}</span>
               ))}
             </div>
           )}
         </div>
       </div>
     </Link>
+  )
+}
+
+function SkeletonCard({ height }: { height: number }) {
+  return (
+    <div style={{ height, borderRadius: '16px', backgroundColor: 'var(--bg-secondary)', breakInside: 'avoid', marginBottom: '16px' }} className="animate-pulse" />
   )
 }
 
@@ -212,7 +240,6 @@ export default function FeedPage() {
 
     const followedIds = (follows ?? []).map((f: { creator_id: string }) => f.creator_id)
 
-    // Posts des créateurs suivis
     if (followedIds.length > 0) {
       const { data: postsData } = await supabase
         .from('creator_posts')
@@ -239,14 +266,13 @@ export default function FeedPage() {
       }
     }
 
-    // Créateurs récents — tous sauf l'utilisateur connecté
     const creatorsQuery = supabase
       .from('profiles')
       .select('id, full_name, avatar_url, created_at, creator_profiles(disciplines, city, portfolio_images)')
       .eq('role', 'creator')
       .neq('id', uid)
       .order('created_at', { ascending: false })
-      .limit(6)
+      .limit(8)
 
     const { data: creatorsData } = followedIds.length > 0
       ? await creatorsQuery.not('id', 'in', `(${followedIds.join(',')})`)
@@ -254,7 +280,6 @@ export default function FeedPage() {
 
     setCreators((creatorsData ?? []).map((c: Record<string, unknown>) => ({ ...(c as Omit<FeedCreator, 'kind'>), kind: 'creator' as const })))
 
-    // Événements à venir publiés
     const today = new Date().toISOString().slice(0, 10)
     const { data: eventsData } = await supabase
       .from('events')
@@ -262,7 +287,7 @@ export default function FeedPage() {
       .eq('status', 'published')
       .gte('start_date', today)
       .order('start_date', { ascending: true })
-      .limit(6)
+      .limit(8)
 
     setEvents((eventsData ?? []).map((e: Record<string, unknown>) => ({ ...(e as Omit<FeedEvent, 'kind'>), kind: 'event' as const })))
 
@@ -291,102 +316,57 @@ export default function FeedPage() {
     setLikeUpdating(null)
   }
 
-  // Intercalage : 1 event ou creator tous les 3 posts
-  const buildFeed = (): FeedItem[] => {
+  // Intercalage : 1 creator ou event tous les 4 posts
+  const buildMasonryItems = (): FeedItem[] => {
     const result: FeedItem[] = []
     let ci = 0, ei = 0
     for (let i = 0; i < posts.length; i++) {
       result.push(posts[i])
-      if ((i + 1) % 3 === 0) {
+      if ((i + 1) % 4 === 0) {
+        if (ci < creators.length) result.push(creators[ci++])
         if (ei < events.length) result.push(events[ei++])
-        else if (ci < creators.length) result.push(creators[ci++])
       }
     }
+    // Reste des créateurs et events non intercalés
+    while (ci < creators.length) result.push(creators[ci++])
+    while (ei < events.length) result.push(events[ei++])
     return result
   }
 
-  const feedItems = buildFeed()
+  const items = buildMasonryItems()
   const hasContent = posts.length > 0 || creators.length > 0 || events.length > 0
 
   return (
-    <div style={{ maxWidth: '640px', margin: '0 auto', padding: '64px 16px 40px' }}>
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '64px 20px 48px' }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Rss size={18} color={colors.violet.primary} />
-          </div>
-          <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Fil d'actualités</h1>
-            <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', margin: 0 }}>Posts, créateurs et événements</p>
-          </div>
+
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 4px', letterSpacing: '-0.02em' }}>Fil d'actualités</h1>
+          <p style={{ fontSize: '14px', color: 'var(--text-tertiary)', margin: 0 }}>Posts, créateurs à découvrir et événements à venir</p>
         </div>
 
         {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} style={{ height: '140px', borderRadius: '16px', backgroundColor: 'var(--bg-secondary)', animationDelay: `${i * 60}ms` }} className="animate-pulse" />
-            ))}
+          <div style={{ columns: 'auto 300px', columnGap: '16px' }}>
+            {[200, 140, 180, 260, 150, 200].map((h, i) => <SkeletonCard key={i} height={h} />)}
           </div>
+        ) : !hasContent ? (
+          <GhostCard
+            icon={<CalendarDays size={32} color={colors.violet.primary} />}
+            title="Aucun contenu pour le moment"
+            description="Suivez des créateurs pour voir leurs actualités ici."
+            cta="Découvrir des créateurs"
+            href="/creators"
+          />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-            {/* Posts intercalés avec events/creators */}
-            {feedItems.map((item, i) => (
-              <motion.div key={`${item.kind}-${item.id}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.035 }}>
+          <div style={{ columns: 'auto 300px', columnGap: '16px' }}>
+            {items.map((item, i) => (
+              <motion.div key={`${item.kind}-${item.id}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i * 0.04, 0.4) }} style={{ breakInside: 'avoid' }}>
                 {item.kind === 'post' && <PostCard post={item} userId={userId} onLike={toggleLike} />}
-                {item.kind === 'creator' && (
-                  <>
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', paddingLeft: '4px' }}>Créateur à découvrir</p>
-                    <CreatorCard creator={item} />
-                  </>
-                )}
-                {item.kind === 'event' && (
-                  <>
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px', paddingLeft: '4px' }}>Événement à venir</p>
-                    <EventCard event={item} />
-                  </>
-                )}
+                {item.kind === 'creator' && <CreatorCard creator={item} />}
+                {item.kind === 'event' && <EventCard event={item} />}
               </motion.div>
             ))}
-
-            {/* Section Créateurs — toujours affichée */}
-            {creators.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '12px 0 10px 4px' }}>Créateurs à découvrir</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {creators.map((c, i) => (
-                    <motion.div key={c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                      <CreatorCard creator={c} />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Section Événements — toujours affichée */}
-            {events.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '12px 0 10px 4px' }}>Événements à venir</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {events.map((e, i) => (
-                    <motion.div key={e.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                      <EventCard event={e} />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Vide total */}
-            {!hasContent && (
-              <GhostCard
-                icon={<Rss size={32} color={colors.violet.primary} />}
-                title="Aucun contenu pour le moment"
-                description="Suivez des créateurs pour voir leurs actualités ici."
-                cta="Découvrir des créateurs"
-                href="/creators"
-              />
-            )}
           </div>
         )}
       </motion.div>
