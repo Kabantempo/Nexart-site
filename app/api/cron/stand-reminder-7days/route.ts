@@ -79,5 +79,4 @@ async function handler(req: NextRequest) {
   }
 }
 
-export const GET = handler
 export const POST = handler

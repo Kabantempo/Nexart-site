@@ -13,17 +13,18 @@ export async function POST(req: NextRequest) {
     const { data: { user: authUser } } = await admin.auth.getUser(authHeader.substring(7))
     if (!authUser) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
 
-    const { organizer_id, creator_name, event_title, event_id } = await req.json()
-    if (!organizer_id || !event_title) return NextResponse.json({ ok: true })
+    const { creator_name, event_title, event_id } = await req.json()
+    if (!event_id || !event_title) return NextResponse.json({ ok: true })
 
-    // Verify caller has a real application for this event
-    if (event_id) {
-      const { data: app } = await admin.from('applications')
-        .select('id').eq('event_id', event_id).eq('creator_id', authUser.id).maybeSingle()
-      if (!app) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
-    }
+    // Verify caller has a real application for this event AND look up organizer from DB (never trust body)
+    const [{ data: app }, { data: ev }] = await Promise.all([
+      admin.from('applications').select('id').eq('event_id', event_id).eq('creator_id', authUser.id).maybeSingle(),
+      admin.from('events').select('organizer_id').eq('id', event_id).single(),
+    ])
+    if (!app) return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+    if (!ev?.organizer_id) return NextResponse.json({ ok: true })
 
-    const { data: { user } } = await admin.auth.admin.getUserById(organizer_id)
+    const { data: { user } } = await admin.auth.admin.getUserById(ev.organizer_id)
     const organizerEmail = user?.email
     if (!organizerEmail || !process.env.SMTP_PASS) return NextResponse.json({ ok: true })
 
