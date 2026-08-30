@@ -1,18 +1,21 @@
-name: Deploy to Hostinger (Manual)
+name: Deploy to Hostinger
 
 on:
-  workflow_dispatch  # Only manual trigger, NOT on push
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -20,8 +23,29 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          CRON_SECRET_TOKEN: ${{ secrets.CRON_SECRET_TOKEN }}
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXART_COMMISSION_PCT: ${{ secrets.NEXART_COMMISSION_PCT }}
+          ADMIN_API_SECRET: ${{ secrets.ADMIN_API_SECRET }}
+          NEXT_PUBLIC_APP_URL: https://nexart.fr
+          DELETION_TOKEN_SECRET: ${{ secrets.DELETION_TOKEN_SECRET }}
 
-      - name: Deploy to Hostinger
+      - name: Prepare standalone bundle
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: Setup SSH
         env:
           DEPLOY_KEY: ${{ secrets.HOSTINGER_DEPLOY_KEY }}
         run: |
@@ -30,19 +54,33 @@ jobs:
           chmod 600 ~/.ssh/hostinger_nexart
           ssh-keyscan -p 65002 147.79.103.73 >> ~/.ssh/known_hosts 2>/dev/null || true
 
-          # Build and deploy
-          cp -r .next/static .next/standalone/.next/static
-          cp -r public .next/standalone/public
-
-          rsync -avz --delete \
-            --exclude='.git' \
-            --exclude='node_modules' \
+      - name: Deploy standalone
+        run: |
+          rsync -az --delete \
             -e "ssh -p 65002 -i ~/.ssh/hostinger_nexart" \
             .next/standalone/ \
             u142938038@147.79.103.73:~/domains/nexart.fr/nodejs/
 
+      - name: Upload .env.local
+        env:
+          ENV_LOCAL: ${{ secrets.ENV_LOCAL_FILE }}
+        run: |
+          echo "$ENV_LOCAL" > .env.local.deploy
+          scp -P 65002 -i ~/.ssh/hostinger_nexart \
+            .env.local.deploy \
+            u142938038@147.79.103.73:~/domains/nexart.fr/nodejs/.env.local
+
+      - name: Restart Passenger
+        run: |
           ssh -p 65002 -i ~/.ssh/hostinger_nexart u142938038@147.79.103.73 \
-            "touch ~/domains/nexart.fr/nodejs/tmp/restart.txt"
+            "mkdir -p ~/domains/nexart.fr/nodejs/tmp && touch ~/domains/nexart.fr/nodejs/tmp/restart.txt"
+
+      - name: Health check
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://nexart.fr/api/health)
+          echo "Health: $STATUS"
+          [ "$STATUS" = "200" ] || exit 1
 
       - name: ✅ Deploy success
-        run: echo "Deployed to https://nexart.fr"
+        run: echo "✓ https://nexart.fr est à jour — commit ${{ github.sha }}"
