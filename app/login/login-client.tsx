@@ -165,10 +165,10 @@ export default function LoginPage() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <style>{`.login-left-panel{display:none}@media(min-width:1024px){.login-left-panel{display:flex}}`}</style>
 
       {/* Panel gauche — branding */}
-      <div style={{
-        display: 'none',
+      <div className="login-left-panel" style={{
         flex: '0 0 480px',
         background: `linear-gradient(135deg, ${colors.dark.alt} 0%, ${colors.purple.deepDark} 40%, ${colors.purple.bgDeep} 100%)`,
         position: 'relative',
@@ -177,7 +177,6 @@ export default function LoginPage() {
         justifyContent: 'space-between',
         padding: '48px',
       }}
-        className="lg:flex"
       >
         {/* Grid décoratif */}
         <div style={{
