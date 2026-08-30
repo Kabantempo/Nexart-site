@@ -24,7 +24,7 @@ const roles = [
   {
     value: 'creator',
     label: 'Créateur',
-    description: 'Artiste, designer, artisan indépendant',
+    description: 'Designer, artisan, créateur indépendant',
     icon: Palette,
     color: colors.violet.primary,
     bg: colors.violet.bg,

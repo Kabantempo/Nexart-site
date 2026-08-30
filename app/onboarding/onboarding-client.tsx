@@ -23,7 +23,7 @@ const ROLES: { value: Role; label: string; desc: string; icon: React.ReactNode; 
   {
     value: 'creator',
     label: 'Créateur',
-    desc: 'Artisan, maker, artiste — je veux participer à des marchés et vendre mes créations.',
+    desc: 'Je veux participer à des marchés et vendre mes créations.',
     icon: <Palette size={28} />,
     color: 'indigo',
   },

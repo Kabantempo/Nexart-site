@@ -7,6 +7,7 @@ import { TrendingUp, Euro, ArrowLeft, Calendar, MapPin, Users, RefreshCw } from 
 import Link from 'next/link'
 import { colors, alpha } from '@/lib/design-tokens'
 import { supabase } from '@/lib/supabase'
+import { NexBadge } from '@/components/ui/nex-badge'
 
 interface Kpi {
   brut_cents: number
@@ -265,13 +266,12 @@ export default function RevenueClient() {
                           {fmt(p.amount_cents - p.commission_cents)}
                         </td>
                         <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
-                          <span style={{
-                            fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '6px',
-                            backgroundColor: p.status === 'refunded' ? colors.feedback.danger.bg : p.status === 'pending' ? colors.feedback.warning.bg : colors.green.bg,
-                            color: p.status === 'refunded' ? colors.feedback.danger.text : p.status === 'pending' ? colors.feedback.warning.text : colors.green.text,
-                          }}>
+                          <NexBadge
+                            variant={p.status === 'refunded' ? 'danger' : p.status === 'pending' ? 'warning' : 'accepted'}
+                            dot={false}
+                          >
                             {p.status === 'refunded' ? 'Remboursé' : p.status === 'pending' ? 'En attente' : 'Payé'}
-                          </span>
+                          </NexBadge>
                         </td>
                       </tr>
                     ))}

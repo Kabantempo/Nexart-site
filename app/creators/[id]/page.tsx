@@ -43,8 +43,8 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     const title = creator.full_name
     const description = creator.bio?.substring(0, 160) || 'Découvrez ce créateur sur Nexart'
     const ogImages = creator.avatar_url
-      ? [{ url: creator.avatar_url, width: 500, height: 500, alt: `${title} — Artisan créateur sur Nexart` }]
-      : [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: `${title} — Artisan créateur sur Nexart` }]
+      ? [{ url: creator.avatar_url, width: 500, height: 500, alt: `${title} — Créateur sur Nexart` }]
+      : [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: `${title} — Créateur sur Nexart` }]
 
     return {
       title,
@@ -90,7 +90,7 @@ export default async function CreatorPage(props: { params: Promise<{ id: string 
     description: creator.bio,
     image: creator.avatar_url,
     url: `https://nexart.fr/creators/${creator.id}`,
-    jobTitle: 'Artisan créateur',
+    jobTitle: 'Créateur',
   } : null
 
   const breadcrumbJsonLd = {

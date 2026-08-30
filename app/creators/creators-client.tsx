@@ -480,7 +480,7 @@ function CreatorsContent() {
 
           <div className="overflow-hidden mb-4">
             <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight leading-[1.1]">
-              <WordReveal delay={0.05}>Créateurs & Artisans</WordReveal>
+              <WordReveal delay={0.05}>Créateurs</WordReveal>
             </h1>
           </div>
 
