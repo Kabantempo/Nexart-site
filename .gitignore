@@ -46,3 +46,6 @@ CLAUDE.md
 # Test artifacts
 test-results/
 *.canvas
+
+# Supabase CLI temp
+supabase/.temp/
