@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import type { Event as NexartEvent } from '@/lib/types'
+import { colors } from '@/lib/design-tokens'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -19,9 +20,9 @@ function formatDate(dateStr: string) {
 }
 
 function statusLabel(status: NexartEvent['status']) {
-  if (status === 'published') return { label: 'Ouvert', color: '#22C55E' }
-  if (status === 'closed') return { label: 'Complet', color: '#EF4444' }
-  return { label: 'Bientôt', color: '#F59E0B' }
+  if (status === 'published') return { label: 'Ouvert', color: colors.feedback.success.solid }
+  if (status === 'closed') return { label: 'Complet', color: colors.feedback.danger.solid }
+  return { label: 'Bientôt', color: colors.feedback.warning.solid }
 }
 
 function getTagsFromEvent(event: NexartEvent): string[] {
