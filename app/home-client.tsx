@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useInView, animate } from 'framer-moti
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Users, Calendar, CheckCircle, ChevronRight, Zap, Target, Bell, Shield, BadgeCheck, MapPin, Search } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
-import { colors } from '@/lib/design-tokens'
+import { colors, alpha } from '@/lib/design-tokens'
 import { useAuthStore } from '@/lib/store'
 import HomeFeedClient from './home-feed-client'
 
@@ -16,37 +16,37 @@ const D = {
   violet400: colors.purple.light,
   emerald400:colors.green.light,
   amber400:  colors.yellow.primary,
-  i10:  'rgba(99,102,241,0.10)',
-  i15:  'rgba(99,102,241,0.15)',
-  i20:  'rgba(99,102,241,0.20)',
-  i25:  'rgba(99,102,241,0.25)',
-  i30:  'rgba(99,102,241,0.30)',
-  i40:  'rgba(99,102,241,0.40)',
-  i50:  'rgba(99,102,241,0.50)',
-  i80:  'rgba(99,102,241,0.80)',
-  v8:   'rgba(139,92,246,0.08)',
-  v15:  'rgba(139,92,246,0.15)',
-  v30:  'rgba(139,92,246,0.30)',
-  em8:  'rgba(16,185,129,0.08)',
-  em15: 'rgba(16,185,129,0.15)',
-  em30: 'rgba(16,185,129,0.30)',
-  w80:  'rgba(255,255,255,0.80)',
-  w60:  'rgba(255,255,255,0.60)',
-  w55:  'rgba(255,255,255,0.55)',
-  w50:  'rgba(255,255,255,0.50)',
-  w40:  'rgba(255,255,255,0.40)',
-  w35:  'rgba(255,255,255,0.35)',
-  w30:  'rgba(255,255,255,0.30)',
-  w25:  'rgba(255,255,255,0.25)',
-  w22:  'rgba(255,255,255,0.22)',
-  w20:  'rgba(255,255,255,0.20)',
-  w12:  'rgba(255,255,255,0.12)',
-  w8:   'rgba(255,255,255,0.08)',
-  w7:   'rgba(255,255,255,0.07)',
-  w6:   'rgba(255,255,255,0.06)',
-  w5:   'rgba(255,255,255,0.05)',
-  w4:   'rgba(255,255,255,0.04)',
-  w035: 'rgba(255,255,255,0.035)',
+  i10:  alpha(colors.violet.primary, 0.10),
+  i15:  alpha(colors.violet.primary, 0.15),
+  i20:  alpha(colors.violet.primary, 0.20),
+  i25:  alpha(colors.violet.primary, 0.25),
+  i30:  alpha(colors.violet.primary, 0.30),
+  i40:  alpha(colors.violet.primary, 0.40),
+  i50:  alpha(colors.violet.primary, 0.50),
+  i80:  alpha(colors.violet.primary, 0.80),
+  v8:   alpha(colors.purple.primary, 0.08),
+  v15:  alpha(colors.purple.primary, 0.15),
+  v30:  alpha(colors.purple.primary, 0.30),
+  em8:  alpha(colors.green.primary, 0.08),
+  em15: alpha(colors.green.primary, 0.15),
+  em30: alpha(colors.green.primary, 0.30),
+  w80:  alpha(colors.text.white, 0.80),
+  w60:  alpha(colors.text.white, 0.60),
+  w55:  alpha(colors.text.white, 0.55),
+  w50:  alpha(colors.text.white, 0.50),
+  w40:  alpha(colors.text.white, 0.40),
+  w35:  alpha(colors.text.white, 0.35),
+  w30:  alpha(colors.text.white, 0.30),
+  w25:  alpha(colors.text.white, 0.25),
+  w22:  alpha(colors.text.white, 0.22),
+  w20:  alpha(colors.text.white, 0.20),
+  w12:  alpha(colors.text.white, 0.12),
+  w8:   alpha(colors.text.white, 0.08),
+  w7:   alpha(colors.text.white, 0.07),
+  w6:   alpha(colors.text.white, 0.06),
+  w5:   alpha(colors.text.white, 0.05),
+  w4:   alpha(colors.text.white, 0.04),
+  w035: alpha(colors.text.white, 0.035),
 }
 
 // ── Grain overlay ──────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ function PhoneMockup() {
       style={{ position: 'relative' }}
     >
       {/* Glow */}
-      <div style={{ position: 'absolute', left: '16px', right: '16px', bottom: '-40px', height: '128px', background: 'rgba(79,70,229,0.25)', filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', left: '16px', right: '16px', bottom: '-40px', height: '128px', background: alpha(colors.purple.indigo, 0.25), filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
       {/* Phone frame */}
       <div className="phone-frame" style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: `1.5px solid ${D.w12}`, backgroundColor: D.phoneBg, boxShadow: '0 25px 50px rgba(0,0,0,0.70)', overflow: 'hidden', height: '580px' }}>
@@ -496,16 +496,16 @@ export default function HomeClient() {
         <div style={{ height: '58px', flexShrink: 0 }} />
 
         {/* Grid pattern */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.14, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.14, backgroundImage: `radial-gradient(circle, ${alpha(colors.violet.primary, 0.9)} 1px, transparent 1px)`, backgroundSize: '28px 28px' }} />
 
         {/* Glows */}
         {/* keep legacy glows hidden — replaced by aurora blobs */}
 
         {/* Aurora blobs */}
-        <div className="hero-aurora" style={{ width: '600px', height: '500px', top: '5%', left: '-10%', backgroundColor: 'rgba(79,70,229,0.28)', animation: 'aurora-drift-1 18s ease-in-out infinite' }} />
-        <div className="hero-aurora" style={{ width: '500px', height: '450px', top: '20%', right: '-8%', backgroundColor: 'rgba(139,92,246,0.22)', animation: 'aurora-drift-2 22s ease-in-out infinite' }} />
-        <div className="hero-aurora" style={{ width: '400px', height: '400px', bottom: '0%', left: '30%', backgroundColor: 'rgba(99,102,241,0.20)', animation: 'aurora-drift-3 16s ease-in-out infinite' }} />
-        <div className="hero-aurora" style={{ width: '350px', height: '350px', top: '40%', left: '55%', backgroundColor: 'rgba(167,139,250,0.15)', animation: 'aurora-drift-1 25s ease-in-out infinite reverse' }} />
+        <div className="hero-aurora" style={{ width: '600px', height: '500px', top: '5%', left: '-10%', backgroundColor: alpha(colors.purple.indigo, 0.28), animation: 'aurora-drift-1 18s ease-in-out infinite' }} />
+        <div className="hero-aurora" style={{ width: '500px', height: '450px', top: '20%', right: '-8%', backgroundColor: alpha(colors.purple.primary, 0.22), animation: 'aurora-drift-2 22s ease-in-out infinite' }} />
+        <div className="hero-aurora" style={{ width: '400px', height: '400px', bottom: '0%', left: '30%', backgroundColor: D.i20, animation: 'aurora-drift-3 16s ease-in-out infinite' }} />
+        <div className="hero-aurora" style={{ width: '350px', height: '350px', top: '40%', left: '55%', backgroundColor: alpha(colors.purple.light, 0.15), animation: 'aurora-drift-1 25s ease-in-out infinite reverse' }} />
 
         {/* Hero content */}
         <motion.div className="home-hero-content-pad" style={{ y: heroY, opacity: heroOpacity, position: 'relative', zIndex: 10, flex: 1, maxWidth: '896px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -544,7 +544,7 @@ export default function HomeClient() {
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.62 }}>
               <div className="home-hero-buttons">
                 <Link href="/register"
-                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: '0 20px 25px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 28px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, fontSize: '14px', textDecoration: 'none', boxShadow: `0 20px 25px ${D.i30}`, transition: 'all 0.2s ease' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.hover; (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
                 >
@@ -594,7 +594,7 @@ export default function HomeClient() {
             <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.03em', color: 'var(--text-primary)' }}>Simple comme bonjour</h2>
           </FadeUp>
           <div className="home-steps-grid">
-            <div className="home-steps-connector" style={{ position: 'absolute', top: '38px', left: 'calc(16.67% + 28px)', right: 'calc(16.67% + 28px)', height: '1px', background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.25), transparent)' }} />
+            <div className="home-steps-connector" style={{ position: 'absolute', top: '38px', left: 'calc(16.67% + 28px)', right: 'calc(16.67% + 28px)', height: '1px', background: `linear-gradient(to right, transparent, ${D.i25}, transparent)` }} />
             {[
               { n: '01', title: 'Créez votre profil',      desc: 'Photos, disciplines, tarifs — en moins de 10 minutes.' },
               { n: '02', title: 'Explorez les événements', desc: 'Filtrez par type, date, ville ou nombre de stands.' },
@@ -626,7 +626,7 @@ export default function HomeClient() {
 
             {/* Glow bg */}
             <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '400px', backgroundColor: 'rgba(79,70,229,0.10)', filter: 'blur(120px)', borderRadius: '50%' }} />
+              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '400px', backgroundColor: alpha(colors.purple.indigo, 0.10), filter: 'blur(120px)', borderRadius: '50%' }} />
             </div>
 
             {/* Left — text */}
@@ -689,7 +689,7 @@ export default function HomeClient() {
             </h2>
             <div className="home-cta-buttons">
               <Link href="/register"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '16px 36px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, textDecoration: 'none', boxShadow: '0 25px 50px rgba(99,102,241,0.30)', transition: 'all 0.2s ease' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '16px 36px', borderRadius: '16px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontWeight: 700, textDecoration: 'none', boxShadow: `0 25px 50px ${D.i30}`, transition: 'all 0.2s ease' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.hover; (e.currentTarget as HTMLElement).style.transform = 'scale(1.03)' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary; (e.currentTarget as HTMLElement).style.transform = 'scale(1)' }}
               >
