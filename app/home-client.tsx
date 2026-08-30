@@ -700,7 +700,7 @@ export default function HomeClient() {
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = colors.bg.primary; (e.currentTarget as HTMLElement).style.backgroundColor = D.w5 }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = D.w50; (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
               >
-                Explorer <ChevronRight size={15} />
+                Explorer les événements <ChevronRight size={15} />
               </Link>
             </div>
           </FadeUp>
