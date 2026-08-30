@@ -960,17 +960,25 @@ function OrganizerMainContent({
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [recentConvs, setRecentConvs] = useState<{ id: string; creatorName: string | null; avatarUrl: string | null }[]>([])
   const [convsLoading, setConvsLoading] = useState(false)
+  const [unreadMsgCount, setUnreadMsgCount] = useState(0)
 
   useEffect(() => {
-    if (tab !== 'messages') return
-    setConvsLoading(true)
+    if (!userId) return
     ;(async () => {
       const { data: convData } = await supabase
         .from('conversations')
         .select('id, creator_id')
         .eq('organizer_id', userId)
         .limit(6)
-      if (!convData?.length) { setConvsLoading(false); return }
+      if (!convData?.length) return
+      const convIds = convData.map(c => c.id)
+      const { count } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .in('conversation_id', convIds)
+        .neq('sender_id', userId)
+        .is('read_at', null)
+      setUnreadMsgCount(count ?? 0)
       const { data: profilesData } = await supabase
         .from('profiles')
         .select('id, full_name, avatar_url')
@@ -981,9 +989,14 @@ function OrganizerMainContent({
         creatorName: profileMap[c.creator_id]?.full_name ?? null,
         avatarUrl: profileMap[c.creator_id]?.avatar_url ?? null,
       })))
-      setConvsLoading(false)
     })()
-  }, [tab, userId])
+  }, [userId])
+
+  useEffect(() => {
+    if (tab !== 'messages' || recentConvs.length > 0) return
+    setConvsLoading(true)
+    setConvsLoading(false)
+  }, [tab, recentConvs.length])
   const [refuseModal, setRefuseModal] = useState<{ appId: string; eventTitle?: string; creatorId?: string } | null>(null)
   const [refuseReasons, setRefuseReasons] = useState<string[]>([])
   // Marquer candidatures comme vues
@@ -1057,7 +1070,7 @@ function OrganizerMainContent({
   const tabs: { key: 'candidatures' | 'retard' | 'messages'; label: string; badge?: number }[] = [
     { key: 'candidatures', label: `Candidatures (${pendingApps.length})` },
     { key: 'retard', label: 'À traiter', badge: lateApps.length },
-    { key: 'messages', label: 'Messages' },
+    { key: 'messages', label: 'Messages', badge: unreadMsgCount > 0 ? unreadMsgCount : undefined },
   ]
 
   const displayApps = tab === 'retard' ? lateApps : pendingApps

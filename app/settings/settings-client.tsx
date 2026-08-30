@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { useToast } from '@/components/ui/toast-provider'
 import { useTheme } from '@/lib/use-theme'
 import { colors } from '@/lib/design-tokens'
+import { NexModal } from '@/components/ui/nex-modal'
 
 const VAPID_PUBLIC = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
@@ -924,172 +925,62 @@ function DeleteAccountButton() {
         Supprimer
       </button>
 
-      {/* Modal */}
-      {showModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-          }}
-          onClick={() => !loading && setShowModal(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              backgroundColor: 'var(--bg-primary)',
-              borderRadius: '12px',
-              padding: '32px',
-              maxWidth: '500px',
-              width: '90%',
-              boxShadow: '0 20px 25px rgba(0,0,0,0.15)',
-            }}
-          >
-            {step === 'confirm' ? (
-              <>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, color: colors.feedback.danger.solid, marginBottom: '16px' }}>
-                  ⚠️ Confirmer suppression
-                </h2>
-                <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
-                  Vous avez 24h pour annuler via email après confirmation.
-                </p>
-
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  <button
-                    onClick={() => setStep('email')}
-                    style={{
-                      backgroundColor: colors.feedback.danger.solid,
-                      color: colors.bg.primary,
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = colors.red.textB91
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
-                    }}
-                  >
-                    Oui, supprimer
-                  </button>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    style={{
-                      backgroundColor: 'var(--border-color)',
-                      color: 'var(--text-primary)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'var(--text-secondary)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'var(--border-color)'
-                    }}
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                  Confirmer suppression
-                </h2>
-                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                  Entrez votre email pour confirmer :
-                </p>
-
-                <input
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    marginBottom: '24px',
-                    fontSize: '14px',
-                    boxSizing: 'border-box',
-                    color: 'var(--text-primary)',
-                  }}
-                />
-
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  <button
-                    onClick={handleDelete}
-                    disabled={loading || !email}
-                    style={{
-                      backgroundColor: colors.feedback.danger.solid,
-                      color: colors.bg.primary,
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      cursor: loading || !email ? 'not-allowed' : 'pointer',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      opacity: loading || !email ? 0.6 : 1,
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!loading && email) e.currentTarget.style.backgroundColor = colors.red.textB91
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!loading && email) e.currentTarget.style.backgroundColor = colors.feedback.danger.solid
-                    }}
-                  >
-                    {loading ? 'Suppression...' : 'Confirmer'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowModal(false)
-                      setStep('confirm')
-                      setEmail('')
-                    }}
-                    style={{
-                      backgroundColor: 'var(--border-color)',
-                      color: 'var(--text-primary)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      cursor: 'pointer',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'var(--text-secondary)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'var(--border-color)'
-                    }}
-                  >
-                    Retour
-                  </button>
-                </div>
-              </>
-            )}
-          </motion.div>
-        </div>
-      )}
+      <NexModal
+        isOpen={showModal}
+        onClose={() => { if (!loading) { setShowModal(false); setStep('confirm'); setEmail('') } }}
+        title={step === 'confirm' ? '⚠️ Confirmer suppression' : 'Confirmer votre email'}
+        subtitle={step === 'confirm' ? 'Vous avez 24h pour annuler via email après confirmation.' : 'Entrez votre adresse email pour confirmer la suppression.'}
+        size="sm"
+        disableBackdropClose={loading}
+        footer={
+          step === 'confirm' ? (
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <button
+                onClick={() => setStep('email')}
+                style={{ backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary, border: 'none', borderRadius: '8px', padding: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '14px', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = colors.red.textB91 }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = colors.feedback.danger.solid }}
+              >
+                Oui, supprimer mon compte
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{ backgroundColor: 'var(--border-color)', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', padding: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}
+              >
+                Annuler
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '8px' }}>
+              <button
+                onClick={handleDelete}
+                disabled={loading || !email}
+                style={{ backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary, border: 'none', borderRadius: '8px', padding: '12px', cursor: loading || !email ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '14px', opacity: loading || !email ? 0.6 : 1, transition: 'all 0.2s' }}
+                onMouseEnter={e => { if (!loading && email) e.currentTarget.style.backgroundColor = colors.red.textB91 }}
+                onMouseLeave={e => { if (!loading && email) e.currentTarget.style.backgroundColor = colors.feedback.danger.solid }}
+              >
+                {loading ? 'Suppression...' : 'Confirmer la suppression'}
+              </button>
+              <button
+                onClick={() => { setStep('confirm'); setEmail('') }}
+                style={{ backgroundColor: 'var(--border-color)', color: 'var(--text-primary)', border: 'none', borderRadius: '8px', padding: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}
+              >
+                Retour
+              </button>
+            </div>
+          )
+        }
+      >
+        {step === 'email' && (
+          <input
+            type="email"
+            placeholder="votre@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
+          />
+        )}
+      </NexModal>
     </>
   )
 }
