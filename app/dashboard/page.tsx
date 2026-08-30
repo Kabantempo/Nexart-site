@@ -549,7 +549,7 @@ export default function DashboardPage() {
               <a href="/profile"><User size={18} /><span>Profil</span></a>
               <a href={`/boutique/${user.id}`}><ShoppingBag size={18} /><span>Boutique</span></a>
               <a href="/analytics"><BarChart2 size={18} /><span>Stats</span></a>
-              <a href="/carte"><MapPin size={18} /><span>Carte</span></a>
+              <a href="/creator/payments"><CreditCard size={18} /><span>Paiements</span></a>
             </>
           ) : dashTab === 'organizer' && hasOrganizer ? (
             <>
@@ -887,6 +887,7 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
     { href: '/profile',          icon: <User size={15} />,        label: 'Mon profil' },
     { href: `/boutique/${userId}`, icon: <ShoppingBag size={15} />, label: 'Ma boutique' },
     { href: '/analytics',        icon: <BarChart2 size={15} />,   label: 'Analytics' },
+    { href: '/creator/payments', icon: <CreditCard size={15} />,  label: 'Paiements' },
     { href: '/carte',            icon: <MapPin size={15} />,      label: 'Carte' },
     { href: '/profile?tab=disponibilites', icon: <Clock size={15} />, label: 'Dispos' },
   ]
