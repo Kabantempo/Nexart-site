@@ -248,6 +248,7 @@ export default function ProfilePage() {
   const [discProposalInput, setDiscProposalInput] = useState('')
   const [discProposalSending, setDiscProposalSending] = useState(false)
   const [myDiscProposals, setMyDiscProposals] = useState<DisciplineProposal[]>([])
+  const [extraDisciplines, setExtraDisciplines] = useState<string[]>([])
   const [adminCreators, setAdminCreators] = useState<AdminCreator[]>([])
   const [adminEvents, setAdminEvents] = useState<AdminEvent[]>([])
   const [adminFilter, setAdminFilter] = useState<'pending' | 'all'>('pending')
@@ -366,6 +367,13 @@ export default function ProfilePage() {
           .eq('creator_id', u.id)
           .order('created_at', { ascending: false })
         setMyDiscProposals((myProps as unknown as DisciplineProposal[]) ?? [])
+        // Load approved disciplines not already in the static list
+        const { data: approvedProps } = await supabase
+          .from('discipline_proposals')
+          .select('name')
+          .eq('status', 'approved')
+        const extra = (approvedProps ?? []).map((p: { name: string }) => p.name).filter(n => !DISCIPLINES.includes(n))
+        setExtraDisciplines([...new Set(extra)].sort())
         // Load organizer profile if also organizer
         if (prof?.is_organizer || prof?.role === 'organizer') {
           const { data: orgaP } = await supabase
@@ -1285,7 +1293,7 @@ export default function ProfilePage() {
                 {editing ? (
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-wrap gap-2">
-                      {DISCIPLINES.map(d => {
+                      {[...DISCIPLINES, ...extraDisciplines].map(d => {
                         const sel = editDisc.includes(d)
                         return (
                           <button key={d} onClick={() => toggleDisc(d)}

@@ -66,6 +66,7 @@ export default function OnboardingClient() {
   const [upcomingEventDate, setUpcomingEventDate] = useState('')
 
   const [done, setDone] = useState(false)
+  const [extraDisciplines, setExtraDisciplines] = useState<string[]>([])
   const totalSteps = role === 'creator' ? 3 : role === 'organizer' ? 5 : 2
 
   const STORAGE_KEY = 'nexart_onboarding_draft'
@@ -90,6 +91,14 @@ export default function OnboardingClient() {
       if (d.upcomingEventTitle) setUpcomingEventTitle(d.upcomingEventTitle)
       if (d.upcomingEventDate) setUpcomingEventDate(d.upcomingEventDate)
     } catch {}
+  }, [])
+
+  useEffect(() => {
+    supabase.from('discipline_proposals').select('name').eq('status', 'approved').then(({ data }) => {
+      if (!data) return
+      const extra = data.map((p: { name: string }) => p.name).filter((n: string) => !DISCIPLINES.includes(n))
+      setExtraDisciplines([...new Set(extra)].sort() as string[])
+    })
   }, [])
 
   useEffect(() => {
@@ -515,7 +524,7 @@ export default function OnboardingClient() {
               <h1 className="text-2xl font-bold text-white mb-2 text-center">Vos disciplines</h1>
               <p className="text-white/40 text-sm text-center mb-8">Sélectionnez vos spécialités pour être mis en relation avec les bons événements.</p>
               <div className="flex flex-wrap gap-2 mb-6">
-                {DISCIPLINES.map(d => {
+                {[...DISCIPLINES, ...extraDisciplines].map(d => {
                   const active = disciplines.includes(d)
                   return (
                     <button key={d} onClick={() => toggleDisc(d)}
