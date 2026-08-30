@@ -8,6 +8,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { colors, alpha } from '@/lib/design-tokens'
 import { supabase } from '@/lib/supabase'
+import { NexBadge } from '@/components/ui/nex-badge'
+import { NexButton } from '@/components/ui/nex-button'
 
 interface Payment {
   id: string
@@ -31,18 +33,15 @@ function fmt(cents: number) {
   return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €'
 }
 
+const PAYMENT_STATUS: Record<string, { label: string; variant: 'accepted' | 'warning' | 'danger' | 'pending' }> = {
+  completed: { label: 'Payé',       variant: 'accepted' },
+  pending:   { label: 'En attente', variant: 'warning'  },
+  refunded:  { label: 'Remboursé',  variant: 'danger'   },
+}
+
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; bg: string; color: string }> = {
-    completed: { label: 'Payé',        bg: colors.green.bg,              color: colors.green.text },
-    pending:   { label: 'En attente',  bg: colors.feedback.warning.bg,   color: colors.feedback.warning.text },
-    refunded:  { label: 'Remboursé',   bg: colors.feedback.danger.bg,    color: colors.feedback.danger.text },
-  }
-  const s = map[status] ?? map.pending
-  return (
-    <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 9px', borderRadius: '6px', backgroundColor: s.bg, color: s.color }}>
-      {s.label}
-    </span>
-  )
+  const s = PAYMENT_STATUS[status] ?? PAYMENT_STATUS.pending
+  return <NexBadge variant={s.variant} dot={false}>{s.label}</NexBadge>
 }
 
 export default function PaymentsClient() {
@@ -206,19 +205,16 @@ export default function PaymentsClient() {
                   </p>
                   <StatusBadge status={p.status} />
                   {p.application_id && p.status === 'completed' && (
-                    <button
+                    <NexButton
+                      variant="secondary"
+                      size="sm"
                       onClick={() => downloadPdf(p)}
                       disabled={downloading === p.id}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '5px',
-                        padding: '6px 12px', borderRadius: '7px', border: `1px solid ${colors.border.default}`,
-                        backgroundColor: downloading === p.id ? colors.bg.secondary : colors.bg.primary,
-                        color: colors.violet.primary, fontSize: '12px', fontWeight: '600', cursor: downloading === p.id ? 'wait' : 'pointer',
-                      }}
+                      loading={downloading === p.id}
                     >
                       <Download size={12} />
                       {downloading === p.id ? 'Génération…' : 'Reçu PDF'}
-                    </button>
+                    </NexButton>
                   )}
                 </div>
               </motion.div>

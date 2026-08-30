@@ -368,7 +368,7 @@ export function NavbarFull() {
                 <Trigger id="discover" label="Découvrir" active={isActive('/events') || isActive('/creators') || isActive('/carte')} />
                 <Panel id="discover" width={320}>
                   <RichItem panelId="discover" idx={0} href="/events"      icon={Ticket}   label="Événements artisanaux" desc="Marchés, pop-ups, salons, festivals" />
-                  <RichItem panelId="discover" idx={1} href="/creators"    icon={Palette}  label="Créateurs & Artisans"  desc="Parcourez les artisans inscrits" />
+                  <RichItem panelId="discover" idx={1} href="/creators"    icon={Palette}  label="Créateurs"  desc="Parcourez les créateurs inscrits" />
                   <RichItem panelId="discover" idx={2} href="/carte"       icon={MapPin}   label="Carte interactive"      desc="Événements près de chez vous" />
                   <RichItem panelId="discover" idx={3} href="/search"      icon={Search}   label="Recherche avancée"      desc="Filtrer par discipline, région…" />
                 </Panel>
