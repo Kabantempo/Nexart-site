@@ -278,11 +278,11 @@ function CreatorsContent() {
             <Image src={c.portfolio_images?.[0] || c.avatar_url!} alt={c.full_name || ''} fill sizes={`${CARD_W}px`} style={{ objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 34, fontWeight: 800, color: '#6366F1', opacity: 0.7 }}>{c.full_name?.slice(0, 2).toUpperCase() || '?'}</span>
+              <span style={{ fontSize: 34, fontWeight: 800, color: colors.violet.primary, opacity: 0.7 }}>{c.full_name?.slice(0, 2).toUpperCase() || '?'}</span>
             </div>
           )}
           {c.siret_verified && (
-            <span style={{ position: 'absolute', top: 7, left: 7, backgroundColor: 'rgba(99,102,241,0.9)', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>✓ Vérifié</span>
+            <span style={{ position: 'absolute', top: 7, left: 7, backgroundColor: 'rgba(99,102,241,0.9)', color: colors.text.white, fontSize: 9, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>✓ Vérifié</span>
           )}
           {(c as any).profile_boosted_until && new Date((c as any).profile_boosted_until) > new Date() && (
             <span style={{ position: 'absolute', top: 7, right: 7, backgroundColor: 'rgba(245,158,11,0.9)', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>⚡ Boosté</span>
@@ -338,12 +338,12 @@ function CreatorsContent() {
             {/* search */}
             <div style={{ padding: '0 16px 8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '8px 14px' }}>
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
                 <input type="text" placeholder="Nom, discipline, ville…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                   style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', colorScheme: 'dark light' }} />
                 {searchTerm && (
                   <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}><path d="M18 6 6 18M6 6l12 12" /></svg>
+                    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}><path d="M18 6 6 18M6 6l12 12" /></svg>
                   </button>
                 )}
               </div>
@@ -352,7 +352,7 @@ function CreatorsContent() {
             <div style={{ overflowX: 'auto' }} className="hide-scrollbar">
               <div style={{ display: 'flex', gap: 7, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
                 {discFilters.map(f => (
-                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', backgroundColor: mobileDisc === f.key ? '#6366F1' : 'var(--ev-chip-bg)', color: mobileDisc === f.key ? '#fff' : 'var(--ev-chip-text)' }}>
+                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', backgroundColor: mobileDisc === f.key ? colors.violet.primary : 'var(--ev-chip-bg)', color: mobileDisc === f.key ? colors.text.white : 'var(--ev-chip-text)' }}>
                     {f.label}
                   </button>
                 ))}
@@ -382,11 +382,11 @@ function CreatorsContent() {
                 )}
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,20,0.92) 0%, rgba(10,10,20,0.25) 60%, transparent 100%)' }} />
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px 12px' }}>
-                  <p style={{ margin: '0 0 5px', fontSize: 17, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{featEv.full_name}</p>
+                  <p style={{ margin: '0 0 5px', fontSize: 17, fontWeight: 800, color: colors.text.white, lineHeight: 1.2 }}>{featEv.full_name}</p>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', gap: 5 }}>
                       {(featEv.disciplines || []).slice(0, 2).map((d: string) => (
-                        <span key={d} style={{ backgroundColor: 'rgba(99,102,241,0.3)', color: '#A5B4FC', fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>{d}</span>
+                        <span key={d} style={{ backgroundColor: 'rgba(99,102,241,0.3)', color: colors.purple.bgPale, fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>{d}</span>
                       ))}
                     </div>
                     {featEv.city && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>📍 {featEv.city}</span>}
@@ -396,7 +396,7 @@ function CreatorsContent() {
               {/* dots */}
               <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 8 }}>
                 {featCreators.map((_, i) => (
-                  <button key={i} onClick={() => setFeatActive(i)} style={{ width: i === featActive ? 18 : 6, height: 6, borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0, backgroundColor: i === featActive ? '#6366F1' : 'var(--ev-chip-bg)', transition: 'width 0.3s, background-color 0.3s' }} />
+                  <button key={i} onClick={() => setFeatActive(i)} style={{ width: i === featActive ? 18 : 6, height: 6, borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0, backgroundColor: i === featActive ? colors.violet.primary : 'var(--ev-chip-bg)', transition: 'width 0.3s, background-color 0.3s' }} />
                 ))}
               </div>
             </div>
@@ -416,13 +416,13 @@ function CreatorsContent() {
                       onClick={() => router.push(`/creators/${c.id}`)}
                       style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: 'pointer', width: 58 }}
                     >
-                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', flexShrink: 0, padding: 2.5, background: c.siret_verified ? 'linear-gradient(135deg, #6366F1, #A855F7, #EC4899)' : 'linear-gradient(135deg, #D1D5DB, #9CA3AF)' }}>
+                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', flexShrink: 0, padding: 2.5, background: c.siret_verified ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.violet}, #EC4899)` : `linear-gradient(135deg, #D1D5DB, ${colors.text.light})` }}>
                       <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--ev-card-bg2)', border: '2px solid var(--bg-primary)' }}>
                         {(c.avatar_url || c.portfolio_images?.[0]) ? (
                           <Image src={c.avatar_url || c.portfolio_images![0]} alt={c.full_name || ''} fill sizes="54px" style={{ objectFit: 'cover' }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontSize: 18, fontWeight: 800, color: '#6366F1' }}>{c.full_name?.slice(0, 1).toUpperCase() || '?'}</span>
+                            <span style={{ fontSize: 18, fontWeight: 800, color: colors.violet.primary }}>{c.full_name?.slice(0, 1).toUpperCase() || '?'}</span>
                           </div>
                         )}
                       </div>
@@ -450,7 +450,7 @@ function CreatorsContent() {
               <p style={{ fontSize: 40, margin: '0 0 12px' }}>🔍</p>
               <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ev-sort-active)', margin: '0 0 6px' }}>Aucun créateur trouvé</p>
               <p style={{ fontSize: 13, color: 'var(--ev-card-date)' }}>Essayez un autre mot-clé ou discipline</p>
-              <button onClick={resetFilters} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 20, border: '1px solid #6366F1', backgroundColor: 'transparent', color: '#6366F1', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={resetFilters} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 20, border: `1px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 Réinitialiser
               </button>
             </div>

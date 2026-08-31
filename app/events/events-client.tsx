@@ -100,7 +100,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
         {/* status badge */}
         <span style={{
           position: 'absolute', top: 8, left: 8,
-          backgroundColor: st.color, color: '#fff',
+          backgroundColor: st.color, color: colors.text.white,
           fontSize: 10, fontWeight: 700, borderRadius: 20,
           padding: '3px 9px', letterSpacing: 0.3,
         }}>
@@ -254,7 +254,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 16px 14px' }}>
           <p style={{
             margin: '0 0 6px', fontSize: 17, fontWeight: 800,
-            color: '#fff', lineHeight: 1.2,
+            color: colors.text.white, lineHeight: 1.2,
             display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
           }}>
             {ev.title}
@@ -263,12 +263,12 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
               {tags.slice(0, 2).map(t => (
                 <span key={t} style={{
-                  backgroundColor: 'rgba(99,102,241,0.25)', color: '#A5B4FC',
+                  backgroundColor: 'rgba(99,102,241,0.25)', color: colors.purple.bgPale,
                   fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px',
                 }}>{t}</span>
               ))}
             </div>
-            <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+            <span style={{ fontSize: 16, fontWeight: 800, color: colors.text.white }}>
               {formatPrice(ev.stand_price)}
             </span>
           </div>
@@ -284,7 +284,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
             style={{
               width: i === active ? 18 : 6, height: 6,
               borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0,
-              backgroundColor: i === active ? '#6366F1' : '#D1D5DB',
+              backgroundColor: i === active ? colors.violet.primary : colors.border.default,
               transition: 'width 0.3s, background-color 0.3s',
             }}
           />
@@ -424,7 +424,7 @@ export default function EventsClient() {
         {/* search + filters */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 32, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 260 }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
             <input
@@ -441,8 +441,8 @@ export default function EventsClient() {
               <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
                 padding: '8px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
                 fontSize: 13, fontWeight: 600,
-                backgroundColor: activeFilter === f.key ? '#6366F1' : 'var(--ev-chip-bg)',
-                color: activeFilter === f.key ? '#fff' : 'var(--ev-chip-text)',
+                backgroundColor: activeFilter === f.key ? colors.violet.primary : 'var(--ev-chip-bg)',
+                color: activeFilter === f.key ? colors.text.white : 'var(--ev-chip-text)',
               }}>
                 {f.label}
               </button>
@@ -460,7 +460,7 @@ export default function EventsClient() {
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <p style={{ color: '#9CA3AF', textAlign: 'center', marginTop: 80 }}>Aucun événement trouvé.</p>
+          <p style={{ color: colors.text.light, textAlign: 'center', marginTop: 80 }}>Aucun événement trouvé.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
             {filtered.map((ev, i) => (
@@ -479,7 +479,7 @@ export default function EventsClient() {
                   )}
                   {(() => { const st = statusLabel(ev.status); return (
                     <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color,
-                      color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>{st.label}</span>
+                      color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>{st.label}</span>
                   )})()}
                 </div>
                 <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -537,7 +537,7 @@ export default function EventsClient() {
             <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>
               Événements
             </h1>
-            <p style={{ margin: 0, fontSize: 12, color: '#9CA3AF' }}>Marchés, pop-ups et salons près de chez vous</p>
+            <p style={{ margin: 0, fontSize: 12, color: colors.text.light }}>Marchés, pop-ups et salons près de chez vous</p>
           </div>
           {/* search */}
           <div style={{ padding: '0 16px 8px' }}>
@@ -545,7 +545,7 @@ export default function EventsClient() {
               display: 'flex', alignItems: 'center', gap: 8,
               backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '9px 14px', colorScheme: 'dark light',
             }}>
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
               <input
@@ -557,7 +557,7 @@ export default function EventsClient() {
               />
               {search && (
                 <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#9CA3AF" strokeWidth={2.5}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
                     <path d="M18 6 6 18M6 6l12 12" />
                   </svg>
                 </button>
@@ -571,8 +571,8 @@ export default function EventsClient() {
                 <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
                   flexShrink: 0, padding: '5px 13px', borderRadius: 20, border: 'none', cursor: 'pointer',
                   fontSize: 13, fontWeight: 600,
-                  backgroundColor: activeFilter === f.key ? '#6366F1' : 'var(--ev-chip-bg)',
-                  color: activeFilter === f.key ? '#fff' : 'var(--ev-chip-text)',
+                  backgroundColor: activeFilter === f.key ? colors.violet.primary : 'var(--ev-chip-bg)',
+                  color: activeFilter === f.key ? colors.text.white : 'var(--ev-chip-text)',
                   transition: 'background 0.15s, color 0.15s',
                 }}>
                   {f.label}
@@ -585,14 +585,14 @@ export default function EventsClient() {
             <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
               padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
               backgroundColor: sortBy.startsWith('date') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
-              color: sortBy.startsWith('date') ? '#fff' : 'var(--ev-chip-text)',
+              color: sortBy.startsWith('date') ? colors.text.white : 'var(--ev-chip-text)',
             }}>
               Date {sortBy === 'date-desc' ? '↓' : '↑'}
             </button>
             <button onClick={() => setSortBy(sortBy === 'price-asc' ? 'price-desc' : 'price-asc')} style={{
               padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
               backgroundColor: sortBy.startsWith('price') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
-              color: sortBy.startsWith('price') ? '#fff' : 'var(--ev-chip-text)',
+              color: sortBy.startsWith('price') ? colors.text.white : 'var(--ev-chip-text)',
             }}>
               Prix {sortBy === 'price-desc' ? '↓' : '↑'}
             </button>
@@ -621,12 +621,12 @@ export default function EventsClient() {
                 <button key={s.key} onClick={() => { setSortBy(s.key); setShowAdvanced(false) }} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
                   padding: '9px 4px', border: 'none', cursor: 'pointer', background: 'none',
-                  color: sortBy === s.key ? '#6366F1' : 'var(--ev-chip-text)',
+                  color: sortBy === s.key ? colors.violet.primary : 'var(--ev-chip-text)',
                   fontSize: 13, fontWeight: sortBy === s.key ? 600 : 400,
                 }}>
                   {s.label}
                   {sortBy === s.key && (
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#6366F1" strokeWidth={2.5}>
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={colors.violet.primary} strokeWidth={2.5}>
                       <path d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -683,7 +683,7 @@ export default function EventsClient() {
             <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ev-sort-active)', margin: '0 0 6px' }}>
               Aucun événement trouvé
             </p>
-            <p style={{ fontSize: 13, color: '#9CA3AF' }}>
+            <p style={{ fontSize: 13, color: colors.text.light }}>
               Essayez un autre mot-clé ou une autre ville
             </p>
           </div>
