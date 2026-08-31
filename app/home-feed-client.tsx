@@ -96,16 +96,16 @@ function usePortfolioPhotos() {
       .from('creator_profiles')
       .select('user_id,portfolio_images,disciplines,profiles(full_name,avatar_url,subscription_tier)')
       .not('profiles', 'is', null)
+      .not('portfolio_images', 'is', null)
       .order('user_id', { ascending: false })
-      .limit(30)
+      .limit(50)
       .then(({ data }) => {
         const flat: Photo[] = []
         for (const c of ((data as any[]) || [])) {
-          const imgs: string[] = c.portfolio_images || []
+          const imgs: string[] = Array.isArray(c.portfolio_images) ? c.portfolio_images : []
+          if (imgs.length === 0) continue
           const avatar: string | undefined = c.profiles?.avatar_url
-          // Use portfolio images (max 2) or fall back to avatar
-          const sources = imgs.length > 0 ? imgs.slice(0, 2) : (avatar ? [avatar] : [])
-          for (const img of sources) {
+          for (const img of imgs.slice(0, 3)) {
             flat.push({
               img,
               creator_id: c.user_id,
@@ -116,7 +116,7 @@ function usePortfolioPhotos() {
             })
           }
         }
-        setPhotos(flat)
+        setPhotos(flat.slice(0, 30))
       })
   }, [])
 
@@ -512,7 +512,10 @@ function PortfolioCard({ item, onClick }: { item: Prod; onClick: () => void }) {
 // ── Portfolio Photo Card (artwork from creator_profiles.portfolio_images) ──────
 function PortfolioPhotoCard({ photo, onClick }: { photo: Photo & { subscription_tier?: string }; onClick: () => void }) {
   const [hovered, setHovered] = useState(false)
+  const [imgError, setImgError] = useState(false)
   const initials = photo.creator_name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
+
+  if (imgError) return null
 
   return (
     <div
@@ -522,7 +525,7 @@ function PortfolioPhotoCard({ photo, onClick }: { photo: Photo & { subscription_
       style={{ cursor: 'pointer' }}
     >
       <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: 10, overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', marginBottom: 8, transition: 'transform 0.18s, box-shadow 0.18s', transform: hovered ? 'translateY(-2px)' : 'none', boxShadow: hovered ? '0 8px 24px rgba(0,0,0,0.15)' : '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <Image src={photo.img} alt={photo.creator_name || 'Créateur'} fill sizes="(max-width:600px) 33vw, 160px" style={{ objectFit: 'cover', transition: 'transform 0.3s', transform: hovered ? 'scale(1.05)' : 'scale(1)' }} />
+        <Image src={photo.img} alt={photo.creator_name || 'Créateur'} fill sizes="(max-width:600px) 33vw, 160px" style={{ objectFit: 'cover', transition: 'transform 0.3s', transform: hovered ? 'scale(1.05)' : 'scale(1)' }} onError={() => setImgError(true)} />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <div style={{ width: 20, height: 20, borderRadius: '50%', overflow: 'hidden', backgroundColor: colors.violet.bg, flexShrink: 0 }}>
