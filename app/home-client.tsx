@@ -310,7 +310,7 @@ function FacesSection() {
             <Link
               href={face.href}
               className="faces-cta-btn"
-              style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, color: colors.bg.primary, border: `1px solid ${face.borderColor}`, textDecoration: 'none', transition: 'opacity 0.2s ease' }}
+              style={{ marginTop: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', borderRadius: '12px', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', border: `1px solid ${face.borderColor}`, textDecoration: 'none', transition: 'opacity 0.2s ease' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.8' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             >

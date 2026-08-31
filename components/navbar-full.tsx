@@ -622,7 +622,7 @@ export function NavbarFull() {
                     Connexion
                   </Link>
                   <Link href="/register"
-                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: isDark ? colors.bg.secondary : colors.text.dark, color: isDark ? colors.text.dark : colors.bg.primary }}
+                    style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', textDecoration: 'none', transition: 'all 0.15s', backgroundColor: colors.violet.primary, color: '#ffffff' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.88' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
                   >
