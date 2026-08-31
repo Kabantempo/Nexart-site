@@ -95,20 +95,22 @@ function usePortfolioPhotos() {
     supabase
       .from('creator_profiles')
       .select('user_id,portfolio_images,disciplines,profiles(full_name,avatar_url,subscription_tier)')
-      .not('portfolio_images', 'is', null)
+      .not('profiles', 'is', null)
       .order('user_id', { ascending: false })
-      .limit(20)
+      .limit(30)
       .then(({ data }) => {
         const flat: Photo[] = []
         for (const c of ((data as any[]) || [])) {
           const imgs: string[] = c.portfolio_images || []
-          if (!imgs.length) continue
-          for (const img of imgs.slice(0, 3)) {
+          const avatar: string | undefined = c.profiles?.avatar_url
+          // Use portfolio images (max 2) or fall back to avatar
+          const sources = imgs.length > 0 ? imgs.slice(0, 2) : (avatar ? [avatar] : [])
+          for (const img of sources) {
             flat.push({
               img,
               creator_id: c.user_id,
               creator_name: c.profiles?.full_name,
-              creator_avatar: c.profiles?.avatar_url,
+              creator_avatar: avatar,
               discipline: (c.disciplines || [])[0],
               subscription_tier: c.profiles?.subscription_tier,
             })
@@ -517,10 +519,10 @@ function PortfolioPhotoCard({ photo, onClick }: { photo: Photo & { subscription_
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{ flexShrink: 0, width: 160, cursor: 'pointer' }}
+      style={{ cursor: 'pointer' }}
     >
-      <div style={{ position: 'relative', width: 160, height: 160, borderRadius: 10, overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', marginBottom: 8, transition: 'transform 0.18s, box-shadow 0.18s', transform: hovered ? 'translateY(-2px)' : 'none', boxShadow: hovered ? '0 8px 24px rgba(0,0,0,0.15)' : '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <Image src={photo.img} alt={photo.creator_name || 'Créateur'} fill sizes="160px" style={{ objectFit: 'cover', transition: 'transform 0.3s', transform: hovered ? 'scale(1.05)' : 'scale(1)' }} />
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: 10, overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', marginBottom: 8, transition: 'transform 0.18s, box-shadow 0.18s', transform: hovered ? 'translateY(-2px)' : 'none', boxShadow: hovered ? '0 8px 24px rgba(0,0,0,0.15)' : '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <Image src={photo.img} alt={photo.creator_name || 'Créateur'} fill sizes="(max-width:600px) 33vw, 160px" style={{ objectFit: 'cover', transition: 'transform 0.3s', transform: hovered ? 'scale(1.05)' : 'scale(1)' }} />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <div style={{ width: 20, height: 20, borderRadius: '50%', overflow: 'hidden', backgroundColor: colors.violet.bg, flexShrink: 0 }}>
@@ -586,6 +588,8 @@ export default function HomeFeedClient() {
         .creator-scroll::-webkit-scrollbar { display: none; }
         .portfolio-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .portfolio-scroll::-webkit-scrollbar { display: none; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        @media (max-width: 520px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
         .date-badge { background: rgba(255,255,255,0.95); }
         @media (prefers-color-scheme: dark) { .date-badge { background: rgba(22,22,28,0.92); outline: 1px solid rgba(255,255,255,0.12); } }
         [data-theme="dark"] .date-badge { background: rgba(22,22,28,0.92); outline: 1px solid rgba(255,255,255,0.12); }
@@ -747,7 +751,7 @@ export default function HomeFeedClient() {
                 Voir les créateurs <ChevronRight size={14} />
               </button>
             </div>
-            <div className="portfolio-scroll">
+            <div className="gallery-grid">
               {portfolioPhotos.map((photo, i) => (
                 <PortfolioPhotoCard key={`${photo.creator_id}-${i}`} photo={photo} onClick={() => router.push(`/creators/${photo.creator_id}`)} />
               ))}
