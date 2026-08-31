@@ -543,7 +543,7 @@ export default function EventsClient() {
           <div style={{ padding: '0 16px 8px' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
-              backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '9px 14px', colorScheme: 'dark light',
+              backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '9px 14px',
             }}>
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
