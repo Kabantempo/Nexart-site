@@ -309,6 +309,7 @@ export default function DashboardPage() {
         @media (max-width: 640px) {
           .kpi-grid { grid-template-columns: repeat(2, 1fr); }
           .profile-banner-detail { display: none !important; }
+          .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
         }
         input, textarea, select {
           color: var(--text-primary) !important;

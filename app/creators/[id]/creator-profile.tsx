@@ -102,6 +102,7 @@ export function CreatorProfileClient({ id }: Props) {
   const [reviews, setReviews] = useState<{ id: string }[]>([])
   const [localPortfolioGrid, setLocalPortfolioGrid] = useState<NonNullable<CreatorData['portfolio_grid']>>([])
   const [portfolioSaving, setPortfolioSaving] = useState(false)
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
   const user = useAuthStore((s) => s.user)
   const { favCreatorIds, toggleCreatorFav } = useFavorites(user?.id)
   const { success } = useToast()
@@ -229,6 +230,19 @@ export function CreatorProfileClient({ id }: Props) {
     } catch { setError(true); setLoading(false) } }
     load()
   }, [id])
+
+  useEffect(() => {
+    if (lightboxIdx === null) return
+    const handler = (e: KeyboardEvent) => {
+      const grid = creator?.portfolio_grid?.length ? creator.portfolio_grid : creator?.portfolio_images?.map(url => ({ url, colSpan: 1 as const, rowSpan: 1 as const }))
+      if (!grid) return
+      if (e.key === 'Escape') setLightboxIdx(null)
+      if (e.key === 'ArrowLeft' && lightboxIdx > 0) setLightboxIdx(lightboxIdx - 1)
+      if (e.key === 'ArrowRight' && lightboxIdx < grid.length - 1) setLightboxIdx(lightboxIdx + 1)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [lightboxIdx, creator])
 
   const toggleFollow = async () => {
     if (!user) return
@@ -555,7 +569,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ color: brandColor }}>Portfolio</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(70px, 25vw, 180px)', gridAutoFlow: 'dense', gap: '6px', width: '100%', minWidth: 0, overflow: 'hidden' }}>
                     {grid.map((item, idx) => (
-                      <div key={idx} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative' }} className="group">
+                      <div key={idx} onClick={() => !portfolioImgErrors.has(idx) && setLightboxIdx(idx)} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative', cursor: !portfolioImgErrors.has(idx) ? 'zoom-in' : 'default' }} className="group">
                         {!portfolioImgErrors.has(idx) ? (
                           <Image
                             src={item.url}
@@ -732,6 +746,53 @@ export function CreatorProfileClient({ id }: Props) {
           </motion.div>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxIdx !== null && (() => {
+        const grid = creator?.portfolio_grid?.length ? creator.portfolio_grid : creator?.portfolio_images?.map(url => ({ url, colSpan: 1 as const, rowSpan: 1 as const }))
+        if (!grid?.length) return null
+        const currentItem = grid[lightboxIdx]
+
+        return (
+          <div
+            onClick={() => setLightboxIdx(null)}
+            style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          >
+            {/* Close */}
+            <button onClick={() => setLightboxIdx(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
+              <X size={20} />
+            </button>
+
+            {/* Counter */}
+            <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+              {lightboxIdx + 1} / {grid.length}
+            </div>
+
+            {/* Prev */}
+            {lightboxIdx > 0 && (
+              <button onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx - 1) }} style={{ position: 'absolute', left: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: '20px' }}>
+                ‹
+              </button>
+            )}
+
+            {/* Image */}
+            <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: 'min(90vw, 1000px)', maxHeight: '85vh', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
+              <img
+                src={currentItem.url}
+                alt={`Portfolio ${lightboxIdx + 1}`}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+              />
+            </div>
+
+            {/* Next */}
+            {lightboxIdx < grid.length - 1 && (
+              <button onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx + 1) }} style={{ position: 'absolute', right: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: '20px' }}>
+                ›
+              </button>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }
