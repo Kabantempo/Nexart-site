@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Users, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { Users, CheckCircle, Clock, AlertCircle, LogIn } from 'lucide-react'
 import { colors } from '@/lib/design-tokens'
+import { supabase } from '@/lib/supabase'
 
 interface Shift {
   id: string
@@ -20,6 +21,12 @@ interface EventInfo {
   city: string
 }
 
+interface NexartUser {
+  id: string
+  full_name: string
+  email: string
+}
+
 export default function RegisterClient({ eventId }: { eventId: string }) {
   const [event, setEvent] = useState<EventInfo | null>(null)
   const [shifts, setShifts] = useState<Shift[]>([])
@@ -28,6 +35,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
   const [form, setForm] = useState({ name: '', email: '', selectedShifts: [] as string[] })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [nexartUser, setNexartUser] = useState<NexartUser | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -51,6 +59,23 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
       }
     }
     load()
+
+    // Check Nexart session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', session.user.id)
+        .maybeSingle()
+      const user: NexartUser = {
+        id: session.user.id,
+        full_name: profile?.full_name || session.user.email?.split('@')[0] || '',
+        email: session.user.email || '',
+      }
+      setNexartUser(user)
+      setForm(f => ({ ...f, name: user.full_name, email: user.email }))
+    })
   }, [eventId])
 
   const toggleShift = (shiftId: string) => {
@@ -74,10 +99,17 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
     setError('')
     setSubmitting(true)
     try {
+      const body: Record<string, unknown> = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        shifts: form.selectedShifts,
+      }
+      if (nexartUser) body.user_id = nexartUser.id
+
       const res = await fetch(`/api/events/${eventId}/volunteers/public-register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name.trim(), email: form.email.trim(), shifts: form.selectedShifts }),
+        body: JSON.stringify(body),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -85,7 +117,7 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
         return
       }
       setStep('success')
-    } catch (e) {
+    } catch {
       setError('Erreur réseau. Veuillez réessayer.')
     } finally {
       setSubmitting(false)
@@ -109,10 +141,15 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
           <CheckCircle size={32} color={colors.green.primary} />
         </div>
         <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>Inscription confirmée !</h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
           Merci {form.name} ! Votre inscription comme bénévole a bien été prise en compte.<br />
           Vous recevrez votre planning par email une fois les créneaux validés.
         </p>
+        {nexartUser && (
+          <div style={{ padding: '10px 16px', background: colors.violet.bg, borderRadius: '10px', fontSize: '13px', color: colors.violet.text, marginBottom: '16px' }}>
+            ✓ Vos créneaux apparaîtront dans votre dashboard Nexart
+          </div>
+        )}
         <p style={{ fontSize: '12px', color: colors.text.muted }}>Vous pouvez fermer cette page.</p>
       </motion.div>
     </div>
@@ -142,6 +179,30 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
           </div>
         </div>
 
+        {/* Nexart account banner */}
+        {nexartUser ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, borderRadius: '10px', marginBottom: '20px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px', color: '#fff', fontWeight: 700 }}>
+              {nexartUser.full_name.charAt(0).toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{nexartUser.full_name}</p>
+              <p style={{ fontSize: '11px', color: colors.violet.text, margin: 0 }}>Compte Nexart connecté · vos créneaux iront dans votre dashboard</p>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '10px', marginBottom: '20px' }}>
+            <LogIn size={16} color="var(--text-secondary)" />
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, flex: 1 }}>
+              Vous avez un compte Nexart ?{' '}
+              <a href={`/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '')}`} style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'none' }}>
+                Connectez-vous
+              </a>
+              {' '}pour retrouver vos créneaux dans votre dashboard.
+            </p>
+          </div>
+        )}
+
         {/* Infos personnelles */}
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '12px' }}>Vos informations</h2>
@@ -152,7 +213,8 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="Marie Dupont"
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                readOnly={!!nexartUser}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: nexartUser ? 'var(--bg-secondary)' : 'var(--bg-primary)', color: 'var(--text-primary)' }}
               />
             </div>
             <div>
@@ -162,7 +224,8 @@ export default function RegisterClient({ eventId }: { eventId: string }) {
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 placeholder="marie@exemple.fr"
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                readOnly={!!nexartUser}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: nexartUser ? 'var(--bg-secondary)' : 'var(--bg-primary)', color: 'var(--text-primary)' }}
               />
             </div>
           </div>

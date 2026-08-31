@@ -37,10 +37,9 @@ const NAV = {
     { label: 'Messagerie',  href: '/messages' },
   ],
   'Nexart': [
-    { label: 'À propos',          href: '/about' },
-    { label: 'Carnet de route',   href: '/carnet-de-route' },
-    { label: 'Patch Notes',       href: '/patch-notes' },
-    { label: 'Contact',           href: '/contact' },
+    { label: 'À propos',    href: '/about' },
+    { label: 'Patch Notes', href: '/patch-notes' },
+    { label: 'Contact',     href: '/contact' },
   ],
 }
 

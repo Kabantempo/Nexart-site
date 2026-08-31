@@ -396,12 +396,11 @@ export function NavbarFull() {
 
               {/* Nexart */}
               <div style={{ position: 'relative' }}>
-                <Trigger id="about" label="Nexart" active={isActive('/about') || isActive('/carnet-de-route') || isActive('/patch-notes')} />
+                <Trigger id="about" label="Nexart" active={isActive('/about') || isActive('/patch-notes')} />
                 <Panel id="about" width={220}>
-                  <SimpleItem panelId="about" idx={0} href="/about"           icon={Users}    label="À propos" />
-                  <SimpleItem panelId="about" idx={1} href="/carnet-de-route" icon={BookOpen} label="Carnet de route" />
-                  <SimpleItem panelId="about" idx={2} href="/patch-notes"     icon={FileText} label="Patch Notes" />
-                  <SimpleItem panelId="about" idx={3} href="/contact"         icon={MessageCircle} label="Contact" />
+                  <SimpleItem panelId="about" idx={0} href="/about"       icon={Users}         label="À propos" />
+                  <SimpleItem panelId="about" idx={1} href="/patch-notes" icon={FileText}       label="Patch Notes" />
+                  <SimpleItem panelId="about" idx={2} href="/contact"     icon={MessageCircle}  label="Contact" />
                 </Panel>
               </div>
             </nav>

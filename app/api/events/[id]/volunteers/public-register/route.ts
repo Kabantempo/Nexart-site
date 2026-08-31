@@ -8,9 +8,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!UUID_RE.test(params.id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
 
   try {
-    const { name, email, shifts: shiftIds } = await req.json()
+    const { name, email, shifts: shiftIds, user_id } = await req.json()
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const UUID_USER_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!name?.trim() || !email?.trim()) {
       return NextResponse.json({ error: 'Nom et email requis' }, { status: 400 })
     }
@@ -20,6 +21,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (!Array.isArray(shiftIds) || shiftIds.length === 0) {
       return NextResponse.json({ error: 'Sélectionnez au moins un créneau' }, { status: 400 })
     }
+    const validUserId = user_id && UUID_USER_RE.test(user_id) ? user_id : null
 
     const supabase = getAdminClient()
 
@@ -39,10 +41,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     if (existing) {
       volunteerId = existing.id
+      // Update user_id if now connecting with Nexart account
+      if (validUserId) {
+        await supabase.from('event_volunteers').update({ user_id: validUserId }).eq('id', volunteerId)
+      }
     } else {
       const { data: newVol, error: volError } = await supabase
         .from('event_volunteers')
-        .insert({ event_id: params.id, name: name.trim(), email: email.trim(), status: 'active' })
+        .insert({ event_id: params.id, name: name.trim(), email: email.trim(), status: 'active', ...(validUserId ? { user_id: validUserId } : {}) })
         .select('id')
         .single()
       if (volError || !newVol) throw volError || new Error('Failed to create volunteer')
