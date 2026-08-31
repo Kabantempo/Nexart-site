@@ -105,7 +105,7 @@ export function Footer() {
           <div style={{ minWidth: '220px' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', textDecoration: 'none' }}>
               <Image src="/icon.png" alt="Nexart" width={30} height={30} />
-              <span style={{ fontSize: '20px', fontWeight: 700, color: colors.bg.primary }}>Nexart</span>
+              <span style={{ fontSize: '20px', fontWeight: 700, color: '#FFFFFF' }}>Nexart</span>
             </Link>
 
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', lineHeight: '1.65', marginBottom: '12px' }}>

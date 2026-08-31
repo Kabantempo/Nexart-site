@@ -9,9 +9,10 @@ import { MapPin, Clock, ChevronRight, Sparkles, CheckCircle2 } from 'lucide-reac
 import { colors } from '@/lib/design-tokens'
 import { NexPagination } from '@/components/ui/nex-pagination'
 
-type Ev   = { kind: 'event';   id: string; title: string; city?: string; start_date?: string; cover_image?: string; discipline_tags?: string[]; event_type?: string; stand_price?: number }
-type Cr   = { kind: 'creator'; id: string; full_name?: string; city?: string; disciplines?: string[]; avatar_url?: string; portfolio_images?: string[]; siret_verified?: boolean; app_count?: number }
-type Prod = { kind: 'product'; id: string; title: string; price?: number; images?: string[]; category?: string; creator_id: string; creator_name?: string; creator_avatar?: string }
+type Ev    = { kind: 'event';   id: string; title: string; city?: string; start_date?: string; cover_image?: string; discipline_tags?: string[]; event_type?: string; stand_price?: number }
+type Cr    = { kind: 'creator'; id: string; full_name?: string; city?: string; disciplines?: string[]; avatar_url?: string; portfolio_images?: string[]; siret_verified?: boolean; app_count?: number; subscription_tier?: string }
+type Prod  = { kind: 'product'; id: string; title: string; price?: number; images?: string[]; category?: string; creator_id: string; creator_name?: string; creator_avatar?: string; subscription_tier?: string }
+type Photo = { img: string; creator_id: string; creator_name?: string; creator_avatar?: string; discipline?: string; subscription_tier?: string }
 
 const PAGE = 24
 
@@ -51,6 +52,75 @@ function useForYou(userId: string | undefined) {
   return { byDiscipline, loading }
 }
 
+// ── Featured creator (boosted or premium) ────────────────────────────────────
+type FeaturedCr = { id: string; full_name?: string; city?: string; disciplines?: string[]; avatar_url?: string; portfolio_images?: string[]; siret_verified?: boolean; subscription_tier?: string }
+
+function useFeaturedCreator() {
+  const [creator, setCreator] = useState<FeaturedCr | null>(null)
+
+  useEffect(() => {
+    const now = new Date().toISOString()
+    supabase
+      .from('profiles')
+      .select('id,full_name,avatar_url,subscription_tier,profile_boosted_until,creator_profiles(city,disciplines,portfolio_images,siret_verified)')
+      .or(`profile_boosted_until.gt.${now},subscription_tier.in.(premium,pro,org_studio,org_pro)`)
+      .order('profile_boosted_until', { ascending: false, nullsFirst: false })
+      .limit(1)
+      .single()
+      .then(({ data }) => {
+        if (!data) return
+        const cp = (data as any).creator_profiles
+        if (!cp) return
+        setCreator({
+          id: data.id,
+          full_name: data.full_name,
+          avatar_url: data.avatar_url,
+          subscription_tier: data.subscription_tier,
+          city: cp.city,
+          disciplines: cp.disciplines,
+          portfolio_images: cp.portfolio_images,
+          siret_verified: cp.siret_verified,
+        })
+      })
+  }, [])
+
+  return creator
+}
+
+// ── Portfolio photos (from creator_profiles.portfolio_images) ─────────────────
+function usePortfolioPhotos() {
+  const [photos, setPhotos] = useState<Photo[]>([])
+
+  useEffect(() => {
+    supabase
+      .from('creator_profiles')
+      .select('user_id,portfolio_images,disciplines,profiles(full_name,avatar_url,subscription_tier)')
+      .not('portfolio_images', 'is', null)
+      .order('user_id', { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        const flat: Photo[] = []
+        for (const c of ((data as any[]) || [])) {
+          const imgs: string[] = c.portfolio_images || []
+          if (!imgs.length) continue
+          for (const img of imgs.slice(0, 3)) {
+            flat.push({
+              img,
+              creator_id: c.user_id,
+              creator_name: c.profiles?.full_name,
+              creator_avatar: c.profiles?.avatar_url,
+              discipline: (c.disciplines || [])[0],
+              subscription_tier: c.profiles?.subscription_tier,
+            })
+          }
+        }
+        setPhotos(flat)
+      })
+  }, [])
+
+  return photos
+}
+
 function useFeed(filter: 'all' | 'events' | 'creators', page: number) {
   const [events,   setEvents]   = useState<Ev[]>([])
   const [creators, setCreators] = useState<Cr[]>([])
@@ -66,10 +136,10 @@ function useFeed(filter: 'all' | 'events' | 'creators', page: number) {
         ? supabase.from('events').select('id,title,city,start_date,cover_image,discipline_tags,event_type,stand_price,status').eq('status','published').order('start_date',{ascending:true}).range(from, from + PAGE - 1)
         : Promise.resolve({ data: [] }),
       f !== 'events'
-        ? supabase.from('creator_profiles').select('user_id,city,disciplines,portfolio_images,siret_verified,profiles(full_name,avatar_url)').order('user_id',{ascending:false}).range(0, 9)
+        ? supabase.from('creator_profiles').select('user_id,city,disciplines,portfolio_images,siret_verified,profiles(full_name,avatar_url,subscription_tier)').order('user_id',{ascending:false}).range(0, 9)
         : Promise.resolve({ data: [] }),
       p === 0
-        ? supabase.from('products').select('id,title,price,images,category,creator_id,profiles!creator_id(full_name,avatar_url)').eq('is_available', true).order('created_at',{ascending:false}).limit(12)
+        ? supabase.from('products').select('id,title,price,images,category,creator_id,profiles!creator_id(full_name,avatar_url,subscription_tier)').eq('is_available', true).order('created_at',{ascending:false}).limit(12)
         : Promise.resolve({ data: [] }),
     ])
     const evs: Ev[] = ((evRes as any).data||[]).map((e: any) => ({ kind:'event' as const, ...e }))
@@ -82,6 +152,7 @@ function useFeed(filter: 'all' | 'events' | 'creators', page: number) {
       siret_verified: c.siret_verified,
       full_name: c.profiles?.full_name,
       avatar_url: c.profiles?.avatar_url,
+      subscription_tier: c.profiles?.subscription_tier,
     }))
     const prods: Prod[] = ((prRes as any).data||[]).map((pr: any) => ({
       kind: 'product' as const,
@@ -93,6 +164,7 @@ function useFeed(filter: 'all' | 'events' | 'creators', page: number) {
       creator_id: pr.creator_id,
       creator_name: pr.profiles?.full_name,
       creator_avatar: pr.profiles?.avatar_url,
+      subscription_tier: pr.profiles?.subscription_tier,
     }))
     if (p === 0) { setEvents(evs); setCreators(crs); setProducts(prods) }
     else         { setEvents(prev => [...prev, ...evs]) }
@@ -177,6 +249,85 @@ function FeaturedCard({ item, onClick }: { item: Ev; onClick: () => void }) {
   )
 }
 
+// ── Featured Creator Card ─────────────────────────────────────────────────────
+function FeaturedCreatorCard({ item, onClick }: { item: FeaturedCr; onClick: () => void }) {
+  const [hovered, setHovered] = useState(false)
+  const imgs = item.portfolio_images || []
+  const bgImg = imgs[0] || item.avatar_url
+  const initials = item.full_name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ position: 'relative', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', marginBottom: 28, height: 220, transition: 'box-shadow 0.2s', boxShadow: hovered ? '0 12px 40px rgba(99,102,241,0.22)' : '0 2px 8px rgba(0,0,0,0.08)', display: 'flex' }}
+    >
+      {/* Background — mosaic or single image */}
+      {imgs.length >= 2 ? (
+        <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '55% 45%', gap: 2 }}>
+          {imgs.slice(0, 2).map((img, i) => (
+            <div key={i} style={{ position: 'relative', overflow: 'hidden' }}>
+              <Image src={img} alt="" fill sizes="600px" style={{ objectFit: 'cover', transition: 'transform 0.4s', transform: hovered ? 'scale(1.04)' : 'scale(1)' }} />
+            </div>
+          ))}
+        </div>
+      ) : bgImg ? (
+        <Image src={bgImg} alt={item.full_name || ''} fill sizes="1100px" style={{ objectFit: 'cover', transition: 'transform 0.4s', transform: hovered ? 'scale(1.03)' : 'scale(1)' }} />
+      ) : (
+        <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.violet})` }} />
+      )}
+      {/* Gradient overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.15) 100%)' }} />
+
+      {/* Featured pill */}
+      <span style={{ position: 'absolute', top: 16, left: 16, background: 'linear-gradient(135deg, #6366F1, #818CF8)', color: '#fff', fontSize: 10, fontWeight: 800, borderRadius: 20, padding: '4px 10px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        ★ Créateur à la une
+      </span>
+
+      {/* Info */}
+      <div style={{ position: 'absolute', bottom: 20, left: 20, right: '42%' }}>
+        {/* Avatar + name */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.5)', flexShrink: 0, backgroundColor: colors.violet.bg }}>
+            {item.avatar_url
+              ? <Image src={item.avatar_url} alt={item.full_name || ''} width={44} height={44} style={{ objectFit: 'cover' }} />
+              : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: '#fff' }}>{initials}</div>
+            }
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <p style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#fff', lineHeight: 1.2, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>{item.full_name || 'Créateur'}</p>
+              {item.siret_verified && <CheckCircle2 size={14} color="#fff" fill={colors.violet.primary} />}
+              {isPremium(item.subscription_tier) && <PremiumBadge size={14} />}
+            </div>
+            {item.city && <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}><MapPin size={10} />{item.city}</span>}
+          </div>
+        </div>
+        {/* Disciplines */}
+        {(item.disciplines || []).length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {(item.disciplines || []).slice(0, 3).map(d => (
+              <span key={d} style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.9)', backgroundColor: 'rgba(99,102,241,0.55)', borderRadius: 20, padding: '2px 8px', backdropFilter: 'blur(4px)' }}>{d}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Mosaic extra images top-right */}
+      {imgs.length >= 3 && (
+        <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 4 }}>
+          {imgs.slice(2, 5).map((img, i) => (
+            <div key={i} style={{ width: 36, height: 36, borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.25)' }}>
+              <Image src={img} alt="" width={36} height={36} style={{ objectFit: 'cover' }} />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Event Card ────────────────────────────────────────────────────────────────
 function EventCard({ item, onClick }: { item: Ev; onClick: () => void }) {
   const [hovered, setHovered] = useState(false)
@@ -245,8 +396,22 @@ function EventCard({ item, onClick }: { item: Ev; onClick: () => void }) {
   )
 }
 
+// ── Premium badge ─────────────────────────────────────────────────────────────
+const PREMIUM_TIERS = ['premium', 'pro', 'org_pro', 'org_studio']
+function isPremium(tier?: string) { return !!tier && PREMIUM_TIERS.includes(tier) }
+
+function PremiumBadge({ size = 12 }: { size?: number }) {
+  return (
+    <span title="Abonnement Premium" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size + 4, height: size + 4, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #818CF8)', flexShrink: 0 }}>
+      <svg width={size - 2} height={size - 2} viewBox="0 0 12 12" fill="none">
+        <path d="M6 1L7.5 4.5H11L8.5 6.5L9.5 10L6 8L2.5 10L3.5 6.5L1 4.5H4.5L6 1Z" fill="#fff" />
+      </svg>
+    </span>
+  )
+}
+
 // ── Creator bubble (Shotgun "Artists" style) ──────────────────────────────────
-function CreatorBubble({ item, onClick }: { item: Cr; onClick: () => void }) {
+function CreatorBubble({ item, onClick }: { item: Cr & { subscription_tier?: string }; onClick: () => void }) {
   const [hovered, setHovered] = useState(false)
   const initials = item.full_name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
   const img = item.avatar_url || item.portfolio_images?.[0]
@@ -270,9 +435,12 @@ function CreatorBubble({ item, onClick }: { item: Cr; onClick: () => void }) {
           </div>
         )}
       </div>
-      <p style={{ margin: '0 0 2px', fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {item.full_name || 'Créateur'}
-      </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, margin: '0 0 2px' }}>
+        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {item.full_name || 'Créateur'}
+        </p>
+        {isPremium(item.subscription_tier) && <PremiumBadge size={11} />}
+      </div>
       {(item.disciplines || []).length > 0 && (
         <p style={{ margin: 0, fontSize: 9, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.disciplines![0]}
@@ -322,13 +490,56 @@ function PortfolioCard({ item, onClick }: { item: Prod; onClick: () => void }) {
               : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: colors.violet.text }}>{initials[0]}</div>
             }
           </div>
-          <span style={{ fontSize: 10, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {item.creator_name || 'Créateur'}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, minWidth: 0 }}>
+            <span style={{ fontSize: 10, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {item.creator_name || 'Créateur'}
+            </span>
+            {isPremium(item.subscription_tier) && <PremiumBadge size={10} />}
+          </div>
           {item.category && (
             <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 600, color: colors.violet.text, backgroundColor: colors.violet.bg, borderRadius: 20, padding: '1px 6px', flexShrink: 0 }}>
               {item.category}
             </span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Portfolio Photo Card (artwork from creator_profiles.portfolio_images) ──────
+function PortfolioPhotoCard({ photo, onClick }: { photo: Photo & { subscription_tier?: string }; onClick: () => void }) {
+  const [hovered, setHovered] = useState(false)
+  const initials = photo.creator_name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ flexShrink: 0, width: 160, cursor: 'pointer' }}
+    >
+      <div style={{ position: 'relative', width: 160, height: 160, borderRadius: 10, overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', marginBottom: 8, transition: 'transform 0.18s, box-shadow 0.18s', transform: hovered ? 'translateY(-2px)' : 'none', boxShadow: hovered ? '0 8px 24px rgba(0,0,0,0.15)' : '0 1px 4px rgba(0,0,0,0.06)' }}>
+        <Image src={photo.img} alt={photo.creator_name || 'Créateur'} fill sizes="160px" style={{ objectFit: 'cover', transition: 'transform 0.3s', transform: hovered ? 'scale(1.05)' : 'scale(1)' }} />
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ width: 20, height: 20, borderRadius: '50%', overflow: 'hidden', backgroundColor: colors.violet.bg, flexShrink: 0 }}>
+          {photo.creator_avatar
+            ? <Image src={photo.creator_avatar} alt={photo.creator_name || ''} width={20} height={20} style={{ objectFit: 'cover' }} />
+            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: colors.violet.text }}>{initials[0]}</div>
+          }
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {photo.creator_name || 'Créateur'}
+            </p>
+            {isPremium(photo.subscription_tier) && <PremiumBadge size={11} />}
+          </div>
+          {photo.discipline && (
+            <p style={{ margin: 0, fontSize: 9, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {photo.discipline}
+            </p>
           )}
         </div>
       </div>
@@ -357,6 +568,8 @@ export default function HomeFeedClient() {
   const [page, setPage] = useState(0)
   const { events, creators, products, loading, hasMore } = useFeed(filter, page)
   const { byDiscipline } = useForYou(user?.id)
+  const portfolioPhotos = usePortfolioPhotos()
+  const featuredCreator = useFeaturedCreator()
 
   const featured = filter !== 'creators' ? events[0] : null
   const rest = filter !== 'creators' ? events.slice(1) : events
@@ -416,6 +629,11 @@ export default function HomeFeedClient() {
         {/* Featured event */}
         {!loading && featured && filter !== 'creators' && (
           <FeaturedCard item={featured} onClick={() => router.push(`/events/${featured.id}`)} />
+        )}
+
+        {/* Featured creator */}
+        {featuredCreator && filter !== 'events' && (
+          <FeaturedCreatorCard item={featuredCreator} onClick={() => router.push(`/creators/${featuredCreator.id}`)} />
         )}
 
         {/* Creators section (horizontal scroll) */}
@@ -512,6 +730,26 @@ export default function HomeFeedClient() {
             <div className="portfolio-scroll">
               {products.map(pr => (
                 <PortfolioCard key={pr.id} item={pr} onClick={() => router.push(`/creators/${pr.creator_id}`)} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Portfolio photos section */}
+        {filter !== 'events' && portfolioPhotos.length > 0 && (
+          <section style={{ marginBottom: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Galerie des créateurs
+              </h2>
+              <button onClick={() => router.push('/creators')}
+                style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 600, color: colors.violet.primary, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                Voir les créateurs <ChevronRight size={14} />
+              </button>
+            </div>
+            <div className="portfolio-scroll">
+              {portfolioPhotos.map((photo, i) => (
+                <PortfolioPhotoCard key={`${photo.creator_id}-${i}`} photo={photo} onClick={() => router.push(`/creators/${photo.creator_id}`)} />
               ))}
             </div>
           </section>

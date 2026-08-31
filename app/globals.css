@@ -951,9 +951,9 @@ img, video, iframe, canvas, svg {
 
 /* ── /events page — filter chips + cards ───────────────────── */
 :root {
-  --ev-chip-bg: rgba(255,255,255,0.07);
-  --ev-chip-text: rgba(255,255,255,0.7);
-  --ev-border: rgba(255,255,255,0.1);
+  --ev-chip-bg: rgba(255,255,255,0.14);
+  --ev-chip-text: rgba(255,255,255,0.88);
+  --ev-border: rgba(255,255,255,0.14);
   --ev-sort-active: #ffffff;
   --ev-skeleton-1: rgba(255,255,255,0.05);
   --ev-card-bg: #1A1A2E;
