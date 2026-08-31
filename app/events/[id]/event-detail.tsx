@@ -1267,6 +1267,13 @@ export function EventDetailClient({ id }: Props) {
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', marginBottom: '12px' }}
                   />
                   {/* Portfolio joint — sélection depuis le portfolio existant */}
+                  {creatorPortfolioImages.length === 0 && user && (
+                    <div style={{ marginBottom: '12px', padding: '10px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-color)' }}>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
+                        Votre portfolio est vide. <a href="/settings/profile" style={{ color: colors.violet.primary, fontWeight: 600 }}>Ajouter des photos →</a>
+                      </p>
+                    </div>
+                  )}
                   {creatorPortfolioImages.length > 0 && (
                     <div style={{ marginBottom: '12px' }}>
                       <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>

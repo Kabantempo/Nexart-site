@@ -9,23 +9,23 @@ export default function AboutPageClient() {
   const values = [
     {
       icon: Heart,
-      title: 'Authenticité',
-      description: 'Nous célébrons l\'artisanat authentique et les créateurs talentueux',
+      title: 'Créateurs avant tout',
+      description: 'Chaque décision de produit est prise en pensant à ceux qui fabriquent — pas aux algorithmes.',
     },
     {
       icon: Zap,
-      title: 'Innovation',
-      description: 'Technologie au service de la relation créateurs-marchés',
+      title: 'Simple, pas simpliste',
+      description: 'On automatise la complexité pour que l\'expérience soit fluide, pas pour enlever du contrôle.',
     },
     {
       icon: Users,
-      title: 'Communauté',
-      description: 'Créer un réseau vibrant et solidaire d\'artisans français',
+      title: 'Communauté réelle',
+      description: 'Derrière chaque profil, une personne. On construit des outils pour des humains, pas des métriques.',
     },
     {
       icon: Target,
-      title: 'Impact',
-      description: 'Soutenir l\'économie créative locale et durable',
+      title: 'Économie locale',
+      description: 'Chaque marché facilité, c\'est du revenu qui reste dans des mains d\'artisans français.',
     },
   ]
 
@@ -44,12 +44,14 @@ export default function AboutPageClient() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
+          <p style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.violet.primary, marginBottom: '12px' }}>
+            Qui sommes-nous
+          </p>
           <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
-            À propos de Nexart
+            La plateforme des créateurs<br />qui exposent en marchés
           </h1>
-          <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '600px' }}>
-            Nexart est la plateforme de mise en relation entre créateurs, artisans et
-            marchés artisanaux en France.
+          <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6', maxWidth: '640px' }}>
+            Nexart connecte artisans, designers et créateurs français avec les marchés et événements artisanaux — candidatures, paiements et contrats réunis en un seul endroit.
           </p>
         </motion.div>
       </div>
@@ -70,32 +72,30 @@ export default function AboutPageClient() {
           viewport={{ once: true }}
         >
           <h2 style={{ fontSize: '32px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '24px' }}>
-            Notre Mission
+            Notre mission
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(240px, 100%), 1fr))', gap: 'clamp(20px, 5vw, 40px)', alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.8', marginBottom: '16px' }}>
-                Connecter les créateurs, artisans et designers français avec les marchés et événements
-                artisanaux où ils peuvent exposer et vendre leurs œuvres.
+                Des milliers de créateurs talentueux peinent à trouver des marchés, et des organisateurs passent des heures à gérer leurs candidatures manuellement.
               </p>
               <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-                Nous facilitons la mise en relation, les candidatures, les paiements et la communication
-                pour une expérience fluide et professionnelle.
+                Nexart automatise tout ce qui peut l&apos;être — dépôt de candidature, sélection, signature de contrat, paiement — pour que créateurs et organisateurs se concentrent sur l&apos;essentiel.
               </p>
             </div>
             <div
               style={{
                 padding: '40px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.purple.primary} 100%)',
-                color: colors.bg.primary,
+                borderRadius: '16px',
+                background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.purple.primary} 100%)`,
+                color: '#FFFFFF',
               }}
             >
-              <p style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 12px' }}>
-                Disponible sur iOS & Android
+              <p style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 8px', lineHeight: 1.1 }}>
+                100%<br />gratuit pour commencer
               </p>
-              <p style={{ fontSize: '14px', opacity: 0.85, lineHeight: '1.6', margin: 0 }}>
-                Téléchargez l&apos;application Nexart et gérez vos candidatures, marchés et messages où que vous soyez.
+              <p style={{ fontSize: '15px', opacity: 0.9, lineHeight: '1.6', margin: 0 }}>
+                Créez votre profil, postulez à vos premiers marchés et développez votre activité — sans frais d&apos;inscription.
               </p>
             </div>
           </div>
@@ -196,10 +196,10 @@ export default function AboutPageClient() {
           viewport={{ once: true }}
         >
           <h2 style={{ fontSize: '32px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '24px' }}>
-            Prêt à vous lancer ?
+            Votre prochain marché commence ici
           </h2>
           <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '500px', margin: '0 auto 32px' }}>
-            Rejoignez la communauté Nexart et découvrez de nouvelles opportunités
+            Créez votre profil en 5 minutes, accédez à des centaines d&apos;événements et postulez en un clic.
           </p>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link
