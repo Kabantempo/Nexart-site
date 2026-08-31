@@ -66,15 +66,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
       name: z.string().min(1).max(200),
-      email: z.string().email().optional(),
+      email: z.string().email().optional().or(z.literal('')).transform(v => v || undefined),
+      phone: z.string().max(30).optional(),
       shifts: z.array(z.string()).default([]),
     })
     const { data: body, error: validErr } = v(schema, await req.json())
     if (validErr) return validErr
-    const { name, email, shifts } = body
+    const { name, email, phone, shifts } = body
     const { data, error } = await supabase
       .from('event_volunteers')
-      .insert([{ event_id: params.id, name, email, shifts, status: 'active' }])
+      .insert([{ event_id: params.id, name, email, phone: phone || null, shifts, status: 'active' }])
       .select()
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })

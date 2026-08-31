@@ -38,7 +38,7 @@ function greedyAssign(shifts: Shift[], volunteers: Volunteer[]): Map<string, str
   volunteers.forEach(v => load.set(v.id, 0))
   for (const shift of [...shifts].sort((a, b) => a.capacity - b.capacity)) {
     assignments.set(shift.id, [])
-    const avail = volunteers.filter(v => v.status === 'active').sort((a, b) => (load.get(a.id) || 0) - (load.get(b.id) || 0))
+    const avail = volunteers.slice().sort((a, b) => (load.get(a.id) || 0) - (load.get(b.id) || 0))
     let filled = 0
     for (const vol of avail) {
       if (filled >= shift.capacity) break
@@ -225,9 +225,19 @@ export default function VolunteersClient({ eventId }: { eventId: string }) {
       <div style={{ padding: '24px 16px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
           <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Bénévoles</h1>
-          <a href={shareUrl} target="_blank" rel="noreferrer" title="Ouvrir lien inscription" style={{ width: '40px', height: '40px', borderRadius: '12px', background: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', color: colors.violet.primary }}>
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({ title: 'Inscription bénévole', url: shareUrl }).catch(() => null)
+              } else {
+                navigator.clipboard.writeText(shareUrl).then(() => alert('Lien copié !'))
+              }
+            }}
+            title="Partager le lien inscription"
+            style={{ width: '40px', height: '40px', borderRadius: '12px', background: colors.violet.bg, border: `1px solid ${colors.purple.bgLight}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: colors.violet.primary }}
+          >
             <ExternalLink size={17} />
-          </a>
+          </button>
         </div>
         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: '0 0 20px' }}>
           {volunteers.length} bénévole{volunteers.length !== 1 ? 's' : ''} · {shifts.length} activité{shifts.length !== 1 ? 's' : ''}
@@ -431,9 +441,15 @@ function VolunteersTab({ eventId, volunteers, shifts, shareUrl, onRefresh }: { e
           <button onClick={copyLink} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: copied ? colors.green.bg : 'var(--bg-primary)', border: `1px solid ${copied ? colors.green.primary : colors.border.default}`, borderRadius: '10px', color: copied ? colors.green.primary : 'var(--text-primary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
             {copied ? <><Check size={14} /> Copié !</> : <><Copy size={14} /> Copier</>}
           </button>
-          <a href={shareUrl} target="_blank" rel="noreferrer" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: colors.violet.primary, border: 'none', borderRadius: '10px', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-            <ExternalLink size={14} /> Ouvrir
-          </a>
+          {typeof navigator !== 'undefined' && 'share' in navigator ? (
+            <button onClick={() => (navigator as any).share({ title: 'Inscription bénévole', url: shareUrl }).catch(() => null)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: colors.violet.primary, border: 'none', borderRadius: '10px', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+              <ExternalLink size={14} /> Partager
+            </button>
+          ) : (
+            <a href={shareUrl} target="_blank" rel="noreferrer" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', background: colors.violet.primary, border: 'none', borderRadius: '10px', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+              <ExternalLink size={14} /> Ouvrir
+            </a>
+          )}
         </div>
       </div>
 
@@ -502,8 +518,16 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh, onSwitchTab }: { 
   const [saving, setSaving] = useState(false)
   const [sending, setSending] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [assignedCount, setAssignedCount] = useState(0)
 
-  const generate = () => { setPlan(greedyAssign(shifts, volunteers)); setSaved(false) }
+  const generate = () => {
+    const result = greedyAssign(shifts, volunteers)
+    let total = 0
+    result.forEach(ids => { total += ids.length })
+    setAssignedCount(total)
+    setPlan(result)
+    setSaved(false)
+  }
   const save = async () => {
     if (!plan) return
     setSaving(true)
@@ -536,8 +560,13 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh, onSwitchTab }: { 
     <div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
         <button onClick={generate} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px', background: colors.violet.primary, color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 700, cursor: 'pointer' }}>
-          <Shuffle size={16} /> Générer le planning
+          <Shuffle size={16} /> {plan ? 'Regénérer le planning' : 'Générer le planning'}
         </button>
+        {plan && (
+          <div style={{ padding: '10px 14px', background: assignedCount > 0 ? colors.green.bg : colors.violet.bg, borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: assignedCount > 0 ? colors.green.text : colors.violet.text, textAlign: 'center' }}>
+            {assignedCount > 0 ? `✓ ${assignedCount} bénévole${assignedCount > 1 ? 's' : ''} réparti${assignedCount > 1 ? 's' : ''}` : 'Aucun bénévole disponible à répartir'}
+          </div>
+        )}
         {plan && !saved && (
           <button onClick={save} disabled={saving} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px', background: colors.green.primary, color: '#fff', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
             <Check size={16} /> {saving ? 'Enregistrement…' : 'Valider le planning'}
