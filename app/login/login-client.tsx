@@ -202,15 +202,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ position: 'relative', zIndex: 10 }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '10px',
-                background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.violet})`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '18px', fontWeight: '800', color: colors.bg.primary,
-              }}>N</div>
-              <span style={{ fontSize: '22px', fontWeight: '800', color: colors.bg.primary, letterSpacing: '-0.5px' }}>Nexart</span>
-            </div>
+            <Image src="/logo-full.png" alt="Nexart" width={140} height={40} style={{ objectFit: 'contain' }} />
           </Link>
         </div>
 
@@ -221,16 +213,6 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              padding: '6px 14px', borderRadius: '999px',
-              backgroundColor: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)',
-              marginBottom: '24px',
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: colors.purple.bgPale }} />
-              <span style={{ fontSize: '13px', color: colors.purple.bgPale, fontWeight: '600' }}>500+ créateurs actifs</span>
-            </div>
-
             <h2 style={{ fontSize: '36px', fontWeight: '800', color: colors.bg.primary, lineHeight: '1.2', marginBottom: '16px', letterSpacing: '-0.5px' }}>
               La plateforme des créateurs et organisateurs de marchés
             </h2>
@@ -255,15 +237,6 @@ export default function LoginPage() {
           </motion.div>
         </div>
 
-        {/* Stats footer */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', gap: '32px' }}>
-          {[['500+', 'Créateurs'], ['200+', 'Événements'], ['15k+', 'Visiteurs']].map(([n, l]) => (
-            <div key={l}>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: colors.bg.primary }}>{n}</div>
-              <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: '500' }}>{l}</div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Panel droit — formulaire */}

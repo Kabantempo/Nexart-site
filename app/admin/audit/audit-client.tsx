@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
-import { Shield, Search, Filter, RefreshCw, Download, ChevronLeft, ChevronRight, Eye, Trash2, FileDown, Lock } from 'lucide-react'
+import { Shield, Search, Filter, RefreshCw, Download, Eye, Trash2, FileDown, Lock } from 'lucide-react'
 import { NexModal } from '@/components/ui/nex-modal'
+import { NexPagination } from '@/components/ui/nex-pagination'
 
 type AuditLog = {
   id: string
@@ -271,21 +272,16 @@ export default function AuditLogsClient() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: `1px solid ${colors.border.default}` }}>
-              <span style={{ fontSize: '13px', color: colors.text.secondary }}>
-                Page {page}/{totalPages} · {total.toLocaleString('fr-FR')} entrées
-              </span>
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <button onClick={() => handlePage(page - 1)} disabled={page === 1} style={{ padding: '6px 10px', border: `1px solid ${colors.border.default}`, borderRadius: '6px', background: page === 1 ? colors.bg.secondary : 'white', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
-                  <ChevronLeft size={14} />
-                </button>
-                <button onClick={() => handlePage(page + 1)} disabled={page === totalPages} style={{ padding: '6px 10px', border: `1px solid ${colors.border.default}`, borderRadius: '6px', background: page === totalPages ? colors.bg.secondary : 'white', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
-                  <ChevronRight size={14} />
-                </button>
-              </div>
-            </div>
-          )}
+          <div style={{ padding: '8px 16px', borderTop: `1px solid ${colors.border.default}` }}>
+            <NexPagination
+              variant="pages"
+              page={page}
+              totalPages={totalPages}
+              total={total}
+              onPage={handlePage}
+              label="entrées"
+            />
+          </div>
         </div>
       </div>
 

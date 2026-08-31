@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
+import { NexPagination } from '@/components/ui/nex-pagination'
 
 const ITEMS_PER_PAGE = 12
 
@@ -416,7 +417,7 @@ function CreatorsContent() {
                       onClick={() => router.push(`/creators/${c.id}`)}
                       style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, cursor: 'pointer', width: 58 }}
                     >
-                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', flexShrink: 0, padding: 2.5, background: c.siret_verified ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.violet}, #EC4899)` : `linear-gradient(135deg, #D1D5DB, ${colors.text.light})` }}>
+                      <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', flexShrink: 0, padding: 2.5, background: c.siret_verified ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.violet}, ${colors.fuchsia.primary})` : `linear-gradient(135deg, ${colors.gray['300']}, ${colors.text.light})` }}>
                       <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--ev-card-bg2)', border: '2px solid var(--bg-primary)' }}>
                         {(c.avatar_url || c.portfolio_images?.[0]) ? (
                           <Image src={c.avatar_url || c.portfolio_images![0]} alt={c.full_name || ''} fill sizes="54px" style={{ objectFit: 'cover' }} />
@@ -859,24 +860,14 @@ function CreatorsContent() {
               ))}
             </div>
 
-            {hasMore && (
-              <div className="text-center mt-16">
-                <div className="max-w-[200px] mx-auto mb-4">
-                  <div className="h-1 bg-gray-100 rounded-full overflow-hidden mb-2">
-                    <motion.div className="h-full bg-indigo-500 rounded-full"
-                      initial={{ width: 0 }} animate={{ width: `${progressPct}%` }} transition={{ duration: 0.4, ease: 'easeOut' }} />
-                  </div>
-                  <p className="text-xs text-gray-400">{Math.min(visibleCount, filtered.length)} / {filtered.length} créateurs</p>
-                </div>
-                <button onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
-                  className="px-8 py-3 rounded-xl border-2 border-indigo-600 text-indigo-600 font-semibold text-sm hover:bg-indigo-600 hover:text-white transition-all duration-200">
-                  Voir {Math.min(ITEMS_PER_PAGE, filtered.length - visibleCount)} de plus
-                </button>
-              </div>
-            )}
-            {!hasMore && filtered.length > ITEMS_PER_PAGE && (
-              <p className="text-center text-sm text-gray-400 mt-12">Tous les {filtered.length} créateurs sont affichés</p>
-            )}
+            <NexPagination
+              variant="load-more"
+              hasMore={hasMore}
+              loaded={Math.min(visibleCount, filtered.length)}
+              total={filtered.length}
+              onLoadMore={() => setVisibleCount(c => c + ITEMS_PER_PAGE)}
+              label="créateurs"
+            />
           </>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">

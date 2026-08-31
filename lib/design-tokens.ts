@@ -8,7 +8,7 @@
  *
  * Emplacement : lib/design-tokens.ts
  * Utilisé par  : tous les composants (inline styles uniquement)
- * Mis à jour   : v1.2.0
+ * Mis à jour   : v1.5.0 — synchronisé charte graphique 21/08/2026
  * ============================================================
  */
 
@@ -21,45 +21,48 @@ export const colors = {
   // Accent principal
   violet: {
     primary:  '#6366F1',  // CTAs, liens, highlights
-    hover:    '#818CF8',  // hover sur éléments violets
+    hover:    '#818CF8',  // hover / accent dark mode
     dark:     '#5B5BD6',  // active/pressed
+    wash:     '#EEF2FF',  // fonds badges, sélection (ex-bgEef)
     bg:       '#EDE9FE',  // fond très léger (badges "Nouveau")
     bgHover:  '#DDD6FE',  // hover sur fond violet léger
     text:     '#4338CA',  // texte sur fond violet léger
     ring:     'rgba(99, 102, 241, 0.25)', // anneau focus
   },
 
-  // Fonds
+  // Fonds — CSS vars pour dark mode automatique
   bg: {
-    primary:   '#FFFFFF',  // fond principal, cartes, écrans
-    secondary: '#F5F5F7',  // sections alternatives, inputs disabled
-    hover:     '#F0F0FF',  // hover sur ghost buttons
-    subtle:    '#F3F4F6',  // gris très léger (Tailwind gray-100)
-    dark:      '#06060f',  // fond hero dark
-    darkAlt:   '#0F0C29',  // fond dark alternatif (dégradé)
+    primary:   'var(--bg-primary)',    // #FFFFFF light / #0F0F0F dark
+    secondary: 'var(--bg-secondary)',  // #F9FAFB light / #1A1A1A dark
+    tertiary:  'var(--bg-tertiary)',   // #F4F4F8 light / #111111 dark
+    hover:     '#F0F0FF',              // hover ghost buttons (stable)
+    subtle:    'var(--bg-secondary)',  // alias bg-secondary
+    dark:      '#06060f',             // fond hero dark (stable)
+    darkAlt:   '#0F0C29',             // fond dark alternatif (stable)
   },
 
-  // Textes
+  // Textes — CSS vars pour dark mode automatique
   text: {
-    primary:   '#1A1A1A',  // texte principal, titres
-    secondary: '#6B7280',  // labels, descriptions — ratio 4.62:1 on white (WCAG AA ✓)
-    muted:     '#737373',  // placeholders, hints, disabled — ratio 4.6:1 (WCAG AA ✓)
-    onViolet:  '#FFFFFF',  // texte sur fond violet
-    onDanger:  '#FFFFFF',  // texte sur fond rouge
-    dark:      '#111827',  // gris très foncé (Tailwind gray-900)
-    light:     '#9CA3AF',  // gris clair (Tailwind gray-400)
-    white:     '#FFFFFF',
-    black:     '#000000',
-    gray888:   '#888888',
+    primary:     'var(--text-primary)',    // #1A1A1A light / #F9FAFB dark
+    secondary:   'var(--text-secondary)', // #6B7280 light / #9CA3AF dark
+    muted:       'var(--text-tertiary)',  // #9CA3AF light / #6B7280 dark
+    onViolet:    '#FFFFFF',              // texte sur fond violet (stable)
+    onDanger:    '#FFFFFF',              // texte sur fond rouge (stable)
+    dark:        '#111827',             // gris très foncé (stable, usage limité)
+    light:       '#9CA3AF',             // gris clair (stable)
+    white:       '#FFFFFF',
+    black:       '#000000',
+    gray888:     '#888888',             // legacy
+    darkPrimary: '#F9FAFB',            // dark text reference (gardé pour compat)
   },
 
-  // Bordures
+  // Bordures — CSS vars pour dark mode automatique
   border: {
-    default: '#E5E7EB',   // bordures au repos
-    strong:  '#AAAAAA',   // bordures hover / focus
-    accent:  '#6366F1',   // bordure violet (focus, selected)
-    danger:  '#E05A5A',   // bordure champ en erreur
-    success: '#4CAF50',   // bordure champ validé
+    default: 'var(--border-color)',  // #E5E7EB light / #2D2D2D dark
+    strong:  '#AAAAAA',             // bordures hover/focus (stable)
+    accent:  '#6366F1',             // bordure violet (stable)
+    danger:  '#E05A5A',             // bordure champ en erreur (stable)
+    success: '#4CAF50',             // bordure champ validé (stable)
   },
 
   // Feedback sémantique
@@ -264,6 +267,8 @@ export const colors = {
 
   // Dark mode / hero backgrounds
   dark: {
+    primary:  '#0F0F0F',  // fond sombre principal (charte graphique)
+    cards:    '#1A1A1A',  // cartes en dark mode (charte graphique)
     base:     '#06060f',
     alt:      '#0F0C29',
     deep:     '#1a1a2e',
@@ -314,14 +319,15 @@ export function alpha(hex: string, opacity: number): string {
 
 export const typography = {
 
-  // Famille de polices
-  fontFamily: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
-  fontMono:   `Monaco, Menlo, 'Courier New', monospace`,
+  // Famille de polices (charte graphique v1.2.0)
+  fontFamily: `'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`,
+  fontMono:   `'JetBrains Mono', Monaco, Menlo, 'Courier New', monospace`,
 
-  // Hiérarchie (site web — Next.js)
-  h1: { fontSize: '56px', fontWeight: 700, lineHeight: 1.2 },
-  h2: { fontSize: '48px', fontWeight: 700, lineHeight: 1.2 },
-  h3: { fontSize: '20px', fontWeight: 600, lineHeight: 1.5 },
+  // Hiérarchie (charte graphique v1.2.0)
+  h1: { fontSize: '40px', fontWeight: 800, lineHeight: 1.2 },
+  h2: { fontSize: '24px', fontWeight: 700, lineHeight: 1.3 },
+  h3: { fontSize: '19px', fontWeight: 700, lineHeight: 1.4 },
+  bodyL: { fontSize: '17px', fontWeight: 400, lineHeight: 1.8 },
   body: { fontSize: '16px', fontWeight: 400, lineHeight: 1.6 },
   small: { fontSize: '14px', fontWeight: 400, lineHeight: 1.5 },
   caption: { fontSize: '12px', fontWeight: 400, lineHeight: 1.3 },

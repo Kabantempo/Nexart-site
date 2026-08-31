@@ -213,7 +213,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
     return (
       <div style={{
         margin: '0 16px 28px', borderRadius: 0, overflow: 'hidden',
-        height: 200, backgroundColor: '#1A1A2E',
+        height: 200, backgroundColor: colors.dark.deep,
         background: 'linear-gradient(90deg,var(--ev-card-bg) 25%,var(--ev-card-tag-bg) 50%,var(--ev-card-bg) 75%)',
         backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite',
       }} />
@@ -235,7 +235,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
         onClick={() => onCardClick(ev.id)}
         style={{
           borderRadius: 0, overflow: 'hidden', cursor: 'pointer',
-          height: 200, position: 'relative', backgroundColor: '#1A1A2E',
+          height: 200, position: 'relative', backgroundColor: colors.dark.deep,
         }}
       >
         {/* background image */}
@@ -419,7 +419,7 @@ export default function EventsClient() {
         <h1 style={{ fontSize: 32, fontWeight: 800, color: 'var(--ev-sort-active)', marginBottom: 4, letterSpacing: -0.5 }}>
           Événements
         </h1>
-        <p style={{ color: '#6B7280', marginBottom: 24 }}>Marchés, pop-ups et salons près de chez vous</p>
+        <p style={{ color: colors.text.secondary, marginBottom: 24 }}>Marchés, pop-ups et salons près de chez vous</p>
 
         {/* search + filters */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 32, alignItems: 'center', flexWrap: 'wrap' }}>

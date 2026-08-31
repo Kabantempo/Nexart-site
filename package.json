@@ -11,6 +11,8 @@
     "build": "NEXT_TELEMETRY_DISABLED=1 next build",
     "postbuild": "cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public",
     "build:local": "NEXT_TELEMETRY_DISABLED=1 RAYON_NUM_THREADS=1 NEXT_CPU_CPUS=1 next build",
+    "predeploy": "node scripts/fix-paths.js",
+    "deploy": "tar -czf /tmp/nexart-deploy.tar.gz .next/standalone .next/static public && scp -P 65002 -i ~/.ssh/hostinger_nexart -o ServerAliveInterval=5 /tmp/nexart-deploy.tar.gz u142938038@147.79.103.73:/tmp/ && ssh -i ~/.ssh/hostinger_nexart -p 65002 -o ServerAliveInterval=5 u142938038@147.79.103.73 'cd ~/domains/nexart.fr/nodejs && tar -xzf /tmp/nexart-deploy.tar.gz && cp -r .next/standalone/.next/server/app/. .next/server/app/ 2>/dev/null; cp -r .next/standalone/.next/server/chunks/. .next/server/chunks/ 2>/dev/null; cp .next/standalone/.next/BUILD_ID .next/ 2>/dev/null; cp -r .next/static .next/standalone/.next/static; cp -r public .next/standalone/public; pkill -f next-router-worker 2>/dev/null; touch tmp/restart.txt && rm -f /tmp/nexart-deploy.tar.gz && echo DONE' && rm -f /tmp/nexart-deploy.tar.gz",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
     "test": "bash scripts/test-report.sh",
