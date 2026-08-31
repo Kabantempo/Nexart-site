@@ -40,6 +40,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const { requireAdmin } = await import('@/lib/require-admin')
+  const check = await requireAdmin(req)
+  if (!check.ok) return check.response
   const supabase = getAdminClient()
   try {
     const { validate: v, z, uuidSchema } = await import('@/lib/validate')
