@@ -341,7 +341,7 @@ function CreatorsContent() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '8px 14px' }}>
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
                 <input type="text" placeholder="Nom, discipline, ville…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', colorScheme: 'dark light' }} />
+                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'transparent' }} />
                 {searchTerm && (
                   <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                     <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}><path d="M18 6 6 18M6 6l12 12" /></svg>

@@ -433,7 +433,7 @@ export default function EventsClient() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               autoComplete="off"
-              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', colorScheme: 'dark light' }}
+              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'transparent' }}
             />
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -553,7 +553,7 @@ export default function EventsClient() {
                 placeholder="Ville, nom d'événement…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', colorScheme: 'dark light' }}
+                style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'transparent' }}
               />
               {search && (
                 <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
