@@ -169,9 +169,8 @@ export function EventDetailClient({ id }: Props) {
   const [payingStand, setPayingStand] = useState(false)
   const [onWaitlist, setOnWaitlist] = useState(false)
   const [joiningWaitlist, setJoiningWaitlist] = useState(false)
-  const [appPortfolioFiles, setAppPortfolioFiles] = useState<File[]>([])
-  const [appPortfolioUploading, setAppPortfolioUploading] = useState(false)
-  const appPortfolioRef = useRef<HTMLInputElement>(null)
+  const [selectedPortfolioUrls, setSelectedPortfolioUrls] = useState<string[]>([])
+  const [creatorPortfolioImages, setCreatorPortfolioImages] = useState<string[]>([])
   const [weeklyApplicants, setWeeklyApplicants] = useState<number | null>(null)
 
   const REQUIRED_FIELDS_TOTAL = 6
@@ -495,22 +494,9 @@ export function EventDetailClient({ id }: Props) {
   }
 
   const handleApply = async () => {
-    setAppPortfolioUploading(appPortfolioFiles.length > 0)
-    let portfolioUrls: string[] = []
-    if (appPortfolioFiles.length > 0 && user) {
-      const uploads = await Promise.all(appPortfolioFiles.map(async (file, i) => {
-        const ext = file.name.split('.').pop() ?? 'jpg'
-        const path = `applications/${user.id}/${id}/${Date.now()}_${i}.${ext}`
-        const { error, data } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type })
-        if (error) return null
-        return supabase.storage.from('avatars').getPublicUrl(data.path).data.publicUrl
-      }))
-      portfolioUrls = uploads.filter(Boolean) as string[]
-    }
-    setAppPortfolioUploading(false)
-    await apply(message, portfolioUrls)
+    await apply(message, selectedPortfolioUrls)
     trackApplicationSubmit(id, user?.id)
-    setAppPortfolioFiles([])
+    setSelectedPortfolioUrls([])
     setShowForm(false)
   }
 
@@ -1280,43 +1266,41 @@ export function EventDetailClient({ id }: Props) {
                     rows={4}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', marginBottom: '12px' }}
                   />
-                  {/* Portfolio joint */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                      Photos de vos créations (optionnel, max 4)
-                    </label>
-                    <input ref={appPortfolioRef} type="file" accept="image/*" multiple style={{ display: 'none' }}
-                      onChange={e => {
-                        const files = Array.from(e.target.files ?? []).slice(0, 4)
-                        setAppPortfolioFiles(files)
-                        e.target.value = ''
-                      }} />
-                    {appPortfolioFiles.length === 0 ? (
-                      <button onClick={() => appPortfolioRef.current?.click()}
-                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                        + Ajouter des photos
-                      </button>
-                    ) : (
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {appPortfolioFiles.map((f, i) => (
-                          <div key={i} style={{ position: 'relative', width: '64px', height: '64px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={URL.createObjectURL(f)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            <button onClick={() => setAppPortfolioFiles(prev => prev.filter((_, j) => j !== i))}
-                              style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: `${colors.gray.g111}`, color: colors.bg.primary, border: 'none', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                        {appPortfolioFiles.length < 4 && (
-                          <button onClick={() => appPortfolioRef.current?.click()}
-                            style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '20px', cursor: 'pointer' }}>
-                            +
-                          </button>
-                        )}
+                  {/* Portfolio joint — sélection depuis le portfolio existant */}
+                  {creatorPortfolioImages.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                        Photos de vos créations (optionnel, max 4)
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                        {creatorPortfolioImages.map((url, i) => {
+                          const selected = selectedPortfolioUrls.includes(url)
+                          return (
+                            <div key={i} onClick={() => {
+                              if (selected) {
+                                setSelectedPortfolioUrls(prev => prev.filter(u => u !== url))
+                              } else if (selectedPortfolioUrls.length < 4) {
+                                setSelectedPortfolioUrls(prev => [...prev, url])
+                              }
+                            }} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: selected ? `2px solid ${colors.violet.primary}` : '2px solid transparent', opacity: !selected && selectedPortfolioUrls.length >= 4 ? 0.4 : 1, transition: 'border-color 0.15s, opacity 0.15s' }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                              {selected && (
+                                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '13px', fontWeight: '700' }}>✓</div>
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
-                    )}
-                  </div>
+                      {selectedPortfolioUrls.length > 0 && (
+                        <p style={{ margin: '6px 0 0', fontSize: '11px', color: colors.violet.primary, fontWeight: '600' }}>
+                          {selectedPortfolioUrls.length} photo{selectedPortfolioUrls.length > 1 ? 's' : ''} sélectionnée{selectedPortfolioUrls.length > 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   {applyError && (
                     <p style={{ color: colors.feedback.danger.solid, fontSize: '13px', marginBottom: '12px' }}>{applyError}</p>
                   )}
@@ -1373,7 +1357,13 @@ export function EventDetailClient({ id }: Props) {
                 }
                 return (
                   <button
-                    onClick={() => setShowForm(true)}
+                    onClick={async () => {
+                      setShowForm(true)
+                      if (user) {
+                        const { data } = await supabase.from('creator_profiles').select('portfolio_images').eq('user_id', user.id).maybeSingle()
+                        setCreatorPortfolioImages(Array.isArray(data?.portfolio_images) ? data.portfolio_images : [])
+                      }
+                    }}
                     style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.violet.dark; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)' }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.violet.primary; e.currentTarget.style.boxShadow = 'none' }}
