@@ -48,9 +48,20 @@ if (count > 0) console.log(`  Fixed ${count} files`);
 else console.log('  No Windows paths found (build on Unix or already fixed)');
 FIXEOF
 
-# ── 3. Archive standalone seulement (~10MB vs ~500MB avec node_modules) ───────
-echo "📦 Creating archive (standalone only)..."
-tar -czf "$ARCHIVE" .next/standalone .next/static public
+# ── 3. Archive avec structure correcte pour hPanel ───────────────────────────
+# hPanel lance nodejs/server.js qui cherche .next/server/ dans nodejs/.next/
+# => standalone/* va à la racine de nodejs/, pas dans .next/standalone/
+echo "📦 Creating archive (correct hPanel structure)..."
+DEPLOY_TMP=$(mktemp -d)
+mkdir -p "$DEPLOY_TMP/.next"
+# Standalone contents → root (server.js, lib, node_modules, pages, .next/server/ etc.)
+cp -r .next/standalone/. "$DEPLOY_TMP/"
+# Static files → .next/static/ (LiteSpeed sert /_next/static/)
+cp -r .next/static "$DEPLOY_TMP/.next/"
+# Public
+cp -r public "$DEPLOY_TMP/"
+tar -czf "$ARCHIVE" -C "$DEPLOY_TMP" .
+rm -rf "$DEPLOY_TMP"
 ARCHIVE_SIZE=$(du -sh "$ARCHIVE" | cut -f1)
 echo "   Archive size: $ARCHIVE_SIZE"
 
@@ -59,24 +70,16 @@ echo "⬆️  Uploading to Hostinger..."
 scp -P "$SSH_PORT" -i "$SSH_KEY" -o ServerAliveInterval=5 -o ServerAliveCountMax=20 "$ARCHIVE" "$SSH_HOST:/tmp/"
 REMOTE_ARCHIVE="/tmp/$(basename $ARCHIVE)"
 
-# ── 4. Kill stale processes (évite 503 max process limit) ────────────────────
-echo "🔪 Killing stale node processes..."
-$SSH "pkill -f 'node.*server.js' 2>/dev/null; pkill -f 'node.*next' 2>/dev/null; echo done" || true
-sleep 3
-
-# ── 5. Extract ────────────────────────────────────────────────────────────────
+# ── 5. Extract directly into nodejs/ ──────────────────────────────────────────
+# tar -xzf dans nodejs/ écrase server.js et met .next/server/ au bon endroit
 echo "📂 Extracting build..."
-$SSH "cd $REMOTE_DIR && rm -rf .next/static .next/standalone && tar -xzf $REMOTE_ARCHIVE && rm -f $REMOTE_ARCHIVE && echo done"
-
-# ── 6. Copier compiled routes dans .next/ (serveur lit .next/ pas .next/standalone/) ──
-echo "🔗 Syncing compiled routes to active .next dir..."
-$SSH "cd $REMOTE_DIR && cp -r .next/standalone/.next/server/app/. .next/server/app/ && cp -r .next/standalone/.next/server/chunks/. .next/server/chunks/ && cp .next/standalone/.next/BUILD_ID .next/ && cp .next/standalone/.next/server/app-paths-manifest.json .next/server/ && cp .next/standalone/.next/app-path-routes-manifest.json .next/ && cp .next/standalone/.next/routes-manifest.json .next/ && cp .next/standalone/.next/server/middleware.js .next/server/middleware.js 2>/dev/null; cp .next/standalone/.next/server/middleware-manifest.json .next/server/middleware-manifest.json 2>/dev/null; cp .next/standalone/.next/server/middleware-build-manifest.js .next/server/middleware-build-manifest.js 2>/dev/null; cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && [ -f .env.local ] && cp .env.local .next/standalone/.env.local; echo done"
+$SSH "tar -xzf $REMOTE_ARCHIVE -C $REMOTE_DIR && rm -f $REMOTE_ARCHIVE && echo done"
 
 # ── 6b. Alias username → UUID static pages (username-based pretty URLs) ──────
 $SSH "cd $REMOTE_DIR && CREATORS_DIR=.next/server/app/creators && for uuid_html in \$CREATORS_DIR/*.html; do uuid=\$(basename \$uuid_html .html); [ \"\$uuid\" = '_page' ] && continue; username=\$(curl -s \"https://cvqeysnymnkfxfithhsr.supabase.co/rest/v1/profiles?id=eq.\$uuid&select=username\" -H 'apikey: sb_publishable_Q59WmYgpYsdmW2pPRF6sfA_g2inbZei' -H 'Authorization: Bearer sb_publishable_Q59WmYgpYsdmW2pPRF6sfA_g2inbZei' -H 'Accept-Profile: public' 2>/dev/null | grep -o '\"username\":\"[^\"]*\"' | cut -d'\"' -f4); if [ -n \"\$username\" ] && [ \"\$username\" != 'null' ]; then cp \$CREATORS_DIR/\$uuid.html \$CREATORS_DIR/\$username.html 2>/dev/null; cp \$CREATORS_DIR/\$uuid.meta \$CREATORS_DIR/\$username.meta 2>/dev/null; cp \$CREATORS_DIR/\$uuid.rsc \$CREATORS_DIR/\$username.rsc 2>/dev/null; fi; done; echo 'username aliases done'"
 
-# ── 7. Kill workers + restart ─────────────────────────────────────────────────
-echo "🚀 Restarting app (including workers)..."
+# ── 7. Restart via hPanel (touch tmp/restart.txt) ────────────────────────────
+echo "🚀 Restarting app..."
 $SSH "cd $REMOTE_DIR && > stderr.log && pkill -f next-router-worker 2>/dev/null || true; touch tmp/restart.txt && cat .next/BUILD_ID"
 
 echo "🧹 Cleaning up local archive..."
