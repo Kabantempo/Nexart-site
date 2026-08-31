@@ -998,7 +998,7 @@ export default function ProfilePage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
         {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
-        <div className="relative overflow-hidden pt-24 pb-12" style={{ backgroundColor: colors.dark.base }}>
+        <div className="relative overflow-hidden pt-24 pb-12" data-theme="dark" style={{ backgroundColor: colors.dark.base }}>
           {/* Banner image */}
           {profile?.banner_url && (
             <div className="absolute inset-0 z-0">

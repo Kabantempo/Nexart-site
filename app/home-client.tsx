@@ -121,8 +121,8 @@ function PhoneMockup() {
       {/* Glow */}
       <div style={{ position: 'absolute', left: '16px', right: '16px', bottom: '-40px', height: '128px', background: alpha(colors.purple.indigo, 0.25), filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-      {/* Phone frame */}
-      <div className="phone-frame" style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: `1.5px solid ${D.w12}`, backgroundColor: D.phoneBg, boxShadow: '0 25px 50px rgba(0,0,0,0.70)', overflow: 'hidden', height: '580px' }}>
+      {/* Phone frame — always dark regardless of page theme */}
+      <div className="phone-frame" data-theme="dark" style={{ position: 'relative', width: '270px', margin: '0 auto', borderRadius: '48px', border: `1.5px solid ${D.w12}`, backgroundColor: D.phoneBg, boxShadow: '0 25px 50px rgba(0,0,0,0.70)', overflow: 'hidden', height: '580px' }}>
 
         {/* Status bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px 4px' }}>

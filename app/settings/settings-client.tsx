@@ -81,91 +81,6 @@ export default function SettingsClient() {
       {/* Content */}
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
         <div style={{ display: 'grid', gap: '60px' }}>
-          {/* Section: Export Data */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
-          >
-            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
-              Données Personnelles
-            </h2>
-
-            <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
-              <div>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                  Télécharger mes données
-                </h3>
-                <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-                  Export profil, conversations, reviews (JSON)
-                </p>
-              </div>
-              <button
-                onClick={handleExportData}
-                disabled={loading}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  backgroundColor: colors.violet.primary,
-                  color: colors.bg.primary,
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 16px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  opacity: loading ? 0.6 : 1,
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!loading) e.currentTarget.style.backgroundColor = colors.purple.indigo
-                }}
-                onMouseLeave={(e) => {
-                  if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary
-                }}
-              >
-                <Download size={16} />
-                {loading ? 'Export...' : 'Exporter'}
-              </button>
-            </div>
-          </motion.section>
-
-          {/* Section: Delete Account */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
-          >
-            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
-              Suppression Compte
-            </h2>
-
-            <div style={{ backgroundColor: colors.red.bg, border: `1px solid ${colors.red.bgCa}`, borderRadius: '12px', padding: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px' }}>
-                <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 600, color: colors.red.text, marginBottom: '12px' }}>
-                    Supprimer définitivement
-                  </h3>
-                  <ul style={{ fontSize: '14px', color: colors.gray["950"], marginBottom: '12px', marginLeft: '20px' }}>
-                    <li style={{ marginBottom: '6px' }}>Compte masqué immédiatement</li>
-                    <li style={{ marginBottom: '6px' }}>24h pour annuler par email</li>
-                    <li style={{ marginBottom: '6px' }}>Suppression après 30 jours</li>
-                    <li>Contrats conservés 11 ans</li>
-                  </ul>
-                  <p style={{ fontSize: '12px', color: colors.red.text, fontStyle: 'italic' }}>
-                    Cette action est irréversible après 30 jours.
-                  </p>
-                </div>
-                <DeleteAccountButton />
-              </div>
-            </div>
-          </motion.section>
-
           {/* Section: Apparence */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -326,6 +241,91 @@ export default function SettingsClient() {
                 </div>
                 <ChevronRight size={20} color="var(--text-secondary)" />
               </a>
+            </div>
+          </motion.section>
+
+          {/* Section: Export Data */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Données Personnelles
+            </h2>
+
+            <div style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '24px' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                  Télécharger mes données
+                </h3>
+                <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                  Export profil, conversations, reviews (JSON)
+                </p>
+              </div>
+              <button
+                onClick={handleExportData}
+                disabled={loading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  backgroundColor: colors.violet.primary,
+                  color: colors.bg.primary,
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '10px 16px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) e.currentTarget.style.backgroundColor = colors.purple.indigo
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) e.currentTarget.style.backgroundColor = colors.violet.primary
+                }}
+              >
+                <Download size={16} />
+                {loading ? 'Export...' : 'Exporter'}
+              </button>
+            </div>
+          </motion.section>
+
+          {/* Section: Delete Account */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            style={{ borderTop: '1px solid var(--border-color)', paddingTop: '60px', marginBottom: '40px' }}
+          >
+            <h2 style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
+              Suppression Compte
+            </h2>
+
+            <div style={{ backgroundColor: colors.red.bg, border: `1px solid ${colors.red.bgCa}`, borderRadius: '12px', padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '24px' }}>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: 600, color: colors.red.text, marginBottom: '12px' }}>
+                    Supprimer définitivement
+                  </h3>
+                  <ul style={{ fontSize: '14px', color: colors.gray["950"], marginBottom: '12px', marginLeft: '20px' }}>
+                    <li style={{ marginBottom: '6px' }}>Compte masqué immédiatement</li>
+                    <li style={{ marginBottom: '6px' }}>24h pour annuler par email</li>
+                    <li style={{ marginBottom: '6px' }}>Suppression après 30 jours</li>
+                    <li>Contrats conservés 11 ans</li>
+                  </ul>
+                  <p style={{ fontSize: '12px', color: colors.red.text, fontStyle: 'italic' }}>
+                    Cette action est irréversible après 30 jours.
+                  </p>
+                </div>
+                <DeleteAccountButton />
+              </div>
             </div>
           </motion.section>
         </div>
