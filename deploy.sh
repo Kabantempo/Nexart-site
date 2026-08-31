@@ -66,7 +66,7 @@ sleep 3
 
 # ── 5. Extract ────────────────────────────────────────────────────────────────
 echo "📂 Extracting build..."
-$SSH "cd $REMOTE_DIR && tar -xzf $REMOTE_ARCHIVE && rm -f $REMOTE_ARCHIVE && echo done"
+$SSH "cd $REMOTE_DIR && rm -rf .next/static .next/standalone && tar -xzf $REMOTE_ARCHIVE && rm -f $REMOTE_ARCHIVE && echo done"
 
 # ── 6. Copier compiled routes dans .next/ (serveur lit .next/ pas .next/standalone/) ──
 echo "🔗 Syncing compiled routes to active .next dir..."
