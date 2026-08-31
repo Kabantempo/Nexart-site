@@ -273,7 +273,7 @@ function FacesSection() {
     <section className="home-faces-pad" style={{ maxWidth: '1152px', margin: '0 auto' }}>
       <FadeUp style={{ marginBottom: '64px' }}>
         <p style={{ color: D.indigo400, fontSize: '12px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '20px' }}>Créateurs · Organisateurs · Visiteurs</p>
-        <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: colors.bg.primary, maxWidth: '600px' }}>
+        <h2 style={{ fontSize: 'clamp(2.2rem, 4.5vw, 3.8rem)', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 0.95, color: 'var(--text-primary)', maxWidth: '600px' }}>
           Pour qui est{' '}
           <span style={{ color: 'var(--home-t6)' }}>Nexart ?</span>
         </h2>
