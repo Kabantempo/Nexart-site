@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { BarChart2, Users, CheckCircle, Clock, Eye, TrendingUp, Calendar, ArrowLeft } from 'lucide-react'
+import { BarChart2, Users, CheckCircle, Clock, Eye, TrendingUp, Calendar, ArrowLeft, Download } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
@@ -87,6 +87,16 @@ const STATUS_LABELS: Record<string, string> = {
   draft: 'Brouillon',
   published: 'Publié',
   closed: 'Clôturé',
+}
+
+function downloadCSV(filename: string, rows: string[][], headers: string[]) {
+  const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`
+  const lines = [headers.map(escape).join(','), ...rows.map(r => r.map(escape).join(','))]
+  const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = filename; a.click()
+  URL.revokeObjectURL(url)
 }
 
 export default function AnalyticsClient() {
@@ -188,6 +198,37 @@ export default function AnalyticsClient() {
             </div>
             <p style={{ fontSize: 15, color: 'var(--text-secondary)', margin: 0 }}>Vue d'ensemble des performances de vos événements</p>
           </motion.div>
+          {data && (
+            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+              <button
+                onClick={() => downloadCSV('analytics-candidatures.csv',
+                  data.applicationsPerEvent.map(e => [
+                    e.title,
+                    e.status,
+                    String(e.stand_count ?? 0),
+                    String(e.total),
+                    String(e.accepted),
+                    String(e.refused),
+                    String(e.pending),
+                    e.fill_rate.toFixed(1) + '%',
+                  ]),
+                  ['Événement', 'Statut', 'Stands', 'Candidatures', 'Acceptées', 'Refusées', 'En attente', 'Taux remplissage']
+                )}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                <Download size={14} /> Candidatures CSV
+              </button>
+              <button
+                onClick={() => downloadCSV('analytics-disciplines.csv',
+                  data.topDisciplines.map(d => [d.discipline, String(d.count)]),
+                  ['Discipline', 'Candidatures']
+                )}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                <Download size={14} /> Disciplines CSV
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

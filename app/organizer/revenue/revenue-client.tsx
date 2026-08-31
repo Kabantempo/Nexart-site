@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { TrendingUp, Euro, ArrowLeft, Calendar, MapPin, Users, RefreshCw } from 'lucide-react'
+import { TrendingUp, Euro, ArrowLeft, Calendar, MapPin, Users, RefreshCw, Download } from 'lucide-react'
 import Link from 'next/link'
 import { colors, alpha } from '@/lib/design-tokens'
 import { supabase } from '@/lib/supabase'
@@ -39,6 +39,16 @@ interface Transaction {
   stripe_payment_id: string | null
   creator: { full_name: string; avatar_url: string | null } | null
   event: { id: string; title: string } | null
+}
+
+function downloadCSV(filename: string, rows: string[][], headers: string[]) {
+  const escape = (v: string) => `"${String(v).replace(/"/g, '""')}"`
+  const lines = [headers.map(escape).join(','), ...rows.map(r => r.map(escape).join(','))]
+  const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = filename; a.click()
+  URL.revokeObjectURL(url)
 }
 
 function fmt(cents: number) {
@@ -108,6 +118,45 @@ export default function RevenueClient() {
               <p style={{ fontSize: '12px', color: colors.text.muted, margin: 0 }}>Paiements stands encaissés</p>
             </div>
           </div>
+          {!loading && !isEmpty && (
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => downloadCSV('revenus-par-evenement.csv',
+                  byEvent.map(ev => [
+                    ev.title,
+                    ev.city ?? '',
+                    new Date(ev.start_date).toLocaleDateString('fr-FR'),
+                    String(ev.stands_paid),
+                    (ev.brut_cents / 100).toFixed(2),
+                    (ev.commission_cents / 100).toFixed(2),
+                    (ev.net_cents / 100).toFixed(2),
+                    (ev.refunded_cents / 100).toFixed(2),
+                  ]),
+                  ['Événement', 'Ville', 'Date', 'Stands payés', 'Brut (€)', 'Commission (€)', 'Net (€)', 'Remboursé (€)']
+                )}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, backgroundColor: colors.bg.primary, color: colors.text.primary, fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                <Download size={14} /> Par événement
+              </button>
+              <button
+                onClick={() => downloadCSV('transactions.csv',
+                  recent.map(p => [
+                    new Date(p.created_at).toLocaleDateString('fr-FR'),
+                    p.creator?.full_name ?? '',
+                    p.event?.title ?? '',
+                    (p.amount_cents / 100).toFixed(2),
+                    ((p.amount_cents - p.commission_cents) / 100).toFixed(2),
+                    p.status === 'refunded' ? 'Remboursé' : p.status === 'pending' ? 'En attente' : 'Payé',
+                    p.stripe_payment_id ?? '',
+                  ]),
+                  ['Date', 'Créateur', 'Événement', 'Montant (€)', 'Net (€)', 'Statut', 'Stripe ID']
+                )}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: '#fff', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                <Download size={14} /> Transactions
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
