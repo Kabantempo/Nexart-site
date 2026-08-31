@@ -47,8 +47,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const admin_user = await requireAdmin(req)
-  if (!admin_user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const auth = await requireAdmin(req)
+  if (!auth.ok) return auth.response
 
   const supabase = getAdminClient()
   try {
