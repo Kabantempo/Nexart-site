@@ -431,11 +431,6 @@ function CreatorBubble({ item, onClick }: { item: Cr & { subscription_tier?: str
           ? <Image src={img} alt={item.full_name || ''} fill sizes="72px" style={{ objectFit: 'cover' }} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: colors.violet.text }}>{initials}</div>
         }
-        {item.siret_verified && (
-          <div style={{ position: 'absolute', bottom: 2, right: 2, backgroundColor: '#fff', borderRadius: '50%', width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CheckCircle2 size={12} color={colors.violet.primary} fill={colors.violet.primary} />
-          </div>
-        )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, margin: '0 0 2px' }}>
         <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
