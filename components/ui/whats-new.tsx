@@ -99,7 +99,6 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
   }
 
   if (!supported || versions.length === 0) return null
-  if (seenChecked && !hasUnseen) return null
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
@@ -107,7 +106,7 @@ export function WhatsNew({ dark = false }: { dark?: boolean }) {
       <button
         onClick={toggle}
         title="Nouveautés"
-        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors relative ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
+        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors relative ${dark ? 'text-white/70 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
       >
         <Sparkles size={16} />
         {hasUnseen && (

@@ -202,7 +202,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ position: 'relative', zIndex: 10 }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <Image src="/logo-full.png" alt="Nexart" width={140} height={40} style={{ objectFit: 'contain' }} />
+            <Image src="/logo-dark.png" alt="Nexart" width={140} height={40} style={{ objectFit: 'contain' }} />
           </Link>
         </div>
 
