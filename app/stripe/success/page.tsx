@@ -3,8 +3,8 @@ import StripeSuccessClient from './success-client'
 
 export const metadata: Metadata = {
   title: 'Paiement confirmé — Nexart',
-  description: 'Votre paiement a été accepté avec succès.',
-  robots: { index: false, follow: false },
+  description: 'Votre paiement a bien été pris en compte.',
+  robots: { index: false },
 }
 
 export default function StripeSuccessPage() {

@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       customer: customerId,
       mode: mode === 'subscription' ? 'subscription' : 'payment',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: successUrl ?? `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard?payment=success`,
+      success_url: successUrl ?? `${process.env.NEXT_PUBLIC_SITE_URL}/stripe/success?type=subscription`,
       cancel_url: cancelUrl ?? `${process.env.NEXT_PUBLIC_SITE_URL}/offres?payment=cancelled`,
       metadata: { supabase_user_id: userId },
       ...(mode === 'subscription' && {

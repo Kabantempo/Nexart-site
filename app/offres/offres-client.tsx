@@ -295,7 +295,7 @@ export default function OffresPageClient() {
           priceId,
           mode,
           userId: session.user.id,
-          successUrl: `${window.location.origin}/dashboard?payment=success`,
+          successUrl: `${window.location.origin}/stripe/success?type=subscription`,
           cancelUrl: `${window.location.origin}/offres?payment=cancelled`,
         }),
       })

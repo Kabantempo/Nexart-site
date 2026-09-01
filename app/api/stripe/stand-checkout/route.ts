@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         transfer_data: { destination: orgProfile.stripe_account_id },
       },
     }),
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://nexart.fr'}/events/${app.event_id}?payment=success`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://nexart.fr'}/stripe/success?type=stand&event_id=${app.event_id}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://nexart.fr'}/events/${app.event_id}?payment=cancelled`,
   })
 

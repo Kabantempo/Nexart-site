@@ -3,114 +3,219 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { CheckCircle, ArrowRight, Zap, Star } from 'lucide-react'
-import Link from 'next/link'
+import { CheckCircle, ArrowRight, LayoutDashboard, CalendarCheck } from 'lucide-react'
 import { colors } from '@/lib/design-tokens'
+import Link from 'next/link'
 
-const PLAN_LABELS: Record<string, string> = {
+type PaymentType = 'stand' | 'subscription' | 'credits' | 'unknown'
+
+interface PageState {
+  type: PaymentType
+  eventId: string | null
+  tier: string | null
+}
+
+const TIER_LABELS: Record<string, string> = {
   boost: 'Boost',
   pro: 'Pro',
   premium: 'Premium',
   org_pro: 'Organisateur Pro',
-  org_studio: 'Studio',
-}
-
-const CREDIT_LABELS: Record<string, string> = {
-  '10': '10 crédits',
-  '30': '30 crédits',
-  '60': '60 crédits',
+  org_studio: 'Organisateur Studio',
 }
 
 export default function StripeSuccessClient() {
-  const params = useSearchParams()
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const type = params.get('type') ?? 'subscription'
-  const plan = params.get('plan') ?? ''
-  const credits = params.get('credits') ?? ''
+  const [state, setState] = useState<PageState>({ type: 'unknown', eventId: null, tier: null })
+  const [countdown, setCountdown] = useState(8)
 
-  const [dots, setDots] = useState('')
   useEffect(() => {
-    const t = setInterval(() => setDots(d => d.length >= 3 ? '' : d + '.'), 400)
-    return () => clearInterval(t)
-  }, [])
+    const type = ((searchParams?.get('type') ?? 'unknown')) as PaymentType
+    const eventId = searchParams?.get('event_id') ?? null
+    const tier = searchParams?.get('tier') ?? null
+    setState({ type, eventId, tier })
+  }, [searchParams])
 
-  const isCredits = type === 'credits'
-  const label = isCredits
-    ? (CREDIT_LABELS[credits] ?? 'des crédits')
-    : (PLAN_LABELS[plan] ?? 'votre abonnement')
+  // Auto-redirect countdown
+  useEffect(() => {
+    if (countdown <= 0) {
+      if (state.type === 'stand' && state.eventId) {
+        router.push(`/events/${state.eventId}`)
+      } else {
+        router.push('/dashboard')
+      }
+      return
+    }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000)
+    return () => clearTimeout(t)
+  }, [countdown, state, router])
+
+  const config = getConfig(state)
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-primary)', padding: '24px 16px' }}>
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: 'var(--bg-secondary)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+    }}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        style={{ width: '100%', maxWidth: '480px', textAlign: 'center' }}
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          backgroundColor: 'var(--bg-primary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '20px',
+          padding: '56px 40px',
+          maxWidth: '480px',
+          width: '100%',
+          textAlign: 'center',
+        }}
       >
-        {/* Icône succès animée */}
+        {/* Icon */}
         <motion.div
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.15, duration: 0.5, type: 'spring', stiffness: 200 }}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '88px', height: '88px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.1)', marginBottom: '28px' }}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.15, duration: 0.4, type: 'spring', stiffness: 260, damping: 20 }}
+          style={{
+            width: '72px',
+            height: '72px',
+            borderRadius: '50%',
+            backgroundColor: colors.green.bg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 24px',
+          }}
         >
-          <CheckCircle size={44} color={colors.violet.primary} strokeWidth={2} />
+          <CheckCircle size={36} color={colors.green.primary} strokeWidth={2} />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
+        {/* Title */}
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ delay: 0.25 }}
+          style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 10px' }}
         >
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px', lineHeight: 1.2 }}>
-            Paiement confirmé !
-          </h1>
-          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '32px' }}>
-            {isCredits
-              ? `Vous venez d'acquérir ${label}. Ils sont déjà disponibles sur votre compte.`
-              : `Vous bénéficiez maintenant du plan ${label}. Toutes les fonctionnalités sont déjà actives.`
-            }
+          {config.title}
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.32 }}
+          style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6', margin: '0 0 28px' }}
+        >
+          {config.subtitle}
+        </motion.p>
+
+        {/* Detail box */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.38 }}
+          style={{
+            padding: '14px 18px',
+            backgroundColor: colors.green.bg,
+            border: `1px solid ${colors.green.pale}`,
+            borderRadius: '12px',
+            marginBottom: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <config.Icon size={16} color={colors.green.primary} style={{ flexShrink: 0 }} />
+          <p style={{ fontSize: '13px', color: colors.green.primary, fontWeight: 500, margin: 0, textAlign: 'left' }}>
+            {config.detail}
           </p>
-
-          {/* Card récap */}
-          <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '16px', padding: '20px 24px', marginBottom: '28px', border: '1px solid var(--border-color)', textAlign: 'left' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '8px', backgroundColor: `${colors.violet.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                {isCredits ? <Zap size={18} color={colors.violet.primary} /> : <Star size={18} color={colors.violet.primary} />}
-              </div>
-              <div>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 2px' }}>
-                  {isCredits ? 'Crédits achetés' : 'Plan activé'}
-                </p>
-                <p style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                  {label}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Link
-              href="/dashboard"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '14px 24px', borderRadius: '10px', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '15px', fontWeight: 700, textDecoration: 'none', transition: 'background 0.15s' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.dark}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = colors.violet.primary}
-            >
-              Aller au dashboard
-              <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/creators"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '13px 24px', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'border-color 0.15s' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = colors.violet.primary}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)'}
-            >
-              Explorer les créateurs
-            </Link>
-          </div>
         </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.44 }}
+        >
+          <Link
+            href={config.cta.href}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 24px',
+              backgroundColor: colors.violet.primary,
+              color: colors.bg.primary,
+              borderRadius: '10px',
+              textDecoration: 'none',
+              fontSize: '14px',
+              fontWeight: 600,
+              transition: 'opacity 0.15s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.opacity = '0.85' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.opacity = '1' }}
+          >
+            {config.cta.label}
+            <ArrowRight size={14} />
+          </Link>
+        </motion.div>
+
+        {/* Countdown */}
+        <p style={{ fontSize: '11px', color: colors.text.muted, marginTop: '20px' }}>
+          Redirection automatique dans {countdown}s…
+        </p>
       </motion.div>
     </div>
   )
+}
+
+function getConfig(state: PageState): {
+  title: string
+  subtitle: string
+  detail: string
+  Icon: React.ComponentType<{ size?: number; color?: string; style?: React.CSSProperties }>
+  cta: { label: string; href: string }
+} {
+  switch (state.type) {
+    case 'stand':
+      return {
+        title: 'Stand réservé !',
+        subtitle: 'Votre paiement a bien été enregistré. Vous recevrez une confirmation par email avec tous les détails de votre stand.',
+        detail: 'Votre place est confirmée pour cet événement.',
+        Icon: CalendarCheck,
+        cta: {
+          label: state.eventId ? 'Retour à l\'événement' : 'Mon dashboard',
+          href: state.eventId ? `/events/${state.eventId}` : '/dashboard',
+        },
+      }
+    case 'subscription':
+      return {
+        title: 'Abonnement activé !',
+        subtitle: `Bienvenue dans votre plan${state.tier ? ' ' + (TIER_LABELS[state.tier] ?? state.tier) : ''} ! Vos nouvelles fonctionnalités sont immédiatement disponibles.`,
+        detail: 'Votre compte a été mis à jour avec toutes les fonctionnalités de votre plan.',
+        Icon: LayoutDashboard,
+        cta: { label: 'Accéder à mon dashboard', href: '/dashboard' },
+      }
+    case 'credits':
+      return {
+        title: 'Crédits ajoutés !',
+        subtitle: 'Vos crédits ont bien été ajoutés à votre compte et sont disponibles immédiatement.',
+        detail: 'Utilisez vos crédits pour booster vos candidatures.',
+        Icon: CheckCircle,
+        cta: { label: 'Voir mes candidatures', href: '/dashboard' },
+      }
+    default:
+      return {
+        title: 'Paiement confirmé !',
+        subtitle: 'Votre paiement a bien été pris en compte. Merci pour votre confiance.',
+        detail: 'Une confirmation vous a été envoyée par email.',
+        Icon: CheckCircle,
+        cta: { label: 'Accéder à mon dashboard', href: '/dashboard' },
+      }
+  }
 }
