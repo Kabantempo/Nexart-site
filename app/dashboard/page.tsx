@@ -596,7 +596,9 @@ function CreatorMainContent({
   profileViewCount: number
   profileViewDays: { date: string; count: number }[]
 }) {
-  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'paiements'>('candidatures')
+  const [tab, setTab] = useState<'candidatures' | 'calendrier' | 'benevoles' | 'paiements'>('candidatures')
+  const [volunteerShifts, setVolunteerShifts] = useState<{ id: string; event_id: string; event_title: string; event_city: string; role: string; date: string; time: string }[]>([])
+  const [volLoading, setVolLoading] = useState(false)
   const [recommended, setRecommended] = useState<(Event & { _score?: number; _reason?: string })[]>([])
   const [paidApps, setPaidApps] = useState<(Application & { event?: Event })[]>([])
   const appliedEventIds = new Set(applications.map(a => a.event_id))
@@ -640,9 +642,44 @@ function CreatorMainContent({
     }
   }, [tab, applications, paidApps.length])
 
+  useEffect(() => {
+    if (tab !== 'benevoles' || volLoading || volunteerShifts.length > 0) return
+    setVolLoading(true)
+    supabase
+      .from('event_volunteers')
+      .select('id, event_id, shifts')
+      .eq('user_id', userId)
+      .then(async ({ data: vols }) => {
+        if (!vols?.length) { setVolLoading(false); return }
+        // Collect all shift IDs
+        const allShiftIds = vols.flatMap(v => Array.isArray(v.shifts) ? v.shifts : [])
+        if (!allShiftIds.length) { setVolLoading(false); return }
+        // Fetch shift details + event info
+        const { data: shiftData } = await supabase
+          .from('event_volunteer_shifts')
+          .select('id, event_id, role, date, time, events(title, city)')
+          .in('id', allShiftIds)
+          .gte('date', new Date().toISOString().split('T')[0])
+          .order('date', { ascending: true })
+        const formatted = (shiftData || []).map((s: any) => ({
+          id: s.id,
+          event_id: s.event_id,
+          event_title: s.events?.title || 'Événement',
+          event_city: s.events?.city || '',
+          role: s.role,
+          date: s.date,
+          time: s.time,
+        }))
+        setVolunteerShifts(formatted)
+        setVolLoading(false)
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, userId])
+
   const tabs = [
     { key: 'candidatures', label: `Candidatures (${applications.length})` },
     { key: 'calendrier', label: 'Calendrier' },
+    { key: 'benevoles', label: 'Bénévole' },
     ...(paidCount > 0 ? [{ key: 'paiements', label: `Mes paiements (${paidCount})` }] : []),
   ]
 
@@ -664,6 +701,45 @@ function CreatorMainContent({
       )}
       {tab === 'calendrier' && (
         <CalendarView applications={applications} />
+      )}
+      {tab === 'benevoles' && (
+        <div>
+          {volLoading ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>Chargement…</div>
+          ) : volunteerShifts.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <Users size={24} color={colors.violet.primary} />
+              </div>
+              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>Aucun créneau bénévole à venir</p>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
+                Inscrivez-vous comme bénévole sur un événement — vos créneaux apparaîtront ici.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {volunteerShifts.map(s => (
+                <Link key={s.id} href={`/events/${s.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Clock size={18} color={colors.violet.primary} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.role}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                      {s.event_title}{s.event_city ? ` · ${s.event_city}` : ''}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px' }}>
+                      {s.date ? new Date(s.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''}
+                    </p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{s.time}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       )}
       {tab === 'paiements' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

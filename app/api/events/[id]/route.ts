@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       .from('events')
       .select(`
         id, title, description, event_type, theme, location, city, region,
-        start_date, end_date, stand_count, stand_price, cover_image,
+        start_date, end_date, start_time, end_time, stand_count, stand_price, cover_image,
         organizer_id, organizer:profiles!organizer_id(id, full_name, avatar_url),
         created_at
       `)

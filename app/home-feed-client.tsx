@@ -426,7 +426,7 @@ function CreatorBubble({ item, onClick }: { item: Cr & { subscription_tier?: str
       style={{ flexShrink: 0, width: 100, textAlign: 'center', cursor: 'pointer' }}
     >
       {/* Circular avatar */}
-      <div style={{ position: 'relative', width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 8px', backgroundColor: colors.violet.bg, border: `2px solid ${hovered ? colors.violet.primary : 'transparent'}`, transition: 'border-color 0.18s, transform 0.18s', transform: hovered ? 'scale(1.06)' : 'scale(1)' }}>
+      <div style={{ position: 'relative', width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 8px', backgroundColor: colors.violet.bg, border: `2px solid ${hovered ? colors.violet.primary : 'transparent'}`, transition: 'border-color 0.18s, transform 0.18s', transform: hovered ? 'scale(1.06)' : 'scale(1)', transformOrigin: 'center bottom' }}>
         {img
           ? <Image src={img} alt={item.full_name || ''} fill sizes="72px" style={{ objectFit: 'cover' }} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: colors.violet.text }}>{initials}</div>
@@ -582,7 +582,7 @@ export default function HomeFeedClient() {
         .feed-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
         @media (max-width: 860px) { .feed-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 520px) { .feed-grid { grid-template-columns: 1fr; } }
-        .creator-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .creator-scroll { display: flex; gap: 6px; overflow-x: auto; padding-top: 6px; padding-bottom: 8px; scrollbar-width: none; }
         .creator-scroll::-webkit-scrollbar { display: none; }
         .portfolio-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .portfolio-scroll::-webkit-scrollbar { display: none; }

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BookOpen, FileText, BarChart2, Ticket, Users, Bell, Shield, Menu } from 'lucide-react'
+import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BarChart2, Ticket, Users, Bell, Shield, Menu } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { WhatsNew } from '@/components/ui/whats-new'
@@ -396,12 +396,10 @@ export function NavbarFull() {
 
               {/* Nexart */}
               <div style={{ position: 'relative' }}>
-                <Trigger id="about" label="Nexart" active={isActive('/about') || isActive('/carnet-de-route') || isActive('/patch-notes')} />
+                <Trigger id="about" label="Nexart" active={isActive('/about')} />
                 <Panel id="about" width={220}>
-                  <SimpleItem panelId="about" idx={0} href="/about"           icon={Users}    label="À propos" />
-                  <SimpleItem panelId="about" idx={1} href="/carnet-de-route" icon={BookOpen} label="Carnet de route" />
-                  <SimpleItem panelId="about" idx={2} href="/patch-notes"     icon={FileText} label="Patch Notes" />
-                  <SimpleItem panelId="about" idx={3} href="/contact"         icon={MessageCircle} label="Contact" />
+                  <SimpleItem panelId="about" idx={0} href="/about"   icon={Users}        label="À propos" />
+                  <SimpleItem panelId="about" idx={1} href="/contact" icon={MessageCircle} label="Contact" />
                 </Panel>
               </div>
             </nav>
