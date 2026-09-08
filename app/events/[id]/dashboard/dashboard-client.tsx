@@ -43,7 +43,6 @@ const TOOLS = [
   { label: 'Équipe',         href: (id: string) => `/events/${id}/team`,               icon: UserCheck },
   { label: 'Bénévoles',      href: (id: string) => `/events/${id}/volunteers`,         icon: CalendarDays },
   { label: 'Collaboration',  href: (id: string) => `/events/${id}/collaboration`,      icon: ListChecks },
-  { label: 'Checklist',      href: (id: string) => `/events/${id}/settings/checklist`, icon: CheckCircle },
   { label: 'Marketing',      href: (id: string) => `/events/${id}/settings/marketing`, icon: Mail },
   { label: 'Plan stands',    href: (id: string) => `/events/${id}/settings/stands`,    icon: MapPin },
   { label: 'Paramètres FAQ', href: (id: string) => `/events/${id}/settings/faqs`,     icon: Settings },
