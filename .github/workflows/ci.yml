@@ -22,12 +22,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck
-        run: npx tsc --noEmit
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
+      # Build en premier : c'est lui qui conditionne le deploy. Quand le
+      # typecheck passait avant, son echec empechait de savoir si le build
+      # passait (etape jamais atteinte). Meme liste d'env que deploy-hostinger.yml
+      # pour que ce job soit un vrai miroir du deploiement.
       - name: Build
         run: npm run build
         env:
@@ -39,3 +37,19 @@ jobs:
           NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          NEXART_COMMISSION_PCT: ${{ secrets.NEXART_COMMISSION_PCT }}
+          ADMIN_API_SECRET: ${{ secrets.ADMIN_API_SECRET }}
+          NEXT_PUBLIC_APP_URL: https://nexart.fr
+          DELETION_TOKEN_SECRET: ${{ secrets.DELETION_TOKEN_SECRET }}
+
+      # Reste bloquant : 53 erreurs preexistantes au 09/09/26, dues en grande
+      # partie a types/supabase.ts genere sur un schema a 61 tables alors que
+      # la prod en a 67. A regenerer, puis ce job repassera vert.
+      - name: Typecheck
+        run: npx tsc --noEmit
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
