@@ -117,7 +117,7 @@ function CreatorsContent() {
   const [availableOnly,    setAvailableOnly]    = useState(false)
   const [openToCollab,     setOpenToCollab]     = useState(false)
   const [isDesktop,        setIsDesktop]        = useState(true)
-  const [headerVisible,    setHeaderVisible]    = useState(true)
+  const headerVisible = true
   const [mobileDisc,       setMobileDisc]       = useState('tous')
   const searchContainerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -151,17 +151,7 @@ function CreatorsContent() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  useEffect(() => {
-    if (isDesktop) return
-    let lastY = window.scrollY
-    const onScroll = () => {
-      const y = window.scrollY
-      if (y < 60) { setHeaderVisible(true); lastY = y; return }
-      setHeaderVisible(y < lastY); lastY = y
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [isDesktop])
+  useEffect(() => {}, [isDesktop])
 
   useEffect(() => {
     const loadStats = async () => {
@@ -346,16 +336,16 @@ function CreatorsContent() {
         <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: 80 }}>
 
           {/* Fixed header */}
-          <div style={{ position: 'fixed', top: headerVisible ? 58 : -300, left: 0, right: 0, zIndex: 10, backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--ev-border)', transition: 'top 0.25s ease' }}>
-            <div style={{ padding: '10px 16px 6px' }}>
-              <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>Créateurs</h1>
-              <p style={{ margin: 0, fontSize: 11, color: 'var(--ev-card-date)' }}>Des talents partout en France</p>
+          <div style={{ position: 'fixed', top: 58, left: 0, right: 0, zIndex: 10, backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--ev-border)' }}>
+            <div style={{ padding: '10px 16px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>Créateurs</h1>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ev-chip-text)', backgroundColor: 'var(--ev-chip-bg)', borderRadius: 20, padding: '2px 10px' }}>{mobileFiltered.length} résultats</span>
             </div>
-            <div style={{ padding: '0 16px 8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '8px 14px' }}>
+            <div style={{ padding: '6px 16px 8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--bg-secondary)', borderRadius: 14, padding: '8px 14px', border: '1.5px solid var(--border-color)' }}>
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
                 <input type="text" placeholder="Nom, discipline, ville…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'transparent' }} />
+                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'transparent', caretColor: colors.violet.primary }} />
                 {searchTerm && (
                   <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                     <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -366,18 +356,20 @@ function CreatorsContent() {
             <div style={{ overflowX: 'auto' }} className="hide-scrollbar">
               <div style={{ display: 'flex', gap: 7, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
                 {discFilters.map(f => (
-                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', backgroundColor: mobileDisc === f.key ? colors.violet.primary : 'var(--ev-chip-bg)', color: mobileDisc === f.key ? colors.text.white : 'var(--ev-chip-text)' }}>
+                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 20, cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', background: mobileDisc === f.key ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.hover})` : 'transparent', color: mobileDisc === f.key ? colors.text.white : 'var(--ev-chip-text)', border: mobileDisc === f.key ? 'none' : '1px solid var(--ev-border)', boxShadow: mobileDisc === f.key ? `0 2px 10px ${colors.violet.ring}` : 'none' }}>
                     {f.label}
                   </button>
                 ))}
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 6, padding: '0 16px 10px' }}>
-              {([['alpha', 'A → Z'], ['newest', 'Récents'], ['rating', 'Note'], ['popular', 'Pop.']] as const).map(([key, label]) => (
-                <button key={key} onClick={() => setSortOrder(key)} style={{ padding: '4px 11px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, backgroundColor: sortOrder === key ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)', color: sortOrder === key ? 'var(--bg-primary)' : 'var(--ev-chip-text)' }}>
-                  {label}
-                </button>
-              ))}
+            <div style={{ padding: '0 16px 10px' }}>
+              <div style={{ display: 'inline-flex', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--ev-border)' }}>
+                {([['alpha', 'A → Z'], ['newest', 'Récents'], ['rating', 'Note'], ['popular', 'Pop.']] as const).map(([key, label], i) => (
+                  <button key={key} onClick={() => setSortOrder(key)} style={{ padding: '5px 12px', border: 'none', borderLeft: i > 0 ? '1px solid var(--ev-border)' : 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, backgroundColor: sortOrder === key ? 'var(--ev-sort-active)' : 'transparent', color: sortOrder === key ? 'var(--bg-primary)' : 'var(--ev-chip-text)', transition: 'background 0.15s, color 0.15s' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
