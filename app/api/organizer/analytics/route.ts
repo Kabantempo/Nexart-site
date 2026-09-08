@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
       const { data: creatorProfs } = await supabase
         .from('creator_profiles')
         .select('disciplines')
-        .in('id', creatorIds)
+        .in('user_id', creatorIds)
 
       const disciplineCount: Record<string, number> = {}
       for (const cp of creatorProfs || []) {

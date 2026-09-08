@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
     // Vérifier que l'utilisateur existe et est en soft-delete
     const { data: user, error: userError } = await (supabase as any)
-      .from('users')
+      .from('profiles')
       .select('id, deleted_at, email')
       .eq('id', userId)
       .single() as any
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
 
     // Annuler la suppression (soft-delete)
     const { error: restoreError } = await (supabase as any)
-      .from('users')
+      .from('profiles')
       .update({
         deleted_at: null,
         is_hard_deleted: false,

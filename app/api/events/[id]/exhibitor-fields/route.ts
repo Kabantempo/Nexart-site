@@ -13,7 +13,7 @@ export async function GET(
   const admin = getAdminClient()
   try {
     const { data, error } = await (admin as any)
-      .from('exhibitor_fields')
+      .from('event_exhibitor_fields')
       .select('*')
       .eq('event_id', params.id)
       .order('field_order', { ascending: true })
@@ -56,7 +56,7 @@ export async function POST(
 
     // Bulk replace: { fields: [...] }
     if (Array.isArray(body.fields)) {
-      await admin.from('exhibitor_fields').delete().eq('event_id', params.id)
+      await admin.from('event_exhibitor_fields').delete().eq('event_id', params.id)
 
       if (body.fields.length === 0) {
         return NextResponse.json({ success: true, fields: [] })
@@ -74,7 +74,7 @@ export async function POST(
       }))
 
       const { data, error } = await (admin as any)
-        .from('exhibitor_fields')
+        .from('event_exhibitor_fields')
         .insert(rows)
         .select()
 
@@ -90,7 +90,7 @@ export async function POST(
     }
 
     const { data, error } = await (admin as any)
-      .from('exhibitor_fields')
+      .from('event_exhibitor_fields')
       .insert({
         event_id: params.id,
         field_name,
