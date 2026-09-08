@@ -527,312 +527,214 @@ export function EventDetailClient({ id }: Props) {
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 60px)' }}>
       <style>{`
+        .ev-hero { height: 440px; }
+        .ev-grid { display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: start; }
+        .ev-sidebar-wrap { position: sticky; top: 80px; height: fit-content; }
         @media (max-width: 768px) {
-          .event-grid { grid-template-columns: 1fr !important; }
-          .event-cover { height: 240px !important; }
-          .event-title { font-size: 24px !important; }
-          .event-sidebar { order: 2; }
+          .ev-hero { height: 300px; }
+          .ev-grid { grid-template-columns: 1fr; gap: 0; }
+          .ev-sidebar-wrap { position: static; order: -1; }
         }
       `}</style>
-      {/* Cover Image */}
-      <div className="event-cover" style={{ width: '100%', height: '400px', position: 'relative', backgroundColor: 'var(--bg-secondary)' }}>
-        {event.cover_image ? (
-          <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Calendar size={80} color="rgba(255,255,255,0.5)" />
+
+      {/* ── HERO ─────────────────────────────────────────────────── */}
+      <div className="ev-hero" style={{ position: 'relative', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
+        {event.cover_image
+          ? <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} priority />
+          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)` }} />
+        }
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)' }} />
+
+        {/* top actions */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.92)', textDecoration: 'none', fontSize: 13, fontWeight: 600, backgroundColor: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(8px)', borderRadius: 6, padding: '7px 13px', border: '1px solid rgba(255,255,255,0.18)' }}>
+            <ArrowLeft size={14} /> Retour
+          </Link>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {user && event?.organizer_id !== user.id && (
+              <ReportButton targetId={id} targetType="event" reporterId={user.id} />
+            )}
+            {user && (
+              <button onClick={() => toggleEventFav(id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.2)', backgroundColor: favEventIds.has(id) ? 'rgba(239,68,68,0.75)' : 'rgba(0,0,0,0.38)', backdropFilter: 'blur(8px)', color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <Heart size={13} fill={favEventIds.has(id) ? 'white' : 'none'} color="white" />
+                {favEventIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
+              </button>
+            )}
           </div>
-        )}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)' }} />
-        <div style={{ position: 'absolute', bottom: '24px', left: '24px', right: '24px' }}>
+        </div>
+
+        {/* bottom: type badge + title + meta chips */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 24px' }}>
           {event.event_type && (
-            <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '9999px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '600', marginBottom: '12px' }}>
+            <span style={{ display: 'inline-block', marginBottom: 10, padding: '3px 10px', borderRadius: 4, backgroundColor: colors.violet.primary, color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase' }}>
               {EVENT_TYPE_LABELS[event.event_type] || event.event_type}
             </span>
           )}
-          <h1 className="event-title" style={{ fontSize: '36px', fontWeight: '700', color: colors.bg.primary, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+          <h1 style={{ margin: '0 0 14px', fontSize: 'clamp(22px, 4.5vw, 38px)', fontWeight: 800, color: '#ffffff', lineHeight: 1.12, letterSpacing: -0.5, textShadow: '0 2px 16px rgba(0,0,0,0.5)' }}>
             {event.title}
           </h1>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {event.start_date && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 5, backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: 600, border: '1px solid rgba(255,255,255,0.16)' }}>
+                <Calendar size={12} />
+                {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                {event.end_date && event.end_date !== event.start_date && <> → {new Date(event.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</>}
+              </span>
+            )}
+            {(event.start_time || event.end_time) && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 5, backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: 600, border: '1px solid rgba(255,255,255,0.16)' }}>
+                <Clock size={12} />
+                {event.start_time}{event.end_time ? ` – ${event.end_time}` : ''}
+              </span>
+            )}
+            {event.location && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 5, backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: 600, border: '1px solid rgba(255,255,255,0.16)' }}>
+                <MapPin size={12} />
+                {event.location}
+              </span>
+            )}
+            {(event.stand_count ?? 0) > 0 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 5, backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)', color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: 600, border: '1px solid rgba(255,255,255,0.16)' }}>
+                <Users size={12} />
+                {event.stand_count} stands{event.stand_dimensions ? ` · ${event.stand_dimensions}` : ''}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '24px 16px 32px' }}>
+      {/* ── BODY ──────────────────────────────────────────────────── */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 16px 80px' }}>
+        <div className="ev-grid">
 
-        {/* Breadcrumb */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.primary }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
-            Accueil
-          </Link>
-          <ChevronRight size={13} color="var(--border-color)" />
-          <Link href="/events" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.primary }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)' }}>
-            Événements
-          </Link>
-          <ChevronRight size={13} color="var(--border-color)" />
-          <span style={{ color: 'var(--text-primary)', fontWeight: '600', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {event.title}
-          </span>
-        </nav>
+          {/* ── MAIN CONTENT ── */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
 
-        <Link
-          href="/events"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: colors.violet.primary, textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '32px' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = colors.violet.dark }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = colors.violet.primary }}
-        >
-          <ArrowLeft size={16} />
-          Retour aux événements
-        </Link>
-
-        <div className="event-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px' }}>
-          {/* Main Content */}
-          <div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              {/* Info bars */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '32px', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-                {event.start_date && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Calendar size={18} color={colors.violet.primary} />
-                    <div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Date</div>
-                      <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                        {new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                        {event.end_date && event.end_date !== event.start_date && (
-                          <> → {new Date(event.end_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</>
-                        )}
-                      </div>
-                      {(event as unknown as { recurrence_type?: string; recurrence_dates?: string[] }).recurrence_type && (event as unknown as { recurrence_type?: string }).recurrence_type !== 'none' && (
-                        <div style={{ fontSize: '12px', color: colors.violet.primary, fontWeight: '600', marginTop: '4px' }}>
-                          {({ weekly: 'Hebdomadaire', biweekly: 'Bimensuel', monthly: 'Mensuel' } as Record<string, string>)[(event as unknown as { recurrence_type: string }).recurrence_type] || ''}
-                          {' · '}{(event as unknown as { recurrence_dates?: string[] }).recurrence_dates?.length ?? 0} dates au total
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {(event.start_time || event.end_time) && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Clock size={18} color={colors.violet.primary} />
-                    <div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Horaires</div>
-                      <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                        {event.start_time}{event.end_time ? ` — ${event.end_time}` : ''}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {event.location && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <MapPin size={18} color={colors.violet.primary} />
-                    <div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Lieu</div>
-                      <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                        {event.location}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {(event.stand_count ?? 0) > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Users size={18} color={colors.violet.primary} />
-                    <div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Stands</div>
-                      <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)' }}>
-                        {event.stand_count} stands
-                        {event.stand_dimensions ? ` · ${event.stand_dimensions}` : ''}
-                      </div>
-                    </div>
-                  </div>
-                )}
+            {/* Recurrence note */}
+            {(event as unknown as { recurrence_type?: string }).recurrence_type && (event as unknown as { recurrence_type: string }).recurrence_type !== 'none' && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 24, padding: '7px 14px', borderRadius: 6, backgroundColor: `${colors.purple.bgF0}`, border: `1px solid ${colors.purple.bgLight}` }}>
+                <Calendar size={14} color={colors.violet.primary} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: colors.violet.primary }}>
+                  {({ weekly: 'Hebdomadaire', biweekly: 'Bimensuel', monthly: 'Mensuel' } as Record<string, string>)[(event as unknown as { recurrence_type: string }).recurrence_type] || ''}
+                  {' · '}{(event as unknown as { recurrence_dates?: string[] }).recurrence_dates?.length ?? 0} dates au total
+                </span>
               </div>
+            )}
 
-              {/* Share + Favori + Calendar */}
-              <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partager</p>
-                  <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
+            {/* Description */}
+            {event.description && (
+              <section style={{ marginBottom: 36 }}>
+                <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Description</p>
+                <p style={{ fontSize: 15, color: 'var(--text-primary)', lineHeight: 1.85, whiteSpace: 'pre-line', margin: 0 }}>
+                  {event.description}
+                </p>
+              </section>
+            )}
+
+            {/* Disciplines */}
+            {(event.discipline_tags ?? []).length > 0 && (
+              <section style={{ marginBottom: 36 }}>
+                <p style={{ margin: '0 0 12px', fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Disciplines recherchées</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {(event.discipline_tags ?? []).map((tag: string) => (
+                    <span key={tag} style={{ padding: '5px 12px', borderRadius: 4, backgroundColor: `${colors.purple.bgF0}`, color: colors.violet.primary, fontSize: 13, fontWeight: 600, border: `1px solid ${colors.purple.bgLight}` }}>
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                {user && event?.organizer_id !== user.id && (
-                  <div style={{ marginTop: '28px', display: 'flex', alignItems: 'center' }}>
-                    <ReportButton targetId={id} targetType="event" reporterId={user.id} />
-                  </div>
-                )}
-                <button
-                  onClick={handleAddToCalendar}
-                  title="Ajouter à mon agenda"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
-                    backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)',
-                    fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                    border: '1.5px solid var(--border-color)', marginTop: '28px',
-                  }}
-                >
-                  <Download size={16} /> Agenda (.ics)
-                </button>
-                {user && (
-                  <button
-                    onClick={() => toggleEventFav(id)}
-                    title={favEventIds.has(id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '10px 16px', borderRadius: '10px', cursor: 'pointer',
-                      backgroundColor: favEventIds.has(id) ? colors.red.bgPale : colors.blue.pale,
-                      color: favEventIds.has(id) ? colors.red.textDark : 'var(--text-secondary)',
-                      fontSize: '14px', fontWeight: '600', transition: 'all 200ms ease',
-                      border: `1.5px solid ${favEventIds.has(id) ? colors.red.bgPink : 'var(--border-color)'}`,
-                      marginTop: '28px',
-                    }}
-                  >
-                    <Heart size={16} fill={favEventIds.has(id) ? colors.feedback.danger.solid : 'none'} color={favEventIds.has(id) ? colors.feedback.danger.solid : colors.gray.soft} />
-                    {favEventIds.has(id) ? 'Sauvegardé' : 'Sauvegarder'}
-                  </button>
-                )}
-              </div>
+              </section>
+            )}
 
-              {/* Description */}
-              {event.description && (
-                <div style={{ marginBottom: '32px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>Description</h2>
-                  <p style={{ fontSize: '16px', color: colors.gray.mid, lineHeight: '1.8', whiteSpace: 'pre-line' }}>
-                    {event.description}
-                  </p>
+            {/* Rules */}
+            {event.rules && (
+              <section style={{ marginBottom: 36 }}>
+                <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Règlement</p>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.8, whiteSpace: 'pre-line', margin: 0 }}>
+                  {event.rules}
+                </p>
+              </section>
+            )}
+
+            {/* Gallery */}
+            {(event as unknown as { gallery_images?: string[] }).gallery_images?.length ? (
+              <section style={{ marginBottom: 36 }}>
+                <p style={{ margin: '0 0 12px', fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Galerie photos</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 6 }}>
+                  {(event as unknown as { gallery_images: string[] }).gallery_images.map((url: string, i: number) => (
+                    <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'block', borderRadius: 6, overflow: 'hidden', aspectRatio: '1', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
+                      <Image src={url} alt={`Photo ${i + 1}`} fill style={{ objectFit: 'cover' }} />
+                    </a>
+                  ))}
                 </div>
-              )}
+              </section>
+            ) : null}
 
-              {/* Disciplines */}
-              {(event.discipline_tags ?? []).length > 0 && (
-                <div style={{ marginBottom: '32px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>
-                    <Tag size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
-                    Disciplines recherchées
-                  </h2>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {(event.discipline_tags ?? []).map((tag: string) => (
-                      <span key={tag} style={{ padding: '6px 14px', borderRadius: '9999px', backgroundColor: `${colors.purple.bgF0}`, color: colors.violet.primary, fontSize: '14px', fontWeight: '500' }}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+            {/* FAQ */}
+            {(event as unknown as { faq?: { q: string; a: string }[] }).faq?.length ? (
+              <FaqSection items={(event as unknown as { faq: { q: string; a: string }[] }).faq} />
+            ) : null}
 
-              {/* Rules */}
-              {event.rules && (
-                <div style={{ marginBottom: '32px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>Règlement</h2>
-                  <p style={{ fontSize: '15px', color: colors.gray.mid, lineHeight: '1.8', whiteSpace: 'pre-line' }}>
-                    {event.rules}
-                  </p>
-                </div>
-              )}
+            {/* Share + Calendar */}
+            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 24, marginTop: 8, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+              <button onClick={handleAddToCalendar} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 14px', borderRadius: 6, backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                <Download size={14} /> Agenda (.ics)
+              </button>
+              <ShareButtons url={`/events/${id}`} title={event.title} description={event.description?.substring(0, 120)} />
+            </div>
+          </motion.div>
 
-              {/* Gallery section */}
-              {(event as unknown as { gallery_images?: string[] }).gallery_images?.length ? (
-                <div style={{ marginBottom: '32px' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '16px' }}>Galerie photos</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '8px' }}>
-                    {(event as unknown as { gallery_images: string[] }).gallery_images.map((url: string, i: number) => (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'block', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <Image src={url} alt={`Photo ${i + 1}`} fill style={{ objectFit: 'cover', transition: 'transform 200ms ease' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.04)' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)' }} />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {/* FAQ section */}
-              {(event as unknown as { faq?: { q: string; a: string }[] }).faq?.length ? (
-                <FaqSection items={(event as unknown as { faq: { q: string; a: string }[] }).faq} />
-              ) : null}
-
-            </motion.div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="event-sidebar" style={{ position: 'sticky', top: '80px', height: 'fit-content' }}>
+          {/* ── SIDEBAR ── */}
+          <div className="ev-sidebar-wrap">
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              style={{ borderRadius: '16px', border: '1px solid var(--border-color)', padding: '24px', backgroundColor: 'var(--bg-primary)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              style={{ border: '1px solid var(--border-color)', borderRadius: 8, backgroundColor: 'var(--bg-primary)', overflow: 'hidden' }}
             >
-              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '20px' }}>
-                Postuler à cet événement
-              </h3>
-
-              {/* Stand price */}
+              {/* Stand price header */}
               {(event.stand_price ?? 0) > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', padding: '12px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
-                  <Euro size={20} color={colors.violet.primary} />
-                  <div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Prix du stand</div>
-                    <div style={{ fontSize: '22px', fontWeight: '700', color: colors.violet.primary }}>{event.stand_price}€</div>
-                  </div>
+                <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Prix du stand</span>
+                  <span style={{ fontSize: 22, fontWeight: 800, color: colors.violet.primary, letterSpacing: -0.5 }}>{event.stand_price}€</span>
                 </div>
               )}
 
-              {/* Stands occupancy */}
+              {/* Occupancy bar */}
               {(event.stand_count ?? 0) > 0 && acceptedCount !== null && (() => {
                 const remaining = (event.stand_count ?? 0) - acceptedCount
                 const pct = Math.min(100, Math.round((acceptedCount / (event.stand_count ?? 1)) * 100))
                 const full = remaining <= 0
                 return (
-                  <div style={{ marginBottom: '20px', padding: '14px', borderRadius: '10px', backgroundColor: full ? colors.red.bg : 'var(--bg-secondary)', border: `1px solid ${full ? colors.red.medium : 'var(--border-color)'}` }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)' }}>
-                        {full ? 'Complet' : `${remaining} stand${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
+                  <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: full ? colors.feedback.danger.solid : 'var(--text-secondary)' }}>
+                        {full ? 'Complet' : `${remaining} place${remaining > 1 ? 's' : ''} disponible${remaining > 1 ? 's' : ''}`}
                       </span>
-                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                        {acceptedCount}/{event.stand_count}
-                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{acceptedCount}/{event.stand_count}</span>
                     </div>
-                    <div style={{ height: '6px', borderRadius: '3px', backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', borderRadius: '3px',
-                        width: `${pct}%`,
-                        backgroundColor: pct >= 90 ? colors.feedback.danger.solid : pct >= 60 ? colors.status.pending.dot : colors.green.primary,
-                        transition: 'width 0.6s ease',
-                      }} />
+                    <div style={{ height: 4, borderRadius: 2, backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, backgroundColor: pct >= 90 ? colors.feedback.danger.solid : pct >= 60 ? colors.status.pending.dot : colors.green.primary, transition: 'width 0.6s ease' }} />
                     </div>
                   </div>
                 )
               })()}
 
-              {/* Social proof badges */}
+              {/* Social proof */}
               {((weeklyApplicants !== null && weeklyApplicants >= 5) || (acceptedCount !== null && (event.stand_count ?? 0) > 0 && (event.stand_count ?? 0) - acceptedCount <= 5 && (event.stand_count ?? 0) - acceptedCount > 0)) && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {weeklyApplicants !== null && weeklyApplicants >= 5 && (
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '6px',
-                      fontSize: '13px', fontWeight: '600',
-                      padding: '6px 12px', borderRadius: '20px',
-                      backgroundColor: colors.violet.bg, color: colors.violet.primary,
-                      border: `1px solid ${colors.purple.bgLight}`,
-                    }}>
-                      🔥 {weeklyApplicants} créateur{weeklyApplicants > 1 ? 's' : ''} {weeklyApplicants > 1 ? 'ont' : 'a'} postulé cette semaine
+                    <span style={{ fontSize: 12, fontWeight: 600, color: colors.violet.primary }}>
+                      {weeklyApplicants} créateur{weeklyApplicants > 1 ? 's' : ''} {weeklyApplicants > 1 ? 'ont' : 'a'} postulé cette semaine
                     </span>
                   )}
                   {acceptedCount !== null && (event.stand_count ?? 0) > 0 && (() => {
                     const remaining = (event.stand_count ?? 0) - acceptedCount
                     if (remaining > 0 && remaining <= 5) return (
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '6px',
-                        fontSize: '13px', fontWeight: '600',
-                        padding: '6px 12px', borderRadius: '20px',
-                        backgroundColor: colors.red.bg, color: colors.feedback.danger.solid,
-                        border: `1px solid ${colors.feedback.danger.solid}33`,
-                      }}>
-                        ⚡ Plus que {remaining} place{remaining > 1 ? 's' : ''} disponible{remaining > 1 ? 's' : ''}
+                      <span style={{ fontSize: 12, fontWeight: 600, color: colors.feedback.danger.solid }}>
+                        Plus que {remaining} place{remaining > 1 ? 's' : ''} disponible{remaining > 1 ? 's' : ''}
                       </span>
                     )
                     return null
@@ -840,149 +742,100 @@ export function EventDetailClient({ id }: Props) {
                 </div>
               )}
 
-              {/* Stand plan viewer */}
-              <StandPlanViewer eventId={id} />
+              {/* Stand plan */}
+              <div style={{ padding: '0 20px' }}>
+                <StandPlanViewer eventId={id} />
+              </div>
 
-              {/* Already applied */}
-              {application && !cancelled ? (
-                <div style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  backgroundColor: STATUS_STYLES[application.status]?.bg || 'var(--bg-secondary)',
-                  border: `1px solid ${STATUS_STYLES[application.status]?.color || 'var(--border-color)'}`,
-                }}>
-                  <p style={{ fontSize: '13px', fontWeight: '700', color: STATUS_STYLES[application.status]?.color || 'var(--text-secondary)', margin: '0 0 12px 0', textAlign: 'center' }}>
-                    {STATUS_STYLES[application.status]?.label || application.status}
-                  </p>
+              {/* CTA zone */}
+              <div style={{ padding: 20 }}>
 
-                  {/* Timeline visuelle — uniquement en attente */}
-                  {application.status === 'pending' && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: '12px' }}>
-                      {[
-                        { label: 'Envoyée', done: true },
-                        { label: 'En révision', done: false },
-                        { label: 'Décision', done: false },
-                      ].map((step, i, arr) => (
-                        <div key={step.label} style={{ display: 'flex', alignItems: 'center', flex: i < arr.length - 1 ? 1 : undefined }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                            <div style={{
-                              width: '20px', height: '20px', borderRadius: '50%',
-                              backgroundColor: step.done ? colors.feedback.warning.solid : 'var(--bg-primary)',
-                              border: `2px solid ${step.done ? colors.feedback.warning.solid : 'var(--border-color)'}`,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            }}>
-                              {step.done && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: colors.bg.primary }} />}
+                {/* ── application / CTA states ── */}
+                {application && !cancelled ? (
+                  <div style={{ padding: '14px', borderRadius: 8, backgroundColor: STATUS_STYLES[application.status]?.bg || 'var(--bg-secondary)', border: `1px solid ${STATUS_STYLES[application.status]?.color || 'var(--border-color)'}` }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: STATUS_STYLES[application.status]?.color || 'var(--text-secondary)', margin: '0 0 12px', textAlign: 'center' }}>
+                      {STATUS_STYLES[application.status]?.label || application.status}
+                    </p>
+                    {application.status === 'pending' && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 12 }}>
+                        {[{ label: 'Envoyée', done: true }, { label: 'En révision', done: false }, { label: 'Décision', done: false }].map((step, i, arr) => (
+                          <div key={step.label} style={{ display: 'flex', alignItems: 'center', flex: i < arr.length - 1 ? 1 : undefined }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                              <div style={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: step.done ? colors.feedback.warning.solid : 'var(--bg-primary)', border: `2px solid ${step.done ? colors.feedback.warning.solid : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                {step.done && <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: colors.bg.primary }} />}
+                              </div>
+                              <span style={{ fontSize: 10, fontWeight: 600, color: step.done ? colors.feedback.warning.solid : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>{step.label}</span>
                             </div>
-                            <span style={{ fontSize: '10px', fontWeight: 600, color: step.done ? colors.feedback.warning.solid : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
-                              {step.label}
-                            </span>
+                            {i < arr.length - 1 && <div style={{ flex: 1, height: 2, backgroundColor: 'var(--border-color)', margin: '0 4px', marginBottom: 16 }} />}
                           </div>
-                          {i < arr.length - 1 && (
-                            <div style={{ flex: 1, height: '2px', backgroundColor: 'var(--border-color)', margin: '0 4px', marginBottom: '16px' }} />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <p style={{ fontSize: '12px', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-                    Candidature envoyée le {new Date(application.created_at).toLocaleDateString('fr-FR')}
-                  </p>
-                  {application.status === 'pending' && (
-                    <button
-                      onClick={handleCancelApplication}
-                      disabled={cancelling}
-                      style={{ marginTop: '12px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '600', cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1, width: '100%' }}
-                    >
-                      {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
-                    </button>
-                  )}
+                        ))}
+                      </div>
+                    )}
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+                      Candidature envoyée le {new Date(application.created_at).toLocaleDateString('fr-FR')}
+                    </p>
+                    {application.status === 'pending' && (
+                      <button onClick={handleCancelApplication} disabled={cancelling} style={{ marginTop: 10, padding: '8px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1, width: '100%' }}>
+                        {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
+                      </button>
+                    )}
                   {application.status === 'paid' && (
-                    <div style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', backgroundColor: colors.green.bg, border: `1px solid ${colors.green.primary}`, textAlign: 'center' }}>
-                      <p style={{ fontSize: '13px', fontWeight: 700, color: colors.green.primary, margin: 0 }}>✅ Stand payé — réservation confirmée</p>
+                    <div style={{ marginTop: 10, padding: '10px', borderRadius: 6, backgroundColor: colors.green.bg, border: `1px solid ${colors.green.primary}`, textAlign: 'center' }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: colors.green.primary, margin: 0 }}>Stand payé — réservation confirmée</p>
                     </div>
                   )}
                   {application.status === 'accepted' && user && event && (
-                    <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {event.stand_price && (
-                        <button
-                          onClick={handlePayStand}
-                          disabled={payingStand}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px 20px', borderRadius: '10px', border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: 700, cursor: payingStand ? 'wait' : 'pointer', opacity: payingStand ? 0.7 : 1, width: '100%' }}
-                        >
-                          💳 {payingStand ? 'Redirection…' : `Payer mon stand — ${event.stand_price}€`}
+                        <button onClick={handlePayStand} disabled={payingStand} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '11px', borderRadius: 6, border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: 14, fontWeight: 700, cursor: payingStand ? 'wait' : 'pointer', opacity: payingStand ? 0.7 : 1, width: '100%' }}>
+                          {payingStand ? 'Redirection…' : `Payer mon stand — ${event.stand_price}€`}
                         </button>
                       )}
-                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      {existingContract ? (
-                        <>
-                          <a
-                            href={existingContract.pdf_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: 'var(--bg-primary)', color: colors.violet.primary, fontSize: '13px', fontWeight: '700', textDecoration: 'none' }}
-                          >
-                            <FileText size={14} /> Voir le contrat
-                          </a>
-                          {existingContract.status !== 'signed' ? (
-                            <button
-                              onClick={handleSignContract}
-                              disabled={contractSigning}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: contractSigning ? 'wait' : 'pointer', opacity: contractSigning ? 0.7 : 1 }}
-                            >
-                              ✍️ {contractSigning ? 'Signature…' : 'Signer électroniquement'}
-                            </button>
-                          ) : (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 16px', borderRadius: '8px', backgroundColor: colors.green.bg, color: colors.green.primary, fontSize: '13px', fontWeight: '700' }}>
-                              ✓ Signé le {new Date(existingContract.signed_at!).toLocaleDateString('fr-FR')}
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => handleGenerateContract(user.id, application.id)}
-                          disabled={contractLoading === application.id}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}
-                        >
-                          <FileText size={14} />
-                          {contractLoading === application.id ? 'Génération…' : 'Générer le contrat PDF'}
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {existingContract ? (
+                          <>
+                            <a href={existingContract.pdf_url} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 13px', borderRadius: 6, border: `1px solid ${colors.border.accent}`, backgroundColor: 'var(--bg-primary)', color: colors.violet.primary, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                              <FileText size={13} /> Voir le contrat
+                            </a>
+                            {existingContract.status !== 'signed' ? (
+                              <button onClick={handleSignContract} disabled={contractSigning} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 13px', borderRadius: 6, border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: 12, fontWeight: 700, cursor: contractSigning ? 'wait' : 'pointer', opacity: contractSigning ? 0.7 : 1 }}>
+                                {contractSigning ? 'Signature…' : 'Signer'}
+                              </button>
+                            ) : (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 13px', borderRadius: 6, backgroundColor: colors.green.bg, color: colors.green.primary, fontSize: 12, fontWeight: 700 }}>
+                                Signé le {new Date(existingContract.signed_at!).toLocaleDateString('fr-FR')}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <button onClick={() => handleGenerateContract(user.id, application.id)} disabled={contractLoading === application.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 12, fontWeight: 700, cursor: contractLoading === application.id ? 'wait' : 'pointer', opacity: contractLoading === application.id ? 0.7 : 1 }}>
+                            <FileText size={13} />
+                            {contractLoading === application.id ? 'Génération…' : 'Générer le contrat PDF'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
               ) : success ? (
-                <div style={{ padding: '16px', borderRadius: '8px', backgroundColor: colors.feedback.success.bg, border: `1px solid ${colors.green.success}`, textAlign: 'center' }}>
-                  <p style={{ fontSize: '15px', fontWeight: '700', color: colors.feedback.success.solid, margin: 0 }}>
-                    Candidature envoyée ✓
-                  </p>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                    L'organisateur vous répondra bientôt
-                  </p>
+                <div style={{ padding: '14px', borderRadius: 8, backgroundColor: colors.feedback.success.bg, border: `1px solid ${colors.green.success}`, textAlign: 'center' }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: colors.feedback.success.solid, margin: 0 }}>Candidature envoyée</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>L'organisateur vous répondra bientôt</p>
                 </div>
               ) : !user ? (
                 <div>
-                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: '1.6' }}>
-                    Connectez-vous pour postuler à cet événement
-                  </p>
-                  <Link
-                    href="/login"
-                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: '16px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
-                  >
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 14, lineHeight: 1.6 }}>Connectez-vous pour postuler à cet événement</p>
+                  <Link href="/login" style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 6, backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: 15, fontWeight: 700, textAlign: 'center', boxSizing: 'border-box' }}>
                     Se connecter
                   </Link>
-                  <Link
-                    href="/register"
-                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, color: colors.violet.primary, textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box', marginTop: '12px' }}
-                  >
+                  <Link href="/register" style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 6, border: `1px solid ${colors.border.accent}`, color: colors.violet.primary, textDecoration: 'none', fontSize: 14, fontWeight: 600, textAlign: 'center', boxSizing: 'border-box', marginTop: 10 }}>
                     Créer un compte
                   </Link>
                 </div>
               ) : (user.role === 'organizer' || user.is_organizer) && event?.organizer_id === user.id ? (
                 <div>
-                  {/* Outils organisateur */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '8px', marginBottom: '20px' }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>Outils organisateur</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 18 }}>
                     {[
                       { label: 'Exposants', href: `/events/${id}/exhibitors` },
                       { label: "Liste d'attente", href: `/events/${id}/waitlist` },
@@ -993,335 +846,179 @@ export function EventDetailClient({ id }: Props) {
                       { label: 'Plan stands', href: `/events/${id}/settings/stands` },
                       { label: 'Paramètres', href: `/events/${id}/settings/faqs` },
                     ].map(tool => (
-                      <Link
-                        key={tool.href}
-                        href={tool.href}
-                        style={{ display: 'block', padding: '8px 10px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', textDecoration: 'none', fontSize: '12px', fontWeight: 600, textAlign: 'center' }}
-                      >
+                      <Link key={tool.href} href={tool.href} style={{ display: 'block', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', textDecoration: 'none', fontSize: 12, fontWeight: 600, textAlign: 'center' }}>
                         {tool.label}
                       </Link>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>
-                      Candidatures ({applications.length})
-                    </h3>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 6 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Candidatures ({applications.length})</p>
+                    <div style={{ display: 'flex', gap: 6 }}>
                       {applications.some(a => a.status === 'accepted' || a.status === 'pending') && (
-                        <button
-                          onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${colors.border.accent}`, backgroundColor: colors.bg.primary, color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                        >
-                          <Send size={13} /> Messagerie groupée
+                        <button onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 6, border: `1px solid ${colors.border.accent}`, backgroundColor: 'var(--bg-primary)', color: colors.violet.primary, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                          <Send size={12} /> Message groupé
                         </button>
                       )}
-                      <button
-                        onClick={() => {
-                          const link = `${window.location.origin}/events/${id}?invite=1`
-                          navigator.clipboard.writeText(link).then(() => toastSuccess('Lien d\'invitation copié !'))
-                        }}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
-                      >
-                        Inviter un créateur
+                      <button onClick={() => { const link = `${window.location.origin}/events/${id}?invite=1`; navigator.clipboard.writeText(link).then(() => toastSuccess('Lien copié !')) }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                        Inviter
                       </button>
                     </div>
                   </div>
-
-                  {/* Modal messagerie groupée */}
-                  <NexModal
-                    isOpen={showBulkModal}
-                    onClose={() => setShowBulkModal(false)}
-                    title="Message groupé"
-                    subtitle={selectedCreatorIds.length > 0
-                      ? `${selectedCreatorIds.length} créateur${selectedCreatorIds.length > 1 ? 's' : ''} sélectionné${selectedCreatorIds.length > 1 ? 's' : ''}`
-                      : `Tous les créateurs acceptés (${applications.filter(a => a.status === 'accepted').length})`}
-                    size="md"
+                  <NexModal isOpen={showBulkModal} onClose={() => setShowBulkModal(false)} title="Message groupé" subtitle={selectedCreatorIds.length > 0 ? `${selectedCreatorIds.length} créateur${selectedCreatorIds.length > 1 ? 's' : ''} sélectionné${selectedCreatorIds.length > 1 ? 's' : ''}` : `Tous les acceptés (${applications.filter(a => a.status === 'accepted').length})`} size="md"
                     footer={
-                      <div style={{ display: 'flex', gap: '10px' }}>
-                        <button
-                          onClick={() => setShowBulkModal(false)}
-                          style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
-                        >
-                          Annuler
-                        </button>
-                        <button
-                          onClick={handleBulkMessage}
-                          disabled={bulkMsgSending || !bulkMsgText.trim()}
-                          style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '10px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}
-                        >
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={() => setShowBulkModal(false)} style={{ flex: 1, padding: 10, borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Annuler</button>
+                        <button onClick={handleBulkMessage} disabled={bulkMsgSending || !bulkMsgText.trim()} style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 10, borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 13, fontWeight: 700, cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}>
                           <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
                         </button>
                       </div>
                     }
                   >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {/* Template dropdown */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Modèle</label>
-                        <select
-                          value={bulkTemplate}
-                          onChange={e => handleTemplateChange(e.target.value)}
-                          style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', cursor: 'pointer' }}
-                        >
-                          {BULK_TEMPLATES.map(t => (
-                            <option key={t.id} value={t.id}>{t.label}</option>
-                          ))}
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Modèle</label>
+                        <select value={bulkTemplate} onChange={e => handleTemplateChange(e.target.value)} style={{ width: '100%', padding: '9px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none' }}>
+                          {BULK_TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                         </select>
                       </div>
-                      {/* Sujet */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Sujet</label>
-                        <input
-                          type="text"
-                          value={bulkSubject}
-                          onChange={e => setBulkSubject(e.target.value)}
-                          placeholder={`Message de l'organisateur — ${event?.title || ''}`}
-                          style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', boxSizing: 'border-box' }}
-                          />
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Sujet</label>
+                        <input type="text" value={bulkSubject} onChange={e => setBulkSubject(e.target.value)} placeholder={`Message — ${event?.title || ''}`} style={{ width: '100%', padding: '9px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', boxSizing: 'border-box' }} />
                       </div>
-                      {/* Message */}
                       <div>
-                        <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Message</label>
-                        <textarea
-                          value={bulkMsgText}
-                          onChange={e => setBulkMsgText(e.target.value)}
-                          placeholder="Votre message…"
-                          rows={5}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', resize: 'vertical', boxSizing: 'border-box', outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
-                        />
+                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Message</label>
+                        <textarea value={bulkMsgText} onChange={e => setBulkMsgText(e.target.value)} placeholder="Votre message…" rows={5} style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }} />
                       </div>
                     </div>
                   </NexModal>
-
                   {appsLoading ? (
-                    <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)', fontSize: '14px' }}>Chargement...</div>
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: 13 }}>Chargement...</div>
                   ) : applications.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '24px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-                      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', margin: 0 }}>Aucune candidature reçue</p>
+                    <div style={{ textAlign: 'center', padding: '18px', borderRadius: 8, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                      <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>Aucune candidature reçue</p>
                     </div>
                   ) : (
                     <>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {applications.map(app => (
-                        <div key={app.id} style={{ borderRadius: '10px', border: selectedCreatorIds.includes(app.creator_id) ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)', padding: '14px', backgroundColor: selectedCreatorIds.includes(app.creator_id) ? `${colors.purple.bgEef}` : 'var(--bg-primary)', transition: 'border-color 0.15s, background-color 0.15s' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                            {/* Checkbox sélection */}
-                            {(app.status === 'accepted' || app.status === 'pending') && (
-                              <input
-                                type="checkbox"
-                                checked={selectedCreatorIds.includes(app.creator_id)}
-                                onChange={() => toggleCreatorSelection(app.creator_id)}
-                                style={{ width: '16px', height: '16px', accentColor: colors.violet.primary, cursor: 'pointer', flexShrink: 0 }}
-                              />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {applications.map(app => (
+                          <div key={app.id} style={{ borderRadius: 8, border: selectedCreatorIds.includes(app.creator_id) ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)', padding: '12px', backgroundColor: selectedCreatorIds.includes(app.creator_id) ? `${colors.purple.bgEef}` : 'var(--bg-primary)', transition: 'border-color 0.15s, background-color 0.15s' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                              {(app.status === 'accepted' || app.status === 'pending') && (
+                                <input type="checkbox" checked={selectedCreatorIds.includes(app.creator_id)} onChange={() => toggleCreatorSelection(app.creator_id)} style={{ width: 15, height: 15, accentColor: colors.violet.primary, cursor: 'pointer', flexShrink: 0 }} />
+                              )}
+                              <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)' }}>
+                                {app.profiles?.avatar_url ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : (app.profiles?.full_name?.[0] || '?')}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <Link href={`/creators/${app.creator_id}`} style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', textDecoration: 'none' }}>{app.profiles?.full_name || 'Créateur'}</Link>
+                                <p style={{ fontSize: 11, color: 'var(--text-secondary)', margin: 0 }}>{new Date(app.created_at).toLocaleDateString('fr-FR')}</p>
+                              </div>
+                              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, backgroundColor: app.status === 'accepted' ? colors.green.bg : app.status === 'refused' ? colors.red.bg : colors.red.bgFbeb, color: app.status === 'accepted' ? colors.green.primary : app.status === 'refused' ? colors.feedback.danger.solid : colors.status.pending.dot }}>
+                                {app.status === 'accepted' ? 'Acceptée' : app.status === 'refused' ? 'Refusée' : 'En attente'}
+                              </span>
+                            </div>
+                            {app.message && <p style={{ fontSize: 12, color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)', borderRadius: 6, padding: '7px 10px', margin: '0 0 8px', fontStyle: 'italic' }}>"{app.message}"</p>}
+                            {(app as unknown as { portfolio_images?: string[] }).portfolio_images?.length ? (
+                              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
+                                {(app as unknown as { portfolio_images: string[] }).portfolio_images.map((url: string, i: number) => (
+                                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'block', width: 46, height: 46, borderRadius: 5, overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
+                                    <Image src={url} alt="" width={46} height={46} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                                  </a>
+                                ))}
+                              </div>
+                            ) : null}
+                            {app.status === 'pending' && (
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <button onClick={() => handleUpdateStatus(app.id, 'accepted')} disabled={updatingId === app.id} style={{ flex: 1, padding: '7px', borderRadius: 5, border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}>Accepter</button>
+                                <button onClick={() => handleUpdateStatus(app.id, 'refused')} disabled={updatingId === app.id} style={{ flex: 1, padding: '7px', borderRadius: 5, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: colors.feedback.danger.solid, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}>Refuser</button>
+                              </div>
                             )}
-                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700', color: 'var(--text-secondary)' }}>
-                              {app.profiles?.avatar_url
-                                ? <Image src={app.profiles.avatar_url} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                                : (app.profiles?.full_name?.[0] || '?')}
-                            </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <Link href={`/creators/${app.creator_id}`} style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', textDecoration: 'none' }}>
-                                {app.profiles?.full_name || 'Créateur'}
-                              </Link>
-                              <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                                {new Date(app.created_at).toLocaleDateString('fr-FR')}
-                              </p>
-                            </div>
-                            <span style={{
-                              padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700',
-                              backgroundColor: app.status === 'accepted' ? colors.green.bg : app.status === 'refused' ? colors.red.bg : colors.red.bgFbeb,
-                              color: app.status === 'accepted' ? colors.green.primary : app.status === 'refused' ? colors.feedback.danger.solid : colors.status.pending.dot,
-                            }}>
-                              {app.status === 'accepted' ? 'Acceptée' : app.status === 'refused' ? 'Refusée' : 'En attente'}
-                            </span>
+                            {app.status === 'accepted' && (
+                              <button onClick={() => handleGenerateContract(app.creator_id, app.id)} disabled={contractLoading === app.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 5, border: '1px solid var(--border-color)', backgroundColor: `${colors.purple.bgEef}`, color: colors.violet.primary, fontSize: 11, fontWeight: 700, cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}>
+                                <FileText size={11} />{contractLoading === app.id ? 'Génération…' : 'Contrat PDF'}
+                              </button>
+                            )}
                           </div>
-                          {app.message && (
-                            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', backgroundColor: 'var(--bg-secondary)', borderRadius: '8px', padding: '10px 12px', margin: '0 0 10px', fontStyle: 'italic' }}>
-                              "{app.message}"
-                            </p>
-                          )}
-                          {/* Portfolio images jointes */}
-                          {(app as unknown as { portfolio_images?: string[] }).portfolio_images?.length ? (
-                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                              {(app as unknown as { portfolio_images: string[] }).portfolio_images.map((url: string, i: number) => (
-                                <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                                  style={{ display: 'block', width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', flexShrink: 0 }}>
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <Image src={url} alt="" width={56} height={56} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-                                </a>
-                              ))}
-                            </div>
-                          ) : null}
-                          {app.status === 'pending' && (
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <button
-                                onClick={() => handleUpdateStatus(app.id, 'accepted')}
-                                disabled={updatingId === app.id}
-                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: colors.green.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
-                              >
-                                Accepter
-                              </button>
-                              <button
-                                onClick={() => handleUpdateStatus(app.id, 'refused')}
-                                disabled={updatingId === app.id}
-                                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: colors.feedback.danger.solid, fontSize: '13px', fontWeight: '700', cursor: 'pointer', opacity: updatingId === app.id ? 0.6 : 1 }}
-                              >
-                                Refuser
-                              </button>
-                            </div>
-                          )}
-                          {app.status === 'accepted' && (
-                            <button
-                              onClick={() => handleGenerateContract(app.creator_id, app.id)}
-                              disabled={contractLoading === app.id}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: `${colors.purple.bgEef}`, color: colors.violet.primary, fontSize: '12px', fontWeight: '700', cursor: contractLoading === app.id ? 'wait' : 'pointer', opacity: contractLoading === app.id ? 0.7 : 1 }}
-                            >
-                              <FileText size={12} />
-                              {contractLoading === app.id ? 'Génération…' : 'Contrat PDF'}
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Barre d'action fixe en bas quand ≥ 1 créateur sélectionné */}
-                    {selectedCreatorIds.length > 0 && (
-                      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>
-                            {selectedCreatorIds.length} créateur{selectedCreatorIds.length > 1 ? 's' : ''} sélectionné{selectedCreatorIds.length > 1 ? 's' : ''}
-                          </span>
-                          <button
-                            onClick={() => setSelectedCreatorIds([])}
-                            style={{ fontSize: '12px', color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
-                          >
-                            Désélectionner
+                        ))}
+                      </div>
+                      {selectedCreatorIds.length > 0 && (
+                        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{selectedCreatorIds.length} créateur{selectedCreatorIds.length > 1 ? 's' : ''} sélectionné{selectedCreatorIds.length > 1 ? 's' : ''}</span>
+                            <button onClick={() => setSelectedCreatorIds([])} style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Désélectionner</button>
+                          </div>
+                          <button onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                            <Send size={14} /> Message groupé
                           </button>
                         </div>
-                        <button
-                          onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 18px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
-                        >
-                          <Send size={14} /> Envoyer un message groupé
-                        </button>
-                      </div>
-                    )}
+                      )}
                     </>
                   )}
-                  {/* Gestion des stands */}
                   <StandsManager eventId={id} />
                 </div>
               ) : (user.role === 'organizer' && !user.is_creator) || user.role === 'visitor' ? (
-                <p style={{ fontSize: '14px', color: 'var(--text-secondary)', textAlign: 'center' }}>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>
                   {user.role === 'visitor' ? 'Créez un compte créateur pour postuler aux événements' : 'Seuls les créateurs peuvent postuler aux événements'}
                 </p>
               ) : (user.role === 'creator' || user.is_creator) && profileChecked && missingFields.length > 0 ? (
                 <div>
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-primary)' }}>Profil complété</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: colors.violet.primary }}>
-                        {REQUIRED_FIELDS_TOTAL - missingFields.length}/{REQUIRED_FIELDS_TOTAL}
-                      </span>
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>Profil complété</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: colors.violet.primary }}>{REQUIRED_FIELDS_TOTAL - missingFields.length}/{REQUIRED_FIELDS_TOTAL}</span>
                     </div>
-                    <div style={{ height: '8px', borderRadius: '99px', backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%',
-                        borderRadius: '99px',
-                        width: `${((REQUIRED_FIELDS_TOTAL - missingFields.length) / REQUIRED_FIELDS_TOTAL) * 100}%`,
-                        background: 'linear-gradient(90deg, ${colors.violet.primary}, ${colors.violet.hover})',
-                        transition: 'width 0.5s ease',
-                      }} />
+                    <div style={{ height: 5, borderRadius: 3, backgroundColor: 'var(--border-color)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', borderRadius: 3, width: `${((REQUIRED_FIELDS_TOTAL - missingFields.length) / REQUIRED_FIELDS_TOTAL) * 100}%`, background: `linear-gradient(90deg, ${colors.violet.primary}, ${colors.violet.hover})`, transition: 'width 0.5s ease' }} />
                     </div>
                   </div>
-                  <div style={{ padding: '14px', borderRadius: '10px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.bgE8}`, marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '10px' }}>
-                      <AlertTriangle size={15} color={colors.status.pending.dot} style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <p style={{ fontSize: '13px', fontWeight: '600', color: colors.red.amber, margin: 0 }}>
-                        Complétez votre profil avant de postuler
-                      </p>
+                  <div style={{ padding: '12px', borderRadius: 8, backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.bgE8}`, marginBottom: 14 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 8 }}>
+                      <AlertTriangle size={14} color={colors.status.pending.dot} style={{ flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ fontSize: 12, fontWeight: 600, color: colors.red.amber, margin: 0 }}>Complétez votre profil avant de postuler</p>
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                      {missingFields.map(f => (
-                        <li key={f} style={{ fontSize: '12px', color: colors.red.amber, marginBottom: '2px' }}>{f}</li>
-                      ))}
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {missingFields.map(f => <li key={f} style={{ fontSize: 11, color: colors.red.amber, marginBottom: 2 }}>{f}</li>)}
                     </ul>
                   </div>
-                  <Link
-                    href="/profile"
-                    style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: '15px', fontWeight: '600', textAlign: 'center', boxSizing: 'border-box' }}
-                  >
-                    Compléter mon profil →
+                  <Link href="/profile" style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 6, backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: 14, fontWeight: 700, textAlign: 'center', boxSizing: 'border-box' }}>
+                    Compléter mon profil
                   </Link>
                 </div>
               ) : showForm ? (
                 <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px', display: 'block' }}>
-                    Message à l'organisateur (optionnel)
-                  </label>
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Présentez-vous et votre activité..."
-                    rows={4}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', marginBottom: '12px' }}
-                  />
-                  {/* Portfolio joint — sélection depuis le portfolio existant */}
+                  <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, display: 'block' }}>Message à l'organisateur (optionnel)</label>
+                  <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Présentez-vous et votre activité..." rows={4} style={{ width: '100%', padding: '11px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', marginBottom: 10, color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }} />
                   {creatorPortfolioImages.length === 0 && user && (
-                    <div style={{ marginBottom: '12px', padding: '10px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-subtle)', border: '1px solid var(--border-color)' }}>
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>
-                        Votre portfolio est vide. <a href="/settings/profile" style={{ color: colors.violet.primary, fontWeight: 600 }}>Ajouter des photos →</a>
-                      </p>
+                    <div style={{ marginBottom: 10, padding: '10px 12px', borderRadius: 6, backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                      <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>Votre portfolio est vide. <a href="/settings/profile" style={{ color: colors.violet.primary, fontWeight: 600 }}>Ajouter des photos</a></p>
                     </div>
                   )}
                   {creatorPortfolioImages.length > 0 && (
-                    <div style={{ marginBottom: '12px' }}>
-                      <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-                        Photos de vos créations (optionnel, max 4)
-                      </label>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                    <div style={{ marginBottom: 10 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Photos de vos créations (max 4)</label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
                         {creatorPortfolioImages.map((url, i) => {
                           const selected = selectedPortfolioUrls.includes(url)
                           return (
-                            <div key={i} onClick={() => {
-                              if (selected) {
-                                setSelectedPortfolioUrls(prev => prev.filter(u => u !== url))
-                              } else if (selectedPortfolioUrls.length < 4) {
-                                setSelectedPortfolioUrls(prev => [...prev, url])
-                              }
-                            }} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: selected ? `2px solid ${colors.violet.primary}` : '2px solid transparent', opacity: !selected && selectedPortfolioUrls.length >= 4 ? 0.4 : 1, transition: 'border-color 0.15s, opacity 0.15s' }}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <div key={i} onClick={() => { if (selected) setSelectedPortfolioUrls(prev => prev.filter(u => u !== url)); else if (selectedPortfolioUrls.length < 4) setSelectedPortfolioUrls(prev => [...prev, url]) }} style={{ position: 'relative', aspectRatio: '1', borderRadius: 5, overflow: 'hidden', cursor: 'pointer', border: selected ? `2px solid ${colors.violet.primary}` : '2px solid transparent', opacity: !selected && selectedPortfolioUrls.length >= 4 ? 0.4 : 1, transition: 'border-color 0.15s, opacity 0.15s' }}>
                               <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                               {selected && (
                                 <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '13px', fontWeight: '700' }}>✓</div>
+                                  <div style={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</div>
                                 </div>
                               )}
                             </div>
                           )
                         })}
                       </div>
-                      {selectedPortfolioUrls.length > 0 && (
-                        <p style={{ margin: '6px 0 0', fontSize: '11px', color: colors.violet.primary, fontWeight: '600' }}>
-                          {selectedPortfolioUrls.length} photo{selectedPortfolioUrls.length > 1 ? 's' : ''} sélectionnée{selectedPortfolioUrls.length > 1 ? 's' : ''}
-                        </p>
-                      )}
+                      {selectedPortfolioUrls.length > 0 && <p style={{ margin: '5px 0 0', fontSize: 11, color: colors.violet.primary, fontWeight: 600 }}>{selectedPortfolioUrls.length} photo{selectedPortfolioUrls.length > 1 ? 's' : ''} sélectionnée{selectedPortfolioUrls.length > 1 ? 's' : ''}</p>}
                     </div>
                   )}
-                  {applyError && (
-                    <p style={{ color: colors.feedback.danger.solid, fontSize: '13px', marginBottom: '12px' }}>{applyError}</p>
-                  )}
-                  <button
-                    onClick={handleApply}
-                    disabled={applying}
-                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: applying ? colors.purple.ringAlt : colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: applying ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
-                  >
+                  {applyError && <p style={{ color: colors.feedback.danger.solid, fontSize: 12, marginBottom: 10 }}>{applyError}</p>}
+                  <button onClick={handleApply} disabled={applying} style={{ width: '100%', padding: '13px', borderRadius: 6, backgroundColor: applying ? colors.purple.ringAlt : colors.violet.primary, color: colors.bg.primary, fontSize: 15, fontWeight: 700, border: 'none', cursor: applying ? 'not-allowed' : 'pointer', marginBottom: 8 }}>
                     {applying ? 'Envoi...' : 'Envoyer ma candidature'}
                   </button>
-                  <button
-                    onClick={() => setShowForm(false)}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '14px', cursor: 'pointer' }}
-                  >
+                  <button onClick={() => setShowForm(false)} style={{ width: '100%', padding: '11px', borderRadius: 6, backgroundColor: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>
                     Annuler
                   </button>
                 </div>
@@ -1329,34 +1026,18 @@ export function EventDetailClient({ id }: Props) {
                 const full = (event.stand_count ?? 0) > 0 && acceptedCount !== null && acceptedCount >= (event.stand_count ?? 0)
                 if (full) {
                   return onWaitlist ? (
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: `${colors.yellow.bgFff7}`, border: `1px solid ${colors.yellow.primary}`, textAlign: 'center' }}>
-                      <p style={{ fontSize: '14px', fontWeight: '700', color: colors.feedback.warning.text, margin: '0 0 4px' }}>
-                        Vous êtes en liste d'attente
-                      </p>
-                      <p style={{ fontSize: '12px', color: colors.red.amber, margin: '0 0 12px' }}>
-                        Vous serez notifié si une place se libère
-                      </p>
-                      <button
-                        onClick={handleLeaveWaitlist}
-                        disabled={joiningWaitlist}
-                        style={{ padding: '8px 18px', borderRadius: '8px', border: `1px solid ${colors.yellow.primary}`, backgroundColor: 'var(--bg-primary)', color: colors.feedback.warning.text, fontSize: '13px', fontWeight: '600', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
-                      >
+                    <div style={{ padding: '14px', borderRadius: 8, backgroundColor: `${colors.yellow.bgFff7}`, border: `1px solid ${colors.yellow.primary}`, textAlign: 'center' }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: colors.feedback.warning.text, margin: '0 0 4px' }}>Vous êtes en liste d'attente</p>
+                      <p style={{ fontSize: 12, color: colors.red.amber, margin: '0 0 12px' }}>Vous serez notifié si une place se libère</p>
+                      <button onClick={handleLeaveWaitlist} disabled={joiningWaitlist} style={{ padding: '8px 16px', borderRadius: 6, border: `1px solid ${colors.yellow.primary}`, backgroundColor: 'var(--bg-primary)', color: colors.feedback.warning.text, fontSize: 12, fontWeight: 600, cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}>
                         {joiningWaitlist ? 'Traitement…' : 'Se retirer de la liste'}
                       </button>
                     </div>
                   ) : (
-                    <div style={{ padding: '16px', borderRadius: '10px', backgroundColor: colors.red.bg, border: `1px solid ${colors.red.medium}`, textAlign: 'center' }}>
-                      <p style={{ fontSize: '14px', fontWeight: '700', color: colors.red.text, margin: '0 0 4px' }}>
-                        Événement complet
-                      </p>
-                      <p style={{ fontSize: '12px', color: colors.gray["950"], margin: '0 0 12px' }}>
-                        Rejoignez la liste d'attente pour être prévenu si une place se libère
-                      </p>
-                      <button
-                        onClick={handleJoinWaitlist}
-                        disabled={joiningWaitlist}
-                        style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '14px', fontWeight: '700', cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}
-                      >
+                    <div style={{ padding: '14px', borderRadius: 8, backgroundColor: colors.red.bg, border: `1px solid ${colors.red.medium}`, textAlign: 'center' }}>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: colors.red.text, margin: '0 0 4px' }}>Événement complet</p>
+                      <p style={{ fontSize: 12, color: colors.gray["950"], margin: '0 0 12px' }}>Rejoignez la liste d'attente pour être prévenu si une place se libère</p>
+                      <button onClick={handleJoinWaitlist} disabled={joiningWaitlist} style={{ padding: '10px 18px', borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 13, fontWeight: 700, cursor: joiningWaitlist ? 'wait' : 'pointer', opacity: joiningWaitlist ? 0.6 : 1 }}>
                         {joiningWaitlist ? 'Traitement…' : "Rejoindre la liste d'attente"}
                       </button>
                     </div>
@@ -1364,21 +1045,16 @@ export function EventDetailClient({ id }: Props) {
                 }
                 return (
                   <button
-                    onClick={async () => {
-                      setShowForm(true)
-                      if (user) {
-                        const { data } = await supabase.from('creator_profiles').select('portfolio_images').eq('user_id', user.id).maybeSingle()
-                        setCreatorPortfolioImages(Array.isArray(data?.portfolio_images) ? data.portfolio_images : [])
-                      }
-                    }}
-                    style={{ width: '100%', padding: '14px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '16px', fontWeight: '600', border: 'none', cursor: 'pointer', transition: 'all 300ms ease' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.violet.dark; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)' }}
+                    onClick={async () => { setShowForm(true); if (user) { const { data } = await supabase.from('creator_profiles').select('portfolio_images').eq('user_id', user.id).maybeSingle(); setCreatorPortfolioImages(Array.isArray(data?.portfolio_images) ? data.portfolio_images : []) } }}
+                    style={{ width: '100%', padding: '14px', borderRadius: 6, backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 200ms ease' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = colors.violet.dark; e.currentTarget.style.boxShadow = '0 4px 14px rgba(99,102,241,0.35)' }}
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = colors.violet.primary; e.currentTarget.style.boxShadow = 'none' }}
                   >
                     Je m'inscris
                   </button>
                 )
               })()}
+              </div>
             </motion.div>
           </div>
         </div>
