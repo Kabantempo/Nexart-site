@@ -535,9 +535,9 @@ export function EventDetailClient({ id }: Props) {
         .ev-grid > * { min-width: 0; }
         @media (max-width: 768px) {
           .ev-hero { height: 260px; }
-          .ev-grid { grid-template-columns: 1fr; gap: 0; }
-          .ev-sidebar-wrap { position: static; order: -1; width: 100%; overflow: hidden; }
-          .ev-sidebar-wrap > div { border-radius: 0 !important; border-left: none !important; border-right: none !important; border-top: none !important; }
+          .ev-grid { grid-template-columns: 1fr; gap: 0; overflow: hidden; }
+          .ev-sidebar-wrap { position: static; order: -1; width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; box-sizing: border-box; }
+          .ev-sidebar-wrap > div { border-radius: 0 !important; border-left: none !important; border-right: none !important; border-top: none !important; max-width: 100%; box-sizing: border-box; }
         }
       `}</style>
 
@@ -836,23 +836,9 @@ export function EventDetailClient({ id }: Props) {
                 </div>
               ) : (user.role === 'organizer' || user.is_organizer) && event?.organizer_id === user.id ? (
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 10 }}>Outils organisateur</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 18 }}>
-                    {[
-                      { label: 'Exposants', href: `/events/${id}/exhibitors` },
-                      { label: "Liste d'attente", href: `/events/${id}/waitlist` },
-                      { label: 'Analytics', href: `/events/${id}/analytics` },
-                      { label: 'Équipe', href: `/events/${id}/team` },
-                      { label: 'Bénévoles', href: `/events/${id}/volunteers` },
-                      { label: 'Campagnes', href: `/events/${id}/campaigns` },
-                      { label: 'Plan stands', href: `/events/${id}/settings/stands` },
-                      { label: 'Paramètres', href: `/events/${id}/settings/faqs` },
-                    ].map(tool => (
-                      <Link key={tool.href} href={tool.href} style={{ display: 'block', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', textDecoration: 'none', fontSize: 12, fontWeight: 600, textAlign: 'center' }}>
-                        {tool.label}
-                      </Link>
-                    ))}
-                  </div>
+                  <Link href="/dashboard" style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 6, backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: 14, fontWeight: 700, textAlign: 'center', boxSizing: 'border-box', marginBottom: 18 }}>
+                    Tableau de bord
+                  </Link>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 6 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Candidatures ({applications.length})</p>
                     <div style={{ display: 'flex', gap: 6 }}>
