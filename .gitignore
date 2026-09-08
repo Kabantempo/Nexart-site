@@ -49,3 +49,10 @@ test-results/
 
 # Supabase CLI temp
 supabase/.temp/
+
+# Build & deploy artifacts
+*.tar.gz
+backup-nexart-*.json
+
+# Claude Code local settings
+.claude/settings.local.json
