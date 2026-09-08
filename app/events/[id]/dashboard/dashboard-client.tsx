@@ -10,7 +10,6 @@ import {
   FileText, ListChecks, Megaphone, MapPin, Edit,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useAuthStore } from '@/lib/store'
 import { colors } from '@/lib/design-tokens'
 
 interface Stats {
@@ -59,19 +58,26 @@ const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }
 }
 
 export default function DashboardClient({ eventId }: { eventId: string }) {
-  const { user } = useAuthStore()
   const router = useRouter()
   const [event, setEvent] = useState<EventInfo | null>(null)
   const [stats, setStats] = useState<Stats | null>(null)
   const [recent, setRecent] = useState<RecentApp[]>([])
   const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!user) { router.push('/login'); return }
-    load()
-  }, [user, eventId])
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) { router.push('/login'); return }
+      setUserId(session.user.id)
+    })
+  }, [])
 
-  async function load() {
+  useEffect(() => {
+    if (!userId) return
+    load(userId)
+  }, [userId, eventId])
+
+  async function load(uid: string) {
     setLoading(true)
 
     const [{ data: ev }, { data: apps }] = await Promise.all([
@@ -79,7 +85,7 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
       supabase.from('applications').select('id, status, created_at, profiles(full_name, avatar_url)').eq('event_id', eventId).order('created_at', { ascending: false }),
     ])
 
-    if (!ev || ev.organizer_id !== user?.id) { router.push('/dashboard'); return }
+    if (!ev || ev.organizer_id !== uid) { router.push('/dashboard'); return }
 
     setEvent({ title: ev.title, city: ev.city, start_date: ev.start_date, end_date: ev.end_date, status: ev.status })
 
