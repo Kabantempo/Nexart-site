@@ -8,7 +8,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { ChevronDown, X, LogOut, Search, User, MessageCircle, ArrowUpRight, Heart, Calendar, Palette, Brush, Building2, Zap, Plus, MapPin, TrendingUp, BarChart2, Ticket, Users, Bell, Shield, Menu } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
-import { WhatsNew } from '@/components/ui/whats-new'
+import { NotificationBell } from '@/components/ui/notification-bell'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useTheme } from '@/lib/use-theme'
 import { colors } from '@/lib/design-tokens'
@@ -24,7 +24,7 @@ export function NavbarFull() {
       cursor: 'pointer', background: 'transparent', border: 'none', outline: 'none',
       WebkitAppearance: 'none', appearance: 'none', transition: 'color 0.15s',
       userSelect: 'none', textDecoration: 'none',
-      color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+      color: 'var(--text-primary)',
     }),
     panel: (align: 'left' | 'right' | 'center', width: number): React.CSSProperties => ({
       position: 'absolute', top: '100%', paddingTop: '10px', width: `${width}px`, zIndex: 50,
@@ -417,7 +417,7 @@ export function NavbarFull() {
                       onSubmit={submitSearch}
                       style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '34px', padding: '0 12px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}
                     >
-                      <Search size={12} color="var(--text-tertiary)" style={{ flexShrink: 0 }} />
+                      <Search size={12} color="var(--text-secondary)" style={{ flexShrink: 0 }} />
                       <input ref={searchRef} value={searchValue}
                         onChange={e => handleSearchChange(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
@@ -511,7 +511,7 @@ export function NavbarFull() {
               </div>
 
               <ThemeToggle />
-              <WhatsNew dark={isDark} />
+              {user && <NotificationBell userId={user.id} dark={isDark} />}
 
               {user ? (
                 <>
@@ -668,6 +668,7 @@ export function NavbarFull() {
                 <Search size={14} color="var(--mobile-search-icon)" style={{ flexShrink: 0 }} />
                 <input value={searchValue} onChange={e => handleSearchChange(e.target.value)}
                   placeholder="Rechercher événements, créateurs…"
+                  className="mobile-search-input"
                   style={{ flex: 1, background: 'var(--mobile-search-bg)', border: 'none', outline: 'none', fontSize: '14px', color: 'var(--mobile-search-text)', appearance: 'none', WebkitAppearance: 'none' }}
                 />
                 {searchValue && (
@@ -710,7 +711,7 @@ export function NavbarFull() {
                         }
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: '14px', fontWeight: 600, color: colors.bg.primary, margin: 0 }}>{firstName ?? 'Mon compte'}</p>
+                        <p style={{ fontSize: '14px', fontWeight: 600, color: colors.text.white, margin: 0 }}>{firstName ?? 'Mon compte'}</p>
                         <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.35)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
                       </div>
                     </Link>
