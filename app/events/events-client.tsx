@@ -305,7 +305,6 @@ export default function EventsClient() {
   const [sortBy, setSortBy] = useState<string>('date-asc')
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
-  const [headerVisible, setHeaderVisible] = useState(true)
   const [cityFilter, setCityFilter] = useState('all')
   const [gratuitOnly, setGratuitOnly] = useState(false)
   const [bientotOnly, setBientotOnly] = useState(false)
@@ -315,18 +314,6 @@ export default function EventsClient() {
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
-  }, [])
-
-  useEffect(() => {
-    let lastY = window.scrollY
-    const onScroll = () => {
-      const y = window.scrollY
-      if (y < 80) { setHeaderVisible(true); lastY = y; return }
-      setHeaderVisible(y < lastY)
-      lastY = y
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
@@ -669,25 +656,31 @@ export default function EventsClient() {
       <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: 80 }}>
         {/* fixed header: title + search + filters — hides on scroll down */}
         <div style={{
-          position: 'fixed', top: headerVisible ? 58 : -200, left: 0, right: 0, zIndex: 10,
+          position: 'fixed', top: 58, left: 0, right: 0, zIndex: 10,
           backgroundColor: 'var(--bg-primary)',
           borderBottom: '1px solid var(--ev-border)',
-          transition: 'top 0.25s ease',
         }}>
-          {/* title row */}
-          <div style={{ padding: '12px 16px 8px' }}>
-            <h1 style={{ margin: '0 0 1px', fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>
+          {/* title + count */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px 6px' }}>
+            <h1 style={{ margin: 0, fontSize: 21, fontWeight: 800, color: 'var(--ev-card-title)', letterSpacing: -0.5 }}>
               Événements
             </h1>
-            <p style={{ margin: 0, fontSize: 12, color: colors.text.light }}>Marchés, pop-ups et salons près de chez vous</p>
+            <span style={{
+              fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)',
+              backgroundColor: 'var(--ev-chip-bg)', padding: '3px 9px', borderRadius: 20,
+            }}>
+              {filtered.length} résultats
+            </span>
           </div>
-          {/* search */}
-          <div style={{ padding: '0 16px 8px' }}>
+          {/* search bar */}
+          <div style={{ padding: '0 12px 8px' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
-              backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '9px 14px',
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1.5px solid var(--border-color)',
+              borderRadius: 14, padding: '10px 14px',
             }}>
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}>
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5} style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
               <input
@@ -695,10 +688,10 @@ export default function EventsClient() {
                 placeholder="Ville, nom d'événement…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'inherit', caretColor: 'var(--text-primary)' }}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'inherit', caretColor: colors.violet.primary }}
               />
               {search && (
-                <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', alignItems: 'center' }}>
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}>
                     <path d="M18 6 6 18M6 6l12 12" />
                   </svg>
@@ -706,48 +699,68 @@ export default function EventsClient() {
               )}
             </div>
           </div>
-          {/* type filters row */}
-          <div style={{ overflowX: 'auto', scrollPaddingLeft: 16 }} className="hide-scrollbar">
-            <div style={{ display: 'flex', gap: 8, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
-              {FILTERS.map(f => (
-                <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
-                  flexShrink: 0, padding: '5px 13px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                  fontSize: 13, fontWeight: 600,
-                  backgroundColor: activeFilter === f.key ? colors.violet.primary : 'var(--ev-chip-bg)',
-                  color: activeFilter === f.key ? colors.text.white : 'var(--ev-chip-text)',
-                  transition: 'background 0.15s, color 0.15s',
-                }}>
-                  {f.label}
-                </button>
-              ))}
+          {/* type filter chips */}
+          <div style={{ overflowX: 'auto', scrollPaddingLeft: 12 }} className="hide-scrollbar">
+            <div style={{ display: 'flex', gap: 6, paddingLeft: 12, paddingRight: 12, paddingBottom: 8 }}>
+              {FILTERS.map(f => {
+                const isActive = activeFilter === f.key
+                return (
+                  <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
+                    flexShrink: 0, padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
+                    fontSize: 12, fontWeight: 600,
+                    border: isActive ? 'none' : '1px solid var(--ev-border)',
+                    background: isActive
+                      ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.hover})`
+                      : 'transparent',
+                    color: isActive ? '#fff' : 'var(--ev-chip-text)',
+                    boxShadow: isActive ? `0 2px 10px ${colors.violet.ring}` : 'none',
+                    transition: 'all 0.15s ease',
+                  }}>
+                    {f.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
-          {/* sort row — direct */}
-          <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px 10px', gap: 6 }}>
-            <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
-              padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-              backgroundColor: sortBy.startsWith('date') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
-              color: sortBy.startsWith('date') ? colors.text.white : 'var(--ev-chip-text)',
+          {/* sort + filters row */}
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px 10px', gap: 6 }}>
+            <div style={{
+              display: 'flex', borderRadius: 10, overflow: 'hidden',
+              border: '1px solid var(--ev-border)', flexShrink: 0,
             }}>
-              Date {sortBy === 'date-desc' ? '↓' : '↑'}
-            </button>
-            <button onClick={() => setSortBy(sortBy === 'price-asc' ? 'price-desc' : 'price-asc')} style={{
-              padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-              backgroundColor: sortBy.startsWith('price') ? 'var(--ev-sort-active)' : 'var(--ev-chip-bg)',
-              color: sortBy.startsWith('price') ? colors.text.white : 'var(--ev-chip-text)',
-            }}>
-              Prix {sortBy === 'price-desc' ? '↓' : '↑'}
-            </button>
+              <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
+                padding: '5px 11px', border: 'none', borderRight: '1px solid var(--ev-border)',
+                cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                backgroundColor: sortBy.startsWith('date') ? colors.violet.primary : 'transparent',
+                color: sortBy.startsWith('date') ? '#fff' : 'var(--ev-chip-text)',
+                transition: 'background 0.15s, color 0.15s',
+              }}>
+                Date {sortBy === 'date-desc' ? '↓' : '↑'}
+              </button>
+              <button onClick={() => setSortBy(sortBy === 'price-asc' ? 'price-desc' : 'price-asc')} style={{
+                padding: '5px 11px', border: 'none',
+                cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                backgroundColor: sortBy.startsWith('price') ? colors.violet.primary : 'transparent',
+                color: sortBy.startsWith('price') ? '#fff' : 'var(--ev-chip-text)',
+                transition: 'background 0.15s, color 0.15s',
+              }}>
+                Prix {sortBy === 'price-desc' ? '↓' : '↑'}
+              </button>
+            </div>
             <div style={{ flex: 1 }} />
             <button onClick={() => setShowAdvanced(v => !v)} style={{
-              padding: '5px 12px', borderRadius: 8, border: '1px solid var(--ev-border)', cursor: 'pointer',
-              fontSize: 12, fontWeight: 600, background: showAdvanced ? 'var(--ev-chip-bg)' : 'var(--bg-primary)', color: 'var(--ev-chip-text)',
-              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '5px 11px', borderRadius: 10,
+              border: `1.5px solid ${showAdvanced ? colors.violet.primary : 'var(--ev-border)'}`,
+              cursor: 'pointer', fontSize: 11, fontWeight: 600,
+              background: showAdvanced ? `${colors.violet.primary}18` : 'transparent',
+              color: showAdvanced ? colors.violet.primary : 'var(--ev-chip-text)',
+              display: 'flex', alignItems: 'center', gap: 5,
+              transition: 'all 0.15s ease',
             }}>
-              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path d="M3 6h18M7 12h10M11 18h2" />
               </svg>
-              Avancé
+              Filtres
             </button>
           </div>
           {showAdvanced && (
