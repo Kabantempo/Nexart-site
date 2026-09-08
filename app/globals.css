@@ -31,7 +31,7 @@ body {
   --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --mobile-search-bg: rgba(255, 255, 255, 0.08);
   --mobile-search-border: rgba(255, 255, 255, 0.1);
-  --mobile-search-icon: rgba(255, 255, 255, 0.4);
+  --mobile-search-icon: rgba(255, 255, 255, 0.45);
   --mobile-search-text: #ffffff;
   --mobile-action-bg: rgba(255, 255, 255, 0.06);
   --mobile-action-bg-hover: rgba(255, 255, 255, 0.1);
@@ -88,7 +88,7 @@ body {
   --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
   --mobile-search-bg: rgba(0, 0, 0, 0.06);
   --mobile-search-border: rgba(0, 0, 0, 0.12);
-  --mobile-search-icon: rgba(26, 26, 26, 0.4);
+  --mobile-search-icon: #9CA3AF;
   --mobile-search-text: #1A1A1A;
   --mobile-action-bg: rgba(0, 0, 0, 0.05);
   --mobile-action-bg-hover: rgba(0, 0, 0, 0.09);
@@ -126,6 +126,23 @@ body {
   --home-bg2: rgba(0,0,0,0.05);
   --input-bg: #FFFFFF;
   --hero-bg: #F8F8FF;
+}
+
+/* ── Placeholder alignment (icon = placeholder = var(--text-secondary)) ─────── */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 1 !important;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary) !important;
+  opacity: 1 !important;
+}
+/* Mobile menu search: icon is --mobile-search-icon, placeholder must match */
+.mobile-search-input::placeholder {
+  color: var(--mobile-search-icon) !important;
+  opacity: 1 !important;
 }
 
 /* ── Homepage light mode overrides ─────────────────────────────────────────── */
@@ -183,7 +200,44 @@ body {
   --navbar-bg-scrolled: rgba(15, 15, 15, 0.92);
   --navbar-border: rgba(255, 255, 255, 0.06);
   --navbar-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --mobile-search-bg: rgba(255, 255, 255, 0.08);
+  --mobile-search-border: rgba(255, 255, 255, 0.1);
+  --mobile-search-icon: rgba(255, 255, 255, 0.45);
+  --mobile-search-text: #ffffff;
+  --mobile-action-bg: rgba(255, 255, 255, 0.06);
+  --mobile-action-bg-hover: rgba(255, 255, 255, 0.1);
+  --mobile-action-icon: rgba(255, 255, 255, 0.65);
+  --mobile-action-label: rgba(255, 255, 255, 0.45);
+  --carte-bg: #0F0C29;
+  --carte-border: rgba(99,102,241,0.2);
+  --carte-border-sm: rgba(99,102,241,0.12);
+  --carte-muted: rgba(255,255,255,0.35);
+  --carte-icon: rgba(255,255,255,0.3);
+  --carte-btn-border: rgba(255,255,255,0.15);
+  --carte-btn-bg: rgba(255,255,255,0.06);
+  --carte-btn-text: rgba(255,255,255,0.55);
+  --carte-overlay: rgba(15,12,41,0.85);
+  --carte-popup-bg: #1a1640;
+  --carte-map-bg: #0F0C29;
+  --carte-attr-bg: rgba(15,12,41,0.8);
+  --carte-btn-hover: rgba(99,102,241,0.2);
+  --carte-active-border: rgba(165,180,252,0.5);
+  --carte-active-bg: rgba(99,102,241,0.3);
+  --carte-active-text: rgba(165,180,252,1);
+  --home-t1: rgba(255,255,255,0.80);
+  --home-t2: rgba(255,255,255,0.55);
+  --home-t3: rgba(255,255,255,0.35);
+  --home-t4: rgba(255,255,255,0.22);
+  --home-t5: rgba(255,255,255,0.40);
+  --home-t6: rgba(255,255,255,0.30);
+  --home-t7: rgba(255,255,255,0.60);
+  --home-bd:  rgba(255,255,255,0.08);
+  --home-bd2: rgba(255,255,255,0.12);
+  --home-bd3: rgba(255,255,255,0.06);
+  --home-bg1: rgba(255,255,255,0.04);
+  --home-bg2: rgba(255,255,255,0.06);
   --input-bg: #1A1A1A;
+  --hero-bg: #0F0F0F;
 }
 
 /* ── Syne display font pour H1/H2/H3 ── */
@@ -988,6 +1042,20 @@ img, video, iframe, canvas, svg {
   --ev-card-date: #9CA3AF;
   --ev-card-title: #1A1A1A;
   --ev-page-header-bg: #ffffff;
+}
+[data-theme="dark"] {
+  --ev-chip-bg: rgba(255,255,255,0.14);
+  --ev-chip-text: rgba(255,255,255,0.88);
+  --ev-border: rgba(255,255,255,0.14);
+  --ev-sort-active: #ffffff;
+  --ev-skeleton-1: rgba(255,255,255,0.05);
+  --ev-card-bg: #1A1A2E;
+  --ev-card-bg2: #252540;
+  --ev-card-tag-bg: #2A2A3E;
+  --ev-card-tag-text: #C4C4D4;
+  --ev-card-date: #6B6B8A;
+  --ev-card-title: #ffffff;
+  --ev-page-header-bg: #0F0F0F;
 }
 
 /* ── /creators page — cards dark mode ──────────────────────── */

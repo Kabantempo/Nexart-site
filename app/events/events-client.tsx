@@ -306,6 +306,9 @@ export default function EventsClient() {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(true)
+  const [cityFilter, setCityFilter] = useState('all')
+  const [gratuitOnly, setGratuitOnly] = useState(false)
+  const [bientotOnly, setBientotOnly] = useState(false)
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 1024)
@@ -406,105 +409,244 @@ export default function EventsClient() {
 
   const marches = applySort(filtered.filter(e => ['popup', 'fair', 'salon'].includes(e.event_type)))
 
-  const handleCardClick = (id: string) => router.push(`/events/${id}`)
+  const uniqueEventCities = [...new Set(events.map(e => e.city).filter(Boolean))].sort() as string[]
+  const TYPE_FILTERS = [
+    { key: 'tous',      label: 'Tous'      },
+    { key: 'salon',     label: 'Salons'    },
+    { key: 'popup',     label: 'Pop-ups'   },
+    { key: 'fair',      label: 'Foires'    },
+    { key: 'seasonal',  label: 'Saisonniers' },
+    { key: 'permanent', label: 'Permanent' },
+  ]
+  const SORT_OPTIONS = [
+    { key: 'date-asc',   label: 'Date (plus proche)'   },
+    { key: 'date-desc',  label: 'Date (plus lointaine)' },
+    { key: 'price-asc',  label: 'Prix croissant'        },
+    { key: 'price-desc', label: 'Prix décroissant'      },
+    { key: 'recent',     label: 'Ajouté récemment'      },
+    { key: 'alpha',      label: 'A → Z'                 },
+  ]
 
+  const desktopFiltered = filtered
+    .filter(e => cityFilter === 'all' || e.city === cityFilter)
+    .filter(e => !gratuitOnly || !e.stand_price || e.stand_price === 0)
+    .filter(e => {
+      if (!bientotOnly) return true
+      const d = new Date(e.start_date)
+      const diff = (d.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      return diff >= 0 && diff <= 30
+    })
+
+  const hasDesktopFilters = activeFilter !== 'tous' || cityFilter !== 'all' || gratuitOnly || bientotOnly || !!search
+  const resetDesktopFilters = () => { setActiveFilter('tous'); setCityFilter('all'); setGratuitOnly(false); setBientotOnly(false); setSearch('') }
+
+  const handleCardClick = (id: string) => router.push(`/events/${id}`)
   const containerVariants = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } }
 
   // ── Desktop layout (≥ 1024px) ───────────────────────────────────────────────
   if (isDesktop) {
     return (
-      <>
-      <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
-        <h1 style={{ fontSize: 32, fontWeight: 800, color: 'var(--ev-sort-active)', marginBottom: 4, letterSpacing: -0.5 }}>
-          Événements
-        </h1>
-        <p style={{ color: colors.text.secondary, marginBottom: 24 }}>Marchés, pop-ups et salons près de chez vous</p>
+      <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+        <style>{`
+          @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+          .ev-dcard { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+          .ev-dcard:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(99,102,241,0.12); border-color: ${colors.violet.primary} !important; }
+          .ev-dchip { transition: background 120ms, color 120ms; cursor: pointer; }
+          .ev-dchip:hover { background: ${colors.violet.primary}18 !important; color: ${colors.violet.primary} !important; }
+        `}</style>
 
-        {/* search + filters */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 32, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '10px 16px', flex: 1, minWidth: 260 }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Ville, nom d'événement…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              autoComplete="off"
-              style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'transparent' }}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {FILTERS.map(f => (
-              <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
-                padding: '8px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                fontSize: 13, fontWeight: 600,
-                backgroundColor: activeFilter === f.key ? colors.violet.primary : 'var(--ev-chip-bg)',
-                color: activeFilter === f.key ? colors.text.white : 'var(--ev-chip-text)',
-              }}>
-                {f.label}
-              </button>
-            ))}
+        {/* Header */}
+        <div style={{ borderBottom: '1px solid var(--border-color)' }}>
+          <div style={{ maxWidth: 1380, margin: '0 auto', padding: '48px 48px 36px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap', marginBottom: 32 }}>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: colors.violet.primary, margin: '0 0 12px' }}>Agenda</p>
+                <h1 style={{ fontSize: 52, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1, margin: '0 0 10px' }}>Événements</h1>
+                <p style={{ fontSize: 15, color: 'var(--text-secondary)', margin: 0 }}>Marchés, pop-ups et salons partout en France</p>
+              </div>
+              <div style={{ display: 'flex', gap: 40 }}>
+                {[
+                  { val: events.length,              label: 'événements'  },
+                  { val: uniqueEventCities.length,   label: 'villes'      },
+                  { val: events.filter(e => new Date(e.start_date) >= new Date()).length, label: 'à venir' },
+                ].map(({ val, label }) => (
+                  <div key={label} style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.05em', lineHeight: 1 }}>{val}</p>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0, fontWeight: 500 }}>{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Search */}
+            <div style={{ position: 'relative', maxWidth: 560 }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={colors.text.secondary} strokeWidth={2.5} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Ville, nom d'événement…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                autoComplete="off"
+                onFocus={e => { e.currentTarget.style.borderColor = colors.violet.primary }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
+                style={{ width: '100%', paddingLeft: 44, paddingRight: search ? 44 : 18, paddingTop: 14, paddingBottom: 14, borderRadius: 14, border: '1.5px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 150ms' }}
+              />
+              {search && (
+                <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: colors.text.secondary, display: 'flex' }}>
+                  <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M18 6 6 18M6 6l12 12" /></svg>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* grid */}
-        {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} style={{ borderRadius: 16, backgroundColor: 'var(--ev-chip-bg)', height: 280,
-                background: 'linear-gradient(90deg,var(--ev-skeleton-1) 25%,var(--ev-chip-bg) 50%,var(--ev-skeleton-1) 75%)',
-                backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <p style={{ color: colors.text.light, textAlign: 'center', marginTop: 80 }}>Aucun événement trouvé.</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
-            {filtered.map((ev, i) => (
-              <motion.div
-                key={ev.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.04 }}
-                onClick={() => handleCardClick(ev.id)}
-                style={{ borderRadius: 16, backgroundColor: 'var(--ev-card-bg)', overflow: 'hidden', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column' }}
-              >
-                <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
-                  {ev.cover_image && (
-                    <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />
-                  )}
-                  {(() => { const st = statusLabel(ev.status); return (
-                    <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color,
-                      color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>{st.label}</span>
-                  )})()}
-                </div>
-                <div style={{ padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <p style={{ margin: 0, color: 'var(--ev-card-title)', fontSize: 15, fontWeight: 700,
-                    display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2,
-                    overflow: 'hidden' }}>{ev.title}</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                    {getTagsFromEvent(ev).slice(0, 3).map(tag => (
-                      <span key={tag} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)',
-                        fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20 }}>{tag}</span>
-                    ))}
+        {/* Body */}
+        <div style={{ maxWidth: 1380, margin: '0 auto', display: 'flex', alignItems: 'flex-start', padding: '0 0 100px' }}>
+
+          {/* Sidebar */}
+          <aside style={{ width: 248, flexShrink: 0, padding: '36px 0 36px 48px', position: 'sticky', top: 64, alignSelf: 'flex-start', maxHeight: 'calc(100vh - 70px)', overflowY: 'auto' }}>
+
+            <div style={{ marginBottom: 28 }}>
+              <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.04em', lineHeight: 1 }}>{desktopFiltered.length}</p>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>résultat{desktopFiltered.length !== 1 ? 's' : ''}</p>
+            </div>
+
+            {/* Type */}
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 8px' }}>Type</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {TYPE_FILTERS.map(({ key, label }) => (
+                  <button key={key} onClick={() => setActiveFilter(key)} className="ev-dchip"
+                    style={{ textAlign: 'left', padding: '6px 10px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: activeFilter === key ? 700 : 500, backgroundColor: activeFilter === key ? `${colors.violet.primary}14` : 'transparent', color: activeFilter === key ? colors.violet.primary : 'var(--text-primary)', fontFamily: 'inherit' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ height: 1, backgroundColor: 'var(--border-color)', margin: '20px 0' }} />
+
+            {/* City */}
+            {uniqueEventCities.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 8px' }}>Ville</p>
+                <select value={cityFilter} onChange={e => setCityFilter(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: `1.5px solid ${cityFilter !== 'all' ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: cityFilter !== 'all' ? `${colors.violet.primary}08` : 'var(--bg-secondary)', color: cityFilter !== 'all' ? colors.violet.primary : 'var(--text-primary)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
+                  <option value="all">Toutes les villes</option>
+                  {uniqueEventCities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            )}
+
+            {/* Sort */}
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 8px' }}>Trier par</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {SORT_OPTIONS.map(({ key, label }) => (
+                  <button key={key} onClick={() => setSortBy(key)} className="ev-dchip"
+                    style={{ textAlign: 'left', padding: '6px 10px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: sortBy === key ? 700 : 500, backgroundColor: sortBy === key ? `${colors.violet.primary}14` : 'transparent', color: sortBy === key ? colors.violet.primary : 'var(--text-primary)', fontFamily: 'inherit' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ height: 1, backgroundColor: 'var(--border-color)', margin: '20px 0' }} />
+
+            {/* Toggles */}
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 12px' }}>Options</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                  <div onClick={() => setGratuitOnly(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: gratuitOnly ? colors.green.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                    <div style={{ position: 'absolute', top: 2, left: gratuitOnly ? 16 : 2, width: 16, height: 16, borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                    <span style={{ fontSize: 12, color: 'var(--ev-card-date)' }}>
-                      {ev.start_date ? formatDate(ev.start_date) : ''}{ev.city ? ` · ${ev.city}` : ''}
-                    </span>
-                    <span style={{ fontSize: 17, fontWeight: 900, color: 'var(--ev-card-title)' }}>{formatPrice(ev.stand_price)}</span>
+                  <span style={{ fontSize: 13, fontWeight: gratuitOnly ? 600 : 400, color: gratuitOnly ? colors.green.primary : 'var(--text-secondary)' }}>Gratuit</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                  <div onClick={() => setBientotOnly(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: bientotOnly ? colors.violet.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+                    <div style={{ position: 'absolute', top: 2, left: bientotOnly ? 16 : 2, width: 16, height: 16, borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                  <span style={{ fontSize: 13, fontWeight: bientotOnly ? 600 : 400, color: bientotOnly ? colors.violet.primary : 'var(--text-secondary)' }}>Dans les 30 jours</span>
+                </label>
+              </div>
+            </div>
+
+            {hasDesktopFilters && (
+              <button onClick={resetDesktopFilters} style={{ fontSize: 12, fontWeight: 600, color: colors.feedback.danger.solid, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>
+                Effacer les filtres
+              </button>
+            )}
+          </aside>
+
+          {/* Main */}
+          <main style={{ flex: 1, padding: '32px 48px 0 32px', minWidth: 0 }}>
+            {loading ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <div style={{ height: 180, background: 'linear-gradient(90deg,var(--ev-skeleton-1) 25%,var(--ev-chip-bg) 50%,var(--ev-skeleton-1) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
+                    <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div style={{ height: 14, borderRadius: 6, backgroundColor: 'var(--ev-chip-bg)', width: '85%' }} />
+                      <div style={{ height: 11, borderRadius: 6, backgroundColor: 'var(--ev-chip-bg)', width: '55%' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : desktopFiltered.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+                <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="var(--border-color)" strokeWidth={1.5} style={{ margin: '0 auto 16px', display: 'block' }}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px' }}>Aucun résultat</h3>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 24px' }}>Essayez de modifier vos filtres.</p>
+                <button onClick={resetDesktopFilters} style={{ padding: '10px 24px', borderRadius: 12, border: `1.5px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Réinitialiser</button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+                {desktopFiltered.map((ev, i) => {
+                  const st = statusLabel(ev.status)
+                  const tags = getTagsFromEvent(ev)
+                  return (
+                    <motion.div
+                      key={ev.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: Math.min(i * 0.04, 0.24) }}
+                      onClick={() => handleCardClick(ev.id)}
+                      className="ev-dcard"
+                      style={{ borderRadius: 16, backgroundColor: 'var(--ev-card-bg)', border: '1px solid var(--border-color)', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+                    >
+                      <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
+                        {ev.cover_image && <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
+                        <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>{st.label}</span>
+                        {(!ev.stand_price || ev.stand_price === 0) && (
+                          <span style={{ position: 'absolute', top: 10, right: 10, backgroundColor: colors.green.primary, color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>Gratuit</span>
+                        )}
+                      </div>
+                      <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                        <p style={{ margin: 0, color: 'var(--ev-card-title)', fontSize: 15, fontWeight: 700, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', lineHeight: 1.35 }}>{ev.title}</p>
+                        {tags.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                            {tags.map(tag => (
+                              <span key={tag} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20 }}>{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 10, borderTop: '1px solid var(--border-color)' }}>
+                          <span style={{ fontSize: 12, color: 'var(--ev-card-date)' }}>
+                            {ev.start_date ? formatDate(ev.start_date) : ''}{ev.city ? ` · ${ev.city}` : ''}
+                          </span>
+                          <span style={{ fontSize: 17, fontWeight: 900, color: 'var(--ev-card-title)' }}>{formatPrice(ev.stand_price)}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            )}
+          </main>
+        </div>
       </div>
-      </>
     )
   }
 
@@ -545,7 +687,7 @@ export default function EventsClient() {
               display: 'flex', alignItems: 'center', gap: 8,
               backgroundColor: 'var(--ev-chip-bg)', borderRadius: 12, padding: '9px 14px',
             }}>
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
               <input
@@ -553,11 +695,11 @@ export default function EventsClient() {
                 placeholder="Ville, nom d'événement…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'transparent' }}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, color: 'var(--text-primary)', backgroundColor: 'inherit', caretColor: 'var(--text-primary)' }}
               />
               {search && (
                 <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={colors.text.light} strokeWidth={2.5}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}>
                     <path d="M18 6 6 18M6 6l12 12" />
                   </svg>
                 </button>
