@@ -1,217 +1,65 @@
-# Nexart Roadmap & Versioning
+# Nexart — Roadmap et versions
 
-**Current**: v0.8.0 (2026-07-10)
-**Target**: v1.0.0 (prod-ready with payments)
-
----
-
-## v0.8.0 ✅ (2026-07-10) — Patch Notes System
-
-**Completed:**
-- [x] Patch notes page (`/patch-notes`)
-- [x] WhatsNew dropdown button (navbar)
-- [x] Accessibility improvements (ARIA, semantic HTML)
-- [x] Creator customizable pages (colors, fonts, music)
-- [x] Versioning automation (SemVer script)
-
-**Status**: Live on production
+**État au 09/09/26** : v1.5.0 en production sur https://nexart.fr
+**Ce fichier était resté figé à v0.8.0 jusqu'au 09/09/26.** Le journal de bord fait foi : `Claude/work-log.md`.
 
 ---
 
-## v0.9.0 (Next) — Foundation Polishing
+## Historique — ce qui est livré
 
-### Quick Wins (1-2 days)
-- [ ] Géolocalisation /creators — "Autour de moi" button
-- [ ] Email confirmation banner (top of page)
-- [ ] Better error messages (app-wide)
-- [ ] Loading states consistency
-- [ ] Missing image fallbacks
-
-### Medium Tasks (3-5 days)
-- [ ] 2FA TOTP setup (Supabase MFA)
-- [ ] Creator search autocomplete
-- [ ] Event filters persistence (localStorage)
-- [ ] Organizer email notifications
-- [ ] Creator dashboard stats
-
-### Polish (2-3 days)
-- [ ] Motion/animations fine-tuning
-- [ ] Mobile responsiveness audit
-- [ ] Form validation improvements
-- [ ] Toast/notification consistency
-
-**Estimated**: 1-2 weeks
-**Release**: Mid-July 2026
+| Version | Contenu | Journal |
+|---------|---------|---------|
+| Fondation | Auth, DB Supabase, profils créateur/organisateur, candidatures, messagerie, carte | ~28/06/26 |
+| v0.9.0 | Polish : géolocalisation, filtres persistants, loading states, toasts, mobile, validation | ~05/07/26 |
+| v1.0.0 | RGPD complet (confidentialité, CGU, mentions légales), suppression et export de compte, audit logs, modération, outils organisateurs | 11/07/26 |
+| v1.1.0 | Analytics organisateur, SIRET, filtres avancés, messages groupés, dark mode | 20/07/26 |
+| v1.2.0 | Plan de stands, bénévoles, checklists, équipe, FAQ, suite marketing | 10/07/26 |
+| v1.3.0 | Admin panel, documents d'événement, planning bénévoles, QA Playwright | 10/07/26 |
+| v1.4.0 | Design system, SEO, Lighthouse, Stripe LIVE | 01/08 + 15/08/26 |
+| v1.5.0 | Sécurité (bypass admin corrigés), slugs événements, GitHub Actions, Stripe backend, revenus organisateur, paiements créateur | 30/08/26 |
+| v1.5.x | Stripe Connect, refonte bénévoles mobile, dark mode complet, refonte pages créateurs et événements, éditeur de page créateur | 01/09 au 09/09/26 |
+| v2.0.0 | Programme de parrainage (partiel) | 15/08/26 |
 
 ---
 
-## v1.0.0 🎯 (Blocker) — Production Ready + Payments
+## Chantiers ouverts — constatés le 09/09/26
 
-### CRITICAL: Stripe Integration (10-15 days)
+### Dette technique
+- [x] Code de production non versionné (~30 fichiers) — PR #221
+- [x] Build GitHub Actions cassé (`verified-badge` manquant) — PR #221
+- [x] `saved-searches-notify` planifié deux fois par jour (`cron.yml` + `cron-jobs.yml`) — fusionné
+- [ ] `CRON_SECRET_TOKEN` : le secret GitHub ne correspond plus au `.env` serveur (crons en 401 tous les jours). Fix : `gh secret set CRON_SECRET_TOKEN`
+- [ ] 4 routes cron sans planificateur GitHub : `cleanup-audit-logs`, `close-expired-events`, `stand-reminder-7days`, `volunteer-reminders` — vérifier EasyCron avant d'ajouter
+- [ ] PRs ouvertes à trier : #201 (portfolio overflow, 22/08), #141 (Stripe Connect, 15/08), #138 (suppression /blog, 15/08)
+- [ ] Tables Supabase en doublon : `exhibitor_*` (ancien) et `event_exhibitor_*` (actuel)
 
-**Stripe Setup**
-- [ ] Create Stripe account & test keys
-- [ ] Configure Stripe webhooks (invoice.paid, charge.failed, etc.)
-- [ ] Add Stripe environment variables to `.env.local`
+### Produit — à trancher
+Le produit couvre déjà tout le parcours organisateur et créateur. La question n'est plus
+« quelle fonctionnalité ajouter » mais « comment amener les premiers organisateurs et créateurs
+réels dessus ». À arbitrer avant de lancer une v1.6.0 :
 
-**Checkout Flow** (4-5 days)
-- [ ] `/api/stripe/checkout` — create session
-- [ ] `/api/stripe/portal` — billing portal link
-- [ ] Checkout page UI (price tiers: 10/50/100 credits)
-- [ ] Success/cancel pages
-- [ ] Error handling
-
-**Webhook Handlers** (3-4 days)
-- [ ] `/api/stripe/webhook` — payment confirmation
-- [ ] Add credits to user balance (supabase update)
-- [ ] Send confirmation email
-- [ ] Handle refunds/disputes
-
-**Frontend** (2-3 days)
-- [ ] Credits display (navbar or dashboard)
-- [ ] Buy credits button (simple modal)
-- [ ] Purchase history page
-- [ ] Test payment flow end-to-end
-
-**Testing** (2 days)
-- [ ] Test successful payment
-- [ ] Test failed payment
-- [ ] Test webhook delivery
-- [ ] Test portal access
-
-### Admin Panel (8-10 days)
-
-**Backend Routes**
-- [ ] `/api/admin/reports` — list/resolve reports
-- [ ] `/api/admin/users` — search/ban/unban
-- [ ] `/api/admin/events` — moderate content
-- [ ] `/api/admin/analytics` — basic stats (revenue, users, events)
-
-**Frontend** (`/admin`)
-- [ ] Reports list + detail + resolve workflow
-- [ ] Users management (search, ban, view profile)
-- [ ] Events moderation queue
-- [ ] Dashboard (KPIs, recent activity)
-- [ ] Logs viewer
-
-**RLS Policies** (1-2 days)
-- [ ] Only admins can access admin routes
-- [ ] Add `role` check to all queries
-- [ ] Test with non-admin user
-
-### Emails & Notifications (5-7 days)
-
-**Email Templates**
-- [ ] Payment confirmation (`Merci pour votre achat!`)
-- [ ] Event acceptance (`Votre candidature a été acceptée`)
-- [ ] Event rejection (`Malheureusement...`)
-- [ ] Message notification (`Vous avez un nouveau message`)
-- [ ] Weekly digest (optional)
-
-**Setup**
-- [ ] Configure SendGrid or Resend
-- [ ] Add SMTP credentials to `.env`
-- [ ] Test delivery
-
-### QA & Launch Prep (5 days)
-
-**Testing**
-- [ ] Full regression testing (all pages)
-- [ ] Payment flow (real + test cards)
-- [ ] Admin workflows
-- [ ] Mobile responsiveness
-- [ ] Email delivery
-
-**Deployment**
-- [ ] Stripe live keys setup
-- [ ] Production env variables
-- [ ] Database backups
-- [ ] Monitoring/alerts
-- [ ] Launch announcement
-
-**Estimated**: 3-4 weeks
-**Release**: End of July 2026
+- Option A — **Acquisition** : parcours d'inscription et d'onboarding testés de bout en bout sur
+  un vrai événement, avec un organisateur pilote.
+- Option B — **Consolidation** : couverture de tests, monitoring, performance, avant d'ouvrir.
+- Option C — **v2.0.0 mini-boutique** : voir `docs/TODO-v2.0.0.md` (dépend d'un volume d'utilisateurs
+  qui n'existe pas encore).
 
 ---
 
-## v1.1.0 (Post v1.0) — Advanced Features
+## Process
 
-- [ ] Dark mode complete
-- [ ] Organizer analytics dashboard
-- [ ] Creator verification (manual review)
-- [ ] Advanced filters (by rating, availability, etc.)
-- [ ] Bulk messaging for organizers
-- [ ] Creator followers system
-- [ ] Rate limiting on API
-- [ ] Performance monitoring setup
+### Versions
+1. `npm run bump-version X.Y.Z`
+2. Mettre à jour ce fichier
+3. Tag : `git tag -a vX.Y.Z -m "vX.Y.Z: description"`
 
-**Timeline**: August 2026
-**See**: `docs/TODO-v1.1.0.md`
+### Git
+- Jamais de push direct sur `main`. Branche `feature/xxx` ou `fix/xxx`, puis PR.
+- Conventional commits obligatoires.
 
----
+### Déploiement
+Automatique : tout push sur `main` déclenche `.github/workflows/deploy-hostinger.yml`
+(build, rsync du standalone vers le VPS, restart). `deploy.sh` reste le secours manuel.
 
-## v1.2.0 (Post v1.1) — Organizer Power Tools
-
-**Based on organizer feedback (Vocal Nexart):**
-- [ ] Centralized exhibitor dashboard (no more Google Forms + Excel)
-- [ ] Auto-reminders + waitlist system
-- [ ] Smart auto-responder (filter out-of-scope applications)
-- [ ] Team collaboration space (Notion-lite)
-- [ ] Event checklist + AI-generated documents (permits, press release)
-- [ ] Marketing suite (comms calendar + media database + pricing reference)
-- [ ] Volunteer scheduling tool
-
-**Why**: Organizers currently use Google Forms + Excel + Messenger. Need 1 platform for all workflows.
-
-**Timeline**: September 2026 (2-3 weeks)
-**See**: `docs/TODO-v1.2.0.md`
-
----
-
-## v2.0.0 (Long-term) — Mini-Boutique
-
-- [ ] Creator shop (sell digital products/presets)
-- [ ] Commission structure (Nexart takes %)
-- [ ] Affiliate program
-- [ ] Creator coaching/mentorship
-- [ ] Event sponsorship listings
-
-**Timeline**: Q4 2026+
-
----
-
-## Priority Order
-
-1. **v0.9.0** — Polish & quick wins (easy to gain momentum)
-2. **v1.0.0** — Stripe + Admin (blockers for paid launch)
-3. **v1.1.0** — UX improvements
-4. **v2.0.0** — Expansion (only if v1.0 successful)
-
----
-
-## How to Track Progress
-
-1. Update version in `package.json`
-2. Run `npm run bump-version X.Y.Z`
-3. Update this ROADMAP.md with completed items (checkmarks)
-4. Tag release on GitHub: `git tag -a vX.Y.Z -m "Release X.Y.Z"`
-5. Deploy to production
-
-Example:
-```bash
-npm run bump-version 0.9.0
-# ... make changes ...
-# ... test ...
-git tag -a v0.9.0 -m "v0.9.0: Foundation polishing"
-./deploy.sh
-```
-
----
-
-## Notes
-
-- **v0.9.0**: Make existing features bulletproof
-- **v1.0.0**: Add money (Stripe) + control (Admin)
-- **v1.1.0+**: Expansion & features
-
-Each version should be shippable and tested before moving to next.
+**Avant tout déploiement manuel, `git status` doit être propre** — c'est ce qui a cassé le build
+CI le 08/09/26.

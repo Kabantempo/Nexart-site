@@ -1,36 +1,73 @@
 name: Nexart Cron Jobs
 
+# Source unique des tâches planifiées (cron.yml a été fusionné ici le 09/09/26 :
+# saved-searches-notify était déclaré dans les deux fichiers au même horaire,
+# donc appelé deux fois par jour).
+
 on:
   schedule:
-    - cron: '0 7 * * *'   # send-reminders — tous les jours 07h00 UTC
-    - cron: '0 8 * * 1'   # weekly-digest — lundi 08h00 UTC
+    - cron: '0 2 * * *'   # hard-delete-users     — tous les jours 02h00 UTC
+    - cron: '0 7 * * *'   # send-reminders        — tous les jours 07h00 UTC
+    - cron: '0 8 * * 1'   # weekly-digest         — lundi 08h00 UTC
     - cron: '0 9 * * *'   # saved-searches-notify — tous les jours 09h00 UTC
-  workflow_dispatch:        # déclenchement manuel depuis GitHub UI
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Tâche à lancer manuellement"
+        type: choice
+        required: true
+        default: send-reminders
+        options:
+          - send-reminders
+          - weekly-digest
+          - saved-searches-notify
+          - hard-delete-users
 
 jobs:
   send-reminders:
-    if: github.event.schedule == '0 7 * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 7 * * *' || inputs.job == 'send-reminders'
     runs-on: ubuntu-latest
     steps:
-      - name: Send reminders
+      - name: POST /api/cron/send-reminders
         run: |
-          curl -sf -X POST https://nexart.fr/api/cron/send-reminders \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}"
+          STATUS=$(curl -s -o body.txt -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}" \
+            https://nexart.fr/api/cron/send-reminders)
+          echo "HTTP $STATUS"; cat body.txt
+          [ "$STATUS" = "200" ] || exit 1
 
   weekly-digest:
-    if: github.event.schedule == '0 8 * * 1' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 8 * * 1' || inputs.job == 'weekly-digest'
     runs-on: ubuntu-latest
     steps:
-      - name: Send weekly digest
+      - name: POST /api/cron/weekly-digest
         run: |
-          curl -sf -X POST https://nexart.fr/api/cron/weekly-digest \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}"
+          STATUS=$(curl -s -o body.txt -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}" \
+            https://nexart.fr/api/cron/weekly-digest)
+          echo "HTTP $STATUS"; cat body.txt
+          [ "$STATUS" = "200" ] || exit 1
 
   saved-searches-notify:
-    if: github.event.schedule == '0 9 * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '0 9 * * *' || inputs.job == 'saved-searches-notify'
     runs-on: ubuntu-latest
     steps:
-      - name: Notify saved searches
+      - name: POST /api/cron/saved-searches-notify
         run: |
-          curl -sf -X POST https://nexart.fr/api/cron/saved-searches-notify \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}"
+          STATUS=$(curl -s -o body.txt -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}" \
+            https://nexart.fr/api/cron/saved-searches-notify)
+          echo "HTTP $STATUS"; cat body.txt
+          [ "$STATUS" = "200" ] || exit 1
+
+  hard-delete-users:
+    if: github.event.schedule == '0 2 * * *' || inputs.job == 'hard-delete-users'
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST /api/cron/hard-delete-users
+        run: |
+          STATUS=$(curl -s -o body.txt -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET_TOKEN }}" \
+            https://nexart.fr/api/cron/hard-delete-users)
+          echo "HTTP $STATUS"; cat body.txt
+          [ "$STATUS" = "200" ] || exit 1
