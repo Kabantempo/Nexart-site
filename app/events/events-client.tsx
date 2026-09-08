@@ -57,8 +57,8 @@ function SkeletonCard() {
         <div style={{ height: 13, borderRadius: 4, backgroundColor: 'var(--ev-card-tag-bg)', width: '90%', animation: 'shimmer 1.4s infinite' }} />
         <div style={{ height: 13, borderRadius: 4, backgroundColor: 'var(--ev-card-tag-bg)', width: '70%', animation: 'shimmer 1.4s infinite' }} />
         <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-          <div style={{ height: 20, borderRadius: 20, backgroundColor: 'var(--ev-card-tag-bg)', width: 60 }} />
-          <div style={{ height: 20, borderRadius: 20, backgroundColor: 'var(--ev-card-tag-bg)', width: 50 }} />
+          <div style={{ height: 20, borderRadius: 4, backgroundColor: 'var(--ev-card-tag-bg)', width: 60 }} />
+          <div style={{ height: 20, borderRadius: 4, backgroundColor: 'var(--ev-card-tag-bg)', width: 50 }} />
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
       transition={{ duration: 0.3, delay: index * 0.07 }}
       onClick={onClick}
       style={{
-        flexShrink: 0, width: CARD_W, borderRadius: 12,
+        flexShrink: 0, width: CARD_W, borderRadius: 6,
         backgroundColor: 'var(--ev-card-bg)', overflow: 'hidden',
         scrollSnapAlign: 'start', cursor: 'pointer',
         display: 'flex', flexDirection: 'column',
@@ -101,7 +101,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
         <span style={{
           position: 'absolute', top: 8, left: 8,
           backgroundColor: st.color, color: colors.text.white,
-          fontSize: 10, fontWeight: 700, borderRadius: 20,
+          fontSize: 10, fontWeight: 700, borderRadius: 4,
           padding: '3px 9px', letterSpacing: 0.3,
         }}>
           {st.label}
@@ -125,7 +125,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
             {tags.map(tag => (
               <span key={tag} style={{
                 backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)',
-                fontSize: 10, fontWeight: 600, borderRadius: 20,
+                fontSize: 10, fontWeight: 600, borderRadius: 4,
                 padding: '3px 8px',
               }}>
                 {tag}
@@ -264,7 +264,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
               {tags.slice(0, 2).map(t => (
                 <span key={t} style={{
                   backgroundColor: 'rgba(99,102,241,0.25)', color: colors.purple.bgPale,
-                  fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px',
+                  fontSize: 10, fontWeight: 700, borderRadius: 4, padding: '2px 8px',
                 }}>{t}</span>
               ))}
             </div>
@@ -477,7 +477,7 @@ export default function EventsClient() {
                 autoComplete="off"
                 onFocus={e => { e.currentTarget.style.borderColor = colors.violet.primary }}
                 onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-color)' }}
-                style={{ width: '100%', paddingLeft: 44, paddingRight: search ? 44 : 18, paddingTop: 14, paddingBottom: 14, borderRadius: 14, border: '1.5px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 150ms' }}
+                style={{ width: '100%', paddingLeft: 44, paddingRight: search ? 44 : 18, paddingTop: 14, paddingBottom: 14, borderRadius: 6, border: '1.5px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 150ms' }}
               />
               {search && (
                 <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: colors.text.secondary, display: 'flex' }}>
@@ -519,7 +519,7 @@ export default function EventsClient() {
               <div style={{ marginBottom: 20 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 8px' }}>Ville</p>
                 <select value={cityFilter} onChange={e => setCityFilter(e.target.value)}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: `1.5px solid ${cityFilter !== 'all' ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: cityFilter !== 'all' ? `${colors.violet.primary}08` : 'var(--bg-secondary)', color: cityFilter !== 'all' ? colors.violet.primary : 'var(--text-primary)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1.5px solid ${cityFilter !== 'all' ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: cityFilter !== 'all' ? `${colors.violet.primary}08` : 'var(--bg-secondary)', color: cityFilter !== 'all' ? colors.violet.primary : 'var(--text-primary)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
                   <option value="all">Toutes les villes</option>
                   {uniqueEventCities.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -572,7 +572,7 @@ export default function EventsClient() {
             {loading ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                  <div key={i} style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                     <div style={{ height: 180, background: 'linear-gradient(90deg,var(--ev-skeleton-1) 25%,var(--ev-chip-bg) 50%,var(--ev-skeleton-1) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.4s infinite' }} />
                     <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div style={{ height: 14, borderRadius: 6, backgroundColor: 'var(--ev-chip-bg)', width: '85%' }} />
@@ -586,7 +586,7 @@ export default function EventsClient() {
                 <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="var(--border-color)" strokeWidth={1.5} style={{ margin: '0 auto 16px', display: 'block' }}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
                 <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px' }}>Aucun résultat</h3>
                 <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 24px' }}>Essayez de modifier vos filtres.</p>
-                <button onClick={resetDesktopFilters} style={{ padding: '10px 24px', borderRadius: 12, border: `1.5px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Réinitialiser</button>
+                <button onClick={resetDesktopFilters} style={{ padding: '10px 24px', borderRadius: 6, border: `1.5px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Réinitialiser</button>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
@@ -601,13 +601,13 @@ export default function EventsClient() {
                       transition={{ duration: 0.3, delay: Math.min(i * 0.04, 0.24) }}
                       onClick={() => handleCardClick(ev.id)}
                       className="ev-dcard"
-                      style={{ borderRadius: 16, backgroundColor: 'var(--ev-card-bg)', border: '1px solid var(--border-color)', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+                      style={{ borderRadius: 6, backgroundColor: 'var(--ev-card-bg)', border: '1px solid var(--border-color)', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
                     >
                       <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
                         {ev.cover_image && <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
-                        <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>{st.label}</span>
+                        <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{st.label}</span>
                         {(!ev.stand_price || ev.stand_price === 0) && (
-                          <span style={{ position: 'absolute', top: 10, right: 10, backgroundColor: colors.green.primary, color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>Gratuit</span>
+                          <span style={{ position: 'absolute', top: 10, right: 10, backgroundColor: colors.green.primary, color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>Gratuit</span>
                         )}
                       </div>
                       <div style={{ padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
@@ -615,7 +615,7 @@ export default function EventsClient() {
                         {tags.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                             {tags.map(tag => (
-                              <span key={tag} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 20 }}>{tag}</span>
+                              <span key={tag} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)', fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 4 }}>{tag}</span>
                             ))}
                           </div>
                         )}
@@ -667,7 +667,7 @@ export default function EventsClient() {
             </h1>
             <span style={{
               fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)',
-              backgroundColor: 'var(--ev-chip-bg)', padding: '3px 9px', borderRadius: 20,
+              backgroundColor: 'var(--ev-chip-bg)', padding: '3px 9px', borderRadius: 4,
             }}>
               {filtered.length} résultats
             </span>
@@ -678,7 +678,7 @@ export default function EventsClient() {
               display: 'flex', alignItems: 'center', gap: 8,
               backgroundColor: 'var(--bg-secondary)',
               border: '1.5px solid var(--border-color)',
-              borderRadius: 14, padding: '10px 14px',
+              borderRadius: 6, padding: '10px 14px',
             }}>
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5} style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -706,7 +706,7 @@ export default function EventsClient() {
                 const isActive = activeFilter === f.key
                 return (
                   <button key={f.key} onClick={() => setActiveFilter(f.key)} style={{
-                    flexShrink: 0, padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
+                    flexShrink: 0, padding: '6px 13px', borderRadius: 4, cursor: 'pointer',
                     fontSize: 12, fontWeight: 600,
                     border: isActive ? 'none' : '1px solid var(--ev-border)',
                     background: isActive
@@ -725,7 +725,7 @@ export default function EventsClient() {
           {/* sort + filters row */}
           <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px 10px', gap: 6 }}>
             <div style={{
-              display: 'flex', borderRadius: 10, overflow: 'hidden',
+              display: 'flex', borderRadius: 4, overflow: 'hidden',
               border: '1px solid var(--ev-border)', flexShrink: 0,
             }}>
               <button onClick={() => setSortBy(sortBy === 'date-asc' ? 'date-desc' : 'date-asc')} style={{
@@ -749,7 +749,7 @@ export default function EventsClient() {
             </div>
             <div style={{ flex: 1 }} />
             <button onClick={() => setShowAdvanced(v => !v)} style={{
-              padding: '5px 11px', borderRadius: 10,
+              padding: '5px 11px', borderRadius: 4,
               border: `1.5px solid ${showAdvanced ? colors.violet.primary : 'var(--ev-border)'}`,
               cursor: 'pointer', fontSize: 11, fontWeight: 600,
               background: showAdvanced ? `${colors.violet.primary}18` : 'transparent',

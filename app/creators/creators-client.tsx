@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useCreators } from '@/lib/hooks'
 import { motion, useInView } from 'framer-motion'
@@ -49,7 +49,7 @@ function FeaturedCarousel({ items }: { items: CreatorItem[] }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', gap: 5 }}>
                 {(feat.disciplines || []).slice(0, 2).map((d: string) => (
-                  <span key={d} style={{ backgroundColor: 'rgba(99,102,241,0.3)', color: colors.purple.bgPale, fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>{d}</span>
+                  <span key={d} style={{ backgroundColor: 'rgba(99,102,241,0.3)', color: colors.purple.bgPale, fontSize: 10, fontWeight: 700, borderRadius: 4, padding: '2px 8px' }}>{d}</span>
                 ))}
               </div>
               {feat.city && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={9} style={{ flexShrink: 0 }} />{feat.city}</span>}
@@ -84,7 +84,7 @@ function Skeleton() {
       <div style={{ maxWidth: 1380, margin: '0 auto', padding: '32px 48px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
           {[...Array(6)].map((_, i) => (
-            <div key={i} style={{ borderRadius: 16, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+            <div key={i} style={{ borderRadius: 6, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
               <div style={{ aspectRatio: '3/4', backgroundColor: 'var(--bg-secondary)' }} />
               <div style={{ padding: 16 }}>
                 <div style={{ height: 14, backgroundColor: 'var(--bg-secondary)', borderRadius: 8, marginBottom: 8 }} />
@@ -215,13 +215,13 @@ function CreatorsContent() {
   const visible     = filtered.slice(0, visibleCount)
   const hasMore     = visibleCount < filtered.length
   const hasActiveFilters = cityFilter !== 'all' || disciplineFilter !== 'all' || sortOrder !== 'alpha' || !!searchTerm || availableOnly || openToCollab
-  const sortLabels: Record<string, string> = { alpha: 'A → Z', newest: 'Récents', rating: 'Note', popular: 'Popularité' }
+  const sortLabels: Record<string, string> = { alpha: 'A â†’ Z', newest: 'RÃ©cents', rating: 'Note', popular: 'PopularitÃ©' }
   const verifiedCount = creators.filter(c => c.siret_verified).length
 
   const resetFilters = () => { setCityFilter('all'); setDisciplineFilter('all'); setSortOrder('alpha'); setSearchTerm(''); setUserCoords(null); setGeoError(null); setAvailableOnly(false); setOpenToCollab(false) }
 
   const handleGeolocate = () => {
-    if (!navigator.geolocation) { setGeoError('Géolocalisation non supportée'); return }
+    if (!navigator.geolocation) { setGeoError('GÃ©olocalisation non supportÃ©e'); return }
     setGeoLoading(true)
     setGeoError(null)
     navigator.geolocation.getCurrentPosition(
@@ -230,7 +230,7 @@ function CreatorsContent() {
         setSortOrder('alpha')
         setGeoLoading(false)
       },
-      () => { setGeoError('Localisation refusée'); setGeoLoading(false) }
+      () => { setGeoError('Localisation refusÃ©e'); setGeoLoading(false) }
     )
   }
 
@@ -250,7 +250,7 @@ function CreatorsContent() {
     </div>
   )
 
-  // ── Mobile layout ────────────────────────────────────────────────────────────
+  // â”€â”€ Mobile layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (!isDesktop) {
     const CARD_W = 180
     const IMG_H  = 148
@@ -273,7 +273,7 @@ function CreatorsContent() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, delay: i * 0.06 }}
         onClick={() => router.push(`/creators/${c.id}`)}
-        style={{ flexShrink: 0, width: CARD_W, borderRadius: 14, backgroundColor: 'var(--ev-card-bg)', border: '1px solid var(--ev-border)', overflow: 'hidden', scrollSnapAlign: 'start', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+        style={{ flexShrink: 0, width: CARD_W, borderRadius: 6, backgroundColor: 'var(--ev-card-bg)', border: '1px solid var(--ev-border)', overflow: 'hidden', scrollSnapAlign: 'start', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
       >
         <div style={{ position: 'relative', width: '100%', height: IMG_H, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
           {((c as any).page_settings?.cover_image ?? (c as any).banner_url ?? c.portfolio_images?.[0]) ? (
@@ -293,7 +293,7 @@ function CreatorsContent() {
             <span style={{ position: 'absolute', top: 7, left: 7 }}><VerifiedBadge size={18} /></span>
           )}
           {(c as any).profile_boosted_until && new Date((c as any).profile_boosted_until) > new Date() && (
-            <span style={{ position: 'absolute', top: 7, right: 7, backgroundColor: 'rgba(245,158,11,0.9)', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: 20, padding: '2px 8px' }}>Boosté</span>
+            <span style={{ position: 'absolute', top: 7, right: 7, backgroundColor: 'rgba(245,158,11,0.9)', color: '#fff', fontSize: 9, fontWeight: 700, borderRadius: 4, padding: '2px 8px' }}>BoostÃ©</span>
           )}
         </div>
         <div style={{ padding: '9px 11px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -303,7 +303,7 @@ function CreatorsContent() {
           {(c.disciplines || []).length > 0 && (
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               {(c.disciplines || []).slice(0, 2).map((d: string) => (
-                <span key={d} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)', fontSize: 9, fontWeight: 600, borderRadius: 20, padding: '2px 7px' }}>{d}</span>
+                <span key={d} style={{ backgroundColor: 'var(--ev-card-tag-bg)', color: 'var(--ev-card-tag-text)', fontSize: 9, fontWeight: 600, borderRadius: 4, padding: '2px 7px' }}>{d}</span>
               ))}
             </div>
           )}
@@ -338,13 +338,13 @@ function CreatorsContent() {
           {/* Fixed header */}
           <div style={{ position: 'fixed', top: 58, left: 0, right: 0, zIndex: 10, backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--ev-border)' }}>
             <div style={{ padding: '10px 16px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>Créateurs</h1>
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ev-chip-text)', backgroundColor: 'var(--ev-chip-bg)', borderRadius: 20, padding: '2px 10px' }}>{mobileFiltered.length} résultats</span>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>CrÃ©ateurs</h1>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ev-chip-text)', backgroundColor: 'var(--ev-chip-bg)', borderRadius: 4, padding: '2px 10px' }}>{mobileFiltered.length} rÃ©sultats</span>
             </div>
             <div style={{ padding: '6px 16px 8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--bg-secondary)', borderRadius: 14, padding: '8px 14px', border: '1.5px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: 'var(--bg-secondary)', borderRadius: 6, padding: '8px 14px', border: '1.5px solid var(--border-color)' }}>
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--text-secondary)" strokeWidth={2.5}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-                <input type="text" placeholder="Nom, discipline, ville…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                <input type="text" placeholder="Nom, discipline, villeâ€¦" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                   style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'transparent', caretColor: colors.violet.primary }} />
                 {searchTerm && (
                   <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -356,15 +356,15 @@ function CreatorsContent() {
             <div style={{ overflowX: 'auto' }} className="hide-scrollbar">
               <div style={{ display: 'flex', gap: 7, paddingLeft: 16, paddingRight: 16, paddingBottom: 8 }}>
                 {discFilters.map(f => (
-                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 20, cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', background: mobileDisc === f.key ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.hover})` : 'transparent', color: mobileDisc === f.key ? colors.text.white : 'var(--ev-chip-text)', border: mobileDisc === f.key ? 'none' : '1px solid var(--ev-border)', boxShadow: mobileDisc === f.key ? `0 2px 10px ${colors.violet.ring}` : 'none' }}>
+                  <button key={f.key} onClick={() => setMobileDisc(f.key)} style={{ flexShrink: 0, padding: '4px 13px', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: 'background 0.15s, color 0.15s', background: mobileDisc === f.key ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.hover})` : 'transparent', color: mobileDisc === f.key ? colors.text.white : 'var(--ev-chip-text)', border: mobileDisc === f.key ? 'none' : '1px solid var(--ev-border)', boxShadow: mobileDisc === f.key ? `0 2px 10px ${colors.violet.ring}` : 'none' }}>
                     {f.label}
                   </button>
                 ))}
               </div>
             </div>
             <div style={{ padding: '0 16px 10px' }}>
-              <div style={{ display: 'inline-flex', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--ev-border)' }}>
-                {([['alpha', 'A → Z'], ['newest', 'Récents'], ['rating', 'Note'], ['popular', 'Pop.']] as const).map(([key, label], i) => (
+              <div style={{ display: 'inline-flex', borderRadius: 4, overflow: 'hidden', border: '1px solid var(--ev-border)' }}>
+                {([['alpha', 'A â†’ Z'], ['newest', 'RÃ©cents'], ['rating', 'Note'], ['popular', 'Pop.']] as const).map(([key, label], i) => (
                   <button key={key} onClick={() => setSortOrder(key)} style={{ padding: '5px 12px', border: 'none', borderLeft: i > 0 ? '1px solid var(--ev-border)' : 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, backgroundColor: sortOrder === key ? 'var(--ev-sort-active)' : 'transparent', color: sortOrder === key ? 'var(--bg-primary)' : 'var(--ev-chip-text)', transition: 'background 0.15s, color 0.15s' }}>
                     {label}
                   </button>
@@ -402,7 +402,7 @@ function CreatorsContent() {
                         </div>
                       </div>
                       <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--ev-card-title)', textAlign: 'center', lineHeight: 1.2, maxWidth: 58, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                        {c.full_name?.split(' ')[0] || '—'}
+                        {c.full_name?.split(' ')[0] || 'â€”'}
                       </span>
                     </motion.div>
                   ))}
@@ -411,7 +411,7 @@ function CreatorsContent() {
             </div>
           )}
 
-          {verifiedSection.length > 0 && <MSection title="Créateurs vérifiés" items={verifiedSection} />}
+          {verifiedSection.length > 0 && <MSection title="CrÃ©ateurs vÃ©rifiÃ©s" items={verifiedSection} />}
           {newestSection.length > 0 && <MSection title="Nouveaux arrivants" items={newestSection} />}
           {availableSection.length > 0 && <MSection title="Disponibles maintenant" items={availableSection} />}
           {collabSection.length > 0 && <MSection title="Ouverts aux collabs" items={collabSection} />}
@@ -420,10 +420,10 @@ function CreatorsContent() {
           {mobileFiltered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 24px' }}>
               <Search size={36} style={{ margin: '0 auto 12px', display: 'block', color: 'var(--ev-card-date)', opacity: 0.5 }} />
-              <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ev-sort-active)', margin: '0 0 6px' }}>Aucun créateur trouvé</p>
-              <p style={{ fontSize: 13, color: 'var(--ev-card-date)' }}>Essayez un autre mot-clé ou discipline</p>
-              <button onClick={resetFilters} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 20, border: `1px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                Réinitialiser
+              <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--ev-sort-active)', margin: '0 0 6px' }}>Aucun crÃ©ateur trouvÃ©</p>
+              <p style={{ fontSize: 13, color: 'var(--ev-card-date)' }}>Essayez un autre mot-clÃ© ou discipline</p>
+              <button onClick={resetFilters} style={{ marginTop: 16, padding: '8px 20px', borderRadius: 4, border: `1px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                RÃ©initialiser
               </button>
             </div>
           )}
@@ -432,7 +432,7 @@ function CreatorsContent() {
     )
   }
 
-  // ── Desktop layout ───────────────────────────────────────────────────────────
+  // â”€â”€ Desktop layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <style>{`
@@ -444,21 +444,21 @@ function CreatorsContent() {
         .cr-chip:hover { background: ${colors.violet.primary}18 !important; color: ${colors.violet.primary} !important; }
       `}</style>
 
-      {/* ── Header ── */}
+      {/* â”€â”€ Header â”€â”€ */}
       <div style={{ borderBottom: '1px solid var(--border-color)' }}>
         <div style={{ maxWidth: 1380, margin: '0 auto', padding: '48px 48px 36px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap', marginBottom: 32 }}>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: colors.violet.primary, margin: '0 0 12px' }}>Communauté</p>
-              <h1 style={{ fontSize: 52, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1, margin: '0 0 10px' }}>Créateurs</h1>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: colors.violet.primary, margin: '0 0 12px' }}>CommunautÃ©</p>
+              <h1 style={{ fontSize: 52, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1, margin: '0 0 10px' }}>CrÃ©ateurs</h1>
               <p style={{ fontSize: 15, color: 'var(--text-secondary)', margin: 0 }}>Des talents partout en France</p>
             </div>
             <div style={{ display: 'flex', gap: 40 }}>
               {[
-                { val: creators.length,         label: 'créateurs'   },
+                { val: creators.length,         label: 'crÃ©ateurs'   },
                 { val: uniqueCities.length,      label: 'villes'      },
                 { val: uniqueDisciplines.length, label: 'disciplines' },
-                ...(verifiedCount > 0 ? [{ val: verifiedCount, label: 'vérifiés' }] : []),
+                ...(verifiedCount > 0 ? [{ val: verifiedCount, label: 'vÃ©rifiÃ©s' }] : []),
               ].map(({ val, label }) => (
                 <div key={label} style={{ textAlign: 'right' }}>
                   <p style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.05em', lineHeight: 1 }}>{val}</p>
@@ -473,7 +473,7 @@ function CreatorsContent() {
             <Search size={16} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: colors.text.secondary, pointerEvents: 'none' }} />
             <input
               type="text"
-              placeholder="Nom, discipline, ville…"
+              placeholder="Nom, discipline, villeâ€¦"
               value={searchTerm}
               onChange={e => { setSearchTerm(e.target.value); setShowSuggestions(true) }}
               onFocus={e => { e.currentTarget.style.borderColor = colors.violet.primary; if (searchTerm.length >= 2) setShowSuggestions(true) }}
@@ -484,7 +484,7 @@ function CreatorsContent() {
                 else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveSuggestion(i => Math.max(i - 1, -1)) }
                 else if (e.key === 'Enter' && activeSuggestion >= 0) { e.preventDefault(); setSearchTerm(suggestions[activeSuggestion].value); setShowSuggestions(false); setActiveSuggestion(-1) }
               }}
-              style={{ width: '100%', paddingLeft: 44, paddingRight: searchTerm ? 44 : 18, paddingTop: 14, paddingBottom: 14, borderRadius: 14, border: '1.5px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 150ms' }}
+              style={{ width: '100%', paddingLeft: 44, paddingRight: searchTerm ? 44 : 18, paddingTop: 14, paddingBottom: 14, borderRadius: 6, border: '1.5px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', transition: 'border-color 150ms' }}
             />
             {searchTerm && (
               <button onClick={() => { setSearchTerm(''); setShowSuggestions(false) }} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: colors.text.secondary, display: 'flex' }}>
@@ -492,10 +492,10 @@ function CreatorsContent() {
               </button>
             )}
             {showSuggestions && suggestions.length > 0 && (
-              <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 6, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden' }}>
                 {(() => {
                   let gIdx = -1
-                  const labels: Record<string, string> = { creator: 'Créateurs', discipline: 'Disciplines', city: 'Villes' }
+                  const labels: Record<string, string> = { creator: 'CrÃ©ateurs', discipline: 'Disciplines', city: 'Villes' }
                   return (['creator', 'discipline', 'city'] as const).map(type => {
                     const group = suggestions.filter(s => s.type === type)
                     if (!group.length) return null
@@ -523,7 +523,7 @@ function CreatorsContent() {
         </div>
       </div>
 
-      {/* ── Body: sidebar + grid ── */}
+      {/* â”€â”€ Body: sidebar + grid â”€â”€ */}
       <div style={{ maxWidth: 1380, margin: '0 auto', display: 'flex', alignItems: 'flex-start', padding: '0 0 100px' }}>
 
         {/* Sidebar */}
@@ -531,7 +531,7 @@ function CreatorsContent() {
 
           <div style={{ marginBottom: 28 }}>
             <p style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 2px', letterSpacing: '-0.04em', lineHeight: 1 }}>{filtered.length}</p>
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>résultat{filtered.length !== 1 ? 's' : ''}</p>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>rÃ©sultat{filtered.length !== 1 ? 's' : ''}</p>
           </div>
 
           {uniqueDisciplines.length > 0 && (
@@ -554,7 +554,7 @@ function CreatorsContent() {
             <div style={{ marginBottom: 20 }}>
               <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 8px' }}>Ville</p>
               <select value={cityFilter} onChange={e => setCityFilter(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: 10, border: `1.5px solid ${cityFilter !== 'all' ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: cityFilter !== 'all' ? `${colors.violet.primary}08` : 'var(--bg-secondary)', color: cityFilter !== 'all' ? colors.violet.primary : 'var(--text-primary)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1.5px solid ${cityFilter !== 'all' ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: cityFilter !== 'all' ? `${colors.violet.primary}08` : 'var(--bg-secondary)', color: cityFilter !== 'all' ? colors.violet.primary : 'var(--text-primary)', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}>
                 <option value="all">Toutes les villes</option>
                 {uniqueCities.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -564,7 +564,7 @@ function CreatorsContent() {
           <div style={{ marginBottom: 20 }}>
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 8px' }}>Trier par</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {([['alpha', 'A → Z'], ['newest', 'Récents'], ['rating', 'Note'], ['popular', 'Popularité']] as const).map(([key, label]) => (
+              {([['alpha', 'A â†’ Z'], ['newest', 'RÃ©cents'], ['rating', 'Note'], ['popular', 'PopularitÃ©']] as const).map(([key, label]) => (
                 <button key={key} onClick={() => setSortOrder(key)} className="cr-chip"
                   style={{ textAlign: 'left', padding: '6px 10px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: sortOrder === key ? 700 : 500, backgroundColor: sortOrder === key ? `${colors.violet.primary}14` : 'transparent', color: sortOrder === key ? colors.violet.primary : 'var(--text-primary)', fontFamily: 'inherit' }}>
                   {label}
@@ -576,7 +576,7 @@ function CreatorsContent() {
           <div style={{ height: 1, backgroundColor: 'var(--border-color)', margin: '20px 0' }} />
 
           <div style={{ marginBottom: 20 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 12px' }}>Disponibilité</p>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 12px' }}>DisponibilitÃ©</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <div onClick={() => setAvailableOnly(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: availableOnly ? colors.green.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
@@ -594,9 +594,9 @@ function CreatorsContent() {
           </div>
 
           <button onClick={userCoords ? () => { setUserCoords(null); setGeoError(null) } : handleGeolocate} disabled={geoLoading}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '9px 12px', borderRadius: 10, border: `1.5px solid ${userCoords ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: userCoords ? `${colors.violet.primary}10` : 'transparent', color: userCoords ? colors.violet.primary : 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 150ms' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '9px 12px', borderRadius: 6, border: `1.5px solid ${userCoords ? colors.violet.primary : 'var(--border-color)'}`, backgroundColor: userCoords ? `${colors.violet.primary}10` : 'transparent', color: userCoords ? colors.violet.primary : 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 150ms' }}>
             <Navigation size={13} />
-            {geoLoading ? 'Localisation…' : userCoords ? 'Autour de moi (actif)' : 'Autour de moi'}
+            {geoLoading ? 'Localisationâ€¦' : userCoords ? 'Autour de moi (actif)' : 'Autour de moi'}
           </button>
           {geoError && <p style={{ fontSize: 11, color: colors.feedback.danger.solid, margin: '6px 0 0' }}>{geoError}</p>}
 
@@ -612,11 +612,11 @@ function CreatorsContent() {
 
           {hasActiveFilters && (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20, alignItems: 'center' }}>
-              {searchTerm && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>"{searchTerm}" <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
-              {cityFilter !== 'all' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>{cityFilter} <button onClick={() => setCityFilter('all')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
-              {disciplineFilter !== 'all' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>{disciplineFilter} <button onClick={() => setDisciplineFilter('all')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
-              {availableOnly && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, backgroundColor: `${colors.green.primary}18`, color: colors.green.primary, fontSize: 12, fontWeight: 600 }}>Disponible <button onClick={() => setAvailableOnly(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
-              {openToCollab && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 20, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>Open collab <button onClick={() => setOpenToCollab(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
+              {searchTerm && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 4, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>"{searchTerm}" <button onClick={() => setSearchTerm('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
+              {cityFilter !== 'all' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 4, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>{cityFilter} <button onClick={() => setCityFilter('all')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
+              {disciplineFilter !== 'all' && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 4, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>{disciplineFilter} <button onClick={() => setDisciplineFilter('all')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
+              {availableOnly && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 4, backgroundColor: `${colors.green.primary}18`, color: colors.green.primary, fontSize: 12, fontWeight: 600 }}>Disponible <button onClick={() => setAvailableOnly(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
+              {openToCollab && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 12px', borderRadius: 4, backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 12, fontWeight: 600 }}>Open collab <button onClick={() => setOpenToCollab(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex' }}><X size={11} /></button></span>}
             </div>
           )}
 
@@ -625,7 +625,7 @@ function CreatorsContent() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
                 {visible.map((creator, idx) => (
                   <FadeUp key={creator.id} delay={Math.min(idx * 0.04, 0.24)}>
-                    <Link href={`/creators/${creator.id}`} className="cr-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
+                    <Link href={`/creators/${creator.id}`} className="cr-card" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', borderRadius: 6, overflow: 'hidden', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)' }}>
 
                       {/* Image 180px */}
                       <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
@@ -645,7 +645,7 @@ function CreatorsContent() {
                         {/* badges */}
                         <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 4 }}>
                           {(creator as any).profile_boosted_until && new Date((creator as any).profile_boosted_until) > new Date() && (
-                            <span style={{ padding: '2px 7px', borderRadius: 20, backgroundColor: colors.violet.primary, color: '#fff', fontSize: 10, fontWeight: 700 }}>Boosté</span>
+                            <span style={{ padding: '2px 7px', borderRadius: 4, backgroundColor: colors.violet.primary, color: '#fff', fontSize: 10, fontWeight: 700 }}>BoostÃ©</span>
                           )}
                           {creator.siret_verified && <VerifiedBadge size={18} />}
                         </div>
@@ -664,7 +664,7 @@ function CreatorsContent() {
                         {creator.disciplines?.length > 0 && (
                           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                             {creator.disciplines.slice(0, 2).map((d: string) => (
-                              <span key={d} style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>{d}</span>
+                              <span key={d} style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>{d}</span>
                             ))}
                           </div>
                         )}
@@ -688,21 +688,21 @@ function CreatorsContent() {
                 loaded={Math.min(visibleCount, filtered.length)}
                 total={filtered.length}
                 onLoadMore={() => setVisibleCount(c => c + ITEMS_PER_PAGE)}
-                label="créateurs"
+                label="crÃ©ateurs"
               />
             </>
           ) : (
             <div style={{ textAlign: 'center', padding: '80px 24px' }}>
               <Search size={40} style={{ margin: '0 auto 16px', display: 'block', color: 'var(--border-color)' }} />
               <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px' }}>
-                {hasActiveFilters ? 'Aucun résultat' : 'Aucun créateur inscrit'}
+                {hasActiveFilters ? 'Aucun rÃ©sultat' : 'Aucun crÃ©ateur inscrit'}
               </h3>
               <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 24px' }}>
-                {hasActiveFilters ? 'Essayez de modifier vos filtres.' : 'Les premiers créateurs arrivent bientôt.'}
+                {hasActiveFilters ? 'Essayez de modifier vos filtres.' : 'Les premiers crÃ©ateurs arrivent bientÃ´t.'}
               </p>
               {hasActiveFilters
-                ? <button onClick={resetFilters} style={{ padding: '10px 24px', borderRadius: 12, border: `1.5px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Réinitialiser</button>
-                : <Link href="/register" style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 12, backgroundColor: colors.violet.primary, color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Rejoindre en tant que créateur</Link>
+                ? <button onClick={resetFilters} style={{ padding: '10px 24px', borderRadius: 6, border: `1.5px solid ${colors.violet.primary}`, backgroundColor: 'transparent', color: colors.violet.primary, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>RÃ©initialiser</button>
+                : <Link href="/register" style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 6, backgroundColor: colors.violet.primary, color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Rejoindre en tant que crÃ©ateur</Link>
               }
             </div>
           )}
@@ -719,3 +719,4 @@ export default function CreatorsClient() {
     </Suspense>
   )
 }
+

@@ -352,7 +352,7 @@ p, li, h1, h2, h3, h4, h5, h6 {
   background-color: #6366F1;
   color: #FFFFFF;
   padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: 6px;
   font-weight: 600;
   transition: all 200ms ease;
   display: inline-flex;
@@ -369,7 +369,7 @@ p, li, h1, h2, h3, h4, h5, h6 {
   border: 2px solid #6366F1;
   color: #6366F1;
   padding: 10px 22px;
-  border-radius: 12px;
+  border-radius: 6px;
   font-weight: 600;
   transition: all 200ms ease;
   display: inline-flex;
@@ -429,7 +429,7 @@ p, li, h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   gap: 4px;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid #E5E7EB;
   text-decoration: none;
   transition: border-color 200ms ease, box-shadow 200ms ease;
@@ -1139,3 +1139,14 @@ img, video, iframe, canvas, svg {
   background-color: #ffffff !important;
   border-color: #E5E7EB !important;
 }
+
+/* ─── Sharp corners — override Tailwind rounded-* globally ─── */
+/* Preserve truly circular elements (avatars, toggles, spinners) */
+.rounded    { border-radius: 4px !important; }
+.rounded-sm { border-radius: 3px !important; }
+.rounded-md { border-radius: 4px !important; }
+.rounded-lg { border-radius: 6px !important; }
+.rounded-xl { border-radius: 8px !important; }
+.rounded-2xl { border-radius: 8px !important; }
+.rounded-3xl { border-radius: 8px !important; }
+/* keep rounded-full for circles (avatars, toggles) */

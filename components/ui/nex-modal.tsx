@@ -123,7 +123,7 @@ export function NexModal({
               left: '50%',
               zIndex: 10001,
               backgroundColor: 'var(--bg-primary)',
-              borderRadius: '20px',
+              borderRadius: '8px',
               width: SIZE_WIDTHS[size],
               maxWidth: 'calc(100vw - 24px)',
               boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
