@@ -2,6 +2,7 @@
 
 import { colors } from '@/lib/design-tokens'
 import { useState, useEffect } from 'react'
+import { ReferralWidget } from '@/components/referral-widget'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -398,6 +399,11 @@ export default function OffresPageClient() {
               </motion.div>
             ))}
           </div>
+        </section>
+
+        {/* Parrainage */}
+        <section style={{ marginTop: 64 }}>
+          <ReferralWidget />
         </section>
 
         {/* FAQ */}
