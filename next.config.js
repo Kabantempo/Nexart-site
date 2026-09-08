@@ -81,6 +81,15 @@ const nextConfig = {
     return config
   },
   headers,
+  // /blog retire le 09/09/26. 301 vers l'accueil pour ne pas perdre le
+  // referencement des URLs deja indexees. Pas de `permanent` : Next refuse
+  // `permanent` et `statusCode` ensemble, et `permanent: true` renvoie un 308.
+  async redirects() {
+    return [
+      { source: '/blog', destination: '/', statusCode: 301 },
+      { source: '/blog/:path*', destination: '/', statusCode: 301 },
+    ]
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
