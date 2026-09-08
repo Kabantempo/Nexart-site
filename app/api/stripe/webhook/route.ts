@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
           subscription_status: 'active',
           subscription_id: sub.id,
           subscription_ends_at: new Date(sub.current_period_end * 1000).toISOString(),
-        } as any).eq('id', uid)
+        }).eq('id', uid)
 
         await admin.from('notifications').insert({
           user_id: uid,
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
           subscription_status: 'cancelled',
           subscription_id: null,
           subscription_ends_at: null,
-        } as any).eq('id', uid)
+        }).eq('id', uid)
       }
       break
     }
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
         if (application_id) {
           // Idempotency: skip if already processed
-          const { data: existing } = await (admin as any)
+          const { data: existing } = await admin
             .from('applications')
             .select('id, status, stripe_payment_id')
             .eq('id', application_id)
@@ -111,6 +111,10 @@ export async function POST(req: NextRequest) {
 
           if (existing?.stripe_payment_id && existing.stripe_payment_id === paymentId) break
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // 'paid' n'existe pas encore dans l'enum application_status en prod.
+          // Cast à retirer après application de
+          // supabase/migrations/20260909_application_status_paid_refunded.sql
           await (admin as any).from('applications').update({
             status: 'paid',
             stripe_payment_id: paymentId,
@@ -125,7 +129,7 @@ export async function POST(req: NextRequest) {
           })
 
           // Log transaction
-          await (admin as any).from('stand_payments').insert({
+          const { error: standPaymentError } = await admin.from('stand_payments').insert({
             application_id,
             creator_id,
             event_id: session.metadata?.event_id,
@@ -133,27 +137,31 @@ export async function POST(req: NextRequest) {
             amount_cents: Number(amount_cents ?? 0),
             commission_cents: Number(commission_cents ?? 0),
             stripe_payment_id: paymentId,
-          }).catch(() => null)
+          })
+          if (standPaymentError) {
+            console.error('❌ Échec log stand_payments:', { application_id, paymentId, error: standPaymentError.message })
+          }
 
-          // Email confirmation au créateur
-          const { data: creatorProfile } = await (admin as any)
+          // Email confirmation au créateur — l'email vit dans auth.users, pas dans profiles
+          const { data: creatorProfile } = await admin
             .from('profiles')
-            .select('full_name, email')
+            .select('full_name')
             .eq('id', creator_id)
             .maybeSingle()
-          const { data: eventData } = await (admin as any)
+          const { data: { user: creatorAuth } } = await admin.auth.admin.getUserById(creator_id)
+          const { data: eventData } = await admin
             .from('events')
             .select('title')
             .eq('id', session.metadata?.event_id)
             .maybeSingle()
 
-          if (creatorProfile?.email) {
+          if (creatorAuth?.email) {
             const amount = `${(Number(amount_cents ?? 0) / 100).toFixed(2)} €`
             await sendMail({
-              to: creatorProfile.email,
+              to: creatorAuth.email,
               subject: `✅ Paiement confirmé — ${eventData?.title ?? 'votre stand'}`,
               html: emailStandPaymentConfirmed(
-                creatorProfile.full_name?.split(' ')[0] ?? 'vous',
+                creatorProfile?.full_name?.split(' ')[0] ?? 'vous',
                 eventData?.title ?? '',
                 amount,
                 session.metadata?.event_id ?? '',
@@ -175,19 +183,26 @@ export async function POST(req: NextRequest) {
         const creditDef = PRICE_TO_CREDITS[priceId]
         if (!creditDef) continue
 
-        // Ajouter les crédits
-        const expiresAt = new Date()
-        expiresAt.setMonth(expiresAt.getMonth() + 6)
-
-        await admin.from('credits').insert({
+        // Ajouter les crédits (ledger `credits` : type + amount signé, pas d'expiration)
+        const { error: creditError } = await admin.from('credits').insert({
           user_id: uid,
-          credit_type: creditDef.type,
+          type: creditDef.type,
           amount: creditDef.amount,
-          expires_at: expiresAt.toISOString(),
-        } as any)
+          description: `Achat Stripe — ${creditDef.amount} crédit${creditDef.amount > 1 ? 's' : ''}`,
+        })
+        if (creditError) {
+          console.error('❌ Échec ajout crédits après paiement Stripe:', {
+            user_id: uid,
+            type: creditDef.type,
+            amount: creditDef.amount,
+            payment_intent: session.payment_intent,
+            error: creditError.message,
+          })
+          continue
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (admin as any).from('credit_transactions').insert({
+        await admin.from('credit_transactions').insert({
           user_id: uid,
           credit_type: creditDef.type,
           payment_intent_id: session.payment_intent,
@@ -209,7 +224,7 @@ export async function POST(req: NextRequest) {
     // ── Stripe Connect: compte mis à jour ────────────────────────────────────
     case 'account.updated': {
       const account = event.data.object as { id: string; charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean }
-      const { data: orgProfile } = await (admin as any)
+      const { data: orgProfile } = await admin
         .from('organizer_profiles')
         .select('user_id, stripe_connect_status, stripe_connect_onboarded_at')
         .eq('stripe_account_id', account.id)
@@ -227,7 +242,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (newStatus !== orgProfile.stripe_connect_status) {
-        await (admin as any).from('organizer_profiles').update({
+        await admin.from('organizer_profiles').update({
           stripe_connect_status: newStatus,
           ...(newStatus === 'active' && !orgProfile.stripe_connect_onboarded_at ? { stripe_connect_onboarded_at: new Date().toISOString() } : {}),
         }).eq('user_id', orgProfile.user_id)
@@ -250,21 +265,28 @@ export async function POST(req: NextRequest) {
       const charge = event.data.object as { payment_intent?: string; id: string }
       const paymentId = charge.payment_intent ?? charge.id
 
-      const { data: app } = await (admin as any)
+      const { data: app } = await admin
         .from('applications')
         .select('id, creator_id, event_id')
         .eq('stripe_payment_id', paymentId)
         .maybeSingle()
 
       if (app) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // 'refunded' n'existe pas encore dans l'enum application_status en prod.
+        // Cast à retirer après application de
+        // supabase/migrations/20260909_application_status_paid_refunded.sql
         await (admin as any).from('applications').update({
           status: 'refunded',
           refunded_at: new Date().toISOString(),
         }).eq('id', app.id)
 
-        await (admin as any).from('stand_payments').update({
+        const { error: refundLogError } = await admin.from('stand_payments').update({
           status: 'refunded',
-        }).eq('stripe_payment_id', paymentId).catch(() => null)
+        }).eq('stripe_payment_id', paymentId)
+        if (refundLogError) {
+          console.error('❌ Échec maj stand_payments (refund):', { paymentId, error: refundLogError.message })
+        }
 
         await admin.from('notifications').insert({
           user_id: app.creator_id,

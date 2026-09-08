@@ -356,10 +356,10 @@ export const spacing = {
 // ─────────────────────────────────────────────
 
 export const radius = {
-  sm:   '8px',
-  md:  '12px',
-  lg:  '16px',
-  pill:'9999px',
+  sm:   '4px',
+  md:   '6px',
+  lg:   '8px',
+  pill: '9999px',
 } as const
 
 
@@ -572,7 +572,7 @@ export const componentStyles = {
       alignItems: 'center' as const,
       gap: '5px',
       padding: '4px 10px',
-      borderRadius: radius.pill,
+      borderRadius: '4px',
       fontSize: typography.caption.fontSize,
       fontWeight: 500,
     },

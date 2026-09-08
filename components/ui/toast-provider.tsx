@@ -120,7 +120,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   alignItems: 'flex-start',
                   gap: '10px',
                   padding: '14px 16px',
-                  borderRadius: '12px',
+                  borderRadius: '6px',
                   backgroundColor: s.bg,
                   border: `1px solid ${s.border}`,
                   color: s.color,

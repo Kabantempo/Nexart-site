@@ -531,11 +531,13 @@ export function EventDetailClient({ id }: Props) {
       <style>{`
         .ev-hero { height: 440px; }
         .ev-grid { display: grid; grid-template-columns: 1fr 340px; gap: 40px; align-items: start; }
-        .ev-sidebar-wrap { position: sticky; top: 80px; height: fit-content; }
+        .ev-sidebar-wrap { position: sticky; top: 80px; height: fit-content; min-width: 0; }
+        .ev-grid > * { min-width: 0; }
         @media (max-width: 768px) {
-          .ev-hero { height: 300px; }
+          .ev-hero { height: 260px; }
           .ev-grid { grid-template-columns: 1fr; gap: 0; }
-          .ev-sidebar-wrap { position: static; order: -1; }
+          .ev-sidebar-wrap { position: static; order: -1; width: 100%; overflow: hidden; }
+          .ev-sidebar-wrap > div { border-radius: 0 !important; border-left: none !important; border-right: none !important; border-top: none !important; }
         }
       `}</style>
 
