@@ -836,7 +836,7 @@ export function EventDetailClient({ id }: Props) {
                 </div>
               ) : (user.role === 'organizer' || user.is_organizer) && event?.organizer_id === user.id ? (
                 <div>
-                  <Link href="/dashboard" style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 6, backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: 14, fontWeight: 700, textAlign: 'center', boxSizing: 'border-box', marginBottom: 18 }}>
+                  <Link href={`/events/${id}/dashboard`} style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 6, backgroundColor: colors.violet.primary, color: colors.bg.primary, textDecoration: 'none', fontSize: 14, fontWeight: 700, textAlign: 'center', boxSizing: 'border-box', marginBottom: 18 }}>
                     Tableau de bord
                   </Link>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 6 }}>
