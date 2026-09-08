@@ -6,8 +6,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
   ArrowLeft, Users, Clock, CheckCircle, XCircle, BarChart2,
-  Mail, UserCheck, Wrench, ClipboardList, CalendarDays, Settings,
-  FileText, ListChecks, Megaphone, MapPin, Edit,
+  Mail, UserCheck, ClipboardList, CalendarDays, Settings,
+  FileText, ListChecks, MapPin, Edit,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
@@ -42,11 +42,9 @@ const TOOLS = [
   { label: "Liste d'attente",href: (id: string) => `/events/${id}/waitlist`,           icon: ClipboardList },
   { label: 'Équipe',         href: (id: string) => `/events/${id}/team`,               icon: UserCheck },
   { label: 'Bénévoles',      href: (id: string) => `/events/${id}/volunteers`,         icon: CalendarDays },
-  { label: 'Campagnes',      href: (id: string) => `/events/${id}/campaigns`,          icon: Megaphone },
   { label: 'Collaboration',  href: (id: string) => `/events/${id}/collaboration`,      icon: ListChecks },
   { label: 'Checklist',      href: (id: string) => `/events/${id}/settings/checklist`, icon: CheckCircle },
   { label: 'Marketing',      href: (id: string) => `/events/${id}/settings/marketing`, icon: Mail },
-  { label: 'Rappels',        href: (id: string) => `/events/${id}/settings/reminders`, icon: Clock },
   { label: 'Plan stands',    href: (id: string) => `/events/${id}/settings/stands`,    icon: MapPin },
   { label: 'Paramètres FAQ', href: (id: string) => `/events/${id}/settings/faqs`,     icon: Settings },
 ]
