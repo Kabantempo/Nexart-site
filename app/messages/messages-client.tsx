@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import {
   MessageCircle, Trash2, Palette, Building2, Eye, Search, CheckCheck, X,
-  Users, Plus, Send, Bell, ChevronRight, Rss, UserPlus, UserMinus,
+  Users, Plus, Send, ChevronRight, Rss, UserPlus, UserMinus,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
@@ -41,14 +41,15 @@ type FollowedUser = Profile & { followed_id: string }
 
 type OrgEvent = { id: string; title: string; slug?: string | null }
 
-type ActuItem = {
+type ActuEvent = { id: string; title: string; slug?: string | null; cover_image?: string | null }
+
+type ActuPost = {
   id: string
-  type: string
-  title: string
-  body: string
+  event_id: string
+  author_id: string
+  content: string
   created_at: string
-  read_at: string | null
-  link: string | null
+  author: { id: string; full_name: string | null; avatar_url: string | null; role: string | null } | null
 }
 
 const ROLE_LABELS: Record<FilterRole, string> = { all: 'Tous', creator: 'Créateurs', organizer: 'Organisateurs', visitor: 'Visiteurs' }
@@ -125,8 +126,13 @@ export default function MessagesClient() {
   const [memberSearch, setMemberSearch] = useState('')
 
   // Fils d'actu state
-  const [actu, setActu] = useState<ActuItem[]>([])
-  const [actuLoading, setActuLoading] = useState(false)
+  const [actuEvents, setActuEvents] = useState<ActuEvent[]>([])
+  const [actuEventsLoading, setActuEventsLoading] = useState(false)
+  const [selectedActuEvent, setSelectedActuEvent] = useState<ActuEvent | null>(null)
+  const [actuPosts, setActuPosts] = useState<ActuPost[]>([])
+  const [actuPostsLoading, setActuPostsLoading] = useState(false)
+  const [newPost, setNewPost] = useState('')
+  const [postSending, setPostSending] = useState(false)
 
   const loadConversations = useCallback(async (userId: string) => {
     const { data: convs, error } = await supabase
@@ -200,17 +206,56 @@ export default function MessagesClient() {
     }
   }, [])
 
-  const loadActu = useCallback(async (userId: string) => {
-    setActuLoading(true)
-    const { data } = await supabase
-      .from('notifications')
-      .select('id, type, title, body, created_at, read_at, link')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(50)
-    setActu((data ?? []) as ActuItem[])
-    setActuLoading(false)
+  const loadActuEvents = useCallback(async (userId: string) => {
+    setActuEventsLoading(true)
+    // Events where user is organizer OR accepted applicant
+    const [{ data: orgEvs }, { data: apps }] = await Promise.all([
+      supabase.from('events').select('id, title, slug, cover_image').eq('organizer_id', userId).order('start_date', { ascending: false }),
+      supabase.from('applications').select('event_id, events(id, title, slug, cover_image)')
+        .eq('creator_id', userId).in('status', ['accepted', 'confirmed', 'awaiting_payment', 'paid']),
+    ])
+    const seen = new Set<string>()
+    const all: ActuEvent[] = []
+    for (const e of orgEvs ?? []) { if (!seen.has(e.id)) { seen.add(e.id); all.push(e) } }
+    for (const a of apps ?? []) {
+      const ev = (a as any).events
+      if (ev && !seen.has(ev.id)) { seen.add(ev.id); all.push(ev) }
+    }
+    setActuEvents(all)
+    setActuEventsLoading(false)
   }, [])
+
+  const loadActuPosts = useCallback(async (eventId: string) => {
+    setActuPostsLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setActuPostsLoading(false); return }
+    const res = await fetch(`/api/events/${eventId}/actu`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+    if (res.ok) {
+      const { posts } = await res.json()
+      setActuPosts(posts ?? [])
+    }
+    setActuPostsLoading(false)
+  }, [])
+
+  const sendPost = async () => {
+    if (!newPost.trim() || !selectedActuEvent) return
+    setPostSending(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setPostSending(false); return }
+    const res = await fetch(`/api/events/${selectedActuEvent.id}/actu`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ content: newPost.trim() }),
+    })
+    if (res.ok) {
+      const { post } = await res.json()
+      setActuPosts(prev => [...prev, post])
+      setNewPost('')
+    }
+    setPostSending(false)
+  }
 
   const loadOrgEvents = useCallback(async (userId: string) => {
     const { data } = await supabase
@@ -227,9 +272,9 @@ export default function MessagesClient() {
       if (!session) { router.push('/login'); return }
       loadConversations(session.user.id)
       loadOrgEvents(session.user.id)
-      loadActu(session.user.id)
+      loadActuEvents(session.user.id)
     })
-  }, [router, loadConversations, loadOrgEvents, loadActu])
+  }, [router, loadConversations, loadOrgEvents, loadActuEvents])
 
   useEffect(() => {
     if (mainTab === 'groupes' && !groupsLoaded && !groupsLoading) {
@@ -604,37 +649,106 @@ export default function MessagesClient() {
         {/* ─── TAB: Fils d'actu ─── */}
         {mainTab === 'actu' && (
           <>
-            {actuLoading ? (
-              <div style={{ textAlign: 'center', padding: '48px' }}>
-                <div style={{ width: '28px', height: '28px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+            {/* Event thread view */}
+            {selectedActuEvent ? (
+              <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 260px)', minHeight: '400px' }}>
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                  <button onClick={() => { setSelectedActuEvent(null); setActuPosts([]) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: '600', padding: '4px 0' }}>
+                    <ChevronRight size={14} style={{ transform: 'rotate(180deg)' }} />
+                    Retour
+                  </button>
+                  <span style={{ color: 'var(--border-color)' }}>·</span>
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)' }}>{selectedActuEvent.title}</span>
+                </div>
+
+                {/* Posts feed */}
+                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '8px' }}>
+                  {actuPostsLoading ? (
+                    <div style={{ textAlign: 'center', padding: '48px' }}>
+                      <div style={{ width: '24px', height: '24px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                    </div>
+                  ) : actuPosts.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '48px 24px', borderRadius: '12px', border: `1px dashed ${colors.border.default}` }}>
+                      <Rss size={28} color={colors.violet.primary} style={{ margin: '0 auto 10px', display: 'block' }} />
+                      <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', margin: '0 0 4px' }}>Aucun message pour l&apos;instant</p>
+                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>Soyez le premier à poster une mise à jour.</p>
+                    </div>
+                  ) : (
+                    actuPosts.map((post, i) => {
+                      const isMe = post.author_id === user?.id
+                      return (
+                        <motion.div key={post.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                          style={{ display: 'flex', gap: '10px', flexDirection: isMe ? 'row-reverse' : 'row', alignItems: 'flex-start' }}>
+                          <Avatar profile={post.author} size={34} />
+                          <div style={{ maxWidth: '72%' }}>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '3px', textAlign: isMe ? 'right' : 'left' }}>
+                              {post.author?.full_name ?? 'Utilisateur'} · {relativeTime(post.created_at)}
+                            </div>
+                            <div style={{ padding: '10px 14px', borderRadius: isMe ? '14px 4px 14px 14px' : '4px 14px 14px 14px', backgroundColor: isMe ? colors.violet.primary : 'var(--bg-secondary)', color: isMe ? '#fff' : 'var(--text-primary)', fontSize: '14px', lineHeight: '1.5', wordBreak: 'break-word' }}>
+                              {post.content}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* Compose */}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', paddingTop: '12px', borderTop: `1px solid ${colors.border.default}` }}>
+                  <textarea
+                    placeholder="Écrire un message..."
+                    value={newPost}
+                    onChange={e => setNewPost(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPost() } }}
+                    rows={2}
+                    style={{ flex: 1, padding: '10px 12px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, fontSize: '14px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                  <button onClick={sendPost} disabled={!newPost.trim() || postSending}
+                    style={{ width: '40px', height: '40px', borderRadius: '10px', border: 'none', backgroundColor: !newPost.trim() || postSending ? colors.border.default : colors.violet.primary, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: !newPost.trim() || postSending ? 'not-allowed' : 'pointer', flexShrink: 0, transition: 'background 150ms' }}>
+                    <Send size={16} />
+                  </button>
+                </div>
               </div>
-            ) : actu.length === 0 ? (
-              <GhostCard
-                icon={<Bell size={32} color={colors.violet.primary} />}
-                title="Aucune activité"
-                description="Vos notifications et mises à jour apparaîtront ici au fil du temps."
-                cta="Explorer les événements"
-                onAction={() => router.push('/events')}
-              />
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {actu.map((item, i) => (
-                  <motion.div key={item.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                    {item.link ? (
-                      <Link href={item.link} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px', borderRadius: '10px', textDecoration: 'none', backgroundColor: !item.read_at ? `${colors.violet.primary}0d` : 'var(--card-bg)', border: `1px solid ${!item.read_at ? `${colors.violet.primary}33` : 'var(--border-color)'}`, transition: 'all 150ms' }}>
-                        <ActuDot read={!!item.read_at} />
-                        <ActuContent item={item} />
-                        <ChevronRight size={14} style={{ color: 'var(--text-secondary)', flexShrink: 0, marginTop: '2px' }} />
-                      </Link>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px', borderRadius: '10px', backgroundColor: !item.read_at ? `${colors.violet.primary}0d` : 'var(--card-bg)', border: `1px solid ${!item.read_at ? `${colors.violet.primary}33` : 'var(--border-color)'}` }}>
-                        <ActuDot read={!!item.read_at} />
-                        <ActuContent item={item} />
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
+              /* Events list */
+              actuEventsLoading ? (
+                <div style={{ textAlign: 'center', padding: '48px' }}>
+                  <div style={{ width: '28px', height: '28px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                </div>
+              ) : actuEvents.length === 0 ? (
+                <GhostCard
+                  icon={<Rss size={32} color={colors.violet.primary} />}
+                  title="Aucun événement actif"
+                  description="Les fils d'actu apparaissent pour les événements dont vous êtes organisateur ou exposant accepté."
+                  cta="Explorer les événements"
+                  onAction={() => router.push('/events')}
+                />
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {actuEvents.map((ev, i) => (
+                    <motion.div key={ev.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                      <button onClick={() => { setSelectedActuEvent(ev); loadActuPosts(ev.id) }}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', borderRadius: '12px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--card-bg)', cursor: 'pointer', textAlign: 'left' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '10px', backgroundColor: `${colors.violet.primary}18`, overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {ev.cover_image ? (
+                            <Image src={ev.cover_image} alt="" width={44} height={44} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                          ) : (
+                            <Rss size={20} color={colors.violet.primary} />
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Fil d&apos;actualité de l&apos;événement</div>
+                        </div>
+                        <ChevronRight size={16} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              )
             )}
           </>
         )}
@@ -837,18 +951,3 @@ export default function MessagesClient() {
   )
 }
 
-function ActuDot({ read }: { read: boolean }) {
-  return (
-    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: read ? colors.border.default : colors.violet.primary, flexShrink: 0, marginTop: '5px' }} />
-  )
-}
-
-function ActuContent({ item }: { item: ActuItem }) {
-  return (
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '2px' }}>{item.title}</div>
-      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>{item.body}</p>
-      <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', opacity: 0.7 }}>{relativeTime(item.created_at)}</div>
-    </div>
-  )
-}

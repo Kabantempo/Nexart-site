@@ -1,6 +1,6 @@
 {
   "name": "nexart-site",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "private": true,
   "engines": {
     "node": ">=20.0.0",
