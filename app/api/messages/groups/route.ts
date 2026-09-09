@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   )
   if (authErr || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: groups, error } = await admin
+  const { data: groups, error } = await (admin as any)
     .from('message_groups')
     .select('id, name, event_id, created_at, events(title, slug)')
     .eq('organizer_id', user.id)
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   const groupIds = (groups ?? []).map((g: any) => g.id)
   let countMap: Record<string, number> = {}
   if (groupIds.length) {
-    const { data: members } = await admin
+    const { data: members } = await (admin as any)
       .from('message_group_members')
       .select('group_id')
       .in('group_id', groupIds)
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     if (ev?.organizer_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { data: group, error } = await admin
+  const { data: group, error } = await (admin as any)
     .from('message_groups')
     .insert({ name: name.trim(), organizer_id: user.id, event_id: event_id ?? null })
     .select('id, name, event_id, created_at')
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     if (apps?.length) {
       const members = apps.map((a: any) => ({ group_id: group.id, user_id: a.creator_id }))
-      await admin.from('message_group_members').insert(members).select()
+      await (admin as any).from('message_group_members').insert(members).select()
     }
   }
 

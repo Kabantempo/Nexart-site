@@ -22,7 +22,7 @@ export async function POST(
   if (!message?.trim()) return NextResponse.json({ error: 'Message requis' }, { status: 400 })
 
   // Verify organizer owns the group
-  const { data: group } = await admin
+  const { data: group } = await (admin as any)
     .from('message_groups')
     .select('id, organizer_id, event_id')
     .eq('id', params.id)
@@ -33,7 +33,7 @@ export async function POST(
   }
 
   // Get all members
-  const { data: members } = await admin
+  const { data: members } = await (admin as any)
     .from('message_group_members')
     .select('user_id')
     .eq('group_id', params.id)
