@@ -1379,7 +1379,7 @@ function OrganizerMainContent({
                   }[event.status] ?? { label: event.status, color: 'var(--text-secondary)', bg: colors.bg.secondary, dot: colors.text.muted }
                   const ep = pendingApps.filter(a => a.event_id === event.id).length
                   return (
-                    <Link key={event.id} href={`/events/${event.id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                    <Link key={event.id} href={`/events/${event.id}/dashboard`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ flex: '1 1 140px', minWidth: '140px' }}>
                         <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
                         {event.start_date && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
@@ -1536,7 +1536,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
       {nextEvent && (
         <SidebarCard title="Prochain événement">
-          <Link href={`/events/${nextEvent.id}`} style={{ textDecoration: 'none' }}>
+          <Link href={`/events/${nextEvent.id}/dashboard`} style={{ textDecoration: 'none' }}>
             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px' }}>{nextEvent.title}</p>
             {nextEvent.start_date && (
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 8px' }}>
