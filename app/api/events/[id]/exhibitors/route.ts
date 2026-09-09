@@ -39,14 +39,22 @@ export async function GET(
       )
     }
 
-    // Get all applications
+    // Get all applications (profiles.email n'existe pas en prod — email via auth)
     const { data, error, count } = await admin
       .from('applications')
-      .select('id, creator_id, status, created_at, profiles(full_name, email)', { count: 'exact' })
+      .select('id, creator_id, status, created_at, profiles(full_name)', { count: 'exact' })
       .eq('event_id', params.id)
       .order('created_at', { ascending: false })
 
     if (error) throw error
+
+    // Fetch emails from auth for each unique creator
+    const creatorIds = [...new Set((data || []).map((a: any) => a.creator_id))]
+    const emailMap: Record<string, string> = {}
+    for (const uid of creatorIds) {
+      const { data: authUser } = await admin.auth.admin.getUserById(uid)
+      if (authUser?.user?.email) emailMap[uid] = authUser.user.email
+    }
 
     const exhibitors = (data || []).map((app: any) => ({
       id: app.id,
@@ -55,7 +63,7 @@ export async function GET(
       status: app.status === 'accepted' ? 'approved' : app.status === 'refused' ? 'rejected' : app.status,
       tables_count: 0,
       submitted_at: app.created_at,
-      profiles: app.profiles,
+      profiles: { full_name: app.profiles?.full_name ?? null, email: emailMap[app.creator_id] ?? null },
     }))
 
     return NextResponse.json({
