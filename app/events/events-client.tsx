@@ -654,9 +654,8 @@ export default function EventsClient() {
       `}</style>
 
       <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: 80 }}>
-        {/* fixed header: title + search + filters — hides on scroll down */}
+        {/* header: title + search + filters */}
         <div style={{
-          position: 'fixed', top: 58, left: 0, right: 0, zIndex: 10,
           backgroundColor: 'var(--bg-primary)',
           borderBottom: '1px solid var(--ev-border)',
         }}>
@@ -790,9 +789,6 @@ export default function EventsClient() {
             </div>
           )}
         </div>
-
-        {/* spacer matching fixed header height */}
-        <div style={{ height: 175 }} />
 
         {/* hero carousel */}
         <div style={{ paddingTop: 20, backgroundColor: 'var(--bg-primary)' }}>

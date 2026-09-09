@@ -335,8 +335,8 @@ function CreatorsContent() {
 
         <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', paddingBottom: 80 }}>
 
-          {/* Fixed header */}
-          <div style={{ position: 'fixed', top: 58, left: 0, right: 0, zIndex: 10, backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--ev-border)' }}>
+          {/* Header */}
+          <div style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--ev-border)' }}>
             <div style={{ padding: '10px 16px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.5 }}>Créateurs</h1>
               <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ev-chip-text)', backgroundColor: 'var(--ev-chip-bg)', borderRadius: 4, padding: '2px 10px' }}>{mobileFiltered.length} résultats</span>
