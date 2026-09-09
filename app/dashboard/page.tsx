@@ -20,15 +20,9 @@ import { NexModal } from '@/components/ui/nex-modal'
 import { NexTabs } from '@/components/ui/nex-tabs'
 const CreditsWidget = dynamic(() => import('@/components/credits-widget').then(m => ({ default: m.CreditsWidget })), { ssr: false })
 const BoostButton = dynamic(() => import('@/components/boost-button').then(m => ({ default: m.BoostButton })), { ssr: false })
-import { useCountUp } from '@/lib/hooks/use-count-up'
 import StripeConnectBanner, { StripeConnectAlert } from '@/components/ui/stripe-connect-banner'
 import { colors } from '@/lib/design-tokens'
 import { eventUrl } from '@/lib/event-url'
-
-function AnimatedNumber({ value }: { value: number }) {
-  const animated = useCountUp(value)
-  return <>{animated}</>
-}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; dot: string }> = {
   pending:        { label: 'En attente',    color: colors.status.pending.text,          bg: colors.status.pending.bg,          dot: colors.status.pending.dot          },
@@ -57,16 +51,6 @@ const PROFILE_STEPS = [
 ] as const
 
 // ─── Skeletons ────────────────────────────────────────────────────────────────
-
-function KpiRowSkeleton() {
-  return (
-    <div className="kpi-grid" style={{ marginBottom: '20px' }}>
-      {[...Array(4)].map((_, i) => (
-        <div key={i} style={{ height: '80px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-      ))}
-    </div>
-  )
-}
 
 function FeedSkeleton() {
   return (
@@ -241,7 +225,6 @@ export default function DashboardPage() {
     return (
       <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', padding: '24px' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <KpiRowSkeleton />
           <div className="dash-grid">
             <FeedSkeleton />
             <SidebarSkeleton />
@@ -303,13 +286,7 @@ export default function DashboardPage() {
         @media (max-width: 768px) {
           .dash-grid { grid-template-columns: 1fr; }
         }
-        .kpi-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 10px;
-        }
         @media (max-width: 640px) {
-          .kpi-grid { grid-template-columns: repeat(2, 1fr); }
           .profile-banner-detail { display: none !important; }
           .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
         }
@@ -474,30 +451,12 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* KPI row — per tab */}
-        {!loading && dashTab === 'creator' && hasCreator && (
-          <div className="kpi-grid" style={{ marginBottom: '20px' }}>
-            <KpiCard label="Candidatures" value={applications.length} color={colors.violet.primary} />
-            <KpiCard label="Acceptées" value={acceptedApps.length} color={colors.status.accepted.text} />
-            <KpiCard label="Taux d'acceptation" value={`${acceptanceRate}%`} color={colors.yellow.text} />
-            <KpiCard label="Vues profil (30j)" value={profileViewCount} color={colors.violet.primary} />
-          </div>
-        )}
         {!loading && dashTab === 'organizer' && hasOrganizer && (
           <>
             {connectAlertParams && <StripeConnectAlert searchParams={connectAlertParams} />}
             {accessToken && <StripeConnectBanner token={accessToken} />}
           </>
         )}
-        {!loading && dashTab === 'organizer' && hasOrganizer && (
-          <div className="kpi-grid" style={{ marginBottom: '20px' }}>
-            <KpiCard label="Événements" value={events.length} color={colors.violet.primary} />
-            <KpiCard label="Publiés" value={publishedEvents.length} color={colors.status.accepted.text} />
-            <KpiCard label="En attente" value={pendingApps.length} color={colors.yellow.text} />
-            <KpiCard label="Candidatures tardives" value={lateApps.length} color={lateApps.length > 0 ? colors.feedback.danger.solid : colors.text.muted} />
-          </div>
-        )}
-        {loading && <KpiRowSkeleton />}
 
         {/* Creator tab */}
         {(dashTab === 'creator' || (!hasOrganizer && !isAdmin)) && (
@@ -573,17 +532,6 @@ export default function DashboardPage() {
 }
 
 // ─── KPI card ────────────────────────────────────────────────────────────────
-
-function KpiCard({ label, value, color }: { label: string; value: number | string; color?: string }) {
-  return (
-    <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', padding: '14px', border: '1px solid var(--border-color)', borderLeft: color ? `3px solid ${color}` : '1px solid var(--border-color)' }}>
-      <div style={{ fontSize: '24px', fontWeight: 500, color: color ?? 'var(--text-primary)', lineHeight: 1, marginBottom: '4px' }}>
-        {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
-      </div>
-      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{label}</div>
-    </div>
-  )
-}
 
 // ─── Creator main content (left column) ──────────────────────────────────────
 
