@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, FileText, Send, Download } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
@@ -141,6 +141,7 @@ function FaqSection({ items }: { items: { q: string; a: string }[] }) {
 export function EventDetailClient({ id }: Props) {
   const { event, loading, error } = useEvent(id)
   const user = useAuthStore((s) => s.user)
+  const router = useRouter()
   const { application, applying, error: applyError, success, apply, acceptedCount } = useApplication(id, user?.id)
   const { favEventIds, toggleEventFav } = useFavorites(user?.id)
   const [message, setMessage] = useState('')
@@ -174,6 +175,13 @@ export function EventDetailClient({ id }: Props) {
   const [weeklyApplicants, setWeeklyApplicants] = useState<number | null>(null)
 
   const REQUIRED_FIELDS_TOTAL = 6
+
+  // Organisateur → redirige vers le dashboard de l'événement
+  useEffect(() => {
+    if (!loading && event && user && event.organizer_id === user.id) {
+      router.replace(`/events/${id}/dashboard`)
+    }
+  }, [loading, event, user, id, router])
 
   // Toast post-paiement stand (retour depuis Stripe Checkout)
   useEffect(() => {
