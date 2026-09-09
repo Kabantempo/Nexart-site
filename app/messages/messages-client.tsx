@@ -651,7 +651,7 @@ export default function MessagesClient() {
           <>
             {/* Event thread view */}
             {selectedActuEvent ? (
-              <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 260px)', minHeight: '400px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <button onClick={() => { setSelectedActuEvent(null); setActuPosts([]) }}
@@ -664,7 +664,7 @@ export default function MessagesClient() {
                 </div>
 
                 {/* Posts feed */}
-                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '16px' }}>
                   {actuPostsLoading ? (
                     <div style={{ textAlign: 'center', padding: '48px' }}>
                       <div style={{ width: '24px', height: '24px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
@@ -697,7 +697,7 @@ export default function MessagesClient() {
                 </div>
 
                 {/* Compose */}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', paddingTop: '12px', borderTop: `1px solid ${colors.border.default}` }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', paddingTop: '12px', marginTop: '8px', borderTop: `1px solid ${colors.border.default}` }}>
                   <textarea
                     placeholder="Écrire un message..."
                     value={newPost}
