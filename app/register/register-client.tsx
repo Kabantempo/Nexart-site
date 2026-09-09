@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Mail, Lock, User, ArrowRight, Palette, Calendar, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -20,38 +20,10 @@ function GoogleIcon() {
   )
 }
 
-const roles = [
-  {
-    value: 'creator',
-    label: 'Créateur',
-    description: 'Designer, artisan, créateur indépendant',
-    icon: Palette,
-    color: colors.violet.primary,
-    bg: colors.violet.bg,
-  },
-  {
-    value: 'organizer',
-    label: 'Organisateur',
-    description: 'Gérez vos marchés et événements',
-    icon: Calendar,
-    color: colors.purple.primary,
-    bg: colors.purple.bgF5,
-  },
-  {
-    value: 'visitor',
-    label: 'Visiteur',
-    description: 'Explorez et découvrez',
-    icon: Eye,
-    color: colors.green.primary,
-    bg: colors.feedback.success.bg,
-  },
-]
-
 export default function RegisterPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [role, setRole] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -65,7 +37,6 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!role) { setError('Veuillez choisir un rôle.'); return }
     if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas.'); return }
     setLoading(true)
     setError(null)
@@ -73,7 +44,7 @@ export default function RegisterPage() {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, role, full_name: name }),
+      body: JSON.stringify({ email, password, full_name: name }),
     })
     const json = await res.json()
 
@@ -85,12 +56,12 @@ export default function RegisterPage() {
     const data = json
 
     if (data.user) {
-      await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, role: role as any })
+      await supabase.from('profiles').upsert({ id: data.user.id, full_name: name } as any)
       // Email de bienvenue (fire-and-forget)
       fetch('/api/welcome', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, role }),
+        body: JSON.stringify({ email, name }),
       }).catch(() => {})
       setSuccess(true)
     }
@@ -237,40 +208,37 @@ export default function RegisterPage() {
               Rejoignez la communauté Nexart
             </h2>
             <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.7', marginBottom: '40px' }}>
-              3 profils différents, une seule plateforme. Choisissez votre rôle et commencez votre aventure.
+              Créez votre compte en quelques secondes. Vous choisirez votre profil juste après.
             </p>
 
-            {/* Role previews */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {roles.map((r, i) => {
-                const Icon = r.icon
-                return (
-                  <motion.div
-                    key={r.value}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '14px',
-                      padding: '14px 16px', borderRadius: '12px',
-                      backgroundColor: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                    }}
-                  >
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '8px',
-                      backgroundColor: 'rgba(99,102,241,0.3)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                    }}>
-                      <Icon size={18} color={colors.purple.bgPale} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: colors.bg.primary }}>{r.label}</div>
-                      <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{r.description}</div>
-                    </div>
-                  </motion.div>
-                )
-              })}
+              {[
+                { label: 'Créateurs', desc: 'Artisans, designers, indépendants' },
+                { label: 'Organisateurs', desc: 'Marchés, salons, événements' },
+                { label: 'Visiteurs', desc: 'Explorez et découvrez' },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '14px',
+                    padding: '14px 16px', borderRadius: '12px',
+                    backgroundColor: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  <div style={{
+                    width: '8px', height: '8px', borderRadius: '50%',
+                    backgroundColor: 'rgba(99,102,241,0.7)', flexShrink: 0,
+                  }} />
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: colors.bg.primary }}>{item.label}</div>
+                    <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{item.desc}</div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -419,46 +387,6 @@ export default function RegisterPage() {
                     boxShadow: focused === 'email' ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
                   }}
                 />
-              </div>
-            </div>
-
-            {/* Rôle — Cards */}
-            <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '10px' }}>
-                Vous êtes ?
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(120px, 100%), 1fr))', gap: '10px' }}>
-                {roles.map((r) => {
-                  const Icon = r.icon
-                  const selected = role === r.value
-                  return (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => setRole(r.value)}
-                      style={{
-                        padding: '14px 8px', borderRadius: '12px', cursor: 'pointer',
-                        border: selected ? `2px solid ${r.color}` : `1.5px solid ${colors.gray.g300alt}`,
-                        backgroundColor: selected ? r.bg : 'var(--bg-secondary)',
-                        transition: 'all 200ms ease',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-                        boxShadow: selected ? `0 0 0 3px ${r.color}22` : 'none',
-                      }}
-                    >
-                      <div style={{
-                        width: '36px', height: '36px', borderRadius: '10px',
-                        backgroundColor: selected ? r.color : colors.gray["300alt"],
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 200ms ease',
-                      }}>
-                        <Icon size={18} color={selected ? colors.bg.primary : 'var(--text-tertiary)'} />
-                      </div>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : `var(--text-body, ${colors.gray.g800})` }}>
-                        {r.label}
-                      </span>
-                    </button>
-                  )
-                })}
               </div>
             </div>
 
