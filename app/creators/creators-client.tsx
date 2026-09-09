@@ -317,7 +317,7 @@ function CreatorsContent() {
       return (
         <div style={{ marginBottom: 28 }}>
           <h2 style={{ margin: '0 0 10px 16px', fontSize: 16, fontWeight: 800, color: 'var(--ev-sort-active)', letterSpacing: -0.3 }}>{title}</h2>
-          <div style={{ overflowX: 'auto', scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }} className="hide-scrollbar">
+          <div style={{ overflowX: 'auto', scrollSnapType: 'x mandatory', scrollPaddingLeft: 16, overscrollBehaviorX: 'contain' }} className="hide-scrollbar">
             <div style={{ display: 'flex', gap: 10, paddingLeft: 16, paddingRight: 16, paddingBottom: 6 }}>
               {items.map((c, i) => <MCard key={c.id} c={c} i={i} />)}
             </div>

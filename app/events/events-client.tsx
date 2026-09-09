@@ -173,7 +173,7 @@ function Section({
       </h2>
 
       {/* outer div handles overflow-x only */}
-      <div style={{ overflowX: 'auto', scrollSnapType: 'x mandatory', scrollPaddingLeft: 16 }} className="hide-scrollbar">
+      <div style={{ overflowX: 'auto', scrollSnapType: 'x mandatory', scrollPaddingLeft: 16, overscrollBehaviorX: 'contain' }} className="hide-scrollbar">
         {/* inner div is the flex row — padding-left/right work here because it's not the overflow container */}
         <div style={{
           display: 'flex', flexDirection: 'row', gap: 12,
