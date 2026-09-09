@@ -183,11 +183,9 @@ export function useEvent(id: string) {
     if (!id) return
     const fetchEvent = async () => {
       try {
-        const { data, error: err } = await supabase
-          .from('events')
-          .select('*')
-          .eq('id', id)
-          .single()
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+        const q = supabase.from('events').select('*')
+        const { data, error: err } = await (isUuid ? q.eq('id', id) : q.eq('slug', id)).single()
         if (err) throw err
         setEvent(data as unknown as Event)
       } catch (err) {

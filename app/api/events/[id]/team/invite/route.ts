@@ -31,21 +31,25 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
-      email: z.string().email(),
-      role: z.enum(['co-organizer', 'staff', 'volunteer', 'admin']),
+      username: z.string().min(1),
+      role: z.enum(['co_organizer', 'volunteer']).default('co_organizer'),
     })
     const { data: body, error: validErr } = v(schema, await req.json())
     if (validErr) return validErr
-    const { email, role } = body
+    const { username, role } = body
 
     const { data: invitedUser, error: userError } = await (supabase as any)
       .from('profiles')
-      .select('id, email')
-      .eq('email', email)
+      .select('id, username, full_name')
+      .eq('username', username.replace(/^@/, ''))
       .single()
 
     if (userError || !invitedUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Aucun compte Nexart trouvé pour ce @username' }, { status: 404 })
+    }
+
+    if (invitedUser.id === user.id) {
+      return NextResponse.json({ error: 'Vous ne pouvez pas vous inviter vous-même' }, { status: 400 })
     }
 
     const { error: insertError } = await supabase
@@ -53,8 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       .insert({
         event_id: eventId,
         user_id: invitedUser.id,
-        role: role,
-        invited_by: user.id,
+        role,
         joined_at: new Date().toISOString(),
       } as any)
 

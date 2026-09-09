@@ -26,9 +26,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   try {
     const { data, error } = await (admin as any)
       .from('event_team')
-      .select('id, event_id, email, role, status, joined_at, created_at')
+      .select('id, user_id, role, joined_at, profiles(username, full_name, avatar_url)')
       .eq('event_id', params.id)
-      .order('created_at', { ascending: true })
+      .order('joined_at', { ascending: true })
 
     if (error) throw error
     return NextResponse.json(data || [])
