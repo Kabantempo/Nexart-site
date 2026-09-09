@@ -202,8 +202,8 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
               onFilterChange={setFilterStatus}
               onStatusChange={handleStatusChange}
               onExport={handleExportCSV}
-              onProposeStand={(id, current) => setStandModal({ exhibitorId: id, mode: 'propose', current })}
-              onAcceptCounter={(id) => setStandModal({ exhibitorId: id, mode: 'accept_counter' })}
+              onProposeStand={(id: string, current?: { size: string; price: number; note?: string }) => setStandModal({ exhibitorId: id, mode: 'propose', current })}
+              onAcceptCounter={(id: string) => setStandModal({ exhibitorId: id, mode: 'accept_counter' })}
             />
             {standModal && (
               <StandModal
