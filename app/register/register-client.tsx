@@ -453,7 +453,7 @@ export default function RegisterPage() {
                       }}>
                         <Icon size={18} color={selected ? colors.bg.primary : 'var(--text-tertiary)'} />
                       </div>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : `var(--text-body, ${colors.gray.dark})` }}>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: selected ? r.color : `var(--text-body, ${colors.gray.g800})` }}>
                         {r.label}
                       </span>
                     </button>

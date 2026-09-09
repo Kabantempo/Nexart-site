@@ -74,7 +74,7 @@ function useFeaturedCreator() {
         setCreator({
           id: data.id,
           full_name: data.full_name,
-          avatar_url: data.avatar_url,
+          avatar_url: data.avatar_url ?? undefined,
           subscription_tier: data.subscription_tier,
           city: cp.city,
           disciplines: cp.disciplines,

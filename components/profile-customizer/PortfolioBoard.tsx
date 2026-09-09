@@ -244,7 +244,7 @@ export function PortfolioBoard({ blocks, accentColor, settings, creatorName, ava
               size={{ width: w, height: h }}
               bounds="parent"
               onMouseDown={() => setSelected(block.id)}
-              onDragStop={(_, d) => handleDragStop(block, d.x, d.y)}
+              onDragStop={(_, d) => { void handleDragStop(block, d.x, d.y) }}
               onResizeStop={(_, __, ref, ___, pos) =>
                 handleResizeStop(block, ref.offsetWidth, ref.offsetHeight, pos.x, pos.y)
               }

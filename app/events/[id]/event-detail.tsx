@@ -177,7 +177,7 @@ export function EventDetailClient({ id }: Props) {
 
   // Toast post-paiement stand (retour depuis Stripe Checkout)
   useEffect(() => {
-    const payment = searchParams.get('payment')
+    const payment = searchParams?.get('payment')
     if (payment === 'success') {
       toastSuccess('✅ Paiement confirmé — votre stand est réservé !')
       window.history.replaceState({}, '', window.location.pathname)

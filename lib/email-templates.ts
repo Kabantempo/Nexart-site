@@ -52,7 +52,7 @@ function footer() {
     </table>`
 }
 
-function button(label: string, url: string, color = COLORS.indigo) {
+function button(label: string, url: string, color: string = COLORS.indigo) {
   return `
     <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
       <tr>

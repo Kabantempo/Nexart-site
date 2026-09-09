@@ -91,7 +91,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
               <Image src={creator.avatar_url} alt={creator?.full_name || ''} width={56} height={56}
                 style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
             ) : (
-              <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: `var(--text-body, ${colors.gray.dark})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: `var(--text-body, ${colors.gray.g800})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <ShoppingBag size={24} color="rgba(255,255,255,0.5)" />
               </div>
             )}

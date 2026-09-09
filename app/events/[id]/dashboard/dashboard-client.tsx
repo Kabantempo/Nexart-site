@@ -84,7 +84,7 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
 
     if (!ev || ev.organizer_id !== uid) { router.push('/dashboard'); return }
 
-    setEvent({ title: ev.title, city: ev.city, start_date: ev.start_date, end_date: ev.end_date, status: ev.status })
+    setEvent({ title: ev.title, city: ev.city ?? '', start_date: ev.start_date, end_date: ev.end_date, status: ev.status })
 
     const list = apps ?? []
     const accepted = list.filter(a => a.status === 'accepted').length

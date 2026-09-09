@@ -273,7 +273,7 @@ export default function OnboardingClient() {
           {isOrgWelcome && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} style={{ marginBottom: '20px' }}>
               <button onClick={() => router.push('/events/create')} style={{
-                width: '100%', padding: '16px', borderRadius: '16px', background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.light})`,
+                width: '100%', padding: '16px', borderRadius: '16px', background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.hover})`,
                 color: colors.bg.primary, fontSize: '15px', fontWeight: 700, border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               }}>
@@ -506,7 +506,7 @@ export default function OnboardingClient() {
                       </div>
                     </div>
                     <button onClick={handleCreateNow} disabled={upcomingEventTitle.trim().length < 2 || saving} style={{
-                      width: '100%', padding: '14px', borderRadius: '14px', background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.light})`,
+                      width: '100%', padding: '14px', borderRadius: '14px', background: `linear-gradient(135deg, ${colors.violet.primary}, ${colors.violet.hover})`,
                       color: colors.bg.primary, fontSize: '14px', fontWeight: 700, border: 'none', cursor: upcomingEventTitle.trim().length < 2 ? 'not-allowed' : 'pointer',
                       opacity: upcomingEventTitle.trim().length < 2 ? 0.45 : 1, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     }}>

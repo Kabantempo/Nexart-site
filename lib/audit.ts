@@ -15,8 +15,12 @@ interface AuditParams {
   resourceId?: string
   description?: string
   ip?: string
+  ipAddress?: string
   userAgent?: string
   sensitiveData?: boolean
+  accessedSensitiveData?: boolean
+  sensitiveFields?: string[]
+  changes?: Record<string, unknown>
 }
 
 export async function logAudit(params: AuditParams) {
@@ -28,10 +32,10 @@ export async function logAudit(params: AuditParams) {
       p_resource_type: params.resourceType,
       p_resource_id: params.resourceId ?? null,
       p_description: params.description ?? null,
-      p_changes: null,
-      p_accessed_sensitive: params.sensitiveData ?? false,
-      p_sensitive_fields: null,
-      p_ip_address: params.ip ?? 'unknown',
+      p_changes: params.changes ?? null,
+      p_accessed_sensitive: params.accessedSensitiveData ?? params.sensitiveData ?? false,
+      p_sensitive_fields: params.sensitiveFields ?? null,
+      p_ip_address: params.ipAddress ?? params.ip ?? 'unknown',
       p_user_agent: params.userAgent ?? 'unknown',
     })
   } catch {
