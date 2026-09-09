@@ -94,6 +94,7 @@ export default function MessagesClient() {
   // Groups state
   const [groups, setGroups] = useState<Group[]>([])
   const [groupsLoading, setGroupsLoading] = useState(false)
+  const [groupsLoaded, setGroupsLoaded] = useState(false)
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [newGroupEvent, setNewGroupEvent] = useState('')
@@ -177,6 +178,7 @@ export default function MessagesClient() {
       }
     } finally {
       setGroupsLoading(false)
+      setGroupsLoaded(true)
     }
   }, [])
 
@@ -212,10 +214,10 @@ export default function MessagesClient() {
   }, [router, loadConversations, loadOrgEvents, loadActu])
 
   useEffect(() => {
-    if (mainTab === 'groupes' && groups.length === 0 && !groupsLoading) {
+    if (mainTab === 'groupes' && !groupsLoaded && !groupsLoading) {
       loadGroups()
     }
-  }, [mainTab, groups.length, groupsLoading, loadGroups])
+  }, [mainTab, groupsLoaded, groupsLoading, loadGroups])
 
   const deleteConversation = async (convId: string) => {
     setConversations(prev => prev.filter(c => c.id !== convId))
@@ -254,7 +256,7 @@ export default function MessagesClient() {
         setNewGroupName('')
         setNewGroupEvent('')
         setNewGroupAutoImport(true)
-        loadGroups()
+        setGroupsLoaded(false)
       }
     } finally {
       setCreatingGroup(false)
