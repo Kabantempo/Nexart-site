@@ -65,6 +65,7 @@ export interface Event {
   rules?: string | null
   stripe_enabled?: boolean
   status: 'draft' | 'published' | 'closed'
+  slug?: string | null
   created_at: string
   updated_at?: string | null
   address?: string | null
