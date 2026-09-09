@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import {
   MessageCircle, Trash2, Palette, Building2, Eye, Search, CheckCheck, X,
-  Users, Plus, Send, Bell, ChevronRight, Rss,
+  Users, Plus, Send, Bell, ChevronRight, Rss, UserPlus, UserMinus,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
@@ -29,6 +29,15 @@ type Group = {
   memberCount: number
   events?: { title: string; slug?: string | null } | null
 }
+
+type GroupMember = {
+  id: string
+  user_id: string
+  added_at: string
+  profile: Profile | null
+}
+
+type FollowedUser = Profile & { followed_id: string }
 
 type OrgEvent = { id: string; title: string; slug?: string | null }
 
@@ -105,6 +114,15 @@ export default function MessagesClient() {
   const [broadcastMsg, setBroadcastMsg] = useState('')
   const [broadcasting, setBroadcasting] = useState(false)
   const [broadcastDone, setBroadcastDone] = useState(false)
+
+  // Members modal state
+  const [membersGroup, setMembersGroup] = useState<Group | null>(null)
+  const [members, setMembers] = useState<GroupMember[]>([])
+  const [membersLoading, setMembersLoading] = useState(false)
+  const [follows, setFollows] = useState<FollowedUser[]>([])
+  const [addingUser, setAddingUser] = useState<string | null>(null)
+  const [removingUser, setRemovingUser] = useState<string | null>(null)
+  const [memberSearch, setMemberSearch] = useState('')
 
   // Fils d'actu state
   const [actu, setActu] = useState<ActuItem[]>([])
@@ -282,6 +300,70 @@ export default function MessagesClient() {
     } finally {
       setBroadcasting(false)
     }
+  }
+
+  const openMembersModal = async (g: Group) => {
+    setMembersGroup(g)
+    setMemberSearch('')
+    setMembersLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setMembersLoading(false); return }
+    const token = session.access_token
+
+    const [membersRes, followsData] = await Promise.all([
+      fetch(`/api/messages/groups/${g.id}/members`, { headers: { Authorization: `Bearer ${token}` } }),
+      supabase
+        .from('follows')
+        .select('followed_id')
+        .eq('follower_id', session.user.id)
+        .limit(100),
+    ])
+
+    if (membersRes.ok) {
+      const { members: m } = await membersRes.json()
+      setMembers(m ?? [])
+    }
+
+    const followedIds = (followsData.data ?? []).map((f: any) => f.followed_id)
+    if (followedIds.length) {
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name, avatar_url, role').in('id', followedIds)
+      setFollows((profiles ?? []).map((p: any) => ({ ...p, followed_id: p.id })) as FollowedUser[])
+    } else {
+      setFollows([])
+    }
+    setMembersLoading(false)
+  }
+
+  const addMember = async (userId: string) => {
+    if (!membersGroup) return
+    setAddingUser(userId)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setAddingUser(null); return }
+    const res = await fetch(`/api/messages/groups/${membersGroup.id}/members`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ user_id: userId }),
+    })
+    if (res.ok) {
+      const { member } = await res.json()
+      setMembers(prev => [...prev, member])
+      setGroups(prev => prev.map(g => g.id === membersGroup.id ? { ...g, memberCount: g.memberCount + 1 } : g))
+    }
+    setAddingUser(null)
+  }
+
+  const removeMember = async (userId: string) => {
+    if (!membersGroup) return
+    setRemovingUser(userId)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setRemovingUser(null); return }
+    await fetch(`/api/messages/groups/${membersGroup.id}/members?user_id=${userId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+    setMembers(prev => prev.filter(m => m.user_id !== userId))
+    setGroups(prev => prev.map(g => g.id === membersGroup.id ? { ...g, memberCount: Math.max(0, g.memberCount - 1) } : g))
+    setRemovingUser(null)
   }
 
   const totalUnread = conversations.reduce((acc, c) => acc + c.unreadCount, 0)
@@ -499,11 +581,18 @@ export default function MessagesClient() {
                           {g.events?.title && <> · {g.events.title}</>}
                         </div>
                       </div>
-                      <button onClick={() => { setBroadcastGroup(g); setBroadcastDone(false) }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: 'pointer', flexShrink: 0 }}>
-                        <Send size={12} />
-                        Envoyer
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                        <button onClick={() => openMembersModal(g)}
+                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', backgroundColor: 'transparent', cursor: 'pointer' }}>
+                          <UserPlus size={12} />
+                          Membres
+                        </button>
+                        <button onClick={() => { setBroadcastGroup(g); setBroadcastDone(false) }}
+                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: 'pointer' }}>
+                          <Send size={12} />
+                          Envoyer
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -654,6 +743,92 @@ export default function MessagesClient() {
                   </button>
                 </div>
               </>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* ─── Modal: Membres d'un groupe ─── */}
+      {membersGroup && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} onClick={() => setMembersGroup(null)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}
+            style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}>{membersGroup.name}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{members.length} membre{members.length !== 1 ? 's' : ''}</div>
+              </div>
+              <button onClick={() => setMembersGroup(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={18} /></button>
+            </div>
+
+            {membersLoading ? (
+              <div style={{ textAlign: 'center', padding: '32px' }}>
+                <div style={{ width: '24px', height: '24px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+              </div>
+            ) : (
+              <div style={{ overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {members.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Membres actuels</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {members.map(m => (
+                        <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
+                          <Avatar profile={m.profile} size={32} />
+                          <span style={{ flex: 1, fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{m.profile?.full_name ?? 'Utilisateur'}</span>
+                          <button onClick={() => removeMember(m.user_id)} disabled={removingUser === m.user_id}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.feedback.danger.solid, opacity: removingUser === m.user_id ? 0.4 : 1, display: 'flex', alignItems: 'center' }}>
+                            <UserMinus size={15} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {follows.length > 0 && (() => {
+                  const memberIds = new Set(members.map(m => m.user_id))
+                  const filtered = follows.filter(f => {
+                    if (memberIds.has(f.id)) return false
+                    if (!memberSearch.trim()) return true
+                    return f.full_name?.toLowerCase().includes(memberSearch.toLowerCase())
+                  })
+                  return (
+                    <div>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>Ajouter depuis mes abonnements</div>
+                      <div style={{ position: 'relative', marginBottom: '8px' }}>
+                        <Search size={13} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
+                        <input type="text" placeholder="Rechercher..." value={memberSearch} onChange={e => setMemberSearch(e.target.value)}
+                          style={{ width: '100%', paddingLeft: '32px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none', boxSizing: 'border-box' }} />
+                      </div>
+                      {filtered.length === 0 ? (
+                        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', padding: '12px 0' }}>Aucun résultat</p>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {filtered.map(f => (
+                            <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
+                              <Avatar profile={f} size={32} />
+                              <span style={{ flex: 1, fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{f.full_name ?? 'Utilisateur'}</span>
+                              <button onClick={() => addMember(f.id)} disabled={addingUser === f.id}
+                                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '6px', border: 'none', fontSize: '12px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: addingUser === f.id ? 'not-allowed' : 'pointer', opacity: addingUser === f.id ? 0.5 : 1 }}>
+                                <UserPlus size={12} />
+                                {addingUser === f.id ? '...' : 'Ajouter'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                {follows.length === 0 && members.length === 0 && (
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center', padding: '24px 0' }}>
+                    Suivez des personnes pour pouvoir les ajouter à un groupe.
+                  </p>
+                )}
+              </div>
             )}
           </motion.div>
         </div>
