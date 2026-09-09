@@ -614,17 +614,22 @@ function ExhibitorActions({ ex, onStatusChange, onProposeStand, onAcceptCounter,
   const isCounter = ex.status === 'counter_proposed'
   const isProposed = ex.status === 'stand_proposed'
   const btnBase: React.CSSProperties = mobile
-    ? { width: '100%', padding: '10px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }
     : { padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }
 
+  const soberBtn: React.CSSProperties = {
+    padding: '5px 11px', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer',
+    display: 'flex', alignItems: 'center', gap: 4, border: '1px solid var(--border-color)',
+    backgroundColor: 'transparent', color: 'var(--text-secondary)',
+  }
+
   return (
-    <div style={{ display: 'flex', gap: mobile ? 6 : '6px', flexWrap: mobile ? undefined : 'wrap', flexDirection: mobile ? 'column' : undefined }}>
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
       {ex.status === 'pending' && (
         <>
-          <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ ...btnBase, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary }}>
-            <ChevronRight size={mobile ? 14 : 12} /> Proposer stand
+          <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ ...btnBase, border: 'none', backgroundColor: colors.violet.primary, color: '#fff' }}>
+            <ChevronRight size={12} /> Proposer stand
           </button>
-          <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ ...btnBase, border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
+          <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ ...soberBtn, color: colors.feedback.danger.text, borderColor: colors.feedback.danger.border }}>
             Refuser
           </button>
         </>
@@ -635,30 +640,27 @@ function ExhibitorActions({ ex, onStatusChange, onProposeStand, onAcceptCounter,
       {isCounter && (
         <>
           <button onClick={() => onAcceptCounter(ex.id)} style={{ ...btnBase, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff' }}>
-            <Check size={mobile ? 14 : 12} /> Accepter
+            <Check size={12} /> Accepter
           </button>
-          <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ ...btnBase, border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary }}>
-            <RefreshCw size={mobile ? 14 : 12} /> Contre-proposer
+          <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ ...soberBtn }}>
+            <RefreshCw size={12} /> Contre-proposer
           </button>
         </>
       )}
       {ex.status === 'approved' && (
         <button onClick={() => onConfirmStand(ex.id)} style={{ ...btnBase, border: 'none', backgroundColor: colors.status.accepted.text, color: '#fff' }}>
-          <Check size={mobile ? 14 : 12} /> Confirmer stand
+          <Check size={12} /> Confirmer stand
         </button>
       )}
       {ex.status === 'awaiting_payment' && (
         <>
-          <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: mobile ? 0 : 4 }}>
-            <Clock size={12} /> Paiement en attente
-          </span>
           <button onClick={() => onStatusChange(ex.id, 'paid')} style={{ ...btnBase, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff' }}>
-            <Check size={mobile ? 14 : 12} /> Marquer paye
+            <Check size={12} /> Marquer paye
           </button>
-          <button onClick={() => onStatusChange(ex.id, 'approved')} style={{ ...btnBase, border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary }}>
-            <RefreshCw size={mobile ? 14 : 12} /> Annuler paiement
+          <button onClick={() => onStatusChange(ex.id, 'approved')} style={{ ...soberBtn }}>
+            <RefreshCw size={12} /> Annuler
           </button>
-          <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ ...btnBase, border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
+          <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ ...soberBtn, color: colors.feedback.danger.text, borderColor: colors.feedback.danger.border }}>
             Refuser
           </button>
         </>
