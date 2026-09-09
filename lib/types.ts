@@ -75,10 +75,11 @@ export interface Application {
   event_id: string
   creator_id: string
   message?: string | null
-  status: 'pending' | 'accepted' | 'refused' | 'paid' | 'refunded'
+  status: 'pending' | 'accepted' | 'refused' | 'paid' | 'refunded' | 'stand_proposed' | 'counter_proposed'
   stripe_payment_id?: string | null
   boosted_at?: string | null
   portfolio_images?: string[] | null
+  proposed_stand?: { size: string; price: number; note?: string } | null
   created_at: string
   updated_at: string
 }

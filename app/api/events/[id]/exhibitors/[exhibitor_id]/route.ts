@@ -18,25 +18,26 @@ export async function PATCH(
   try {
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
-      status: z.enum(['pending', 'approved', 'rejected', 'paid', 'cancelled']),
+      status: z.enum(['pending', 'approved', 'rejected', 'paid', 'cancelled', 'stand_proposed', 'accepted']),
       rejection_reason: z.string().max(1000).optional(),
+      proposed_stand: z.object({
+        size: z.string().max(100),
+        price: z.number().min(0),
+        note: z.string().max(500).optional(),
+      }).optional(),
     })
     const { data: body, error: validErr } = v(schema, await req.json())
     if (validErr) return validErr
-    const { status: clientStatus, rejection_reason } = body
-    const status = clientStatus === 'approved' ? 'accepted' : clientStatus === 'rejected' ? 'refused' : clientStatus
+    const { status: clientStatus, rejection_reason, proposed_stand } = body
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
     )
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { data: event } = await admin
       .from('events')
-      .select('organizer_id')
+      .select('organizer_id, title')
       .eq('id', params.id)
       .single()
 
@@ -44,21 +45,44 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const updateData: any = { status }
-    if (rejection_reason) {
-      updateData.rejection_reason = rejection_reason
-    }
+    // Map client status to DB status
+    const dbStatus =
+      clientStatus === 'approved' ? 'accepted' :
+      clientStatus === 'rejected' ? 'refused' :
+      clientStatus
+
+    const updateData: any = { status: dbStatus }
+    if (rejection_reason) updateData.rejection_reason = rejection_reason
+    if (proposed_stand) updateData.proposed_stand = proposed_stand
 
     const { data, error } = await (admin as any)
       .from('applications')
       .update(updateData)
       .eq('event_id', params.id)
       .eq('id', params.exhibitor_id)
-      .select()
+      .select('id, creator_id')
+      .single()
 
     if (error) throw error
 
-    return NextResponse.json({ success: true, exhibitor: data?.[0] })
+    // Notify creator when organizer proposes a stand or accepts their counter-offer
+    if (data?.creator_id && (dbStatus === 'stand_proposed' || dbStatus === 'accepted')) {
+      const notifTitle = dbStatus === 'stand_proposed'
+        ? 'Proposition de stand'
+        : 'Votre contre-offre a ete acceptee'
+      const notifBody = dbStatus === 'stand_proposed'
+        ? `L'organisateur de "${event?.title}" vous propose un stand${proposed_stand ? ` (${proposed_stand.size} · ${proposed_stand.price} EUR)` : ''}. Consultez votre dashboard pour repondre.`
+        : `L'organisateur de "${event?.title}" a accepte votre contre-offre. Votre participation est confirmee.`
+      await admin.from('notifications').insert({
+        user_id: data.creator_id,
+        type: dbStatus === 'stand_proposed' ? 'stand_proposed' : 'stand_accepted',
+        title: notifTitle,
+        body: notifBody,
+        link: '/dashboard',
+      })
+    }
+
+    return NextResponse.json({ success: true, exhibitor: data })
   } catch (error: unknown) {
     return NextResponse.json({ error: (error instanceof Error ? error.message : String(error)) }, { status: 500 })
   }
