@@ -613,8 +613,7 @@ function ExhibitorActions({ ex, onStatusChange, onProposeStand, onAcceptCounter,
 }) {
   const isCounter = ex.status === 'counter_proposed'
   const isProposed = ex.status === 'stand_proposed'
-  const btnBase: React.CSSProperties = mobile
-    : { padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }
+  const btnBase: React.CSSProperties = { padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }
 
   const soberBtn: React.CSSProperties = {
     padding: '5px 11px', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer',
