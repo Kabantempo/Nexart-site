@@ -426,17 +426,23 @@ function CreatorBubble({ item, onClick }: { item: Cr & { subscription_tier?: str
       style={{ flexShrink: 0, width: 100, textAlign: 'center', cursor: 'pointer' }}
     >
       {/* Circular avatar */}
-      <div style={{ position: 'relative', width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 8px', backgroundColor: colors.violet.bg, border: `2px solid ${hovered ? colors.violet.primary : 'transparent'}`, transition: 'border-color 0.18s, transform 0.18s', transform: hovered ? 'scale(1.06)' : 'scale(1)', transformOrigin: 'center bottom' }}>
-        {img
-          ? <Image src={img} alt={item.full_name || ''} fill sizes="72px" style={{ objectFit: 'cover' }} />
-          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: colors.violet.text }}>{initials}</div>
-        }
+      <div style={{ position: 'relative', width: 72, height: 72, margin: '0 auto 8px', transition: 'transform 0.18s', transform: hovered ? 'scale(1.06)' : 'scale(1)', transformOrigin: 'center bottom' }}>
+        <div style={{ position: 'relative', width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', backgroundColor: colors.violet.bg, border: `2px solid ${hovered ? colors.violet.primary : 'transparent'}`, transition: 'border-color 0.18s' }}>
+          {img
+            ? <Image src={img} alt={item.full_name || ''} fill sizes="72px" style={{ objectFit: 'cover' }} />
+            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: colors.violet.text }}>{initials}</div>
+          }
+        </div>
+        {isPremium(item.subscription_tier) && (
+          <div style={{ position: 'absolute', bottom: 2, right: 2, width: 18, height: 18, borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg-primary)' }}>
+            <PremiumBadge size={9} />
+          </div>
+        )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, margin: '0 0 2px' }}>
         <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {item.full_name || 'Créateur'}
         </p>
-        {isPremium(item.subscription_tier) && <PremiumBadge size={11} />}
       </div>
       {(item.disciplines || []).length > 0 && (
         <p style={{ margin: 0, fontSize: 9, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
