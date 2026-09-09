@@ -486,23 +486,30 @@ export default function MessagesClient() {
   )
 
   const TAB_STYLE = (active: boolean) => ({
-    display: 'flex', alignItems: 'center', gap: '6px',
-    padding: '8px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-    fontSize: '14px', fontWeight: active ? '600' : '500',
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+    padding: '8px 12px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+    fontSize: '13px', fontWeight: active ? '600' : '500',
     backgroundColor: active ? colors.violet.primary : 'transparent',
     color: active ? '#fff' : 'var(--text-secondary)',
-    transition: 'all 150ms ease',
+    transition: 'all 150ms ease', whiteSpace: 'nowrap',
   } as React.CSSProperties)
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 16px' }}>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 16px' }}>
+      <style>{`
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @media(max-width:480px){
+          .msg-title{font-size:22px!important}
+          .msg-header{margin-bottom:16px!important}
+          .msg-tabs{margin-bottom:16px!important}
+        }
+      `}</style>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
         {/* Header */}
-        <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
+        <div className="msg-header flex items-start justify-between flex-wrap gap-3 mb-6">
           <div>
-            <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Messages</h1>
+            <h1 className="msg-title" style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Messages</h1>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>Conversations, groupes et activité</p>
           </div>
           {mainTab === 'messages' && totalUnread > 0 && (
@@ -523,7 +530,7 @@ export default function MessagesClient() {
         </div>
 
         {/* Main tabs */}
-        <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', backgroundColor: 'var(--bg-secondary)', padding: '4px', borderRadius: '12px' }}>
+        <div className="msg-tabs" style={{ display: 'flex', gap: '4px', marginBottom: '24px', backgroundColor: 'var(--bg-secondary)', padding: '4px', borderRadius: '12px' }}>
           <button style={TAB_STYLE(mainTab === 'messages')} onClick={() => setMainTab('messages')}>
             <MessageCircle size={14} />
             Conversations
