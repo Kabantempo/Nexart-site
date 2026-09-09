@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
@@ -133,6 +133,7 @@ export default function MessagesClient() {
   const [actuPostsLoading, setActuPostsLoading] = useState(false)
   const [newPost, setNewPost] = useState('')
   const [postSending, setPostSending] = useState(false)
+  const actuScrollRef = useRef<HTMLDivElement>(null)
 
   const loadConversations = useCallback(async (userId: string) => {
     const { data: convs, error } = await supabase
@@ -235,6 +236,7 @@ export default function MessagesClient() {
     if (res.ok) {
       const { posts } = await res.json()
       setActuPosts(posts ?? [])
+      setTimeout(() => { actuScrollRef.current?.scrollTo({ top: actuScrollRef.current.scrollHeight, behavior: 'instant' }) }, 50)
     }
     setActuPostsLoading(false)
   }, [])
@@ -253,6 +255,7 @@ export default function MessagesClient() {
       const { post } = await res.json()
       setActuPosts(prev => [...prev, post])
       setNewPost('')
+      setTimeout(() => { actuScrollRef.current?.scrollTo({ top: actuScrollRef.current.scrollHeight, behavior: 'smooth' }) }, 50)
     }
     setPostSending(false)
   }
@@ -664,7 +667,7 @@ export default function MessagesClient() {
                 </div>
 
                 {/* Posts feed */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '16px' }}>
+                <div ref={actuScrollRef} style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '55vh', paddingBottom: '4px', scrollbarWidth: 'thin' }}>
                   {actuPostsLoading ? (
                     <div style={{ textAlign: 'center', padding: '48px' }}>
                       <div style={{ width: '24px', height: '24px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
