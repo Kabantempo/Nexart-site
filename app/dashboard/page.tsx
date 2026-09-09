@@ -30,9 +30,11 @@ function AnimatedNumber({ value }: { value: number }) {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-  pending:  { label: 'En attente', color: colors.status.pending.text,  bg: colors.status.pending.bg,  dot: colors.status.pending.dot  },
-  accepted: { label: 'Acceptée',   color: colors.status.accepted.text, bg: colors.status.accepted.bg, dot: colors.status.accepted.dot },
-  refused:  { label: 'Refusée',    color: colors.status.refused.text,  bg: colors.status.refused.bg,  dot: colors.status.refused.dot  },
+  pending:        { label: 'En attente',    color: colors.status.pending.text,          bg: colors.status.pending.bg,          dot: colors.status.pending.dot          },
+  accepted:       { label: 'Acceptée',      color: colors.status.accepted.text,         bg: colors.status.accepted.bg,         dot: colors.status.accepted.dot         },
+  refused:        { label: 'Refusée',       color: colors.status.refused.text,          bg: colors.status.refused.bg,          dot: colors.status.refused.dot          },
+  stand_proposed: { label: 'Stand proposé', color: colors.feedback.warning.solid,       bg: colors.feedback.warning.bg,        dot: colors.feedback.warning.solid      },
+  counter_proposed:{ label: 'Contre-offre', color: colors.purple.dark,                  bg: colors.purple.bgF5,                dot: colors.purple.dark                 },
 }
 
 const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -813,42 +815,114 @@ function CreatorMainContent({
 
 // ─── Applications feed ────────────────────────────────────────────────────────
 
-function AppCard({ app }: { app: Application & { event?: Event } }) {
-  const status = app.status as 'pending' | 'accepted' | 'refused'
+function AppCard({ app, onRefresh }: { app: Application & { event?: Event }; onRefresh?: () => void }) {
+  const status = app.status
   const sc = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
   const isBoosted = (app as any).boosted_at && new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000) > new Date()
+  const isStandProposed = status === 'stand_proposed'
+  const isCounter = status === 'counter_proposed'
+  const proposed = (app as any).proposed_stand as { size: string; price: number; note?: string } | null
+  const [showCounter, setShowCounter] = useState(false)
+  const [counterSize, setCounterSize] = useState('')
+  const [counterPrice, setCounterPrice] = useState('')
+  const [counterNote, setCounterNote] = useState('')
+  const [responding, setResponding] = useState(false)
+  const router = useRouter()
+
+  const respond = async (action: 'accept' | 'counter') => {
+    setResponding(true)
+    const { data: { session: s } } = await supabase.auth.getSession()
+    const body: any = { action }
+    if (action === 'counter') body.proposed_stand = { size: counterSize.trim(), price: Number(counterPrice), note: counterNote.trim() || undefined }
+    await fetch(`/api/applications/${app.id}/respond`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(s?.access_token ? { Authorization: `Bearer ${s.access_token}` } : {}) },
+      body: JSON.stringify(body),
+    })
+    setResponding(false)
+    setShowCounter(false)
+    router.refresh()
+  }
+
+  const cardBorder = isStandProposed ? `1px solid ${colors.feedback.warning.border}` : isCounter ? `1px solid ${colors.purple.bgLight}` : status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : 'var(--border-color)'
+  const cardBg = isStandProposed ? colors.feedback.warning.bg : isCounter ? colors.purple.bgF5 : status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)'
+
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : 'var(--border-color)'}`, backgroundColor: status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)' }}>
-      <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
-      <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
-        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {app.event?.title || 'Événement inconnu'}
-        </p>
-        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
-          {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-          {app.event?.city ? ` · ${app.event.city}` : ''}
-        </p>
-        {isBoosted && (
-          <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, marginTop: '4px', cursor: 'help' }}>
-            <Zap size={9} fill="white" /> Boosté
-          </span>
-        )}
+    <div style={{ borderRadius: '10px', border: cardBorder, backgroundColor: cardBg, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start', padding: '12px 14px' }}>
+        <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
+        <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {app.event?.title || 'Événement inconnu'}
+          </p>
+          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+            {app.event?.start_date && new Date(app.event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+            {app.event?.city ? ` · ${app.event.city}` : ''}
+          </p>
+          {isBoosted && (
+            <span title="Candidature boostée — remontée en haut de la liste de l'organisateur pendant 48h" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, padding: '1px 6px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, marginTop: '4px', cursor: 'help' }}>
+              <Zap size={9} fill="white" /> Boosté
+            </span>
+          )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
+          {status === 'pending' && (
+            <BoostButton
+              type="boost_application"
+              refId={app.id}
+              boostedUntil={(app as any).boosted_at ? new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
+            />
+          )}
+          {app.event && (
+            <Link href={`/events/${app.event_id}`} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              Voir <ArrowRight size={11} />
+            </Link>
+          )}
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-        <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: sc.bg, color: sc.color }}>{sc.label}</span>
-        {status === 'pending' && (
-          <BoostButton
-            type="boost_application"
-            refId={app.id}
-            boostedUntil={(app as any).boosted_at ? new Date(new Date((app as any).boosted_at).getTime() + 48 * 60 * 60 * 1000).toISOString() : null}
-          />
-        )}
-        {app.event && (
-          <Link href={`/events/${app.event_id}`} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
-            Voir <ArrowRight size={11} />
-          </Link>
-        )}
-      </div>
+
+      {/* Stand proposal block */}
+      {(isStandProposed || isCounter) && proposed && (
+        <div style={{ margin: '0 14px 14px', borderRadius: '8px', border: `1px solid ${isCounter ? colors.purple.bgLight : colors.feedback.warning.border}`, backgroundColor: 'var(--bg-primary)', padding: '12px 14px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 700, color: isCounter ? colors.purple.dark : colors.feedback.warning.solid, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+            {isCounter ? 'Votre contre-offre (en attente)' : "L'organisateur vous propose un stand"}
+          </p>
+          <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+            {proposed.size} · {proposed.price} EUR
+          </p>
+          {proposed.note && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '4px 0 0' }}>{proposed.note}</p>}
+
+          {isStandProposed && !showCounter && (
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button onClick={() => respond('accept')} disabled={responding} style={{ padding: '7px 16px', borderRadius: '7px', border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <CheckCircle size={13} /> Accepter
+              </button>
+              <button onClick={() => setShowCounter(true)} style={{ padding: '7px 16px', borderRadius: '7px', border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary, fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                Faire une contre-offre
+              </button>
+            </div>
+          )}
+
+          {isStandProposed && showCounter && (
+            <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <input value={counterSize} onChange={e => setCounterSize(e.target.value)} placeholder="Taille souhaitee (ex: 2m × 2m)" style={{ flex: '2 1 140px', padding: '8px 10px', borderRadius: '7px', border: '1.5px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none' }} />
+                <input type="number" min="0" value={counterPrice} onChange={e => setCounterPrice(e.target.value)} placeholder="Prix EUR" style={{ flex: '1 1 80px', padding: '8px 10px', borderRadius: '7px', border: '1.5px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none' }} />
+              </div>
+              <input value={counterNote} onChange={e => setCounterNote(e.target.value)} placeholder="Note (optionnel)" style={{ width: '100%', padding: '8px 10px', borderRadius: '7px', border: '1.5px solid var(--border-color)', fontSize: '13px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button onClick={() => setShowCounter(false)} style={{ padding: '7px 14px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                  Annuler
+                </button>
+                <button onClick={() => respond('counter')} disabled={responding || !counterSize.trim() || !counterPrice} style={{ padding: '7px 16px', borderRadius: '7px', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer', opacity: (!counterSize.trim() || !counterPrice) ? 0.5 : 1 }}>
+                  {responding ? 'Envoi…' : 'Envoyer ma contre-offre'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
