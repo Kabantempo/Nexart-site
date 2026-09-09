@@ -18,7 +18,7 @@ export async function PATCH(
   try {
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
-      status: z.enum(['pending', 'approved', 'rejected', 'paid', 'cancelled', 'stand_proposed', 'accepted']),
+      status: z.enum(['pending', 'approved', 'rejected', 'paid', 'cancelled', 'stand_proposed', 'accepted', 'awaiting_payment']),
       rejection_reason: z.string().max(1000).optional(),
       proposed_stand: z.object({
         size: z.string().max(100),

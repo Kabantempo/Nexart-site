@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Download, X, Check, AlertCircle, ChevronRight, RefreshCw } from 'lucide-react'
+import { Plus, Download, X, Check, AlertCircle, ChevronRight, RefreshCw, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import DocumentsPanel from '@/components/documents-panel'
 import { NexTabs } from '@/components/ui/nex-tabs'
@@ -425,6 +425,7 @@ const STATUS_LABEL: Record<string, string> = {
   pending: 'En attente',
   approved: 'Accepte',
   rejected: 'Refuse',
+  awaiting_payment: 'Confirmation en attente',
   paid: 'Paye',
   cancelled: 'Annule',
   stand_proposed: 'Stand propose',
@@ -435,6 +436,7 @@ const STATUS_COLOR: Record<string, string> = {
   pending: colors.status.pending.text,
   approved: colors.status.accepted.text,
   rejected: colors.status.refused.text,
+  awaiting_payment: colors.feedback.warning.solid,
   paid: colors.violet.primary,
   cancelled: 'var(--text-tertiary)',
   stand_proposed: colors.feedback.warning.solid,
@@ -545,8 +547,13 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                           </>
                         )}
                         {ex.status === 'approved' && (
-                          <span style={{ fontSize: '12px', color: colors.status.accepted.text, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <button onClick={() => onStatusChange(ex.id, 'awaiting_payment')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.status.accepted.text, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Check size={12} /> Confirme
+                          </button>
+                        )}
+                        {ex.status === 'awaiting_payment' && (
+                          <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Clock size={12} /> Confirmation en attente
                           </span>
                         )}
                       </div>
