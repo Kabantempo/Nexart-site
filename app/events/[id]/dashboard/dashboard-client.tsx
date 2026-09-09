@@ -347,23 +347,24 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
 
         {/* Section content */}
         {activeSection === 'overview' && (
-          <div style={{ padding: '24px' }}>
+          <div className="evdash-overview-pad" style={{ padding: '24px' }}>
             {/* Bento stats */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              className="evdash-bento"
               style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'auto auto', gap: 10, marginBottom: 20 }}>
 
               {/* Big: total candidatures */}
-              <div style={{ gridColumn: '1 / 4', gridRow: '1 / 3', padding: '28px', borderRadius: 16, backgroundColor: colors.violet.primary, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 160 }}>
+              <div className="evdash-bento-big" style={{ gridColumn: '1 / 4', gridRow: '1 / 3', padding: '28px', borderRadius: 16, backgroundColor: colors.violet.primary, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 160 }}>
                 <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0px 1px, transparent 1px 10px)', pointerEvents: 'none' }} />
                 <div>
                   <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.12)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 18 }}>Candidatures</span>
-                  <p style={{ fontSize: 64, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1 }}>{stats?.total ?? 0}</p>
+                  <p className="evdash-bento-big-num" style={{ fontSize: 64, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1 }}>{stats?.total ?? 0}</p>
                 </div>
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', margin: 0 }}>candidatures reçues au total</p>
               </div>
 
               {/* Places libres + remplissage */}
-              <div style={{ gridColumn: '4 / 7', gridRow: '1 / 2', padding: '20px 24px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+              <div className="evdash-bento-places" style={{ gridColumn: '4 / 7', gridRow: '1 / 2', padding: '20px 24px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
                 <div>
                   <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 6px' }}>Places libres</p>
                   <p style={{ fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1 }}>{stats?.remaining ?? 0}</p>
@@ -378,19 +379,19 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
               </div>
 
               {/* En attente */}
-              <div style={{ gridColumn: '4 / 5', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="evdash-bento-stat" style={{ gridColumn: '4 / 5', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>En attente</p>
                 <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{stats?.pending ?? 0}</p>
               </div>
 
               {/* Acceptés */}
-              <div style={{ gridColumn: '5 / 6', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="evdash-bento-stat" style={{ gridColumn: '5 / 6', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: colors.feedback.success.text, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>Acceptés</p>
                 <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{stats?.accepted ?? 0}</p>
               </div>
 
               {/* Refusés */}
-              <div style={{ gridColumn: '6 / 7', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="evdash-bento-stat" style={{ gridColumn: '6 / 7', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <p style={{ fontSize: 10, fontWeight: 700, color: colors.feedback.danger.solid, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>Refusés</p>
                 <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{stats?.refused ?? 0}</p>
               </div>
@@ -512,6 +513,15 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
           .evdash-mobile-toggle { display: flex; }
           .evdash-mobile-sidebar { display: block; }
           .evdash-mobile-overlay { display: block; }
+          /* Overview padding */
+          .evdash-overview-pad { padding: 14px !important; }
+          /* Header band padding */
+          /* Bento responsive */
+          .evdash-bento { grid-template-columns: 1fr 1fr !important; grid-template-rows: auto auto auto !important; }
+          .evdash-bento-big { grid-column: 1 / 3 !important; grid-row: 1 / 2 !important; min-height: 120px !important; padding: 20px !important; }
+          .evdash-bento-big-num { font-size: 44px !important; }
+          .evdash-bento-places { grid-column: 1 / 3 !important; grid-row: 2 / 3 !important; }
+          .evdash-bento-stat { grid-column: auto !important; grid-row: auto !important; }
         }
       `}</style>
     </div>
