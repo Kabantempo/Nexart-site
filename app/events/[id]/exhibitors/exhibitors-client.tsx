@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Download, X, Check, AlertCircle, ChevronRight, RefreshCw, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -496,19 +496,21 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
       </div>
 
       {/* Filters + export */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
-        {['all', 'pending', 'stand_proposed', 'counter_proposed', 'approved', 'rejected'].map(st => (
-          <button key={st} onClick={() => onFilterChange(st)} style={{ padding: '6px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', border: filterStatus === st ? `2px solid ${colors.violet.primary}` : `1px solid var(--border-color)`, backgroundColor: filterStatus === st ? colors.violet.bg : 'var(--bg-primary)', color: filterStatus === st ? colors.violet.primary : 'var(--text-secondary)' }}>
-            {st === 'all' ? 'Tous' : STATUS_LABEL[st]}
-          </button>
-        ))}
-        <button onClick={onExport} style={{ marginLeft: 'auto', padding: '6px 14px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500 }}>
-          <Download size={14} /> CSV
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', flex: 1 }}>
+          {['all', 'pending', 'stand_proposed', 'counter_proposed', 'approved', 'rejected'].map(st => (
+            <button key={st} onClick={() => onFilterChange(st)} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', border: filterStatus === st ? `2px solid ${colors.violet.primary}` : `1px solid var(--border-color)`, backgroundColor: filterStatus === st ? colors.violet.bg : 'var(--bg-primary)', color: filterStatus === st ? colors.violet.primary : 'var(--text-secondary)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+              {st === 'all' ? 'Tous' : STATUS_LABEL[st]}
+            </button>
+          ))}
+        </div>
+        <button onClick={onExport} style={{ flexShrink: 0, padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 500 }}>
+          <Download size={13} /> CSV
         </button>
       </div>
 
-      {/* Table */}
-      <div style={{ border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden' }}>
+      {/* Desktop table */}
+      <div className="exhib-table-wrap" style={{ border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '680px' }}>
             <thead>
@@ -544,57 +546,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                       ) : <span style={{ color: 'var(--text-tertiary)', fontSize: '13px' }}>—</span>}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {ex.status === 'pending' && (
-                          <>
-                            <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <ChevronRight size={12} /> Proposer stand
-                            </button>
-                            <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
-                              Refuser
-                            </button>
-                          </>
-                        )}
-                        {isProposed && (
-                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>En attente du createur…</span>
-                        )}
-                        {isCounter && (
-                          <>
-                            <button onClick={() => onAcceptCounter(ex.id)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Check size={12} /> Accepter
-                            </button>
-                            <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <RefreshCw size={12} /> Contre-proposer
-                            </button>
-                          </>
-                        )}
-                        {ex.status === 'approved' && (
-                          <button onClick={() => onConfirmStand(ex.id)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.status.accepted.text, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Check size={12} /> Confirme
-                          </button>
-                        )}
-                        {ex.status === 'awaiting_payment' && (
-                          <>
-                            <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', width: '100%', marginBottom: 4 }}>
-                              <Clock size={12} /> En attente du paiement créateur
-                            </span>
-                            <button onClick={() => onStatusChange(ex.id, 'paid')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Check size={12} /> Marquer payé
-                            </button>
-                            <button onClick={() => onStatusChange(ex.id, 'approved')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <RefreshCw size={12} /> Annuler paiement
-                            </button>
-                            <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
-                              Refuser
-                            </button>
-                          </>
-                        )}
-                        {ex.status === 'approved' && (ex as any).stripe_payment_id && (
-                          <span style={{ fontSize: '12px', color: colors.feedback.success.text, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Check size={12} /> Payé
-                          </span>
-                        )}
-                      </div>
+                      <ExhibitorActions ex={ex} onStatusChange={onStatusChange} onProposeStand={onProposeStand} onAcceptCounter={onAcceptCounter} onConfirmStand={onConfirmStand} />
                     </td>
                   </tr>
                 )
@@ -604,13 +556,118 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
         </div>
       </div>
 
+      {/* Mobile cards */}
+      <div className="exhib-cards-wrap" style={{ display: 'none', flexDirection: 'column', gap: 10 }}>
+        {filtered.map((ex: Exhibitor) => {
+          const isCounter = ex.status === 'counter_proposed'
+          const ini = ex.profiles?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() ?? '?'
+          return (
+            <div key={ex.id} style={{ borderRadius: 12, border: `1px solid ${isCounter ? colors.purple.bgLight : 'var(--border-color)'}`, backgroundColor: isCounter ? colors.purple.bgF5 : 'var(--bg-secondary)', padding: '14px 16px' }}>
+              {/* Header: avatar + name + status */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: colors.violet.wash, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: colors.violet.primary, flexShrink: 0 }}>{ini}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex.profiles?.full_name || 'N/A'}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-secondary)', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex.profiles?.email || ''}</p>
+                </div>
+                <span style={{ flexShrink: 0, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, backgroundColor: (STATUS_COLOR[ex.status] || 'var(--text-secondary)') + '22', color: STATUS_COLOR[ex.status] || 'var(--text-secondary)' }}>
+                  {STATUS_LABEL[ex.status] || ex.status}
+                </span>
+              </div>
+              {/* Stand info */}
+              {ex.proposed_stand && (
+                <div style={{ padding: '8px 10px', borderRadius: 8, backgroundColor: 'var(--bg-primary)', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{ex.proposed_stand.size} · {ex.proposed_stand.price} EUR</span>
+                  {isCounter && <span style={{ fontSize: 11, fontWeight: 600, color: colors.purple.dark }}>Contre-offre</span>}
+                </div>
+              )}
+              {/* Actions */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <ExhibitorActions ex={ex} onStatusChange={onStatusChange} onProposeStand={onProposeStand} onAcceptCounter={onAcceptCounter} onConfirmStand={onConfirmStand} mobile />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
       {filtered.length === 0 && (
         <div style={{ textAlign: 'center', padding: '60px 16px', color: 'var(--text-secondary)' }}>
           <AlertCircle size={40} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
           <p style={{ margin: 0 }}>Aucun candidat pour le moment</p>
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .exhib-table-wrap { display: none !important; }
+          .exhib-cards-wrap { display: flex !important; }
+        }
+      `}</style>
     </motion.div>
+  )
+}
+
+function ExhibitorActions({ ex, onStatusChange, onProposeStand, onAcceptCounter, onConfirmStand, mobile }: {
+  ex: Exhibitor; onStatusChange: any; onProposeStand: any; onAcceptCounter: any; onConfirmStand: any; mobile?: boolean
+}) {
+  const isCounter = ex.status === 'counter_proposed'
+  const isProposed = ex.status === 'stand_proposed'
+  const btnBase: React.CSSProperties = mobile
+    ? { width: '100%', padding: '10px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }
+    : { padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }
+
+  return (
+    <div style={{ display: 'flex', gap: mobile ? 6 : '6px', flexWrap: mobile ? undefined : 'wrap', flexDirection: mobile ? 'column' : undefined }}>
+      {ex.status === 'pending' && (
+        <>
+          <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ ...btnBase, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary }}>
+            <ChevronRight size={mobile ? 14 : 12} /> Proposer stand
+          </button>
+          <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ ...btnBase, border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
+            Refuser
+          </button>
+        </>
+      )}
+      {isProposed && (
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>En attente du createur…</span>
+      )}
+      {isCounter && (
+        <>
+          <button onClick={() => onAcceptCounter(ex.id)} style={{ ...btnBase, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff' }}>
+            <Check size={mobile ? 14 : 12} /> Accepter
+          </button>
+          <button onClick={() => onProposeStand(ex.id, ex.proposed_stand)} style={{ ...btnBase, border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary }}>
+            <RefreshCw size={mobile ? 14 : 12} /> Contre-proposer
+          </button>
+        </>
+      )}
+      {ex.status === 'approved' && (
+        <button onClick={() => onConfirmStand(ex.id)} style={{ ...btnBase, border: 'none', backgroundColor: colors.status.accepted.text, color: '#fff' }}>
+          <Check size={mobile ? 14 : 12} /> Confirmer stand
+        </button>
+      )}
+      {ex.status === 'awaiting_payment' && (
+        <>
+          <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginBottom: mobile ? 0 : 4 }}>
+            <Clock size={12} /> Paiement en attente
+          </span>
+          <button onClick={() => onStatusChange(ex.id, 'paid')} style={{ ...btnBase, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff' }}>
+            <Check size={mobile ? 14 : 12} /> Marquer paye
+          </button>
+          <button onClick={() => onStatusChange(ex.id, 'approved')} style={{ ...btnBase, border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary }}>
+            <RefreshCw size={mobile ? 14 : 12} /> Annuler paiement
+          </button>
+          <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ ...btnBase, border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
+            Refuser
+          </button>
+        </>
+      )}
+      {ex.status === 'approved' && (ex as any).stripe_payment_id && (
+        <span style={{ fontSize: '12px', color: colors.feedback.success.text, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <Check size={12} /> Paye
+        </span>
+      )}
+    </div>
   )
 }
 
