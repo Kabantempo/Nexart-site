@@ -276,6 +276,21 @@ export default function MessagesClient() {
     setOrgEvents((data ?? []) as OrgEvent[])
   }, [])
 
+  const loadFollows = useCallback(async (userId: string) => {
+    const { data: followRows } = await supabase
+      .from('follows')
+      .select('followed_id')
+      .eq('follower_id', userId)
+      .limit(100)
+    const ids = (followRows ?? []).map((f: any) => f.followed_id)
+    if (!ids.length) { setFollows([]); return }
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, role')
+      .in('id', ids)
+    setFollows((profiles ?? []).map((p: any) => ({ ...p, followed_id: p.id })) as FollowedUser[])
+  }, [])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
@@ -283,8 +298,9 @@ export default function MessagesClient() {
       loadOrgEvents(session.user.id)
       loadActuEvents(session.user.id)
       loadGroups()
+      loadFollows(session.user.id)
     })
-  }, [router, loadConversations, loadOrgEvents, loadActuEvents, loadGroups])
+  }, [router, loadConversations, loadOrgEvents, loadActuEvents, loadGroups, loadFollows])
 
   const deleteConversation = async (convId: string) => {
     setConversations(prev => prev.filter(c => c.id !== convId))
@@ -815,8 +831,10 @@ export default function MessagesClient() {
             {/* Member search */}
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Ajouter des membres</label>
+
+              {/* Chips membres sélectionnés */}
               {pendingMembers.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
                   {pendingMembers.map(m => (
                     <span key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 8px 4px 6px', borderRadius: '99px', backgroundColor: `${colors.violet.primary}18`, fontSize: '12px', fontWeight: '600', color: colors.violet.primary }}>
                       <Avatar profile={m} size={18} />
@@ -829,10 +847,29 @@ export default function MessagesClient() {
                   ))}
                 </div>
               )}
+
+              {/* Suggestions depuis les abonnements */}
+              {follows.length > 0 && (() => {
+                const suggestions = follows.filter(f => !pendingMembers.some(p => p.id === f.id) && (!groupMemberQuery || f.full_name?.toLowerCase().includes(groupMemberQuery.replace('@', '').toLowerCase())))
+                if (!suggestions.length) return null
+                return (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+                    {suggestions.slice(0, 12).map(f => (
+                      <button key={f.id} onClick={() => { setPendingMembers(prev => [...prev, f]); setGroupMemberQuery(''); setGroupMemberResults([]) }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px 5px 5px', borderRadius: '99px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                        <Avatar profile={f} size={22} />
+                        {f.full_name ?? 'Utilisateur'}
+                      </button>
+                    ))}
+                  </div>
+                )
+              })()}
+
+              {/* Champ recherche libre */}
               <div style={{ position: 'relative' }}>
                 <input
                   type="text"
-                  placeholder="@nom de la personne..."
+                  placeholder="Rechercher par @nom..."
                   value={groupMemberQuery}
                   onChange={e => searchGroupUsers(e.target.value)}
                   style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '14px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none', boxSizing: 'border-box' }}
