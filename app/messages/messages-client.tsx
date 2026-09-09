@@ -19,7 +19,7 @@ type MsgRow = { conversation_id: string; content: string; created_at: string; se
 type Profile = { id: string; full_name: string | null; avatar_url: string | null; role: string | null }
 type ConvMeta = ConvRow & { other: Profile | null; lastMessage: MsgRow | null; unreadCount: number }
 type FilterRole = 'all' | 'creator' | 'organizer' | 'visitor'
-type MainTab = 'messages' | 'groupes' | 'actu'
+type MainTab = 'messages' | 'actu'
 
 type Group = {
   id: string
@@ -108,7 +108,6 @@ export default function MessagesClient() {
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
   const [newGroupEvent, setNewGroupEvent] = useState('')
-  const [newGroupAutoImport, setNewGroupAutoImport] = useState(true)
   const [orgEvents, setOrgEvents] = useState<OrgEvent[]>([])
   const [creatingGroup, setCreatingGroup] = useState(false)
   const [broadcastGroup, setBroadcastGroup] = useState<Group | null>(null)
@@ -276,14 +275,9 @@ export default function MessagesClient() {
       loadConversations(session.user.id)
       loadOrgEvents(session.user.id)
       loadActuEvents(session.user.id)
-    })
-  }, [router, loadConversations, loadOrgEvents, loadActuEvents])
-
-  useEffect(() => {
-    if (mainTab === 'groupes' && !groupsLoaded && !groupsLoading) {
       loadGroups()
-    }
-  }, [mainTab, groupsLoaded, groupsLoading, loadGroups])
+    })
+  }, [router, loadConversations, loadOrgEvents, loadActuEvents, loadGroups])
 
   const deleteConversation = async (convId: string) => {
     setConversations(prev => prev.filter(c => c.id !== convId))
@@ -315,14 +309,14 @@ export default function MessagesClient() {
       const res = await fetch('/api/messages/groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ name: newGroupName.trim(), event_id: newGroupEvent || null, auto_import: newGroupAutoImport }),
+        body: JSON.stringify({ name: newGroupName.trim(), event_id: newGroupEvent || null }),
       })
       if (res.ok) {
         setShowCreateGroup(false)
         setNewGroupName('')
         setNewGroupEvent('')
-        setNewGroupAutoImport(true)
         setGroupsLoaded(false)
+        loadGroups()
       }
     } finally {
       setCreatingGroup(false)
@@ -466,7 +460,7 @@ export default function MessagesClient() {
               <span style={{ padding: '1px 6px', borderRadius: '99px', backgroundColor: `${colors.violet.primary}22`, color: colors.violet.primary, fontSize: '11px', fontWeight: '700' }}>{totalUnread}</span>
             </button>
           )}
-          {mainTab === 'groupes' && (
+          {mainTab === 'messages' && (orgEvents.length > 0 || groups.length > 0) && (
             <button onClick={() => setShowCreateGroup(true)}
               style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '10px', border: 'none', fontSize: '13px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: 'pointer' }}>
               <Plus size={14} />
@@ -480,11 +474,7 @@ export default function MessagesClient() {
           <button style={TAB_STYLE(mainTab === 'messages')} onClick={() => setMainTab('messages')}>
             <MessageCircle size={14} />
             Conversations
-            {totalUnread > 0 && <span style={{ minWidth: '18px', height: '18px', borderRadius: '99px', backgroundColor: mainTab === 'messages' ? 'rgba(255,255,255,0.3)' : colors.violet.primary, color: mainTab === 'messages' ? '#fff' : '#fff', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{totalUnread}</span>}
-          </button>
-          <button style={TAB_STYLE(mainTab === 'groupes')} onClick={() => setMainTab('groupes')}>
-            <Users size={14} />
-            Groupes
+            {totalUnread > 0 && <span style={{ minWidth: '18px', height: '18px', borderRadius: '99px', backgroundColor: mainTab === 'messages' ? 'rgba(255,255,255,0.3)' : colors.violet.primary, color: '#fff', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{totalUnread}</span>}
           </button>
           <button style={TAB_STYLE(mainTab === 'actu')} onClick={() => setMainTab('actu')}>
             <Rss size={14} />
@@ -596,54 +586,62 @@ export default function MessagesClient() {
                 ))}
               </div>
             )}
-          </>
-        )}
-
-        {/* ─── TAB: Groupes ─── */}
-        {mainTab === 'groupes' && (
-          <>
-            {groupsLoading ? (
-              <div style={{ textAlign: 'center', padding: '48px' }}>
-                <div style={{ width: '28px', height: '28px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
-              </div>
-            ) : groups.length === 0 ? (
-              <GhostCard
-                icon={<Users size={32} color={colors.violet.primary} />}
-                title="Aucun groupe créé"
-                description="Créez un groupe pour envoyer un message à plusieurs personnes en une seule fois."
-                cta="Nouveau groupe"
-                onAction={() => setShowCreateGroup(true)}
-              />
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {groups.map((g, i) => (
-                  <motion.div key={g.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', borderRadius: '12px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--card-bg)' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', backgroundColor: `${colors.violet.primary}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <Users size={20} color={colors.violet.primary} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '2px' }}>{g.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                          {g.memberCount} membre{g.memberCount !== 1 ? 's' : ''}
-                          {g.events?.title && <> · {g.events.title}</>}
+            {/* Groups section inside messages tab */}
+            {(groups.length > 0 || orgEvents.length > 0) && (
+              <div style={{ marginTop: '28px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: colors.border.default }} />
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Users size={11} />
+                    Groupes
+                  </span>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: colors.border.default }} />
+                </div>
+                {groupsLoading ? (
+                  <div style={{ textAlign: 'center', padding: '24px' }}>
+                    <div style={{ width: '24px', height: '24px', border: `3px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                  </div>
+                ) : groups.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '20px 24px', borderRadius: '12px', border: `1px dashed ${colors.border.default}`, backgroundColor: 'var(--bg-secondary)' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 10px' }}>Aucun groupe pour l&apos;instant.</p>
+                    <button onClick={() => setShowCreateGroup(true)}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: 'pointer' }}>
+                      <Plus size={12} />
+                      Créer un groupe
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {groups.map((g, i) => (
+                      <motion.div key={g.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${colors.border.default}`, backgroundColor: 'var(--card-bg)' }}>
+                          <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: `${colors.violet.primary}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <Users size={18} color={colors.violet.primary} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '1px' }}>{g.name}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                              {g.memberCount} membre{g.memberCount !== 1 ? 's' : ''}
+                              {g.events?.title && <> · {g.events.title}</>}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                            <button onClick={() => openMembersModal(g)}
+                              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', backgroundColor: 'transparent', cursor: 'pointer' }}>
+                              <UserPlus size={12} />
+                              Membres
+                            </button>
+                            <button onClick={() => { setBroadcastGroup(g); setBroadcastDone(false) }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: 'pointer' }}>
+                              <Send size={12} />
+                              Envoyer
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                        <button onClick={() => openMembersModal(g)}
-                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', backgroundColor: 'transparent', cursor: 'pointer' }}>
-                          <UserPlus size={12} />
-                          Membres
-                        </button>
-                        <button onClick={() => { setBroadcastGroup(g); setBroadcastDone(false) }}
-                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: 'none', fontSize: '12px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: 'pointer' }}>
-                          <Send size={12} />
-                          Envoyer
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -786,15 +784,6 @@ export default function MessagesClient() {
                   <option value="">Aucun événement</option>
                   {orgEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
                 </select>
-              </div>
-            )}
-
-            {newGroupEvent && (
-              <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input type="checkbox" id="auto-import" checked={newGroupAutoImport} onChange={e => setNewGroupAutoImport(e.target.checked)} style={{ width: '16px', height: '16px', accentColor: colors.violet.primary }} />
-                <label htmlFor="auto-import" style={{ fontSize: '13px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                  Importer automatiquement les exposants acceptés
-                </label>
               </div>
             )}
 
