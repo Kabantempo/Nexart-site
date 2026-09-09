@@ -473,6 +473,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
     approved: exhibitors.filter((e: Exhibitor) => e.status === 'approved').length,
     proposed: exhibitors.filter((e: Exhibitor) => e.status === 'stand_proposed').length,
     counter: exhibitors.filter((e: Exhibitor) => e.status === 'counter_proposed').length,
+    awaiting: exhibitors.filter((e: Exhibitor) => e.status === 'awaiting_payment').length,
   }
 
   const filtered = filterStatus === 'all' ? exhibitors : exhibitors.filter((e: Exhibitor) => e.status === filterStatus)
@@ -480,31 +481,31 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '24px' }}>
         {[
-          { label: 'Candidatures', value: stats.total },
-          { label: 'En attente', value: stats.pending },
-          { label: 'Acceptes', value: stats.approved },
-          { label: 'Stand propose', value: stats.proposed, highlight: stats.proposed > 0 },
-          { label: 'Contre-offres', value: stats.counter, highlight: stats.counter > 0 },
+          { label: 'Total', value: stats.total, status: 'all' },
+          { label: 'En attente', value: stats.pending, status: 'pending' },
+          { label: 'Acceptes', value: stats.approved, status: 'approved' },
+          { label: 'Stand propose', value: stats.proposed, status: 'stand_proposed', highlight: stats.proposed > 0 },
+          { label: 'Contre-offres', value: stats.counter, status: 'counter_proposed', highlight: stats.counter > 0 },
+          { label: 'Paiement', value: stats.awaiting, status: 'awaiting_payment', highlight: stats.awaiting > 0 },
         ].map((s, i) => (
-          <div key={i} style={{ border: `1px solid ${s.highlight ? colors.feedback.warning.border : 'var(--border-color)'}`, borderRadius: '8px', padding: '16px', backgroundColor: s.highlight ? colors.feedback.warning.bg : 'var(--bg-primary)' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '6px' }}>{s.label}</p>
-            <p style={{ fontSize: '28px', fontWeight: 700, color: s.highlight ? colors.feedback.warning.solid : 'var(--text-primary)', margin: 0 }}>{s.value}</p>
-          </div>
+          <button key={i} onClick={() => onFilterChange(s.status)}
+            style={{ border: `1px solid ${filterStatus === s.status ? colors.violet.primary : s.highlight ? colors.feedback.warning.border : 'var(--border-color)'}`, borderRadius: '8px', padding: '14px', backgroundColor: filterStatus === s.status ? colors.violet.bg : s.highlight ? colors.feedback.warning.bg : 'var(--bg-primary)', cursor: 'pointer', textAlign: 'left' }}>
+            <p style={{ color: filterStatus === s.status ? colors.violet.primary : 'var(--text-secondary)', fontSize: '11px', fontWeight: 600, marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{s.label}</p>
+            <p style={{ fontSize: '26px', fontWeight: 700, color: filterStatus === s.status ? colors.violet.primary : s.highlight ? colors.feedback.warning.solid : 'var(--text-primary)', margin: 0 }}>{s.value}</p>
+          </button>
         ))}
       </div>
 
-      {/* Filters + export */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px', flex: 1 }}>
-          {['all', 'pending', 'stand_proposed', 'counter_proposed', 'approved', 'rejected'].map(st => (
-            <button key={st} onClick={() => onFilterChange(st)} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', border: filterStatus === st ? `2px solid ${colors.violet.primary}` : `1px solid var(--border-color)`, backgroundColor: filterStatus === st ? colors.violet.bg : 'var(--bg-primary)', color: filterStatus === st ? colors.violet.primary : 'var(--text-secondary)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-              {st === 'all' ? 'Tous' : STATUS_LABEL[st]}
-            </button>
-          ))}
-        </div>
-        <button onClick={onExport} style={{ flexShrink: 0, padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 500 }}>
+      {/* Export + reset filter */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center', justifyContent: 'flex-end' }}>
+        {filterStatus !== 'all' && (
+          <button onClick={() => onFilterChange('all')} style={{ padding: '5px 12px', borderRadius: '6px', border: `1px solid var(--border-color)`, backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}>
+            Voir tout
+          </button>
+        )}
+        <button onClick={onExport} style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 500 }}>
           <Download size={13} /> CSV
         </button>
       </div>
