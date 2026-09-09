@@ -156,15 +156,6 @@ export function EventDetailClient({ id }: Props) {
   const [contractLoading, setContractLoading] = useState<string | null>(null)
   const [contractSigning, setContractSigning] = useState(false)
   const [existingContract, setExistingContract] = useState<{ id: string; status: string; pdf_url: string; signed_at?: string } | null>(null)
-  const [bulkMsgText, setBulkMsgText] = useState('')
-  const [bulkMsgSending, setBulkMsgSending] = useState(false)
-  const [bulkMsgDone, setBulkMsgDone] = useState(false)
-  const [showBulkMsg, setShowBulkMsg] = useState(false)
-  // Bulk message enhanced
-  const [selectedCreatorIds, setSelectedCreatorIds] = useState<string[]>([])
-  const [showBulkModal, setShowBulkModal] = useState(false)
-  const [bulkSubject, setBulkSubject] = useState('')
-  const [bulkTemplate, setBulkTemplate] = useState('custom')
   const [cancelling, setCancelling] = useState(false)
   const [cancelled, setCancelled] = useState(false)
   const [payingStand, setPayingStand] = useState(false)
@@ -322,63 +313,6 @@ export function EventDetailClient({ id }: Props) {
     } finally {
       setContractLoading(null)
     }
-  }
-
-  const handleBulkMessage = async () => {
-    if (!bulkMsgText.trim() || !user || !event) return
-    setBulkMsgSending(true)
-    const targetIds = selectedCreatorIds.length > 0 ? selectedCreatorIds : applications.filter(a => a.status === 'accepted').map(a => a.creator_id)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token
-      const res = await fetch('/api/organizer/bulk-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
-          event_id: event.id,
-          creator_ids: targetIds,
-          subject: bulkSubject || `Message de l\'organisateur — ${event.title}`,
-          message: bulkMsgText.trim(),
-          template: bulkTemplate,
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        toastError(data.error || 'Erreur lors de l\'envoi')
-        return
-      }
-      setBulkMsgDone(true)
-      setBulkMsgText('')
-      setBulkSubject('')
-      setBulkTemplate('custom')
-      setShowBulkMsg(false)
-      setShowBulkModal(false)
-      setSelectedCreatorIds([])
-      toastSuccess(`Message envoyé à ${data.sent} créateur${data.sent > 1 ? 's' : ''} ✓`)
-    } catch {
-      toastError('Erreur réseau lors de l\'envoi')
-    } finally {
-      setBulkMsgSending(false)
-    }
-  }
-
-  const BULK_TEMPLATES = [
-    { id: 'custom', label: 'Personnalisé', text: '' },
-    { id: 'reminder', label: 'Rappel', text: `Bonjour, nous vous rappelons que l'événement ${event?.title || '[NOM]'} aura lieu le ${event?.start_date ? new Date(event.start_date).toLocaleDateString('fr-FR') : '[DATE]'}. N'hésitez pas à nous contacter si vous avez des questions.` },
-    { id: 'info', label: 'Infos pratiques', text: `Bonjour, voici les informations pratiques pour l'événement ${event?.title || '[NOM]'} : installation à partir de [HEURE], emplacement [STAND].` },
-  ]
-
-  const handleTemplateChange = (templateId: string) => {
-    setBulkTemplate(templateId)
-    const tpl = BULK_TEMPLATES.find(t => t.id === templateId)
-    if (tpl && tpl.text) setBulkMsgText(tpl.text)
-    else if (templateId === 'custom') setBulkMsgText('')
-  }
-
-  const toggleCreatorSelection = (creatorId: string) => {
-    setSelectedCreatorIds(prev =>
-      prev.includes(creatorId) ? prev.filter(id => id !== creatorId) : [...prev, creatorId]
-    )
   }
 
   const handleCancelApplication = async () => {
@@ -849,44 +783,10 @@ export function EventDetailClient({ id }: Props) {
                   </Link>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 6 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Candidatures ({applications.length})</p>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {applications.some(a => a.status === 'accepted' || a.status === 'pending') && (
-                        <button onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 6, border: `1px solid ${colors.border.accent}`, backgroundColor: 'var(--bg-primary)', color: colors.violet.primary, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                          <Send size={12} /> Message groupé
-                        </button>
-                      )}
-                      <button onClick={() => { const link = `${window.location.origin}/events/${id}?invite=1`; navigator.clipboard.writeText(link).then(() => toastSuccess('Lien copié !')) }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
-                        Inviter
-                      </button>
-                    </div>
+                    <button onClick={() => { const link = `${window.location.origin}/events/${id}?invite=1`; navigator.clipboard.writeText(link).then(() => toastSuccess('Lien copié !')) }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 11px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+                      Inviter
+                    </button>
                   </div>
-                  <NexModal isOpen={showBulkModal} onClose={() => setShowBulkModal(false)} title="Message groupé" subtitle={selectedCreatorIds.length > 0 ? `${selectedCreatorIds.length} créateur${selectedCreatorIds.length > 1 ? 's' : ''} sélectionné${selectedCreatorIds.length > 1 ? 's' : ''}` : `Tous les acceptés (${applications.filter(a => a.status === 'accepted').length})`} size="md"
-                    footer={
-                      <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={() => setShowBulkModal(false)} style={{ flex: 1, padding: 10, borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Annuler</button>
-                        <button onClick={handleBulkMessage} disabled={bulkMsgSending || !bulkMsgText.trim()} style={{ flex: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 10, borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 13, fontWeight: 700, cursor: bulkMsgSending || !bulkMsgText.trim() ? 'not-allowed' : 'pointer', opacity: bulkMsgSending || !bulkMsgText.trim() ? 0.6 : 1 }}>
-                          <Send size={13} /> {bulkMsgSending ? 'Envoi…' : 'Envoyer'}
-                        </button>
-                      </div>
-                    }
-                  >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Modèle</label>
-                        <select value={bulkTemplate} onChange={e => handleTemplateChange(e.target.value)} style={{ width: '100%', padding: '9px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none' }}>
-                          {BULK_TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Sujet</label>
-                        <input type="text" value={bulkSubject} onChange={e => setBulkSubject(e.target.value)} placeholder={`Message — ${event?.title || ''}`} style={{ width: '100%', padding: '9px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', outline: 'none', boxSizing: 'border-box' }} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>Message</label>
-                        <textarea value={bulkMsgText} onChange={e => setBulkMsgText(e.target.value)} placeholder="Votre message…" rows={5} style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }} />
-                      </div>
-                    </div>
-                  </NexModal>
                   {appsLoading ? (
                     <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)', fontSize: 13 }}>Chargement...</div>
                   ) : applications.length === 0 ? (
@@ -897,11 +797,8 @@ export function EventDetailClient({ id }: Props) {
                     <>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {applications.map(app => (
-                          <div key={app.id} style={{ borderRadius: 8, border: selectedCreatorIds.includes(app.creator_id) ? `2px solid ${colors.violet.primary}` : '1px solid var(--border-color)', padding: '12px', backgroundColor: selectedCreatorIds.includes(app.creator_id) ? `${colors.purple.bgEef}` : 'var(--bg-primary)', transition: 'border-color 0.15s, background-color 0.15s' }}>
+                          <div key={app.id} style={{ borderRadius: 8, border: '1px solid var(--border-color)', padding: '12px', backgroundColor: 'var(--bg-primary)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                              {(app.status === 'accepted' || app.status === 'pending') && (
-                                <input type="checkbox" checked={selectedCreatorIds.includes(app.creator_id)} onChange={() => toggleCreatorSelection(app.creator_id)} style={{ width: 15, height: 15, accentColor: colors.violet.primary, cursor: 'pointer', flexShrink: 0 }} />
-                              )}
                               <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)' }}>
                                 {app.profiles?.avatar_url ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} /> : (app.profiles?.full_name?.[0] || '?')}
                               </div>
@@ -937,17 +834,6 @@ export function EventDetailClient({ id }: Props) {
                           </div>
                         ))}
                       </div>
-                      {selectedCreatorIds.length > 0 && (
-                        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{selectedCreatorIds.length} créateur{selectedCreatorIds.length > 1 ? 's' : ''} sélectionné{selectedCreatorIds.length > 1 ? 's' : ''}</span>
-                            <button onClick={() => setSelectedCreatorIds([])} style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Désélectionner</button>
-                          </div>
-                          <button onClick={() => { setShowBulkModal(true); setBulkTemplate('custom'); setBulkMsgText(''); setBulkSubject('') }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                            <Send size={14} /> Message groupé
-                          </button>
-                        </div>
-                      )}
                     </>
                   )}
                   <StandsManager eventId={id} />
