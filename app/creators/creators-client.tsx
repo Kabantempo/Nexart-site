@@ -373,8 +373,6 @@ function CreatorsContent() {
             </div>
           </div>
 
-          <div style={{ height: 192 }} />
-
           {featCreators.length > 0 && <FeaturedCarousel items={featCreators} />}
 
           {mobileFiltered.length > 0 && (
