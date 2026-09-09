@@ -1278,37 +1278,9 @@ function OrganizerMainContent({
         </div>
       )}
 
-      {/* Grille outils */}
+      {/* Events list */}
       {events.length > 0 && (
         <div style={{ marginTop: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Outils événement</h2>
-            {events.length > 1 && (
-              <select value={selectedEventId} onChange={e => setSelectedEventId(e.target.value)}
-                style={{ fontSize: '12px', padding: '5px 10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer' }}>
-                {events.map(ev => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
-              </select>
-            )}
-          </div>
-          <div className="resp-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-            {[
-              { href: `/events/${selectedEventSlug}/exhibitors`, icon: <Users size={16} />, label: 'Exposants', sub: `${selectedEventPending.length} en attente` },
-              { href: `/events/${selectedEventSlug}/waitlist`,   icon: <Clock size={16} />,     label: 'Liste d\'attente', sub: '' },
-              { href: `/events/${selectedEventSlug}/campaigns`,  icon: <MessageSquare size={16} />, label: 'Campagnes', sub: '' },
-              { href: `/events/${selectedEventSlug}/team`,       icon: <Users size={16} />,        label: 'Équipe', sub: '' },
-              { href: `/events/${selectedEventSlug}/volunteers`, icon: <Heart size={16} />,        label: 'Bénévoles', sub: '' },
-              { href: `/events/${selectedEventSlug}/settings/marketing`, icon: <Star size={16} />, label: 'Marketing', sub: '' },
-              { href: `/events/${selectedEventSlug}/analytics`,  icon: <BarChart2 size={16} />,    label: 'Analytics', sub: '' },
-              { href: `/api/events/${selectedEventId}/exhibitors/export`, icon: <ArrowRight size={16} />, label: 'Export CSV', sub: '', target: '_blank' },
-            ].map(tool => (
-              <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-                <span style={{ color: colors.violet.primary }}>{tool.icon}</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>{tool.label}</span>
-                {tool.sub && <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{tool.sub}</span>}
-              </Link>
-            ))}
-          </div>
-
           {/* Events list */}
           <div style={{ marginTop: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
