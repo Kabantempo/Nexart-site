@@ -115,6 +115,13 @@ export default function MessagesClient() {
   const [broadcasting, setBroadcasting] = useState(false)
   const [broadcastDone, setBroadcastDone] = useState(false)
 
+  // Inline member search in create group modal
+  const [groupMemberQuery, setGroupMemberQuery] = useState('')
+  const [groupMemberResults, setGroupMemberResults] = useState<Profile[]>([])
+  const [groupMemberSearching, setGroupMemberSearching] = useState(false)
+  const [pendingMembers, setPendingMembers] = useState<Profile[]>([])
+  const groupMemberDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // Members modal state
   const [membersGroup, setMembersGroup] = useState<Group | null>(null)
   const [members, setMembers] = useState<GroupMember[]>([])
@@ -300,6 +307,23 @@ export default function MessagesClient() {
     setMarkingAll(false)
   }
 
+  const searchGroupUsers = (q: string) => {
+    setGroupMemberQuery(q)
+    if (groupMemberDebounce.current) clearTimeout(groupMemberDebounce.current)
+    const trimmed = q.startsWith('@') ? q.slice(1) : q
+    if (trimmed.length < 2) { setGroupMemberResults([]); return }
+    setGroupMemberSearching(true)
+    groupMemberDebounce.current = setTimeout(async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, role')
+        .ilike('full_name', `%${trimmed}%`)
+        .limit(8)
+      setGroupMemberResults((data ?? []) as Profile[])
+      setGroupMemberSearching(false)
+    }, 300)
+  }
+
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) return
     setCreatingGroup(true)
@@ -312,9 +336,22 @@ export default function MessagesClient() {
         body: JSON.stringify({ name: newGroupName.trim(), event_id: newGroupEvent || null }),
       })
       if (res.ok) {
+        const { group: created } = await res.json()
+        if (created && pendingMembers.length > 0) {
+          await Promise.all(pendingMembers.map(m =>
+            fetch(`/api/messages/groups/${created.id}/members`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+              body: JSON.stringify({ user_id: m.id }),
+            })
+          ))
+        }
         setShowCreateGroup(false)
         setNewGroupName('')
         setNewGroupEvent('')
+        setGroupMemberQuery('')
+        setGroupMemberResults([])
+        setPendingMembers([])
         setGroupsLoaded(false)
         loadGroups()
       }
@@ -757,7 +794,8 @@ export default function MessagesClient() {
 
       {/* ─── Modal: Créer un groupe ─── */}
       {showCreateGroup && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} onClick={() => setShowCreateGroup(false)}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+          onClick={() => { setShowCreateGroup(false); setGroupMemberQuery(''); setGroupMemberResults([]); setPendingMembers([]) }}>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}
             style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
@@ -774,6 +812,55 @@ export default function MessagesClient() {
               />
             </div>
 
+            {/* Member search */}
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Ajouter des membres</label>
+              {pendingMembers.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                  {pendingMembers.map(m => (
+                    <span key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 8px 4px 6px', borderRadius: '99px', backgroundColor: `${colors.violet.primary}18`, fontSize: '12px', fontWeight: '600', color: colors.violet.primary }}>
+                      <Avatar profile={m} size={18} />
+                      {m.full_name ?? 'Utilisateur'}
+                      <button onClick={() => setPendingMembers(prev => prev.filter(p => p.id !== m.id))}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.violet.primary, display: 'flex', alignItems: 'center', padding: 0, marginLeft: '2px' }}>
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="@nom de la personne..."
+                  value={groupMemberQuery}
+                  onChange={e => searchGroupUsers(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '14px', color: 'var(--text-primary)', backgroundColor: 'var(--bg-secondary)', outline: 'none', boxSizing: 'border-box' }}
+                />
+                {(groupMemberResults.length > 0 || groupMemberSearching) && (
+                  <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, backgroundColor: 'var(--bg-primary)', border: `1px solid ${colors.border.default}`, borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 10, overflow: 'hidden' }}>
+                    {groupMemberSearching ? (
+                      <div style={{ padding: '12px', textAlign: 'center' }}>
+                        <div style={{ width: '18px', height: '18px', border: `2px solid ${colors.violet.primary}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                      </div>
+                    ) : (
+                      groupMemberResults
+                        .filter(r => !pendingMembers.some(p => p.id === r.id))
+                        .map(r => (
+                          <button key={r.id} onClick={() => { setPendingMembers(prev => [...prev, r]); setGroupMemberQuery(''); setGroupMemberResults([]) }}
+                            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                            <Avatar profile={r} size={30} />
+                            <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{r.full_name ?? 'Utilisateur'}</span>
+                          </button>
+                        ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {orgEvents.length > 0 && (
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '6px' }}>Lier à un événement (optionnel)</label>
@@ -788,13 +875,13 @@ export default function MessagesClient() {
             )}
 
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowCreateGroup(false)}
+              <button onClick={() => { setShowCreateGroup(false); setGroupMemberQuery(''); setGroupMemberResults([]); setPendingMembers([]) }}
                 style={{ padding: '9px 16px', borderRadius: '8px', border: `1px solid ${colors.border.default}`, fontSize: '13px', fontWeight: '600', color: 'var(--text-secondary)', backgroundColor: 'transparent', cursor: 'pointer' }}>
                 Annuler
               </button>
               <button onClick={handleCreateGroup} disabled={!newGroupName.trim() || creatingGroup}
                 style={{ padding: '9px 16px', borderRadius: '8px', border: 'none', fontSize: '13px', fontWeight: '600', color: '#fff', backgroundColor: colors.violet.primary, cursor: !newGroupName.trim() || creatingGroup ? 'not-allowed' : 'pointer', opacity: !newGroupName.trim() || creatingGroup ? 0.6 : 1 }}>
-                {creatingGroup ? 'Création...' : 'Créer le groupe'}
+                {creatingGroup ? 'Création...' : pendingMembers.length > 0 ? `Créer avec ${pendingMembers.length} membre${pendingMembers.length > 1 ? 's' : ''}` : 'Créer le groupe'}
               </button>
             </div>
           </motion.div>
