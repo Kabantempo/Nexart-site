@@ -20,7 +20,7 @@ interface Exhibitor {
   id: string
   exhibitor_id: string
   response_data: Record<string, any>
-  status: 'pending' | 'approved' | 'rejected' | 'paid' | 'cancelled' | 'stand_proposed' | 'counter_proposed'
+  status: 'pending' | 'approved' | 'rejected' | 'paid' | 'cancelled' | 'stand_proposed' | 'counter_proposed' | 'awaiting_payment'
   tables_count: number
   submitted_at: string
   profiles?: { full_name: string | null; email: string | null }
@@ -33,7 +33,7 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([])
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [loading, setLoading] = useState(false)
-  const [standModal, setStandModal] = useState<{ exhibitorId: string; mode: 'propose' | 'accept_counter'; current?: Exhibitor['proposed_stand'] } | null>(null)
+  const [standModal, setStandModal] = useState<{ exhibitorId: string; mode: 'propose' | 'accept_counter' | 'confirm'; current?: Exhibitor['proposed_stand'] } | null>(null)
 
   // Fetch fields and exhibitors on mount
   useEffect(() => {
@@ -139,6 +139,21 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
     }
   }
 
+  const handleConfirmStand = async (exhibitorId: string, standData: { size: string; price: number; note?: string }) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      const res = await fetch(`/api/events/${eventId}/exhibitors/${exhibitorId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ status: 'awaiting_payment', proposed_stand: standData })
+      })
+      if (res.ok) { setStandModal(null); fetchExhibitors() }
+    } catch (error) {
+      console.error('Error confirming stand:', error)
+    }
+  }
+
   const handleAcceptCounter = async (exhibitorId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -204,13 +219,14 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
               onExport={handleExportCSV}
               onProposeStand={(id: string, current?: { size: string; price: number; note?: string }) => setStandModal({ exhibitorId: id, mode: 'propose', current })}
               onAcceptCounter={(id: string) => setStandModal({ exhibitorId: id, mode: 'accept_counter' })}
+              onConfirmStand={(id: string) => setStandModal({ exhibitorId: id, mode: 'confirm' })}
             />
             {standModal && (
               <StandModal
                 mode={standModal.mode}
                 current={standModal.current}
                 onClose={() => setStandModal(null)}
-                onSubmit={(data) => handleProposeStand(standModal.exhibitorId, data)}
+                onSubmit={(data) => standModal.mode === 'confirm' ? handleConfirmStand(standModal.exhibitorId, data) : handleProposeStand(standModal.exhibitorId, data)}
                 onAccept={() => handleAcceptCounter(standModal.exhibitorId)}
               />
             )}
@@ -444,7 +460,7 @@ const STATUS_COLOR: Record<string, string> = {
 }
 
 // Exhibitors Dashboard Component
-function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange, onStatusChange, onExport, onProposeStand, onAcceptCounter }: any) {
+function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange, onStatusChange, onExport, onProposeStand, onAcceptCounter, onConfirmStand }: any) {
   const stats = {
     total: exhibitors.length,
     pending: exhibitors.filter((e: Exhibitor) => e.status === 'pending').length,
@@ -547,7 +563,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                           </>
                         )}
                         {ex.status === 'approved' && (
-                          <button onClick={() => onStatusChange(ex.id, 'awaiting_payment')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.status.accepted.text, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <button onClick={() => onConfirmStand(ex.id)} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.status.accepted.text, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Check size={12} /> Confirme
                           </button>
                         )}
@@ -576,9 +592,9 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
   )
 }
 
-// Modal: propose or counter-propose a stand
+// Modal: propose, counter-propose, or confirm a stand
 function StandModal({ mode, current, onClose, onSubmit, onAccept }: {
-  mode: 'propose' | 'accept_counter'
+  mode: 'propose' | 'accept_counter' | 'confirm'
   current?: { size: string; price: number; note?: string } | null
   onClose: () => void
   onSubmit: (data: { size: string; price: number; note?: string }) => void
@@ -602,7 +618,7 @@ function StandModal({ mode, current, onClose, onSubmit, onAccept }: {
       <div style={{ backgroundColor: 'var(--bg-primary)', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-            {mode === 'accept_counter' ? 'Contre-proposition du createur' : 'Proposer un stand'}
+            {mode === 'accept_counter' ? 'Contre-proposition du createur' : mode === 'confirm' ? 'Attribuer un stand' : 'Proposer un stand'}
           </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '4px' }}><X size={18} /></button>
         </div>
@@ -638,8 +654,8 @@ function StandModal({ mode, current, onClose, onSubmit, onAccept }: {
             <button type="button" onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
               Annuler
             </button>
-            <button type="submit" disabled={submitting || !size.trim() || !price} style={{ flex: 2, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '14px', fontWeight: 700, cursor: submitting ? 'wait' : 'pointer', opacity: (!size.trim() || !price) ? 0.5 : 1 }}>
-              {submitting ? 'Envoi…' : mode === 'accept_counter' ? 'Envoyer ma contre-proposition' : 'Envoyer la proposition'}
+            <button type="submit" disabled={submitting || !size.trim() || !price} style={{ flex: 2, padding: '11px', borderRadius: '8px', border: 'none', backgroundColor: mode === 'confirm' ? colors.status.accepted.text : colors.violet.primary, color: '#fff', fontSize: '14px', fontWeight: 700, cursor: submitting ? 'wait' : 'pointer', opacity: (!size.trim() || !price) ? 0.5 : 1 }}>
+              {submitting ? 'Envoi…' : mode === 'confirm' ? 'Confirmer et attribuer' : mode === 'accept_counter' ? 'Envoyer ma contre-proposition' : 'Envoyer la proposition'}
             </button>
           </div>
         </form>

@@ -65,17 +65,22 @@ export async function PATCH(
 
     if (error) throw error
 
-    // Notify creator when organizer proposes a stand or accepts their counter-offer
-    if (data?.creator_id && (dbStatus === 'stand_proposed' || dbStatus === 'accepted')) {
+    // Notify creator on stand events
+    if (data?.creator_id && (dbStatus === 'stand_proposed' || dbStatus === 'accepted' || dbStatus === 'awaiting_payment')) {
       const notifTitle = dbStatus === 'stand_proposed'
         ? 'Proposition de stand'
+        : dbStatus === 'awaiting_payment'
+        ? 'Stand attribue — paiement en attente'
         : 'Votre contre-offre a ete acceptee'
       const notifBody = dbStatus === 'stand_proposed'
         ? `L'organisateur de "${event?.title}" vous propose un stand${proposed_stand ? ` (${proposed_stand.size} · ${proposed_stand.price} EUR)` : ''}. Consultez votre dashboard pour repondre.`
+        : dbStatus === 'awaiting_payment'
+        ? `Votre stand a ete confirme pour "${event?.title}"${proposed_stand ? ` : ${proposed_stand.size} · ${proposed_stand.price} EUR` : ''}. Le paiement est maintenant attendu.`
         : `L'organisateur de "${event?.title}" a accepte votre contre-offre. Votre participation est confirmee.`
+      const notifType = dbStatus === 'stand_proposed' ? 'stand_proposed' : dbStatus === 'awaiting_payment' ? 'awaiting_payment' : 'stand_accepted'
       await admin.from('notifications').insert({
         user_id: data.creator_id,
-        type: dbStatus === 'stand_proposed' ? 'stand_proposed' : 'stand_accepted',
+        type: notifType,
         title: notifTitle,
         body: notifBody,
         link: '/dashboard',
