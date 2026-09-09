@@ -403,7 +403,7 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25, delay: 0.1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.7px', margin: 0 }}>Candidatures récentes</p>
-                  <button onClick={() => setActiveSection('exhibitors')}
+                  <button onClick={() => router.push(`/events/${eventId}/exhibitors`)}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 12, color: colors.violet.primary, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                     Voir tout <ChevronRight size={12} />
                   </button>
