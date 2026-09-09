@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { TrendingUp, Users, CheckCircle, Clock } from 'lucide-react'
+import { TrendingUp, Users, CheckCircle, Clock, XCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { colors } from '@/lib/design-tokens'
 
@@ -21,9 +21,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    fetchEventStats()
-  }, [eventId])
+  useEffect(() => { fetchEventStats() }, [eventId])
 
   const fetchEventStats = async () => {
     try {
@@ -34,8 +32,7 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       if (!response.ok) throw new Error('Erreur chargement stats')
-      const data = await response.json()
-      setStats(data)
+      setStats(await response.json())
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -43,239 +40,112 @@ export default function AnalyticsClient({ eventId }: { eventId: string }) {
     }
   }
 
-  if (loading) {
-    return (
-      <div style={{ minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '24px' }}>⏳ Chargement...</div>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return (
+    <div style={{ padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+      <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Chargement...</span>
+    </div>
+  )
 
-  if (error) {
-    return (
-      <div style={{ minHeight: 'calc(100vh - 200px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', color: colors.feedback.danger.solid }}>
-          ❌ {error}
-        </div>
-      </div>
-    )
-  }
+  if (error) return (
+    <div style={{ padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+      <span style={{ fontSize: 13, color: colors.feedback.danger.solid }}>{error}</span>
+    </div>
+  )
 
   if (!stats) return null
 
+  const fillColor = stats.fillRate >= 80
+    ? colors.feedback.success.text
+    : stats.fillRate >= 50
+    ? '#F59E0B'
+    : colors.violet.primary
+
+  const pct = (n: number) =>
+    stats.totalApplications > 0 ? Math.round((n / stats.totalApplications) * 100) : 0
+
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: 'calc(100vh - 200px)' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 16px' }}>
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          style={{ marginBottom: '60px' }}
-        >
-          <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '12px' }}>
-            Analytique Événement
-          </h1>
-          <p style={{ fontSize: '18px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-            Suivi des candidatures et du remplissage de votre événement
-          </p>
-        </motion.div>
+    <div style={{ padding: '24px' }}>
 
-        {/* Stats Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '16px',
-            marginBottom: '60px',
-          }}
-        >
-          {/* Fill Rate */}
-          <div
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Taux de remplissage</h3>
-              <TrendingUp size={20} color={colors.violet.primary} />
-            </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.violet.primary, marginBottom: '8px' }}>
-              {stats.fillRate}%
-            </div>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              {stats.acceptedCount}/{stats.totalStands} places
-            </p>
+      {/* Bento grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'auto auto', gap: 10, marginBottom: 20 }}
+      >
+        {/* Big: taux de remplissage */}
+        <div style={{ gridColumn: '1 / 4', gridRow: '1 / 3', padding: 28, borderRadius: 16, backgroundColor: colors.violet.primary, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 160 }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0px 1px, transparent 1px 10px)', pointerEvents: 'none' }} />
+          <div>
+            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.12)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 18 }}>Remplissage</span>
+            <p style={{ fontSize: 64, fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1 }}>{stats.fillRate}%</p>
           </div>
-
-          {/* Total Applications */}
-          <div
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Candidatures</h3>
-              <Users size={20} color={colors.green.primary} />
+          <div>
+            <div style={{ width: '100%', height: 5, borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.2)', overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{ height: '100%', width: `${stats.fillRate}%`, borderRadius: 99, backgroundColor: '#fff', transition: 'width 0.6s ease' }} />
             </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.green.primary, marginBottom: '8px' }}>
-              {stats.totalApplications}
-            </div>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              {stats.acceptanceRate}% acceptées
-            </p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', margin: 0 }}>{stats.acceptedCount} / {stats.totalStands} stands occupés</p>
           </div>
+        </div>
 
-          {/* Accepted */}
-          <div
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>Confirmées</h3>
-              <CheckCircle size={20} color={colors.feedback.success.solid} />
-            </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.feedback.success.solid, marginBottom: '8px' }}>
-              {stats.acceptedCount}
-            </div>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              Participants confirmés
-            </p>
+        {/* Total candidatures */}
+        <div style={{ gridColumn: '4 / 7', gridRow: '1 / 2', padding: '20px 24px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 6px' }}>Candidatures</p>
+            <p style={{ fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', margin: 0, lineHeight: 1 }}>{stats.totalApplications}</p>
           </div>
-
-          {/* Pending */}
-          <div
-            style={{
-              backgroundColor: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '24px',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }}>En attente</h3>
-              <Clock size={20} color={colors.status.pending.dot} />
-            </div>
-            <div style={{ fontSize: '42px', fontWeight: 700, color: colors.status.pending.dot, marginBottom: '8px' }}>
-              {stats.pendingCount}
-            </div>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              Réponses attendues
-            </p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: colors.violet.primary }}>{stats.acceptanceRate}%</span>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>taux d'acceptation</span>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Application Breakdown Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          style={{
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '12px',
-            padding: '32px',
-          }}
-        >
-          <h2 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '24px' }}>
-            Répartition des candidatures
-          </h2>
+        {/* Confirmées */}
+        <div style={{ gridColumn: '4 / 5', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: colors.feedback.success.text, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>Confirmées</p>
+          <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{stats.acceptedCount}</p>
+        </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: '24px' }}>
-            {/* Accepted Bar */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Acceptées</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: colors.feedback.success.solid }}>
-                  {stats.acceptedCount}
-                </span>
+        {/* En attente */}
+        <div style={{ gridColumn: '5 / 6', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: '#D97706', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>En attente</p>
+          <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{stats.pendingCount}</p>
+        </div>
+
+        {/* Refusées */}
+        <div style={{ gridColumn: '6 / 7', gridRow: '2 / 3', padding: '16px 20px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: colors.feedback.danger.solid, textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 8px' }}>Refusées</p>
+          <p style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{stats.refusedCount}</p>
+        </div>
+      </motion.div>
+
+      {/* Répartition */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        style={{ padding: '20px 24px', borderRadius: 16, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}
+      >
+        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.7px', margin: '0 0 16px' }}>Répartition des candidatures</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {[
+            { label: 'Confirmées', count: stats.acceptedCount, color: colors.feedback.success.border ?? '#22C55E' },
+            { label: 'En attente', count: stats.pendingCount, color: '#F59E0B' },
+            { label: 'Refusées',   count: stats.refusedCount, color: colors.feedback.danger.solid },
+          ].map(row => (
+            <div key={row.label}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{row.label}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: row.color }}>{row.count} <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>({pct(row.count)}%)</span></span>
               </div>
-              <div style={{
-                backgroundColor: 'var(--border-color)',
-                borderRadius: '8px',
-                height: '8px',
-                overflow: 'hidden',
-              }}>
-                <div
-                  style={{
-                    backgroundColor: colors.feedback.success.solid,
-                    height: '100%',
-                    width: `${stats.totalApplications > 0 ? (stats.acceptedCount / stats.totalApplications) * 100 : 0}%`,
-                    transition: 'width 0.3s',
-                  }}
-                />
+              <div style={{ height: 6, borderRadius: 99, backgroundColor: 'var(--bg-primary)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${pct(row.count)}%`, borderRadius: 99, backgroundColor: row.color, transition: 'width 0.5s ease' }} />
               </div>
             </div>
+          ))}
+        </div>
+      </motion.div>
 
-            {/* Pending Bar */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>En attente</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: colors.status.pending.dot }}>
-                  {stats.pendingCount}
-                </span>
-              </div>
-              <div style={{
-                backgroundColor: 'var(--border-color)',
-                borderRadius: '8px',
-                height: '8px',
-                overflow: 'hidden',
-              }}>
-                <div
-                  style={{
-                    backgroundColor: colors.status.pending.dot,
-                    height: '100%',
-                    width: `${stats.totalApplications > 0 ? (stats.pendingCount / stats.totalApplications) * 100 : 0}%`,
-                    transition: 'width 0.3s',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Refused Bar */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Refusées</span>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: colors.feedback.danger.solid }}>
-                  {stats.refusedCount}
-                </span>
-              </div>
-              <div style={{
-                backgroundColor: 'var(--border-color)',
-                borderRadius: '8px',
-                height: '8px',
-                overflow: 'hidden',
-              }}>
-                <div
-                  style={{
-                    backgroundColor: colors.feedback.danger.solid,
-                    height: '100%',
-                    width: `${stats.totalApplications > 0 ? (stats.refusedCount / stats.totalApplications) * 100 : 0}%`,
-                    transition: 'width 0.3s',
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
     </div>
   )
 }

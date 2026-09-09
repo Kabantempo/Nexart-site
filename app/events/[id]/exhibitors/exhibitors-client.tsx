@@ -27,8 +27,8 @@ interface Exhibitor {
   proposed_stand?: { size: string; price: number; note?: string } | null
 }
 
-export default function ExhibitorsClient({ eventId }: { eventId: string }) {
-  const [view, setView] = useState<'form-setup' | 'dashboard' | 'documents'>('form-setup')
+export default function ExhibitorsClient({ eventId, defaultTab, solo }: { eventId: string; defaultTab?: 'form-setup' | 'dashboard' | 'documents'; solo?: boolean }) {
+  const [view, setView] = useState<'form-setup' | 'dashboard' | 'documents'>(defaultTab ?? 'dashboard')
   const [fields, setFields] = useState<ExhibitorField[]>([])
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([])
   const [filterStatus, setFilterStatus] = useState<string>('all')
@@ -46,11 +46,13 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
       const res = await fetch(`/api/events/${eventId}/exhibitor-fields`)
       const data = await res.json()
       setFields(data.fields || [])
-      // If no fields yet, show setup view
-      if (!data.fields || data.fields.length === 0) {
-        setView('form-setup')
-      } else {
-        setView('dashboard')
+      // En mode solo le view est fixé par defaultTab — ne pas le changer
+      if (!solo) {
+        if (!data.fields || data.fields.length === 0) {
+          setView('form-setup')
+        } else {
+          setView('dashboard')
+        }
       }
     } catch (error) {
       console.error('Error fetching fields:', error)
@@ -179,7 +181,9 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
           transition={{ duration: 0.8 }}
         >
           <h1 style={{ fontSize: 'clamp(32px, 8vw, 48px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '16px' }}>
-            Gestion Exposants
+            {view === 'form-setup' ? 'Formulaire exposants'
+              : view === 'documents' ? 'Documents'
+              : 'Candidatures'}
           </h1>
           <p style={{ fontSize: '18px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
             {view === 'form-setup' ? 'Personnalisez votre formulaire de candidature'
@@ -187,18 +191,20 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
               : 'Gérez vos candidatures et approuvez les exposants'}
           </p>
 
-          {/* Onglets */}
-          <NexTabs
-            tabs={[
-              { key: 'form-setup', label: 'Formulaire' },
-              { key: 'dashboard', label: 'Candidatures' },
-              { key: 'documents', label: 'Documents' },
-            ]}
-            activeTab={view}
-            onChange={k => setView(k as typeof view)}
-            variant="underline"
-            ariaLabel="Sections exposants"
-          />
+          {/* Onglets — masqués en mode solo */}
+          {!solo && (
+            <NexTabs
+              tabs={[
+                { key: 'dashboard', label: 'Candidatures' },
+                { key: 'form-setup', label: 'Formulaire' },
+                { key: 'documents', label: 'Documents' },
+              ]}
+              activeTab={view}
+              onChange={k => setView(k as typeof view)}
+              variant="underline"
+              ariaLabel="Sections exposants"
+            />
+          )}
         </motion.div>
       </div>
 

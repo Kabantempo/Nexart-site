@@ -111,11 +111,7 @@ export async function POST(req: NextRequest) {
 
           if (existing?.stripe_payment_id && existing.stripe_payment_id === paymentId) break
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          // 'paid' n'existe pas encore dans l'enum application_status en prod.
-          // Cast à retirer après application de
-          // supabase/migrations/20260909_application_status_paid_refunded.sql
-          await (admin as any).from('applications').update({
+          await admin.from('applications').update({
             status: 'paid',
             stripe_payment_id: paymentId,
           }).eq('id', application_id)
@@ -272,11 +268,7 @@ export async function POST(req: NextRequest) {
         .maybeSingle()
 
       if (app) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        // 'refunded' n'existe pas encore dans l'enum application_status en prod.
-        // Cast à retirer après application de
-        // supabase/migrations/20260909_application_status_paid_refunded.sql
-        await (admin as any).from('applications').update({
+        await admin.from('applications').update({
           status: 'refunded',
           refunded_at: new Date().toISOString(),
         }).eq('id', app.id)

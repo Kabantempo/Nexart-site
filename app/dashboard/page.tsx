@@ -12,7 +12,7 @@ import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
   MapPin, ShoppingBag, BarChart2, Zap, Star, ExternalLink, Eye,
-  Bell, Plus, CreditCard, LogOut, ChevronDown, Euro,
+  Bell, Plus, CreditCard, LogOut, ChevronDown, Euro, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DocumentsPanel from '@/components/documents-panel'
@@ -98,6 +98,7 @@ export default function DashboardPage() {
   const [dashTab, setDashTab] = useState<'creator' | 'organizer'>('creator')
   const [accessToken, setAccessToken] = useState<string>('')
   const [connectAlertParams, setConnectAlertParams] = useState<URLSearchParams | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -274,7 +275,7 @@ export default function DashboardPage() {
   const lateApps = pendingApps.filter(a => new Date(a.created_at).getTime() < sevenDaysAgo)
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', display: 'flex' }}>
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
         .dash-grid {
@@ -300,7 +301,22 @@ export default function DashboardPage() {
         .mobile-quick-bar {
           display: none;
         }
+        .dash-left-sidebar {
+          flex-shrink: 0;
+          height: 100vh;
+          position: sticky;
+          top: 0;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+        .dash-right-area {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+        }
         @media (max-width: 768px) {
+          .dash-left-sidebar { display: none; }
           .sidebar-quick-actions { display: none; }
           .dash-content { padding-bottom: 72px; }
           .mobile-quick-bar {
@@ -333,6 +349,26 @@ export default function DashboardPage() {
           .mobile-quick-bar a:active { background: var(--bg-secondary); }
         }
       `}</style>
+
+      {/* Left sidebar — desktop only */}
+      <div className="dash-left-sidebar">
+        <DashSidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(c => !c)}
+          hasCreator={hasCreator}
+          hasOrganizer={hasOrganizer}
+          isAdmin={isAdmin}
+          userId={user.id}
+          dashTab={dashTab}
+          onTabChange={setDashTab}
+          currentUser={user}
+          onLogout={handleLogout}
+          events={events}
+        />
+      </div>
+
+      {/* Right content area */}
+      <div className="dash-right-area">
 
       {/* Payment banners */}
       {paymentBanner === 'success' && (
@@ -385,21 +421,6 @@ export default function DashboardPage() {
       </div>
 
       <div className="dash-content" style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
-
-        {/* Tab switcher */}
-        {hasCreator && hasOrganizer && (
-          <div style={{ marginBottom: '20px' }}>
-            <NexTabs
-              tabs={[
-                { key: 'creator',   icon: <Users size={13} />,    label: 'Créateur' },
-                { key: 'organizer', icon: <Calendar size={13} />, label: 'Organisateur' },
-              ]}
-              activeTab={dashTab}
-              onChange={key => setDashTab(key as typeof dashTab)}
-              ariaLabel="Vue du tableau de bord"
-            />
-          </div>
-        )}
 
         {/* Profile completion banner (creator only) */}
         {hasCreator && dashTab === 'creator' && firstMissingStep && (
@@ -527,6 +548,7 @@ export default function DashboardPage() {
           ) : null}
         </div>
       )}
+      </div>{/* /dash-right-area */}
     </div>
   )
 }
@@ -1362,29 +1384,8 @@ function OrganizerMainContent({
 // ─── Organizer sidebar ────────────────────────────────────────────────────────
 
 function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Event[]; nextEvent?: Event; selectedEventId: string }) {
-  const QUICK_ACTIONS = [
-    { href: '/events/create',      icon: <Plus size={15} />,       label: 'Créer événement' },
-    { href: '/organizer/analytics', icon: <BarChart2 size={15} />, label: 'Analytics' },
-    { href: '/organizer/revenue',   icon: <Euro size={15} />,      label: 'Revenus' },
-    { href: '/messages',            icon: <MessageSquare size={15} />, label: 'Messages' },
-    { href: '/calendrier',          icon: <CalendarDays size={15} />, label: 'Calendrier' },
-  ]
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <div className="sidebar-quick-actions">
-        <SidebarCard title="Actions rapides">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
-            {QUICK_ACTIONS.map(a => (
-              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '12px 8px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
-                <span style={{ color: colors.violet.primary }}>{a.icon}</span>
-                {a.label}
-              </Link>
-            ))}
-          </div>
-        </SidebarCard>
-      </div>
-
 
       {nextEvent && (
         <SidebarCard title="Prochain événement">
@@ -1431,6 +1432,174 @@ function CountdownBadge({ date }: { date: string }) {
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', backgroundColor: bg, color }}>
       <Clock size={11} /> {days === 0 ? "Aujourd'hui" : `Dans ${days}j`}
     </span>
+  )
+}
+
+// ─── Dashboard Left Sidebar ───────────────────────────────────────────────────
+
+type DashSidebarProps = {
+  collapsed: boolean
+  onToggle: () => void
+  hasCreator: boolean
+  hasOrganizer: boolean
+  isAdmin: boolean
+  userId: string
+  dashTab: 'creator' | 'organizer'
+  onTabChange: (tab: 'creator' | 'organizer') => void
+  currentUser: { full_name?: string | null; avatar_url?: string | null }
+  onLogout: () => void
+  events?: Event[]
+}
+
+function DashSidebar({ collapsed, onToggle, hasCreator, hasOrganizer, isAdmin, userId, dashTab, onTabChange, currentUser, onLogout, events = [] }: DashSidebarProps) {
+  const initials = (currentUser.full_name ?? '')
+    .split(' ')
+    .map(n => n[0] ?? '')
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || '?'
+
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null)
+  const [logoutHover, setLogoutHover] = useState(false)
+  const [eventsExpanded, setEventsExpanded] = useState(false)
+
+  const creatorItems = [
+    { href: '/events',           icon: <MapPin size={15} />,       label: 'Marchés' },
+    { href: '/messages',         icon: <MessageSquare size={15} />, label: 'Messages' },
+    { href: '/profile',          icon: <User size={15} />,          label: 'Profil' },
+    { href: '/analytics',        icon: <BarChart2 size={15} />,     label: 'Analytics' },
+    { href: `/boutique/${userId}`,icon: <ShoppingBag size={15} />,  label: 'Boutique' },
+    { href: '/creator/payments', icon: <CreditCard size={15} />,    label: 'Paiements' },
+    { href: '/notifications',    icon: <Bell size={15} />,          label: 'Notifications' },
+  ]
+
+  const organizerItems = [
+    { href: '/events/create',       icon: <Plus size={15} />,         label: 'Créer un marché' },
+    { href: '/messages',            icon: <MessageSquare size={15} />, label: 'Messages' },
+    { href: '/organizer/analytics', icon: <BarChart2 size={15} />,    label: 'Analytics' },
+    { href: '/organizer/revenue',   icon: <Euro size={15} />,         label: 'Revenus' },
+    { href: '/calendrier',          icon: <CalendarDays size={15} />, label: 'Calendrier' },
+    { href: '/notifications',       icon: <Bell size={15} />,         label: 'Notifications' },
+  ]
+
+  const adminItems: typeof creatorItems = isAdmin
+    ? [{ href: '/admin', icon: <Star size={15} />, label: 'Admin' }]
+    : []
+
+  const items = dashTab === 'organizer'
+    ? [...organizerItems, ...adminItems]
+    : [...creatorItems, ...adminItems]
+
+  const w = collapsed ? '58px' : '220px'
+
+  return (
+    <aside style={{ width: w, minHeight: '100vh', backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', transition: 'width 200ms ease', overflow: 'hidden' }}>
+
+      {/* Toggle */}
+      <div style={{ padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
+        <button onClick={onToggle} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)', flexShrink: 0 }}>
+          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
+      </div>
+
+      {/* User info */}
+      <div style={{ padding: collapsed ? '12px 0' : '12px 14px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid var(--border-color)', flexShrink: 0, justifyContent: collapsed ? 'center' : 'flex-start' }}>
+        {currentUser.avatar_url ? (
+          <Image src={currentUser.avatar_url} alt="" width={30} height={30} style={{ borderRadius: '50%', flexShrink: 0, objectFit: 'cover', width: '30px', height: '30px' }} />
+        ) : (
+          <div style={{ width: '30px', height: '30px', borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '11px', fontWeight: 700, color: '#fff' }}>{initials}</div>
+        )}
+        {!collapsed && (
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.full_name}</p>
+            <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)' }}>{dashTab === 'organizer' ? 'Organisateur' : 'Créateur'}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Tab switcher — both roles, expanded only */}
+      {hasCreator && hasOrganizer && !collapsed && (
+        <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '4px', flexShrink: 0 }}>
+          {(['creator', 'organizer'] as const).map(t => (
+            <button key={t} onClick={() => onTabChange(t)} style={{ flex: 1, padding: '5px 4px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 600, backgroundColor: dashTab === t ? colors.violet.primary : 'transparent', color: dashTab === t ? '#fff' : 'var(--text-secondary)', transition: 'all 150ms ease' }}>
+              {t === 'creator' ? 'Créateur' : 'Organisateur'}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Nav items */}
+      <nav style={{ flex: 1, padding: collapsed ? '8px 0' : '8px 6px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+        {items.map(item => {
+          const isHov = hoveredHref === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onMouseEnter={() => setHoveredHref(item.href)}
+              onMouseLeave={() => setHoveredHref(null)}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: collapsed ? '9px 0' : '8px 10px', borderRadius: '7px', textDecoration: 'none', fontSize: '13px', fontWeight: 500, transition: 'all 150ms ease', justifyContent: collapsed ? 'center' : 'flex-start', backgroundColor: isHov ? 'var(--bg-primary)' : 'transparent', color: isHov ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+            >
+              <span style={{ color: colors.violet.primary, flexShrink: 0, display: 'flex' }}>{item.icon}</span>
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          )
+        })}
+
+        {/* Événements section — organizer only */}
+        {dashTab === 'organizer' && events.length > 0 && (
+          <div style={{ marginTop: '4px' }}>
+            <button
+              onClick={() => setEventsExpanded(e => !e)}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: collapsed ? '9px 0' : '8px 10px', borderRadius: '7px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, transition: 'all 150ms ease', justifyContent: collapsed ? 'center' : 'flex-start', backgroundColor: 'transparent', color: 'var(--text-secondary)', width: '100%' }}
+            >
+              <span style={{ color: colors.violet.primary, flexShrink: 0, display: 'flex' }}><Calendar size={15} /></span>
+              {!collapsed && (
+                <>
+                  <span style={{ flex: 1, textAlign: 'left' }}>Mes événements</span>
+                  <span style={{ color: 'var(--text-secondary)', display: 'flex', transition: 'transform 150ms ease', transform: eventsExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                    <ChevronRight size={12} />
+                  </span>
+                </>
+              )}
+            </button>
+            {eventsExpanded && !collapsed && (
+              <div style={{ paddingLeft: '10px', display: 'flex', flexDirection: 'column', gap: '1px', marginTop: '1px' }}>
+                {events.map(ev => {
+                  const href = eventUrl(ev, 'dashboard')
+                  const isHov = hoveredHref === href
+                  return (
+                    <Link
+                      key={ev.id}
+                      href={href}
+                      onMouseEnter={() => setHoveredHref(href)}
+                      onMouseLeave={() => setHoveredHref(null)}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', borderRadius: '6px', textDecoration: 'none', fontSize: '12px', fontWeight: 500, transition: 'all 150ms ease', backgroundColor: isHov ? 'var(--bg-primary)' : 'transparent', color: isHov ? 'var(--text-primary)' : 'var(--text-secondary)', overflow: 'hidden' }}
+                    >
+                      <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: colors.violet.primary, flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </nav>
+
+      {/* Bottom: logout */}
+      <div style={{ padding: collapsed ? '10px 0' : '10px 6px', borderTop: '1px solid var(--border-color)', flexShrink: 0 }}>
+        <button
+          onClick={onLogout}
+          onMouseEnter={() => setLogoutHover(true)}
+          onMouseLeave={() => setLogoutHover(false)}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: collapsed ? '8px 0' : '8px 10px', borderRadius: '7px', border: 'none', backgroundColor: logoutHover ? 'var(--bg-primary)' : 'transparent', cursor: 'pointer', color: logoutHover ? colors.feedback.danger.solid : 'var(--text-secondary)', fontSize: '13px', fontWeight: 500, transition: 'all 150ms ease', justifyContent: collapsed ? 'center' : 'flex-start', width: '100%' }}
+        >
+          <LogOut size={15} style={{ flexShrink: 0 }} />
+          {!collapsed && <span>Déconnexion</span>}
+        </button>
+      </div>
+    </aside>
   )
 }
 
