@@ -373,7 +373,7 @@ function CreatorsContent() {
             </div>
           </div>
 
-          {featCreators.length > 0 && <FeaturedCarousel items={featCreators} />}
+          {featCreators.length > 0 && <FeaturedCarousel items={featCreators as unknown as CreatorItem[]} />}
 
           {mobileFiltered.length > 0 && (
             <div style={{ marginBottom: 24 }}>
