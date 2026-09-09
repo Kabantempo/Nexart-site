@@ -18,12 +18,13 @@ export async function PATCH(
   try {
     const { validate: v, z } = await import('@/lib/validate')
     const schema = z.object({
-      status: z.enum(['pending', 'accepted', 'refused', 'waitlisted']),
+      status: z.enum(['pending', 'approved', 'rejected', 'paid', 'cancelled']),
       rejection_reason: z.string().max(1000).optional(),
     })
     const { data: body, error: validErr } = v(schema, await req.json())
     if (validErr) return validErr
-    const { status, rejection_reason } = body
+    const { status: clientStatus, rejection_reason } = body
+    const status = clientStatus === 'approved' ? 'accepted' : clientStatus === 'rejected' ? 'refused' : clientStatus
 
     const { data: { user }, error: authError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1]
@@ -49,10 +50,10 @@ export async function PATCH(
     }
 
     const { data, error } = await (admin as any)
-      .from('event_exhibitor_responses')
+      .from('applications')
       .update(updateData)
       .eq('event_id', params.id)
-      .eq('exhibitor_id', params.exhibitor_id)
+      .eq('id', params.exhibitor_id)
       .select()
 
     if (error) throw error

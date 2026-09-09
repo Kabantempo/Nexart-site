@@ -39,17 +39,27 @@ export async function GET(
       )
     }
 
-    // Get all responses
+    // Get all applications
     const { data, error, count } = await admin
-      .from('exhibitor_responses')
-      .select('*', { count: 'exact' })
+      .from('applications')
+      .select('id, creator_id, status, created_at, profiles(full_name, email)', { count: 'exact' })
       .eq('event_id', params.id)
-      .order('submitted_at', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (error) throw error
 
+    const exhibitors = (data || []).map((app: any) => ({
+      id: app.id,
+      exhibitor_id: app.creator_id,
+      response_data: {},
+      status: app.status === 'accepted' ? 'approved' : app.status === 'refused' ? 'rejected' : app.status,
+      tables_count: 0,
+      submitted_at: app.created_at,
+      profiles: app.profiles,
+    }))
+
     return NextResponse.json({
-      exhibitors: data || [],
+      exhibitors,
       total: count,
     })
   } catch (error: unknown) {

@@ -57,8 +57,12 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
 
   const fetchExhibitors = async () => {
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
       const status = filterStatus === 'all' ? '' : `?status=${filterStatus}`
-      const res = await fetch(`/api/events/${eventId}/exhibitors${status}`)
+      const res = await fetch(`/api/events/${eventId}/exhibitors${status}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
       const data = await res.json()
       setExhibitors(data.exhibitors || [])
     } catch (error) {
@@ -105,9 +109,11 @@ export default function ExhibitorsClient({ eventId }: { eventId: string }) {
 
   const handleStatusChange = async (exhibitorId: string, status: string) => {
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
       const res = await fetch(`/api/events/${eventId}/exhibitors/${exhibitorId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status })
       })
       if (res.ok) {
@@ -473,7 +479,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                 <td style={{ padding: '12px 16px' }}>
                   <select
                     value={exhibitor.status}
-                    onChange={(e) => onStatusChange(exhibitor.exhibitor_id, e.target.value)}
+                    onChange={(e) => onStatusChange(exhibitor.id, e.target.value)}
                     style={{
                       padding: '6px 12px',
                       borderRadius: '4px',
