@@ -37,7 +37,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  const authorIds = [...new Set((posts ?? []).map((p: any) => p.author_id))]
+  const authorIds = [...new Set((posts ?? []).map((p: any) => p.author_id))] as string[]
   let profileMap: Record<string, any> = {}
   if (authorIds.length) {
     const { data: profiles } = await admin.from('profiles').select('id, full_name, avatar_url, role').in('id', authorIds)
