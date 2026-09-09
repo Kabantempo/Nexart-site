@@ -1362,50 +1362,6 @@ function OrganizerMainContent({
 // ─── Organizer sidebar ────────────────────────────────────────────────────────
 
 function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Event[]; nextEvent?: Event; selectedEventId: string }) {
-  const [bulkModal, setBulkModal] = useState(false)
-  const [bulkSubject, setBulkSubject] = useState('')
-  const [bulkMessage, setBulkMessage] = useState('')
-  const [bulkSending, setBulkSending] = useState(false)
-  const [bulkDone, setBulkDone] = useState(false)
-  const [checklist, setChecklist] = useState<{ title: string; description?: string; completed?: boolean }[]>([])
-
-  useEffect(() => {
-    if (!selectedEventId) return
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) return
-      const res = await fetch(`/api/events/${selectedEventId}/checklists`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (!res.ok) return
-      const json = await res.json()
-      setChecklist(json.checklist?.items ?? [])
-    })
-  }, [selectedEventId])
-
-  const handleBulkSend = async () => {
-    if (!selectedEventId || !bulkSubject.trim() || !bulkMessage.trim()) return
-    setBulkSending(true)
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { setBulkSending(false); return }
-    const { data: accepted } = await supabase
-      .from('applications')
-      .select('creator_id')
-      .eq('event_id', selectedEventId)
-      .eq('status', 'accepted')
-    const creatorIds = (accepted ?? []).map((a: any) => a.creator_id)
-    if (!creatorIds.length) { setBulkSending(false); return }
-    await fetch('/api/organizer/bulk-message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ event_id: selectedEventId, creator_ids: creatorIds, subject: bulkSubject, message: bulkMessage }),
-    })
-    setBulkSending(false)
-    setBulkDone(true)
-    setTimeout(() => { setBulkModal(false); setBulkDone(false); setBulkSubject(''); setBulkMessage('') }, 1500)
-  }
-
-  const pending = checklist.filter(i => !i.completed).slice(0, 4)
-
   const QUICK_ACTIONS = [
     { href: '/events/create',      icon: <Plus size={15} />,       label: 'Créer événement' },
     { href: '/organizer/analytics', icon: <BarChart2 size={15} />, label: 'Analytics' },
@@ -1426,35 +1382,9 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
               </Link>
             ))}
           </div>
-          {selectedEventId && (
-            <button
-              onClick={() => setBulkModal(true)}
-              style={{ marginTop: '8px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px 12px', borderRadius: '8px', border: '0.5px solid ${colors.violet.primary}', backgroundColor: 'rgba(99,102,241,0.06)', color: colors.violet.primary, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
-            >
-              <MessageSquare size={13} /> Message groupé
-            </button>
-          )}
         </SidebarCard>
       </div>
 
-      {selectedEventId && pending.length > 0 && (
-        <SidebarCard title="Checklist">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {pending.map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <div style={{ width: '14px', height: '14px', borderRadius: '4px', border: '1.5px solid var(--border-color)', flexShrink: 0, marginTop: '1px' }} />
-                <div>
-                  <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{item.title}</p>
-                  {item.description && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>{item.description}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
-          <Link href={`/events/${selectedEventId}/settings/checklist`} style={{ display: 'inline-block', marginTop: '10px', fontSize: '11px', color: colors.violet.primary, fontWeight: 600, textDecoration: 'none' }}>
-            Tout voir →
-          </Link>
-        </SidebarCard>
-      )}
 
       {nextEvent && (
         <SidebarCard title="Prochain événement">
@@ -1470,49 +1400,6 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
         </SidebarCard>
       )}
 
-      {/* Bulk message modal */}
-      <NexModal
-        isOpen={bulkModal}
-        onClose={() => { setBulkModal(false); setBulkDone(false); setBulkSubject(''); setBulkMessage('') }}
-        title="Message groupé"
-        subtitle="Envoie un message à tous les créateurs acceptés de cet événement"
-        size="md"
-        footer={!bulkDone ? (
-          <button
-            onClick={handleBulkSend}
-            disabled={bulkSending || !bulkSubject.trim() || !bulkMessage.trim()}
-            style={{ width: '100%', padding: '11px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, border: 'none', cursor: bulkSending ? 'not-allowed' : 'pointer', opacity: bulkSending || !bulkSubject.trim() || !bulkMessage.trim() ? 0.6 : 1 }}
-          >
-            {bulkSending ? 'Envoi en cours…' : 'Envoyer à tous les créateurs acceptés'}
-          </button>
-        ) : undefined}
-      >
-        {bulkDone ? (
-          <p style={{ textAlign: 'center', color: colors.status.accepted.text, fontWeight: 600, padding: '20px 0', margin: 0 }}>✓ Messages envoyés !</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Sujet</label>
-              <input
-                value={bulkSubject}
-                onChange={e => setBulkSubject(e.target.value)}
-                placeholder="Ex : Informations importantes"
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', boxSizing: 'border-box', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Message</label>
-              <textarea
-                value={bulkMessage}
-                onChange={e => setBulkMessage(e.target.value)}
-                rows={5}
-                placeholder="Écrivez votre message à tous les créateurs acceptés…"
-                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
-              />
-            </div>
-          </div>
-        )}
-      </NexModal>
     </div>
   )
 }
