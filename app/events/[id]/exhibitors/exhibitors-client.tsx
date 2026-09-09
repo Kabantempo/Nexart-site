@@ -574,9 +574,20 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                           </button>
                         )}
                         {ex.status === 'awaiting_payment' && (
-                          <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Clock size={12} /> En attente du paiement créateur
-                          </span>
+                          <>
+                            <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', width: '100%', marginBottom: 4 }}>
+                              <Clock size={12} /> En attente du paiement créateur
+                            </span>
+                            <button onClick={() => onStatusChange(ex.id, 'paid')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Check size={12} /> Marquer payé
+                            </button>
+                            <button onClick={() => onStatusChange(ex.id, 'approved')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${colors.violet.primary}`, backgroundColor: colors.violet.bg, color: colors.violet.primary, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <RefreshCw size={12} /> Annuler paiement
+                            </button>
+                            <button onClick={() => onStatusChange(ex.id, 'rejected')} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', border: `1px solid ${colors.feedback.danger.border}`, backgroundColor: colors.feedback.danger.bg, color: colors.feedback.danger.text }}>
+                              Refuser
+                            </button>
+                          </>
                         )}
                         {ex.status === 'approved' && (ex as any).stripe_payment_id && (
                           <span style={{ fontSize: '12px', color: colors.feedback.success.text, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
