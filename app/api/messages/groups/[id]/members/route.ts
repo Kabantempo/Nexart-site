@@ -15,7 +15,7 @@ async function getUser(req: NextRequest) {
 }
 
 async function assertOwner(admin: ReturnType<typeof getAdminClient>, groupId: string, userId: string) {
-  const { data } = await admin.from('message_groups').select('organizer_id').eq('id', groupId).single()
+  const { data } = await (admin as any).from('message_groups').select('organizer_id').eq('id', groupId).single()
   return data?.organizer_id === userId
 }
 
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const admin = getAdminClient()
   if (!await assertOwner(admin, params.id, user.id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: members } = await admin
+  const { data: members } = await (admin as any)
     .from('message_group_members')
     .select('id, user_id, added_at')
     .eq('group_id', params.id)
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { user_id } = await req.json()
   if (!user_id) return NextResponse.json({ error: 'user_id requis' }, { status: 400 })
 
-  const { data, error } = await admin
+  const { data, error } = await (admin as any)
     .from('message_group_members')
     .insert({ group_id: params.id, user_id })
     .select('id, user_id, added_at')
@@ -79,6 +79,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   const user_id = req.nextUrl.searchParams.get('user_id')
   if (!user_id) return NextResponse.json({ error: 'user_id requis' }, { status: 400 })
 
-  await admin.from('message_group_members').delete().eq('group_id', params.id).eq('user_id', user_id)
+  await (admin as any).from('message_group_members').delete().eq('group_id', params.id).eq('user_id', user_id)
   return NextResponse.json({ success: true })
 }

@@ -29,7 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const admin = getAdminClient()
   if (!await canAccess(admin, params.id, user.id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: posts, error } = await admin
+  const { data: posts, error } = await (admin as any)
     .from('actu_posts')
     .select('id, content, created_at, author_id')
     .eq('event_id', params.id)
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!content?.trim()) return NextResponse.json({ error: 'Contenu requis' }, { status: 400 })
   if (content.length > 2000) return NextResponse.json({ error: 'Trop long (max 2000 car.)' }, { status: 400 })
 
-  const { data: post, error } = await admin
+  const { data: post, error } = await (admin as any)
     .from('actu_posts')
     .insert({ event_id: params.id, author_id: user.id, content: content.trim() })
     .select('id, content, created_at, author_id')
