@@ -23,6 +23,7 @@ const BoostButton = dynamic(() => import('@/components/boost-button').then(m => 
 import { useCountUp } from '@/lib/hooks/use-count-up'
 import StripeConnectBanner, { StripeConnectAlert } from '@/components/ui/stripe-connect-banner'
 import { colors } from '@/lib/design-tokens'
+import { eventUrl } from '@/lib/event-url'
 
 function AnimatedNumber({ value }: { value: number }) {
   const animated = useCountUp(value)
@@ -750,7 +751,7 @@ function CreatorMainContent({
               <p>Aucun paiement de stand pour le moment</p>
             </div>
           ) : paidApps.map(a => (
-            <Link key={a.id} href={`/events/${a.event_id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+            <Link key={a.id} href={eventUrl(a.event ?? { id: a.event_id })} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
               <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {a.event?.title ?? 'Événement'}
@@ -792,7 +793,7 @@ function CreatorMainContent({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recommended.map(ev => (
-              <Link key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+              <Link key={ev.id} href={eventUrl(ev)} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                 <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
@@ -875,7 +876,7 @@ function AppCard({ app, onRefresh }: { app: Application & { event?: Event }; onR
             />
           )}
           {app.event && (
-            <Link href={`/events/${app.event_id}`} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <Link href={eventUrl(app.event)} style={{ color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
               Voir <ArrowRight size={11} />
             </Link>
           )}
@@ -1010,7 +1011,7 @@ function CalendarView({ applications }: { applications: (Application & { event?:
               const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const d = new Date(app.event!.start_date)
               return (
-                <Link key={app.id} href={`/events/${app.event_id}`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                <Link key={app.id} href={eventUrl(app.event ?? { id: app.event_id })} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                   <div style={{ width: '40px', flexShrink: 0, textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.15)', borderRadius: '8px', padding: '6px' }}>
                     <div style={{ fontSize: '16px', fontWeight: 800, color: colors.violet.primary, lineHeight: 1 }}>{d.getDate()}</div>
                     <div style={{ fontSize: '9px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'capitalize' }}>{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
@@ -1067,7 +1068,7 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
       {/* Next event */}
       {nextEvent?.event && (
         <SidebarCard title="Prochain marché">
-          <Link href={`/events/${nextEvent.event_id}`} style={{ textDecoration: 'none' }}>
+          <Link href={eventUrl(nextEvent.event)} style={{ textDecoration: 'none' }}>
             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px' }}>{nextEvent.event.title}</p>
             {nextEvent.event.start_date && (
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 8px' }}>
@@ -1212,6 +1213,7 @@ function OrganizerMainContent({
   }
 
   const selectedEvent = events.find(e => e.id === selectedEventId)
+  const selectedEventSlug = selectedEvent?.slug || selectedEventId
   const selectedEventPending = pendingApps.filter(a => a.event_id === selectedEventId)
 
   const tabs: { key: 'candidatures' | 'retard' | 'messages'; label: string; badge?: number }[] = [
@@ -1321,7 +1323,7 @@ function OrganizerMainContent({
             )
           })}
           {pendingApps.length > 10 && tab !== 'retard' && (
-            <Link href={`/events/${events[0]?.id}/exhibitors`} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href={eventUrl(events[0] ?? { id: '' }, 'exhibitors')} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
               Tout voir ({pendingApps.length}) →
             </Link>
           )}
@@ -1342,13 +1344,13 @@ function OrganizerMainContent({
           </div>
           <div className="resp-grid-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
             {[
-              { href: `/events/${selectedEventId}/exhibitors`, icon: <Users size={16} />, label: 'Exposants', sub: `${selectedEventPending.length} en attente` },
-              { href: `/events/${selectedEventId}/waitlist`,   icon: <Clock size={16} />,     label: 'Liste d\'attente', sub: '' },
-              { href: `/events/${selectedEventId}/campaigns`,  icon: <MessageSquare size={16} />, label: 'Campagnes', sub: '' },
-              { href: `/events/${selectedEventId}/team`,       icon: <Users size={16} />,        label: 'Équipe', sub: '' },
-              { href: `/events/${selectedEventId}/volunteers`, icon: <Heart size={16} />,        label: 'Bénévoles', sub: '' },
-              { href: `/events/${selectedEventId}/settings/marketing`, icon: <Star size={16} />, label: 'Marketing', sub: '' },
-              { href: `/events/${selectedEventId}/analytics`,  icon: <BarChart2 size={16} />,    label: 'Analytics', sub: '' },
+              { href: `/events/${selectedEventSlug}/exhibitors`, icon: <Users size={16} />, label: 'Exposants', sub: `${selectedEventPending.length} en attente` },
+              { href: `/events/${selectedEventSlug}/waitlist`,   icon: <Clock size={16} />,     label: 'Liste d\'attente', sub: '' },
+              { href: `/events/${selectedEventSlug}/campaigns`,  icon: <MessageSquare size={16} />, label: 'Campagnes', sub: '' },
+              { href: `/events/${selectedEventSlug}/team`,       icon: <Users size={16} />,        label: 'Équipe', sub: '' },
+              { href: `/events/${selectedEventSlug}/volunteers`, icon: <Heart size={16} />,        label: 'Bénévoles', sub: '' },
+              { href: `/events/${selectedEventSlug}/settings/marketing`, icon: <Star size={16} />, label: 'Marketing', sub: '' },
+              { href: `/events/${selectedEventSlug}/analytics`,  icon: <BarChart2 size={16} />,    label: 'Analytics', sub: '' },
               { href: `/api/events/${selectedEventId}/exhibitors/export`, icon: <ArrowRight size={16} />, label: 'Export CSV', sub: '', target: '_blank' },
             ].map(tool => (
               <Link key={tool.href} href={tool.href} target={(tool as any).target} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '4px', padding: '12px 10px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
@@ -1379,7 +1381,7 @@ function OrganizerMainContent({
                   }[event.status] ?? { label: event.status, color: 'var(--text-secondary)', bg: colors.bg.secondary, dot: colors.text.muted }
                   const ep = pendingApps.filter(a => a.event_id === event.id).length
                   return (
-                    <Link key={event.id} href={`/events/${event.id}/dashboard`} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                    <Link key={event.id} href={eventUrl(event, 'dashboard')} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
                       <div style={{ flex: '1 1 140px', minWidth: '140px' }}>
                         <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
                         {event.start_date && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
@@ -1536,7 +1538,7 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
       {nextEvent && (
         <SidebarCard title="Prochain événement">
-          <Link href={`/events/${nextEvent.id}/dashboard`} style={{ textDecoration: 'none' }}>
+          <Link href={eventUrl(nextEvent, 'dashboard')} style={{ textDecoration: 'none' }}>
             <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px' }}>{nextEvent.title}</p>
             {nextEvent.start_date && (
               <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '0 0 8px' }}>
