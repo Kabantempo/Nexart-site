@@ -177,6 +177,7 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
   const [resolvedId, setResolvedId] = useState<string>(eventId)
   const [currentUser, setCurrentUser] = useState<{ full_name?: string | null; avatar_url?: string | null }>({})
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [activeSection, setActiveSection] = useState<Section>('overview')
 
   useEffect(() => {
@@ -263,7 +264,7 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
   return (
     <div style={{ display: 'flex' }}>
 
-      {/* Sidebar */}
+      {/* Sidebar desktop */}
       <div className="evdash-sidebar">
         <EventSidebar
           collapsed={sidebarCollapsed}
@@ -276,8 +277,38 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
         />
       </div>
 
+      {/* Sidebar mobile overlay */}
+      {mobileSidebarOpen && (
+        <div className="evdash-mobile-overlay" onClick={() => setMobileSidebarOpen(false)} />
+      )}
+      <div className={`evdash-mobile-sidebar${mobileSidebarOpen ? ' open' : ''}`}>
+        <EventSidebar
+          collapsed={false}
+          onToggle={() => {}}
+          event={event}
+          activeSection={activeSection}
+          onSection={s => { setActiveSection(s); setMobileSidebarOpen(false) }}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+        />
+      </div>
+
       {/* Content */}
-      <div style={{ flex: 1, minWidth: 0, backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ flex: 1, minWidth: 0, backgroundColor: 'var(--bg-primary)', position: 'relative' }}>
+
+        {/* Mobile sidebar toggle button */}
+        <button
+          className="evdash-mobile-toggle"
+          onClick={() => setMobileSidebarOpen(o => !o)}
+          aria-label={mobileSidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          style={{ position: 'fixed', left: mobileSidebarOpen ? 220 : 0, top: '50%', transform: 'translateY(-50%)', zIndex: 201, width: 24, height: 48, borderRadius: mobileSidebarOpen ? '0 8px 8px 0' : '0 8px 8px 0', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'left 200ms ease', padding: 0 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            {mobileSidebarOpen
+              ? <><path d="m15 18-6-6 6-6" /></>
+              : <><path d="m9 18 6-6-6-6" /></>
+            }
+          </svg>
+        </button>
 
         {/* Header band */}
         <div style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', padding: '16px 24px' }}>
@@ -473,6 +504,15 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
         .evdash-sidebar { flex-shrink: 0; height: 100vh; position: sticky; top: 0; overflow-y: auto; overflow-x: hidden; }
         @media (max-width: 768px) { .evdash-sidebar { display: none; } }
         @media (max-width: 900px) { .evdash-grid { grid-template-columns: 1fr !important; } }
+        .evdash-mobile-toggle { display: none; }
+        .evdash-mobile-sidebar { display: none; position: fixed; top: 0; left: 0; width: 220px; height: 100vh; z-index: 200; overflow-y: auto; transform: translateX(-100%); transition: transform 200ms ease; background: var(--bg-secondary); }
+        .evdash-mobile-sidebar.open { transform: translateX(0); }
+        .evdash-mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 199; }
+        @media (max-width: 768px) {
+          .evdash-mobile-toggle { display: flex; }
+          .evdash-mobile-sidebar { display: block; }
+          .evdash-mobile-overlay { display: block; }
+        }
       `}</style>
     </div>
   )
