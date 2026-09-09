@@ -578,17 +578,6 @@ export function NavbarFull() {
                       <div style={{ padding: '12px 14px 10px', marginBottom: '4px', borderBottom: '1px solid var(--border-color)' }}>
                         <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px' }}>{firstName}</p>
                         <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '0 0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
-                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                          {(user.is_creator || user.role === 'creator') && (
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(99,102,241,0.15)' : colors.violet.bg, color: colors.violet.primary, border: '1px solid rgba(99,102,241,0.3)' }}>Créateur</span>
-                          )}
-                          {(user.is_organizer || user.role === 'organizer') && (
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: isDark ? 'rgba(124,58,237,0.15)' : colors.purple.bgF5, color: colors.purple.dark, border: '1px solid rgba(124,58,237,0.3)' }}>Organisateur</span>
-                          )}
-                          {!user.is_creator && !user.is_organizer && user.role === 'visitor' && (
-                            <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)' }}>Visiteur</span>
-                          )}
-                        </div>
                       </div>
 
                       <SimpleItem panelId="profile" idx={0} href="/dashboard"     icon={User} label="Mon dashboard" />
