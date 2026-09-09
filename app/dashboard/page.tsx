@@ -301,6 +301,9 @@ export default function DashboardPage() {
         .mobile-quick-bar {
           display: none;
         }
+        .mobile-tab-switch {
+          display: none;
+        }
         .dash-left-sidebar {
           flex-shrink: 0;
           height: 100vh;
@@ -319,6 +322,7 @@ export default function DashboardPage() {
           .dash-left-sidebar { display: none; }
           .sidebar-quick-actions { display: none; }
           .dash-content { padding-bottom: 72px; }
+          .mobile-tab-switch { display: block; }
           .mobile-quick-bar {
             display: flex;
             position: fixed;
@@ -419,6 +423,20 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile tab switcher (sidebar hidden on mobile) */}
+      {hasCreator && hasOrganizer && (
+        <div className="mobile-tab-switch" style={{ borderBottom: '1px solid var(--border-color)', padding: '10px 16px' }}>
+          <div style={{ display: 'flex', gap: 4, backgroundColor: 'var(--bg-secondary)', borderRadius: 10, padding: 4 }}>
+            {(['creator', 'organizer'] as const).map(t => (
+              <button key={t} onClick={() => setDashTab(t)}
+                style={{ flex: 1, padding: '7px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, backgroundColor: dashTab === t ? 'var(--bg-primary)' : 'transparent', color: dashTab === t ? 'var(--text-primary)' : 'var(--text-secondary)', transition: 'all 150ms ease' }}>
+                {t === 'creator' ? 'Créateur' : 'Organisateur'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="dash-content" style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 40px' }}>
 
@@ -852,6 +870,22 @@ function AppCard({ app, onRefresh }: { app: Application & { event?: Event }; onR
           )}
         </div>
       </div>
+
+      {/* Pay stand CTA — shown when accepted + not yet paid + stand_price defined */}
+      {status === 'accepted' && !(app as any).stripe_payment_id && (app as any).event?.stand_price > 0 && (
+        <div style={{ margin: '0 14px 14px', borderRadius: '8px', border: `1px solid rgba(99,102,241,0.3)`, backgroundColor: 'rgba(99,102,241,0.08)', padding: '12px 14px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 700, color: colors.violet.primary, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Stand accepté</p>
+          {proposed && (
+            <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 10px' }}>
+              {proposed.size} · {proposed.price} EUR
+            </p>
+          )}
+          <Link href={`/events/${(app as any).event_id}/stand-payment?app=${app.id}`}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 7, backgroundColor: colors.violet.primary, color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+            Régler mon stand <ArrowRight size={13} />
+          </Link>
+        </div>
+      )}
 
       {/* Stand proposal block */}
       {(isStandProposed || isCounter) && proposed && (
