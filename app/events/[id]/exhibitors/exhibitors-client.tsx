@@ -575,7 +575,12 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                         )}
                         {ex.status === 'awaiting_payment' && (
                           <span style={{ fontSize: '12px', color: colors.feedback.warning.solid, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Clock size={12} /> Confirmation en attente
+                            <Clock size={12} /> En attente du paiement créateur
+                          </span>
+                        )}
+                        {ex.status === 'approved' && (ex as any).stripe_payment_id && (
+                          <span style={{ fontSize: '12px', color: colors.feedback.success.text, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Check size={12} /> Payé
                           </span>
                         )}
                       </div>

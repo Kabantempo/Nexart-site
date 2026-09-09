@@ -42,7 +42,7 @@ export async function GET(
     // Get all applications (profiles.email n'existe pas en prod — email via auth)
     const { data, error, count } = await admin
       .from('applications')
-      .select('id, creator_id, status, created_at, profiles(full_name)', { count: 'exact' })
+      .select('id, creator_id, status, created_at, proposed_stand, stripe_payment_id, profiles(full_name)', { count: 'exact' })
       .eq('event_id', params.id)
       .order('created_at', { ascending: false })
 
@@ -63,6 +63,8 @@ export async function GET(
       status: app.status === 'accepted' ? 'approved' : app.status === 'refused' ? 'rejected' : app.status,
       tables_count: 0,
       submitted_at: app.created_at,
+      proposed_stand: app.proposed_stand ?? null,
+      stripe_payment_id: app.stripe_payment_id ?? null,
       profiles: { full_name: app.profiles?.full_name ?? null, email: emailMap[app.creator_id] ?? null },
     }))
 
