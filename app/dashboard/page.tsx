@@ -655,7 +655,7 @@ function CreatorMainContent({
         if (!allShiftIds.length) { setVolLoading(false); return }
         // Fetch shift details + event info
         const { data: shiftData } = await supabase
-          .from('event_volunteer_shifts')
+          .from('event_volunteer_shifts' as any)
           .select('id, event_id, role, date, time, events(title, city)')
           .in('id', allShiftIds)
           .gte('date', new Date().toISOString().split('T')[0])

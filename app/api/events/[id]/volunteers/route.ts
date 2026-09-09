@@ -75,7 +75,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const { name, email, phone, shifts } = body
     const { data, error } = await supabase
       .from('event_volunteers')
-      .insert([{ event_id: params.id, name, email, phone: phone || null, shifts, status: 'active' }])
+      .insert([{ event_id: params.id, name, email, phone: phone || null, shifts, status: 'active' } as any])
       .select()
     if (error) throw error
     return NextResponse.json(data?.[0], { status: 201 })

@@ -125,8 +125,8 @@ export function useCreators() {
           const bBoosted = b.profile_boosted_until && new Date(b.profile_boosted_until).getTime() > now ? 1 : 0
           if (bBoosted !== aBoosted) return bBoosted - aBoosted
           // Vérifiés (SIRET + RC Pro) d'abord, puis actifs, puis le reste
-          const scoreA = (a.siret_verified && a.insurance_verified ? 2 : 0) + (a.is_active ? 1 : 0)
-          const scoreB = (b.siret_verified && b.insurance_verified ? 2 : 0) + (b.is_active ? 1 : 0)
+          const scoreA = ((a as any).siret_verified && (a as any).insurance_verified ? 2 : 0) + (a.is_active ? 1 : 0)
+          const scoreB = ((b as any).siret_verified && (b as any).insurance_verified ? 2 : 0) + (b.is_active ? 1 : 0)
           return scoreB - scoreA
         })
 

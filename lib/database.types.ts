@@ -2615,6 +2615,7 @@ export type Database = {
           notification_prefs: Json | null
           onboarding_done: boolean
           preferred_language: string | null
+          profile_boosted_until: string | null
           profile_visibility: string | null
           push_token: string | null
           referral_code: string | null
@@ -3294,6 +3295,8 @@ export type Database = {
         | "confirmed"
         | "stand_proposed"
         | "counter_proposed"
+        | "paid"
+        | "refunded"
       event_status: "draft" | "published" | "closed"
       event_type:
         | "permanent"
@@ -3440,6 +3443,8 @@ export const Constants = {
         "confirmed",
         "stand_proposed",
         "counter_proposed",
+        "paid",
+        "refunded",
       ],
       event_status: ["draft", "published", "closed"],
       event_type: ["permanent", "seasonal", "popup", "salon", "fair", "marche"],

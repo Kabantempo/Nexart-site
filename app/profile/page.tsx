@@ -407,7 +407,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user) return
     setSaving(true)
-    const isCreator = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || user.is_creator === true
+    const isCreator = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || (user as any).is_creator === true
 
     // Save basic profile
     const { error: profileError } = await supabase

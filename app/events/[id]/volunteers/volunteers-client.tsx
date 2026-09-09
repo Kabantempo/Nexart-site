@@ -548,12 +548,17 @@ function PlanningTab({ eventId, shifts, volunteers, onRefresh, onSwitchTab }: { 
   const getVol = (id: string) => volunteers.find(v => v.id === id)
 
   if (shifts.length === 0 || volunteers.length === 0) return (
-    <Empty icon={AlertCircle} title="Planning impossible" subtitle={shifts.length === 0 ? 'Ajoutez d\'abord des activités.' : 'Ajoutez d\'abord des bénévoles.'}>
-      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-        {shifts.length === 0 && <PrimaryBtn onClick={() => onSwitchTab('shifts')}><Clock size={14} /> Ajouter activités</PrimaryBtn>}
-        {volunteers.length === 0 && <GhostBtn onClick={() => onSwitchTab('volunteers')}><Users size={14} /> Ajouter bénévoles</GhostBtn>}
-      </div>
-    </Empty>
+    <Empty
+      icon={AlertCircle}
+      title="Planning impossible"
+      subtitle={shifts.length === 0 ? 'Ajoutez d\'abord des activités.' : 'Ajoutez d\'abord des bénévoles.'}
+      action={
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {shifts.length === 0 && <PrimaryBtn onClick={() => onSwitchTab('shifts')}><Clock size={14} /> Ajouter activités</PrimaryBtn>}
+          {volunteers.length === 0 && <GhostBtn onClick={() => onSwitchTab('volunteers')}><Users size={14} /> Ajouter bénévoles</GhostBtn>}
+        </div>
+      }
+    />
   )
 
   return (

@@ -44,7 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // Utiliser stand_types_data (JSONB complet) comme source principale
   if (Array.isArray(ev.stand_types_data) && ev.stand_types_data.length > 0) {
     // Convertir chaque type de stand en "slots" individuels disponibles
-    const stands = ev.stand_types_data.flatMap((t: StandTypeData, typeIdx: number) => {
+    const stands = (ev.stand_types_data as unknown as StandTypeData[]).flatMap((t, typeIdx) => {
       const count = Number(t.count) || 0
       const price = Number(t.price_min) || 0
       const dim = t.dimensions?.trim() || ''

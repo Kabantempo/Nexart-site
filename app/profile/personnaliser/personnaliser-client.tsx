@@ -75,7 +75,7 @@ export default function PersonnaliserClient() {
       setUserId(session.user.id)
       const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, bio').eq('id', session.user.id).maybeSingle()
       const { data: cp } = await supabase.from('creator_profiles').select('id, disciplines, city, region, travel_radius, website, instagram, etsy').eq('user_id', session.user.id).maybeSingle()
-      if (profile) setCreator({ ...profile, creator_id: session.user.id, disciplines: cp?.disciplines ?? [] })
+      if (profile) setCreator({ ...profile, avatar_url: profile.avatar_url ?? undefined, bio: profile.bio ?? undefined, creator_id: session.user.id, disciplines: cp?.disciplines ?? [] })
       setBio(profile?.bio ?? '')
       setDisciplines(cp?.disciplines ?? [])
       setCity(cp?.city ?? '')
@@ -599,7 +599,7 @@ export default function PersonnaliserClient() {
               products: 'Boutique',
               social: 'Réseau social',
             }
-            const sections = s.sections ?? {}
+            const sections = s.sections_visible ?? {}
             return (
               <div>
                 <p style={{ fontSize: '12px', fontWeight: 600, color: colors.text.muted, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Aperçu — Sections visibles</p>

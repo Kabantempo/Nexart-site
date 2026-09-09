@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (fetchErr || !req_data) return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 })
-  const { user_id, name } = req_data as { user_id: string; name: string }
+  const { user_id, name } = req_data as unknown as { user_id: string; name: string }
 
   const status = action === 'approve' ? 'approved' : 'rejected'
   await admin
