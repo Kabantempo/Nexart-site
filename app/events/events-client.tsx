@@ -6,6 +6,8 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import type { Event as NexartEvent } from '@/lib/types'
 import { colors } from '@/lib/design-tokens'
+import { useAuthStore } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -298,6 +300,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
 
 export default function EventsClient() {
   const router = useRouter()
+  const user = useAuthStore(s => s.user)
   const [events, setEvents] = useState<NexartEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -308,6 +311,13 @@ export default function EventsClient() {
   const [cityFilter, setCityFilter] = useState('all')
   const [gratuitOnly, setGratuitOnly] = useState(false)
   const [bientotOnly, setBientotOnly] = useState(false)
+  const [disciplines, setDisciplines] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!user) return
+    supabase.from('creator_profiles').select('disciplines').eq('id', user.id).single()
+      .then(({ data }) => { if (data?.disciplines?.length) setDisciplines(data.disciplines) })
+  }, [user?.id])
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 1024)
@@ -395,6 +405,13 @@ export default function EventsClient() {
   }))
 
   const marches = applySort(filtered.filter(e => ['popup', 'fair', 'salon'].includes(e.event_type)))
+
+  const pourVous = disciplines.length > 0
+    ? applySort(events.filter(e => {
+        const hay = [...(e.theme ?? []), ...(e.discipline_tags ?? [])].map(s => s.toLowerCase())
+        return disciplines.some(d => hay.some(h => h.includes(d.toLowerCase()) || d.toLowerCase().includes(h)))
+      }).filter(e => new Date(e.start_date) >= now)).slice(0, 10)
+    : []
 
   const uniqueEventCities = [...new Set(events.map(e => e.city).filter(Boolean))].sort() as string[]
   const TYPE_FILTERS = [
@@ -569,6 +586,53 @@ export default function EventsClient() {
 
           {/* Main */}
           <main style={{ flex: 1, padding: '32px 48px 0 32px', minWidth: 0 }}>
+            {pourVous.length > 0 && !loading && (
+              <div style={{ marginBottom: 36 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                  <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: colors.violet.primary }}>Pour vous</p>
+                  <div style={{ flex: 1, height: 1, backgroundColor: `${colors.violet.primary}20` }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                  {pourVous.slice(0, 3).map((ev, i) => {
+                    const st = statusLabel(ev.status)
+                    const tags = getTagsFromEvent(ev)
+                    return (
+                      <motion.div
+                        key={ev.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.28, delay: i * 0.06 }}
+                        onClick={() => handleCardClick(ev.id)}
+                        className="ev-dcard"
+                        style={{ borderRadius: 6, backgroundColor: 'var(--ev-card-bg)', border: `1.5px solid ${colors.violet.primary}30`, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+                      >
+                        <div style={{ position: 'relative', width: '100%', height: 160, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
+                          {ev.cover_image && <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
+                          <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{st.label}</span>
+                        </div>
+                        <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 7, flex: 1 }}>
+                          <p style={{ margin: 0, color: 'var(--ev-card-title)', fontSize: 14, fontWeight: 700, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', lineHeight: 1.35 }}>{ev.title}</p>
+                          {tags.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                              {tags.map(tag => (
+                                <span key={tag} style={{ backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4 }}>{tag}</span>
+                              ))}
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 8, borderTop: `1px solid ${colors.violet.primary}18` }}>
+                            <span style={{ fontSize: 11, color: 'var(--ev-card-date)' }}>
+                              {ev.start_date ? formatDate(ev.start_date) : ''}{ev.city ? ` · ${ev.city}` : ''}
+                            </span>
+                            <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--ev-card-title)' }}>{formatPrice(ev.stand_price)}</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+                <div style={{ height: 1, backgroundColor: 'var(--border-color)', margin: '28px 0 0' }} />
+              </div>
+            )}
             {loading ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -801,6 +865,14 @@ export default function EventsClient() {
           initial="hidden"
           animate="show"
         >
+          {pourVous.length > 0 && (
+            <Section
+              title="Pour vous"
+              events={pourVous}
+              loading={false}
+              onCardClick={handleCardClick}
+            />
+          )}
           <Section
             title="À ne pas manquer"
             events={upcoming.slice(0, 12)}
