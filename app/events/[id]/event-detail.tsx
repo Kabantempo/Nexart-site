@@ -33,6 +33,10 @@ const STATUS_STYLES: Record<string, { label: string; color: string; bg: string }
   pending: { label: 'En attente', color: colors.feedback.warning.solid, bg: colors.feedback.warning.bg },
   accepted: { label: 'Acceptée ✓', color: colors.feedback.success.solid, bg: colors.feedback.success.bg },
   refused: { label: 'Refusée', color: colors.feedback.danger.solid, bg: colors.red.bg },
+  stand_proposed: { label: 'Stand propose — repondez', color: colors.violet.primary, bg: colors.violet.wash },
+  counter_proposed: { label: 'Contre-offre envoyee', color: colors.feedback.warning.solid, bg: colors.feedback.warning.bg },
+  awaiting_payment: { label: 'Stand accepte — en attente du formulaire', color: colors.feedback.success.solid, bg: colors.feedback.success.bg },
+  paid: { label: 'Stand paye ✓', color: colors.feedback.success.solid, bg: colors.feedback.success.bg },
 }
 
 type Stand = { id: string; stand_number: string; dimensions: string | null; notes: string | null; creator_id: string | null }
@@ -164,6 +168,9 @@ export function EventDetailClient({ id }: Props) {
   const [selectedPortfolioUrls, setSelectedPortfolioUrls] = useState<string[]>([])
   const [creatorPortfolioImages, setCreatorPortfolioImages] = useState<string[]>([])
   const [weeklyApplicants, setWeeklyApplicants] = useState<number | null>(null)
+  const [counterNote, setCounterNote] = useState('')
+  const [showCounterForm, setShowCounterForm] = useState(false)
+  const [respondingStand, setRespondingStand] = useState(false)
 
   const REQUIRED_FIELDS_TOTAL = 6
 
@@ -313,6 +320,51 @@ export function EventDetailClient({ id }: Props) {
     } finally {
       setContractLoading(null)
     }
+  }
+
+  const handleStandAccept = async () => {
+    if (!application) return
+    setRespondingStand(true)
+    const { error } = await supabase.from('applications').update({ status: 'awaiting_payment' }).eq('id', application.id)
+    if (!error) {
+      application.status = 'awaiting_payment'
+      toastSuccess('Stand accepte — completez le formulaire pour finaliser')
+      router.push(`/events/${id}/stand-payment?app=${application.id}`)
+    } else {
+      toastError('Erreur lors de la reponse')
+    }
+    setRespondingStand(false)
+  }
+
+  const handleStandRefuse = async () => {
+    if (!application) return
+    setRespondingStand(true)
+    const { error } = await supabase.from('applications').update({ status: 'refused' }).eq('id', application.id)
+    if (!error) {
+      application.status = 'refused'
+      toastSuccess('Stand refuse')
+    } else {
+      toastError('Erreur lors de la reponse')
+    }
+    setRespondingStand(false)
+  }
+
+  const handleStandCounter = async () => {
+    if (!application || !counterNote.trim()) return
+    setRespondingStand(true)
+    const updatedStand = { ...(application as any).proposed_stand, counter_note: counterNote.trim() }
+    const { error } = await supabase.from('applications')
+      .update({ status: 'counter_proposed', proposed_stand: updatedStand })
+      .eq('id', application.id)
+    if (!error) {
+      application.status = 'counter_proposed' as any
+      setShowCounterForm(false)
+      setCounterNote('')
+      toastSuccess('Contre-offre envoyee — l\'organisateur sera notifie')
+    } else {
+      toastError('Erreur lors de la reponse')
+    }
+    setRespondingStand(false)
   }
 
   const handleCancelApplication = async () => {
@@ -722,6 +774,69 @@ export function EventDetailClient({ id }: Props) {
                       <button onClick={handleCancelApplication} disabled={cancelling} style={{ marginTop: 10, padding: '8px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: cancelling ? 'wait' : 'pointer', opacity: cancelling ? 0.6 : 1, width: '100%' }}>
                         {cancelling ? 'Retrait…' : 'Retirer ma candidature'}
                       </button>
+                    )}
+                    {(application.status as string) === 'stand_proposed' && (application as any).proposed_stand && (
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ padding: '12px', borderRadius: 8, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', marginBottom: 10 }}>
+                          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 8px' }}>Stand propose</p>
+                          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <div>
+                              <p style={{ fontSize: 10, color: 'var(--text-secondary)', margin: '0 0 2px' }}>Taille</p>
+                              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{(application as any).proposed_stand.size}</p>
+                            </div>
+                            <div>
+                              <p style={{ fontSize: 10, color: 'var(--text-secondary)', margin: '0 0 2px' }}>Prix</p>
+                              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{(application as any).proposed_stand.price} EUR</p>
+                            </div>
+                          </div>
+                          {(application as any).proposed_stand.note && (
+                            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '8px 0 0', fontStyle: 'italic' }}>{(application as any).proposed_stand.note}</p>
+                          )}
+                        </div>
+                        {!showCounterForm ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <button onClick={handleStandAccept} disabled={respondingStand} style={{ padding: '10px', borderRadius: 6, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: 13, fontWeight: 700, cursor: respondingStand ? 'wait' : 'pointer', opacity: respondingStand ? 0.7 : 1 }}>
+                              Accepter et continuer
+                            </button>
+                            <button onClick={() => setShowCounterForm(true)} style={{ padding: '9px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                              Faire une contre-offre
+                            </button>
+                            <button onClick={handleStandRefuse} disabled={respondingStand} style={{ padding: '9px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: colors.feedback.danger.solid, fontSize: 13, fontWeight: 600, cursor: respondingStand ? 'wait' : 'pointer', opacity: respondingStand ? 0.7 : 1 }}>
+                              Refuser
+                            </button>
+                          </div>
+                        ) : (
+                          <div>
+                            <textarea
+                              value={counterNote}
+                              onChange={e => setCounterNote(e.target.value)}
+                              placeholder="Expliquez votre contre-offre a l'organisateur…"
+                              rows={3}
+                              style={{ width: '100%', padding: '10px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                            />
+                            <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                              <button onClick={handleStandCounter} disabled={respondingStand || !counterNote.trim()} style={{ flex: 1, padding: '9px', borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: 13, fontWeight: 700, cursor: (respondingStand || !counterNote.trim()) ? 'not-allowed' : 'pointer', opacity: (respondingStand || !counterNote.trim()) ? 0.6 : 1 }}>
+                                Envoyer
+                              </button>
+                              <button onClick={() => { setShowCounterForm(false); setCounterNote('') }} style={{ padding: '9px 14px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>
+                                Annuler
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {(application.status as string) === 'counter_proposed' && (
+                      <div style={{ marginTop: 10, padding: '10px', borderRadius: 6, backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                        <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>Votre contre-offre a ete envoyee. En attente de la reponse de l'organisateur.</p>
+                      </div>
+                    )}
+                    {(application.status as string) === 'awaiting_payment' && (
+                      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <button onClick={() => router.push(`/events/${id}/stand-payment?app=${application.id}`)} style={{ padding: '11px', borderRadius: 6, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                          Completer le formulaire et payer
+                        </button>
+                      </div>
                     )}
                   {application.status === 'paid' && (
                     <div style={{ marginTop: 10, padding: '10px', borderRadius: 6, backgroundColor: colors.green.bg, border: `1px solid ${colors.green.primary}`, textAlign: 'center' }}>

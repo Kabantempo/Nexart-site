@@ -24,7 +24,7 @@ interface Exhibitor {
   tables_count: number
   submitted_at: string
   profiles?: { full_name: string | null; email: string | null }
-  proposed_stand?: { size: string; price: number; note?: string } | null
+  proposed_stand?: { size: string; price: number; note?: string; counter_note?: string } | null
 }
 
 export default function ExhibitorsClient({ eventId, defaultTab, solo }: { eventId: string; defaultTab?: 'form-setup' | 'dashboard' | 'documents'; solo?: boolean }) {
@@ -542,7 +542,12 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                         <div>
                           <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{ex.proposed_stand.size} · {ex.proposed_stand.price} EUR</p>
                           {ex.proposed_stand.note && <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>{ex.proposed_stand.note}</p>}
-                          {isCounter && <p style={{ margin: '4px 0 0', fontSize: '11px', fontWeight: 600, color: colors.purple.dark }}>Contre-offre du createur</p>}
+                          {isCounter && (
+                            <div style={{ marginTop: 4 }}>
+                              <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: colors.purple.dark }}>Contre-offre du createur</p>
+                              {ex.proposed_stand.counter_note && <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{ex.proposed_stand.counter_note}</p>}
+                            </div>
+                          )}
                         </div>
                       ) : <span style={{ color: 'var(--text-tertiary)', fontSize: '13px' }}>—</span>}
                     </td>
@@ -577,9 +582,14 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
               </div>
               {/* Stand info */}
               {ex.proposed_stand && (
-                <div style={{ padding: '8px 10px', borderRadius: 8, backgroundColor: 'var(--bg-primary)', marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{ex.proposed_stand.size} · {ex.proposed_stand.price} EUR</span>
-                  {isCounter && <span style={{ fontSize: 11, fontWeight: 600, color: colors.purple.dark }}>Contre-offre</span>}
+                <div style={{ padding: '8px 10px', borderRadius: 8, backgroundColor: 'var(--bg-primary)', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{ex.proposed_stand.size} · {ex.proposed_stand.price} EUR</span>
+                    {isCounter && <span style={{ fontSize: 11, fontWeight: 600, color: colors.purple.dark }}>Contre-offre</span>}
+                  </div>
+                  {isCounter && ex.proposed_stand.counter_note && (
+                    <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic' }}>{ex.proposed_stand.counter_note}</p>
+                  )}
                 </div>
               )}
               {/* Actions */}
