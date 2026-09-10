@@ -369,12 +369,12 @@ export function CreatorProfileClient({ id }: Props) {
       )}
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <div className="bg-[${colors.dark.base}] relative overflow-hidden">
+      <div className="relative overflow-hidden" style={{ backgroundColor: '#0F0F0F' }}>
         {/* Banner image */}
         {creator.banner_url && (
-          <div className="absolute inset-0 z-0">
-            <Image src={creator.banner_url} alt={`Bannière de ${creator.full_name}`} fill style={{ objectFit: 'cover', opacity: 0.3 }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[${colors.dark.base}]/60 to-[${colors.dark.base}]" />
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+            <Image src={creator.banner_url} alt={`Bannière de ${creator.full_name}`} fill style={{ objectFit: 'cover', opacity: 0.35 }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 0%, rgba(15,15,15,0.65) 55%, #0F0F0F 100%)' }} />
           </div>
         )}
         {!creator.banner_url && (
@@ -400,7 +400,7 @@ export function CreatorProfileClient({ id }: Props) {
                 )}
               </div>
               {(creator.siret_verified || creator.insurance_verified) && (
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-emerald-500 border-2 border-[${colors.dark.base}] flex items-center justify-center">
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center" style={{ border: '2px solid #0F0F0F' }}>
                   <BadgeCheck size={14} className="text-white" />
                 </div>
               )}
@@ -580,7 +580,7 @@ export function CreatorProfileClient({ id }: Props) {
                             onError={() => setPortfolioImgErrors(prev => new Set([...prev, idx]))}
                           />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <span style={{ fontSize: '28px', opacity: 0.4 }}>🖼️</span>
                           </div>
                         )}
