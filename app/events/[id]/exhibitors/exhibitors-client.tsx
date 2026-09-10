@@ -24,7 +24,7 @@ interface Exhibitor {
   tables_count: number
   submitted_at: string
   profiles?: { full_name: string | null; email: string | null }
-  proposed_stand?: { size: string; price: number; note?: string; counter_note?: string } | null
+  proposed_stand?: { size: string; price: number; note?: string; counter_note?: string; counter_size?: string } | null
 }
 
 export default function ExhibitorsClient({ eventId, defaultTab, solo }: { eventId: string; defaultTab?: 'form-setup' | 'dashboard' | 'documents'; solo?: boolean }) {
@@ -545,6 +545,7 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                           {isCounter && (
                             <div style={{ marginTop: 4 }}>
                               <p style={{ margin: 0, fontSize: '11px', fontWeight: 600, color: colors.purple.dark }}>Contre-offre du createur</p>
+                              {ex.proposed_stand.counter_size && <p style={{ margin: '2px 0 0', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>Taille demandee : {ex.proposed_stand.counter_size}</p>}
                               {ex.proposed_stand.counter_note && <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{ex.proposed_stand.counter_note}</p>}
                             </div>
                           )}
@@ -587,8 +588,11 @@ function ExhibitorsDashboard({ exhibitors, fields, filterStatus, onFilterChange,
                     <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{ex.proposed_stand.size} · {ex.proposed_stand.price} EUR</span>
                     {isCounter && <span style={{ fontSize: 11, fontWeight: 600, color: colors.purple.dark }}>Contre-offre</span>}
                   </div>
+                  {isCounter && ex.proposed_stand.counter_size && (
+                    <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>Taille demandee : {ex.proposed_stand.counter_size}</p>
+                  )}
                   {isCounter && ex.proposed_stand.counter_note && (
-                    <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic' }}>{ex.proposed_stand.counter_note}</p>
+                    <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic' }}>{ex.proposed_stand.counter_note}</p>
                   )}
                 </div>
               )}

@@ -169,6 +169,7 @@ export function EventDetailClient({ id }: Props) {
   const [creatorPortfolioImages, setCreatorPortfolioImages] = useState<string[]>([])
   const [weeklyApplicants, setWeeklyApplicants] = useState<number | null>(null)
   const [counterNote, setCounterNote] = useState('')
+  const [counterSize, setCounterSize] = useState('')
   const [showCounterForm, setShowCounterForm] = useState(false)
   const [respondingStand, setRespondingStand] = useState(false)
 
@@ -352,7 +353,11 @@ export function EventDetailClient({ id }: Props) {
   const handleStandCounter = async () => {
     if (!application || !counterNote.trim()) return
     setRespondingStand(true)
-    const updatedStand = { ...(application as any).proposed_stand, counter_note: counterNote.trim() }
+    const updatedStand = {
+      ...(application as any).proposed_stand,
+      counter_note: counterNote.trim(),
+      counter_size: counterSize.trim() || undefined,
+    }
     const { error } = await supabase.from('applications')
       .update({ status: 'counter_proposed', proposed_stand: updatedStand })
       .eq('id', application.id)
@@ -360,6 +365,7 @@ export function EventDetailClient({ id }: Props) {
       application.status = 'counter_proposed' as any
       setShowCounterForm(false)
       setCounterNote('')
+      setCounterSize('')
       toastSuccess('Contre-offre envoyee — l\'organisateur sera notifie')
     } else {
       toastError('Erreur lors de la reponse')
@@ -798,7 +804,7 @@ export function EventDetailClient({ id }: Props) {
                             <button onClick={handleStandAccept} disabled={respondingStand} style={{ padding: '10px', borderRadius: 6, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff', fontSize: 13, fontWeight: 700, cursor: respondingStand ? 'wait' : 'pointer', opacity: respondingStand ? 0.7 : 1 }}>
                               Accepter et continuer
                             </button>
-                            <button onClick={() => setShowCounterForm(true)} style={{ padding: '9px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                            <button onClick={() => { setShowCounterForm(true); setCounterSize((application as any).proposed_stand?.size ?? '') }} style={{ padding: '9px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                               Faire une contre-offre
                             </button>
                             <button onClick={handleStandRefuse} disabled={respondingStand} style={{ padding: '9px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: colors.feedback.danger.solid, fontSize: 13, fontWeight: 600, cursor: respondingStand ? 'wait' : 'pointer', opacity: respondingStand ? 0.7 : 1 }}>
@@ -806,19 +812,32 @@ export function EventDetailClient({ id }: Props) {
                             </button>
                           </div>
                         ) : (
-                          <div>
-                            <textarea
-                              value={counterNote}
-                              onChange={e => setCounterNote(e.target.value)}
-                              placeholder="Expliquez votre contre-offre a l'organisateur…"
-                              rows={3}
-                              style={{ width: '100%', padding: '10px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                            />
-                            <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <div>
+                              <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Taille souhaitee</label>
+                              <input
+                                type="text"
+                                value={counterSize}
+                                onChange={e => setCounterSize(e.target.value)}
+                                placeholder={`ex: 3m x 3m`}
+                                style={{ width: '100%', padding: '9px 10px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 13, boxSizing: 'border-box', fontFamily: 'inherit' }}
+                              />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Message (obligatoire)</label>
+                              <textarea
+                                value={counterNote}
+                                onChange={e => setCounterNote(e.target.value)}
+                                placeholder="Expliquez votre demande a l'organisateur…"
+                                rows={3}
+                                style={{ width: '100%', padding: '10px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', gap: 6 }}>
                               <button onClick={handleStandCounter} disabled={respondingStand || !counterNote.trim()} style={{ flex: 1, padding: '9px', borderRadius: 6, border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: 13, fontWeight: 700, cursor: (respondingStand || !counterNote.trim()) ? 'not-allowed' : 'pointer', opacity: (respondingStand || !counterNote.trim()) ? 0.6 : 1 }}>
                                 Envoyer
                               </button>
-                              <button onClick={() => { setShowCounterForm(false); setCounterNote('') }} style={{ padding: '9px 14px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>
+                              <button onClick={() => { setShowCounterForm(false); setCounterNote(''); setCounterSize('') }} style={{ padding: '9px 14px', borderRadius: 6, border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>
                                 Annuler
                               </button>
                             </div>
