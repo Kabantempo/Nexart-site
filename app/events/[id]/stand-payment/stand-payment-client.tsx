@@ -40,7 +40,7 @@ interface AppInfo {
 export default function StandPaymentClient({ eventId }: { eventId: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const appId = searchParams.get('app')
+  const appId = searchParams?.get('app') ?? null
 
   const [app, setApp] = useState<AppInfo | null>(null)
   const [fields, setFields] = useState<Field[]>([])
