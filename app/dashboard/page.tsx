@@ -1047,9 +1047,6 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {/* Credits */}
-      <CreditsWidget />
-
       {/* Next event */}
       {nextEvent?.event && (
         <SidebarCard title="Prochain marché">
