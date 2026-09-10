@@ -664,6 +664,16 @@ function ExhibitorActions({ ex, onStatusChange, onProposeStand, onAcceptCounter,
           </button>
         </>
       )}
+      {ex.status === 'rejected' && (
+        <>
+          <button onClick={() => onStatusChange(ex.id, 'pending')} style={{ ...soberBtn }}>
+            <RefreshCw size={12} /> Remettre en attente
+          </button>
+          <button onClick={() => onStatusChange(ex.id, 'approved')} style={{ ...btnBase, border: 'none', backgroundColor: colors.feedback.success.solid, color: '#fff' }}>
+            <Check size={12} /> Accepter
+          </button>
+        </>
+      )}
       {ex.status === 'approved' && (ex as any).stripe_payment_id && (
         <span style={{ fontSize: '12px', color: colors.feedback.success.text, fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
           <Check size={12} /> Paye
