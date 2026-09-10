@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, FileText, Send, Download } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Calendar, MapPin, Users, Euro, Tag, Clock, ChevronRight, Heart, AlertTriangle, FileText, Send, Download } from 'lucide-react'
 import { trackApplicationSubmit } from '@/lib/analytics'
 import { useToast } from '@/components/ui/toast-provider'
 import { ShareButtons } from '@/components/ui/share-buttons'
@@ -16,6 +16,29 @@ import { ReportButton } from '@/components/ui/report-button'
 import StandPlanViewer from '@/components/ui/stand-plan-viewer'
 import { NexModal } from '@/components/ui/nex-modal'
 import { colors } from '@/lib/design-tokens'
+import { eventUrl } from '@/lib/event-url'
+import type { Event as NexartEvent } from '@/lib/types'
+
+function fmtEventDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+}
+function fmtEventPrice(price?: number | null) {
+  if (!price || price === 0) return 'Gratuit'
+  return `${price} €`
+}
+function getEventTags(ev: NexartEvent): string[] {
+  const typeMap: Record<string, string> = { popup: 'Pop-up', salon: 'Salon', fair: 'Foire', seasonal: 'Saisonnier', permanent: 'Permanent' }
+  const tags: string[] = []
+  if (ev.event_type && typeMap[ev.event_type]) tags.push(typeMap[ev.event_type])
+  if (ev.theme?.length) tags.push(...ev.theme.slice(0, 2))
+  else if (ev.discipline_tags?.length) tags.push(...ev.discipline_tags.slice(0, 2))
+  return tags
+}
+function getEventStatusLabel(status: NexartEvent['status']) {
+  if (status === 'published') return { label: 'Ouvert', color: colors.feedback.success.solid }
+  if (status === 'closed') return { label: 'Complet', color: colors.feedback.danger.solid }
+  return { label: 'Bientôt', color: colors.feedback.warning.solid }
+}
 
 interface Props {
   id: string
@@ -172,6 +195,32 @@ export function EventDetailClient({ id }: Props) {
   const [counterSize, setCounterSize] = useState('')
   const [showCounterForm, setShowCounterForm] = useState(false)
   const [respondingStand, setRespondingStand] = useState(false)
+  const [recommended, setRecommended] = useState<NexartEvent[]>([])
+
+  useEffect(() => {
+    if (!user) return
+    const load = async () => {
+      const { data: cp } = await supabase.from('creator_profiles').select('disciplines, city, region').eq('user_id', user.id).maybeSingle()
+      if (!cp?.disciplines?.length) return
+      const { data: evs } = await supabase.from('events').select('*').eq('status', 'published').gt('start_date', new Date().toISOString()).neq('id', id).limit(60)
+      if (!evs?.length) return
+      const scored = evs
+        .map(e => {
+          const tags: string[] = [...(e.discipline_tags ?? []), ...(e.theme ?? [])]
+          const match = tags.some((t: string) => cp.disciplines.some((d: string) => t.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(t.toLowerCase())))
+          if (!match) return null
+          let score = 0
+          if (cp.region && e.region === cp.region) score += 2
+          if (cp.city && e.city === cp.city) score += 1
+          return { ...e, _score: score }
+        })
+        .filter(Boolean) as (NexartEvent & { _score: number })[]
+      scored.sort((a, b) => b._score - a._score)
+      setRecommended(scored.slice(0, 3))
+    }
+    load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, id])
 
   const REQUIRED_FIELDS_TOTAL = 6
 
@@ -1074,6 +1123,58 @@ export function EventDetailClient({ id }: Props) {
             </motion.div>
           </div>
         </div>
+
+        {/* ── POUR VOUS ──────────────────────────────────────────── */}
+        {recommended.length > 0 && (
+          <div style={{ marginTop: 48, paddingTop: 40, borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: colors.violet.primary }}>Pour vous</p>
+                <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)', fontWeight: 400 }}>Autres événements selon vos disciplines</p>
+              </div>
+              <Link href="/events" style={{ fontSize: 12, fontWeight: 600, color: colors.violet.primary, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                Voir tout <ArrowRight size={12} />
+              </Link>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+              {recommended.map((ev, i) => {
+                const st = getEventStatusLabel(ev.status)
+                const tags = getEventTags(ev)
+                return (
+                  <Link key={ev.id} href={eventUrl(ev)} style={{ textDecoration: 'none' }}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.28, delay: i * 0.06 }}
+                      style={{ borderRadius: 8, backgroundColor: 'var(--ev-card-bg)', border: `1.5px solid ${colors.violet.primary}25`, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}
+                    >
+                      <div style={{ position: 'relative', width: '100%', height: 160, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
+                        {ev.cover_image && <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
+                        <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: '#fff', fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{st.label}</span>
+                      </div>
+                      <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 7, flex: 1 }}>
+                        <p style={{ margin: 0, color: 'var(--ev-card-title)', fontSize: 14, fontWeight: 700, display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', lineHeight: 1.35 }}>{ev.title}</p>
+                        {tags.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                            {tags.map(tag => (
+                              <span key={tag} style={{ backgroundColor: `${colors.violet.primary}12`, color: colors.violet.primary, fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 4 }}>{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 8, borderTop: `1px solid ${colors.violet.primary}18` }}>
+                          <span style={{ fontSize: 11, color: 'var(--ev-card-date)' }}>
+                            {fmtEventDate(ev.start_date)}{ev.city ? ` · ${ev.city}` : ''}
+                          </span>
+                          <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--ev-card-title)' }}>{fmtEventPrice(ev.stand_price)}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
