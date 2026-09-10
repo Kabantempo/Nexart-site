@@ -28,9 +28,12 @@
 - [x] Code de production non versionné (~30 fichiers) — PR #221
 - [x] Build GitHub Actions cassé (`verified-badge` manquant) — PR #221
 - [x] `saved-searches-notify` planifié deux fois par jour (`cron.yml` + `cron-jobs.yml`) — fusionné
-- [ ] `CRON_SECRET_TOKEN` : le secret GitHub ne correspond plus au `.env` serveur (crons en 401 tous les jours). Fix : `gh secret set CRON_SECRET_TOKEN`
+- [x] `CRON_SECRET_TOKEN` : secret GitHub resynchronisé sur le `.env` serveur le 09/09/26
 - [ ] 4 routes cron sans planificateur GitHub : `cleanup-audit-logs`, `close-expired-events`, `stand-reminder-7days`, `volunteer-reminders` — vérifier EasyCron avant d'ajouter
-- [ ] PRs ouvertes à trier : #201 (portfolio overflow, 22/08), #141 (Stripe Connect, 15/08), #138 (suppression /blog, 15/08)
+- [x] PRs en souffrance triées : #201 et #141 fermées (déjà dans main / déjà en prod), #138 refaite depuis main en #224
+- [x] `/blog` supprimé — pages, données et CSS mort retirés, `/blog` et `/blog/:path*` redirigés en 301 vers l'accueil
+- [ ] `npx tsc --noEmit` : 53 erreurs, dont la majorité vient de `types/supabase.ts` généré sur un schéma à 61 tables alors que la prod en a 67. Le CI reste rouge tant que ce n'est pas repris.
+- [ ] `next/font` télécharge Syne depuis Google Fonts à chaque build : un aléa réseau fait échouer le déploiement (arrivé le 09/09/26). À self-host.
 - [ ] Tables Supabase en doublon : `exhibitor_*` (ancien) et `event_exhibitor_*` (actuel)
 
 ### Produit — à trancher
