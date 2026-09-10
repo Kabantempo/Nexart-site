@@ -99,6 +99,9 @@ export default function DashboardPage() {
   const [accessToken, setAccessToken] = useState<string>('')
   const [connectAlertParams, setConnectAlertParams] = useState<URLSearchParams | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [billingDismissed, setBillingDismissed] = useState(() => {
+    try { return localStorage.getItem('billing_banner_dismissed') === '1' } catch { return false }
+  })
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -459,36 +462,28 @@ export default function DashboardPage() {
           </Link>
         )}
 
-        {/* Billing card */}
-        <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: `1px solid ${isPaid ? 'rgba(99,102,241,0.3)' : 'var(--border-color)'}`, backgroundColor: isPaid ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isPaid ? 'rgba(99,102,241,0.25)' : 'var(--bg-secondary)', flexShrink: 0 }}>
-            <CreditCard size={16} color={isPaid ? colors.violet.primary : colors.text.muted} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Abonnement</span>
-              <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 7px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color }}>{tierCfg.label}</span>
-              {subscriptionStatus === 'active' && <span style={{ fontSize: '11px', color: colors.status.accepted.text, fontWeight: 600 }}>Actif</span>}
+        {/* Billing card — masque pour premium, dismissable pour free */}
+        {!isPaid && !billingDismissed && (
+          <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
+              <CreditCard size={16} color={colors.text.muted} />
             </div>
-            {isPaid && subscriptionEndsAt ? (
-              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
-                Renouvellement le {new Date(subscriptionEndsAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
-            ) : (
-              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Passez à un plan payant pour débloquer plus de fonctionnalités</p>
-            )}
-          </div>
-          {isPaid ? (
-            <button onClick={handleOpenPortal} disabled={portalLoading}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: portalLoading ? 0.6 : 1, flexShrink: 0 }}>
-              <ExternalLink size={12} /> {portalLoading ? 'Chargement…' : 'Gérer'}
-            </button>
-          ) : (
-            <Link href="/offres" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: '0.5px solid ${colors.violet.primary}', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Abonnement</span>
+                <span style={{ fontSize: '10px', fontWeight: 700, padding: '1px 7px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color }}>{tierCfg.label}</span>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>Passez a un plan payant pour debloquer plus de fonctionnalites</p>
+            </div>
+            <Link href="/offres" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 12px', borderRadius: '8px', border: `1px solid ${colors.violet.primary}`, color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none', flexShrink: 0 }}>
               Voir les offres <ArrowRight size={12} />
             </Link>
-          )}
-        </div>
+            <button onClick={() => { setBillingDismissed(true); try { localStorage.setItem('billing_banner_dismissed', '1') } catch {} }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: '4px', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         {!loading && dashTab === 'organizer' && hasOrganizer && (
           <>
