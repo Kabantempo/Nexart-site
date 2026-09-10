@@ -1052,20 +1052,6 @@ function CreatorSidebar({ userId, nextEvent }: { userId: string; nextEvent?: App
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {/* Quick actions */}
-      <div className="sidebar-quick-actions">
-        <SidebarCard title="Actions rapides">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-            {QUICK_ACTIONS.map(a => (
-              <Link key={a.href} href={a.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '10px', fontWeight: 500, textAlign: 'center' }}>
-                <span style={{ color: colors.violet.primary }}>{a.icon}</span>
-                {a.label}
-              </Link>
-            ))}
-          </div>
-        </SidebarCard>
-      </div>
-
       {/* Credits */}
       <CreditsWidget />
 
