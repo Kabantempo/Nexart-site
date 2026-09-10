@@ -12,7 +12,7 @@ import {
   Calendar, Users, CheckCircle, Clock, X, ArrowRight,
   MessageSquare, User, Heart, List, CalendarDays, AlertCircle,
   MapPin, ShoppingBag, BarChart2, Zap, Star, ExternalLink, Eye,
-  Bell, Plus, CreditCard, LogOut, ChevronDown, Euro, ChevronLeft, ChevronRight,
+  Bell, Plus, CreditCard, LogOut, ChevronDown, Euro, ChevronLeft, ChevronRight, FileText,
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import DocumentsPanel from '@/components/documents-panel'
@@ -757,13 +757,6 @@ function CreatorMainContent({
       )}
 
 
-      {/* Mes documents — affiché seulement si une candidature acceptée est liée à un événement */}
-      {applications.find(a => a.status === 'accepted' && a.event_id) && (
-        <div style={{ marginTop: '32px' }}>
-          <DocumentsPanel eventId={applications.find(a => a.status === 'accepted' && a.event_id)!.event_id} role="creator" />
-        </div>
-      )}
-
       {/* Recommandations */}
       {recommended.length > 0 && (
         <div style={{ marginTop: '32px' }}>
@@ -1476,13 +1469,14 @@ function DashSidebar({ collapsed, onToggle, hasCreator, hasOrganizer, isAdmin, u
   const [eventsExpanded, setEventsExpanded] = useState(false)
 
   const creatorItems = [
-    { href: '/events',           icon: <MapPin size={15} />,       label: 'Marchés' },
-    { href: '/messages',         icon: <MessageSquare size={15} />, label: 'Messages' },
-    { href: '/profile',          icon: <User size={15} />,          label: 'Profil' },
-    { href: '/analytics',        icon: <BarChart2 size={15} />,     label: 'Analytics' },
-    { href: `/boutique/${userId}`,icon: <ShoppingBag size={15} />,  label: 'Boutique' },
-    { href: '/creator/payments', icon: <CreditCard size={15} />,    label: 'Paiements' },
-    { href: '/notifications',    icon: <Bell size={15} />,          label: 'Notifications' },
+    { href: '/events',                icon: <MapPin size={15} />,       label: 'Marchés' },
+    { href: '/messages',              icon: <MessageSquare size={15} />, label: 'Messages' },
+    { href: '/profile',               icon: <User size={15} />,          label: 'Profil' },
+    { href: '/analytics',             icon: <BarChart2 size={15} />,     label: 'Analytics' },
+    { href: `/boutique/${userId}`,    icon: <ShoppingBag size={15} />,   label: 'Boutique' },
+    { href: '/creator/payments',      icon: <CreditCard size={15} />,    label: 'Paiements' },
+    { href: '/creator/documents',     icon: <FileText size={15} />,      label: 'Documents' },
+    { href: '/notifications',         icon: <Bell size={15} />,          label: 'Notifications' },
   ]
 
   const organizerItems = [

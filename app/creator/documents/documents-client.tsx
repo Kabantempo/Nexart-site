@@ -1,229 +1,125 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { useAuthStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { FileText, Download, ArrowLeft } from 'lucide-react'
 import { colors } from '@/lib/design-tokens'
-import { FileText, Calendar, MapPin, ArrowLeft, ExternalLink, Download, Loader2 } from 'lucide-react'
 
-interface Doc {
+interface EventDocument {
   id: string
-  status: string
+  event_id: string
+  creator_id: string
+  type: 'contrat' | 'reglement' | 'convocation' | 'facture'
+  pdf_url: string
+  file_name: string
+  sent_at: string | null
+  downloaded_at: string | null
   created_at: string
-  stand_price_cents: number | null
-  paid_at: string | null
-  event: {
-    id: string
-    title: string
-    city: string
-    start_date: string
-    end_date: string
-  } | null
-  contract: {
-    id: string
-    pdf_url: string | null
-    status: string
-  } | null
+  event?: { title: string; start_date: string; city: string }
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  confirmed:       { label: 'Confirmé',        color: colors.green.textGreen, bg: 'rgba(22,163,74,0.12)' },
-  awaiting_payment:{ label: 'En attente paiement', color: colors.blue.primary, bg: 'rgba(14,165,233,0.12)' },
-  accepted:        { label: 'Accepté',         color: colors.green.textGreen, bg: 'rgba(22,163,74,0.12)' },
+const TYPE_LABELS: Record<string, string> = {
+  contrat: 'Contrat',
+  reglement: 'Reglement interieur',
+  convocation: 'Convocation',
+  facture: 'Facture',
 }
 
-function fmt(d: string) {
-  return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
-function fmtPrice(cents: number | null) {
-  if (!cents) return null
-  return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
-}
-
-export default function DocumentsClient() {
+export default function DocumentsPageClient() {
+  const user = useAuthStore(s => s.user)
   const router = useRouter()
-  const [docs, setDocs] = useState<Doc[]>([])
+  const [documents, setDocuments] = useState<EventDocument[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [generating, setGenerating] = useState<string | null>(null)
-  const [genError, setGenError] = useState<string | null>(null)
 
   useEffect(() => {
-    async function load() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { router.push('/login'); return }
+    if (!user) { router.push('/login'); return }
+    fetchDocs()
+  }, [user])
 
-      const res = await fetch('/api/creator/documents', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (!res.ok) { setError('Erreur lors du chargement.'); setLoading(false); return }
+  async function fetchDocs() {
+    setLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setLoading(false); return }
+    const res = await fetch('/api/documents/me', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+    if (res.ok) {
       const json = await res.json()
-      setDocs(json.documents || [])
-      setLoading(false)
+      setDocuments(json.documents || [])
     }
-    load()
-  }, [router])
-
-  async function generateContract(doc: Doc) {
-    if (!doc.event?.id) return
-    setGenerating(doc.id)
-    setGenError(null)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-      const res = await fetch('/api/contracts/generate', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_id: doc.event.id, creator_id: session.user.id, application_id: doc.id }),
-      })
-      const json = await res.json()
-      if (res.ok && json.pdf_url) {
-        setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, contract: { id: json.contract?.id || '', pdf_url: json.pdf_url, status: 'draft' } } : d))
-        window.open(json.pdf_url, '_blank')
-      } else {
-        setGenError(json.error || 'Echec de la generation du contrat.')
-      }
-    } catch {
-      setGenError('Erreur reseau. Veuillez reessayer.')
-    } finally {
-      setGenerating(null)
-    }
+    setLoading(false)
   }
 
-  return (
-    <div style={{ minHeight: 'calc(100vh - 80px)', backgroundColor: colors.bg.primary, padding: '32px 16px 60px' }}>
-      <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+  async function markDownloaded(docId: string) {
+    await (supabase as any).from('event_documents').update({ downloaded_at: new Date().toISOString() }).eq('id', docId)
+    setDocuments(prev => prev.map(d => d.id === docId ? { ...d, downloaded_at: new Date().toISOString() } : d))
+  }
 
-        {/* Header */}
-        <div style={{ marginBottom: '28px' }}>
-          <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: colors.text.secondary, textDecoration: 'none', marginBottom: '16px' }}>
-            <ArrowLeft size={14} /> Tableau de bord
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: `rgba(99,102,241,0.12)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FileText size={18} color={colors.violet.primary} />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.text.primary, margin: 0 }}>Mes documents</h1>
-              <p style={{ fontSize: '13px', color: colors.text.secondary, margin: '2px 0 0' }}>Contrats et confirmations de participation</p>
-            </div>
+  const byEvent = documents.reduce((acc, doc) => {
+    const key = doc.event_id
+    if (!acc[key]) acc[key] = { event: doc.event, docs: [] }
+    acc[key].docs.push(doc)
+    return acc
+  }, {} as Record<string, { event: EventDocument['event']; docs: EventDocument[] }>)
+
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+          <button onClick={() => router.back()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', padding: 0 }}>
+            <ArrowLeft size={18} />
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <FileText size={20} color={colors.violet.primary} />
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Mes documents</h1>
           </div>
         </div>
 
-        {/* States */}
-        {loading && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {[1, 2, 3].map(i => (
-              <div key={i} style={{ height: '100px', borderRadius: '14px', backgroundColor: colors.bg.secondary, border: `1px solid var(--border-color)` }} />
-            ))}
+        {loading ? (
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Chargement…</p>
+        ) : documents.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 16px', border: '1px dashed var(--border-color)', borderRadius: 12 }}>
+            <FileText size={36} color='var(--text-tertiary)' style={{ marginBottom: 12 }} />
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>Aucun document pour le moment.</p>
+            <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: '6px 0 0' }}>Vos contrats et convocations apparaitront ici.</p>
           </div>
-        )}
-
-        {error && (
-          <p style={{ fontSize: '14px', color: colors.feedback?.danger?.solid || '#E05A5A', textAlign: 'center', marginTop: '40px' }}>{error}</p>
-        )}
-
-        {!loading && !error && docs.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <FileText size={40} color={colors.text.secondary} style={{ marginBottom: '16px', opacity: 0.4 }} />
-            <p style={{ fontSize: '15px', fontWeight: 600, color: colors.text.primary, margin: '0 0 8px' }}>Aucun document pour l'instant</p>
-            <p style={{ fontSize: '13px', color: colors.text.secondary, margin: 0 }}>Vos contrats apparaitront ici une fois votre participation confirmée.</p>
-          </div>
-        )}
-
-        {genError && (
-          <div style={{ marginBottom: '16px', padding: '12px 16px', borderRadius: '10px', backgroundColor: 'rgba(224,90,90,0.1)', border: '1px solid rgba(224,90,90,0.3)', color: colors.feedback?.danger?.solid || '#E05A5A', fontSize: '13px' }}>
-            {genError}
-          </div>
-        )}
-
-        {/* List */}
-        {!loading && !error && docs.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {docs.map((doc, i) => {
-              const st = STATUS_LABELS[doc.status]
-              const hasContract = doc.contract?.pdf_url
-              const isConfirmed = doc.status === 'confirmed'
-
-              return (
-                <motion.div
-                  key={doc.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.06 }}
-                  style={{ borderRadius: '14px', border: `1px solid var(--border-color)`, backgroundColor: colors.bg.secondary, overflow: 'hidden' }}
-                >
-                  <div style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    {/* Icon */}
-                    <div style={{ width: 40, height: 40, borderRadius: '10px', backgroundColor: isConfirmed ? 'rgba(22,163,74,0.1)' : `rgba(99,102,241,0.1)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <FileText size={17} color={isConfirmed ? colors.green.textGreen : colors.violet.primary} />
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '14px', fontWeight: 600, color: colors.text.primary, margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {doc.event?.title || 'Événement inconnu'}
-                      </p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                        {doc.event?.city && (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: colors.text.secondary }}>
-                            <MapPin size={10} /> {doc.event.city}
-                          </span>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {Object.values(byEvent).map(({ event, docs }) => (
+              <div key={docs[0].event_id} style={{ border: '1px solid var(--border-color)', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{event?.title || '—'}</p>
+                  {event?.start_date && (
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+                      {new Date(event.start_date).toLocaleDateString('fr-FR')} · {event.city}
+                    </p>
+                  )}
+                </div>
+                <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {docs.map(doc => (
+                    <div key={doc.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <FileText size={16} color={colors.violet.primary} />
+                        <div>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{TYPE_LABELS[doc.type] || doc.type}</p>
+                          {doc.sent_at && <p style={{ fontSize: 11, color: 'var(--text-secondary)', margin: 0 }}>Recu le {new Date(doc.sent_at).toLocaleDateString('fr-FR')}</p>}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {!doc.downloaded_at && (
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, backgroundColor: colors.feedback.warning.bg, color: colors.feedback.warning.solid }}>Nouveau</span>
                         )}
-                        {doc.event?.start_date && (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '11px', color: colors.text.secondary }}>
-                            <Calendar size={10} /> {fmt(doc.event.start_date)}
-                          </span>
-                        )}
-                        {doc.stand_price_cents && (
-                          <span style={{ fontSize: '11px', color: colors.text.secondary, fontWeight: 600 }}>
-                            {fmtPrice(doc.stand_price_cents)}
-                          </span>
-                        )}
+                        <button onClick={() => { markDownloaded(doc.id); window.open(doc.pdf_url, '_blank') }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, backgroundColor: colors.violet.primary, color: '#fff', border: 'none', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                          <Download size={13} /> Telecharger
+                        </button>
                       </div>
                     </div>
-
-                    {/* Badge */}
-                    {st && (
-                      <span style={{ flexShrink: 0, fontSize: '11px', fontWeight: 600, padding: '3px 9px', borderRadius: '8px', backgroundColor: st.bg, color: st.color }}>
-                        {st.label}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div style={{ borderTop: `1px solid var(--border-color)`, padding: '10px 18px', display: 'flex', gap: '8px', backgroundColor: colors.bg.primary }}>
-                    <Link
-                      href={`/creator/applications/${doc.id}`}
-                      style={{ flex: 1, padding: '8px', borderRadius: '8px', border: `1px solid var(--border-color)`, backgroundColor: 'transparent', color: colors.text.primary, fontSize: '12px', fontWeight: 600, textAlign: 'center', textDecoration: 'none' }}
-                    >
-                      Voir la fiche
-                    </Link>
-                    {hasContract ? (
-                      <a
-                        href={doc.contract!.pdf_url!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '12px', fontWeight: 600, textAlign: 'center', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
-                      >
-                        <ExternalLink size={12} /> Contrat PDF
-                      </a>
-                    ) : isConfirmed ? (
-                      <button
-                        onClick={() => generateContract(doc)}
-                        disabled={generating === doc.id}
-                        style={{ flex: 1, padding: '8px', borderRadius: '8px', border: 'none', backgroundColor: colors.violet.primary, color: '#fff', fontSize: '12px', fontWeight: 600, cursor: generating === doc.id ? 'wait' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px', opacity: generating === doc.id ? 0.7 : 1 }}
-                      >
-                        {generating === doc.id ? <><Loader2 size={12} /> Génération...</> : <><Download size={12} /> Télécharger le contrat</>}
-                      </button>
-                    ) : null}
-                  </div>
-                </motion.div>
-              )
-            })}
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

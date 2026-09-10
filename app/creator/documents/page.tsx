@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
-import DocumentsClient from './documents-client'
+import DocumentsPageClient from './documents-client'
 
 export const metadata: Metadata = {
   title: 'Mes documents — Nexart',
-  description: 'Retrouvez vos contrats et documents liés à vos participations.',
-  alternates: { canonical: 'https://nexart.fr/creator/documents' },
+  description: 'Vos contrats, règlements et convocations',
 }
 
 export default function DocumentsPage() {
-  return <DocumentsClient />
+  return <DocumentsPageClient />
 }
