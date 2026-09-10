@@ -383,7 +383,7 @@ export function CreatorProfileClient({ id }: Props) {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-10 relative z-10">
           {/* Back link */}
-          <Link href="/creators" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-sm font-medium mb-8 transition-colors">
+          <Link href="/creators" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 500, marginBottom: 32, color: 'rgba(255,255,255,0.85)', textDecoration: 'none', textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
             <ArrowLeft size={15} /> Retour aux créateurs
           </Link>
 
