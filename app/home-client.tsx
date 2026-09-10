@@ -474,7 +474,7 @@ export default function HomeClient() {
   }, [])
 
   const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'], layoutEffect: false })
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
 
