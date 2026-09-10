@@ -474,9 +474,9 @@ export default function HomeClient() {
   }, [])
 
   const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'], layoutEffect: false })
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+  const { scrollY } = useScroll()
+  const heroY = useTransform(scrollY, [0, 700], ['0%', '18%'])
+  const heroOpacity = useTransform(scrollY, [0, 420], [1, 0])
 
   // Tant que l'auth n'est pas vérifiée, on attend (évite le flash)
   if (!authChecked) return null
