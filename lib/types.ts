@@ -76,7 +76,7 @@ export interface Application {
   event_id: string
   creator_id: string
   message?: string | null
-  status: 'pending' | 'accepted' | 'refused' | 'paid' | 'refunded' | 'stand_proposed' | 'counter_proposed'
+  status: 'pending' | 'accepted' | 'refused' | 'paid' | 'refunded' | 'stand_proposed' | 'counter_proposed' | 'awaiting_payment'
   stripe_payment_id?: string | null
   boosted_at?: string | null
   portfolio_images?: string[] | null
