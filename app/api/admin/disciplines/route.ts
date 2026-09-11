@@ -29,13 +29,40 @@ export async function POST(req: NextRequest) {
   if (!auth.ok) return auth.response
 
   const admin = getAdminClient()
-  const { id, action, rejection_reason } = await req.json()
+  const body = await req.json()
+  const { id, action, rejection_reason, table: sourceTable } = body
 
-  if (!id || !['approve', 'reject'].includes(action)) {
+  if (!id || !['approve', 'reject', 'approved', 'rejected'].includes(action)) {
     return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 })
   }
 
-  // Récupérer la demande
+  const normalizedAction = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : action
+
+  // Support discipline_proposals table (from admin-main-client)
+  if (sourceTable === 'discipline_proposals') {
+    const { data: proposal, error: fetchErr } = await admin
+      .from('discipline_proposals')
+      .select('creator_id, name')
+      .eq('id', id)
+      .single()
+
+    if (fetchErr || !proposal) return NextResponse.json({ error: 'Proposition introuvable' }, { status: 404 })
+    const { creator_id, name } = proposal as unknown as { creator_id: string; name: string }
+
+    await admin.from('discipline_proposals').update({ status: normalizedAction }).eq('id', id)
+
+    if (normalizedAction === 'approved') {
+      const { data: cp } = await admin.from('creator_profiles').select('disciplines').eq('user_id', creator_id).maybeSingle()
+      const current: string[] = (cp as any)?.disciplines ?? []
+      if (!current.includes(name)) {
+        await admin.from('creator_profiles').update({ disciplines: [...current, name] }).eq('user_id', creator_id)
+      }
+    }
+
+    return NextResponse.json({ ok: true })
+  }
+
+  // Default: custom_discipline_requests table
   const { data: req_data, error: fetchErr } = await admin
     .from('custom_discipline_requests' as any)
     .select('user_id, name')
@@ -45,14 +72,12 @@ export async function POST(req: NextRequest) {
   if (fetchErr || !req_data) return NextResponse.json({ error: 'Demande introuvable' }, { status: 404 })
   const { user_id, name } = req_data as unknown as { user_id: string; name: string }
 
-  const status = action === 'approve' ? 'approved' : 'rejected'
   await admin
     .from('custom_discipline_requests' as any)
-    .update({ status, rejection_reason: rejection_reason ?? null, reviewed_by: auth.userId, reviewed_at: new Date().toISOString() })
+    .update({ status: normalizedAction, rejection_reason: rejection_reason ?? null, reviewed_by: auth.userId, reviewed_at: new Date().toISOString() })
     .eq('id', id)
 
-  // Si approuvé → ajouter à creator_profiles.disciplines
-  if (action === 'approve') {
+  if (normalizedAction === 'approved') {
     const { data: cp } = await admin
       .from('creator_profiles')
       .select('disciplines')

@@ -371,7 +371,12 @@ export default function AdminPage() {
 
   const handleDiscProposal = async (id: string, status: 'approved' | 'rejected') => {
     setDiscProposalSaving(id)
-    await supabase.from('discipline_proposals').update({ status }).eq('id', id)
+    const { data: { session } } = await supabase.auth.getSession()
+    await fetch('/api/admin/disciplines', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ id, action: status, table: 'discipline_proposals' }),
+    })
     setDiscProposals(prev => prev.map(p => p.id === id ? { ...p, status } : p))
     setDiscProposalSaving(null)
     showToast(status === 'approved' ? '✓ Discipline approuvée' : '✓ Proposition refusée')
