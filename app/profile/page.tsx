@@ -579,11 +579,14 @@ export default function ProfilePage() {
     const already = myDiscProposals.find(p => p.name.toLowerCase() === name.toLowerCase() && p.status === 'pending')
     if (already) { showToast('Proposition déjà en attente'); return }
     setDiscProposalSending(true)
-    const { data } = await supabase.from('discipline_proposals').insert({ creator_id: user.id, name }).select().single()
-    if (data) {
-      setMyDiscProposals(prev => [data as unknown as DisciplineProposal, ...prev])
+    const { data, error } = await supabase.from('discipline_proposals').insert({ creator_id: user.id, name }).select().single()
+    if (!error) {
+      const newProposal = data ?? { id: `tmp-${Date.now()}`, name, status: 'pending', created_at: new Date().toISOString(), creator_id: user.id }
+      setMyDiscProposals(prev => [newProposal as unknown as DisciplineProposal, ...prev])
       setDiscProposalInput('')
       showToast('Proposition envoyée')
+    } else {
+      showToast('Erreur lors de la proposition')
     }
     setDiscProposalSending(false)
   }
