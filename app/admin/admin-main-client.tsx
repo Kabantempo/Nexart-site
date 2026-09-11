@@ -12,6 +12,7 @@ import {
   CheckCircle, XCircle, ExternalLink, FileText, Trash2, Eye, EyeOff,
   TrendingUp, BarChart2, Send, Search, X, ArrowUpRight,
   CheckCheck, Clock, LayoutGrid, User, AlertTriangle,
+  FileSignature, ClipboardList, TicketCheck,
 } from 'lucide-react'
 import { colors } from '@/lib/design-tokens'
 
@@ -313,12 +314,12 @@ export default function AdminPage() {
 
   // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  const callVerifyAPI = async (userId: string, field: string, value: boolean, table = 'creator_profiles') => {
+  const callVerifyAPI = async (userId: string, field: string, value: boolean, table = 'creator_profiles', comment?: string) => {
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/admin/verify-creator', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ userId, field, value, table }),
+      body: JSON.stringify({ userId, field, value, table, comment }),
     })
     return res.ok
   }
@@ -339,7 +340,7 @@ export default function AdminPage() {
     if (!refuseModal) return
     const { userId, field } = refuseModal
     setVerifSaving(`${userId}-${field}`)
-    const ok = await callVerifyAPI(userId, field, false)
+    const ok = await callVerifyAPI(userId, field, false, 'creator_profiles', refuseComment || undefined)
     if (ok) {
       setRefusedSet(prev => new Set([...prev, `${userId}-${field}`]))
       showToast('✓ Refusé')
@@ -1381,7 +1382,7 @@ export default function AdminPage() {
 
               <div style={{ marginTop: '18px', padding: '12px 16px', borderRadius: '8px', backgroundColor: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}>
                 <p style={{ fontSize: '12px', color: colors.status.pending.dot, margin: 0, lineHeight: 1.5 }}>
-                  ⚠️ Ces changements sont immédiats. Ils ne créent pas d&apos;abonnement Stripe — uniquement une mise à jour manuelle en base.
+                  Ces changements sont immédiats. Ils ne créent pas d&apos;abonnement Stripe — uniquement une mise à jour manuelle en base.
                 </p>
               </div>
             </div>
@@ -1610,7 +1611,7 @@ function PdfPreviewTab() {
       description: 'Contrat signé entre l\'organisateur et le créateur. Inclut les conditions financières, les clauses générales et la signature électronique simple (SES).',
       color: colors.violet.primary,
       bg: colors.violet.bg,
-      icon: '📄',
+      Icon: FileSignature,
     },
     {
       type: 'reglement',
@@ -1618,7 +1619,7 @@ function PdfPreviewTab() {
       description: 'Document remis à tous les créateurs acceptés. Couvre les horaires, emplacements, interdictions, sécurité et sanctions.',
       color: colors.feedback.success.solid,
       bg: colors.green.bg,
-      icon: '📋',
+      Icon: ClipboardList,
     },
     {
       type: 'convocation',
@@ -1626,7 +1627,7 @@ function PdfPreviewTab() {
       description: 'Document de confirmation de participation à présenter à l\'entrée. Récapitule les infos créateur, événement, stand et montant réglé.',
       color: colors.feedback.warning.solid,
       bg: colors.red.bgFbeb,
-      icon: '🎟️',
+      Icon: TicketCheck,
     },
   ]
 
@@ -1661,7 +1662,7 @@ function PdfPreviewTab() {
         {docs.map(doc => (
           <div key={doc.type} style={{ borderRadius: '14px', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', overflow: 'hidden' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', backgroundColor: doc.bg, display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '28px' }}>{doc.icon}</span>
+              <doc.Icon size={28} color={doc.color} />
               <div>
                 <p style={{ fontSize: '15px', fontWeight: 700, color: doc.color, margin: 0 }}>{doc.label}</p>
                 <p style={{ fontSize: '11px', color: colors.text.secondary, margin: '2px 0 0', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>type : {doc.type}</p>
@@ -1691,7 +1692,7 @@ function PdfPreviewTab() {
                   </>
                 ) : (
                   <>
-                    <span style={{ fontSize: '16px' }}>👁️</span>
+                    <Eye size={14} />
                     Prévisualiser le PDF
                   </>
                 )}
