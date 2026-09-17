@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import { Application, Event } from '@/lib/types'
@@ -1255,12 +1255,13 @@ function OrganizerMainContent({
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <AnimatePresence>
           {displayApps.slice(0, 10).map(app => {
             const ev = events.find(e => e.id === app.event_id)
             const isBoosted = app.boosted_at && new Date(app.boosted_at).getTime() + 48 * 3600 * 1000 > Date.now()
             const daysPending = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (24 * 60 * 60 * 1000))
             return (
-              <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+              <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -10, transition: { duration: 0.2 } }}
                 style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 0', paddingLeft: isBoosted ? '12px' : '0', borderBottom: '1px solid var(--border-color)', borderLeft: isBoosted ? `3px solid ${colors.violet.primary}` : 'none', backgroundColor: isBoosted ? 'rgba(99,102,241,0.05)' : 'transparent' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                   {app.profiles?.avatar_url
@@ -1299,6 +1300,7 @@ function OrganizerMainContent({
               </motion.div>
             )
           })}
+          </AnimatePresence>
           {pendingApps.length > 10 && tab !== 'retard' && (
             <Link href={eventUrl(events[0] ?? { id: '' }, 'exhibitors')} style={{ display: 'block', textAlign: 'center', padding: '12px', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
               Tout voir ({pendingApps.length}) →

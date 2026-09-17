@@ -228,7 +228,7 @@ export default function OnboardingClient() {
             {isOrgWelcome ? (
               <>
                 <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '10px' }}>
-                  Bienvenue{fullName ? ` ${fullName.split(' ')[0]}` : ''} ! ðŸŽ‰
+                  Bienvenue{fullName ? ` ${fullName.split(' ')[0]}` : ''} !
                 </h1>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', lineHeight: '1.6', marginBottom: '8px' }}>
                   {orgName ? `L'espace organisateur de ${orgName} est prÃªt.` : 'Votre espace organisateur est prÃªt.'}
@@ -239,7 +239,7 @@ export default function OnboardingClient() {
               </>
             ) : (
               <>
-                <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '12px' }}>C'est parti ! ðŸŽ‰</h1>
+                <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '12px' }}>C'est parti !</h1>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '40px', lineHeight: '1.6' }}>
                   Votre profil Nexart est crÃ©Ã©. Voici vos prochaines Ã©tapes pour en profiter au maximum.
                 </p>
