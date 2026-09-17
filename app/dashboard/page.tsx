@@ -397,7 +397,7 @@ export default function DashboardPage() {
           <div>
             <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ fontSize: '20px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{greeting}, {firstName}</h1>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{greeting}, {firstName}</h1>
               <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, flexShrink: 0 }}>{roleLabel}</span>
               {isPaid && (
                 <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color, flexShrink: 0 }}>
@@ -464,7 +464,7 @@ export default function DashboardPage() {
 
         {/* Billing card — masque pour premium, dismissable pour free */}
         {!isPaid && !billingDismissed && (
-          <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ marginBottom: '16px', padding: '14px 16px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <div style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-secondary)', flexShrink: 0 }}>
               <CreditCard size={16} color={colors.text.muted} />
             </div>
@@ -704,7 +704,7 @@ function CreatorMainContent({
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {volunteerShifts.map(s => (
-                <Link key={s.id} href={`/events/${s.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                <Link key={s.id} href={`/events/${s.event_id}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 0', borderBottom: '1px solid var(--border-color)' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: colors.violet.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <Clock size={18} color={colors.violet.primary} />
                   </div>
@@ -734,7 +734,7 @@ function CreatorMainContent({
               <p>Aucun paiement de stand pour le moment</p>
             </div>
           ) : paidApps.map(a => (
-            <Link key={a.id} href={eventUrl(a.event ?? { id: a.event_id })} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '14px 16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+            <Link key={a.id} href={eventUrl(a.event ?? { id: a.event_id })} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '14px 0', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                 <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {a.event?.title ?? 'Événement'}
@@ -769,7 +769,7 @@ function CreatorMainContent({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recommended.map(ev => (
-              <Link key={ev.id} href={eventUrl(ev)} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+              <Link key={ev.id} href={eventUrl(ev)} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
                 <div style={{ flex: '1 1 160px', minWidth: '160px' }}>
                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</p>
                   <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
@@ -821,11 +821,11 @@ function AppCard({ app, onRefresh }: { app: Application & { event?: Event }; onR
     router.refresh()
   }
 
-  const cardBorder = isStandProposed ? `1px solid ${colors.feedback.warning.border}` : isCounter ? `1px solid ${colors.purple.bgLight}` : status === 'accepted' ? 'rgba(22,163,74,0.3)' : status === 'refused' ? 'rgba(220,38,38,0.3)' : 'var(--border-color)'
-  const cardBg = isStandProposed ? colors.feedback.warning.bg : isCounter ? colors.purple.bgF5 : status === 'accepted' ? 'rgba(22,163,74,0.1)' : status === 'refused' ? 'rgba(220,38,38,0.1)' : 'var(--bg-secondary)'
+  const accentColor = isStandProposed ? colors.feedback.warning.solid : isCounter ? colors.purple.dark : sc.dot
+  const cardBg = isStandProposed ? colors.feedback.warning.bg : isCounter ? colors.purple.bgF5 : status === 'accepted' ? 'rgba(22,163,74,0.05)' : status === 'refused' ? 'rgba(220,38,38,0.05)' : 'transparent'
 
   return (
-    <div style={{ borderRadius: '10px', border: cardBorder, backgroundColor: cardBg, overflow: 'hidden' }}>
+    <div style={{ borderRadius: '8px', borderLeft: `3px solid ${accentColor}`, backgroundColor: cardBg, overflow: 'hidden' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-start', padding: '12px 14px' }}>
         <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: sc.dot, flexShrink: 0, marginTop: '5px' }} />
         <div style={{ flex: '1 1 200px', minWidth: '200px' }}>
@@ -928,11 +928,13 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
 
   if (applications.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-        <Calendar size={36} color="var(--bg-secondary)" style={{ margin: '0 auto 12px' }} />
-        <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0 }}>Aucune candidature pour le moment</p>
-        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '4px 0 16px' }}>Explorez les événements disponibles et postulez</p>
-        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+      <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+          <Calendar size={22} color={colors.violet.primary} />
+        </div>
+        <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 6px' }}>Aucune candidature pour le moment</p>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 20px' }}>Explorez les événements disponibles et postulez</p>
+        <Link href="/events" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', backgroundColor: colors.violet.primary, color: colors.bg.primary, fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
           Voir les événements <ArrowRight size={13} />
         </Link>
       </div>
@@ -942,7 +944,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {upcoming.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)', fontSize: '13px', borderRadius: '10px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+        <div style={{ padding: '20px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
           Aucun événement à venir — <Link href="/events" style={{ color: colors.violet.primary, fontWeight: 600, textDecoration: 'none' }}>explorer les marchés</Link>
         </div>
       )}
@@ -952,7 +954,7 @@ function ApplicationsFeed({ applications }: { applications: (Application & { eve
         <div style={{ marginTop: '8px' }}>
           <button
             onClick={() => setShowMissed(v => !v)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', cursor: 'pointer', textAlign: 'left' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '10px 0', borderTop: '1px solid var(--border-color)', borderLeft: 'none', borderRight: 'none', borderBottom: 'none', backgroundColor: 'transparent', cursor: 'pointer', textAlign: 'left' }}
           >
             <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>
               Ce que vous avez manqué
@@ -1003,7 +1005,7 @@ function CalendarView({ applications }: { applications: (Application & { event?:
               const sc = STATUS_CONFIG[app.status] ?? STATUS_CONFIG.pending
               const d = new Date(app.event!.start_date)
               return (
-                <Link key={app.id} href={eventUrl(app.event ?? { id: app.event_id })} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                <Link key={app.id} href={eventUrl(app.event ?? { id: app.event_id })} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)' }}>
                   <div style={{ width: '40px', flexShrink: 0, textAlign: 'center', backgroundColor: 'rgba(99,102,241,0.15)', borderRadius: '8px', padding: '6px' }}>
                     <div style={{ fontSize: '16px', fontWeight: 800, color: colors.violet.primary, lineHeight: 1 }}>{d.getDate()}</div>
                     <div style={{ fontSize: '9px', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'capitalize' }}>{d.toLocaleDateString('fr-FR', { weekday: 'short' })}</div>
@@ -1227,7 +1229,7 @@ function OrganizerMainContent({
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {recentConvs.map(c => (
-                <Link key={c.id} href="/messages" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', textDecoration: 'none' }}>
+                <Link key={c.id} href="/messages" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 0', borderBottom: '1px solid var(--border-color)', textDecoration: 'none' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                     {c.avatarUrl
                       ? <Image src={c.avatarUrl} alt="" width={36} height={36} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
@@ -1248,8 +1250,8 @@ function OrganizerMainContent({
           )}
         </div>
       ) : displayApps.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 20px', borderRadius: '10px', border: '1px dashed var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '13px' }}>
-          {tab === 'retard' ? 'Aucune candidature en retard ✓' : 'Aucune candidature en attente'}
+        <div style={{ padding: '40px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>
+          {tab === 'retard' ? 'Aucune candidature en retard.' : 'Aucune candidature en attente.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1259,7 +1261,7 @@ function OrganizerMainContent({
             const daysPending = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (24 * 60 * 60 * 1000))
             return (
               <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 14px', borderRadius: '10px', border: `1px solid ${isBoosted ? 'rgba(99,102,241,0.3)' : 'var(--border-color)'}`, backgroundColor: isBoosted ? 'rgba(99,102,241,0.12)' : 'var(--bg-secondary)' }}>
+                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 0', paddingLeft: isBoosted ? '12px' : '0', borderBottom: '1px solid var(--border-color)', borderLeft: isBoosted ? `3px solid ${colors.violet.primary}` : 'none', backgroundColor: isBoosted ? 'rgba(99,102,241,0.05)' : 'transparent' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                   {app.profiles?.avatar_url
                     ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
@@ -1298,7 +1300,7 @@ function OrganizerMainContent({
             )
           })}
           {pendingApps.length > 10 && tab !== 'retard' && (
-            <Link href={eventUrl(events[0] ?? { id: '' }, 'exhibitors')} style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href={eventUrl(events[0] ?? { id: '' }, 'exhibitors')} style={{ display: 'block', textAlign: 'center', padding: '12px', color: colors.violet.primary, fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
               Tout voir ({pendingApps.length}) →
             </Link>
           )}
@@ -1317,7 +1319,7 @@ function OrganizerMainContent({
               </Link>
             </div>
             {events.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px', borderRadius: '10px', border: '1px dashed var(--border-color)', color: 'var(--text-secondary)', fontSize: '13px' }}>Aucun événement créé</div>
+              <div style={{ padding: '24px 0', color: 'var(--text-secondary)', fontSize: '13px' }}>Aucun événement créé.</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {events.slice(0, 5).map(event => {
@@ -1328,7 +1330,7 @@ function OrganizerMainContent({
                   }[event.status] ?? { label: event.status, color: 'var(--text-secondary)', bg: colors.bg.secondary, dot: colors.text.muted }
                   const ep = pendingApps.filter(a => a.event_id === event.id).length
                   return (
-                    <Link key={event.id} href={eventUrl(event, 'dashboard')} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                    <Link key={event.id} href={eventUrl(event, 'dashboard')} style={{ textDecoration: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: '1 1 140px', minWidth: '140px' }}>
                         <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</p>
                         {event.start_date && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0' }}>{new Date(event.start_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
@@ -1414,13 +1416,9 @@ function OrganizerSidebar({ events, nextEvent, selectedEventId }: { events: Even
 
 function SidebarCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: '10px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-        <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</p>
-      </div>
-      <div style={{ padding: '12px 14px', backgroundColor: 'var(--bg-secondary)' }}>
-        {children}
-      </div>
+    <div style={{ padding: '16px', borderRadius: '12px', backgroundColor: 'var(--bg-secondary)' }}>
+      <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</p>
+      {children}
     </div>
   )
 }
@@ -1624,7 +1622,7 @@ function VisitorContent() {
           { href: '/favorites',icon: <Heart size={16} />,    title: 'Favoris',       desc: 'Mes coups de cœur' },
           { href: '/messages', icon: <MessageSquare size={16} />, title: 'Messages', desc: 'Mes conversations' },
         ].map(card => (
-          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 16px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)' }}>
             <span style={{ color: colors.violet.primary }}>{card.icon}</span>
             <div>
               <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{card.title}</p>
