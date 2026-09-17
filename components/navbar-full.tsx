@@ -149,7 +149,7 @@ export function NavbarFull() {
 
   useEffect(() => {
     const handler = (e: MouseEvent | TouchEvent) => {
-      const target = e instanceof TouchEvent ? e.touches[0]?.target : e.target
+      const target = 'touches' in e ? (e as TouchEvent).touches[0]?.target : e.target
       const inNav     = navRef.current?.contains(target as Node)
       const inProfile = profileRef.current?.contains(target as Node)
       if (!inNav && !inProfile) setDropdown(null)
