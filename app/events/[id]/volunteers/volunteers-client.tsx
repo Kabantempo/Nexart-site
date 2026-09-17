@@ -737,7 +737,7 @@ function RecapTab({ shifts, volunteers }: { shifts: Shift[]; volunteers: Volunte
               const k = `${shift.id}-${vol.id}`
               const isConf = confirmed[k] || false
               return (
-                <button key={vol.id} type="button" role="checkbox" aria-checked={isConf} onClick={() => toggle(k)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderTop: `1px solid ${colors.border.default}`, cursor: 'pointer', background: isConf ? `${colors.green.bg}` : 'transparent', transition: 'background 0.15s', width: '100%', textAlign: 'left', border: 'none', borderTop: `1px solid ${colors.border.default}` }}>
+                <button key={vol.id} type="button" role="checkbox" aria-checked={isConf} onClick={() => toggle(k)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderTop: `1px solid ${colors.border.default}`, borderLeft: 'none', borderRight: 'none', borderBottom: 'none', cursor: 'pointer', background: isConf ? `${colors.green.bg}` : 'transparent', transition: 'background 0.15s', width: '100%', textAlign: 'left' }}>
                   <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isConf ? colors.green.primary : colors.border.default}`, background: isConf ? colors.green.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                     {isConf && <Check size={12} color="#fff" strokeWidth={3} />}
                   </div>
