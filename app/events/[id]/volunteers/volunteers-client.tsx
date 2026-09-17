@@ -664,7 +664,7 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
             const k = `vol-${vol.id}`
             const isOn = checked[k] || false
             return (
-              <div key={vol.id} onClick={() => toggle(k)} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', background: isOn ? colors.green.bg : 'var(--bg-primary)', border: `1.5px solid ${isOn ? colors.green.primary : colors.border.default}`, borderRadius: '14px', cursor: 'pointer', transition: 'all 0.15s' }}>
+              <button key={vol.id} type="button" role="checkbox" aria-checked={isOn} onClick={() => toggle(k)} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', background: isOn ? colors.green.bg : 'var(--bg-primary)', border: `1.5px solid ${isOn ? colors.green.primary : colors.border.default}`, borderRadius: '14px', cursor: 'pointer', transition: 'all 0.15s', width: '100%', textAlign: 'left' }}>
                 <div style={{ width: '26px', height: '26px', borderRadius: '50%', border: `2.5px solid ${isOn ? colors.green.primary : colors.border.default}`, background: isOn ? colors.green.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                   {isOn && <Check size={13} color="#fff" strokeWidth={3} />}
                 </div>
@@ -673,7 +673,7 @@ function ChecklistTab({ eventId, shifts, volunteers }: { eventId: string; shifts
                   <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 2px', textDecoration: isOn ? 'line-through' : 'none', opacity: isOn ? 0.5 : 1 }}>{vol.name}</p>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>{vol.email}</p>
                 </div>
-              </div>
+              </button>
             )
           })}
         </div>
@@ -737,7 +737,7 @@ function RecapTab({ shifts, volunteers }: { shifts: Shift[]; volunteers: Volunte
               const k = `${shift.id}-${vol.id}`
               const isConf = confirmed[k] || false
               return (
-                <div key={vol.id} onClick={() => toggle(k)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderTop: `1px solid ${colors.border.default}`, cursor: 'pointer', background: isConf ? `${colors.green.bg}` : 'transparent', transition: 'background 0.15s' }}>
+                <button key={vol.id} type="button" role="checkbox" aria-checked={isConf} onClick={() => toggle(k)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderTop: `1px solid ${colors.border.default}`, cursor: 'pointer', background: isConf ? `${colors.green.bg}` : 'transparent', transition: 'background 0.15s', width: '100%', textAlign: 'left', border: 'none', borderTop: `1px solid ${colors.border.default}` }}>
                   <div style={{ width: '22px', height: '22px', borderRadius: '50%', border: `2px solid ${isConf ? colors.green.primary : colors.border.default}`, background: isConf ? colors.green.primary : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                     {isConf && <Check size={12} color="#fff" strokeWidth={3} />}
                   </div>
@@ -749,7 +749,7 @@ function RecapTab({ shifts, volunteers }: { shifts: Shift[]; volunteers: Volunte
                   <span style={{ fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', background: isConf ? colors.green.bg : 'var(--bg-secondary)', color: isConf ? colors.green.primary : 'var(--text-secondary)', border: `1px solid ${isConf ? colors.green.primary : colors.border.default}`, flexShrink: 0, transition: 'all 0.15s' }}>
                     {isConf ? '✓ Confirmé' : 'En attente'}
                   </span>
-                </div>
+                </button>
               )
             })}
           </div>

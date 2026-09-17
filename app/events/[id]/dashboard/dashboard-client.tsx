@@ -279,7 +279,7 @@ export default function DashboardClient({ eventId }: { eventId: string }) {
 
       {/* Sidebar mobile overlay */}
       {mobileSidebarOpen && (
-        <div className="evdash-mobile-overlay" onClick={() => setMobileSidebarOpen(false)} />
+        <div className="evdash-mobile-overlay" onClick={() => setMobileSidebarOpen(false)} aria-hidden="true" />
       )}
       <div className={`evdash-mobile-sidebar${mobileSidebarOpen ? ' open' : ''}`}>
         <EventSidebar

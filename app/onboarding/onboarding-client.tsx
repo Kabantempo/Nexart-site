@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -9,12 +9,12 @@ import { Palette, Building2, Eye, ArrowRight, Check, Sparkles, MapPin, Search, U
 import { colors } from '@/lib/design-tokens'
 
 const DISCIPLINES = [
-  'Tatouage','Céramique','Gravure','Joaillerie','Bijoux','Illustration',
+  'Tatouage','CÃ©ramique','Gravure','Joaillerie','Bijoux','Illustration',
   'Textile','Maroquinerie','Sculpture','Photographie','Peinture','Poterie',
-  'Broderie','Lutherie','Verrerie','Reliure','Cosmétique naturelle','Savonnerie',
-  'Coutellerie','Bougies','Macramé','Origami','Calligraphie','Sérigraphie',
-  'Dessin','Brocante','Musique','Prêt-à-porter','Décoration','Littérature',
-  'Pop culture','Cinéma','Cabinet de curiosités','Restauration','Costumes',
+  'Broderie','Lutherie','Verrerie','Reliure','CosmÃ©tique naturelle','Savonnerie',
+  'Coutellerie','Bougies','MacramÃ©','Origami','Calligraphie','SÃ©rigraphie',
+  'Dessin','Brocante','Musique','PrÃªt-Ã -porter','DÃ©coration','LittÃ©rature',
+  'Pop culture','CinÃ©ma','Cabinet de curiositÃ©s','Restauration','Costumes',
 ]
 
 type Role = 'creator' | 'organizer' | 'visitor'
@@ -22,22 +22,22 @@ type Role = 'creator' | 'organizer' | 'visitor'
 const ROLES: { value: Role; label: string; desc: string; icon: React.ReactNode; color: string }[] = [
   {
     value: 'creator',
-    label: 'Créateur',
-    desc: 'Je veux participer à des marchés et vendre mes créations.',
+    label: 'CrÃ©ateur',
+    desc: 'Je veux participer Ã  des marchÃ©s et vendre mes crÃ©ations.',
     icon: <Palette size={28} />,
     color: 'indigo',
   },
   {
     value: 'organizer',
     label: 'Organisateur',
-    desc: "J'organise des marchés artisanaux et je recherche des créateurs pour y participer.",
+    desc: "J'organise des marchÃ©s artisanaux et je recherche des crÃ©ateurs pour y participer.",
     icon: <Building2 size={28} />,
     color: 'violet',
   },
   {
     value: 'visitor',
     label: 'Visiteur',
-    desc: "Je veux découvrir les créateurs et les événements près de chez moi.",
+    desc: "Je veux dÃ©couvrir les crÃ©ateurs et les Ã©vÃ©nements prÃ¨s de chez moi.",
     icon: <Eye size={28} />,
     color: 'gray',
   },
@@ -187,16 +187,16 @@ export default function OnboardingClient() {
   }
 
   const NEXT_STEPS = role === 'creator' ? [
-    { icon: <Search size={18} />, label: 'Explorer les événements', href: '/events', desc: 'Trouvez les marchés qui vous correspondent' },
-    { icon: <User size={18} />, label: 'Compléter mon profil', href: '/profile', desc: 'Ajoutez vos photos, portfolio et tarifs' },
-    { icon: <Calendar size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Suivez vos candidatures en temps réel' },
+    { icon: <Search size={18} />, label: 'Explorer les Ã©vÃ©nements', href: '/events', desc: 'Trouvez les marchÃ©s qui vous correspondent' },
+    { icon: <User size={18} />, label: 'ComplÃ©ter mon profil', href: '/profile', desc: 'Ajoutez vos photos, portfolio et tarifs' },
+    { icon: <Calendar size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Suivez vos candidatures en temps rÃ©el' },
   ] : role === 'organizer' ? [
-    { icon: <Calendar size={18} />, label: 'Créer un événement', href: '/events/create', desc: 'Publiez votre marché en 5 minutes' },
-    { icon: <Search size={18} />, label: 'Trouver des créateurs', href: '/creators', desc: 'Parcourez les artisans disponibles' },
-    { icon: <User size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Gérez vos événements et candidatures' },
+    { icon: <Calendar size={18} />, label: 'CrÃ©er un Ã©vÃ©nement', href: '/events/create', desc: 'Publiez votre marchÃ© en 5 minutes' },
+    { icon: <Search size={18} />, label: 'Trouver des crÃ©ateurs', href: '/creators', desc: 'Parcourez les artisans disponibles' },
+    { icon: <User size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'GÃ©rez vos Ã©vÃ©nements et candidatures' },
   ] : [
-    { icon: <Search size={18} />, label: 'Explorer les événements', href: '/events', desc: 'Découvrez les marchés près de chez vous' },
-    { icon: <User size={18} />, label: 'Découvrir les créateurs', href: '/creators', desc: 'Parcourez les artisans inscrits' },
+    { icon: <Search size={18} />, label: 'Explorer les Ã©vÃ©nements', href: '/events', desc: 'DÃ©couvrez les marchÃ©s prÃ¨s de chez vous' },
+    { icon: <User size={18} />, label: 'DÃ©couvrir les crÃ©ateurs', href: '/creators', desc: 'Parcourez les artisans inscrits' },
     { icon: <Calendar size={18} />, label: 'Mon tableau de bord', href: '/dashboard', desc: 'Votre espace personnel Nexart' },
   ]
 
@@ -214,7 +214,7 @@ export default function OnboardingClient() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '512px', textAlign: 'center' }}
         >
-          {/* Check animé */}
+          {/* Check animÃ© */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -228,20 +228,20 @@ export default function OnboardingClient() {
             {isOrgWelcome ? (
               <>
                 <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '10px' }}>
-                  Bienvenue{fullName ? ` ${fullName.split(' ')[0]}` : ''} ! 🎉
+                  Bienvenue{fullName ? ` ${fullName.split(' ')[0]}` : ''} ! ðŸŽ‰
                 </h1>
                 <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', lineHeight: '1.6', marginBottom: '8px' }}>
-                  {orgName ? `L'espace organisateur de ${orgName} est prêt.` : 'Votre espace organisateur est prêt.'}
+                  {orgName ? `L'espace organisateur de ${orgName} est prÃªt.` : 'Votre espace organisateur est prÃªt.'}
                 </p>
                 <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: '13px', marginBottom: '32px' }}>
-                  Voici vos prochaines étapes pour publier votre premier marché.
+                  Voici vos prochaines Ã©tapes pour publier votre premier marchÃ©.
                 </p>
               </>
             ) : (
               <>
-                <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '12px' }}>C'est parti ! 🎉</h1>
+                <h1 style={{ fontSize: '28px', fontWeight: 900, color: colors.bg.primary, marginBottom: '12px' }}>C'est parti ! ðŸŽ‰</h1>
                 <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px', marginBottom: '40px', lineHeight: '1.6' }}>
-                  Votre profil Nexart est créé. Voici vos prochaines étapes pour en profiter au maximum.
+                  Votre profil Nexart est crÃ©Ã©. Voici vos prochaines Ã©tapes pour en profiter au maximum.
                 </p>
               </>
             )}
@@ -278,7 +278,7 @@ export default function OnboardingClient() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               }}>
                 <Calendar size={17} />
-                Créer mon premier événement
+                CrÃ©er mon premier Ã©vÃ©nement
               </button>
             </motion.div>
           )}
@@ -290,7 +290,7 @@ export default function OnboardingClient() {
             onClick={() => router.push('/dashboard')}
             style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)', background: 'none', border: 'none', cursor: 'pointer' }}
           >
-            Accéder directement au dashboard →
+            AccÃ©der directement au dashboard â†’
           </motion.button>
         </motion.div>
       </div>
@@ -317,14 +317,14 @@ export default function OnboardingClient() {
               <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i <= step ? 'bg-indigo-500 w-8' : 'bg-white/10 w-4'}`} />
             ))}
           </div>
-          <p className="text-white/30 text-xs mt-3">Étape {step + 1} sur {totalSteps}</p>
+          <p className="text-white/30 text-xs mt-3">Ã‰tape {step + 1} sur {totalSteps}</p>
         </div>
 
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
               <h1 className="text-2xl font-bold text-white mb-2 text-center">Bienvenue sur Nexart</h1>
-              <p className="text-white/40 text-sm text-center mb-8">Pour commencer, qui êtes-vous ?</p>
+              <p className="text-white/40 text-sm text-center mb-8">Pour commencer, qui Ãªtes-vous ?</p>
               <div className="flex flex-col gap-3">
                 {ROLES.map(r => (
                   <button key={r.value} onClick={() => setRole(r.value)}
@@ -355,7 +355,7 @@ export default function OnboardingClient() {
 
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-              <h1 className="text-2xl font-bold text-white mb-2 text-center">Votre identité</h1>
+              <h1 className="text-2xl font-bold text-white mb-2 text-center">Votre identitÃ©</h1>
               <p className="text-white/40 text-sm text-center mb-8">Ces informations seront visibles sur votre profil public.</p>
               <div className="flex flex-col gap-4">
                 <div>
@@ -365,7 +365,7 @@ export default function OnboardingClient() {
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
                     placeholder="Ex: Marie Dupont"
-                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent transition-colors"
                   />
                 </div>
                 <div>
@@ -373,9 +373,9 @@ export default function OnboardingClient() {
                   <textarea
                     value={bio}
                     onChange={e => setBio(e.target.value)}
-                    placeholder="Quelques mots pour vous présenter…"
+                    placeholder="Quelques mots pour vous prÃ©senterâ€¦"
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent transition-colors resize-none"
                   />
                 </div>
               </div>
@@ -388,14 +388,14 @@ export default function OnboardingClient() {
               <p className="text-white/40 text-sm text-center mb-8">Ces informations seront visibles sur votre profil public.</p>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-white/50 mb-2">Nom de l'organisation ou de l'événement *</label>
-                  <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Ex: Marché des Créateurs de Lyon"
-                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <label className="block text-xs font-semibold text-white/50 mb-2">Nom de l'organisation ou de l'Ã©vÃ©nement *</label>
+                  <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Ex: MarchÃ© des CrÃ©ateurs de Lyon"
+                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-white/50 mb-2"><MapPin size={12} className="inline mr-1 opacity-60" />Ville principale (optionnel)</label>
-                  <input type="text" value={orgCity} onChange={e => setOrgCity(e.target.value)} placeholder="Ex: Paris, Lyon, Bordeaux…"
-                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors" />
+                  <input type="text" value={orgCity} onChange={e => setOrgCity(e.target.value)} placeholder="Ex: Paris, Lyon, Bordeauxâ€¦"
+                    className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent transition-colors" />
                 </div>
               </div>
             </motion.div>
@@ -403,16 +403,16 @@ export default function OnboardingClient() {
 
           {step === 3 && role === 'organizer' && (
             <motion.div key="step-org3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.bg.primary, textAlign: 'center', marginBottom: '8px' }}>Vos événements</h1>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Dites-nous en plus sur les marchés que vous organisez.</p>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.bg.primary, textAlign: 'center', marginBottom: '8px' }}>Vos Ã©vÃ©nements</h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Dites-nous en plus sur les marchÃ©s que vous organisez.</p>
 
               {/* Types d'events */}
               <div style={{ marginBottom: '24px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Type d'événement <span style={{ fontWeight: 400, opacity: 0.6 }}>(plusieurs choix possibles)</span>
+                  Type d'Ã©vÃ©nement <span style={{ fontWeight: 400, opacity: 0.6 }}>(plusieurs choix possibles)</span>
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {(['Marché artisanal', 'Pop-up', 'Salon', 'Festival', 'Autre']).map(t => {
+                  {(['MarchÃ© artisanal', 'Pop-up', 'Salon', 'Festival', 'Autre']).map(t => {
                     const active = orgEventTypes.includes(t)
                     return (
                       <button key={t} onClick={() => toggleOrgEventType(t)} style={{
@@ -430,10 +430,10 @@ export default function OnboardingClient() {
                 </div>
               </div>
 
-              {/* Fréquence */}
+              {/* FrÃ©quence */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Combien d'éditions par an ?
+                  Combien d'Ã©ditions par an ?
                 </label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {(['1', '2-3', '4+']).map(v => (
@@ -448,13 +448,13 @@ export default function OnboardingClient() {
                 </div>
               </div>
 
-              {/* Capacité */}
+              {/* CapacitÃ© */}
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Combien d'exposants en général ?
+                  Combien d'exposants en gÃ©nÃ©ral ?
                 </label>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {([{ label: '< 20', value: '< 20' }, { label: '20 – 50', value: '20-50' }, { label: '50 – 100', value: '50-100' }, { label: '100+', value: '100+' }]).map(({ label, value }) => (
+                  {([{ label: '< 20', value: '< 20' }, { label: '20 â€“ 50', value: '20-50' }, { label: '50 â€“ 100', value: '50-100' }, { label: '100+', value: '100+' }]).map(({ label, value }) => (
                     <button key={value} onClick={() => setTypicalCapacity(value)} style={{
                       flex: 1, minWidth: '80px', padding: '10px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 600,
                       border: typicalCapacity === value ? `1px solid ${colors.violet.primary}` : '1px solid rgba(255,255,255,0.12)',
@@ -470,8 +470,8 @@ export default function OnboardingClient() {
 
           {step === 4 && role === 'organizer' && (
             <motion.div key="step-org4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.bg.primary, textAlign: 'center', marginBottom: '8px' }}>Prochaine édition</h1>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Avez-vous un événement en cours ou à venir ?</p>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: colors.bg.primary, textAlign: 'center', marginBottom: '8px' }}>Prochaine Ã©dition</h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '13px', textAlign: 'center', marginBottom: '28px' }}>Avez-vous un Ã©vÃ©nement en cours ou Ã  venir ?</p>
 
               {/* Toggle Oui/Non */}
               <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
@@ -492,9 +492,9 @@ export default function OnboardingClient() {
                   <motion.div key="upcoming-fields" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
                       <div>
-                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>Titre de l'événement *</label>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: '8px' }}>Titre de l'Ã©vÃ©nement *</label>
                         <input type="text" value={upcomingEventTitle} onChange={e => setUpcomingEventTitle(e.target.value)}
-                          placeholder="Ex: Marché de la Bastille — Édition Printemps"
+                          placeholder="Ex: MarchÃ© de la Bastille â€” Ã‰dition Printemps"
                           style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: colors.bg.primary, fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                         />
                       </div>
@@ -511,7 +511,7 @@ export default function OnboardingClient() {
                       opacity: upcomingEventTitle.trim().length < 2 ? 0.45 : 1, transition: 'all 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     }}>
                       <Calendar size={16} />
-                      Je le crée maintenant
+                      Je le crÃ©e maintenant
                     </button>
                   </motion.div>
                 )}
@@ -522,7 +522,7 @@ export default function OnboardingClient() {
           {step === 2 && role === 'creator' && (
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
               <h1 className="text-2xl font-bold text-white mb-2 text-center">Vos disciplines</h1>
-              <p className="text-white/40 text-sm text-center mb-8">Sélectionnez vos spécialités pour être mis en relation avec les bons événements.</p>
+              <p className="text-white/40 text-sm text-center mb-8">SÃ©lectionnez vos spÃ©cialitÃ©s pour Ãªtre mis en relation avec les bons Ã©vÃ©nements.</p>
               <div className="flex flex-wrap gap-2 mb-6">
                 {[...DISCIPLINES, ...extraDisciplines].map(d => {
                   const active = disciplines.includes(d)
@@ -545,8 +545,8 @@ export default function OnboardingClient() {
                   type="text"
                   value={city}
                   onChange={e => setCity(e.target.value)}
-                  placeholder="Ex: Paris, Lyon, Bordeaux…"
-                  className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  placeholder="Ex: Paris, Lyon, Bordeauxâ€¦"
+                  className="w-full px-4 py-3 rounded-xl bg-white/8 border border-white/15 text-white placeholder-white/25 text-sm focus:outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent transition-colors"
                 />
               </div>
             </motion.div>
@@ -557,7 +557,7 @@ export default function OnboardingClient() {
         <div className="mt-8 flex items-center justify-between">
           {step > 0 ? (
             <button onClick={() => setStep(s => s - 1)} className="text-sm font-semibold text-white/30 hover:text-white/60 transition-colors">
-              ← Retour
+              â† Retour
             </button>
           ) : (
             <div />
@@ -587,3 +587,4 @@ export default function OnboardingClient() {
     </div>
   )
 }
+

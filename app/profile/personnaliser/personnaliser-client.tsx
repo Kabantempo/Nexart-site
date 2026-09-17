@@ -283,10 +283,10 @@ export default function PersonnaliserClient() {
                       <>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
                           {disciplines.map(d => (
-                            <span key={d} onClick={() => setDisciplines(prev => prev.filter(x => x !== d))}
+                            <button key={d} type="button" onClick={() => setDisciplines(prev => prev.filter(x => x !== d))} aria-label={`Retirer ${d}`}
                               style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 12px', borderRadius: '20px', backgroundColor: `${s.accent_color ?? '#6366F1'}22`, border: `1px solid ${s.accent_color ?? '#6366F1'}55`, fontSize: '12px', color: colors.text.primary, cursor: 'pointer', fontWeight: 500 }}>
                               {d} <span style={{ fontSize: '14px', lineHeight: 1, color: colors.text.muted }}>×</span>
-                            </span>
+                            </button>
                           ))}
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>

@@ -331,7 +331,7 @@ export function CreatorProfileClient({ id }: Props) {
       {/* Message modal */}
       {showMsg && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setShowMsg(false)} />
+          <div className="absolute inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setShowMsg(false)} aria-hidden="true" />
           <motion.div initial={{ opacity: 0, scale: 0.95, y: 12 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.2 }}
             className="relative z-10 bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
             <div className="flex items-start justify-between mb-6">
@@ -352,7 +352,7 @@ export function CreatorProfileClient({ id }: Props) {
               <>
                 <textarea value={msgText} onChange={(e) => setMsgText(e.target.value)}
                   placeholder={`Bonjour ${creator.full_name?.split(' ')[0]}, je souhaite…`} rows={5} autoFocus
-                  className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm text-gray-900 resize-none outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 font-[inherit] leading-relaxed"
+                  className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm text-gray-900 resize-none outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 font-[inherit] leading-relaxed"
                 />
                 <div className="flex gap-3 mt-4">
                   <button onClick={() => setShowMsg(false)} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">Annuler</button>
@@ -569,7 +569,7 @@ export function CreatorProfileClient({ id }: Props) {
                   <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ color: brandColor }}>Portfolio</h2>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(70px, 25vw, 180px)', gridAutoFlow: 'dense', gap: '6px', width: '100%', minWidth: 0, overflow: 'hidden' }}>
                     {grid.map((item, idx) => (
-                      <div key={idx} onClick={() => !portfolioImgErrors.has(idx) && setLightboxIdx(idx)} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative', cursor: !portfolioImgErrors.has(idx) ? 'zoom-in' : 'default' }} className="group">
+                      <button key={idx} type="button" onClick={() => !portfolioImgErrors.has(idx) && setLightboxIdx(idx)} aria-label={`Voir photo ${idx + 1}`} disabled={portfolioImgErrors.has(idx)} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative', cursor: !portfolioImgErrors.has(idx) ? 'zoom-in' : 'default', padding: 0, border: 'none', display: 'block' }} className="group focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1">
                         {!portfolioImgErrors.has(idx) ? (
                           <Image
                             src={item.url}
@@ -584,7 +584,7 @@ export function CreatorProfileClient({ id }: Props) {
                             <span style={{ fontSize: '28px', opacity: 0.4 }}>🖼️</span>
                           </div>
                         )}
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </section>
@@ -776,7 +776,7 @@ export function CreatorProfileClient({ id }: Props) {
             )}
 
             {/* Image */}
-            <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: 'min(90vw, 1000px)', maxHeight: '85vh', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
+            <div role="presentation" onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: 'min(90vw, 1000px)', maxHeight: '85vh', width: '100%', height: '100%', borderRadius: '12px', overflow: 'hidden' }}>
               <img
                 src={currentItem.url}
                 alt={`Portfolio ${lightboxIdx + 1}`}
@@ -882,7 +882,7 @@ function CollabForm({ creatorId, requesterId, requesterName }: { creatorId: stri
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Ton idée</p>
           <textarea value={pitch} onChange={e => setPitch(e.target.value)} rows={4}
             placeholder="Décris ton idée, le contexte, ce que tu imagines ensemble…"
-            className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-violet-300 bg-white" />
+            className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-violet-300 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-1 bg-white" />
 
           <div className="flex gap-2 mt-3">
             <button onClick={handleSend} disabled={sending || !pitch.trim() || !collabType}
@@ -952,7 +952,7 @@ function DevisForm({ creatorId, requesterId }: { creatorId: string; requesterId:
           <p className="text-sm font-bold text-gray-900 mb-3">Demande de devis</p>
           <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4}
             placeholder="Décrivez votre événement, les dates, le type de stand…"
-            className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-indigo-300 bg-white" />
+            className="w-full p-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-indigo-300 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 bg-white" />
           <div className="flex gap-2 mt-3">
             <button onClick={handleSend} disabled={sending || !message.trim()}
               className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 transition-colors disabled:opacity-50">

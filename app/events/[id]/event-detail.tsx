@@ -1065,14 +1065,14 @@ export function EventDetailClient({ id }: Props) {
                         {creatorPortfolioImages.map((url, i) => {
                           const selected = selectedPortfolioUrls.includes(url)
                           return (
-                            <div key={i} onClick={() => { if (selected) setSelectedPortfolioUrls(prev => prev.filter(u => u !== url)); else if (selectedPortfolioUrls.length < 4) setSelectedPortfolioUrls(prev => [...prev, url]) }} style={{ position: 'relative', aspectRatio: '1', borderRadius: 5, overflow: 'hidden', cursor: 'pointer', border: selected ? `2px solid ${colors.violet.primary}` : '2px solid transparent', opacity: !selected && selectedPortfolioUrls.length >= 4 ? 0.4 : 1, transition: 'border-color 0.15s, opacity 0.15s' }}>
+                            <button key={i} type="button" role="checkbox" aria-checked={selected} aria-label={`Photo ${i + 1}`} onClick={() => { if (selected) setSelectedPortfolioUrls(prev => prev.filter(u => u !== url)); else if (selectedPortfolioUrls.length < 4) setSelectedPortfolioUrls(prev => [...prev, url]) }} style={{ position: 'relative', aspectRatio: '1', borderRadius: 5, overflow: 'hidden', cursor: 'pointer', border: selected ? `2px solid ${colors.violet.primary}` : '2px solid transparent', opacity: !selected && selectedPortfolioUrls.length >= 4 ? 0.4 : 1, transition: 'border-color 0.15s, opacity 0.15s', padding: 0, display: 'block', width: '100%' }}>
                               <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                               {selected && (
                                 <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                   <div style={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700 }}>✓</div>
                                 </div>
                               )}
-                            </div>
+                            </button>
                           )
                         })}
                       </div>

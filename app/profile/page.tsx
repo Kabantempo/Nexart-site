@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,7 +20,7 @@ import { PortfolioGridEditor, type GridItem } from '@/components/portfolio-grid-
 import { PastEventsGallery } from '@/components/ui/past-events-gallery'
 import { colors } from '@/lib/design-tokens'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type Profile = {
   full_name: string; bio: string | null; avatar_url: string | null; banner_url?: string | null
@@ -111,33 +111,33 @@ function getVideoEmbed(url: string): string | null {
   } catch { return null }
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const DISCIPLINES = [
-  'Tatouage','Céramique','Gravure','Joaillerie','Bijoux','Illustration',
+  'Tatouage','CÃ©ramique','Gravure','Joaillerie','Bijoux','Illustration',
   'Textile','Maroquinerie','Sculpture','Photographie','Peinture','Poterie',
-  'Broderie','Lutherie','Verrerie','Reliure','Cosmétique naturelle','Savonnerie',
-  'Coutellerie','Bougies','Macramé','Origami','Calligraphie','Sérigraphie',
-  'Dessin','Brocante','Musique','Prêt-à-porter','Décoration','Littérature',
-  'Pop culture','Cinéma','Cabinet de curiosités','Restauration','Costumes',
+  'Broderie','Lutherie','Verrerie','Reliure','CosmÃ©tique naturelle','Savonnerie',
+  'Coutellerie','Bougies','MacramÃ©','Origami','Calligraphie','SÃ©rigraphie',
+  'Dessin','Brocante','Musique','PrÃªt-Ã -porter','DÃ©coration','LittÃ©rature',
+  'Pop culture','CinÃ©ma','Cabinet de curiositÃ©s','Restauration','Costumes',
 ]
 const RADIUS_LABELS: Record<string, string> = {
-  '5': '5 km', '10': '10 km', '25': '25 km', national: 'France entière',
+  '5': '5 km', '10': '10 km', '25': '25 km', national: 'France entiÃ¨re',
 }
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'En attente', color: colors.status.pending.dot, bg: colors.red.bgFbeb },
-  accepted:  { label: 'Acceptée',   color: colors.green.primary, bg: colors.green.bg },
-  refused:   { label: 'Refusée',    color: colors.red.vivid, bg: colors.red.bg },
+  accepted:  { label: 'AcceptÃ©e',   color: colors.green.primary, bg: colors.green.bg },
+  refused:   { label: 'RefusÃ©e',    color: colors.red.vivid, bg: colors.red.bg },
   draft:     { label: 'Brouillon',  color: 'var(--text-secondary)', bg: 'var(--bg-secondary)' },
-  published: { label: 'Publié',     color: colors.green.primary, bg: colors.green.bg },
-  closed:    { label: 'Fermé',      color: 'var(--text-secondary)', bg: colors.bg.subtle },
+  published: { label: 'PubliÃ©',     color: colors.green.primary, bg: colors.green.bg },
+  closed:    { label: 'FermÃ©',      color: 'var(--text-secondary)', bg: colors.bg.subtle },
 }
 const EVENT_TYPE_LABELS: Record<string, string> = {
   permanent: 'Permanent', seasonal: 'Saisonnier',
   popup: 'Pop-up', salon: 'Salon', fair: 'Foire',
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
 function Badge({ ok, label }: { ok: boolean; label: string }) {
@@ -154,7 +154,7 @@ function Badge({ ok, label }: { ok: boolean; label: string }) {
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -269,7 +269,7 @@ export default function ProfilePage() {
   const [adminMessages, setAdminMessages] = useState<AdminMessage[]>([])
   const [refuseModal, setRefuseModal] = useState<{ userId: string; field: 'siret_verified' | 'insurance_verified'; creatorName: string } | null>(null)
   const [refuseComment, setRefuseComment] = useState('')
-  // Suivi local des refus (siret/insurance) pour afficher "Refusé" au lieu de "En attente"
+  // Suivi local des refus (siret/insurance) pour afficher "RefusÃ©" au lieu de "En attente"
   const [refusedSet, setRefusedSet] = useState<Set<string>>(new Set())
   const [msgSearch, setMsgSearch] = useState('')
   const [msgSuggestions, setMsgSuggestions] = useState<UserSuggestion[]>([])
@@ -402,7 +402,7 @@ export default function ProfilePage() {
     setTimeout(() => setToast(null), 3000)
   }
 
-  // ─── Creator handlers ───────────────────────────────────────────────────────
+  // â”€â”€â”€ Creator handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleSave = async () => {
     if (!user) return
@@ -466,7 +466,7 @@ export default function ProfilePage() {
     if (freshProfile) setProfile(freshProfile as Profile)
     setSaving(false)
     setEditing(false)
-    showToast('Profil sauvegardé ✓')
+    showToast('Profil sauvegardÃ© âœ“')
   }
 
   const handleCheckSiret = async () => {
@@ -484,9 +484,9 @@ export default function ProfilePage() {
         body: JSON.stringify({ siret: siretNumber }),
       })
       if (!res.ok) throw new Error('Erreur lors de l\'envoi')
-      setSiretResult({ valid: true, nom: 'Demande envoyée — un admin va vérifier votre SIRET.' })
+      setSiretResult({ valid: true, nom: 'Demande envoyÃ©e â€” un admin va vÃ©rifier votre SIRET.' })
     } catch {
-      setSiretResult({ valid: false, error: 'Erreur lors de l\'envoi. Veuillez réessayer.' })
+      setSiretResult({ valid: false, error: 'Erreur lors de l\'envoi. Veuillez rÃ©essayer.' })
     }
     setSiretChecking(false)
   }
@@ -511,7 +511,7 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({ insurance_doc_url: publicUrl }),
       })
-      setToast('Document envoyé — en attente de validation par l\'équipe')
+      setToast('Document envoyÃ© â€” en attente de validation par l\'Ã©quipe')
     }
     setRcProUploading(false)
   }
@@ -529,9 +529,9 @@ export default function ProfilePage() {
         await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false } as any, { onConflict: 'user_id' })
         setOrgaProfile(p => p ? { ...p, siret_number: orgaSiretInput, siret_verified: false } : { siret_number: orgaSiretInput, siret_verified: false, verification_doc_url: null, verification_doc_verified: false })
         const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-        if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga à vérifier', body: `${profile?.full_name ?? 'Organisateur'} — ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
+        if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga Ã  vÃ©rifier', body: `${profile?.full_name ?? 'Organisateur'} â€” ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
         setOrgaSiretResult({ valid: true, nom })
-        showToast('SIRET envoyé — validation sous 24h')
+        showToast('SIRET envoyÃ© â€” validation sous 24h')
       } else {
         setOrgaSiretResult({ valid: false, error: 'Entreprise introuvable pour ce SIRET' })
       }
@@ -540,9 +540,9 @@ export default function ProfilePage() {
       await supabase.from('organizer_profiles').upsert({ user_id: user.id, siret_number: orgaSiretInput, siret_verified: false } as any, { onConflict: 'user_id' })
       setOrgaProfile(p => p ? { ...p, siret_number: orgaSiretInput } : { siret_number: orgaSiretInput, siret_verified: false, verification_doc_url: null, verification_doc_verified: false })
       const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga à vérifier', body: `${profile?.full_name ?? 'Organisateur'} — ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
-      setOrgaSiretResult({ valid: true, nom: 'SIRET enregistré' })
-      showToast('SIRET envoyé — validation sous 24h')
+      if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_siret_pending', title: 'SIRET orga Ã  vÃ©rifier', body: `${profile?.full_name ?? 'Organisateur'} â€” ${orgaSiretInput}`, link: '/profile?tab=admin&section=orga' })))
+      setOrgaSiretResult({ valid: true, nom: 'SIRET enregistrÃ©' })
+      showToast('SIRET envoyÃ© â€” validation sous 24h')
     }
     setOrgaSiretChecking(false)
   }
@@ -559,8 +559,8 @@ export default function ProfilePage() {
       await supabase.from('organizer_profiles').upsert({ user_id: user.id, verification_doc_url: publicUrl, verification_doc_verified: false } as any, { onConflict: 'user_id' })
       setOrgaProfile(p => p ? { ...p, verification_doc_url: publicUrl, verification_doc_verified: false } : { siret_number: null, siret_verified: false, verification_doc_url: publicUrl, verification_doc_verified: false })
       const { data: admins } = await supabase.from('profiles').select('id').eq('is_admin', true)
-      if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_doc_pending', title: 'Document orga à vérifier', body: `Kbis/RNA de ${profile?.full_name ?? 'Organisateur'}`, link: '/profile?tab=admin&section=orga' })))
-      showToast('Document envoyé — en attente de validation')
+      if (admins?.length) await supabase.from('notifications').insert(admins.map(a => ({ user_id: a.id, type: 'orga_doc_pending', title: 'Document orga Ã  vÃ©rifier', body: `Kbis/RNA de ${profile?.full_name ?? 'Organisateur'}`, link: '/profile?tab=admin&section=orga' })))
+      showToast('Document envoyÃ© â€” en attente de validation')
     }
     setOrgaDocUploading(false)
   }
@@ -570,21 +570,21 @@ export default function ProfilePage() {
     await supabase.from('organizer_profiles').update({ [field]: value, verified_at: new Date().toISOString(), verified_by: user?.id } as any).eq('user_id', userId)
     setAdminOrgaVerifs(prev => prev.map(o => o.user_id === userId ? { ...o, [field]: value } : o))
     setOrgaVerifSaving(null)
-    showToast(value ? 'Vérifié' : 'Révoqué')
+    showToast(value ? 'VÃ©rifiÃ©' : 'RÃ©voquÃ©')
   }
 
   const handleProposeDisc = async () => {
     const name = discProposalInput.trim()
     if (!name || !user) return
     const already = myDiscProposals.find(p => p.name.toLowerCase() === name.toLowerCase() && p.status === 'pending')
-    if (already) { showToast('Proposition déjà en attente'); return }
+    if (already) { showToast('Proposition dÃ©jÃ  en attente'); return }
     setDiscProposalSending(true)
     const { data, error } = await supabase.from('discipline_proposals').insert({ creator_id: user.id, name }).select().single()
     if (!error) {
       const newProposal = data ?? { id: `tmp-${Date.now()}`, name, status: 'pending', created_at: new Date().toISOString(), creator_id: user.id }
       setMyDiscProposals(prev => [newProposal as unknown as DisciplineProposal, ...prev])
       setDiscProposalInput('')
-      showToast('Proposition envoyée')
+      showToast('Proposition envoyÃ©e')
     } else {
       showToast('Erreur lors de la proposition')
     }
@@ -614,7 +614,7 @@ export default function ProfilePage() {
       reader.onload = (ev) => {
         const buf = ev.target?.result as ArrayBuffer
         if (!buf) { resolve(URL.createObjectURL(file)); return }
-        // Lire l'orientation EXIF (tag 0x0112) dans les données JPEG
+        // Lire l'orientation EXIF (tag 0x0112) dans les donnÃ©es JPEG
         let orientation = 1
         const view = new DataView(buf)
         if (view.getUint16(0) === 0xFFD8) {
@@ -729,7 +729,7 @@ export default function ProfilePage() {
 
   useEffect(() => { if (cropSrc) drawCrop() })
 
-  // Realtime — mise à jour siret_verified / insurance_verified en temps réel pour le créateur
+  // Realtime â€” mise Ã  jour siret_verified / insurance_verified en temps rÃ©el pour le crÃ©ateur
   useEffect(() => {
     if (!user || profile?.is_admin) return
     const channel = supabase
@@ -752,7 +752,7 @@ export default function ProfilePage() {
     setAvatarUploading(true)
     setCropSrc(null)
     cropCanvasRef.current.toBlob(async (blob) => {
-      if (!blob) { setAvatarUploading(false); showToast('Erreur : impossible de générer l\'image'); return }
+      if (!blob) { setAvatarUploading(false); showToast('Erreur : impossible de gÃ©nÃ©rer l\'image'); return }
       const path = `${user.id}/avatar.jpg`
       const { error: uploadError } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
       if (uploadError) {
@@ -773,7 +773,7 @@ export default function ProfilePage() {
       setProfile(p => p ? { ...p, avatar_url: url } : p)
       const storeUser = useAuthStore.getState().user
       if (storeUser) useAuthStore.getState().setUser({ ...storeUser, avatar_url: url })
-      showToast('Photo de profil mise à jour ✓')
+      showToast('Photo de profil mise Ã  jour âœ“')
       setAvatarUploading(false)
     }, 'image/jpeg', 0.92)
   }
@@ -791,7 +791,7 @@ export default function ProfilePage() {
     if (error) { console.error('portfolio_videos save error:', error); setPortfolioVideos(portfolioVideos) }
   }
 
-  // ─── Admin handlers ─────────────────────────────────────────────────────────
+  // â”€â”€â”€ Admin handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleVerifyCreator = async (userId: string, field: 'siret_verified' | 'insurance_verified', value: boolean, comment?: string) => {
     setAdminSaving(`${userId}-${field}`)
@@ -809,7 +809,7 @@ export default function ProfilePage() {
       await supabase.from('notifications').insert({
         user_id: userId,
         type: 'verification_refused',
-        title: `Vérification ${label} refusée`,
+        title: `VÃ©rification ${label} refusÃ©e`,
         body: comment.trim(),
         link: '/profile',
       })
@@ -818,8 +818,8 @@ export default function ProfilePage() {
       await supabase.from('notifications').insert({
         user_id: userId,
         type: 'verification_accepted',
-        title: `Vérification ${label} validée OK`,
-        body: `Votre ${label} a été vérifié et validé par l'équipe Nexart.`,
+        title: `VÃ©rification ${label} validÃ©e OK`,
+        body: `Votre ${label} a Ã©tÃ© vÃ©rifiÃ© et validÃ© par l'Ã©quipe Nexart.`,
         link: '/profile',
       })
     }
@@ -833,7 +833,7 @@ export default function ProfilePage() {
     }).catch(() => {})
 
     setAdminSaving(null)
-    showToast(value ? '✓ Vérifié — email envoyé' : '✗ Refusé — email envoyé')
+    showToast(value ? 'âœ“ VÃ©rifiÃ© â€” email envoyÃ©' : 'âœ— RefusÃ© â€” email envoyÃ©')
   }
 
   const handleRefuseConfirm = async () => {
@@ -886,7 +886,7 @@ export default function ProfilePage() {
       setMsgSubject('')
       setMsgRecipient(null)
       setMsgSearch('')
-      showToast('✉ Message envoyé')
+      showToast('âœ‰ Message envoyÃ©')
       await loadAdminMessages()
       setTimeout(() => setMsgSent(false), 3000)
     }
@@ -899,7 +899,7 @@ export default function ProfilePage() {
     await supabase.from('events').update({ status: newStatus }).eq('id', eventId)
     setAdminEvents(prev => prev.map(e => e.id === eventId ? { ...e, status: newStatus } : e))
     setAdminSaving(null)
-    showToast(newStatus === 'published' ? '✓ Événement publié' : '✓ Mis en brouillon')
+    showToast(newStatus === 'published' ? 'âœ“ Ã‰vÃ©nement publiÃ©' : 'âœ“ Mis en brouillon')
   }
 
   const handleDeleteEvent = async (eventId: string) => {
@@ -907,10 +907,10 @@ export default function ProfilePage() {
     await supabase.from('events').delete().eq('id', eventId)
     setAdminEvents(prev => prev.filter(e => e.id !== eventId))
     setDeletingEvent(null)
-    showToast('🗑 Événement supprimé')
+    showToast('ðŸ—‘ Ã‰vÃ©nement supprimÃ©')
   }
 
-  // ─── Loading ─────────────────────────────────────────────────────────────────
+  // â”€â”€â”€ Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   if (loading) return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -930,14 +930,14 @@ export default function ProfilePage() {
   const name = profile?.full_name ?? user?.email?.split('@')[0] ?? 'Utilisateur'
   const firstName = name.split(' ')[0]
   const isAdmin = profile?.is_admin === true
-  // ──────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // ADMIN DASHBOARD
-  // ──────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 
-  // ──────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // CREATOR DASHBOARD
-  // ──────────────────────────────────────────────────────────────────────────────
+  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const completionMissing: string[] = []
   const isCreatorRole = profile?.role === 'creator' || profile?.role === 'artisan' || profile?.is_creator === true || creator !== null
@@ -947,7 +947,7 @@ export default function ProfilePage() {
     if (!profile?.avatar_url) completionMissing.push('Photo de profil')
     if (!editDisc.length && !creator?.disciplines?.length) completionMissing.push('Disciplines')
     if (!editCity && !creator?.city) completionMissing.push('Ville')
-    if (!editRadius && !creator?.travel_radius) completionMissing.push('Rayon de déplacement')
+    if (!editRadius && !creator?.travel_radius) completionMissing.push('Rayon de dÃ©placement')
   }
   const completionDone = 6 - completionMissing.length
   const acceptedCount = applications.filter(a => a.status === 'accepted').length
@@ -956,12 +956,12 @@ export default function ProfilePage() {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes glow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.08)}}`}</style>
 
-      {/* ── Crop Modal ── */}
+      {/* â”€â”€ Crop Modal â”€â”€ */}
       {cropSrc && (
         <div className="fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-7 w-full max-w-[380px] shadow-2xl">
             <h3 className="text-base font-bold text-gray-900 mb-1">Recadrer la photo</h3>
-            <p className="text-sm text-gray-400 mb-5">Glisse pour repositionner · molette pour zoomer</p>
+            <p className="text-sm text-gray-400 mb-5">Glisse pour repositionner Â· molette pour zoomer</p>
             <div className="flex justify-center mb-5">
               <canvas
                 ref={cropCanvasRef}
@@ -1000,7 +1000,7 @@ export default function ProfilePage() {
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
-        {/* ═══ DARK HERO ═══════════════════════════════════════════════════════════ */}
+        {/* â•â•â• DARK HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div className="relative overflow-hidden pt-24 pb-12" data-theme="dark" style={{ backgroundColor: colors.dark.base }}>
           {/* Banner image */}
           {profile?.banner_url && (
@@ -1026,7 +1026,7 @@ export default function ProfilePage() {
               {bannerUploading
                 ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 : <Upload size={12} />}
-              {profile?.banner_url ? 'Changer la bannière' : 'Ajouter une bannière'}
+              {profile?.banner_url ? 'Changer la banniÃ¨re' : 'Ajouter une banniÃ¨re'}
             </button>
           )}
           <input ref={bannerRef} type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} />
@@ -1059,7 +1059,7 @@ export default function ProfilePage() {
               <div className="flex-1 min-w-[200px]">
                 {editing ? (
                   <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="Nom complet"
-                    className="text-[22px] font-bold text-white bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 mb-2.5 w-full outline-none" />
+                    className="text-[22px] font-bold text-white bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 mb-2.5 w-full outline-none focus-visible:ring-2 focus-visible:ring-white/60" />
                 ) : (
                   <h1 className="text-2xl sm:text-[26px] font-black text-white mb-1.5 tracking-tight">{name}</h1>
                 )}
@@ -1067,7 +1067,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2 flex-wrap mb-3">
                   {(profile?.role === 'creator' || profile?.role === 'artisan' || (profile?.is_creator && profile?.role !== 'organizer')) && (
                     <span className="px-3 py-0.5 rounded-full bg-indigo-500/40 text-indigo-200 text-xs font-bold border border-indigo-500/50">
-                      Créateur
+                      CrÃ©ateur
                     </span>
                   )}
                   {(profile?.role === 'organizer' || profile?.is_organizer) && (
@@ -1077,7 +1077,7 @@ export default function ProfilePage() {
                   )}
                   {(profile?.role === 'organizer' && profile?.is_creator) && (
                     <span className="px-3 py-0.5 rounded-full bg-indigo-500/40 text-indigo-200 text-xs font-bold border border-indigo-500/50">
-                      Créateur
+                      CrÃ©ateur
                     </span>
                   )}
                   {creator?.siret_verified && (
@@ -1110,7 +1110,7 @@ export default function ProfilePage() {
                     </span>
                   )}
                   {creator?.travel_radius && (
-                    <span>· {RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}</span>
+                    <span>Â· {RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}</span>
                   )}
                   <span className="flex items-center gap-1 text-white/55">
                     <Mail size={12} /> {user?.email}
@@ -1135,7 +1135,7 @@ export default function ProfilePage() {
                   <>
                     <button onClick={handleSave} disabled={saving}
                       className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors whitespace-nowrap">
-                      <Save size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
+                      <Save size={14} /> {saving ? 'Enregistrementâ€¦' : 'Enregistrer'}
                     </button>
                     <button onClick={() => setEditing(false)}
                       className="flex items-center justify-center px-3.5 py-2.5 rounded-xl bg-white/8 text-white/60 border border-white/12 text-sm cursor-pointer hover:bg-white/12 transition-colors">
@@ -1170,14 +1170,14 @@ export default function ProfilePage() {
           <div className="absolute bottom-0 left-0 right-0 h-px bg-white/6" />
         </div>{/* end dark hero */}
 
-        {/* ═══ CONTENT AREA ══════════════════════════════════════════════════════ */}
+        {/* â•â•â• CONTENT AREA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div className="max-w-[900px] mx-auto px-4 pb-20">
 
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-7 mb-8">
             {[
               { label: 'Candidatures', value: applications.length, icon: <Calendar size={18} className="text-indigo-600" /> },
-              { label: 'Acceptées',    value: acceptedCount,       icon: <CheckCircle size={18} className="text-indigo-600" /> },
+              { label: 'AcceptÃ©es',    value: acceptedCount,       icon: <CheckCircle size={18} className="text-indigo-600" /> },
               { label: 'Vues ce mois', value: profileViews,       icon: <Eye size={18} className="text-indigo-600" /> },
             ].map(s => (
               <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm">
@@ -1196,7 +1196,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-bold text-indigo-900">Profil complété {completionDone}/6</span>
+                  <span className="text-sm font-bold text-indigo-900">Profil complÃ©tÃ© {completionDone}/6</span>
                   <span className="text-xs font-semibold text-indigo-600">{Math.round((completionDone / 6) * 100)}%</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-indigo-200 overflow-hidden mb-2.5">
@@ -1230,7 +1230,7 @@ export default function ProfilePage() {
             ))}
           </div>
 
-        {/* ── Tab: Profil ── */}
+        {/* â”€â”€ Tab: Profil â”€â”€ */}
         {tab === 'profil' && (
           <div className="flex flex-col gap-5">
 
@@ -1253,36 +1253,36 @@ export default function ProfilePage() {
                             const { error } = await supabase.from('profiles').update({ username: editUsername || null }).eq('id', user!.id)
                             if (!error) {
                               setProfile(p => p ? { ...p, username: editUsername || null } as any : p)
-                              setToast('Pseudo enregistré')
+                              setToast('Pseudo enregistrÃ©')
                             }
                           }
                         }}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 text-gray-900" />
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 text-gray-900" />
                     </div>
-                    <label className="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl bg-gray-50 border border-gray-200">
-                      <div onClick={() => setEditShowRealName(v => !v)} className="relative shrink-0 cursor-pointer"
+                    <div className="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl bg-gray-50 border border-gray-200" onClick={() => setEditShowRealName(v => !v)}>
+                      <button type="button" role="switch" aria-checked={editShowRealName} onClick={() => setEditShowRealName(v => !v)} className="relative shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 rounded-full"
                         style={{ width: '40px', height: '22px', borderRadius: '99px', backgroundColor: editShowRealName ? colors.violet.primary : colors.gray["300slate"], transition: 'background 200ms' }}>
                         <div style={{ position: 'absolute', top: '3px', left: editShowRealName ? '21px' : '3px', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-                      </div>
+                      </button>
                       <div>
                         <p className="text-sm font-semibold text-gray-800 leading-none mb-0.5">Afficher mon vrai nom</p>
-                        <p className="text-xs text-gray-400">{editShowRealName ? 'Visible publiquement' : 'Seul le pseudo est affiché'}</p>
+                        <p className="text-xs text-gray-400">{editShowRealName ? 'Visible publiquement' : 'Seul le pseudo est affichÃ©'}</p>
                       </div>
-                    </label>
-                    <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="Décrivez votre activité, votre style, ce qui vous rend unique…" rows={4}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-y outline-none focus:border-indigo-400 text-gray-900 leading-relaxed" />
+                    </div>
+                    <textarea value={editBio} onChange={e => setEditBio(e.target.value)} placeholder="DÃ©crivez votre activitÃ©, votre style, ce qui vous rend uniqueâ€¦" rows={4}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-y outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 text-gray-900 leading-relaxed" />
                   </div>
                 ) : (
                   <div>
                     {(profile as unknown as { username?: string })?.username && (
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-sm font-bold text-indigo-600">@{(profile as unknown as { username?: string }).username}</span>
-                        <span className="text-gray-300">·</span>
-                        <span className="text-xs text-gray-400">{(profile as unknown as { show_real_name?: boolean })?.show_real_name !== false ? 'Nom visible' : 'Nom masqué'}</span>
+                        <span className="text-gray-300">Â·</span>
+                        <span className="text-xs text-gray-400">{(profile as unknown as { show_real_name?: boolean })?.show_real_name !== false ? 'Nom visible' : 'Nom masquÃ©'}</span>
                       </div>
                     )}
                     <p className={`text-sm leading-relaxed ${profile?.bio ? 'text-gray-600' : 'text-gray-400'}`}>
-                      {profile?.bio ?? 'Aucune bio renseignée — cliquez sur "Modifier le profil".'}
+                      {profile?.bio ?? 'Aucune bio renseignÃ©e â€” cliquez sur "Modifier le profil".'}
                     </p>
                   </div>
                 )}
@@ -1314,10 +1314,10 @@ export default function ProfilePage() {
                         <input value={discProposalInput} onChange={e => setDiscProposalInput(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && handleProposeDisc()}
                           placeholder="Ex : Poterie Raku, Marionnettes..."
-                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                         <button onClick={handleProposeDisc} disabled={!discProposalInput.trim() || discProposalSending}
                           className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 disabled:opacity-40">
-                          {discProposalSending ? '…' : 'Proposer'}
+                          {discProposalSending ? 'â€¦' : 'Proposer'}
                         </button>
                       </div>
                       {myDiscProposals.length > 0 && (
@@ -1326,7 +1326,7 @@ export default function ProfilePage() {
                             <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50">
                               <span className="text-sm text-gray-700">{p.name}</span>
                               <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${p.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : p.status === 'rejected' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'}`}>
-                                {p.status === 'approved' ? 'Approuvée' : p.status === 'rejected' ? 'Refusée' : 'En attente'}
+                                {p.status === 'approved' ? 'ApprouvÃ©e' : p.status === 'rejected' ? 'RefusÃ©e' : 'En attente'}
                               </span>
                             </div>
                           ))}
@@ -1340,7 +1340,7 @@ export default function ProfilePage() {
                       ? creator!.disciplines.map(d => (
                           <span key={d} className="px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-sm font-semibold border border-indigo-100">{d}</span>
                         ))
-                      : <span className="text-sm text-gray-400">Aucune discipline renseignée</span>
+                      : <span className="text-sm text-gray-400">Aucune discipline renseignÃ©e</span>
                     }
                     {myDiscProposals.filter(p => p.status === 'pending').length > 0 && (
                       <span className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 text-amber-600 text-xs font-semibold border border-amber-100">
@@ -1355,7 +1355,7 @@ export default function ProfilePage() {
 
               {/* Localisation */}
               <div className="px-6 py-5">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Localisation & déplacement</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Localisation & dÃ©placement</p>
                 {editing ? (
                   <div className="flex flex-col gap-2.5">
                     <div ref={cityContainerRef} className="relative">
@@ -1383,11 +1383,11 @@ export default function ProfilePage() {
                           onBlur={() => setTimeout(() => setCityDropdownOpen(false), 150)}
                           onFocus={() => citySuggestions.length > 0 && setCityDropdownOpen(true)}
                           placeholder="Ville ou code postal" autoComplete="off"
-                          className="flex-[2] px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                          className="flex-[2] px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                         <input value={editPostalCode}
                           onChange={e => setEditPostalCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
                           placeholder="Code postal" maxLength={5}
-                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono outline-none focus:border-indigo-400" />
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                       </div>
                       {cityDropdownOpen && citySuggestions.length > 0 && (
                         <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-xl shadow-lg mt-1 overflow-hidden">
@@ -1397,28 +1397,28 @@ export default function ProfilePage() {
                               className={`flex justify-between items-center w-full px-3.5 py-2.5 border-0 bg-transparent cursor-pointer text-left hover:bg-gray-50 ${i < citySuggestions.length - 1 ? 'border-b border-gray-100' : ''}`}>
                               <div>
                                 <span className="text-sm font-semibold text-gray-900">{s.nom}</span>
-                                <span className="text-xs text-gray-400 ml-1.5">{s.departement} · {s.region}</span>
+                                <span className="text-xs text-gray-400 ml-1.5">{s.departement} Â· {s.region}</span>
                               </div>
-                              {s.codesPostaux?.length > 0 && <span className="text-xs text-indigo-600 font-semibold font-mono ml-2 shrink-0">{s.codesPostaux[0]}{s.codesPostaux.length > 1 ? '…' : ''}</span>}
+                              {s.codesPostaux?.length > 0 && <span className="text-xs text-indigo-600 font-semibold font-mono ml-2 shrink-0">{s.codesPostaux[0]}{s.codesPostaux.length > 1 ? 'â€¦' : ''}</span>}
                             </button>
                           ))}
                         </div>
                       )}
                     </div>
-                    <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="Région (remplie automatiquement)"
-                      className="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-400 outline-none" />
+                    <input value={editRegion} onChange={e => setEditRegion(e.target.value)} placeholder="RÃ©gion (remplie automatiquement)"
+                      className="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-400 outline-none focus-visible:ring-2 focus-visible:ring-white/60" />
                     <select value={editRadius} onChange={e => setEditRadius(e.target.value)}
-                      className="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none">
+                      className="px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus-visible:ring-2 focus-visible:ring-white/60">
                       <option value="5">Rayon 5 km</option>
                       <option value="10">Rayon 10 km</option>
                       <option value="25">Rayon 25 km</option>
-                      <option value="national">France entière</option>
+                      <option value="national">France entiÃ¨re</option>
                     </select>
                   </div>
                 ) : (
                   <div className="flex gap-4 flex-wrap">
                     <span className="flex items-center gap-1.5 text-sm text-gray-700">
-                      <MapPin size={14} className="text-gray-400" /> {creator?.city ?? '—'}{creator?.region ? `, ${creator.region}` : ''}
+                      <MapPin size={14} className="text-gray-400" /> {creator?.city ?? 'â€”'}{creator?.region ? `, ${creator.region}` : ''}
                     </span>
                     {creator?.travel_radius && (
                       <span className="text-sm text-gray-500">{RADIUS_LABELS[creator.travel_radius] ?? creator.travel_radius}</span>
@@ -1443,7 +1443,7 @@ export default function ProfilePage() {
                     />
                     <div>
                       <p className="text-sm font-semibold text-gray-900">{editBrandColor.toUpperCase()}</p>
-                      <p className="text-xs text-gray-400">Appliquée sur votre page publique</p>
+                      <p className="text-xs text-gray-400">AppliquÃ©e sur votre page publique</p>
                     </div>
                     <div className="ml-auto flex gap-2">
                       {[colors.violet.primary,colors.status.pending.dot,colors.green.primary,colors.red.vivid,colors.purple.primary,colors.fuchsia.primary,colors.blue.primary].map(c => (
@@ -1470,14 +1470,14 @@ export default function ProfilePage() {
                     {([
                       { icon: <AtSign size={15} className="text-gray-400 shrink-0" />, val: editInstagram, set: setEditInstagram, placeholder: 'Instagram : @votre_compte' },
                       { icon: <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>f</span>, val: editFacebook, set: setEditFacebook, placeholder: 'Facebook : nom de page' },
-                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>♪</span>, val: editTiktok, set: setEditTiktok, placeholder: 'TikTok : @votre_compte' },
+                      { icon: <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>â™ª</span>, val: editTiktok, set: setEditTiktok, placeholder: 'TikTok : @votre_compte' },
                       { icon: <Globe size={15} className="text-gray-400 shrink-0" />, val: editWebsite, set: setEditWebsite, placeholder: 'Site web : https://...' },
                       { icon: <ExternalLink size={15} className="text-gray-400 shrink-0" />, val: editEtsy, set: setEditEtsy, placeholder: 'Etsy : https://etsy.com/shop/...' },
                     ] as { icon: React.ReactNode; val: string; set: (v: string) => void; placeholder: string }[]).map(({ icon, val, set, placeholder }, i) => (
                       <div key={i} className="flex items-center gap-2.5">
                         {icon}
                         <input value={val} onChange={e => set(e.target.value)} placeholder={placeholder}
-                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                          className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                       </div>
                     ))}
                   </div>
@@ -1486,7 +1486,7 @@ export default function ProfilePage() {
                     {([
                       { icon: <AtSign size={14} className="text-gray-400" />, val: creator?.instagram, label: 'Instagram' },
                       { icon: <span style={{ fontSize: 14, color: colors.text.muted }}>f</span>, val: (creator as any)?.facebook, label: 'Facebook' },
-                      { icon: <span style={{ fontSize: 14, color: colors.text.muted }}>♪</span>, val: (creator as any)?.tiktok, label: 'TikTok' },
+                      { icon: <span style={{ fontSize: 14, color: colors.text.muted }}>â™ª</span>, val: (creator as any)?.tiktok, label: 'TikTok' },
                       { icon: <Globe size={14} className="text-gray-400" />, val: creator?.website, label: 'Site web' },
                       { icon: <ExternalLink size={14} className="text-gray-400" />, val: creator?.etsy, label: 'Etsy' },
                     ] as { icon: React.ReactNode; val: string | null | undefined; label: string }[]).filter(l => l.val).map(({ icon, val, label }) => (
@@ -1496,7 +1496,7 @@ export default function ProfilePage() {
                       </a>
                     ))}
                     {!creator?.instagram && !(creator as any)?.facebook && !(creator as any)?.tiktok && !creator?.website && !creator?.etsy && (
-                      <span className="text-sm text-gray-400">Aucun lien renseigné</span>
+                      <span className="text-sm text-gray-400">Aucun lien renseignÃ©</span>
                     )}
                   </div>
                 )}
@@ -1510,12 +1510,12 @@ export default function ProfilePage() {
                 {editing ? (
                   <div className="flex flex-col gap-2.5">
                     <div className="flex items-center gap-2.5">
-                      <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>📞</span>
-                      <input value={editPhone} onChange={e => setEditPhone(e.target.value)} placeholder="Téléphone : 06 00 00 00 00"
-                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                      <span style={{ fontSize: 15, flexShrink: 0, color: colors.text.muted }}>ðŸ“ž</span>
+                      <input value={editPhone} onChange={e => setEditPhone(e.target.value)} placeholder="TÃ©lÃ©phone : 06 00 00 00 00"
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                     </div>
                     <select value={editLegalStatus} onChange={e => setEditLegalStatus(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400">
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1">
                       <option value="">Statut juridique (optionnel)</option>
                       <option value="auto">Auto-entrepreneur / micro-entreprise</option>
                       <option value="ei">EIRL / EI</option>
@@ -1526,17 +1526,17 @@ export default function ProfilePage() {
                       <option value="autre">Autre</option>
                     </select>
                     <div className="flex gap-2">
-                      <input type="number" value={editPriceMin} onChange={e => setEditPriceMin(e.target.value)} placeholder="Prix min (€)" min={0}
-                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
-                      <input type="number" value={editPriceMax} onChange={e => setEditPriceMax(e.target.value)} placeholder="Prix max (€)" min={0}
-                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400" />
+                      <input type="number" value={editPriceMin} onChange={e => setEditPriceMin(e.target.value)} placeholder="Prix min (â‚¬)" min={0}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
+                      <input type="number" value={editPriceMax} onChange={e => setEditPriceMax(e.target.value)} placeholder="Prix max (â‚¬)" min={0}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
                     {(creator as any)?.phone && (
                       <span className="flex items-center gap-2 text-sm text-gray-700">
-                        <span style={{ fontSize: 14 }}>📞</span> {(creator as any).phone}
+                        <span style={{ fontSize: 14 }}>ðŸ“ž</span> {(creator as any).phone}
                       </span>
                     )}
                     {(creator as any)?.legal_status && (
@@ -1549,12 +1549,12 @@ export default function ProfilePage() {
                       <span className="flex items-center gap-2 text-sm text-gray-700">
                         <CreditCard size={14} className="text-gray-400" />
                         {(creator as any).price_min != null && (creator as any).price_max != null
-                          ? `${(creator as any).price_min} € – ${(creator as any).price_max} €`
-                          : (creator as any).price_min != null ? `À partir de ${(creator as any).price_min} €` : `Jusqu'à ${(creator as any).price_max} €`}
+                          ? `${(creator as any).price_min} â‚¬ â€“ ${(creator as any).price_max} â‚¬`
+                          : (creator as any).price_min != null ? `Ã€ partir de ${(creator as any).price_min} â‚¬` : `Jusqu'Ã  ${(creator as any).price_max} â‚¬`}
                       </span>
                     )}
                     {!(creator as any)?.phone && !(creator as any)?.legal_status && (creator as any)?.price_min == null && (
-                      <span className="text-sm text-gray-400">Aucune info commerciale renseignée</span>
+                      <span className="text-sm text-gray-400">Aucune info commerciale renseignÃ©e</span>
                     )}
                   </div>
                 )}
@@ -1562,36 +1562,36 @@ export default function ProfilePage() {
 
               <div className="h-px bg-gray-100" />
 
-              {/* Vérification */}
+              {/* VÃ©rification */}
               <div className="px-6 py-5">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Vérification</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">VÃ©rification</p>
                 <div className="flex flex-col gap-3">
                   {/* SIRET */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <CheckCircle size={17} fill={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : 'none'} color={(creator?.siret_verified || editSiret) ? colors.feedback.success.solid : colors.gray["300"]} />
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">SIRET vérifié</p>
-                        <p className="text-xs text-gray-400">Professionnel déclaré</p>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">SIRET vÃ©rifiÃ©</p>
+                        <p className="text-xs text-gray-400">Professionnel dÃ©clarÃ©</p>
                       </div>
                     </div>
                     {editing && (
                       <button onClick={() => setEditSiret(!editSiret)}
                         className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer border-0 ${editSiret ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
-                        {editSiret ? 'Activé' : 'Activer'}
+                        {editSiret ? 'ActivÃ©' : 'Activer'}
                       </button>
                     )}
                   </div>
                   {editing && (
                     <div className="ml-8">
-                      <p className="text-xs text-gray-400 mb-2">Entrez votre SIRET (14 chiffres) — validé par un admin sous 24h.</p>
+                      <p className="text-xs text-gray-400 mb-2">Entrez votre SIRET (14 chiffres) â€” validÃ© par un admin sous 24h.</p>
                       <div className="flex gap-2">
                         <input value={siretNumber} onChange={e => { setSiretNumber(e.target.value.replace(/\D/g, '')); setSiretResult(null) }}
                           placeholder="14 chiffres" maxLength={14}
-                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono tracking-widest outline-none" />
+                          className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono tracking-widest outline-none focus-visible:ring-2 focus-visible:ring-white/60" />
                         <button onClick={handleCheckSiret} disabled={siretNumber.length !== 14 || siretChecking}
                           className={`px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer ${siretNumber.length === 14 ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                          {siretChecking ? '…' : 'Envoyer'}
+                          {siretChecking ? 'â€¦' : 'Envoyer'}
                         </button>
                       </div>
                       {siretResult && (
@@ -1610,20 +1610,20 @@ export default function ProfilePage() {
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">RC Pro</p>
                         <p className={`text-xs font-medium ${creator?.insurance_verified ? 'text-emerald-600' : creator?.insurance_doc_url ? 'text-amber-500' : 'text-gray-400'}`}>
-                          {creator?.insurance_verified ? 'Validé par l\'équipe' : creator?.insurance_doc_url ? 'En attente de validation' : 'Responsabilité Civile Professionnelle'}
+                          {creator?.insurance_verified ? 'ValidÃ© par l\'Ã©quipe' : creator?.insurance_doc_url ? 'En attente de validation' : 'ResponsabilitÃ© Civile Professionnelle'}
                         </p>
                       </div>
                     </div>
                     {editing && !creator?.insurance_verified && (
                       <button onClick={() => rcProRef.current?.click()} disabled={rcProUploading}
                         className={`px-3 py-1 rounded-full text-xs font-bold cursor-pointer border-0 text-white ${creator?.insurance_doc_url ? 'bg-amber-500' : 'bg-indigo-600 hover:bg-indigo-500'}`}>
-                        {rcProUploading ? 'Envoi…' : creator?.insurance_doc_url ? 'Remplacer' : 'Déposer'}
+                        {rcProUploading ? 'Envoiâ€¦' : creator?.insurance_doc_url ? 'Remplacer' : 'DÃ©poser'}
                       </button>
                     )}
                   </div>
                   {editing && !creator?.insurance_verified && (
                     <p className="text-[11px] text-gray-400 ml-8">
-                      {creator?.insurance_doc_url ? 'Document reçu — vérification sous 24h.' : 'Déposez votre attestation (PDF ou image)'}
+                      {creator?.insurance_doc_url ? 'Document reÃ§u â€” vÃ©rification sous 24h.' : 'DÃ©posez votre attestation (PDF ou image)'}
                     </p>
                   )}
                   <input ref={rcProRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleRcProUpload} />
@@ -1632,16 +1632,16 @@ export default function ProfilePage() {
 
               <div className="h-px bg-gray-100" />
 
-              {/* Double rôle */}
+              {/* Double rÃ´le */}
               <div className="px-6 py-5">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Rôles</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">RÃ´les</p>
                 <div className="flex flex-col gap-4">
-                  {/* Toggle organisateur — caché si c'est déjà le rôle principal sans secondaire possible */}
+                  {/* Toggle organisateur â€” cachÃ© si c'est dÃ©jÃ  le rÃ´le principal sans secondaire possible */}
                   {profile?.role !== 'organizer' && (
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Organisateur</p>
-                        <p className="text-xs text-gray-400">Créez et gérez vos propres marchés</p>
+                        <p className="text-xs text-gray-400">CrÃ©ez et gÃ©rez vos propres marchÃ©s</p>
                       </div>
                       <button
                         onClick={async () => {
@@ -1649,7 +1649,7 @@ export default function ProfilePage() {
                           await supabase.from('profiles').update({ is_organizer: next }).eq('id', user!.id)
                           setProfile(prev => prev ? { ...prev, is_organizer: next } : prev)
                           const su = useAuthStore.getState().user; if (su) useAuthStore.getState().setUser({ ...su, is_organizer: next })
-                          showToast(next ? 'Rôle organisateur activé' : 'Rôle organisateur désactivé')
+                          showToast(next ? 'RÃ´le organisateur activÃ©' : 'RÃ´le organisateur dÃ©sactivÃ©')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_organizer ? colors.violet.primary : colors.gray["300slate"], transition: 'background 200ms' }}>
@@ -1660,8 +1660,8 @@ export default function ProfilePage() {
                   {profile?.role !== 'creator' && profile?.role !== 'artisan' && (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Créateur</p>
-                        <p className="text-xs text-gray-400">Postulez aux événements en tant que créateur</p>
+                        <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">CrÃ©ateur</p>
+                        <p className="text-xs text-gray-400">Postulez aux Ã©vÃ©nements en tant que crÃ©ateur</p>
                       </div>
                       <button
                         onClick={async () => {
@@ -1669,7 +1669,7 @@ export default function ProfilePage() {
                           await supabase.from('profiles').update({ is_creator: next }).eq('id', user!.id)
                           setProfile(prev => prev ? { ...prev, is_creator: next } : prev)
                           const su = useAuthStore.getState().user; if (su) useAuthStore.getState().setUser({ ...su, is_creator: next })
-                          showToast(next ? 'Rôle créateur activé' : 'Rôle créateur désactivé')
+                          showToast(next ? 'RÃ´le crÃ©ateur activÃ©' : 'RÃ´le crÃ©ateur dÃ©sactivÃ©')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: profile?.is_creator ? colors.violet.primary : colors.gray["300slate"], transition: 'background 200ms' }}>
@@ -1677,19 +1677,19 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   )}
-                  {/* Toggle collab — pour les créateurs */}
+                  {/* Toggle collab â€” pour les crÃ©ateurs */}
                   {isCreatorRole && (
                     <div className="flex items-center justify-between pt-1 border-t border-gray-100">
                       <div>
                         <p className="text-sm font-semibold text-gray-900 leading-none mb-0.5">Ouvert aux collaborations</p>
-                        <p className="text-xs text-gray-400">Les autres créateurs pourront vous proposer des collabs</p>
+                        <p className="text-xs text-gray-400">Les autres crÃ©ateurs pourront vous proposer des collabs</p>
                       </div>
                       <button
                         onClick={async () => {
                           const next = !creator?.open_to_collab
                           await supabase.from('creator_profiles').upsert({ user_id: user!.id, open_to_collab: next }, { onConflict: 'user_id' })
                           setCreator(prev => prev ? { ...prev, open_to_collab: next } : { open_to_collab: next } as any)
-                          showToast(next ? 'Collaborations activées' : 'Collaborations désactivées')
+                          showToast(next ? 'Collaborations activÃ©es' : 'Collaborations dÃ©sactivÃ©es')
                         }}
                         className="relative shrink-0 cursor-pointer border-0 bg-transparent p-0"
                         style={{ width: '44px', height: '24px', borderRadius: '99px', backgroundColor: creator?.open_to_collab ? colors.purple.dark : colors.gray["300slate"], transition: 'background 200ms' }}>
@@ -1701,27 +1701,27 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Vérification SIRET créateur */}
+            {/* VÃ©rification SIRET crÃ©ateur */}
             {isCreatorRole && !(profile?.role === 'organizer' || profile?.is_organizer) && (
               <>
                 <div className="h-px bg-gray-100" />
                 <div className="px-6 py-5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Vérification SIRET</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">VÃ©rification SIRET</p>
                       {creator?.siret_verified ? (
                         <p className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
-                          <BadgeCheck size={14} /> Vérifié
+                          <BadgeCheck size={14} /> VÃ©rifiÃ©
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-400">Obtenez le badge créateur vérifié</p>
+                        <p className="text-xs text-gray-400">Obtenez le badge crÃ©ateur vÃ©rifiÃ©</p>
                       )}
                     </div>
                     {!creator?.siret_verified && (
                       <a href="/creator/verify"
                         className="px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer no-underline"
                         style={{ backgroundColor: colors.violet.bg, color: colors.violet.primary }}>
-                        Obtenir la vérification
+                        Obtenir la vÃ©rification
                       </a>
                     )}
                   </div>
@@ -1729,16 +1729,16 @@ export default function ProfilePage() {
               </>
             )}
 
-            {/* Vérification organisateur */}
+            {/* VÃ©rification organisateur */}
             {(profile?.role === 'organizer' || profile?.is_organizer) && (
               <>
                 <div className="h-px bg-gray-100" />
                 <div className="px-6 py-5">
                   <div className="flex items-center gap-2 mb-3">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Vérification organisateur</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">VÃ©rification organisateur</p>
                     {(orgaProfile?.siret_verified || orgaProfile?.verification_doc_verified) && (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
-                        <BadgeCheck size={10} /> Vérifié
+                        <BadgeCheck size={10} /> VÃ©rifiÃ©
                       </span>
                     )}
                   </div>
@@ -1748,7 +1748,7 @@ export default function ProfilePage() {
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-semibold text-gray-800">SIRET</p>
                         {orgaProfile?.siret_verified
-                          ? <span className="text-xs font-bold text-emerald-600">Vérifié</span>
+                          ? <span className="text-xs font-bold text-emerald-600">VÃ©rifiÃ©</span>
                           : orgaProfile?.siret_number
                           ? <span className="text-xs font-semibold text-amber-500">En attente</span>
                           : null
@@ -1760,10 +1760,10 @@ export default function ProfilePage() {
                         <div className="flex gap-2">
                           <input value={orgaSiretInput} onChange={e => { setOrgaSiretInput(e.target.value.replace(/\D/g, '')); setOrgaSiretResult(null) }}
                             placeholder="14 chiffres" maxLength={14}
-                            className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono tracking-widest outline-none focus:border-indigo-400" />
+                            className="flex-1 px-3.5 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm font-mono tracking-widest outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1" />
                           <button onClick={handleOrgaSiretCheck} disabled={orgaSiretInput.length !== 14 || orgaSiretChecking}
                             className={`px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer ${orgaSiretInput.length === 14 ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            {orgaSiretChecking ? '…' : 'Envoyer'}
+                            {orgaSiretChecking ? 'â€¦' : 'Envoyer'}
                           </button>
                         </div>
                       )}
@@ -1778,21 +1778,21 @@ export default function ProfilePage() {
                       <div className="flex items-center justify-between mb-2">
                         <div>
                           <p className="text-sm font-semibold text-gray-800">Document officiel</p>
-                          <p className="text-xs text-gray-400">Kbis, extrait RNA, statuts association…</p>
+                          <p className="text-xs text-gray-400">Kbis, extrait RNA, statuts associationâ€¦</p>
                         </div>
                         {orgaProfile?.verification_doc_verified
-                          ? <span className="text-xs font-bold text-emerald-600">Vérifié</span>
+                          ? <span className="text-xs font-bold text-emerald-600">VÃ©rifiÃ©</span>
                           : orgaProfile?.verification_doc_url
                           ? <span className="text-xs font-semibold text-amber-500">En attente</span>
                           : null
                         }
                       </div>
                       {orgaProfile?.verification_doc_verified ? (
-                        <p className="text-xs text-emerald-600 font-semibold">Document validé par l'équipe Nexart</p>
+                        <p className="text-xs text-emerald-600 font-semibold">Document validÃ© par l'Ã©quipe Nexart</p>
                       ) : (
                         <button onClick={() => orgaDocRef.current?.click()} disabled={orgaDocUploading}
                           className={`px-4 py-2 rounded-xl text-sm font-bold border-0 cursor-pointer text-white ${orgaProfile?.verification_doc_url ? 'bg-amber-500 hover:bg-amber-400' : 'bg-indigo-600 hover:bg-indigo-500'}`}>
-                          {orgaDocUploading ? 'Envoi…' : orgaProfile?.verification_doc_url ? 'Remplacer le document' : 'Déposer un document'}
+                          {orgaDocUploading ? 'Envoiâ€¦' : orgaProfile?.verification_doc_url ? 'Remplacer le document' : 'DÃ©poser un document'}
                         </button>
                       )}
                       <input ref={orgaDocRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleOrgaDocUpload} />
@@ -1802,12 +1802,12 @@ export default function ProfilePage() {
               </>
             )}
 
-            {/* Éditions passées organisateur */}
+            {/* Ã‰ditions passÃ©es organisateur */}
             {(profile?.role === 'organizer' || profile?.is_organizer) && user?.id && (
               <>
                 <div className="h-px bg-gray-100" />
                 <div className="px-6 py-5">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Éditions passées</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-4">Ã‰ditions passÃ©es</p>
                   <PastEventsGallery organizerId={user.id} />
                 </div>
               </>
@@ -1819,7 +1819,7 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                   <button onClick={handleSave} disabled={saving}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors">
-                    <Save size={15} /> {saving ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                    <Save size={15} /> {saving ? 'Enregistrementâ€¦' : 'Enregistrer les modifications'}
                   </button>
                   <button onClick={() => setEditing(false)}
                     className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-500 text-sm cursor-pointer hover:bg-gray-50 transition-colors">
@@ -1829,7 +1829,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Déconnexion + Supprimer */}
+            {/* DÃ©connexion + Supprimer */}
             <div className="flex flex-col gap-2">
               <button onClick={async () => {
                   if (!user) return
@@ -1845,14 +1845,14 @@ export default function ProfilePage() {
                   const a = document.createElement('a'); a.href = url; a.download = `nexart-mes-donnees-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url)
                 }}
                 className="w-full py-2.5 rounded-2xl border border-gray-200 bg-transparent text-gray-500 text-sm cursor-pointer flex items-center justify-center gap-1.5 hover:bg-gray-50 transition-colors">
-                Exporter mes données (RGPD)
+                Exporter mes donnÃ©es (RGPD)
               </button>
               <button onClick={async () => { await supabase.auth.signOut(); router.push('/') }}
                 className="w-full py-3 rounded-2xl border border-red-200 bg-white text-red-500 text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 hover:bg-red-50 transition-colors">
-                <LogOut size={15} /> Se déconnecter
+                <LogOut size={15} /> Se dÃ©connecter
               </button>
               <button onClick={async () => {
-                  const confirmed = window.confirm('Supprimer définitivement votre compte ?\n\nToutes vos données seront effacées.')
+                  const confirmed = window.confirm('Supprimer dÃ©finitivement votre compte ?\n\nToutes vos donnÃ©es seront effacÃ©es.')
                   if (!confirmed) return
                   const { data: { session } } = await supabase.auth.getSession()
                   if (!session) return
@@ -1867,7 +1867,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* ── Tab: Portfolio ── */}
+        {/* â”€â”€ Tab: Portfolio â”€â”€ */}
         {tab === 'portfolio' && user && (
           <>
             <PortfolioGridEditor
@@ -1885,7 +1885,7 @@ export default function ProfilePage() {
 
             {/* Videos section */}
             <div style={{ marginTop: '32px', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.text.primary, marginBottom: '4px' }}>Vidéos portfolio</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: colors.text.primary, marginBottom: '4px' }}>VidÃ©os portfolio</h3>
               <p style={{ fontSize: '13px', color: colors.text.secondary, marginBottom: '16px' }}>YouTube, TikTok ou Instagram Reels (max 6)</p>
 
               {portfolioVideos.length > 0 && (
@@ -1907,7 +1907,7 @@ export default function ProfilePage() {
                             if (error) { console.error('portfolio_videos delete error:', error); setPortfolioVideos(portfolioVideos) }
                           }}
                           style={{ position: 'absolute', top: '6px', right: '6px', width: '24px', height: '24px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.7)', color: colors.bg.primary, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', lineHeight: 1 }}
-                        >×</button>
+                        >Ã—</button>
                       </div>
                     )
                   })}
@@ -1936,17 +1936,17 @@ export default function ProfilePage() {
           </>
         )}
 
-        {/* ── Tab: Candidatures ── */}
+        {/* â”€â”€ Tab: Candidatures â”€â”€ */}
         {tab === 'candidatures' && (
           <div className="flex flex-col gap-3">
             {applications.length === 0 ? (
               <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-gray-200">
                 <Calendar size={40} className="text-gray-200 mx-auto mb-4" />
                 <p className="text-base font-semibold text-gray-700 mb-1">Aucune candidature</p>
-                <p className="text-sm text-gray-400 mb-5">Explorez les événements et postulez pour exposer votre travail.</p>
+                <p className="text-sm text-gray-400 mb-5">Explorez les Ã©vÃ©nements et postulez pour exposer votre travail.</p>
                 <button onClick={() => router.push('/events')}
                   className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold border-0 cursor-pointer hover:bg-indigo-500 transition-colors">
-                  Voir les événements
+                  Voir les Ã©vÃ©nements
                 </button>
               </div>
             ) : applications.map(app => {
@@ -1958,17 +1958,17 @@ export default function ProfilePage() {
               type Step = { label: string; sublabel?: string; done: boolean; active: boolean; color: string }
               const steps: Step[] = [
                 {
-                  label: 'Envoyée',
+                  label: 'EnvoyÃ©e',
                   sublabel: new Date(app.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
                   done: true, active: false, color: colors.green.primary,
                 },
                 {
                   label: 'En examen',
-                  sublabel: isDone ? 'Examinée' : 'En attente',
+                  sublabel: isDone ? 'ExaminÃ©e' : 'En attente',
                   done: isDone, active: !isDone, color: isDone ? colors.green.primary : colors.status.pending.dot,
                 },
                 {
-                  label: isAccepted ? 'Acceptée ✓' : isRefused ? 'Refusée' : 'Décision',
+                  label: isAccepted ? 'AcceptÃ©e âœ“' : isRefused ? 'RefusÃ©e' : 'DÃ©cision',
                   done: isDone, active: !isDone,
                   color: isAccepted ? colors.green.primary : isRefused ? colors.red.vivid : colors.text.muted,
                 },
@@ -1986,10 +1986,10 @@ export default function ProfilePage() {
                       }
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 truncate">{ev?.title ?? 'Événement supprimé'}</p>
+                      <p className="text-sm font-bold text-gray-900 truncate">{ev?.title ?? 'Ã‰vÃ©nement supprimÃ©'}</p>
                       {ev && (
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {ev.city ?? '—'} · {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          {ev.city ?? 'â€”'} Â· {new Date(ev.start_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </p>
                       )}
                     </div>
@@ -2048,9 +2048,9 @@ export default function ProfilePage() {
                 <textarea
                   value={postContent}
                   onChange={e => setPostContent(e.target.value)}
-                  placeholder="Partagez une création, une actualité, une inspiration…"
+                  placeholder="Partagez une crÃ©ation, une actualitÃ©, une inspirationâ€¦"
                   rows={3}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-y outline-none focus:border-indigo-400 text-gray-900 leading-relaxed mb-3"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm resize-y outline-none focus:border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 text-gray-900 leading-relaxed mb-3"
                 />
                 {postImageFile && (
                   <div className="relative w-24 h-24 mb-3 rounded-xl overflow-hidden border border-gray-200">
@@ -2092,7 +2092,7 @@ export default function ProfilePage() {
                       setPostSaving(false)
                     }}
                     className="px-5 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-40 hover:bg-indigo-500 transition-colors">
-                    {postSaving ? 'Publication…' : 'Publier'}
+                    {postSaving ? 'Publicationâ€¦' : 'Publier'}
                   </button>
                 </div>
               </div>
@@ -2102,8 +2102,8 @@ export default function ProfilePage() {
             {myPosts.length === 0 ? (
               <div className="text-center py-16 px-6 rounded-2xl border border-dashed border-gray-200">
                 <Rss size={40} className="text-gray-200 mx-auto mb-4" />
-                <p className="text-base font-semibold text-gray-700 mb-1">Aucun post publié</p>
-                <p className="text-sm text-gray-400">Partagez vos créations et actualités avec vos abonnés.</p>
+                <p className="text-base font-semibold text-gray-700 mb-1">Aucun post publiÃ©</p>
+                <p className="text-sm text-gray-400">Partagez vos crÃ©ations et actualitÃ©s avec vos abonnÃ©s.</p>
               </div>
             ) : myPosts.map(post => (
               <div key={post.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
@@ -2136,3 +2136,5 @@ export default function ProfilePage() {
     </div>
   )
 }
+
+
