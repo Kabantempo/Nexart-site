@@ -749,7 +749,7 @@ function CreatorMainContent({
                 backgroundColor: a.status === 'refunded' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
                 color: a.status === 'refunded' ? colors.red.soft : colors.green.pale,
               }}>
-                {a.status === 'refunded' ? 'Remboursé' : 'Payé ✓'}
+                {a.status === 'refunded' ? 'Remboursé' : 'Payé'}
               </span>
             </Link>
           ))}

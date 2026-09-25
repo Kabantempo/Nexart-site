@@ -576,18 +576,18 @@ function CreatorsContent() {
           <div style={{ marginBottom: 20 }}>
             <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 12px' }}>Disponibilité</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <button type="button" role="switch" aria-checked={availableOnly} aria-label="Disponible" onClick={() => setAvailableOnly(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: availableOnly ? colors.green.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0, border: 'none', cursor: 'pointer', padding: 0 }}>
                   <div style={{ position: 'absolute', top: 2, left: availableOnly ? 16 : 2, width: 16, height: 16, borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                 </button>
-                <span style={{ fontSize: 13, fontWeight: availableOnly ? 600 : 400, color: availableOnly ? colors.green.primary : 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => setAvailableOnly(v => !v)}>Disponible</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 13, fontWeight: availableOnly ? 600 : 400, color: availableOnly ? colors.green.primary : 'var(--text-secondary)' }}>Disponible</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                 <button type="button" role="switch" aria-checked={openToCollab} aria-label="Open collabs" onClick={() => setOpenToCollab(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: openToCollab ? colors.violet.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0, border: 'none', cursor: 'pointer', padding: 0 }}>
                   <div style={{ position: 'absolute', top: 2, left: openToCollab ? 16 : 2, width: 16, height: 16, borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                 </button>
-                <span style={{ fontSize: 13, fontWeight: openToCollab ? 600 : 400, color: openToCollab ? colors.violet.primary : 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => setOpenToCollab(v => !v)}>Open collabs</span>
-              </div>
+                <span style={{ fontSize: 13, fontWeight: openToCollab ? 600 : 400, color: openToCollab ? colors.violet.primary : 'var(--text-secondary)' }}>Open collabs</span>
+              </label>
             </div>
           </div>
 

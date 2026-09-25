@@ -562,18 +562,18 @@ export default function EventsClient() {
             <div style={{ marginBottom: 20 }}>
               <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-secondary)', margin: '0 0 12px' }}>Options</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                   <button type="button" role="switch" aria-checked={gratuitOnly} aria-label="Gratuit uniquement" onClick={() => setGratuitOnly(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: gratuitOnly ? colors.green.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0, border: 'none', cursor: 'pointer', padding: 0 }}>
                     <div style={{ position: 'absolute', top: 2, left: gratuitOnly ? 16 : 2, width: 16, height: 16, borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                   </button>
-                  <span style={{ fontSize: 13, fontWeight: gratuitOnly ? 600 : 400, color: gratuitOnly ? colors.green.primary : 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => setGratuitOnly(v => !v)}>Gratuit</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: gratuitOnly ? 600 : 400, color: gratuitOnly ? colors.green.primary : 'var(--text-secondary)' }}>Gratuit</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                   <button type="button" role="switch" aria-checked={bientotOnly} aria-label="Dans les 30 jours" onClick={() => setBientotOnly(v => !v)} style={{ width: 34, height: 20, borderRadius: 10, backgroundColor: bientotOnly ? colors.violet.primary : 'var(--border-color)', position: 'relative', transition: 'background 0.2s', flexShrink: 0, border: 'none', cursor: 'pointer', padding: 0 }}>
                     <div style={{ position: 'absolute', top: 2, left: bientotOnly ? 16 : 2, width: 16, height: 16, borderRadius: '50%', backgroundColor: 'var(--bg-primary)', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                   </button>
-                  <span style={{ fontSize: 13, fontWeight: bientotOnly ? 600 : 400, color: bientotOnly ? colors.violet.primary : 'var(--text-secondary)', cursor: 'pointer' }} onClick={() => setBientotOnly(v => !v)}>Dans les 30 jours</span>
-                </div>
+                  <span style={{ fontSize: 13, fontWeight: bientotOnly ? 600 : 400, color: bientotOnly ? colors.violet.primary : 'var(--text-secondary)' }}>Dans les 30 jours</span>
+                </label>
               </div>
             </div>
 
