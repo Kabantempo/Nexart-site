@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -81,6 +81,7 @@ export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
   const router = useRouter()
+  const pathname = usePathname()
 
   const [applications, setApplications] = useState<(Application & { event?: Event })[]>([])
   const [events, setEvents] = useState<Event[]>([])
@@ -307,6 +308,11 @@ export default function DashboardPage() {
         .mobile-tab-switch {
           display: none;
         }
+        .dash-header-label { display: block; }
+        .dash-header-logout { display: flex; }
+        .dash-mobile-avatar-row { display: none !important; }
+        .dash-visitor-strip { display: none !important; }
+        .dash-visitor-grid { display: grid; }
         .dash-left-sidebar {
           flex-shrink: 0;
           height: 100vh;
@@ -324,8 +330,14 @@ export default function DashboardPage() {
         @media (max-width: 768px) {
           .dash-left-sidebar { display: none; }
           .sidebar-quick-actions { display: none; }
-          .dash-content { padding-bottom: 72px; }
+          .dash-content { padding-bottom: 76px; }
           .mobile-tab-switch { display: block; }
+          .dash-header-label { display: none !important; }
+          .dash-header-logout { display: none !important; }
+          .dash-mobile-avatar-row { display: flex !important; }
+          .dash-visitor-strip { display: flex !important; overflow-x: auto; gap: 10px; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+          .dash-visitor-strip::-webkit-scrollbar { display: none; }
+          .dash-visitor-grid { display: none !important; }
           .mobile-quick-bar {
             display: flex;
             position: fixed;
@@ -335,25 +347,34 @@ export default function DashboardPage() {
             z-index: 40;
             background: var(--bg-primary);
             border-top: 1px solid var(--border-color);
-            padding: 10px 16px;
-            gap: 4px;
+            padding: 8px 4px 12px;
+            gap: 0;
             justify-content: space-around;
-            box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 -1px 0 var(--border-color), 0 -4px 16px rgba(0,0,0,0.08);
           }
           .mobile-quick-bar a {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
-            padding: 6px 10px;
-            border-radius: 8px;
+            gap: 3px;
+            padding: 6px 8px;
+            border-radius: 10px;
             text-decoration: none;
             color: var(--text-secondary);
             font-size: 10px;
             font-weight: 500;
             flex: 1;
+            transition: color 0.15s;
           }
-          .mobile-quick-bar a:active { background: var(--bg-secondary); }
+          .mobile-quick-bar a:active { opacity: 0.7; }
+          .mobile-quick-bar a.mob-active { color: #6366f1; }
+          .mobile-quick-bar a.mob-active svg { color: #6366f1; }
+          .mobile-quick-bar .mob-dot {
+            width: 4px; height: 4px; border-radius: 50%;
+            background: #6366f1; margin: 0 auto; margin-bottom: -2px;
+            opacity: 0; transition: opacity 0.15s;
+          }
+          .mobile-quick-bar a.mob-active .mob-dot { opacity: 1; }
         }
       `}</style>
 
@@ -395,8 +416,24 @@ export default function DashboardPage() {
       <div style={{ borderBottom: '1px solid var(--border-color)', padding: '20px 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Desktop: label + large greeting */}
+            <div className="dash-header-label" style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>Tableau de bord</div>
+            {/* Mobile: avatar + compact greeting row */}
+            <div className="dash-mobile-avatar-row" style={{ alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: colors.violet.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 700, color: colors.bg.primary, flexShrink: 0 }}>
+                {firstName?.[0]?.toUpperCase() ?? 'U'}
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>{firstName}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary }}>{roleLabel}</span>
+                  {isPaid && <span style={{ fontSize: '9px', fontWeight: 700, padding: '2px 6px', borderRadius: '20px', backgroundColor: tierCfg.bg, color: tierCfg.color }}>{tierCfg.label}</span>}
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '1px' }}>{greeting}</div>
+              </div>
+            </div>
+            {/* Desktop greeting */}
+            <div className="dash-header-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{greeting}, {firstName}</h1>
               <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 10px', borderRadius: '20px', backgroundColor: colors.violet.primary, color: colors.bg.primary, flexShrink: 0 }}>{roleLabel}</span>
               {isPaid && (
@@ -420,7 +457,7 @@ export default function DashboardPage() {
                 <Plus size={13} /> Créer un événement
               </Link>
             )}
-            <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
+            <button onClick={handleLogout} className="dash-header-logout" style={{ alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '12px', cursor: 'pointer' }}>
               <LogOut size={13} /> Déconnexion
             </button>
           </div>
@@ -544,19 +581,19 @@ export default function DashboardPage() {
         <div className="mobile-quick-bar">
           {(dashTab === 'creator' || (!hasOrganizer && !isAdmin)) && hasCreator ? (
             <>
-              <a href="/events"><Calendar size={18} /><span>Marchés</span></a>
-              <a href="/profile"><User size={18} /><span>Profil</span></a>
-              <a href={`/boutique/${user.id}`}><ShoppingBag size={18} /><span>Boutique</span></a>
-              <a href="/analytics"><BarChart2 size={18} /><span>Stats</span></a>
-              <a href="/creator/payments"><CreditCard size={18} /><span>Paiements</span></a>
+              <a href="/events" className={pathname === '/events' ? 'mob-active' : ''}><span className="mob-dot" /><Calendar size={18} /><span>Marchés</span></a>
+              <a href="/profile" className={pathname === '/profile' ? 'mob-active' : ''}><span className="mob-dot" /><User size={18} /><span>Profil</span></a>
+              <a href={`/boutique/${user.id}`} className={pathname.startsWith('/boutique/') ? 'mob-active' : ''}><span className="mob-dot" /><ShoppingBag size={18} /><span>Boutique</span></a>
+              <a href="/analytics" className={pathname === '/analytics' ? 'mob-active' : ''}><span className="mob-dot" /><BarChart2 size={18} /><span>Stats</span></a>
+              <a href="/creator/payments" className={pathname === '/creator/payments' ? 'mob-active' : ''}><span className="mob-dot" /><CreditCard size={18} /><span>Paiements</span></a>
             </>
           ) : dashTab === 'organizer' && hasOrganizer ? (
             <>
-              <a href="/events/create"><Plus size={18} /><span>Créer</span></a>
-              <a href="/organizer/analytics"><BarChart2 size={18} /><span>Analytics</span></a>
-              <a href="/organizer/revenue"><Euro size={18} /><span>Revenus</span></a>
-              <a href="/messages"><MessageSquare size={18} /><span>Messages</span></a>
-              <a href="/calendrier"><CalendarDays size={18} /><span>Calendrier</span></a>
+              <a href="/events/create" className={pathname === '/events/create' ? 'mob-active' : ''}><span className="mob-dot" /><Plus size={18} /><span>Créer</span></a>
+              <a href="/organizer/analytics" className={pathname === '/organizer/analytics' ? 'mob-active' : ''}><span className="mob-dot" /><BarChart2 size={18} /><span>Analytics</span></a>
+              <a href="/organizer/revenue" className={pathname === '/organizer/revenue' ? 'mob-active' : ''}><span className="mob-dot" /><Euro size={18} /><span>Revenus</span></a>
+              <a href="/messages" className={pathname === '/messages' ? 'mob-active' : ''}><span className="mob-dot" /><MessageSquare size={18} /><span>Messages</span></a>
+              <a href="/calendrier" className={pathname === '/calendrier' ? 'mob-active' : ''}><span className="mob-dot" /><CalendarDays size={18} /><span>Calendrier</span></a>
             </>
           ) : null}
         </div>
@@ -1617,18 +1654,29 @@ function DashSidebar({ collapsed, onToggle, hasCreator, hasOrganizer, isAdmin, u
 // ─── Visitor content ──────────────────────────────────────────────────────────
 
 function VisitorContent() {
+  const cards = [
+    { href: '/events',    icon: <Calendar size={16} />,        title: 'Événements', desc: 'Parcourir le calendrier' },
+    { href: '/creators',  icon: <Users size={16} />,           title: 'Créateurs',  desc: 'Découvrir les artisans' },
+    { href: '/carte',     icon: <MapPin size={16} />,          title: 'Carte',      desc: 'Événements proches' },
+    { href: '/profile',   icon: <User size={16} />,            title: 'Mon profil', desc: 'Gérer mes préférences' },
+    { href: '/favorites', icon: <Heart size={16} />,           title: 'Favoris',    desc: 'Mes coups de cœur' },
+    { href: '/messages',  icon: <MessageSquare size={16} />,   title: 'Messages',   desc: 'Mes conversations' },
+  ]
   return (
     <div>
       <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '14px' }}>Explorer Nexart</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
-        {[
-          { href: '/events',   icon: <Calendar size={16} />, title: 'Événements',    desc: 'Parcourir le calendrier' },
-          { href: '/creators', icon: <Users size={16} />,    title: 'Créateurs',     desc: 'Découvrir les artisans' },
-          { href: '/carte',    icon: <MapPin size={16} />,   title: 'Carte',         desc: 'Événements proches' },
-          { href: '/profile',  icon: <User size={16} />,     title: 'Mon profil',    desc: 'Gérer mes préférences' },
-          { href: '/favorites',icon: <Heart size={16} />,    title: 'Favoris',       desc: 'Mes coups de cœur' },
-          { href: '/messages', icon: <MessageSquare size={16} />, title: 'Messages', desc: 'Mes conversations' },
-        ].map(card => (
+      {/* Mobile: compact horizontal scroll strip */}
+      <div className="dash-visitor-strip">
+        {cards.map(card => (
+          <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 14px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)', minWidth: '76px', flexShrink: 0 }}>
+            <span style={{ color: colors.violet.primary }}>{card.icon}</span>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)', margin: 0, textAlign: 'center', whiteSpace: 'nowrap' }}>{card.title}</p>
+          </Link>
+        ))}
+      </div>
+      {/* Desktop: 2-col grid */}
+      <div className="dash-visitor-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
+        {cards.map(card => (
           <Link key={card.href} href={card.href} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 16px', borderRadius: '10px', backgroundColor: 'var(--bg-secondary)' }}>
             <span style={{ color: colors.violet.primary }}>{card.icon}</span>
             <div>
