@@ -77,6 +77,8 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -3, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.97 }}
       transition={{ duration: 0.3, delay: index * 0.07 }}
       onClick={onClick}
       style={{
