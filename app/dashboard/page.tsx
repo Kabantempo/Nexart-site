@@ -226,6 +226,14 @@ export default function DashboardPage() {
     }
   }
 
+  // Auto-switch to organizer tab for organizer-only accounts
+  useEffect(() => {
+    if (!user) return
+    const isOrg = user.is_organizer || user.role === 'organizer'
+    const isCre = user.is_creator || user.role === 'creator'
+    if (isOrg && !isCre) setDashTab('organizer')
+  }, [user])
+
   if (!user) {
     return (
       <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh', padding: '24px' }}>
