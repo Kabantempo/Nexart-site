@@ -678,9 +678,9 @@ export function NavbarFull() {
               ].map(({ href, label }, i) => (
                 <motion.div key={href} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 + 0.05 }}>
                   <Link href={href} onClick={() => setMobileOpen(false)}
-                    style={{ display: 'block', padding: '10px 0', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', textDecoration: 'none', transition: 'color 0.15s', color: isActive(href) ? colors.bg.primary : 'rgba(255,255,255,0.3)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.8)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = isActive(href) ? colors.bg.primary : 'rgba(255,255,255,0.3)'}
+                    style={{ display: 'block', padding: '10px 0', fontSize: '22px', fontWeight: 700, letterSpacing: '-0.02em', textDecoration: 'none', transition: 'color 0.15s', color: isActive(href) ? colors.violet.primary : 'rgba(255,255,255,0.55)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = isActive(href) ? colors.violet.hover : 'rgba(255,255,255,0.9)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = isActive(href) ? colors.violet.primary : 'rgba(255,255,255,0.55)'}
                   >
                     {label}
                   </Link>
