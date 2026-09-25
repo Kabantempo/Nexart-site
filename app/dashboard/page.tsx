@@ -1082,7 +1082,7 @@ function OrganizerMainContent({
   setSelectedEventId: React.Dispatch<React.SetStateAction<string>>
 }) {
   const [tab, setTab] = useState<'candidatures' | 'retard' | 'messages'>('candidatures')
-  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [hoveredAppId, setHoveredAppId] = useState<string | null>(null)
   const [recentConvs, setRecentConvs] = useState<{ id: string; creatorName: string | null; avatarUrl: string | null }[]>([])
   const [convsLoading, setConvsLoading] = useState(false)
   const [unreadMsgCount, setUnreadMsgCount] = useState(0)
@@ -1146,47 +1146,50 @@ function OrganizerMainContent({
     { key: 'other',      label: 'Autre raison' },
   ]
 
-  const handleStatus = async (appId: string, status: 'accepted' | 'refused', eventTitle?: string, creatorId?: string) => {
-    setUpdatingId(appId)
-    await supabase.from('applications').update({ status, updated_at: new Date().toISOString() }).eq('id', appId)
-    if (creatorId && eventTitle) {
-      await supabase.from('notifications').insert({
+  const handleStatus = (appId: string, status: 'accepted' | 'refused', eventTitle?: string, creatorId?: string) => {
+    const app = pendingApps.find(a => a.id === appId)
+    setPendingApps(prev => prev.filter(a => a.id !== appId))
+    supabase.from('applications').update({ status, updated_at: new Date().toISOString() }).eq('id', appId).then(({ error }: { error: any }) => {
+      if (error && app) setPendingApps(prev => [...prev, app])
+    })
+    if (creatorId && eventTitle && app) {
+      supabase.from('notifications').insert({
         user_id: creatorId,
         type: status === 'accepted' ? 'application_accepted' : 'application_rejected',
         title: status === 'accepted' ? 'Candidature acceptée' : 'Candidature non retenue',
         body: status === 'accepted' ? `Votre candidature pour "${eventTitle}" a été acceptée !` : `Votre candidature pour "${eventTitle}" n'a pas été retenue.`,
-        link: `/events/${pendingApps.find(a => a.id === appId)?.event_id}`,
+        link: `/events/${app.event_id}`,
       })
     }
-    setPendingApps(prev => prev.filter(a => a.id !== appId))
-    setUpdatingId(null)
   }
 
-  const confirmRefuse = async () => {
+  const confirmRefuse = () => {
     if (!refuseModal) return
     const { appId, eventTitle, creatorId } = refuseModal
-    setUpdatingId(appId)
-    await (supabase.from('applications') as any).update({
+    const app = pendingApps.find(a => a.id === appId)
+    const reasons = [...refuseReasons]
+    setPendingApps(prev => prev.filter(a => a.id !== appId))
+    setRefuseModal(null)
+    setRefuseReasons([])
+    ;(supabase.from('applications') as any).update({
       status: 'refused',
-      rejection_reason: refuseReasons.length ? { reasons: refuseReasons } : null,
+      rejection_reason: reasons.length ? { reasons } : null,
       updated_at: new Date().toISOString(),
-    }).eq('id', appId)
-    if (creatorId && eventTitle) {
-      const reasonLabel = refuseReasons.length
-        ? ` Raison : ${refuseReasons.map(r => REFUSE_OPTIONS.find(o => o.key === r)?.label ?? r).join(', ')}.`
+    }).eq('id', appId).then(({ error }: { error: any }) => {
+      if (error && app) setPendingApps(prev => [...prev, app])
+    })
+    if (creatorId && eventTitle && app) {
+      const reasonLabel = reasons.length
+        ? ` Raison : ${reasons.map(r => REFUSE_OPTIONS.find(o => o.key === r)?.label ?? r).join(', ')}.`
         : ''
-      await supabase.from('notifications').insert({
+      supabase.from('notifications').insert({
         user_id: creatorId,
         type: 'application_rejected',
         title: 'Candidature non retenue',
         body: `Votre candidature pour "${eventTitle}" n'a pas été retenue.${reasonLabel}`,
-        link: `/events/${pendingApps.find(a => a.id === appId)?.event_id}`,
+        link: `/events/${app.event_id}`,
       })
     }
-    setPendingApps(prev => prev.filter(a => a.id !== appId))
-    setUpdatingId(null)
-    setRefuseModal(null)
-    setRefuseReasons([])
   }
 
   const selectedEvent = events.find(e => e.id === selectedEventId)
@@ -1262,7 +1265,9 @@ function OrganizerMainContent({
             const daysPending = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (24 * 60 * 60 * 1000))
             return (
               <motion.div key={app.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -10, transition: { duration: 0.2 } }}
-                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 0', paddingLeft: isBoosted ? '12px' : '0', borderBottom: '1px solid var(--border-color)', borderLeft: isBoosted ? `3px solid ${colors.violet.primary}` : 'none', backgroundColor: isBoosted ? 'rgba(99,102,241,0.05)' : 'transparent' }}>
+                onMouseEnter={() => setHoveredAppId(app.id)}
+                onMouseLeave={() => setHoveredAppId(null)}
+                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '12px 0', paddingLeft: isBoosted ? '12px' : '0', borderBottom: '1px solid var(--border-color)', borderLeft: isBoosted ? `3px solid ${colors.violet.primary}` : 'none', backgroundColor: hoveredAppId === app.id ? (isBoosted ? 'rgba(99,102,241,0.08)' : 'var(--bg-secondary)') : (isBoosted ? 'rgba(99,102,241,0.05)' : 'transparent'), transition: 'background-color 0.15s ease' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: colors.violet.primary, flexShrink: 0, overflow: 'hidden' }}>
                   {app.profiles?.avatar_url
                     ? <Image src={app.profiles.avatar_url} alt="" width={32} height={32} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
@@ -1288,14 +1293,14 @@ function OrganizerMainContent({
                   {app.message && <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '1px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: 'italic' }}>&ldquo;{app.message}&rdquo;</p>}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                  <button onClick={() => handleStatus(app.id, 'accepted', ev?.title, app.creator_id)} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.feedback.success.solid, color: colors.bg.primary, fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                  <motion.button whileTap={{ scale: 0.92 }} onClick={() => handleStatus(app.id, 'accepted', ev?.title, app.creator_id)}
+                    style={{ padding: '5px 10px', borderRadius: '7px', backgroundColor: colors.feedback.success.solid, color: colors.bg.primary, fontSize: '11px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
                     Accepter
-                  </button>
-                  <button onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }} disabled={updatingId === app.id}
-                    style={{ padding: '5px 10px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: colors.feedback.danger.solid, fontSize: '11px', fontWeight: 600, cursor: 'pointer', opacity: updatingId === app.id ? 0.5 : 1 }}>
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.92 }} onClick={() => { setRefuseModal({ appId: app.id, eventTitle: ev?.title, creatorId: app.creator_id }); setRefuseReasons([]) }}
+                    style={{ padding: '5px 10px', borderRadius: '7px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: colors.feedback.danger.solid, fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
                     Refuser
-                  </button>
+                  </motion.button>
                 </div>
               </motion.div>
             )
@@ -1368,10 +1373,10 @@ function OrganizerMainContent({
         footer={
           <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={() => setRefuseModal(null)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Annuler</button>
-            <button onClick={confirmRefuse} disabled={!refuseModal || updatingId === refuseModal.appId}
-              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary, fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer', opacity: refuseModal && updatingId === refuseModal.appId ? 0.5 : 1 }}>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={confirmRefuse} disabled={!refuseModal}
+              style={{ flex: 1, padding: '10px', borderRadius: '8px', backgroundColor: colors.feedback.danger.solid, color: colors.bg.primary, fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
               Confirmer
-            </button>
+            </motion.button>
           </div>
         }
       >

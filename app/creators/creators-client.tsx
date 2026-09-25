@@ -71,6 +71,7 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
   const inView = useInView(ref, { once: true, margin: '-60px' })
   return (
     <motion.div ref={ref} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      whileHover={{ y: -3, transition: { duration: 0.2 } }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }} className={className}>
       {children}
     </motion.div>
