@@ -334,6 +334,7 @@ export default function DashboardPage() {
           .mobile-tab-switch { display: block; }
           .dash-header-label { display: none !important; }
           .dash-header-logout { display: none !important; }
+          .dash-header-actions { display: none !important; }
           .dash-mobile-avatar-row { display: flex !important; }
           .dash-visitor-strip { display: flex !important; overflow-x: auto; gap: 10px; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
           .dash-visitor-strip::-webkit-scrollbar { display: none; }
@@ -443,7 +444,7 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="dash-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Link href="/notifications" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', textDecoration: 'none' }}>
               <Bell size={16} />
             </Link>
