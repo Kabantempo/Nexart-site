@@ -339,6 +339,7 @@ export default function DashboardPage() {
           .dash-left-sidebar { display: none; }
           .sidebar-quick-actions { display: none; }
           .dash-content { padding-bottom: 76px; }
+          .dash-right-area { max-width: 100vw; overflow-x: hidden; }
           .mobile-tab-switch { display: block; }
           .dash-header-label { display: none !important; }
           .dash-header-logout { display: none !important; }
@@ -366,14 +367,21 @@ export default function DashboardPage() {
             flex-direction: column;
             align-items: center;
             gap: 3px;
-            padding: 6px 8px;
+            padding: 6px 4px;
             border-radius: 10px;
             text-decoration: none;
             color: var(--text-secondary);
             font-size: 10px;
             font-weight: 500;
             flex: 1;
+            min-width: 0;
             transition: color 0.15s;
+          }
+          .mobile-quick-bar a span:not(.mob-dot) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
           }
           .mobile-quick-bar a:active { opacity: 0.7; }
           .mobile-quick-bar a.mob-active { color: #6366f1; }
@@ -602,7 +610,7 @@ export default function DashboardPage() {
               <a href="/organizer/analytics" className={pathname === '/organizer/analytics' ? 'mob-active' : ''}><span className="mob-dot" /><BarChart2 size={18} /><span>Analytics</span></a>
               <a href="/organizer/revenue" className={pathname === '/organizer/revenue' ? 'mob-active' : ''}><span className="mob-dot" /><Euro size={18} /><span>Revenus</span></a>
               <a href="/messages" className={pathname === '/messages' ? 'mob-active' : ''}><span className="mob-dot" /><MessageSquare size={18} /><span>Messages</span></a>
-              <a href="/calendrier" className={pathname === '/calendrier' ? 'mob-active' : ''}><span className="mob-dot" /><CalendarDays size={18} /><span>Calendrier</span></a>
+              <a href="/calendrier" className={pathname === '/calendrier' ? 'mob-active' : ''}><span className="mob-dot" /><CalendarDays size={18} /><span>Agenda</span></a>
             </>
           ) : null}
         </div>
