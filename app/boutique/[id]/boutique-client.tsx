@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { supabaseImg } from '@/lib/image-utils'
 import { ShoppingBag, ArrowLeft, Euro, Package, Calendar, ExternalLink } from 'lucide-react'
 import { NexModal } from '@/components/ui/nex-modal'
 import { colors } from '@/lib/design-tokens'
@@ -88,7 +89,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {creator?.avatar_url ? (
-              <Image src={creator.avatar_url} alt={creator?.full_name || ''} width={56} height={56}
+              <Image src={supabaseImg(creator.avatar_url, { width: 112, format: 'webp' })} alt={creator?.full_name || ''} width={56} height={56}
                 style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
             ) : (
               <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: `var(--text-body, ${colors.gray.g800})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -121,7 +122,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
       <div style={{ maxWidth: '900px', margin: '24px auto 0', padding: '0 24px' }}>
         {/* Banner en cours */}
         <div style={{ padding: '14px 18px', borderRadius: '12px', backgroundColor: colors.red.bgFbeb, border: `1px solid ${colors.yellow.primary}`, display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '16px' }}>🛠️</span>
+          <Package size={16} color={colors.red.amber} style={{ flexShrink: 0 }} />
           <div>
             <p style={{ fontSize: '13px', fontWeight: 700, color: colors.red.amber, margin: 0 }}>Boutique en cours de développement</p>
             <p style={{ fontSize: '12px', color: colors.feedback.warning.text, margin: 0 }}>Le paiement direct arrive bientôt — contactez le créateur via la messagerie pour commander.</p>
@@ -144,7 +145,11 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
 
               return (
                 <div key={product.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Voir ${product.title} — ${product.price.toFixed(2)} €`}
                   onClick={() => setSelectedProduct(product)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedProduct(product) } }}
                   style={{
                     backgroundColor: 'var(--bg-primary)', borderRadius: '12px', border: '1px solid var(--border-color)',
                     overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.15s',
@@ -155,7 +160,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
                   {/* Image */}
                   <div style={{ height: '160px', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
                     {product.images?.[0] ? (
-                      <Image src={product.images[0]} alt={product.title} fill style={{ objectFit: 'cover' }} />
+                      <Image src={supabaseImg(product.images[0], { width: 440, format: 'webp' })} alt={product.title} fill style={{ objectFit: 'cover' }} />
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Package size={32} color={colors.border.default} />

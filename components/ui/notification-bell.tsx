@@ -115,7 +115,9 @@ export function NotificationBell({ userId, dark = false }: { userId: string; dar
       {/* Bell button */}
       <button
         onClick={() => { setOpen(!open); if (!open && unread > 0) markAllRead() }}
-        title="Notifications"
+        aria-label={unread > 0 ? `Notifications — ${unread} non lue${unread > 1 ? 's' : ''}` : 'Notifications'}
+        aria-expanded={open}
+        aria-haspopup="true"
         className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors relative ${dark ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-gray-700'}`}
       >
         <Bell size={16} />

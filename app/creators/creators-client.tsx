@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { supabaseImg } from '@/lib/image-utils'
+import { PageTransition } from '@/components/ui/page-transition'
 import { colors } from '@/lib/design-tokens'
 import { NexPagination } from '@/components/ui/nex-pagination'
 import { VerifiedBadge } from '@/components/ui/verified-badge'
@@ -434,6 +435,7 @@ function CreatorsContent() {
 
   // ���� Desktop layout ����������������������������������������������������������������������������������������������������������������������
   return (
+    <PageTransition>
     <div style={{ backgroundColor: 'var(--bg-primary)', minHeight: '100vh' }}>
       <style>{`
         .cr-card { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
@@ -709,6 +711,7 @@ function CreatorsContent() {
         </main>
       </div>
     </div>
+    </PageTransition>
   )
 }
 
