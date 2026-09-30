@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { supabaseImg } from '@/lib/image-utils'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -327,6 +328,18 @@ export function CreatorProfileClient({ id }: Props) {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <style>{`
+        /* QR panel hidden on small screens — overlaps hero content */
+        @media (max-width: 639px) {
+          .cp-qr-panel { display: none !important; }
+          .cp-sidebar { order: -1; margin-bottom: 24px; }
+          .cp-sidebar > div { border-radius: 0 !important; border-left: none !important; border-right: none !important; margin: 0 -16px; }
+        }
+        /* Portfolio grid: 2 cols on very small screens */
+        @media (max-width: 400px) {
+          .cp-portfolio-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
 
       {/* Message modal */}
       {showMsg && (
@@ -373,7 +386,7 @@ export function CreatorProfileClient({ id }: Props) {
         {/* Banner image */}
         {creator.banner_url && (
           <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-            <Image src={creator.banner_url} alt={`Bannière de ${creator.full_name}`} fill style={{ objectFit: 'cover', opacity: 0.35 }} />
+            <Image src={supabaseImg(creator.banner_url, { width: 1200, format: 'webp' })} alt={`Bannière de ${creator.full_name}`} fill style={{ objectFit: 'cover', opacity: 0.35 }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 0%, rgba(15,15,15,0.65) 55%, #0F0F0F 100%)' }} />
           </div>
         )}
@@ -392,7 +405,7 @@ export function CreatorProfileClient({ id }: Props) {
             <div className="relative shrink-0">
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-white/10 shadow-2xl" style={{ position: 'relative', backgroundColor: `${colors.purple.deepDark}` }}>
                 {creator.avatar_url ? (
-                  <Image src={creator.avatar_url} alt={creator.full_name} fill className="object-cover" />
+                  <Image src={supabaseImg(creator.avatar_url, { width: 112, format: 'webp' })} alt={creator.full_name} fill className="object-cover" />
                 ) : (
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.gray.g900 }}>
                     <span className="text-4xl font-bold text-white/80">{creator.full_name?.charAt(0) || '?'}</span>
@@ -481,6 +494,8 @@ export function CreatorProfileClient({ id }: Props) {
 
             {user && !isOwn && (
               <button onClick={() => toggleCreatorFav(resolvedId)}
+                aria-label={favCreatorIds.has(id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                aria-pressed={favCreatorIds.has(id)}
                 className={`flex items-center justify-center px-3 py-2.5 rounded-xl border transition-all ${
                   favCreatorIds.has(id)
                     ? 'bg-rose-500/15 border-rose-500/30 text-rose-400'
@@ -506,6 +521,7 @@ export function CreatorProfileClient({ id }: Props) {
         {/* QR panel — positionné en absolu à droite, toute la hauteur du hero */}
         {showQR && (
           <motion.div
+            className="cp-qr-panel"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             style={{
@@ -567,12 +583,12 @@ export function CreatorProfileClient({ id }: Props) {
               return (
                 <section className="mb-8" style={{ backgroundColor: brandBg, borderRadius: '16px', padding: '16px' }}>
                   <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ color: brandColor }}>Portfolio</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(70px, 25vw, 180px)', gridAutoFlow: 'dense', gap: '6px', width: '100%', minWidth: 0, overflow: 'hidden' }}>
+                  <div className="cp-portfolio-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 'clamp(70px, 25vw, 180px)', gridAutoFlow: 'dense', gap: '6px', width: '100%', minWidth: 0, overflow: 'hidden' }}>
                     {grid.map((item, idx) => (
                       <button key={idx} type="button" onClick={() => !portfolioImgErrors.has(idx) && setLightboxIdx(idx)} aria-label={`Voir photo ${idx + 1}`} disabled={portfolioImgErrors.has(idx)} style={{ gridColumn: `span ${item.colSpan}`, gridRow: `span ${item.rowSpan}`, borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)', position: 'relative', cursor: !portfolioImgErrors.has(idx) ? 'zoom-in' : 'default', padding: 0, border: 'none', display: 'block' }} className="group focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-1">
                         {!portfolioImgErrors.has(idx) ? (
                           <Image
-                            src={item.url}
+                            src={supabaseImg(item.url, { width: 600, format: 'webp' })}
                             alt={`Portfolio ${idx + 1}`}
                             fill
                             style={{ objectFit: 'cover', objectPosition: (item as any).objectPosition ?? '50% 50%' }}
@@ -580,9 +596,7 @@ export function CreatorProfileClient({ id }: Props) {
                             onError={() => setPortfolioImgErrors(prev => new Set([...prev, idx]))}
                           />
                         ) : (
-                          <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontSize: '28px', opacity: 0.4 }}>🖼️</span>
-                          </div>
+                          <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)` }} />
                         )}
                       </button>
                     ))}
@@ -612,7 +626,7 @@ export function CreatorProfileClient({ id }: Props) {
             {/* Carnet de route */}
             {itinerary.length > 0 && (
               <section className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-3">🗺️ Carnet de route</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-3" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={16} />Carnet de route</h2>
                 <div className="flex flex-col gap-2.5">
                   {itinerary.map(entry => (
                     <div key={entry.id} style={{ padding: '12px 16px', borderRadius: '10px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -655,7 +669,7 @@ export function CreatorProfileClient({ id }: Props) {
 
           {/* Sidebar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-            className="lg:sticky lg:top-20 h-fit">
+            className="cp-sidebar lg:sticky lg:top-20 h-fit">
             <div style={{ borderRadius: '20px', border: `2px solid ${colors.violet.primary}`, boxShadow: '0 0 0 3px rgba(99,102,241,0.12), 0 8px 32px rgba(99,102,241,0.10)', backgroundColor: colors.bg.primary, padding: '24px' }}>
 
               {/* Stats */}
@@ -759,7 +773,7 @@ export function CreatorProfileClient({ id }: Props) {
             style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
           >
             {/* Close */}
-            <button onClick={() => setLightboxIdx(null)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
+            <button onClick={() => setLightboxIdx(null)} aria-label="Fermer la lightbox" style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
               <X size={20} />
             </button>
 
@@ -770,7 +784,7 @@ export function CreatorProfileClient({ id }: Props) {
 
             {/* Prev */}
             {lightboxIdx > 0 && (
-              <button onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx - 1) }} style={{ position: 'absolute', left: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: '20px' }}>
+              <button aria-label="Photo précédente" onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx - 1) }} style={{ position: 'absolute', left: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: '20px' }}>
                 ‹
               </button>
             )}
@@ -786,7 +800,7 @@ export function CreatorProfileClient({ id }: Props) {
 
             {/* Next */}
             {lightboxIdx < grid.length - 1 && (
-              <button onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx + 1) }} style={{ position: 'absolute', right: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: '20px' }}>
+              <button aria-label="Photo suivante" onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx + 1) }} style={{ position: 'absolute', right: '16px', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: '20px' }}>
                 ›
               </button>
             )}
