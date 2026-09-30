@@ -3,6 +3,7 @@
 import { useEvent, useApplication, useFavorites } from '@/lib/hooks'
 import { useAuthStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { supabaseImg } from '@/lib/image-utils'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -111,7 +112,7 @@ function StandsManager({ eventId }: { eventId: string }) {
     <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <p style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Gestion des stands</p>
-        <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '18px' }}>×</button>
+        <button onClick={() => setOpen(false)} aria-label="Fermer la gestion des stands" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '18px' }}>×</button>
       </div>
       {loading ? <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Chargement…</p> : (
         <>
@@ -122,7 +123,7 @@ function StandsManager({ eventId }: { eventId: string }) {
                 {s.dimensions && <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{s.dimensions}</span>}
                 <span style={{ flex: 1 }} />
                 {s.creator_id && <span style={{ fontSize: '11px', color: colors.violet.primary, fontWeight: '600' }}>Assigné</span>}
-                <button onClick={() => deleteStand(s.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.feedback.danger.solid, fontSize: '16px' }}>×</button>
+                <button onClick={() => deleteStand(s.id)} aria-label={`Supprimer le stand #${s.stand_number}`} style={{ background: 'none', border: 'none', cursor: 'pointer', color: colors.feedback.danger.solid, fontSize: '16px' }}>×</button>
               </div>
             ))}
             {stands.length === 0 && <p style={{ fontSize: '13px', color: 'var(--text-secondary)', textAlign: 'center' }}>Aucun stand créé</p>}
@@ -593,7 +594,7 @@ export function EventDetailClient({ id }: Props) {
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <div className="ev-hero" style={{ position: 'relative', backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
         {event.cover_image
-          ? <Image src={event.cover_image} alt={event.title} fill style={{ objectFit: 'cover' }} priority />
+          ? <Image src={supabaseImg(event.cover_image, { width: 1200, format: 'webp' })} alt={event.title} fill style={{ objectFit: 'cover' }} priority />
           : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg, ${colors.violet.primary} 0%, ${colors.violet.hover} 100%)` }} />
         }
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.25) 50%, transparent 100%)' }} />

@@ -9,6 +9,7 @@ import { colors } from '@/lib/design-tokens'
 import { useAuthStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { supabaseImg } from '@/lib/image-utils'
+import { PageTransition } from '@/components/ui/page-transition'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -705,6 +706,7 @@ export default function EventsClient() {
   }
 
   return (
+    <PageTransition>
     <>
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -916,5 +918,6 @@ export default function EventsClient() {
         )}
       </div>
     </>
+    </PageTransition>
   )
 }
