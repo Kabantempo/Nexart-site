@@ -37,13 +37,13 @@ function FeaturedCarousel({ items }: { items: CreatorItem[] }) {
         onClick={() => router.push(`/creators/${feat.id}`)}
         style={{ height: 210, position: 'relative', backgroundColor: 'var(--ev-card-bg)', cursor: 'pointer', overflow: 'hidden' }}>
         {(feat.portfolio_images?.[0] || feat.avatar_url) && (
-          <Image src={supabaseImg(feat.portfolio_images?.[0] || feat.avatar_url, { width: 600, format: 'webp' })} alt={feat.full_name || ''} fill style={{ objectFit: 'cover' }} />
+          <Image src={supabaseImg(feat.portfolio_images?.[0] || feat.avatar_url, { width: 600, format: 'webp' })} alt={feat.full_name || ''} fill priority style={{ objectFit: 'cover' }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,20,0.92) 0%, rgba(10,10,20,0.25) 60%, transparent 100%)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-end', gap: 10 }}>
           {feat.avatar_url && (
             <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.5)', boxShadow: '0 2px 8px rgba(0,0,0,0.5)', position: 'relative' }}>
-              <Image src={supabaseImg(feat.avatar_url, { width: 80, format: 'webp' })} alt="" fill sizes="40px" style={{ objectFit: 'cover' }} />
+              <Image src={supabaseImg(feat.avatar_url, { width: 80, format: 'webp' })} alt="" fill priority sizes="40px" style={{ objectFit: 'cover' }} />
             </div>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
