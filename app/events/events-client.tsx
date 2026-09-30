@@ -8,6 +8,7 @@ import type { Event as NexartEvent } from '@/lib/types'
 import { colors } from '@/lib/design-tokens'
 import { useAuthStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { supabaseImg } from '@/lib/image-utils'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -92,7 +93,7 @@ function EventCard({ event, onClick, index = 0 }: { event: NexartEvent; onClick:
       <div style={{ position: 'relative', width: '100%', height: IMG_H, flexShrink: 0 }}>
         {event.cover_image ? (
           <Image
-            src={event.cover_image}
+            src={supabaseImg(event.cover_image, { width: 600, format: 'webp' })}
             alt={event.title}
             fill
             sizes={`${CARD_W}px`}
@@ -244,7 +245,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
       >
         {/* background image */}
         {ev.cover_image ? (
-          <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} />
+          <Image src={supabaseImg(ev.cover_image, { width: 800, format: 'webp' })} alt={ev.title} fill style={{ objectFit: 'cover' }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, backgroundColor: 'var(--ev-card-bg2)' }} />
         )}
@@ -609,7 +610,7 @@ export default function EventsClient() {
                         style={{ borderRadius: 6, backgroundColor: 'var(--ev-card-bg)', border: `1.5px solid ${colors.violet.primary}30`, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
                       >
                         <div style={{ position: 'relative', width: '100%', height: 160, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
-                          {ev.cover_image && <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
+                          {ev.cover_image && <Image src={supabaseImg(ev.cover_image, { width: 320, format: 'webp' })} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
                           <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{st.label}</span>
                         </div>
                         <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 7, flex: 1 }}>
@@ -670,7 +671,7 @@ export default function EventsClient() {
                       style={{ borderRadius: 6, backgroundColor: 'var(--ev-card-bg)', border: '1px solid var(--border-color)', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
                     >
                       <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
-                        {ev.cover_image && <Image src={ev.cover_image} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
+                        {ev.cover_image && <Image src={supabaseImg(ev.cover_image, { width: 320, format: 'webp' })} alt={ev.title} fill style={{ objectFit: 'cover' }} sizes="320px" />}
                         <span style={{ position: 'absolute', top: 10, left: 10, backgroundColor: st.color, color: colors.text.white, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>{st.label}</span>
                         {(!ev.stand_price || ev.stand_price === 0) && (
                           <span style={{ position: 'absolute', top: 10, right: 10, backgroundColor: colors.green.primary, color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>Gratuit</span>
