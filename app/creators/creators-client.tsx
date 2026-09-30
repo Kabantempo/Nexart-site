@@ -8,6 +8,7 @@ import { MapPin, ArrowRight, Search, X, ArrowUpAZ, Clock, Palette, Sparkles, Bad
 import { useState, useEffect, Suspense, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { supabaseImg } from '@/lib/image-utils'
 import { colors } from '@/lib/design-tokens'
 import { NexPagination } from '@/components/ui/nex-pagination'
 import { VerifiedBadge } from '@/components/ui/verified-badge'
@@ -35,13 +36,13 @@ function FeaturedCarousel({ items }: { items: CreatorItem[] }) {
         onClick={() => router.push(`/creators/${feat.id}`)}
         style={{ height: 210, position: 'relative', backgroundColor: 'var(--ev-card-bg)', cursor: 'pointer', overflow: 'hidden' }}>
         {(feat.portfolio_images?.[0] || feat.avatar_url) && (
-          <Image src={feat.portfolio_images?.[0] || feat.avatar_url!} alt={feat.full_name || ''} fill style={{ objectFit: 'cover' }} />
+          <Image src={supabaseImg(feat.portfolio_images?.[0] || feat.avatar_url, { width: 600, format: 'webp' })} alt={feat.full_name || ''} fill style={{ objectFit: 'cover' }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,20,0.92) 0%, rgba(10,10,20,0.25) 60%, transparent 100%)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '14px 16px 12px', display: 'flex', alignItems: 'flex-end', gap: 10 }}>
           {feat.avatar_url && (
             <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.5)', boxShadow: '0 2px 8px rgba(0,0,0,0.5)', position: 'relative' }}>
-              <Image src={feat.avatar_url} alt="" fill sizes="40px" style={{ objectFit: 'cover' }} />
+              <Image src={supabaseImg(feat.avatar_url, { width: 80, format: 'webp' })} alt="" fill sizes="40px" style={{ objectFit: 'cover' }} />
             </div>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -278,12 +279,12 @@ function CreatorsContent() {
       >
         <div style={{ position: 'relative', width: '100%', height: IMG_H, flexShrink: 0, backgroundColor: 'var(--ev-card-bg2)' }}>
           {((c as any).page_settings?.cover_image ?? (c as any).banner_url ?? c.portfolio_images?.[0]) ? (
-            <Image src={(c as any).page_settings?.cover_image ?? (c as any).banner_url ?? c.portfolio_images[0]} alt={c.full_name || ''} fill sizes={`${CARD_W}px`} style={{ objectFit: 'cover' }} />
+            <Image src={supabaseImg((c as any).page_settings?.cover_image ?? (c as any).banner_url ?? c.portfolio_images[0], { width: CARD_W, format: 'webp' })} alt={c.full_name || ''} fill sizes={`${CARD_W}px`} style={{ objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: `linear-gradient(135deg, ${colors.violet.primary}18 0%, ${colors.violet.primary}08 100%)` }}>
               {c.avatar_url ? (
                 <div style={{ width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', border: `3px solid ${colors.violet.primary}30`, flexShrink: 0, position: 'relative' }}>
-                  <Image src={c.avatar_url} alt={c.full_name || ''} fill sizes="72px" style={{ objectFit: 'cover' }} />
+                  <Image src={supabaseImg(c.avatar_url, { width: 144, format: 'webp' })} alt={c.full_name || ''} fill sizes="72px" style={{ objectFit: 'cover' }} />
                 </div>
               ) : (
                 <span style={{ fontSize: 34, fontWeight: 800, color: colors.violet.primary, opacity: 0.7 }}>{c.full_name?.slice(0, 2).toUpperCase() || '?'}</span>
@@ -392,7 +393,7 @@ function CreatorsContent() {
                       <div style={{ position: 'relative', width: 54, height: 54, borderRadius: '50%', flexShrink: 0, padding: 2.5, background: c.siret_verified ? `linear-gradient(135deg, ${colors.violet.primary}, ${colors.purple.violet}, ${colors.fuchsia.primary})` : `linear-gradient(135deg, ${colors.gray['300']}, ${colors.text.light})` }}>
                         <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', backgroundColor: 'var(--ev-card-bg2)', border: '2px solid var(--bg-primary)' }}>
                           {(c.avatar_url || c.portfolio_images?.[0]) ? (
-                            <Image src={c.avatar_url || c.portfolio_images![0]} alt={c.full_name || ''} fill sizes="54px" style={{ objectFit: 'cover' }} />
+                            <Image src={supabaseImg(c.avatar_url || c.portfolio_images![0], { width: 108, format: 'webp' })} alt={c.full_name || ''} fill sizes="54px" style={{ objectFit: 'cover' }} />
                           ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               <span style={{ fontSize: 18, fontWeight: 800, color: colors.violet.primary }}>{c.full_name?.slice(0, 1).toUpperCase() || '?'}</span>
@@ -629,12 +630,12 @@ function CreatorsContent() {
                       {/* Image 180px */}
                       <div style={{ position: 'relative', width: '100%', height: 180, flexShrink: 0, backgroundColor: 'var(--bg-secondary)', overflow: 'hidden' }}>
                         {((creator as any).page_settings?.cover_image ?? (creator as any).banner_url ?? creator.portfolio_images?.[0]) ? (
-                          <Image src={(creator as any).page_settings?.cover_image ?? (creator as any).banner_url ?? creator.portfolio_images[0]} alt={creator.full_name || ''} fill className="cr-img" style={{ objectFit: 'cover' }} sizes="360px" />
+                          <Image src={supabaseImg((creator as any).page_settings?.cover_image ?? (creator as any).banner_url ?? creator.portfolio_images[0], { width: 360, format: 'webp' })} alt={creator.full_name || ''} fill className="cr-img" style={{ objectFit: 'cover' }} sizes="360px" />
                         ) : (
                           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `linear-gradient(135deg, ${colors.violet.primary}10 0%, ${colors.violet.primary}04 100%)` }}>
                             {creator.avatar_url ? (
                               <div style={{ width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', border: `3px solid ${colors.violet.primary}30`, position: 'relative' }}>
-                                <Image src={creator.avatar_url} alt="" fill sizes="72px" style={{ objectFit: 'cover' }} />
+                                <Image src={supabaseImg(creator.avatar_url, { width: 144, format: 'webp' })} alt="" fill sizes="72px" style={{ objectFit: 'cover' }} />
                               </div>
                             ) : (
                               <span style={{ fontSize: 36, fontWeight: 800, color: colors.violet.primary, opacity: 0.7 }}>{creator.full_name?.slice(0, 2).toUpperCase() || '?'}</span>
@@ -655,7 +656,7 @@ function CreatorsContent() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           {creator.avatar_url && (
                             <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid var(--border-color)', position: 'relative' }}>
-                              <Image src={creator.avatar_url} alt="" fill sizes="36px" style={{ objectFit: 'cover' }} />
+                              <Image src={supabaseImg(creator.avatar_url, { width: 72, format: 'webp' })} alt="" fill sizes="36px" style={{ objectFit: 'cover' }} />
                             </div>
                           )}
                           <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>{creator.full_name}</p>
