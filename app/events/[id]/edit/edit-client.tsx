@@ -438,7 +438,7 @@ export default function EditEventClient({ eventId }: { eventId: string }) {
               <Field label="Image de couverture">
                 {form.cover_image ? (
                   <div style={{ position: 'relative', width: '100%', maxWidth: '320px' }}>
-                    <img src={form.cover_image} alt="cover" style={{ width: '100%', borderRadius: radius.sm, objectFit: 'cover', maxHeight: '180px', display: 'block' }} />
+                    <img src={form.cover_image} alt="Image de couverture de l'événement" style={{ width: '100%', borderRadius: radius.sm, objectFit: 'cover', maxHeight: '180px', display: 'block' }} />
                     <button onClick={() => setForm(f => ({ ...f, cover_image: '' }))}
                       style={{ position: 'absolute', top: '6px', right: '6px', width: '26px', height: '26px', borderRadius: radius.pill, border: 'none', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <X size={13} />

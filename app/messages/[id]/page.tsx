@@ -82,7 +82,7 @@ function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={url}
-        alt="image"
+        alt="Image partagée dans la conversation"
         onClick={e => e.stopPropagation()}
         style={{
           maxWidth: '90vw', maxHeight: '90vh',
