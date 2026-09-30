@@ -230,7 +230,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
           <>
             {selectedProduct.images?.[0] && (
               <div style={{ margin: '-20px -24px 16px', overflow: 'hidden' }}>
-                <Image src={selectedProduct.images[0]} alt={selectedProduct.title} width={480} height={200} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
+                <Image src={supabaseImg(selectedProduct.images[0], { width: 480, format: 'webp' })} alt={selectedProduct.title} width={480} height={200} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
               </div>
             )}
             {selectedProduct.description && (

@@ -717,7 +717,7 @@ export function EventDetailClient({ id }: Props) {
                   {(event as unknown as { gallery_images: string[] }).gallery_images.map((url: string, i: number) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer"
                       style={{ display: 'block', borderRadius: 6, overflow: 'hidden', aspectRatio: '1', backgroundColor: 'var(--bg-secondary)', position: 'relative' }}>
-                      <Image src={url} alt={`Photo ${i + 1}`} fill style={{ objectFit: 'cover' }} />
+                      <Image src={supabaseImg(url, { width: 400, format: 'webp' })} alt={`Photo ${i + 1}`} fill style={{ objectFit: 'cover' }} />
                     </a>
                   ))}
                 </div>

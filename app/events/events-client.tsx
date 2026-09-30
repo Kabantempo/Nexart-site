@@ -246,7 +246,7 @@ function FeaturedCarousel({ events, loading, onCardClick }: {
       >
         {/* background image */}
         {ev.cover_image ? (
-          <Image src={supabaseImg(ev.cover_image, { width: 800, format: 'webp' })} alt={ev.title} fill style={{ objectFit: 'cover' }} />
+          <Image src={supabaseImg(ev.cover_image, { width: 800, format: 'webp' })} alt={ev.title} fill priority style={{ objectFit: 'cover' }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, backgroundColor: 'var(--ev-card-bg2)' }} />
         )}
