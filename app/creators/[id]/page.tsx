@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Script from 'next/script'
 import { redirect } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { supabaseImg } from '@/lib/image-utils'
 import { CreatorProfileClient } from './creator-profile'
 
 export const dynamicParams = true
@@ -42,9 +43,13 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
 
     const title = creator.full_name
     const description = creator.bio?.substring(0, 160) || 'Découvrez ce créateur sur Nexart'
-    const ogImages = creator.avatar_url
-      ? [{ url: creator.avatar_url, width: 500, height: 500, alt: `${title} — Créateur sur Nexart` }]
-      : [{ url: 'https://nexart.fr/og-image.png', width: 1200, height: 630, alt: `${title} — Créateur sur Nexart` }]
+    const { data: extra } = await supabase.from('creator_profiles').select('disciplines, city').eq('user_id', resolvedId).maybeSingle()
+    const ogUrl = new URL('https://nexart.fr/api/og/creator')
+    ogUrl.searchParams.set('name', creator.full_name || '')
+    if (extra?.city) ogUrl.searchParams.set('city', extra.city)
+    if (extra?.disciplines?.length) ogUrl.searchParams.set('disciplines', extra.disciplines.slice(0, 3).join(','))
+    if (creator.avatar_url) ogUrl.searchParams.set('avatar', supabaseImg(creator.avatar_url, { width: 440 }))
+    const ogImages = [{ url: ogUrl.toString(), width: 1200, height: 630, alt: `${title} — Créateur sur Nexart` }]
 
     return {
       title,

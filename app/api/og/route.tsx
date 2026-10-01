@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     ? new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date))
     : ''
 
-  const locationLabel = city ? `📍 ${city}` : ''
+  const locationLabel = city
 
   return new ImageResponse(
     (
@@ -90,9 +90,7 @@ export async function GET(req: NextRequest) {
                 justifyContent: 'center',
                 fontSize: '18px',
               }}
-            >
-              ✦
-            </div>
+            />
             <span style={{ color: colors.violet.hover, fontSize: '18px', fontWeight: 600, letterSpacing: '0.05em' }}>
               NEXART
             </span>
@@ -128,7 +126,7 @@ export async function GET(req: NextRequest) {
             {/* Title */}
             <div
               style={{
-                color: colors.bg.primary,
+                color: colors.text.white,
                 fontSize: title.length > 40 ? '42px' : title.length > 25 ? '52px' : '60px',
                 fontWeight: 800,
                 lineHeight: 1.1,
@@ -142,7 +140,7 @@ export async function GET(req: NextRequest) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
               {dateLabel ? (
                 <span style={{ color: colors.gray.soft, fontSize: '20px', fontWeight: 500 }}>
-                  🗓 {dateLabel}
+                  {dateLabel}
                 </span>
               ) : null}
               {locationLabel ? (
@@ -161,7 +159,7 @@ export async function GET(req: NextRequest) {
                 background: colors.violet.primary,
                 borderRadius: '12px',
                 padding: '12px 24px',
-                color: colors.bg.primary,
+                color: colors.text.white,
                 fontSize: '16px',
                 fontWeight: 700,
               }}

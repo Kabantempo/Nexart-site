@@ -89,7 +89,7 @@ export default function BoutiqueClient({ creatorId }: { creatorId: string }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {creator?.avatar_url ? (
-              <Image src={supabaseImg(creator.avatar_url, { width: 112, format: 'webp' })} alt={creator?.full_name || ''} width={56} height={56}
+              <Image src={supabaseImg(creator.avatar_url, { width: 112, format: 'webp' })} alt={creator?.full_name || ''} priority width={56} height={56}
                 style={{ borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }} />
             ) : (
               <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: `var(--text-body, ${colors.gray.g800})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
